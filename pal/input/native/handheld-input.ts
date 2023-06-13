@@ -42,8 +42,8 @@ interface IPoseValue {
 type NativePoseState = Record<Pose, IPoseValue>
 
 export class HandheldInputDevice {
-    public get handheldPosition () { return this._handheldPosition; }
-    public get handheldOrientation () { return this._handheldOrientation; }
+    public get handheldPosition (): InputSourcePosition { return this._handheldPosition; }
+    public get handheldOrientation (): InputSourceOrientation { return this._handheldOrientation; }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -59,8 +59,8 @@ export class HandheldInputDevice {
         this._registerEvent();
     }
 
-    private _registerEvent () {
-        jsb.onHandheldPoseInput = (infoList: jsb.PoseInfo[]) => {
+    private _registerEvent (): void {
+        jsb.onHandheldPoseInput = (infoList: jsb.PoseInfo[]): void => {
             for (let i = 0; i < infoList.length; ++i) {
                 const info = infoList[i];
                 this._updateNativePoseState(info);
@@ -73,11 +73,11 @@ export class HandheldInputDevice {
     /**
      * @engineInternal
      */
-    public _on (eventType: InputEventType, callback: HandheldCallback, target?: any) {
+    public _on (eventType: InputEventType, callback: HandheldCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 
-    private _updateNativePoseState (info: jsb.PoseInfo) {
+    private _updateNativePoseState (info: jsb.PoseInfo): void {
         switch (info.code) {
         case 7:
             this._nativePoseState[Pose.AR_MOBILE] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
@@ -87,11 +87,11 @@ export class HandheldInputDevice {
         }
     }
 
-    private _initInputSource () {
+    private _initInputSource (): void {
         this._handheldPosition = new InputSourcePosition();
-        this._handheldPosition.getValue = () => this._nativePoseState[Pose.AR_MOBILE].position;
+        this._handheldPosition.getValue = (): Vec3 => this._nativePoseState[Pose.AR_MOBILE].position;
 
         this._handheldOrientation = new InputSourceOrientation();
-        this._handheldOrientation.getValue = () => this._nativePoseState[Pose.AR_MOBILE].orientation;
+        this._handheldOrientation.getValue = (): Quat => this._nativePoseState[Pose.AR_MOBILE].orientation;
     }
 }

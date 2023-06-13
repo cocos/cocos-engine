@@ -78,15 +78,15 @@ export class PostProcessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline, flow: RenderFlow) {
+    public activate (pipeline: RenderPipeline, flow: RenderFlow): void {
         super.activate(pipeline, flow);
         if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).postprocessMaterial = this._postProcessMaterial; }
         this._uiPhase.activate(pipeline);
     }
 
-    public destroy () {
+    public destroy (): void {
     }
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;

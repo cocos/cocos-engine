@@ -139,7 +139,7 @@ export default class Cache<T = any> implements ICache<T> {
     /**
      * @engineInternal
      */
-    public get map () {
+    public get map (): Record<string, T> | null {
         return this._map;
     }
     protected _map: Record<string, T> | null = null;

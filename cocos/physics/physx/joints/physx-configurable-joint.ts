@@ -37,7 +37,7 @@ const CC_QUAT_0 = new Quat();
 const CC_QUAT_1 = new Quat();
 const CC_MAT4_0 = new Mat4();
 
-function getConstraintFlag (v: EConstraintMode) {
+function getConstraintFlag (v: EConstraintMode): any {
     switch (v) {
     case EConstraintMode.FREE: return PX.D6Motion.eFREE;
     case EConstraintMode.LIMITED: return PX.D6Motion.eLIMITED;
@@ -48,14 +48,14 @@ function getConstraintFlag (v: EConstraintMode) {
 }
 
 export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableConstraint {
-    protected _setLinearLimit () {
+    protected _setLinearLimit (): void {
         const linearLimit = this.constraint.linearLimitSettings;
 
         const limitPairX = PhysXConfigurableJoint._linearLimitX;
         const limitPairY = PhysXConfigurableJoint._linearLimitY;
         const limitPairZ = PhysXConfigurableJoint._linearLimitZ;
 
-        const setLimitPair = (limitPair: any) => {
+        const setLimitPair = (limitPair: any): void => {
             if (linearLimit.enableSoftConstraint) {
                 limitPair.stiffness = linearLimit.stiffness;
                 limitPair.damping = linearLimit.damping;
@@ -93,7 +93,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         }
     }
 
-    protected _setSwingLimit () {
+    protected _setSwingLimit (): void {
         const angularLimit = this.constraint.angularLimitSettings;
         const limitCone = PhysXConfigurableJoint._swingLimit;
 
@@ -121,7 +121,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         }
     }
 
-    protected _setTwistLimit () {
+    protected _setTwistLimit (): void {
         const angularLimit = this.constraint.angularLimitSettings;
         const limitPair = PhysXConfigurableJoint._twistLimit;
 
@@ -144,14 +144,14 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         }
     }
 
-    protected _updateDrive (idx: number) {
+    protected _updateDrive (idx: number): void {
         let axis = PX.D6Axis.eX;
         let driveMode = EDriverMode.DISABLED;
         const com = this.constraint;
         const ld = com.linearDriverSettings;
         const ad = com.angularDriverSettings;
 
-        const getSwingDriveMode =  () => {
+        const getSwingDriveMode =  (): EDriverMode => {
             const ad = this.constraint.angularDriverSettings;
             if (ad.swingDrive1 === EDriverMode.INDUCTION || ad.swingDrive2 === EDriverMode.INDUCTION) {
                 return EDriverMode.INDUCTION;
@@ -189,7 +189,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this._impl.setDrive(axis, drive);
     }
 
-    protected _updateDriveTarget () {
+    protected _updateDriveTarget (): void {
         const linearTarget = this.constraint.linearDriverSettings.targetPosition;
         const angularTarget = this.constraint.angularDriverSettings.targetOrientation;
         const quat = Quat.fromEuler(CC_QUAT_0, angularTarget.x, angularTarget.y, angularTarget.z);
@@ -197,7 +197,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this._impl.setDrivePosition(_pxtrans, true);
     }
 
-    protected _updateDriveVelocity () {
+    protected _updateDriveVelocity (): void {
         const linearVelocity = this.constraint.linearDriverSettings.targetVelocity;
         const angularVelocity = this.constraint.angularDriverSettings.targetVelocity;
         const lv = Vec3.set(CC_V3_0, linearVelocity.x, linearVelocity.y, linearVelocity.z);
@@ -205,7 +205,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this._impl.setDriveVelocity(lv, av, true);
     }
 
-    protected _updateDriveSettings () {
+    protected _updateDriveSettings (): void {
         this._updateDrive(0);
         this._updateDrive(1);
         this._updateDrive(2);
@@ -361,7 +361,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this.updateFrames();
     }
 
-    updateFrames () {
+    updateFrames (): void {
         const cs = this.constraint;
         const node = cs.node;
         const pos = _trans.translation;
@@ -426,7 +426,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
     private static _drive_swing1: any= null;
     private static _drive_swing2: any= null;
     private static _drive: any[] = [];
-    private static _initCache () {
+    private static _initCache (): void {
         if (!PhysXConfigurableJoint._jointToleranceScale) {
             PhysXConfigurableJoint._jointToleranceScale = PhysXInstance.physics.getTolerancesScale();
             PhysXConfigurableJoint._linearLimitX = new PX.PxJointLinearLimitPair(PhysXConfigurableJoint._jointToleranceScale, 0, 0);

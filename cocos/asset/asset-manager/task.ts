@@ -176,7 +176,7 @@ export default class Task {
     /**
      * @deprecated Typo. Since v3.7, please use [[Task.isFinished]] instead.
      */
-    public get isFinish () {
+    public get isFinish (): boolean {
         return this.isFinished;
     }
 
@@ -250,7 +250,7 @@ export default class Task {
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      *
      */
-    public set (options: ITaskOption = Object.create(null)) {
+    public set (options: ITaskOption = Object.create(null)): void {
         this.onComplete = options.onComplete || null;
         this.onProgress = options.onProgress || null;
         this.onError = options.onError || null;

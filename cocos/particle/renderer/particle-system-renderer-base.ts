@@ -37,7 +37,7 @@ export abstract class ParticleSystemRendererBase {
     /**
      * @engineInternal
      */
-    public get model () {
+    public get model (): ParticleBatchModel | null {
         return this._model;
     }
     protected _model: ParticleBatchModel | null = null;
@@ -58,15 +58,15 @@ export abstract class ParticleSystemRendererBase {
         return this._useInstance;
     }
 
-    public getInfo () {
+    public getInfo (): ParticleSystemRenderer {
         return this._renderInfo!;
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: Component): void {
         this._particleSystem = ps;
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -77,18 +77,18 @@ export abstract class ParticleSystemRendererBase {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.detachFromScene();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._model) {
             cclegacy.director.root.destroyModel(this._model);
             this._model = null;
         }
     }
 
-    public attachToScene () {
+    public attachToScene (): void {
         if (this._model) {
             if (this._model.scene) {
                 this.detachFromScene();
@@ -97,28 +97,28 @@ export abstract class ParticleSystemRendererBase {
         }
     }
 
-    public detachFromScene () {
+    public detachFromScene (): void {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }
     }
 
-    public setVertexAttributes () {
+    public setVertexAttributes (): void {
         if (this._model) {
             this.updateVertexAttrib();
             this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
     }
 
-    public clear () {
+    public clear (): void {
         if (this._model) this._model.enabled = false;
     }
 
-    public getModel () {
+    public getModel (): ParticleBatchModel | null {
         return this._model;
     }
 
-    protected _initModel () {
+    protected _initModel (): void {
         if (!this._model) {
             this._model = cclegacy.director.root.createModel(ParticleBatchModel);
             this._model!.setCapacity(this._particleSystem.capacity);
@@ -126,8 +126,8 @@ export abstract class ParticleSystemRendererBase {
         }
     }
 
-    public updateTrailMaterial () {}
-    public getDefaultTrailMaterial () { return null; }
+    public updateTrailMaterial (): void {}
+    public getDefaultTrailMaterial (): null { return null; }
     public abstract getParticleCount () : number;
     public abstract getFreeParticle (): Particle | null;
     public abstract onMaterialModified (index: number, material: Material) : void;

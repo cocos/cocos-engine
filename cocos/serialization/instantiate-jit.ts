@@ -59,7 +59,7 @@ class Declaration {
         this.expression = expression;
     }
 
-    public toString () {
+    public toString (): string {
         return `${VAR + this.varName}=${this.expression};`;
     }
 }
@@ -68,7 +68,7 @@ class Declaration {
 // -> 'var b = a = x';
 // ('a =', 'x')
 // -> 'a = x';
-function mergeDeclaration (statement, expression) {
+function mergeDeclaration (statement, expression): any {
     if (expression instanceof Declaration) {
         return new Declaration(expression.varName, statement + expression.expression);
     } else {
@@ -83,7 +83,7 @@ function mergeDeclaration (statement, expression) {
 // -> 'var b = a = x;'
 // ('a', 'x')
 // -> 'a = x;'
-function writeAssignment (codeArray, statement, expression) {
+function writeAssignment (codeArray, statement, expression): void {
     if (Array.isArray(expression)) {
         expression[0] = mergeDeclaration(statement, expression[0]);
         codeArray.push(expression);
@@ -109,10 +109,10 @@ class Assignments {
         this._exps = [];
         this._targetExp = targetExpression;
     }
-    public append (key, expression) {
+    public append (key, expression): void {
         this._exps.push([key, expression]);
     }
-    public writeCode (codeArray) {
+    public writeCode (codeArray): void {
         let targetVar;
         if (this._exps.length > 1) {
             codeArray.push(`${LOCAL_TEMP_OBJ}=${this._targetExp};`);
@@ -135,7 +135,7 @@ Assignments.pool = new js.Pool((obj: any) => {
     obj._targetExp = null;
 }, 1);
 // HACK: here we've changed the signature of get method
-(Assignments.pool.get as any) = function (this: any, targetExpression) {
+(Assignments.pool.get as any) = function (this: any, targetExpression): Assignments {
     const cache: any = this._get() || new Assignments();
     cache._targetExp = targetExpression;
     return cache as Assignments;
@@ -143,7 +143,7 @@ Assignments.pool = new js.Pool((obj: any) => {
 
 // HELPER FUNCTIONS
 
-function getPropAccessor (key) {
+function getPropAccessor (key): string {
     return IDENTIFIER_RE.test(key) ? (`.${key}`) : (`[${escapeForJS(key)}]`);
 }
 
@@ -234,7 +234,7 @@ class Parser {
         this.objsToClear_iN$t.length = 0;
     }
 
-    public getFuncModule (func, usedInNew?) {
+    public getFuncModule (func, usedInNew?): any {
         const clsName = js.getClassName(func);
         if (clsName) {
             const cache = this.funcModuleCache[clsName];
@@ -267,7 +267,7 @@ class Parser {
         return res;
     }
 
-    public getObjRef (obj) {
+    public getObjRef (obj): string {
         let index = this.objs.indexOf(obj);
         if (index < 0) {
             index = this.objs.length;
@@ -276,7 +276,7 @@ class Parser {
         return `O[${index}]`;
     }
 
-    public setValueType (codeArray, defaultValue, srcValue, targetExpression) {
+    public setValueType (codeArray, defaultValue, srcValue, targetExpression): void {
         // HACK: here we've changed the signature of get method.
         const assignments: any = (Assignments.pool.get as any)(targetExpression);
         let fastDefinedProps = defaultValue.constructor.__props__;
@@ -296,7 +296,7 @@ class Parser {
         Assignments.pool.put(assignments);
     }
 
-    public enumerateCCClass (codeArray, obj, klass) {
+    public enumerateCCClass (codeArray, obj, klass): void {
         const props = klass.__values__;
         const attrs = CCClass.Attr.getClassAttrs(klass);
         for (let p = 0; p < props.length; p++) {
@@ -319,7 +319,7 @@ class Parser {
         }
     }
 
-    public instantiateArray (value) {
+    public instantiateArray (value): Declaration[] | '[]' {
         if (value.length === 0) {
             return '[]';
         }
@@ -343,7 +343,7 @@ class Parser {
         return codeArray;
     }
 
-    public instantiateTypedArray (value) {
+    public instantiateTypedArray (value): string | Declaration[] {
         const type = value.constructor.name;
         if (value.length === 0) {
             return `new ${type}`;
@@ -369,7 +369,7 @@ class Parser {
         return codeArray;
     }
 
-    public enumerateField (obj, key, value) {
+    public enumerateField (obj, key, value): any {
         if (typeof value === 'object' && value) {
             const _iN$t = value._iN$t;
             if (_iN$t) {
@@ -408,14 +408,14 @@ class Parser {
         }
     }
 
-    public setObjProp (codeArray, obj, key, value) {
+    public setObjProp (codeArray, obj, key, value): void {
         const statement = `${LOCAL_OBJ + getPropAccessor(key)}=`;
         const expression = this.enumerateField(obj, key, value);
         writeAssignment(codeArray, statement, expression);
     }
 
     // codeArray - the source code array for this object
-    public enumerateObject (codeArray, obj) {
+    public enumerateObject (codeArray, obj): void {
         const klass = obj.constructor;
         if (isCCClassOrFastDefined(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
@@ -437,7 +437,7 @@ class Parser {
         }
     }
 
-    public instantiateObj (obj) {
+    public instantiateObj (obj): any {
         if (obj instanceof cclegacy.ValueType) {
             return CCClass.getNewValueTypeCode(obj);
         }
@@ -500,7 +500,7 @@ class Parser {
     }
 }
 
-export function equalsToDefault (def: any, value: any) {
+export function equalsToDefault (def: any, value: any): boolean {
     if (typeof def === 'function') {
         try {
             def = def();
@@ -528,7 +528,7 @@ export function equalsToDefault (def: any, value: any) {
     return false;
 }
 
-export function compile (node) {
+export function compile (node): any {
     const root = (node instanceof cclegacy.Node) && node;
     const parser = new Parser(node, root);
     return parser.result;

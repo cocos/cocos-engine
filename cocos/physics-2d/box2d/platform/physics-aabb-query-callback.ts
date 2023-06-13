@@ -30,7 +30,7 @@ export class PhysicsAABBQueryCallback extends b2.QueryCallback {
     _isPoint = false;
     _fixtures: b2.Fixture[] = [];
 
-    init (point?: Vec2) {
+    init (point?: Vec2): void {
         if (point) {
             this._isPoint = true;
             this._point.x = point.x;
@@ -42,7 +42,7 @@ export class PhysicsAABBQueryCallback extends b2.QueryCallback {
         this._fixtures.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture) {
+    ReportFixture (fixture: b2.Fixture): boolean {
         if (this._isPoint) {
             if (fixture.TestPoint(this._point)) {
                 this._fixtures.push(fixture);
@@ -55,11 +55,11 @@ export class PhysicsAABBQueryCallback extends b2.QueryCallback {
         return true;
     }
 
-    getFixture () {
+    getFixture (): any {
         return this._fixtures[0];
     }
 
-    getFixtures () {
+    getFixtures (): any[] {
         return this._fixtures;
     }
 }

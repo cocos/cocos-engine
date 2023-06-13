@@ -46,7 +46,7 @@ export class ArmatureSystem extends System {
      * @en Gets the instance of the ArmatureSystem system.
      * @zh 获取 Dragonbones Armature 系统的单例。
      */
-    public static getInstance () {
+    public static getInstance (): ArmatureSystem {
         if (!ArmatureSystem._instance) {
             ArmatureSystem._instance = new ArmatureSystem();
             director.registerSystem(ArmatureSystem.ID, ArmatureSystem._instance, System.Priority.HIGH);
@@ -59,7 +59,7 @@ export class ArmatureSystem extends System {
      * @en Add the ArmatureDisplay components into ArmatureSystem system.
      * @zh 将龙骨组件添加到系统中。
      */
-    public add (armature: ArmatureDisplay | null) {
+    public add (armature: ArmatureDisplay | null): void {
         if (!armature) return;
         if (!this._armatures.has(armature)) {
             this._armatures.add(armature);
@@ -69,7 +69,7 @@ export class ArmatureSystem extends System {
      * @en Remove the ArmatureDisplay components from ArmatureSystem system.
      * @zh 将龙骨组件从系统移除。
      */
-    public remove (armature: ArmatureDisplay | null) {
+    public remove (armature: ArmatureDisplay | null): void {
         if (!armature) return;
         if (this._armatures.has(armature)) {
             this._armatures.delete(armature);
@@ -79,11 +79,11 @@ export class ArmatureSystem extends System {
      * @en Trigger animation update of Armature objects.
      * @zh 触发更新龙骨动画。
      */
-    postUpdate (dt: number) {
+    postUpdate (dt: number): void {
         if (!this._armatures) {
             return;
         }
-        this._armatures.forEach((armature) => {
+        this._armatures.forEach((armature): void => {
             armature.updateAnimation(dt);
             armature.syncAttachedNode();
         });
@@ -94,11 +94,11 @@ export class ArmatureSystem extends System {
      * @zh
      * 触发标记更新所有龙骨组件的渲染数据。
      */
-    public prepareRenderData () {
+    public prepareRenderData (): void {
         if (!this._armatures) {
             return;
         }
-        this._armatures.forEach((armature) => {
+        this._armatures.forEach((armature): void => {
             armature.markForUpdateRenderData();
         });
     }

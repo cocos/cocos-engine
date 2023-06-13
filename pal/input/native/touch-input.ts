@@ -43,7 +43,7 @@ export class TouchInputSource {
         this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         jsb.onTouchStart = this._createCallback(InputEventType.TOUCH_START);
         jsb.onTouchMove = this._createCallback(InputEventType.TOUCH_MOVE);
         jsb.onTouchEnd = this._createCallback(InputEventType.TOUCH_END);
@@ -51,7 +51,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (changedTouches: TouchList, windowId: number) => {
+        return (changedTouches: TouchList, windowId: number): void => {
             const handleTouches: Touch[] = [];
             const length = changedTouches.length;
             const windowSize = this._windowManager.getWindow(windowId).getViewSize();
@@ -87,7 +87,7 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
+    public on (eventType: InputEventType, callback: TouchCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

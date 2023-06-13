@@ -25,7 +25,7 @@
 import { RequestType, transformPipeline } from './shared';
 import Task from './task';
 
-export default function preprocess (task: Task, done: ((err?: Error | null) => void)) {
+export default function preprocess (task: Task, done: ((err?: Error | null) => void)): void {
     const options = task.options;
     const subOptions = Object.create(null);
     const leftOptions = Object.create(null);

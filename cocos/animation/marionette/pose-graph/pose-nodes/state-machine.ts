@@ -12,6 +12,7 @@ import { StateMachine } from '../../animation-graph';
 import { TopLevelStateMachineEvaluation } from '../../state-machine/state-machine-eval';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';
+import type { EnterNodeInfo } from '../foundation/authoring/enter-node-info';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeStateMachine`)
 @poseGraphNodeCategory(POSE_GRAPH_NODE_MENU_PREFIX_POSE)
@@ -30,7 +31,7 @@ export class PoseNodeStateMachine extends PoseNode {
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         this.stateMachine._allowEmptyStates = false;
         this.stateMachine.__callOnAfterDeserializeRecursive();
     }
@@ -45,11 +46,11 @@ export class PoseNodeStateMachine extends PoseNode {
         );
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         this._stateMachineEval?.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._stateMachineEval?.reenter();
     }
 
@@ -72,14 +73,14 @@ export class PoseNodeStateMachine extends PoseNode {
 }
 
 if (EDITOR) {
-    PoseNodeStateMachine.prototype.getTitle = function getTitle (this: PoseNodeStateMachine) {
+    PoseNodeStateMachine.prototype.getTitle = function getTitle (this: PoseNodeStateMachine): string | [string, Record<string, string>] | undefined {
         if (this.name) {
             return this.name;
         }
         return undefined;
     };
 
-    PoseNodeStateMachine.prototype.getEnterInfo = function getEnterInfo (this: PoseNodeStateMachine) {
+    PoseNodeStateMachine.prototype.getEnterInfo = function getEnterInfo (this: PoseNodeStateMachine): EnterNodeInfo | undefined {
         return {
             type: 'state-machine',
             target: this.stateMachine,

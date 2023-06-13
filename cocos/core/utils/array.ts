@@ -34,7 +34,7 @@ export { default as MutableForwardIterator } from './mutable-forward-iterator';
  * @param array @zh 被操作的数组。@en The array to be operated.
  * @param index @zh 待移除元素的索引。@en The index of the element to be removed.
  */
-export function removeAt<T> (array: T[], index: number) {
+export function removeAt<T> (array: T[], index: number): void {
     array.splice(index, 1);
 }
 
@@ -48,7 +48,7 @@ export function removeAt<T> (array: T[], index: number) {
  * @param array @zh 被操作的数组。@en The array to be operated.
  * @param index @zh 待移除元素的索引。@en The index of the element to be removed.
  */
-export function fastRemoveAt<T> (array: T[], index: number) {
+export function fastRemoveAt<T> (array: T[], index: number): void {
     const length = array.length;
     if (index < 0 || index >= length) {
         return;
@@ -66,7 +66,7 @@ export function fastRemoveAt<T> (array: T[], index: number) {
  * @param array @zh 被操作的数组。@en The array to be operated.
  * @param value @zh 待移除元素。@en The value to be removed.
  */
-export function remove<T> (array: T[], value: T) {
+export function remove<T> (array: T[], value: T): boolean {
     const index = array.indexOf(value);
     if (index >= 0) {
         removeAt(array, index);
@@ -87,7 +87,7 @@ export function remove<T> (array: T[], value: T) {
  * @param array @zh 被操作的数组。@en The array to be operated.
  * @param value @zh 待移除元素。@en The value to be removed.
  */
-export function fastRemove<T> (array: T[], value: T) {
+export function fastRemove<T> (array: T[], value: T): void {
     const index = array.indexOf(value);
     if (index >= 0) {
         array[index] = array[array.length - 1];
@@ -103,7 +103,7 @@ export function fastRemove<T> (array: T[], value: T) {
  * @param array @zh 被操作的数组。@en The array to be operated.
  * @param predicate @zh 一元谓词，如果要元素的话，需要返回 true。@en unary predicate which returns true if the element should be removed.
  */
-export function removeIf<T> (array: T[], predicate: (value: T) => boolean) {
+export function removeIf<T> (array: T[], predicate: (value: T) => boolean): T | undefined {
     const index = array.findIndex(predicate);
     if (index >= 0) {
         const value = array[index];
@@ -144,7 +144,7 @@ export function verifyType<T extends Function> (array: any[], type: T): array is
  * @param removals @zh 所有待移除的元素。此数组的每个元素所对应的首个源数组的元素都会被移除。
  *                 @en The values to be removed. If a value appears multiple times in the array, only the first math element will be removed.
  */
-export function removeArray<T> (array: T[], removals: T[]) {
+export function removeArray<T> (array: T[], removals: T[]): void {
     for (let i = 0, l = removals.length; i < l; i++) {
         remove(array, removals[i]);
     }
@@ -160,7 +160,7 @@ export function removeArray<T> (array: T[], removals: T[]) {
  * @param index @zh 插入的索引。@en The index to insert at.
  * @returns @zh 传入的 `array`。@en The passed in `array`.
  */
-export function appendObjectsAt<T> (array: T[], objects: T[], index: number) {
+export function appendObjectsAt<T> (array: T[], objects: T[], index: number): T[] {
     array.splice.apply(array, [index, 0, ...objects]);
     return array;
 }
@@ -174,7 +174,7 @@ export function appendObjectsAt<T> (array: T[], objects: T[], index: number) {
  * @param value @zh 用来查询的值 @en The value used to check for.
  * @returns @zh true 如果包含该元素，否则返回 false。@en true if contains the value, false else.
  */
-export function contains<T> (array: T[], value: T) {
+export function contains<T> (array: T[], value: T): boolean {
     return array.indexOf(value) >= 0;
 }
 
@@ -186,7 +186,7 @@ export function contains<T> (array: T[], value: T) {
  * @param array @zh 用来拷贝的数组。@en The array to be copied from.
  * @returns @zh 数组的副本。@en A new array has the same values as `array`.
  */
-export function copy<T> (array: T[]) {
+export function copy<T> (array: T[]): T[] {
     const len = array.length;
     const cloned = new Array<T>(len);
     for (let i = 0; i < len; i += 1) {

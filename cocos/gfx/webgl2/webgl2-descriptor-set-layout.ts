@@ -27,11 +27,11 @@ import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGL2GPUDescriptorSetLayout } from './webgl2-gpu-objects';
 
 export class WebGL2DescriptorSetLayout extends DescriptorSetLayout {
-    get gpuDescriptorSetLayout () { return this._gpuDescriptorSetLayout!; }
+    get gpuDescriptorSetLayout (): IWebGL2GPUDescriptorSetLayout { return this._gpuDescriptorSetLayout!; }
 
     private _gpuDescriptorSetLayout: IWebGL2GPUDescriptorSetLayout | null = null;
 
-    public initialize (info: Readonly<DescriptorSetLayoutInfo>) {
+    public initialize (info: Readonly<DescriptorSetLayoutInfo>): void {
         Array.prototype.push.apply(this._bindings, info.bindings);
 
         let descriptorCount = 0; let maxBinding = -1;
@@ -69,7 +69,7 @@ export class WebGL2DescriptorSetLayout extends DescriptorSetLayout {
         };
     }
 
-    public destroy () {
+    public destroy (): void {
         this._bindings.length = 0;
     }
 }

@@ -48,12 +48,13 @@ export abstract class BlendStateBuffer<
         );
     }
 
-    public destroyWriter<P extends BlendingPropertyName> (writer: BlendStateWriter<P>) {
+    public destroyWriter<P extends BlendingPropertyName> (writer: BlendStateWriter<P>): void {
         const internal = writer as BlendStateWriterInternal<P>;
         this.deRef(internal.node, internal.property);
     }
 
-    public ref<P extends BlendingPropertyName> (node: Node, property: P) {
+    public ref<P extends BlendingPropertyName> (node: Node, property: P): PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P]
+    {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             nodeBlendState = this.createNodeBlendState();
@@ -63,7 +64,7 @@ export abstract class BlendStateBuffer<
         return propertyBlendState as PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P];
     }
 
-    public deRef (node: Node, property: BlendingPropertyName) {
+    public deRef (node: Node, property: BlendingPropertyName): void {
         const nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             return;
@@ -74,8 +75,8 @@ export abstract class BlendStateBuffer<
         }
     }
 
-    public apply () {
-        this._nodeBlendStates.forEach((nodeBlendState, node) => {
+    public apply (): void {
+        this._nodeBlendStates.forEach((nodeBlendState, node): void => {
             nodeBlendState.apply(node);
         });
     }
@@ -106,19 +107,19 @@ class BlendStateWriterInternal<P extends BlendingPropertyName> implements Runtim
     ) {
     }
 
-    get node () {
+    get node (): Node {
         return this._node;
     }
 
-    get property () {
+    get property (): P {
         return this._property;
     }
 
-    public getValue () {
+    public getValue (): Node[P] {
         return this._node[this._property];
     }
 
-    public setValue (value: PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P]['result']) {
+    public setValue (value: PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P]['result']): void {
         const {
             _propertyBlendState: propertyBlendState,
             _host: host,
@@ -162,7 +163,7 @@ class LegacyVec3PropertyBlendState implements PropertyBlendState<Vec3> {
 
     public result = new Vec3();
 
-    public blend (value: Readonly<Vec3>, weight: number) {
+    public blend (value: Readonly<Vec3>, weight: number): void {
         this.accumulatedWeight = mixAveragedVec3(
             this.result,
             this.result,
@@ -172,7 +173,7 @@ class LegacyVec3PropertyBlendState implements PropertyBlendState<Vec3> {
         );
     }
 
-    public reset () {
+    public reset (): void {
         this.accumulatedWeight = 0.0;
         Vec3.zero(this.result);
     }
@@ -185,7 +186,7 @@ class LegacyQuatPropertyBlendState implements PropertyBlendState<Quat> {
 
     public result = new Quat();
 
-    public blend (value: Readonly<Quat>, weight: number) {
+    public blend (value: Readonly<Quat>, weight: number): void {
         this.accumulatedWeight = mixAveragedQuat(
             this.result,
             this.result,
@@ -195,14 +196,14 @@ class LegacyQuatPropertyBlendState implements PropertyBlendState<Quat> {
         );
     }
 
-    public reset () {
+    public reset (): void {
         this.accumulatedWeight = 0.0;
         Quat.identity(this.result);
     }
 }
 
 abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState<Vec3>, TQuatPropertyBlendState extends PropertyBlendState<Quat>> {
-    get empty () {
+    get empty (): boolean {
         const { _properties: properties } = this;
         return !properties.position
             && !properties.rotation
@@ -230,7 +231,7 @@ abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState
         return propertyBlendState as PropertyBlendStateTypeMap<TVec3PropertyBlendState, TQuatPropertyBlendState>[P];
     }
 
-    public deRefProperty (property: BlendingPropertyName) {
+    public deRefProperty (property: BlendingPropertyName): void {
         const { _properties: properties } = this;
 
         const propertyBlendState = properties[property];
@@ -246,7 +247,7 @@ abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState
         delete properties[property];
     }
 
-    public apply (node: Node) {
+    public apply (node: Node): void {
         const {
             _transformApplyFlags: transformApplyFlags,
             _properties: { position, scale, rotation, eulerAngles },
@@ -298,7 +299,7 @@ abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState
 }
 
 class LegacyNodeBlendState extends NodeBlendState<LegacyVec3PropertyBlendState, LegacyQuatPropertyBlendState> {
-    public apply (node: Node) {
+    public apply (node: Node): void {
         const { _properties: { position, scale, rotation, eulerAngles } } = this;
 
         if (position && position.accumulatedWeight) {
@@ -337,22 +338,22 @@ class LegacyNodeBlendState extends NodeBlendState<LegacyVec3PropertyBlendState, 
         eulerAngles?.reset();
     }
 
-    protected _createVec3BlendState (_currentValue: Readonly<Vec3>) {
+    protected _createVec3BlendState (_currentValue: Readonly<Vec3>): LegacyVec3PropertyBlendState {
         return new LegacyVec3PropertyBlendState();
     }
 
-    protected _createQuatBlendState (_currentValue: Readonly<Quat>) {
+    protected _createQuatBlendState (_currentValue: Readonly<Quat>): LegacyQuatPropertyBlendState {
         return new LegacyQuatPropertyBlendState();
     }
 }
 
 export class LegacyBlendStateBuffer extends BlendStateBuffer<LegacyNodeBlendState> {
-    protected createNodeBlendState () {
+    protected createNodeBlendState (): LegacyNodeBlendState {
         return new LegacyNodeBlendState();
     }
 }
 
-function mixAveragedVec3 (result: Vec3, previous: Readonly<Vec3>, accumulatedWeight: number, input: Readonly<Vec3>, weight: number) {
+function mixAveragedVec3 (result: Vec3, previous: Readonly<Vec3>, accumulatedWeight: number, input: Readonly<Vec3>, weight: number): number {
     const newSum = accumulatedWeight + weight;
     if (weight === 1.0 && !accumulatedWeight) {
         Vec3.copy(result, input);
@@ -363,7 +364,7 @@ function mixAveragedVec3 (result: Vec3, previous: Readonly<Vec3>, accumulatedWei
     return newSum;
 }
 
-function mixAveragedQuat (result: Quat, previous: Readonly<Quat>, accumulatedWeight: number, input: Readonly<Quat>, weight: number) {
+function mixAveragedQuat (result: Quat, previous: Readonly<Quat>, accumulatedWeight: number, input: Readonly<Quat>, weight: number): number {
     const newSum = accumulatedWeight + weight;
     if (weight === 1.0 && !accumulatedWeight) {
         Quat.copy(result, input);

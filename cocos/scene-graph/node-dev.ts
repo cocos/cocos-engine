@@ -32,9 +32,9 @@ import { Component } from './component';
 const Destroying = CCObject.Flags.Destroying;
 const IS_PREVIEW = !!legacyCC.GAME_VIEW;
 
-export function nodePolyfill (Node) {
+export function nodePolyfill (Node): void {
     if ((EDITOR && !IS_PREVIEW) || TEST) {
-        Node.prototype._onPreDestroy = function () {
+        Node.prototype._onPreDestroy = function (): boolean {
             const destroyByParent: boolean = this._onPreDestroyBase();
             if (!destroyByParent) {
                 // ensure this node can reattach to scene by undo system
@@ -46,7 +46,7 @@ export function nodePolyfill (Node) {
     }
 
     if (EDITOR || TEST) {
-        Node.prototype._checkMultipleComp = function (ctor) {
+        Node.prototype._checkMultipleComp = function (ctor): boolean {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
@@ -62,7 +62,7 @@ export function nodePolyfill (Node) {
          * @param {Component} depended
          * @return {Component[]}
          */
-        Node.prototype._getDependComponent = function (depended) {
+        Node.prototype._getDependComponent = function (depended): Component[] {
             const dependant: Component[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
@@ -89,7 +89,7 @@ export function nodePolyfill (Node) {
          * @param {Component} comp
          * @param {Number} index
          */
-        Node.prototype._addComponentAt = function (comp, index) {
+        Node.prototype._addComponentAt = function (comp, index): void {
             if (this._objFlags & Destroying) {
                 return error('isDestroying');
             }
@@ -136,7 +136,7 @@ export function nodePolyfill (Node) {
             return undefined;
         };
 
-        Node.prototype.onRestore = function () {
+        Node.prototype.onRestore = function (): void {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
@@ -145,7 +145,7 @@ export function nodePolyfill (Node) {
         };
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
 
-        Node.prototype._registerIfAttached = function (register) {
+        Node.prototype._registerIfAttached = function (register): void {
             if (!this._id) {
                 console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
                 return;

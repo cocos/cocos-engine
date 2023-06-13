@@ -35,7 +35,7 @@ import { scene } from '../render-scene';
 
 // FIXME(minggo): rayAABB2 is also implemented in core/geometry/intersects.ts, but it is not exported.
 // And i don't think should export this function, so copy the implementation here.
-function rayAABB2 (ray: geometry.Ray, min: IVec3Like, max: IVec3Like) {
+function rayAABB2 (ray: geometry.Ray, min: IVec3Like, max: IVec3Like): number {
     const o = ray.o; const d = ray.d;
     const ix = 1 / d.x; const iy = 1 / d.y; const iz = 1 / d.z;
     const t1 = (min.x - o.x) * ix;
@@ -60,12 +60,12 @@ function rayAABB2 (ray: geometry.Ray, min: IVec3Like, max: IVec3Like) {
  * @param options @zh 额外选项 @en Optional params
  * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
-const raySubMesh = (function () {
+const raySubMesh = (function (): (ray: geometry.Ray, submesh: RenderingSubMesh, options?: geometry.IRaySubMeshOptions) => number {
     const tri = geometry.Triangle.create();
     const deOpt: geometry.IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
     let minDis = 0;
 
-    const fillResult = (m: geometry.ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: geometry.IRaySubMeshResult[]) => {
+    const fillResult = (m: geometry.ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: geometry.IRaySubMeshResult[]): void => {
         if (m === geometry.ERaycastMode.CLOSEST) {
             if (minDis > d || minDis === 0) {
                 minDis = d;
@@ -83,7 +83,7 @@ const raySubMesh = (function () {
         }
     };
 
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: geometry.Ray, opt: geometry.IRaySubMeshOptions) => {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: geometry.Ray, opt: geometry.IRaySubMeshOptions): number => {
         if (pm === PrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
@@ -131,7 +131,7 @@ const raySubMesh = (function () {
         }
         return minDis;
     };
-    return function (ray: geometry.Ray, submesh: RenderingSubMesh, options?: geometry.IRaySubMeshOptions) {
+    return function (ray: geometry.Ray, submesh: RenderingSubMesh, options?: geometry.IRaySubMeshOptions): number {
         minDis = 0;
         if (submesh.geometricInfo.positions.length === 0) return minDis;
         const opt = options === undefined ? deOpt : options;
@@ -156,10 +156,10 @@ const raySubMesh = (function () {
  * @param options @zh 可选参数 @en Optional param
  * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
-const rayMesh = (function () {
+const rayMesh = (function (): (ray: geometry.Ray, mesh: Mesh, options?: geometry.IRayMeshOptions) => number {
     let minDis = 0;
     const deOpt: geometry.IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
-    return function (ray: geometry.Ray, mesh: Mesh, options?: geometry.IRayMeshOptions) {
+    return function (ray: geometry.Ray, mesh: Mesh, options?: geometry.IRayMeshOptions): number {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
@@ -205,12 +205,12 @@ const rayMesh = (function () {
  * @param options @zh 可选参数 @en Optional param
  * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
-const rayModel = (function () {
+const rayModel = (function (): (r: geometry.Ray, model: scene.Model, options?: geometry.IRayModelOptions) => number {
     let minDis = 0;
     const deOpt: geometry.IRayModelOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
     const modelRay = new geometry.Ray();
     const m4 = new Mat4();
-    return function (r: geometry.Ray, model: scene.Model, options?: geometry.IRayModelOptions) {
+    return function (r: geometry.Ray, model: scene.Model, options?: geometry.IRayModelOptions): number {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const wb = model.worldBounds;

@@ -32,14 +32,14 @@ export class PerfCounter extends Counter {
         super(id, opts, now);
         this._time = now;
     }
-    public start (now = 0) {
+    public start (now = 0): void {
         this._time = now;
 
         // DISABLE: long time running will cause performance drop down
         // window.performance.mark(this._idstart);
     }
 
-    public end (now = 0) {
+    public end (now = 0): void {
         this._value = now - this._time;
 
         // DISABLE: long time running will cause performance drop down
@@ -49,12 +49,12 @@ export class PerfCounter extends Counter {
         this._average(this._value);
     }
 
-    public tick () {
+    public tick (): void {
         this.end();
         this.start();
     }
 
-    public frame (now: number) {
+    public frame (now: number): void {
         const t = now;
         const e = t - this._time;
         this._total++;

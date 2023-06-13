@@ -60,7 +60,7 @@ export class Asset extends Eventify(CCObject) {
      * @param {String} data
      * @return {Asset}
      */
-    public static deserialize (data) {
+    public static deserialize (data): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return cclegacy.deserialize(data);
     }
@@ -129,7 +129,7 @@ export class Asset extends Eventify(CCObject) {
      * 返回该资源对应的目标平台资源的 URL，如果此资源没有原生依赖将返回一个空字符串。
      * @readOnly
      */
-    get nativeUrl () {
+    get nativeUrl (): string {
         if (!this._nativeUrl) {
             if (!this._native) return '';
             const name = this._native;
@@ -156,7 +156,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 资源的 UUID。
      */
-    get uuid () {
+    get uuid (): string {
         return this._uuid;
     }
 
@@ -164,7 +164,7 @@ export class Asset extends Eventify(CCObject) {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future, please use `nativeAsset` instead.
      */
     @property
-    get _nativeAsset () {
+    get _nativeAsset (): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._file;
     }
@@ -181,7 +181,7 @@ export class Asset extends Eventify(CCObject) {
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
      * 如果`_native`可用，则此属性将由加载器初始化。
      */
-    public get nativeAsset () {
+    public get nativeAsset (): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._file;
     }
@@ -225,7 +225,7 @@ export class Asset extends Eventify(CCObject) {
      * @method toString
      * @returns @en String representation of this asset. @zh 此资源的字符串表示。
      */
-    public toString () {
+    public toString (): string {
         return this.nativeUrl;
     }
 
@@ -237,7 +237,7 @@ export class Asset extends Eventify(CCObject) {
      * @returns {String}
      * @private
      */
-    public serialize () { }
+    public serialize (): void { }
 
     /**
      * @en
@@ -250,7 +250,7 @@ export class Asset extends Eventify(CCObject) {
      * @param inLibrary
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _setRawAsset (filename: string, inLibrary = true) {
+    public _setRawAsset (filename: string, inLibrary = true): void {
         if (inLibrary !== false) {
             this._native = filename || '';
         } else {
@@ -279,7 +279,11 @@ export class Asset extends Eventify(CCObject) {
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
-    public get _nativeDep () {
+    public get _nativeDep (): {
+        __isNative__: boolean;
+        uuid: string;
+        ext: string;
+    } | undefined {
         if (this._native) {
             return { __isNative__: true, uuid: this._uuid, ext: this._native };
         }
@@ -342,7 +346,7 @@ export class Asset extends Eventify(CCObject) {
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
-    public onLoaded () {}
+    public onLoaded (): void {}
 
     /**
      * @en
@@ -353,7 +357,7 @@ export class Asset extends Eventify(CCObject) {
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         if (uuid) { this._uuid = uuid; }
         this.isDefault = true;
     }
@@ -379,7 +383,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 销毁此资源以及其内部数据。
      */
-    public destroy () {
+    public destroy (): boolean {
         debug(getError(12101, this._uuid));
         return super.destroy();
     }

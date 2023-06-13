@@ -30,12 +30,12 @@ import { approx, assertIsTrue, Vec2, Vec3 } from '../../../core';
  * @param samples Every samples' parameter.
  * @param input Input parameter.
  */
-export const blendSimpleDirectional = (() => {
+export const blendSimpleDirectional = ((): (weights: number[], samples: readonly Vec2[], input: Readonly<Vec2>) => void => {
     const CACHE_NORMALIZED_SAMPLE = new Vec2();
 
     const CACHE_BARYCENTRIC_SOLUTIONS: EquationResolutions = { wA: 0, wB: 0 };
 
-    return function blendSimpleDirectional (weights: number[], samples: readonly Vec2[], input: Readonly<Vec2>) {
+    return function blendSimpleDirectional (weights: number[], samples: readonly Vec2[], input: Readonly<Vec2>): void {
         assertIsTrue(weights.length === samples.length);
 
         if (samples.length === 0) {
@@ -191,11 +191,11 @@ const _DEV_NOTE = false;
  * @param thresholds
  * @param value
  */
-export function sampleFreeformCartesian (weights: number[], thresholds: readonly Vec2[], value: Readonly<Vec2>) {
+export function sampleFreeformCartesian (weights: number[], thresholds: readonly Vec2[], value: Readonly<Vec2>): void {
     sampleFreeform(weights, thresholds, value, getGradientBandCartesianCoords);
 }
 
-function sampleFreeform (weights: number[], samples: readonly Vec2[], value: Readonly<Vec2>, getGradientBandCoords: GetGradientBandCoords) {
+function sampleFreeform (weights: number[], samples: readonly Vec2[], value: Readonly<Vec2>, getGradientBandCoords: GetGradientBandCoords): void {
     weights.fill(0.0);
     const pIpInput = new Vec2(0, 0);
     const pIJ = new Vec2(0, 0);
@@ -244,7 +244,7 @@ function solveBarycentric (
     b: Readonly<Vec2>,
     p: Readonly<Vec2>,
     resolutions: EquationResolutions,
-) {
+): EquationResolutions {
     // Let P = p - 0, A = a - 0, B = b - 0,
     // wA = (P x B) / (A x B)
     // wB = (P x A) / (B x A)
@@ -323,7 +323,7 @@ export class PolarSpaceGradientBandInterpolator2D {
         this._cacheVIXAngles = new Float32Array(nExamples);
     }
 
-    public interpolate (weights: number[], input: Readonly<Vec2>) {
+    public interpolate (weights: number[], input: Readonly<Vec2>): void {
         const {
             _exampleDirections: exampleDirections,
             _exampleMagnitudes: exampleMagnitudes,
@@ -454,7 +454,7 @@ export class PolarSpaceGradientBandInterpolator2D {
     private declare _cacheVIXAngles: Float32Array;
 }
 
-function signedAngle (v1: Readonly<Vec2>, v2: Readonly<Vec2>) {
+function signedAngle (v1: Readonly<Vec2>, v2: Readonly<Vec2>): number {
     const angle = Vec2.angle(v1, v2);
     const determinate = v1.x * v2.y - v1.y * v2.x;
     return determinate < 0 ? -angle : angle;

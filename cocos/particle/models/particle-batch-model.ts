@@ -101,7 +101,7 @@ export default class ParticleBatchModel extends scene.Model {
         this._mesh = null;
     }
 
-    public setCapacity (capacity: number) {
+    public setCapacity (capacity: number): void {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
         if (this._subMeshData && capChanged) {
@@ -109,7 +109,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public setVertexAttributes (mesh: Mesh | null, attrs: Attribute[]) {
+    public setVertexAttributes (mesh: Mesh | null, attrs: Attribute[]): void {
         if (!this._useInstance) {
             if (this._mesh === mesh && this._vertAttrs === attrs) {
                 return;
@@ -129,7 +129,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private setVertexAttributesIns (mesh: Mesh | null, attrs: Attribute[]) {
+    private setVertexAttributesIns (mesh: Mesh | null, attrs: Attribute[]): void {
         if (this._mesh === mesh && this._vertAttrs === attrs) {
             return;
         }
@@ -169,9 +169,9 @@ export default class ParticleBatchModel extends scene.Model {
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
         if (this._mesh && this._capacity > 0) {
-            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
+            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3);
+            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
@@ -247,7 +247,7 @@ export default class ParticleBatchModel extends scene.Model {
         return vBuffer;
     }
 
-    private createSubMeshDataInsStatic () {
+    private createSubMeshDataInsStatic (): void {
         this._vertCount = 4;
         this._indexCount = 6;
         if (this._mesh) {
@@ -264,10 +264,10 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
+            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
+            vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
             vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
@@ -315,17 +315,17 @@ export default class ParticleBatchModel extends scene.Model {
         this._insBuffers.push(vertexBuffer);
     }
 
-    private createInsSubmesh () {
+    private createInsSubmesh (): void {
         this._subMeshData = new RenderingSubMesh(this._insBuffers, this._vertAttrs!, PrimitiveMode.TRIANGLE_LIST, this._insIndices);
         this.initSubModel(0, this._subMeshData, this._material!);
     }
 
-    public updateMaterial (mat: Material) {
+    public updateMaterial (mat: Material): void {
         this._material = mat;
         this.setSubModelMaterial(0, mat);
     }
 
-    public addParticleVertexData (index: number, pvdata: any[]) {
+    public addParticleVertexData (index: number, pvdata: any[]): void {
         if (!this._useInstance) {
             if (!this._mesh) {
                 let offset: number = index * this._vertAttrsFloatCount;
@@ -371,7 +371,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addParticleVertexDataIns (index: number, pvdata: any[]) {
+    private addParticleVertexDataIns (index: number, pvdata: any[]): void {
         let offset: number = index * this._vertAttrsFloatCount;
         if (!this._mesh) {
             this._vdataF32![offset++] = pvdata[0].x; // position
@@ -411,7 +411,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number) {
+    public addGPUParticleVertexData (p: Particle, num: number, time:number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -450,7 +450,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number) {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;
@@ -482,7 +482,7 @@ export default class ParticleBatchModel extends scene.Model {
         offset += this._vertAttrsFloatCount;
     }
 
-    public updateGPUParticles (num: number, time: number, dt: number) {
+    public updateGPUParticles (num: number, time: number, dt: number): number {
         if (!this._useInstance) {
             const pSize = this._vertAttrsFloatCount * this._vertCount;
             let pBaseIndex = 0;
@@ -508,7 +508,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private updateGPUParticlesIns (num: number, time: number, dt: number) {
+    private updateGPUParticlesIns (num: number, time: number, dt: number): number {
         const pSize = this._vertAttrsFloatCount;
         let pBaseIndex = 0;
         let startTime = 0;
@@ -530,19 +530,19 @@ export default class ParticleBatchModel extends scene.Model {
         return num;
     }
 
-    public constructAttributeIndex () {
+    public constructAttributeIndex (): void {
         if (!this._vertAttrs) {
             return;
         }
-        let vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_position_starttime');
+        let vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_position_starttime');
         let vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._startTimeOffset = vOffset / 4 + 3;
-        vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_dir_life');
+        vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_dir_life');
         vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
-    public updateIA (count: number) {
+    public updateIA (count: number): void {
         if (!this._useInstance) {
             if (count <= 0) {
                 return;
@@ -557,7 +557,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private updateIAIns (count: number) {
+    private updateIAIns (count: number): void {
         if (count <= 0) {
             return;
         }
@@ -570,7 +570,7 @@ export default class ParticleBatchModel extends scene.Model {
         ia.vertexCount = this._iaVertCount;
     }
 
-    public clear () {
+    public clear (): void {
         if (!this._useInstance) {
             this._subModels[0].inputAssembler.indexCount = 0;
         } else {
@@ -578,16 +578,16 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private clearIns () {
+    private clearIns (): void {
         this._subModels[0].inputAssembler.instanceCount = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
         this.doDestroy();
     }
 
-    public doDestroy () {
+    public doDestroy (): void {
         this._vBuffer = null;
         this._vdataF32 = null;
         this._vdataUint32 = null;
@@ -601,7 +601,7 @@ export default class ParticleBatchModel extends scene.Model {
         this.destroySubMeshData();
     }
 
-    private rebuild () {
+    private rebuild (): void {
         if (!this._useInstance) {
             this._vBuffer = this.createSubMeshData();
             this._vdataF32 = new Float32Array(this._vBuffer);
@@ -611,7 +611,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private rebuildIns () {
+    private rebuildIns (): void {
         this._vBuffer = this.createSubMeshDataInsDynamic();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
@@ -621,7 +621,7 @@ export default class ParticleBatchModel extends scene.Model {
         this.createInsSubmesh();
     }
 
-    private destroySubMeshData () {
+    private destroySubMeshData (): void {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;

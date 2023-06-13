@@ -113,7 +113,7 @@ class SceneInfo {
         this.pipelineSceneData = pipelineSceneData;
         this.shadows = pipelineSceneData.shadows;
     }
-    public reset () {
+    public reset (): void {
         this.punctualLights.length = 0;
         this.spotLights.length = 0;
     }
@@ -148,7 +148,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
     // implementation
     private prepareSceneInfo (scene: Readonly<RenderScene>,
         frustum: geometry.Frustum,
-        sceneInfo: SceneInfo) {
+        sceneInfo: SceneInfo): void {
         // clear scene info
         sceneInfo.reset();
         // spot lights
@@ -223,7 +223,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
         this._windows.set(camera.window, info);
         return info;
     }
-    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number): void {
         const device = ppl.device;
         // Main Target
         ppl.addRenderWindow(`Color${id}`, Format.BGRA8, width, height, camera.window);
@@ -242,7 +242,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
         ppl.addDepthStencil(`SpotLightShadowDepth${id}2`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
         ppl.addDepthStencil(`SpotLightShadowDepth${id}3`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
     }
-    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number): void {
         // Main Target
         ppl.updateRenderWindow(`Color${id}`, camera.window);
         ppl.updateDepthStencil(`DepthStencil${id}`, width, height);
@@ -261,7 +261,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
     }
     private buildForwardTiled (ppl: BasicPipeline,
         camera: Camera, id: number, width: number, height: number,
-        sceneInfo: SceneInfo) {
+        sceneInfo: SceneInfo): void {
         assert(this._tiled);
         assert(camera.scene !== null);
         // init
@@ -314,7 +314,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
-    private buildCascadedShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera) {
+    private buildCascadedShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera): void {
         const width = this._sceneInfo.shadows.size.x;
         const height = this._sceneInfo.shadows.size.y;
         const pass = ppl.addRenderPass(width, height, 'default');

@@ -128,7 +128,7 @@ export type { QuatKeyframeValue };
  */
 type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
 
-function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
+function createQuatKeyframeValue (params: QuatKeyframeValueParameters): QuatKeyframeValue {
     return new QuatKeyframeValue(params);
 }
 
@@ -279,7 +279,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     public assignSorted (
         times: Iterable<[number, QuatKeyframeValueParameters]> | readonly number[],
         values?: readonly QuatKeyframeValueParameters[],
-    ) {
+    ): void {
         if (values !== undefined) {
             assertIsTrue(Array.isArray(times));
             this.setKeyframes(
@@ -298,7 +298,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
      * @internal
      */
-    public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
+    public [serializeTag] (output: SerializationOutput, context: SerializationContext): void {
         if (!context.toCCON) {
             output.writeThis();
             return;
@@ -394,7 +394,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
      * @internal
      */
-    public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
+    public [deserializeTag] (input: SerializationInput, context: DeserializationContext): void {
         if (!context.fromCCON) {
             input.readThis();
             return;

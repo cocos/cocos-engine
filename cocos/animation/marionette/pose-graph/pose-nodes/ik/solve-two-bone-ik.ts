@@ -6,13 +6,13 @@ import { debugTwoBoneIKDraw } from './two-bone-ik-debugger';
 const SANITY_CHECK_ENABLED = DEBUG;
 
 class TwoBoneIKPositionSanityChecker {
-    public reset (a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>) {
+    public reset (a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>): void {
         Vec3.copy(this._a, a);
         this._dAB = Vec3.distance(a, b);
         this._dBC = Vec3.distance(b, c);
     }
 
-    public check (_a: Readonly<Vec3>, _b: Readonly<Vec3>, _c: Readonly<Vec3>) {
+    public check (_a: Readonly<Vec3>, _b: Readonly<Vec3>, _c: Readonly<Vec3>): boolean {
         const CHECK_EPSILON = 1e-3;
         const dAB = Vec3.distance(_a, _b);
         const dBC = Vec3.distance(_b, _c);
@@ -48,13 +48,13 @@ class TwoBoneIKPositionSanityChecker {
  * @param target 末端关节要抵达的目标位置（世界空间）。
  * @param hint 中间关节的提示位置（世界空间），用于决定中间关节的朝向。
  */
-export const solveTwoBoneIK = (() => {
+export const solveTwoBoneIK = ((): (root: Transform, middle: Transform, end: Transform, target: Vec3, middlePositionHint?: Vec3, debugKey?: unknown | undefined) => void => {
     const cacheQuat = new Quat();
     const cacheHint = new Vec3();
     const cacheBSolved = new Vec3();
     const cacheCSolved = new Vec3();
 
-    const calculateRotationBetweenRays = (() => {
+    const calculateRotationBetweenRays = ((): (out: Quat, sourceOrigin: Readonly<Vec3>, sourceDestination: Readonly<Vec3>, targetOrigin: Readonly<Vec3>, targetDestination: Readonly<Vec3>) => Quat => {
         const cacheVec3_1 = new Vec3();
         const cacheVec3_2 = new Vec3();
         return (
@@ -62,7 +62,7 @@ export const solveTwoBoneIK = (() => {
             sourceOrigin: Readonly<Vec3>, sourceDestination: Readonly<Vec3>,
             targetOrigin: Readonly<Vec3>, targetDestination: Readonly<Vec3>,
         // eslint-disable-next-line arrow-body-style
-        ) => {
+        ): Quat => {
             return Quat.rotationTo(
                 out,
                 Vec3.subtract(cacheVec3_1, sourceDestination, sourceOrigin).normalize(),
@@ -78,7 +78,7 @@ export const solveTwoBoneIK = (() => {
         target: Vec3,
         middlePositionHint?: Vec3,
         debugKey?: unknown | undefined,
-    ) => {
+    ): void => {
         const hint = Vec3.copy(cacheHint, middlePositionHint ?? middle.position);
 
         const pA = root.position;
@@ -125,7 +125,7 @@ export const solveTwoBoneIK = (() => {
     };
 })();
 
-export const solveTwoBoneIKPositions = (() => {
+export const solveTwoBoneIKPositions = ((): (a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>, target: Readonly<Vec3>, middleTarget: Readonly<Vec3>, bSolved: Vec3, cSolved: Vec3) => void => {
     const cacheDirAT = new Vec3();
     const cacheDirAB = new Vec3();
     const cacheDirHeightLine = new Vec3();
@@ -141,11 +141,11 @@ export const solveTwoBoneIKPositions = (() => {
         middleTarget: Readonly<Vec3>,
         bSolved: Vec3,
         cSolved: Vec3,
-    ) => {
+    ): void => {
         const sanityCheck = cacheSanityChecker
-            ? (() => {
+            ? ((): () => boolean => {
                 cacheSanityChecker?.reset(a, b, c);
-                return () => cacheSanityChecker.check(a, bSolved, cSolved);
+                return (): boolean => cacheSanityChecker.check(a, bSolved, cSolved);
             })()
             : undefined;
 

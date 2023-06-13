@@ -62,7 +62,7 @@ export class BatchingUtility {
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node
      */
-    public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
+    public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node): boolean {
         const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         if (models.length < 2) {
             console.error('the number of static models to batch is less than 2,it needn\'t batch.');
@@ -105,7 +105,7 @@ export class BatchingUtility {
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node
      */
-    public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
+    public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node): boolean {
         const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         for (let i = 0; i < models.length; i++) {
             const comp = models[i];

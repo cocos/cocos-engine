@@ -50,7 +50,7 @@ export class UICoordinateTracker extends Component {
      */
     @type(Node)
     @tooltip('i18n:UICoordinateTracker.target')
-    get target () {
+    get target (): Node | null {
         return this._target;
     }
 
@@ -72,7 +72,7 @@ export class UICoordinateTracker extends Component {
      */
     @type(Camera)
     @tooltip('i18n:UICoordinateTracker.camera')
-    get camera () {
+    get camera (): Camera | null {
         return this._camera;
     }
 
@@ -93,7 +93,7 @@ export class UICoordinateTracker extends Component {
      * 是否是缩放映射。
      */
     @tooltip('i18n:UICoordinateTracker.use_scale')
-    get useScale () {
+    get useScale (): boolean {
         return this._useScale;
     }
 
@@ -113,7 +113,7 @@ export class UICoordinateTracker extends Component {
      * 距相机多少距离为正常显示计算大小。
      */
     @tooltip('i18n:UICoordinateTracker.distance')
-    get distance () {
+    get distance (): number {
         return this._distance;
     }
 
@@ -154,11 +154,11 @@ export class UICoordinateTracker extends Component {
     protected _lastWPos = new Vec3();
     protected _lastCameraPos = new Vec3();
 
-    public onEnable () {
+    public onEnable (): void {
         this._checkCanMove();
     }
 
-    public update () {
+    public update (): void {
         const wPos = this.node.worldPosition;
         const camera = this._camera;
         if (!this._canMove || !camera || !camera.camera || (this._lastWPos.equals(wPos) && this._lastCameraPos.equals(camera.node.worldPosition))) {
@@ -180,7 +180,7 @@ export class UICoordinateTracker extends Component {
         }
     }
 
-    protected _checkCanMove () {
+    protected _checkCanMove (): void {
         this._canMove = !!(this._camera && this._target);
     }
 }

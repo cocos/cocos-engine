@@ -45,7 +45,7 @@ const e = new Array(3);
  * @param plane @en The target plane. @zh 目标平面。
  * @returns @en The distance between the point and the plane. @zh 点和平面之间的距离。
  */
-export function point_plane (point: Vec3, plane_: Plane) {
+export function point_plane (point: Vec3, plane_: Plane): number {
     return Vec3.dot(plane_.n, point) - plane_.d;
 }
 
@@ -59,7 +59,7 @@ export function point_plane (point: Vec3, plane_: Plane) {
  * @param plane @en The target plane. @zh 平面。
  * @returns @en The result of the closest point, same as the `out` parameter. @zh 存储最近点的向量，与 `out` 参数为同一个对象。
  */
-export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
+export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane): Vec3 {
     const t = point_plane(point, plane_);
     return Vec3.subtract(out, point, Vec3.multiplyScalar(out, plane_.n, t));
 }
@@ -148,7 +148,7 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
  * @param linePointA @en Point A on the line. @zh 线上的某点 A。
  * @param linePointB @en Point B on the line. @zh 线上的某点 B。
  */
-export function pt_point_line (out: Vec3, point: Vec3, linePointA: Vec3, linePointB: Vec3) {
+export function pt_point_line (out: Vec3, point: Vec3, linePointA: Vec3, linePointB: Vec3): void {
     Vec3.subtract(X, linePointA, linePointB);
     const dir = X.clone();
     const dirSquaredLength = Vec3.lengthSqr(dir);

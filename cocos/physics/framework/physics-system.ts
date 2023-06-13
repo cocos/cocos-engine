@@ -24,7 +24,7 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
-import { IRaycastOptions } from '../spec/i-physics-world';
+import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
 import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
@@ -44,23 +44,23 @@ cclegacy.internal.PhysicsGroup = PhysicsGroup;
  * 物理系统。
  */
 export class PhysicsSystem extends System implements IWorldInitData {
-    public static get PHYSICS_NONE () {
+    public static get PHYSICS_NONE (): boolean {
         return !selector.id;
     }
 
-    public static get PHYSICS_BUILTIN () {
+    public static get PHYSICS_BUILTIN (): boolean {
         return selector.id === 'builtin';
     }
 
-    public static get PHYSICS_CANNON () {
+    public static get PHYSICS_CANNON (): boolean {
         return selector.id === 'cannon.js';
     }
 
-    public static get PHYSICS_BULLET () {
+    public static get PHYSICS_BULLET (): boolean {
         return selector.id === 'bullet';
     }
 
-    public static get PHYSICS_PHYSX () {
+    public static get PHYSICS_PHYSX (): boolean {
         return selector.id === 'physx';
     }
 
@@ -78,7 +78,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取预定义的物理分组。
      */
-    public static get PhysicsGroup () {
+    public static get PhysicsGroup (): typeof PhysicsGroup {
         return PhysicsGroup;
     }
 
@@ -129,7 +129,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
-    public get maxSubSteps () {
+    public get maxSubSteps (): number {
         return this._maxSubSteps;
     }
 
@@ -143,7 +143,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取或设置每步模拟消耗的固定时间（以 s 为单位）。
      */
-    public get fixedTimeStep () {
+    public get fixedTimeStep (): number {
         return this._fixedTimeStep;
     }
 
@@ -188,7 +188,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取或设置是否自动模拟。
      */
-    public get autoSimulation () {
+    public get autoSimulation (): boolean {
         return this._autoSimulation;
     }
 
@@ -212,7 +212,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 设置默认物理材质。
      */
-    public setDefaultPhysicsMaterial (material: PhysicsMaterial) {
+    public setDefaultPhysicsMaterial (material: PhysicsMaterial): void {
         this._material = material;
         this.physicsWorld.setDefaultMaterial(this._material);
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
@@ -233,13 +233,13 @@ export class PhysicsSystem extends System implements IWorldInitData {
             this.setDefaultPhysicsMaterial(builtinMaterial);
             return Promise.resolve();
         } else { //use user customized default physics material
-            return new Promise<PhysicsMaterial>((resolve, reject) => {
-                assetManager.loadAny(userMaterial, (err, asset) => ((err || !(asset instanceof PhysicsMaterial))
+            return new Promise<PhysicsMaterial>((resolve, reject): void => {
+                assetManager.loadAny(userMaterial, (err, asset): void => ((err || !(asset instanceof PhysicsMaterial))
                     ? reject(err)
                     : resolve(asset)));
-            }).then((asset) => {
+            }).then((asset): void => {
                 this.setDefaultPhysicsMaterial(asset);
-            }).catch((reason) => {
+            }).catch((reason): void => {
                 warn(reason);
                 warn(`Failed to load user customized default physics material: ${userMaterial}, will fallback to built-in default physics material`);
                 this.setDefaultPhysicsMaterial(builtinMaterial);
@@ -253,7 +253,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
-    public get physicsWorld () {
+    public get physicsWorld (): IPhysicsWorld {
         return selector.physicsWorld!;
     }
 
@@ -341,14 +341,14 @@ export class PhysicsSystem extends System implements IWorldInitData {
         maxDistance: 10000000,
     }
 
-    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>(() => new PhysicsRayResult(), 1);
-    private readonly sweepResultPool = new RecyclePool<PhysicsRayResult>(() => new PhysicsRayResult(), 1);
+    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
+    private readonly sweepResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
 
     private constructor () {
         super();
     }
 
-    postUpdate (deltaTime: number) {
+    postUpdate (deltaTime: number): void {
         if (EDITOR_NOT_IN_PREVIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
@@ -385,7 +385,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 重置物理配置。
      */
-    resetConfiguration (config?: IPhysicsConfig) {
+    resetConfiguration (config?: IPhysicsConfig): void {
         const allowSleep = config ? config.allowSleep : settings.querySettings(Settings.Category.PHYSICS, 'allowSleep');
         if (typeof allowSleep === 'boolean') this._allowSleep = allowSleep;
         const fixedTimeStep = config ? config.fixedTimeStep : settings.querySettings(Settings.Category.PHYSICS, 'fixedTimeStep');
@@ -410,7 +410,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
         if (collisionGroups) {
             const cg = collisionGroups;
             if (cg instanceof Array) {
-                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                cg.forEach((v): void => { PhysicsGroup[v.name] = 1 << v.index; });
                 Enum.update(PhysicsGroup);
             }
         }
@@ -427,7 +427,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 重置时间累积总量为给定值。
      */
-    resetAccumulator (time = 0) {
+    resetAccumulator (time = 0): void {
         this._accumulator = time;
     }
 
@@ -438,7 +438,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 执行物理世界的模拟步进。
      * @param fixedTimeStep
      */
-    step (fixedTimeStep: number, deltaTime?: number, maxSubSteps?: number) {
+    step (fixedTimeStep: number, deltaTime?: number, maxSubSteps?: number): void {
         if (this.physicsWorld) this.physicsWorld.step(fixedTimeStep, deltaTime, maxSubSteps);
     }
 
@@ -448,7 +448,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 同步场景世界的变化信息到物理世界中。
      */
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         if (this.physicsWorld) this.physicsWorld.syncSceneToPhysics();
     }
 
@@ -458,7 +458,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 触发`trigger`和`collision`事件。
      */
-    emitEvents () {
+    emitEvents (): void {
         if (this.physicsWorld) this.physicsWorld.emitEvents();
     }
 
@@ -752,7 +752,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             this.raycastOptions, this.sweepCastClosestResult);
     }
 
-    private _updateMaterial () {
+    private _updateMaterial (): void {
         if (this.physicsWorld) this.physicsWorld.setDefaultMaterial(this._material);
     }
 
@@ -764,7 +764,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 构造并注册系统单例。
      * 预先加载模块的情况下，会自动执行。
      */
-    static constructAndRegister () {
+    static constructAndRegister (): void {
         const enabled = settings.querySettings(Settings.Category.PHYSICS, 'enabled') ?? true;
         if (!enabled) { return; }
         if (!PhysicsSystem._instance) {
@@ -784,4 +784,4 @@ export class PhysicsSystem extends System implements IWorldInitData {
  * By registering the initialization event, the system can be automatically
  * constructed and registered when the module is pre-loaded
  */
-director.once(Director.EVENT_INIT, () => { PhysicsSystem.constructAndRegister(); });
+director.once(Director.EVENT_INIT, (): void => { PhysicsSystem.constructAndRegister(); });

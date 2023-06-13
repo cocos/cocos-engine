@@ -32,14 +32,14 @@ export class WebGL2Queue extends Queue {
     public numInstances = 0;
     public numTris = 0;
 
-    public initialize (info: Readonly<QueueInfo>) {
+    public initialize (info: Readonly<QueueInfo>): void {
         this._type = info.type;
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>): void {
         for (let i = 0; i < cmdBuffs.length; i++) {
             const cmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
             // WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, cmdBuff.cmdPackage); // opted out
@@ -49,7 +49,7 @@ export class WebGL2Queue extends Queue {
         }
     }
 
-    public clear () {
+    public clear (): void {
         this.numDrawCalls = 0;
         this.numInstances = 0;
         this.numTris = 0;

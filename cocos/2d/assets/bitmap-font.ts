@@ -57,11 +57,11 @@ export class FontAtlas {
         this.texture = texture;
     }
 
-    public addLetterDefinitions (letter, letterDefinition) {
+    public addLetterDefinitions (letter, letterDefinition): void {
         this.letterDefinitions[letter] = letterDefinition;
     }
 
-    public cloneLetterDefinition () {
+    public cloneLetterDefinition (): ILetterDefinition {
         const copyLetterDefinitions: ILetterDefinition = {};
         for (const key of Object.keys(this.letterDefinitions)) {
             const value = new FontLetterDefinition();
@@ -71,15 +71,15 @@ export class FontAtlas {
         return copyLetterDefinitions;
     }
 
-    public getTexture () {
+    public getTexture (): any {
         return this.texture;
     }
 
-    public getLetter (key) {
+    public getLetter (key): any {
         return this.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char, labelInfo?) {
+    public getLetterDefinitionForChar (char, labelInfo?): any {
         const key = char.charCodeAt(0);
         const hasKey = this.letterDefinitions.hasOwnProperty(key);
         let letter;
@@ -91,7 +91,7 @@ export class FontAtlas {
         return letter;
     }
 
-    public clear () {
+    public clear (): void {
         this.letterDefinitions = {};
     }
 }
@@ -137,7 +137,7 @@ export class BitmapFont extends Font {
      */
     public declare fontDefDictionary: FontAtlas;
 
-    onLoaded () {
+    onLoaded (): void {
         const spriteFrame = this.spriteFrame;
         if (!this.fontDefDictionary && spriteFrame) {
             this.fontDefDictionary = new FontAtlas(spriteFrame.texture);

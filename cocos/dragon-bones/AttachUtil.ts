@@ -54,7 +54,7 @@ export class AttachUtil {
      * @en Initializes parameters.
      * @zh 初始化参数设置。
      */
-    init (armatureDisplay: ArmatureDisplay) {
+    init (armatureDisplay: ArmatureDisplay): void {
         this._inited = true;
         this._armature = armatureDisplay._armature;
         this._armatureNode = armatureDisplay.node;
@@ -64,7 +64,7 @@ export class AttachUtil {
      * @en Resets parameter values.
      * @zh 重置参数设置。
      */
-    reset () {
+    reset (): void {
         this._inited = false;
         this._armature = null;
         this._armatureNode = null;
@@ -74,7 +74,7 @@ export class AttachUtil {
      * @en Synchronize transformation of nodes attached to bones.
      * @zh 同步变换附着在骨骼上节点。
      */
-    _syncAttachedNode () {
+    _syncAttachedNode (): void {
         if (!this._inited) return;
         const rootMatrix = this._armatureNode!.worldMatrix;
 
@@ -88,7 +88,7 @@ export class AttachUtil {
         const sockets = this._armatureDisplay!.sockets;
         const socketNodes = this._armatureDisplay!.socketNodes;
 
-        const matrixHandle = (node: Node, boneMat: Matrix) => {
+        const matrixHandle = (node: Node, boneMat: Matrix): void => {
             const tm = _tempMat4;
             tm.m00 = boneMat.a;
             tm.m01 = boneMat.b;

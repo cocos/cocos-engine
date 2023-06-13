@@ -48,7 +48,7 @@ export class PointToPointConstraint extends Constraint {
      */
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.pivotA')
-    get pivotA () {
+    get pivotA (): IVec3Like {
         return this._pivotA;
     }
 
@@ -67,7 +67,7 @@ export class PointToPointConstraint extends Constraint {
      */
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.pivotB')
-    get pivotB () {
+    get pivotB (): IVec3Like {
         return this._pivotB;
     }
 

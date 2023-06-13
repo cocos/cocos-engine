@@ -61,7 +61,7 @@ export class Toggle extends Button {
      */
     @displayOrder(1)
     @tooltip('i18n:toggle.isChecked')
-    get isChecked () {
+    get isChecked (): boolean {
         return this._isChecked;
     }
 
@@ -79,7 +79,7 @@ export class Toggle extends Button {
     @type(Sprite)
     @displayOrder(1)
     @tooltip('i18n:toggle.checkMark')
-    get checkMark () {
+    get checkMark (): Sprite | null {
         return this._checkMark;
     }
 
@@ -103,7 +103,7 @@ export class Toggle extends Button {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    get _toggleContainer () {
+    get _toggleContainer (): ToggleContainer | null {
         const parent = this.node.parent!;
         if (legacyCC.Node.isNode(parent)) {
             return parent.getComponent('cc.ToggleContainer') as ToggleContainer;
@@ -133,11 +133,11 @@ export class Toggle extends Button {
     @serializable
     protected _checkMark: Sprite | null = null;
 
-    protected _internalToggle () {
+    protected _internalToggle (): void {
         this.isChecked = !this.isChecked;
     }
 
-    protected _set (value: boolean, emitEvent = true) {
+    protected _set (value: boolean, emitEvent = true): void {
         if (this._isChecked == value) return;
 
         this._isChecked = value;
@@ -159,7 +159,7 @@ export class Toggle extends Button {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public playEffect () {
+    public playEffect (): void {
         if (this._checkMark) {
             this._checkMark.node.active = this._isChecked;
         }
@@ -174,11 +174,11 @@ export class Toggle extends Button {
      *
      * @param value @en Whether this toggle is pressed. @zh 是否被按下。
      */
-    public setIsCheckedWithoutNotify (value: boolean) {
+    public setIsCheckedWithoutNotify (value: boolean): void {
         this._set(value, false);
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         this.playEffect();
         if (!EDITOR_NOT_IN_PREVIEW) {
@@ -186,14 +186,14 @@ export class Toggle extends Button {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         super.onDisable();
         if (!EDITOR_NOT_IN_PREVIEW) {
             this.node.off(Toggle.EventType.CLICK, this._internalToggle, this);
         }
     }
 
-    protected _emitToggleEvents () {
+    protected _emitToggleEvents (): void {
         this.node.emit(Toggle.EventType.TOGGLE, this);
         if (this.checkEvents) {
             ComponentEventHandler.emitEvents(this.checkEvents, this);

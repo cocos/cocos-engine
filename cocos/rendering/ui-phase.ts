@@ -38,11 +38,11 @@ export class UIPhase {
         if (isEnableEffect()) this._phaseID = r.getPhaseID(r.getPassID('default'), 'default');
     }
 
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline): void {
         this._pipeline = pipeline;
     }
 
-    public render (camera: Camera, renderPass: RenderPass) {
+    public render (camera: Camera, renderPass: RenderPass): void {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const cmdBuff = pipeline.commandBuffers[0];

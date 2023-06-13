@@ -239,7 +239,7 @@ export const sys = {
      * @en Forces the garbage collection, only available in native platforms.
      * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效。
      */
-    garbageCollect () {
+    garbageCollect (): void {
         systemInfo.triggerGC();
     },
 
@@ -268,7 +268,7 @@ export const sys = {
      * @en Dump systemInfo informations.
      * @zh 在控制台打印当前的主要系统信息。
      */
-    dump () {
+    dump (): void {
         let str = '';
         str += `isMobile : ${this.isMobile}\r\n`;
         str += `language : ${this.language}\r\n`;
@@ -292,7 +292,7 @@ export const sys = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效。
      * @param url @zh 访问的链接。 @en Visited links.
      */
-    openURL (url) {
+    openURL (url): void {
         systemInfo.openURL(url);
     },
 
@@ -301,8 +301,8 @@ export const sys = {
      */
     init (): Promise<void> {
         return Promise.resolve()
-            .then(() => systemInfo.init())
-            .then(() => {
+            .then((): any => systemInfo.init())
+            .then((): void => {
                 try {
                     let localStorage: Storage | null = sys.localStorage = window.localStorage;
                     localStorage.setItem('storage', '');
@@ -336,7 +336,7 @@ export const sys = {
      * @en Get the current time in milliseconds.
      * @zh 获取当前时间（毫秒为单位）。
      */
-    now () {
+    now (): number {
         return systemInfo.now();
     },
 
@@ -345,7 +345,7 @@ export const sys = {
      * @zh 重启JS虚拟机，仅仅在原生平台有效。
      * @private
      */
-    restartVM () {
+    restartVM (): void {
         systemInfo.restartJSVM();
     },
 
@@ -360,7 +360,7 @@ export const sys = {
      * @method getSafeAreaRect
      * @return {Rect}
      */
-    getSafeAreaRect () {
+    getSafeAreaRect (): Rect {
         const locView = legacyCC.view;
         const edge = screenAdapter.safeAreaEdge;
         const windowSize = screenAdapter.windowSize;

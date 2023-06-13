@@ -76,7 +76,7 @@ export class CachedArray<T> extends ScalableContainer {
      * 向数组末尾添加一个元素。
      * @param item @en The item to be added. @zh 被添加到数组的元素。
      */
-    public push (item: T) {
+    public push (item: T): void {
         this.array[this.length++] = item;
     }
 
@@ -111,7 +111,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @zh
      * 清空数组所有元素。[[length]] 会被设为 0，但内部数组的实际长度不变
      */
-    public clear () {
+    public clear (): void {
         this.length = 0;
     }
 
@@ -121,7 +121,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @zh
      * 销毁数组。[[length]] 会被设为 0，并且清空内部数组。
      */
-    public destroy () {
+    public destroy (): void {
         this.length = 0;
         this.array.length = 0;
         super.destroy();
@@ -131,7 +131,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @en Requests the removal of unused capacity.
      * @zh 尝试释放多余的内存。
      */
-    public tryShrink () {
+    public tryShrink (): void {
         if (this.array.length >> 2 > this.length) {
             this.array.length = Math.max(this._initSize, this.array.length >> 1);
         }
@@ -144,7 +144,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @zh
      * 使用构造函数传入的 [[compareFn]] 排序所有现有元素。如果没有传入比较函数，将按照 ASCII 升序排序。
      */
-    public sort () {
+    public sort (): void {
         this.array.length = this.length;
         this.array.sort(this._compareFn);
     }
@@ -156,7 +156,7 @@ export class CachedArray<T> extends ScalableContainer {
      * 添加一个指定数组中的所有元素到当前数组末尾。
      * @param array @en The given array to be appended. @zh 被添加的数组。
      */
-    public concat (array: T[]) {
+    public concat (array: T[]): void {
         for (let i = 0; i < array.length; ++i) {
             this.array[this.length++] = array[i];
         }
@@ -169,7 +169,7 @@ export class CachedArray<T> extends ScalableContainer {
      * not effect.
      *  @zh 希望被删除的索引。如果索引超出 [0, length)，将没有效果。
      */
-    public fastRemove (idx: number) {
+    public fastRemove (idx: number): void {
         if (idx >= this.length || idx < 0) {
             return;
         }
@@ -184,7 +184,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @returns The index to the first element that compares equal to val. If no elements match, returns -1.
      * @zh 第一个和 val 相等的元素的索引。如果没找到，将返回 -1。
      */
-    public indexOf (val: T) {
+    public indexOf (val: T): number {
         for (let i = 0, len = this.length; i < len; ++i) {
             if (this.array[i] === val) {
                 return i;

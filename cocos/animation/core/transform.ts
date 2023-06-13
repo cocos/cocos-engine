@@ -14,7 +14,7 @@ type ReadonlyTransform = Transform;
 export class Transform {
     public static IDENTITY = Object.freeze(new Transform());
 
-    public static ZERO = Object.freeze((() => {
+    public static ZERO = Object.freeze(((): Transform => {
         const transform = new Transform();
         Vec3.copy(transform._position, Vec3.ZERO);
         Quat.set(transform._rotation, 0.0, 0.0, 0.0, 0.0);
@@ -46,39 +46,39 @@ export class Transform {
         Vec3.copy(this._scale, value);
     }
 
-    public static clone (src: ReadonlyTransform) {
+    public static clone (src: ReadonlyTransform): Transform {
         const transform = new Transform();
         Transform.copy(transform, src);
         return transform;
     }
 
-    public static setIdentity (out: Transform) {
+    public static setIdentity (out: Transform): Transform {
         Vec3.copy(out._position, Vec3.ZERO);
         Quat.copy(out._rotation, Quat.IDENTITY);
         Vec3.copy(out._scale, Vec3.ONE);
         return out;
     }
 
-    public static copy (out: Transform, src: ReadonlyTransform) {
+    public static copy (out: Transform, src: ReadonlyTransform): Transform {
         Vec3.copy(out._position, src._position);
         Quat.copy(out._rotation, src._rotation);
         Vec3.copy(out._scale, src._scale);
         return out;
     }
 
-    public static equals (a: ReadonlyTransform, b: ReadonlyTransform, epsilon?: number) {
+    public static equals (a: ReadonlyTransform, b: ReadonlyTransform, epsilon?: number): boolean {
         return Vec3.equals(a._position, b._position, epsilon)
             && Quat.equals(a._rotation, b._rotation, epsilon)
             && Vec3.equals(a._scale, b._scale, epsilon);
     }
 
-    public static strictEquals (a: ReadonlyTransform, b: ReadonlyTransform) {
+    public static strictEquals (a: ReadonlyTransform, b: ReadonlyTransform):boolean {
         return Vec3.strictEquals(a._position, b._position)
             && Quat.strictEquals(a._rotation, b._rotation)
             && Vec3.strictEquals(a._scale, b._scale);
     }
 
-    public static lerp (out: Transform, from: ReadonlyTransform, to: ReadonlyTransform, t: number) {
+    public static lerp (out: Transform, from: ReadonlyTransform, to: ReadonlyTransform, t: number): Transform {
         if (t === 0.0) {
             return Transform.copy(out, from);
         }
@@ -104,7 +104,7 @@ export class Transform {
      * - The scale should be uniformed, ie. all components should be the same.
      * - Each component of the scale shall be non-negative.
      */
-    public static multiply (out: Transform, second: ReadonlyTransform, first: ReadonlyTransform) {
+    public static multiply (out: Transform, second: ReadonlyTransform, first: ReadonlyTransform): Transform {
         // May reference to https://zhuanlan.zhihu.com/p/119066087
         // for the reason about restrictions on uniform scales.
 
@@ -138,10 +138,10 @@ export class Transform {
      *
      * Same restriction is applied to this method like `Transform.multiply`.
      */
-    public static calculateRelative = (() => {
+    public static calculateRelative = ((): (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform) => Transform => {
         const cacheInvRotation = new Quat();
         const cacheInvScale = new Vec3();
-        return (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform) => {
+        return (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform): Transform => {
             const invSecondRotation = Quat.invert(cacheInvRotation, second._rotation);
             const invScale = invScaleOrZero(cacheInvScale, second._scale, EPSILON);
 
@@ -163,7 +163,7 @@ export class Transform {
      * @param out Out transform.
      * @param transform Transform to invert.
      */
-    public static invert (out: Transform, transform: ReadonlyTransform) {
+    public static invert (out: Transform, transform: ReadonlyTransform): Transform {
         const {
             _rotation: invRotation,
             _scale: invScale,
@@ -199,7 +199,7 @@ export class Transform {
         return out;
     }
 
-    public static fromMatrix (out: Transform, matrix: Readonly<Mat4>) {
+    public static fromMatrix (out: Transform, matrix: Readonly<Mat4>): Transform {
         Mat4.toSRT(
             matrix,
             out._rotation,
@@ -209,7 +209,7 @@ export class Transform {
         return out;
     }
 
-    public static toMatrix (out: Mat4, transform: ReadonlyTransform) {
+    public static toMatrix (out: Mat4, transform: ReadonlyTransform): Mat4 {
         return Mat4.fromSRT(
             out,
             transform._rotation,
@@ -228,7 +228,7 @@ export class Transform {
 /**
  * Invert each component of scale if it isn't close to zero, or set it to zero otherwise.
  */
-function invScaleOrZero (out: Vec3, scale: Readonly<Vec3>, epsilon: number) {
+function invScaleOrZero (out: Vec3, scale: Readonly<Vec3>, epsilon: number): Vec3 {
     const { x, y, z } = scale;
     return Vec3.set(
         out,
@@ -238,16 +238,16 @@ function invScaleOrZero (out: Vec3, scale: Readonly<Vec3>, epsilon: number) {
     );
 }
 
-export function __calculateDeltaTransform (out: Transform, target: Readonly<Transform>, base: Readonly<Transform>) {
+export function __calculateDeltaTransform (out: Transform, target: Readonly<Transform>, base: Readonly<Transform>): Transform {
     Vec3.subtract(out.position, target.position, base.position);
     deltaQuat(out.rotation, base.rotation, target.rotation);
     Vec3.subtract(out.scale, target.scale, base.scale);
     return out;
 }
 
-export const __applyDeltaTransform = (() => {
+export const __applyDeltaTransform = ((): (out: Transform, base: Readonly<Transform>, delta: Readonly<Transform>, alpha: number) => Transform => {
     const cacheQuat = new Quat();
-    return (out: Transform, base: Readonly<Transform>, delta: Readonly<Transform>, alpha: number) => {
+    return (out: Transform, base: Readonly<Transform>, delta: Readonly<Transform>, alpha: number): Transform => {
         Vec3.scaleAndAdd(out.position, base.position, delta.position, alpha);
         const weightedDeltaRotation = Quat.slerp(cacheQuat, Quat.IDENTITY, delta.rotation, alpha);
         Quat.multiply(out.rotation, weightedDeltaRotation, base.rotation);
@@ -262,15 +262,15 @@ export const __applyDeltaTransform = (() => {
  * @param from
  * @param to
  */
-const deltaQuat = (() => {
+const deltaQuat = ((): (out: Quat, from: Quat, to: Quat) => Quat => {
     const quatMultiInvInverseCache = new Quat();
-    return (out: Quat, from: Quat, to: Quat) => {
+    return (out: Quat, from: Quat, to: Quat): Quat => {
         const fromInv = Quat.invert(quatMultiInvInverseCache, from);
         return Quat.multiply(out, to, fromInv);
     };
 })();
 
-export const ZERO_DELTA_TRANSFORM = Object.freeze((() => {
+export const ZERO_DELTA_TRANSFORM = Object.freeze(((): Transform => {
     const transform = new Transform();
     transform.position = Vec3.ZERO;
     transform.rotation = Quat.IDENTITY;

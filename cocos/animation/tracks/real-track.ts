@@ -38,7 +38,7 @@ export class RealTrack extends SingleChannelTrack<RealCurve> {
     /**
      * @internal
      */
-    protected createCurve () {
+    protected createCurve (): RealCurve {
         return new RealCurve();
     }
 }

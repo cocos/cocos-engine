@@ -31,21 +31,21 @@ import { bt } from '../instantiated';
 import { absMaxComponent } from '../../../core';
 
 export class BulletSphereShape extends BulletShape implements ISphereShape {
-    updateRadius () {
+    updateRadius (): void {
         bt.SphereShape_setUnscaledRadius(this.impl, this.getMinUnscaledRadius());
         this.updateCompoundTransform();
     }
 
-    get collider () {
+    get collider (): SphereCollider {
         return this._collider as SphereCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         this._impl = bt.SphereShape_new(this.getMinUnscaledRadius());
         this.updateScale();
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         const scale = this.getMinScale();
         CC_V3_0.set(scale, scale, scale);
@@ -54,14 +54,14 @@ export class BulletSphereShape extends BulletShape implements ISphereShape {
         this.updateCompoundTransform();
     }
 
-    getMinUnscaledRadius () {
+    getMinUnscaledRadius (): number {
         const radius = this.collider.radius;
         const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         return ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
     }
 
-    getMinScale () {
+    getMinScale (): number {
         const radius = this.collider.radius;
         const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;

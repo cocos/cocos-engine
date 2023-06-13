@@ -60,7 +60,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
     protected _curDynamicStates: DynamicStates = new DynamicStates();
     protected _isStateInvalied = false;
 
-    public initialize (info: Readonly<CommandBufferInfo>) {
+    public initialize (info: Readonly<CommandBufferInfo>): void {
         this._type = info.type;
         this._queue = info.queue;
 
@@ -70,11 +70,11 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this._cmdAllocator.clearCmds(this.cmdPackage);
     }
 
-    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer) {
+    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer): void {
         this._cmdAllocator.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
@@ -84,7 +84,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._numTris = 0;
     }
 
-    public end () {
+    public end (): void {
         if (this._isStateInvalied) {
             this.bindStates();
         }
@@ -99,7 +99,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         clearColors: Readonly<Color[]>,
         clearDepth: number,
         clearStencil: number,
-    ) {
+    ): void {
         const cmd = this._cmdAllocator.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         cmd.gpuRenderPass = (renderPass as WebGLRenderPass).gpuRenderPass;
         cmd.gpuFramebuffer = (framebuffer as WebGLFramebuffer).gpuFramebuffer;
@@ -117,11 +117,11 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public endRenderPass () {
+    public endRenderPass (): void {
         this._isInRenderPass = false;
     }
 
-    public bindPipelineState (pipelineState: PipelineState) {
+    public bindPipelineState (pipelineState: PipelineState): void {
         const gpuPipelineState = (pipelineState as WebGLPipelineState).gpuPipelineState;
         if (gpuPipelineState !== this._curGPUPipelineState) {
             this._curGPUPipelineState = gpuPipelineState;
@@ -129,7 +129,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>) {
+    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>): void {
         const gpuDescriptorSet = (descriptorSet as WebGLDescriptorSet).gpuDescriptorSet;
         if (gpuDescriptorSet !== this._curGPUDescriptorSets[set]) {
             this._curGPUDescriptorSets[set] = gpuDescriptorSet;
@@ -146,13 +146,13 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public bindInputAssembler (inputAssembler: InputAssembler) {
+    public bindInputAssembler (inputAssembler: InputAssembler): void {
         const gpuInputAssembler = (inputAssembler as WebGLInputAssembler).gpuInputAssembler;
         this._curGPUInputAssembler = gpuInputAssembler;
         this._isStateInvalied = true;
     }
 
-    public setViewport (viewport: Readonly<Viewport>) {
+    public setViewport (viewport: Readonly<Viewport>): void {
         const cache = this._curDynamicStates.viewport;
         if (cache.left !== viewport.left
             || cache.top !== viewport.top
@@ -170,7 +170,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setScissor (scissor: Readonly<Rect>) {
+    public setScissor (scissor: Readonly<Rect>): void {
         const cache = this._curDynamicStates.scissor;
         if (cache.x !== scissor.x
             || cache.y !== scissor.y
@@ -184,14 +184,14 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setLineWidth (lineWidth: number) {
+    public setLineWidth (lineWidth: number): void {
         if (this._curDynamicStates.lineWidth !== lineWidth) {
             this._curDynamicStates.lineWidth = lineWidth;
             this._isStateInvalied = true;
         }
     }
 
-    public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {
+    public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number): void {
         const cache = this._curDynamicStates;
         if (cache.depthBiasConstant !== depthBiasConstantFactor
             || cache.depthBiasClamp !== depthBiasClamp
@@ -203,7 +203,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setBlendConstants (blendConstants: Readonly<Color>) {
+    public setBlendConstants (blendConstants: Readonly<Color>): void {
         const cache = this._curDynamicStates.blendConstant;
         if (cache.x !== blendConstants.x
             || cache.y !== blendConstants.y
@@ -214,7 +214,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setDepthBound (minDepthBounds: number, maxDepthBounds: number) {
+    public setDepthBound (minDepthBounds: number, maxDepthBounds: number): void {
         const cache = this._curDynamicStates;
         if (cache.depthMinBounds !== minDepthBounds
             || cache.depthMaxBounds !== maxDepthBounds) {
@@ -224,7 +224,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setStencilWriteMask (face: StencilFace, writeMask: number) {
+    public setStencilWriteMask (face: StencilFace, writeMask: number): void {
         const front = this._curDynamicStates.stencilStatesFront;
         const back = this._curDynamicStates.stencilStatesBack;
         if (face & StencilFace.FRONT) {
@@ -241,7 +241,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number) {
+    public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number): void {
         const front = this._curDynamicStates.stencilStatesFront;
         const back = this._curDynamicStates.stencilStatesBack;
         if (face & StencilFace.FRONT) {
@@ -262,7 +262,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {
+    public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
@@ -299,7 +299,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {
+    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
         if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
@@ -335,7 +335,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
@@ -357,7 +357,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {
+    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
         for (let i = 0; i < count; ++i) {
             const webGLCmdBuff = cmdBuffs[i] as WebGLCommandBuffer;
 
@@ -408,9 +408,9 @@ export class WebGLCommandBuffer extends CommandBuffer {
     public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
-        textures?: Readonly<Texture[]>) {}
+        textures?: Readonly<Texture[]>): void {}
 
-    protected bindStates () {
+    protected bindStates (): void {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGLCmdBindStates);
 
         if (bindStatesCmd) {

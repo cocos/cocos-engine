@@ -127,7 +127,7 @@ export class Ambient {
 
     protected _enabled = false;
 
-    public initialize (ambientInfo: AmbientInfo) {
+    public initialize (ambientInfo: AmbientInfo): void {
         // Init HDR/LDR from serialized data on load
         this._skyColorHDR = ambientInfo.skyColorHDR;
         this._groundAlbedoHDR.set(ambientInfo.groundAlbedoHDR);

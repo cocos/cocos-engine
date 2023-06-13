@@ -145,7 +145,7 @@ export class Ray {
      * @zh
      * 获取形状的类型，其值为`enums.SHAPE_RAY`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -178,7 +178,7 @@ export class Ray {
      * @param out @en Another point on the ray. @zh 射线上的另一点。
      * @param distance @en The given distance. @zh 给定的距离。
      */
-    public computeHit (out: IVec3Like, distance: number) {
+    public computeHit (out: IVec3Like, distance: number): void {
         Vec3.normalize(out, this.d);
         Vec3.scaleAndAdd(out, this.o, out, distance);
     }

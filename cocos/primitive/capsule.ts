@@ -49,7 +49,7 @@ const temp2 = new Vec3(0, 0, 0);
  * @param radiusBottom @zh 底部半径。@en The radius of bottom sphere
  * @param opts @zh 胶囊体参数选项。@en The optional creation parameters of the capsule
  */
-export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICapsuteOptions> = {}) {
+export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICapsuteOptions> = {}): { positions: number[]; normals: number[]; uvs: number[]; indices: number[]; minPos: Vec3; maxPos: Vec3; boundingRadius: number; } {
     const torsoHeight = height - radiusTop - radiusBottom;
     const sides = opts.sides || 32;
     const heightSegments = opts.heightSegments || 32;
@@ -98,7 +98,7 @@ export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2
     // internal fucntions
     // =======================
 
-    function generateTorso () {
+    function generateTorso (): void {
     // this will be used to calculate the normal
         const slope = (radiusTop - radiusBottom) / torsoHeight;
 
@@ -162,7 +162,7 @@ export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2
         }
     }
 
-    function generateBottom () {
+    function generateBottom (): void {
         for (let lat = 0; lat <= bottomSegments; ++lat) {
             const theta = lat * Math.PI / bottomSegments / 2;
             const sinTheta = Math.sin(theta);
@@ -199,7 +199,7 @@ export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2
         }
     }
 
-    function generateTop () {
+    function generateTop (): void {
         for (let lat = 0; lat <= topSegments; ++lat) {
             const theta = lat * Math.PI / topSegments / 2 + Math.PI / 2;
             const sinTheta = Math.sin(theta);

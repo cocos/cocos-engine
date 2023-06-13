@@ -60,7 +60,7 @@ export class ValueType {
      * @param other @en The other object @zh 指定值。
      * @returns @en `true` if equal, otherwise returns `false` @zh 如果相等，则返回 `true`，否则返回 `false`。
      */
-    public equals (other: this) {
+    public equals (other: this): boolean {
         // errorID(100, js.getClassName(this) + '.equals');
         return false;
     }
@@ -74,7 +74,7 @@ export class ValueType {
      * 本方法的基类版本简单地返回 `this`，派生类**必须**重写本方法。
      * @param other @en The other object. @zh 指定值。
      */
-    public set (other: this) {
+    public set (other: this): void {
         errorID(100, `${js.getClassName(this)}.set`);
     }
 
@@ -87,7 +87,7 @@ export class ValueType {
      * 本方法的基类版本返回空字符串。
      * @returns @en The string representation of the current value. @zh 当前值的字符串表示。
      */
-    public toString () {
+    public toString (): string {
         return `${''}`;
     }
 }

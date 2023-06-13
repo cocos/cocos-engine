@@ -29,7 +29,7 @@ export class PipelineStateManager {
     private static _PSOHashMap: Map<number, PipelineState> = new Map<number, PipelineState>();
 
     // pass is only needed on TS.
-    static getOrCreatePipelineState (device: Device, pass: Pass, shader: Shader, renderPass: RenderPass, ia: InputAssembler) {
+    static getOrCreatePipelineState (device: Device, pass: Pass, shader: Shader, renderPass: RenderPass, ia: InputAssembler): PipelineState {
         const hash1 = pass.hash;
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;

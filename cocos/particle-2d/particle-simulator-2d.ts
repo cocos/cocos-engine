@@ -37,7 +37,7 @@ const _tpc = new Vec2();
 const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
 // In the Free mode to get emit real rotation in the world coordinate.
-function getWorldRotation (node) {
+function getWorldRotation (node): number {
     let rotation = 0;
     let tempNode = node;
     while (tempNode) {
@@ -76,7 +76,7 @@ class ParticlePool extends js.Pool<Particle> {
     }
 }
 
-const pool = new ParticlePool((par: Particle) => {
+const pool = new ParticlePool((par: Particle): void => {
     par.pos.set(ZERO_VEC2);
     par.startPos.set(ZERO_VEC2);
     par.color._val = 0xFF000000;
@@ -124,14 +124,14 @@ export class Simulator {
         this._worldRotation = 0;
     }
 
-    public stop () {
+    public stop (): void {
         this.active = false;
         this.readyToPlay = false;
         this.elapsed = this.sys.duration;
         this.emitCounter = 0;
     }
 
-    public reset () {
+    public reset (): void {
         this.active = true;
         this.readyToPlay = true;
         this.elapsed = 0;
@@ -142,7 +142,7 @@ export class Simulator {
         particles.length = 0;
     }
 
-    public emitParticle (pos) {
+    public emitParticle (pos): void {
         const psys = this.sys;
         const particle = pool.get();
         this.particles.push(particle);
@@ -230,7 +230,7 @@ export class Simulator {
         }
     }
 
-    public updateUVs (force?: boolean) {
+    public updateUVs (force?: boolean): void {
         const renderData = this.renderData;
         if (renderData && this.sys._renderSpriteFrame) {
             const vbuf = renderData.vData;
@@ -253,7 +253,7 @@ export class Simulator {
         }
     }
 
-    public updateParticleBuffer (particle, pos, buffer, offset: number) {
+    public updateParticleBuffer (particle, pos, buffer, offset: number): void {
         const vbuf = buffer.vData;
         // const uintbuf = buffer._uintVData;
 
@@ -319,7 +319,7 @@ export class Simulator {
         Color.toArray(vbuf, particle.color, offset + 32);
     }
 
-    public step (dt) {
+    public step (dt): void {
         const assembler = this.sys.assembler!;
         const psys = this.sys;
         const node = psys.node;
@@ -468,7 +468,7 @@ export class Simulator {
         }
     }
 
-    requestData (vertexCount: number, indexCount: number) {
+    requestData (vertexCount: number, indexCount: number): void {
         let offset = this.renderData.indexCount;
         this.renderData.request(vertexCount, indexCount);
         const count = this.renderData.indexCount / 6;
@@ -484,7 +484,7 @@ export class Simulator {
         }
     }
 
-    public initDrawInfo () {
+    public initDrawInfo (): void {
         const renderData = this.renderData;
         renderData.setRenderDrawInfoAttributes();
     }
