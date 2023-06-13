@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_POSITION, P_VELOCITY, E_SIMULATION_POSITION } from '../define';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -39,7 +39,7 @@ export enum VelocityMode {
 }
 
 @ccclass('cc.AddVelocityModule')
-@VFXModule.register('AddVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_VELOCITY.name])
+@VFXModule.register('AddVelocity', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_VELOCITY.name])
 export class AddVelocityModule extends VFXModule {
     @type(Enum(VelocityMode))
     @serializable
@@ -138,7 +138,7 @@ export class AddVelocityModule extends VFXModule {
     public tick (parameterMap: VFXParameterMap) {
         parameterMap.ensureParameter(P_VELOCITY);
         parameterMap.ensureParameter(P_POSITION);
-        if (this.usage !== ModuleExecStage.UPDATE) {
+        if (this.usage !== VFXExecutionStage.UPDATE) {
             parameterMap.ensureParameter(P_BASE_VELOCITY);
         }
         if (this.velocityMode === VelocityMode.LINEAR) {
@@ -152,7 +152,7 @@ export class AddVelocityModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const velocity = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
+        const velocity = parameterMap.getVec3ArrayValue(this.usage === VFXExecutionStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;

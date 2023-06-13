@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec2, CCBoolean } from '../../core';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
 import { VFXFloatArray } from '../parameters';
 import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
@@ -47,7 +47,7 @@ export enum SubUVIndexChannel {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [P_VELOCITY.name, P_NORMALIZED_AGE.name])
+@VFXModule.register('SubUVAnimation', VFXExecutionStageFlags.UPDATE, [], [P_VELOCITY.name, P_NORMALIZED_AGE.name])
 export class SubUVAnimationModule extends VFXModule {
     @type(Vec2Expression)
     public get subImageSize () {

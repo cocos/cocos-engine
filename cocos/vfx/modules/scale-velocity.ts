@@ -26,7 +26,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -34,7 +34,7 @@ const tempScalar = new Vec3();
 const tempVelocity = new Vec3();
 
 @ccclass('cc.ScaleVelocityModule')
-@VFXModule.register('ScaleVelocity', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
+@VFXModule.register('ScaleVelocity', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
 export class ScaleVelocityModule extends VFXModule {
     @type(Enum(CoordinateSpace))
     @serializable

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2 } from '../../core';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempSize = new Vec2();
 
 @ccclass('cc.SetSpriteSizeModule')
-@VFXModule.register('SetSpriteSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetSpriteSize', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
 export class SetSpriteSizeModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
@@ -71,7 +71,7 @@ export class SetSpriteSizeModule extends VFXModule {
     private _size: Vec2Expression | null = null;
 
     public tick (parameterMap: VFXParameterMap) {
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_SPRITE_SIZE);
         }
 
@@ -84,7 +84,7 @@ export class SetSpriteSizeModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const scale = this.usage === ModuleExecStage.SPAWN ? parameterMap.getVec2ArrayValue(P_BASE_SPRITE_SIZE) : parameterMap.getVec2ArrayValue(P_SPRITE_SIZE);
+        const scale = this.usage === VFXExecutionStage.SPAWN ? parameterMap.getVec2ArrayValue(P_BASE_SPRITE_SIZE) : parameterMap.getVec2ArrayValue(P_SPRITE_SIZE);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this.separateAxes) {

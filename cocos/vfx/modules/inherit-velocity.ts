@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempVelocity = new Vec3();
 const scale = new Vec3();
 @ccclass('cc.InheritVelocityModule')
-@VFXModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_VELOCITY.name])
+@VFXModule.register('InheritVelocity', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_VELOCITY.name])
 export class InheritVelocityModule extends VFXModule {
     @type(Vec3Expression)
     @visible(true)
@@ -54,7 +54,7 @@ export class InheritVelocityModule extends VFXModule {
         this.scale.tick(parameterMap);
         parameterMap.ensureParameter(P_POSITION);
         parameterMap.ensureParameter(P_VELOCITY);
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_VELOCITY);
         }
     }
@@ -64,7 +64,7 @@ export class InheritVelocityModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const initialVelocity = parameterMap.getVec3Value(E_VELOCITY).data;
         if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
-        const velocity = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
+        const velocity = parameterMap.getVec3ArrayValue(this.usage === VFXExecutionStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
         const scaleExp = this._scale as Vec3Expression;
         scaleExp.bind(parameterMap);
         if (scaleExp.isConstant) {

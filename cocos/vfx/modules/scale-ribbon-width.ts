@@ -24,13 +24,13 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_RIBBON_WIDTH, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.ScaleRibbonWidthModule')
-@VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('ScaleRibbonWidth', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
 export class ScaleRibbonWidthModule extends VFXModule {
     /**
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
@@ -52,14 +52,14 @@ export class ScaleRibbonWidthModule extends VFXModule {
 
     public tick (parameterMap: VFXParameterMap) {
         parameterMap.ensureParameter(P_RIBBON_WIDTH);
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
         this.scalar.tick(parameterMap);
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === VFXExecutionStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;

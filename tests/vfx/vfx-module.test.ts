@@ -2,21 +2,21 @@ import { EmitterDataSet } from "../../cocos/vfx/emitter-data-set";
 import { UserDataSet } from "../../cocos/vfx/user-data-set";
 import { VFXEmitterParams, VFXEmitterState, ContextDataSet } from "../../cocos/vfx/base";
 import { ParticleDataSet } from "../../cocos/vfx/particle-data-set";
-import { ModuleExecStage, ModuleExecStageFlags, VFXModule, VFXModuleStage } from "../../cocos/vfx/vfx-module";
+import { VFXExecutionStage, VFXExecutionStageFlags, VFXModule, VFXModuleStage } from "../../cocos/vfx/vfx-module";
 import { RandomStream } from "../../cocos/vfx/random-stream";
 
 describe('VFXModule', () => {
     test('VFXModule registry', () => {
         expect(VFXModule.allRegisteredModules.length).toBe(0);
-        expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []).length).toBe(0);
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.EMITTER)
+        expect(VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.UPDATE, []).length).toBe(0);
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.EMITTER)
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test2', ModuleExecStageFlags.SPAWN, ['customData', 'customData2'], ['customData3'])
+        @VFXModule.register('Test2', VFXExecutionStageFlags.SPAWN, ['customData', 'customData2'], ['customData3'])
         class TestModule2 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
@@ -40,7 +40,7 @@ describe('VFXModule', () => {
         expect(moduleIdentity).toBeTruthy();
         expect(moduleIdentity?.ctor).toBe(TestModule);
         expect(moduleIdentity?.name).toBe('Test1');
-        expect(moduleIdentity?.execStages).toBe( ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.EMITTER);
+        expect(moduleIdentity?.execStages).toBe( VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.EMITTER);
         expect(moduleIdentity?.consumeParams.length).toBe(0);
         expect(moduleIdentity?.provideParams.length).toBe(0);
         expect(moduleIdentity).toBe(VFXModule.getModuleIdentityByClassUnsafe(TestModule));
@@ -50,19 +50,19 @@ describe('VFXModule', () => {
         expect(moduleIdentity1).toBeTruthy();
         expect(moduleIdentity1?.ctor).toBe(TestModule2);
         expect(moduleIdentity1?.name).toBe('Test2');
-        expect(moduleIdentity1?.execStages).toBe(ModuleExecStageFlags.SPAWN);
+        expect(moduleIdentity1?.execStages).toBe(VFXExecutionStageFlags.SPAWN);
         expect(moduleIdentity1?.consumeParams).toStrictEqual([ 'customData3' ]);
         expect(moduleIdentity1?.provideParams).toStrictEqual([ 'customData', 'customData2' ]);
         expect(moduleIdentity1).toBe(VFXModule.getModuleIdentityByClassUnsafe(TestModule2));
 
-        const spawnModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.SPAWN, []);
+        const spawnModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.SPAWN, []);
         expect(spawnModuleIdentities.length).toBe(2);
         expect(spawnModuleIdentities[0]).toBe(moduleIdentity);
         expect(spawnModuleIdentities[1]).toBe(moduleIdentity1);
-        const updateModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []);
+        const updateModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.UPDATE, []);
         expect(updateModuleIdentities.length).toBe(1);
         expect(updateModuleIdentities[0]).toBe(moduleIdentity);
-        const emitterUpdateModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER, []);
+        const emitterUpdateModuleIdentities = VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.EMITTER, []);
         expect(emitterUpdateModuleIdentities.length).toBe(1);
         expect(emitterUpdateModuleIdentities[0]).toBe(moduleIdentity);
 
@@ -71,7 +71,7 @@ describe('VFXModule', () => {
         expect(moduleIdentity2).toBeFalsy();
         expect(() => VFXModule.getModuleIdentityByClassUnsafe(TestModule3)).toThrowError();
 
-        VFXModule.register('test3', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.UPDATE, [], ['test3'])(TestModule3);
+        VFXModule.register('test3', VFXExecutionStageFlags.EMITTER | VFXExecutionStageFlags.UPDATE, [], ['test3'])(TestModule3);
         expect(VFXModule.allRegisteredModules.length).toBe(3);
         const moduleIdentity3 = VFXModule.getModuleIdentityByClass(TestModule3);
         expect(VFXModule.getModuleIdentityByName('test3')).toBe(moduleIdentity3);
@@ -79,23 +79,23 @@ describe('VFXModule', () => {
         expect(VFXModule.getModuleIdentityByClassUnsafe(TestModule3)).toBe(moduleIdentity3);
         expect(moduleIdentity3?.ctor).toBe(TestModule3);
         expect(moduleIdentity3?.name).toBe('test3');
-        expect(moduleIdentity3?.execStages).toBe(ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.UPDATE);
+        expect(moduleIdentity3?.execStages).toBe(VFXExecutionStageFlags.EMITTER | VFXExecutionStageFlags.UPDATE);
         expect(moduleIdentity3?.consumeParams).toStrictEqual([ 'test3' ]);
         expect(moduleIdentity3?.provideParams).toStrictEqual([]);
-        const emitterModules = VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER, []);
+        const emitterModules = VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.EMITTER, []);
         expect(emitterModules.length).toBe(2);
         expect(emitterModules[0]).toBe(moduleIdentity);
         expect(emitterModules[1]).toBe(moduleIdentity3);
-        const updateModules = VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []);
+        const updateModules = VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.UPDATE, []);
         expect(updateModules.length).toBe(2);
         expect(updateModules[0]).toBe(moduleIdentity);
 
-        expect(() => VFXModule.register('test4', ModuleExecStageFlags.EMITTER)(TestModule3)).toThrowError();
-        expect(() => VFXModule.register('test3', ModuleExecStageFlags.EMITTER)(TestModule4)).toThrowError();
+        expect(() => VFXModule.register('test4', VFXExecutionStageFlags.EMITTER)(TestModule3)).toThrowError();
+        expect(() => VFXModule.register('test3', VFXExecutionStageFlags.EMITTER)(TestModule4)).toThrowError();
         VFXModule.clearRegisteredModules();
-        expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER, []).length).toBe(0);
-        expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []).length).toBe(0);
-        expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.SPAWN, []).length).toBe(0);
+        expect(VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.EMITTER, []).length).toBe(0);
+        expect(VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.UPDATE, []).length).toBe(0);
+        expect(VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.SPAWN, []).length).toBe(0);
         expect(VFXModule.allRegisteredModules.length).toBe(0);
         expect(VFXModule.getModuleIdentityByName('Test1')).toBeFalsy();
         expect(VFXModule.getModuleIdentityByName('Test2')).toBeFalsy();
@@ -103,11 +103,11 @@ describe('VFXModule', () => {
         expect(VFXModule.getModuleIdentityByClass(TestModule3)).toBeFalsy();
         expect(VFXModule.getModuleIdentityByClass(TestModule)).toBeFalsy();
         expect(VFXModule.getModuleIdentityByClass(TestModule2)).toBeFalsy();
-        VFXModule.register('test3', ModuleExecStageFlags.EMITTER, [], ['test3'])(TestModule3);
+        VFXModule.register('test3', VFXExecutionStageFlags.EMITTER, [], ['test3'])(TestModule3);
         expect(VFXModule.getModuleIdentityByClass(TestModule3)).toBeTruthy();
         expect(VFXModule.getModuleIdentityByName('test3')).toBeTruthy();
         expect(VFXModule.getModuleIdentityByName('test3')).toBe(VFXModule.getModuleIdentityByClass(TestModule3));
-        expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER, [])).toStrictEqual([VFXModule.getModuleIdentityByClass(TestModule3)]);
+        expect(VFXModule.getModuleIdentitiesWithSpecificStage(VFXExecutionStage.EMITTER, [])).toStrictEqual([VFXModule.getModuleIdentityByClass(TestModule3)]);
         VFXModule.clearRegisteredModules();
         expect(VFXModule.getModuleIdentityByClass(TestModule3)).toBeFalsy();
         expect(VFXModule.getModuleIdentityByName('test3')).toBeFalsy();
@@ -115,35 +115,35 @@ describe('VFXModule', () => {
     });
 
     test('Find a proper position to insert', () => {
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, ['A', 'B'], ['C'])
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE, ['A', 'B'], ['C'])
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test2', ModuleExecStageFlags.UPDATE, ['C', 'D'], ['E'])
+        @VFXModule.register('Test2', VFXExecutionStageFlags.UPDATE, ['C', 'D'], ['E'])
         class TestModule2 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test3', ModuleExecStageFlags.UPDATE, ['D'], ['B'])
+        @VFXModule.register('Test3', VFXExecutionStageFlags.UPDATE, ['D'], ['B'])
         class TestModule3 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test4', ModuleExecStageFlags.UPDATE, [], ['D'])
+        @VFXModule.register('Test4', VFXExecutionStageFlags.UPDATE, [], ['D'])
         class TestModule4 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test5', ModuleExecStageFlags.UPDATE, ['D'], ['D'])
+        @VFXModule.register('Test5', VFXExecutionStageFlags.UPDATE, ['D'], ['D'])
         class TestModule5 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
@@ -254,31 +254,31 @@ describe('VFXModuleStage', () => {
     test('base', () => {
         const stage = new VFXModuleStage();
         expect(stage.modules.length).toBe(0);
-        expect(stage.execStage).toBe(ModuleExecStage.UNKNOWN);
+        expect(stage.execStage).toBe(VFXExecutionStage.UNKNOWN);
         
-        const stage2 = new VFXModuleStage(ModuleExecStage.UPDATE);
+        const stage2 = new VFXModuleStage(VFXExecutionStage.UPDATE);
         expect(stage2.modules.length).toBe(0);
-        expect(stage2.execStage).toBe(ModuleExecStage.UPDATE);
+        expect(stage2.execStage).toBe(VFXExecutionStage.UPDATE);
 
-        const stage4 = new VFXModuleStage(ModuleExecStage.EMITTER);
+        const stage4 = new VFXModuleStage(VFXExecutionStage.EMITTER);
         expect(stage4.modules.length).toBe(0);
-        expect(stage4.execStage).toBe(ModuleExecStage.EMITTER);
+        expect(stage4.execStage).toBe(VFXExecutionStage.EMITTER);
 
-        const stage5 = new VFXModuleStage(ModuleExecStage.SPAWN);
+        const stage5 = new VFXModuleStage(VFXExecutionStage.SPAWN);
         expect(stage5.modules.length).toBe(0);
-        expect(stage5.execStage).toBe(ModuleExecStage.SPAWN);
+        expect(stage5.execStage).toBe(VFXExecutionStage.SPAWN);
     });
 
     test ('Add and remove modules', () => {
         VFXModule.clearRegisteredModules();
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @VFXModule.register('Test2', ModuleExecStageFlags.EMITTER)
+        @VFXModule.register('Test2', VFXExecutionStageFlags.EMITTER)
         class TestModule2 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
@@ -289,13 +289,13 @@ describe('VFXModuleStage', () => {
                 throw new Error("Method not implemented.");
             }
         }
-        @VFXModule.register('Test4', ModuleExecStageFlags.UPDATE, ['A'], ['B'])
+        @VFXModule.register('Test4', VFXExecutionStageFlags.UPDATE, ['A'], ['B'])
         class TestModule4 extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
-        const emitterStage = new VFXModuleStage(ModuleExecStage.EMITTER);
+        const emitterStage = new VFXModuleStage(VFXExecutionStage.EMITTER);
         expect(emitterStage.modules.length).toBe(0);
         expect(() => emitterStage.addModule(TestModule)).toThrowError();
         expect(() => emitterStage.addModule(TestModule4)).toThrowError();
@@ -308,7 +308,7 @@ describe('VFXModuleStage', () => {
         expect(emitterStage.getModule(TestModule3)).toBeFalsy();
         expect(emitterStage.getModule(TestModule4)).toBeFalsy();
 
-        const stage = new VFXModuleStage(ModuleExecStage.UPDATE);
+        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
         expect(stage.modules.length).toBe(0);
         expect(stage.getModule(TestModule)).toBeFalsy();
         expect(stage.getModule(TestModule2)).toBeFalsy();
@@ -350,7 +350,7 @@ describe('VFXModuleStage', () => {
         expect(stage.getModule(TestModule) === module3).toBeTruthy();
         expect(module3 === module4).toBeTruthy();
         expect(module4).toBeInstanceOf(TestModule);
-        VFXModule.register('Test3', ModuleExecStageFlags.UPDATE, ['A', 'B'], [])(TestModule3);
+        VFXModule.register('Test3', VFXExecutionStageFlags.UPDATE, ['A', 'B'], [])(TestModule3);
         const module5 = stage.getOrAddModule(TestModule3);
         expect(module5.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(2);
@@ -377,13 +377,13 @@ describe('VFXModuleStage', () => {
 
     test ('Move module', () => {
         VFXModule.clearRegisteredModules();
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
-        const stage = new VFXModuleStage(ModuleExecStage.UPDATE);
+        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
         const module1 = stage.addModule(TestModule);
         const module2 = stage.addModule(TestModule);
         const module3 = stage.addModule(TestModule);
@@ -433,14 +433,14 @@ describe('VFXModuleStage', () => {
 
     test ('Execute', () => {
         VFXModule.clearRegisteredModules();
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
         const executeOrder: number[] = [];
-        const stage = new VFXModuleStage(ModuleExecStage.UPDATE);
+        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
         const module1 = stage.addModule(TestModule);
         expect(module1.enabled).toBeTruthy();
         module1.enabled = false;
@@ -602,26 +602,26 @@ describe('VFXModuleStage', () => {
 
     test('execute stage', () => {
         VFXModule.clearRegisteredModules();
-        @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], ['A'])
+        @VFXModule.register('Test1', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [], ['A'])
         class TestModule extends VFXModule {
             public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        const updateStage = new VFXModuleStage(ModuleExecStage.UPDATE);
-        const spawnStage = new VFXModuleStage(ModuleExecStage.SPAWN);
+        const updateStage = new VFXModuleStage(VFXExecutionStage.UPDATE);
+        const spawnStage = new VFXModuleStage(VFXExecutionStage.SPAWN);
 
         const module1 = updateStage.addModule(TestModule);
         const module2 = spawnStage.addModule(TestModule);
         module1.enabled = module2.enabled = true;
 
         module1.tick = module1.execute = jest.fn((dataStore: VFXDataStore) => { 
-            expect(context.executionStage).toBe(ModuleExecStage.UPDATE);
+            expect(context.executionStage).toBe(VFXExecutionStage.UPDATE);
         });
 
         module2.tick = module2.execute = jest.fn((dataStore: VFXDataStore) => {
-            expect(context.executionStage).toBe(ModuleExecStage.SPAWN);
+            expect(context.executionStage).toBe(VFXExecutionStage.SPAWN);
         });
 
         const particles = new ParticleDataSet();

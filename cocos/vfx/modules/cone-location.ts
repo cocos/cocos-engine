@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type } from 'cc.decorator';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { TWO_PI, Vec3, clamp } from '../../core';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
@@ -34,7 +34,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const pos = new Vec3();
 
 @ccclass('cc.ConeLocationModule')
-@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('ConeLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class ConeLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     get length () {

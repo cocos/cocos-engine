@@ -24,13 +24,13 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_ROTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SpriteRotationRateModule')
-@VFXModule.register('SpriteRotationRate', ModuleExecStageFlags.UPDATE, [P_SPRITE_ROTATION.name], [])
+@VFXModule.register('SpriteRotationRate', VFXExecutionStageFlags.UPDATE, [P_SPRITE_ROTATION.name], [])
 export class SpriteRotationRateModule extends VFXModule {
     @type(FloatExpression)
     public get rate () {

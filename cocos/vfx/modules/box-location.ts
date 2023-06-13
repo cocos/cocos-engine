@@ -24,7 +24,7 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -35,7 +35,7 @@ const pos = new Vec3();
 const tempBoxSize = new Vec3();
 const tempBoxCenter = new Vec3();
 @ccclass('cc.BoxLocationModule')
-@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('BoxLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class BoxLocationModule extends ShapeLocationModule {
     @type(Vec3Expression)
     public get boxSize () {

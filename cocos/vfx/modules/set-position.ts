@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempPos = new Vec3();
 
 @ccclass('cc.SetPositionModule')
-@VFXModule.register('SetPosition', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_POSITION.name], [])
+@VFXModule.register('SetPosition', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_POSITION.name], [])
 export class SetPositionModule extends VFXModule {
     /**
       * @zh 设置粒子颜色。

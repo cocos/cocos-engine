@@ -1,6 +1,6 @@
 import { Vec2 } from '../../cocos/core';
 import { VFXEmitter } from '../../cocos/vfx/vfx-emitter';
-import { ModuleExecStage } from '../../cocos/vfx/vfx-module';
+import { VFXExecutionStage } from '../../cocos/vfx/vfx-module';
 import { DelayMode, LoopMode } from '../../cocos/vfx/enum';
 describe('VFXEmitter', () => {
     test('Parameters Validation', () => {
@@ -44,7 +44,7 @@ describe('VFXEmitter', () => {
         expect(particleEmitter.eventHandlerCount).toBe(0);
         expect(() => particleEmitter.getEventHandlerAt(0)).toThrowError();
         const eventHandler = particleEmitter.addEventHandler();
-        expect(eventHandler.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler.execStage).toBe(VFXExecutionStage.EVENT_HANDLER);
         expect(eventHandler.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(1);
         expect(particleEmitter.eventHandlerCount).toBe(1);
@@ -57,9 +57,9 @@ describe('VFXEmitter', () => {
         expect(() => particleEmitter.getEventHandlerAt(0)).toThrowError();
         const eventHandler2 = particleEmitter.addEventHandler();
         const eventHandler3 = particleEmitter.addEventHandler();
-        expect(eventHandler2.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler2.execStage).toBe(VFXExecutionStage.EVENT_HANDLER);
         expect(eventHandler2.modules.length).toBe(0);
-        expect(eventHandler3.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler3.execStage).toBe(VFXExecutionStage.EVENT_HANDLER);
         expect(eventHandler3.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(2);
         expect(particleEmitter.eventHandlerCount).toBe(2);
@@ -75,7 +75,7 @@ describe('VFXEmitter', () => {
         expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler2);
         expect(() => particleEmitter.getEventHandlerAt(1)).toThrowError();
         const eventHandler4 = particleEmitter.addEventHandler();
-        expect(eventHandler4.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler4.execStage).toBe(VFXExecutionStage.EVENT_HANDLER);
         expect(eventHandler4.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(2);
         expect(particleEmitter.eventHandlerCount).toBe(2);
@@ -96,9 +96,9 @@ describe('VFXEmitter', () => {
         expect(particleEmitter.spawnStage.modules.length).toBe(0);
         expect(particleEmitter.updateStage.modules.length).toBe(0);
         expect(particleEmitter.emitterStage.modules.length).toBe(0);
-        expect(particleEmitter.updateStage.execStage).toBe(ModuleExecStage.UPDATE);
-        expect(particleEmitter.emitterStage.execStage).toBe(ModuleExecStage.EMITTER);
-        expect(particleEmitter.spawnStage.execStage).toBe(ModuleExecStage.SPAWN);
+        expect(particleEmitter.updateStage.execStage).toBe(VFXExecutionStage.UPDATE);
+        expect(particleEmitter.emitterStage.execStage).toBe(VFXExecutionStage.EMITTER);
+        expect(particleEmitter.spawnStage.execStage).toBe(VFXExecutionStage.SPAWN);
     });
     
 });

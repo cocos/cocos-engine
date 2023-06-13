@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
@@ -32,7 +32,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
-@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('CircleLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class CircleLocationModule extends ShapeLocationModule {
     /**
       * @zh 粒子发射器半径。

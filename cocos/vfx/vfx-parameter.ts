@@ -22,8 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../core';
 import { ccclass, serializable, visible } from '../core/data/decorators';
 
 const DEFAULT_CAPACITY = 16;

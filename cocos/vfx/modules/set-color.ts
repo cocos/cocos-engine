@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
 import { P_COLOR, P_NORMALIZED_AGE, P_BASE_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempColor = new Color();
 
 @ccclass('cc.SetColorModule')
-@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [P_COLOR.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetColor', VFXExecutionStageFlags.SPAWN, [P_COLOR.name], [P_NORMALIZED_AGE.name])
 export class SetColorModule extends VFXModule {
     /**
        * @zh 设置粒子颜色。
@@ -55,14 +55,14 @@ export class SetColorModule extends VFXModule {
 
     public tick (parameterMap: VFXParameterMap) {
         parameterMap.ensureParameter(P_COLOR);
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_COLOR);
         }
         this.color.tick(parameterMap);
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const color = parameterMap.getColorArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_COLOR : P_COLOR);
+        const color = parameterMap.getColorArrayValue(this.usage === VFXExecutionStage.SPAWN ? P_BASE_COLOR : P_COLOR);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const colorExp = this._color as ColorExpression;

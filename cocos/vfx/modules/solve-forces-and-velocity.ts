@@ -24,13 +24,13 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { VFXVec3Array } from '../parameters';
 import { P_POSITION, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, C_DELTA_TIME, P_PHYSICS_FORCE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
-@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [P_POSITION.name], [P_VELOCITY.name])
+@VFXModule.register('SolveForcesAndVelocity', VFXExecutionStageFlags.UPDATE, [P_POSITION.name], [P_VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
     public execute (parameterMap: VFXParameterMap) {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;

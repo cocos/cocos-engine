@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
@@ -35,7 +35,7 @@ const pos = new Vec3();
 const distribution = new Vec2();
 
 @ccclass('cc.SphereLocationModule')
-@VFXModule.register('SphereLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('SphereLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class SphereLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     public get radius () {

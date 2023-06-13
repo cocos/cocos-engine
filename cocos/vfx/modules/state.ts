@@ -24,7 +24,7 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { P_NORMALIZED_AGE, P_IS_DEAD, P_INV_LIFETIME, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -35,7 +35,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [P_NORMALIZED_AGE.name])
+@VFXModule.register('State', VFXExecutionStageFlags.UPDATE, [P_NORMALIZED_AGE.name])
 export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)

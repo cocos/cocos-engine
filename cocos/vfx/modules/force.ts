@@ -26,14 +26,14 @@
 import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY } from '../define';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name])
+@VFXModule.register('Force', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name])
 export class ForceModule extends VFXModule {
     /**
      * @zh 加速度计算时采用的坐标系 [[Space]]。

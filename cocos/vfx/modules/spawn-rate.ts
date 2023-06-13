@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -33,7 +33,7 @@ import { SpawnInfo } from '../parameters';
 const spawnInfo = new SpawnInfo();
 
 @ccclass('cc.SpawnRateModule')
-@VFXModule.register('SpawnRate', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
+@VFXModule.register('SpawnRate', VFXExecutionStageFlags.EMITTER | VFXExecutionStageFlags.EVENT_HANDLER)
 export class SpawnRateModule extends VFXModule {
     /**
      * @zh 每秒发射的粒子数。

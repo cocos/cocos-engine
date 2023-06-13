@@ -119,6 +119,7 @@ export const E_WORLD_ROTATION = new VFXParameter(builtinParameterId++, 'world-ro
 export const E_RENDER_SCALE = new VFXParameter(builtinParameterId++, 'render-scale', VFXValueType.VEC3, VFXParameterNamespace.EMITTER, false);
 export const E_SPAWN_INFOS = new VFXParameter(builtinParameterId++, 'spawn-infos', VFXValueType.SPAWN_INFO, VFXParameterNamespace.EMITTER, true);
 export const E_SPAWN_INFO_COUNT = new VFXParameter(builtinParameterId++, 'spawn-info-count', VFXValueType.UINT32, VFXParameterNamespace.EMITTER, false);
+export const E_RANDOM_SEED = new VFXParameter(builtinParameterId++, 'random-seed', VFXValueType.UINT32, VFXParameterNamespace.EMITTER, false);
 // #endregion emitter parameters
 
 // #region context parameters

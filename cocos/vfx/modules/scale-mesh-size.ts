@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempScalar = new Vec3();
 
 @ccclass('cc.ScaleMeshSizeModule')
-@VFXModule.register('ScaleMeshSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SCALE.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('ScaleMeshSize', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_SCALE.name], [P_NORMALIZED_AGE.name])
 export class ScaleMeshSizeModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -77,7 +77,7 @@ export class ScaleMeshSizeModule extends VFXModule {
 
     public tick (parameterMap: VFXParameterMap) {
         parameterMap.ensureParameter(P_SCALE);
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_SCALE);
         }
         if (this.separateAxes) {
@@ -88,7 +88,7 @@ export class ScaleMeshSizeModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const scale = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
+        const scale = parameterMap.getVec3ArrayValue(this.usage === VFXExecutionStage.SPAWN ? P_BASE_SCALE : P_SCALE);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (!this.separateAxes) {

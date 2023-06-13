@@ -25,7 +25,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { BitMask, Enum, CCFloat } from '../core';
 import { VFXEmitter } from './vfx-emitter';
-import { ModuleExecStage, VFXModuleStage } from './vfx-module';
+import { VFXExecutionStage, VFXModuleStage } from './vfx-module';
 import { InheritedProperty, VFXEventType } from './define';
 
 @ccclass('cc.EventHandler')
@@ -50,6 +50,6 @@ export class EventHandler extends VFXModuleStage {
     public inheritedProperties = 0;
 
     constructor () {
-        super(ModuleExecStage.EVENT_HANDLER);
+        super(VFXExecutionStage.EVENT_HANDLER);
     }
 }

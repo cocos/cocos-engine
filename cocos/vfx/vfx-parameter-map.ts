@@ -26,7 +26,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { VFXFloat, VFXVec3, VFXColor, VFXUint32, VFXBool, VFXVec2, VFXVec4, VFXInt32, VFXUint8, VFXQuat, VFXMat3, VFXMat4, VFXFloatArray, VFXVec3Array, VFXColorArray, VFXUint32Array, VFXBoolArray, VFXVec2Array, VFXVec4Array, VFXInt32Array, VFXUint8Array, VFXQuatArray, VFXMat3Array, VFXMat4Array, VFXEvent, VFXEventArray, VFXSpawnInfo, VFXSpawnInfoArray } from './parameters';
-import { VFXValue, VFXParameter, VFXParameterNamespace, VFXValueType } from './vfx-parameter';
+import { VFXValue, VFXParameter, VFXValueType } from './vfx-parameter';
 
 export class VFXParameterMap {
     public get parameterCount () {
@@ -39,7 +39,6 @@ export class VFXParameterMap {
 
     private _parameterMap: Record<number, VFXValue> = {};
     private _parameters: VFXValue[] = [];
-    private _namespace = VFXParameterNamespace.PARTICLE;
     private _parameterCount = 0;
 
     public hasParameter (param: VFXParameter) {
@@ -291,9 +290,6 @@ export class VFXParameterMap {
     }
 
     public addParameter (param: VFXParameter) {
-        if (DEBUG) {
-            assertIsTrue(param.namespace === this._namespace);
-        }
         if (this.hasParameter(param)) {
             throw new Error('Already exist a particle parameter with same id!');
         }

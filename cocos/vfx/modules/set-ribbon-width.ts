@@ -24,13 +24,13 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_RIBBON_WIDTH, P_NORMALIZED_AGE, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SetRibbonWidthModule')
-@VFXModule.register('SetRibbonWidth', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetRibbonWidth', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])
 export class SetRibbonWidthModule extends VFXModule {
     @type(FloatExpression)
     public get width () {
@@ -48,7 +48,7 @@ export class SetRibbonWidthModule extends VFXModule {
     private _width: FloatExpression | null = null;
 
     public tick (parameterMap: VFXParameterMap) {
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
 
@@ -57,7 +57,7 @@ export class SetRibbonWidthModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === VFXExecutionStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const widthExp = this._width as FloatExpression;

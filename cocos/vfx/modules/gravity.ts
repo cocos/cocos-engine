@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_PHYSICS_FORCE, P_POSITION, P_BASE_VELOCITY, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS } from '../define';
@@ -32,7 +32,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
-@VFXModule.register('Gravity', ModuleExecStageFlags.UPDATE, [P_PHYSICS_FORCE.name])
+@VFXModule.register('Gravity', VFXExecutionStageFlags.UPDATE, [P_PHYSICS_FORCE.name])
 export class GravityModule extends VFXModule {
     @type(Vec3Expression)
     public get gravity () {

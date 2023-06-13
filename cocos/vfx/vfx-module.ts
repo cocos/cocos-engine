@@ -29,7 +29,7 @@ import { RandomStream } from './random-stream';
 import { VFXEmitterState } from './vfx-emitter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
-export enum ModuleExecStage {
+export enum VFXExecutionStage {
     UNKNOWN = -1,
     EMITTER,
     SPAWN,
@@ -37,17 +37,17 @@ export enum ModuleExecStage {
     EVENT_HANDLER,
 }
 
-export enum ModuleExecStageFlags {
+export enum VFXExecutionStageFlags {
     NONE = 0,
-    EMITTER = 1 << ModuleExecStage.EMITTER,
-    SPAWN = 1 << ModuleExecStage.SPAWN,
-    UPDATE = 1 << ModuleExecStage.UPDATE,
-    EVENT_HANDLER = 1 << ModuleExecStage.EVENT_HANDLER,
+    EMITTER = 1 << VFXExecutionStage.EMITTER,
+    SPAWN = 1 << VFXExecutionStage.SPAWN,
+    UPDATE = 1 << VFXExecutionStage.UPDATE,
+    EVENT_HANDLER = 1 << VFXExecutionStage.EVENT_HANDLER,
 }
 
 @ccclass('cc.VFXModule')
 export abstract class VFXModule {
-    public static register (name: string, stages: ModuleExecStageFlags, provide: string[] = [], consume: string[] = []) {
+    public static register (name: string, stages: VFXExecutionStageFlags, provide: string[] = [], consume: string[] = []) {
         return function (ctor: Constructor<VFXModule>) {
             for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
                 if (VFXModule._allRegisteredModules[i].ctor === ctor) {
@@ -130,7 +130,7 @@ export abstract class VFXModule {
         return null;
     }
 
-    public static getModuleIdentitiesWithSpecificStage (stage: ModuleExecStage, out: VFXModuleIdentity[]) {
+    public static getModuleIdentitiesWithSpecificStage (stage: VFXExecutionStage, out: VFXModuleIdentity[]) {
         for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
             const identity = VFXModule._allRegisteredModules[i];
             if (identity.execStages & 1 << stage) {
@@ -177,9 +177,9 @@ export abstract class VFXModule {
     private _randomSeed = 0;
     private _randomStream = new RandomStream(0);
     @serializable
-    private _usage = ModuleExecStage.UNKNOWN;
+    private _usage = VFXExecutionStage.UNKNOWN;
 
-    constructor (usage: ModuleExecStage = ModuleExecStage.UNKNOWN) {
+    constructor (usage: VFXExecutionStage = VFXExecutionStage.UNKNOWN) {
         this._usage = usage;
     }
 
@@ -240,9 +240,9 @@ export class VFXModuleStage {
     @serializable
     private _modules: VFXModule[] = [];
     @serializable
-    private _usage = ModuleExecStage.UNKNOWN;
+    private _usage = VFXExecutionStage.UNKNOWN;
 
-    constructor (stage: ModuleExecStage = ModuleExecStage.UNKNOWN) {
+    constructor (stage: VFXExecutionStage = VFXExecutionStage.UNKNOWN) {
         this._usage = stage;
     }
 
@@ -342,11 +342,13 @@ export class VFXModuleStage {
      */
     public tick (parameterMap: VFXParameterMap) {
         const modules = this._modules;
+        const moduleInitialRandomSeed = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED);
+        const moduleCurrentRandomSeed = parameterMap.getUint32Value(C_MODULE_CURRENT_RANDOM_SEED);
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                parameterMap.setModuleRandomSeed(module.randomSeed);
-                parameterMap.setModuleRandomStream(module.randomStream);
+                moduleInitialRandomSeed.data = module.randomSeed;
+                moduleCurrentRandomSeed.data = module.randomStream.seed;
                 module.tick(parameterMap);
             }
         }
@@ -358,12 +360,15 @@ export class VFXModuleStage {
      */
     public execute (parameterMap: VFXParameterMap) {
         const modules = this._modules;
+        const moduleInitialRandomSeed = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED);
+        const moduleCurrentRandomSeed = parameterMap.getUint32Value(C_MODULE_CURRENT_RANDOM_SEED);
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                parameterMap.setModuleRandomSeed(module.randomSeed);
-                parameterMap.setModuleRandomStream(module.randomStream);
+                moduleInitialRandomSeed.data = module.randomSeed;
+                moduleCurrentRandomSeed.data = module.randomStream.seed;
                 module.execute(parameterMap);
+                module.randomStream.seed = moduleCurrentRandomSeed.data;
             }
         }
     }
@@ -372,11 +377,11 @@ export class VFXModuleStage {
 class VFXModuleIdentity {
     public readonly ctor: Constructor<VFXModule> | null = null;
     public readonly name: string = '';
-    public readonly execStages = ModuleExecStageFlags.NONE;
+    public readonly execStages = VFXExecutionStageFlags.NONE;
     public readonly provideParams: string[];
     public readonly consumeParams: string[];
 
-    constructor (ctor: Constructor<VFXModule>, name: string, execStages: ModuleExecStageFlags, provideParams: string[] = [], consumeParams: string[] = []) {
+    constructor (ctor: Constructor<VFXModule>, name: string, execStages: VFXExecutionStageFlags, provideParams: string[] = [], consumeParams: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;

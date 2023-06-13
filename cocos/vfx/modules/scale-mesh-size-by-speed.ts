@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec3 } from '../../core';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_SCALE, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -34,7 +34,7 @@ const tempVelocity = new Vec3();
 const tempScalar = new Vec3();
 const tempScalar2 = new Vec3();
 @ccclass('cc.ScaleMeshSizeBySpeedModule')
-@VFXModule.register('ScaleMeshSizeBySpeed', ModuleExecStageFlags.UPDATE, [P_SCALE.name], [P_SCALE.name, P_VELOCITY.name])
+@VFXModule.register('ScaleMeshSizeBySpeed', VFXExecutionStageFlags.UPDATE, [P_SCALE.name], [P_SCALE.name, P_VELOCITY.name])
 export class ScaleMeshSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。

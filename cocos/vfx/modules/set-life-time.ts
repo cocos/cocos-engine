@@ -24,13 +24,13 @@
  */
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SetLifeTimeModule')
-@VFXModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
+@VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN)
 export class SetLifeTimeModule extends VFXModule {
     /**
       * @zh 粒子生命周期。

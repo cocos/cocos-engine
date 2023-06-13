@@ -32,7 +32,7 @@ import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { VFXModuleStage, ModuleExecStage } from './vfx-module';
+import { VFXModuleStage, VFXExecutionStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
@@ -428,11 +428,11 @@ export class VFXEmitter extends Component {
     }
 
     @serializable
-    private _emitterStage = new VFXModuleStage(ModuleExecStage.EMITTER);
+    private _emitterStage = new VFXModuleStage(VFXExecutionStage.EMITTER);
     @serializable
-    private _spawnStage = new VFXModuleStage(ModuleExecStage.SPAWN);
+    private _spawnStage = new VFXModuleStage(VFXExecutionStage.SPAWN);
     @serializable
-    private _updateStage = new VFXModuleStage(ModuleExecStage.UPDATE);
+    private _updateStage = new VFXModuleStage(VFXExecutionStage.UPDATE);
     @serializable
     private _eventHandlers: EventHandler[] = [];
     @serializable

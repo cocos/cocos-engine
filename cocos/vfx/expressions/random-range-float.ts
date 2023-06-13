@@ -27,8 +27,8 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
-import { ModuleExecStage } from '../vfx-module';
-import { P_RANDOM_SEED } from '../define';
+import { VFXExecutionStage } from '../vfx-module';
+import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.RandomRangeFloat')
@@ -52,7 +52,7 @@ export class RandomRangeFloatExpression extends FloatExpression {
     public tick (parameterMap: VFXParameterMap) {
         this.maximum.tick(parameterMap);
         this.minimum.tick(parameterMap);
-        if (this.usage === ModuleExecStage.UPDATE) {
+        if (this.usage === VFXExecutionStage.UPDATE) {
             parameterMap.ensureParameter(P_RANDOM_SEED);
         }
     }
@@ -60,9 +60,9 @@ export class RandomRangeFloatExpression extends FloatExpression {
     public bind (parameterMap: VFXParameterMap) {
         this.maximum.bind(parameterMap);
         this.minimum.bind(parameterMap);
-        if (this.usage === ModuleExecStage.UPDATE) {
+        if (this.usage === VFXExecutionStage.UPDATE) {
             this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
-            this._randomOffset = parameterMap.moduleRandomSeed;
+            this._randomOffset = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED).data;
         } else {
             this._randomStream = parameterMap.moduleRandomStream;
         }

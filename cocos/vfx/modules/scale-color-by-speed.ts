@@ -24,7 +24,7 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -35,7 +35,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.ScaleColorBySpeedModule')
-@VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [P_COLOR.name], [P_VELOCITY.name])
+@VFXModule.register('ScaleColorBySpeed', VFXExecutionStageFlags.UPDATE, [P_COLOR.name], [P_VELOCITY.name])
 export class ScaleColorBySpeedModule extends VFXModule {
     @type(ColorExpression)
     public get minScalar () {

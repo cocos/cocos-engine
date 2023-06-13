@@ -24,7 +24,7 @@
  */
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -34,7 +34,7 @@ const center = new Vec2();
 const size = new Vec2();
 const pos = new Vec3();
 @ccclass('cc.PlaneLocationModule')
-@VFXModule.register('PlaneLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('PlaneLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class PlaneLocationModule extends ShapeLocationModule {
     @type(Vec2Expression)
     public get planeSize () {

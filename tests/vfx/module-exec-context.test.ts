@@ -1,6 +1,6 @@
 import { DelayMode, LoopMode } from "../../cocos/vfx/enum";
 import { ContextDataSet } from "../../cocos/vfx/base";
-import { ModuleExecStage } from "../../cocos/vfx/vfx-module";
+import { VFXExecutionStage } from "../../cocos/vfx/vfx-module";
 
 describe('module-exec-context', () => {
     test ('ExecutionRange', () => {
@@ -24,10 +24,10 @@ describe('module-exec-context', () => {
 
     test ('setExecutionStage', () => {
         const context = new ContextDataSet();
-        expect(context.executionStage).toBe(ModuleExecStage.UNKNOWN);
-        context.setExecutionStage(ModuleExecStage.UPDATE);
-        expect(context.executionStage).toBe(ModuleExecStage.UPDATE);
-        context.setExecutionStage(ModuleExecStage.EMITTER);
-        expect(context.executionStage).toBe(ModuleExecStage.EMITTER);
+        expect(context.executionStage).toBe(VFXExecutionStage.UNKNOWN);
+        context.setExecutionStage(VFXExecutionStage.UPDATE);
+        expect(context.executionStage).toBe(VFXExecutionStage.UPDATE);
+        context.setExecutionStage(VFXExecutionStage.EMITTER);
+        expect(context.executionStage).toBe(VFXExecutionStage.EMITTER);
     });
 });

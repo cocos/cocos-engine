@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEmitterState } from '../vfx-emitter';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -374,7 +374,7 @@ export enum Quality {
 }
 
 @ccclass('cc.CurlNoiseForceModule')
-@VFXModule.register('CurlNoiseForce', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [])
+@VFXModule.register('CurlNoiseForce', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [])
 export class CurlNoiseForceModule extends VFXModule {
     @serializable
     @visible(true)

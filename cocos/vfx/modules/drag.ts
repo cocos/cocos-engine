@@ -26,13 +26,13 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { P_VELOCITY, P_SCALE, P_SPRITE_SIZE, P_POSITION, P_BASE_VELOCITY, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const _tempVec3 = new Vec3();
 @ccclass('cc.DragModule')
-@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name, P_SCALE.name, P_SPRITE_SIZE.name])
+@VFXModule.register('Drag', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name, P_SCALE.name, P_SPRITE_SIZE.name])
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)

@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec2, Vec3 } from '../../core';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression, Vec3Expression } from '../expressions';
 import { P_SPRITE_SIZE, P_VELOCITY, P_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -34,7 +34,7 @@ const tempVelocity = new Vec3();
 const tempScalar = new Vec2();
 const tempScalar2 = new Vec2();
 @ccclass('cc.ScaleSpriteSizeBySpeedModule')
-@VFXModule.register('ScaleSpriteSizeBySpeed', ModuleExecStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_SPRITE_SIZE.name, P_VELOCITY.name])
+@VFXModule.register('ScaleSpriteSizeBySpeed', VFXExecutionStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_SPRITE_SIZE.name, P_VELOCITY.name])
 export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     /**
        * @zh 决定是否在每个轴上独立控制粒子大小。

@@ -26,7 +26,7 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { Vec3Expression, ConstantVec3Expression } from '../expressions';
 import { P_MESH_ORIENTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -34,7 +34,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const eulerAngle = new Vec3();
 
 @ccclass('cc.UpdateMeshOrientationModule')
-@VFXModule.register('UpdateMeshOrientation', ModuleExecStageFlags.UPDATE, [P_MESH_ORIENTATION.name], [])
+@VFXModule.register('UpdateMeshOrientation', VFXExecutionStageFlags.UPDATE, [P_MESH_ORIENTATION.name], [])
 export class UpdateMeshOrientationModule extends VFXModule {
     /**
      * @zh 绕 X 轴设定旋转。

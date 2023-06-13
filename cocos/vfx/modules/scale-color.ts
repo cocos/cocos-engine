@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { P_NORMALIZED_AGE, P_BASE_COLOR, P_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const tempColor = new Color();
 
 @ccclass('cc.ScaleColorModule')
-@VFXModule.register('ScaleColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [P_NORMALIZED_AGE.name])
+@VFXModule.register('ScaleColor', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [], [P_NORMALIZED_AGE.name])
 export class ScaleColorModule extends VFXModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -54,7 +54,7 @@ export class ScaleColorModule extends VFXModule {
     private _scalar: ColorExpression | null = null;
 
     public tick (parameterMap: VFXParameterMap) {
-        if (this.usage === ModuleExecStage.SPAWN) {
+        if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensureParameter(P_BASE_COLOR);
         }
         parameterMap.ensureParameter(P_COLOR);
@@ -64,7 +64,7 @@ export class ScaleColorModule extends VFXModule {
     public execute (parameterMap: VFXParameterMap) {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        const color = parameterMap.getColorArrayValue(this.usage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
+        const color = parameterMap.getColorArrayValue(this.usage === VFXExecutionStage.UPDATE ? P_COLOR : P_BASE_COLOR);
         const scalarExp = this.scalar;
         scalarExp.bind(parameterMap);
         if (scalarExp.isConstant) {

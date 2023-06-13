@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_VELOCITY } from '../define';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -35,7 +35,7 @@ const tempVelocity = new Vec3();
 const srcVelocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
-@VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
+@VFXModule.register('LimitVelocity', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
 export class LimitVelocityModule extends VFXModule {
     /**
      * @zh 是否三个轴分开限制。

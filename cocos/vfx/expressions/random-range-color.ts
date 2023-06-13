@@ -27,8 +27,8 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { RandomStream } from '../random-stream';
 import { ColorExpression } from './color';
 import { ConstantColorExpression } from './constant-color';
-import { ModuleExecStage } from '../vfx-module';
-import { P_RANDOM_SEED } from '../define';
+import { VFXExecutionStage } from '../vfx-module';
+import { E_RANDOM_SEED, P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempColor = new Color();
@@ -47,14 +47,16 @@ export class RandomRangeColorExpression extends ColorExpression {
         return false;
     }
 
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
     private declare _seed: Uint32Array;
-    private _randomOffset = 0;
+    private _randomSeed = 0;
     private declare _randomStream: RandomStream;
 
     public tick (parameterMap: VFXParameterMap) {
         this.maximum.tick(parameterMap);
         this.minimum.tick(parameterMap);
-        if (this.usage === ModuleExecStage.UPDATE) {
+        if (this.usage === VFXExecutionStage.UPDATE) {
             parameterMap.ensureParameter(P_RANDOM_SEED);
         }
     }
@@ -62,16 +64,14 @@ export class RandomRangeColorExpression extends ColorExpression {
     public bind (parameterMap: VFXParameterMap) {
         this.maximum.bind(parameterMap);
         this.minimum.bind(parameterMap);
-        if (this.usage === ModuleExecStage.UPDATE) {
+        if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
-            this._randomOffset = parameterMap.moduleRandomSeed;
-        } else {
-            this._randomStream = parameterMap.moduleRandomStream;
         }
+        this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data + this._randomOffset;
     }
 
     public evaluate (index: number, out: Color) {
-        return Color.lerp(out, this.minimum.evaluate(index, out), this.maximum.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomOffset));
+        return Color.lerp(out, this.minimum.evaluate(index, out), this.maximum.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomSeed));
     }
 
     public evaluateSingle (out: Color) {

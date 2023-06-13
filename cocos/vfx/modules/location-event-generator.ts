@@ -26,7 +26,7 @@
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
-import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEventInfo } from '../parameters/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -34,7 +34,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 const eventInfo = new VFXEventInfo();
 
 @ccclass('cc.LocationEventGeneratorModule')
-@VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_COLOR.name])
+@VFXModule.register('LocationEventGenerator', VFXExecutionStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_COLOR.name])
 export class LocationEventGeneratorModule extends VFXModule {
     @type(CCFloat)
     @range([0, 1])

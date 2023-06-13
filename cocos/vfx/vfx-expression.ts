@@ -23,11 +23,16 @@
  THE SOFTWARE.
  */
 import { ccclass } from 'cc.decorator';
+import { VFXExecutionStage } from './vfx-module';
 import { VFXValueType } from './vfx-parameter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {
+    public get usage () {
+        return VFXExecutionStage.UNKNOWN;
+    }
+
     public abstract get valueType (): VFXValueType;
     public abstract get isConstant (): boolean;
     public abstract tick (parameterMap: VFXParameterMap): void;
