@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Armature, Bone, EventObject, AnimationState } from '@cocos/dragonbones-js';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
+import { Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
 import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -42,6 +42,7 @@ import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager';
+import { setPropertyEnumType } from '../core/internal-index';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -611,8 +612,8 @@ export class ArmatureDisplay extends UIRenderer {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this.initFactory();
-        CCClass.setPropertyEnumType(this, '_animationIndex', this._enumAnimations);
-        CCClass.setPropertyEnumType(this, '_defaultArmatureIndex', this._enumArmatures);
+        setPropertyEnumType(this, '_animationIndex', this._enumAnimations);
+        setPropertyEnumType(this, '_defaultArmatureIndex', this._enumArmatures);
         this._useVertexOpacity = true;
     }
     /**
@@ -1152,7 +1153,7 @@ export class ArmatureDisplay extends UIRenderer {
         } else {
             Object.assign(this._cacheModeEnum, DefaultCacheMode);
         }
-        CCClass.setPropertyEnumType(this, '_defaultCacheMode', this._cacheModeEnum);
+        setPropertyEnumType(this, '_defaultCacheMode', this._cacheModeEnum);
     }
 
     // update animation list for editor
@@ -1171,7 +1172,7 @@ export class ArmatureDisplay extends UIRenderer {
         Object.assign(this._enumAnimations, animEnum || DefaultAnimsEnum);
         Enum.update(this._enumAnimations);
         // change enum
-        CCClass.setPropertyEnumType(this, '_animationIndex', this._enumAnimations);
+        setPropertyEnumType(this, '_animationIndex', this._enumAnimations);
     }
 
     // update armature list for editor
@@ -1190,7 +1191,7 @@ export class ArmatureDisplay extends UIRenderer {
         Object.assign(this._enumArmatures, armatureEnum || DefaultArmaturesEnum);
         Enum.update(this._enumArmatures);
         // change enum
-        CCClass.setPropertyEnumType(this, '_defaultArmatureIndex', this._enumArmatures);
+        setPropertyEnumType(this, '_defaultArmatureIndex', this._enumArmatures);
     }
     /**
      * @engineInternal Since v3.7.2 this is an engine private function.

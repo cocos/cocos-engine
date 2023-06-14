@@ -27,6 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
+import { setPropertyEnumType } from '../../core/internal-index';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -287,7 +288,7 @@ setClassAttr(CurveRange, 'multiplier', 'visible', true);
 setClassAttr(CurveRange, 'constantMax', 'visible', true);
 setClassAttr(CurveRange, 'constantMin', 'visible', true);
 setClassAttr(CurveRange, 'constant', 'visible', true);
-CCClass.setPropertyEnumType(CurveRange, 'mode', Mode);
+setPropertyEnumType(CurveRange, 'mode', Mode);
 setClassAttr(CurveRange, 'mode', 'visible', true);
 setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
 setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
