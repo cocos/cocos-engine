@@ -433,7 +433,7 @@ export class Scheduler extends System {
      * @en delta time. The unit is seconds.
      * @zh 更新间隔时间, 单位是秒。
      */
-    public update (dt): void {
+    public update (dt: number): void {
         this._updateHashLocked = true;
         if (this._timeScale !== 1) {
             dt *= this._timeScale;
