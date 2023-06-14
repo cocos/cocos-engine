@@ -588,13 +588,13 @@ const Elements = {
                 Editor.Message.send('assets', 'twinkle', this.$.atlasFileName.getAttribute('data-uuid'));
             }, false);
         },
-        async update() {
+        async update(...args) {
             try {
-                const parentPath = this.parentAssetList[0].path.replace(/\/[^/]+$/, '/*');
+                const patternPath = this.asset.path.replace(/\/[^/]+$/, '/*');
                 let assets = await Editor.Message.request(
                     'asset-db',
                     'query-assets',
-                    { pattern: parentPath, ccType: "cc.Asset" }
+                    { pattern: patternPath, ccType: "cc.Asset" }
                 );
                 assets = assets.filter(v => extname(v.file) === '.atlas');
 
@@ -689,7 +689,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
