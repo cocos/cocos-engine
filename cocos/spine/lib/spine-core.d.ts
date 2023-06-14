@@ -1289,7 +1289,8 @@ declare namespace spine {
         setSwirlEffect(swirl: spine.VertexEffect);
         updateRenderData();
         setListener(id: number, type: number);
-        static getCurrentEvent(): Event;
+        setDebugMode(debug: boolean);
+        getDebugShapes();
     }
 
     class wasmUtil {

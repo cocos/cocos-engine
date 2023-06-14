@@ -34,6 +34,12 @@ import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
+import { Color } from '../../core';
+
+const _slotColor = new Color(0, 0, 255, 255);
+const _boneColor = new Color(255, 0, 0, 255);
+const _originColor = new Color(0, 255, 0, 255);
+const _meshColor = new Color(255, 255, 0, 255);
 
 let _accessor: StaticVBAccessor = null!;
 let _tintAccessor: StaticVBAccessor = null!;
@@ -134,7 +140,6 @@ function realTimeTraverse (comp: Skeleton) {
     comp.drawList.reset();
     const model = comp.updateRenderData();
     if (!model) return;
-
     const vc = model.vCount;
     const ic = model.iCount;
     const rd = comp.renderData!;
@@ -171,6 +176,72 @@ function realTimeTraverse (comp: Skeleton) {
         indexCount = mesh.iCount;
         comp.requestDrawData(material, indexOffset, indexCount);
         indexOffset += indexCount;
+    }
+
+    // debug renderer
+    const graphics = comp._debugRenderer;
+    const locSkeleton = comp._skeleton;
+    if (graphics && (comp.debugBones || comp.debugSlots || comp.debugMesh)) {
+        graphics.clear();
+        graphics.lineWidth = 5;
+
+        const debugShapes = comp.getDebugShapes();
+        const shapeCount = debugShapes.size();
+        for (let i = 0; i < shapeCount; i++) {
+            const shape = debugShapes.get(i);
+            const type = shape.type;
+            if (type.value === 0 && comp.debugSlots) {
+                graphics.strokeColor = _slotColor;
+                const vertexFloatOffset = shape.vOffset * floatStride;
+                const vertexFloatCount = shape.vCount * floatStride;
+                graphics.moveTo(vbuf[vertexFloatOffset], vbuf[vertexFloatOffset + 1]);
+                for (let ii = vertexFloatOffset + floatStride, nn = vertexFloatOffset + vertexFloatCount; ii < nn; ii += floatStride) {
+                    graphics.lineTo(vbuf[ii], vbuf[ii + 1]);
+                }
+                graphics.close();
+                graphics.stroke();
+            } else if (type.value === 1 && comp.debugMesh) {
+                // draw debug mesh if enabled graphics
+                graphics.strokeColor = _meshColor;
+                const iCount = shape.iCount as number;
+                const iOffset = shape.iOffset as number;
+
+                for (let ii = iOffset, nn = iOffset + iCount; ii < nn; ii += 3) {
+                    const v1 = ibuf[ii] * floatStride;
+                    const v2 = ibuf[ii + 1] * floatStride;
+                    const v3 = ibuf[ii + 2] * floatStride;
+
+                    graphics.moveTo(vbuf[v1], vbuf[v1 + 1]);
+                    graphics.lineTo(vbuf[v2], vbuf[v2 + 1]);
+                    graphics.lineTo(vbuf[v3], vbuf[v3 + 1]);
+                    graphics.close();
+                    graphics.stroke();
+                }
+            }
+        }
+
+        if (comp.debugBones) {
+            graphics.strokeColor = _boneColor;
+            graphics.fillColor = _slotColor; // Root bone color is same as slot color.
+
+            for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
+                const bone = locSkeleton.bones[i];
+                const x = bone.data.length * bone.a + bone.worldX;
+                const y = bone.data.length * bone.c + bone.worldY;
+
+                // Bone lengths.
+                graphics.moveTo(bone.worldX, bone.worldY);
+                graphics.lineTo(x, y);
+                graphics.stroke();
+
+                // Bone origins.
+                graphics.circle(bone.worldX, bone.worldY, Math.PI * 1.5);
+                graphics.fill();
+                if (i === 0) {
+                    graphics.fillColor = _originColor;
+                }
+            }
+        }
     }
 }
 
