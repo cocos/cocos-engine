@@ -228,9 +228,8 @@ function refreshScene () {
         }
         const i = 0;
         let widget: Widget | null = null;
-        const iterator = widgetManager._activeWidgetsIterator;
-        for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-            widget = activeWidgets[iterator.i];
+        for (let i = 0; i < activeWidgets.length; ++i) {
+            widget = activeWidgets[i];
             if (widget._dirty) {
                 align(widget.node, widget);
                 widget._dirty = false;
