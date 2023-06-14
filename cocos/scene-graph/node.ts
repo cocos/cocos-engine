@@ -40,6 +40,7 @@ import type { Scene } from './scene';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
+import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -240,8 +241,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *
      * @deprecated since v3.4.0
      */
-    get eventProcessor (): any {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    get eventProcessor (): NodeEventProcessor {
         return this._eventProcessor;
     }
 
@@ -376,7 +376,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _name: string;
 
-    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
