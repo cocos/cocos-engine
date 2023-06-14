@@ -96,6 +96,8 @@ rules:
     linebreak-style: off # we don't enforce this on everyone's dev environment for now
     spaced-comment: off # for license declarations
 
+    default-case-last: off # putting default clause to the foremost make it clear to claim the "not matched" processing
+
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
     '@typescript-eslint/ban-ts-comment': [error, {
@@ -105,7 +107,12 @@ rules:
         'ts-check': false,
     }]
     '@typescript-eslint/indent': [warn, 4, {
-        SwitchCase: 0
+        SwitchCase: 0,
+        ignoredNodes: [ # See: https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-1378327382
+          "PropertyDefinition[decorators]",
+          "TSUnionType",
+          "FunctionExpression[params]:has(Identifier[decorators])"
+        ]
     }]
     '@typescript-eslint/no-unused-expressions': warn
 
