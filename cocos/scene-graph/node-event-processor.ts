@@ -648,7 +648,6 @@ export class NodeEventProcessor {
         }
 
         event.getLocation(pos);
-        //console.log('pos: ' + pos);
 
         if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_END;
