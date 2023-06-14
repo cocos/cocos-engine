@@ -269,7 +269,7 @@ export class Pass {
         const block = this._getBlockView(type, binding);
         if (DEBUG) {
             const validator = type2validator[type];
-            assertID(!!(validator && validator(value)), 12011, binding, Type[type]);
+            assertID(Boolean(validator && validator(value)), 12011, binding, Type[type]);
         }
         type2writer[type](block, value, ofs);
         this._rootBufferDirty = true;

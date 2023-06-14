@@ -406,7 +406,7 @@ export class Director extends EventTarget {
      */
     public runScene (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched): void {
         if (scene instanceof SceneAsset) scene = scene.scene!;
-        assertID(!!scene, 1205);
+        assertID(Boolean(scene), 1205);
         assertID(scene instanceof Scene, 1216);
 
         // Delay run / replace scene to the end of the frame
