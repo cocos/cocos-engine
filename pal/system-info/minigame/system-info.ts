@@ -243,11 +243,11 @@ class SystemInfo extends EventTarget {
         }
     }
 
-    public exit () {
+    public exit (): void {
         minigame.exitMiniProgram?.();
     }
 
-    public close () {
+    public close (): void {
         // TODO(qgh):The minigame platform does not have an exit interface,
         // so there is no need to send a close message to the engine to release resources.
         // this.emit('close');
