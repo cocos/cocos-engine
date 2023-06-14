@@ -10,57 +10,6 @@ import { PoseGraphType } from '../foundation/type-system';
 import { assertIsTrue, CachedArray, Pool } from '../../../../core';
 import { Transform } from '../../../core/transform';
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeModifyPoseBase`)
-@poseGraphNodeHide()
-export abstract class PoseNodeModifyPoseBase extends PoseNode {
-    @serializable
-    @input({ type: PoseGraphType.POSE })
-    public pose: PoseNode | null = null;
-
-    public settle (context: AnimationGraphSettleContext) {
-        this.pose?.settle(context);
-        this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
-    }
-
-    public reenter () {
-        this.pose?.reenter();
-    }
-
-    public bind (context: AnimationGraphBindingContext): void {
-        this.pose?.bind(context);
-    }
-
-    protected doUpdate (context: AnimationGraphUpdateContext) {
-        this.pose?.update(context);
-    }
-
-    protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
-        const poseTransformSpaceRequirement = this.getPoseTransformSpaceRequirement();
-        const inputPose = this.pose?.evaluate(context, poseTransformSpaceRequirement)
-            ?? PoseNode.evaluateDefaultPose(context, poseTransformSpaceRequirement);
-
-        const { _modificationQueue: modificationQueue } = this;
-        assertIsTrue(modificationQueue.length === 0);
-        this.modifyPose(context, inputPose, modificationQueue);
-
-        applyTransformModificationQueue(context, inputPose, modificationQueue, this._spaceFlagTable);
-        modificationQueue.clear();
-
-        return inputPose;
-    }
-
-    protected abstract getPoseTransformSpaceRequirement(): PoseTransformSpaceRequirement;
-
-    protected abstract modifyPose(
-        context: AnimationGraphEvaluationContext,
-        pose: Pose,
-        transformModificationQueue: TransformModificationQueue,
-    ): void;
-
-    private _modificationQueue = new TransformModificationQueue();
-    private _spaceFlagTable = new PoseTransformSpaceFlagTable(0);
-}
-
 class TransformModification {
     public transformIndex = -1;
     public transform = new Transform();
@@ -248,4 +197,55 @@ function applyTransformModificationQueue (
             pose.transforms.setTransform(transformIndex, transform);
         }
     }
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeModifyPoseBase`)
+@poseGraphNodeHide()
+export abstract class PoseNodeModifyPoseBase extends PoseNode {
+    @serializable
+    @input({ type: PoseGraphType.POSE })
+    public pose: PoseNode | null = null;
+
+    public settle (context: AnimationGraphSettleContext) {
+        this.pose?.settle(context);
+        this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
+    }
+
+    public reenter () {
+        this.pose?.reenter();
+    }
+
+    public bind (context: AnimationGraphBindingContext): void {
+        this.pose?.bind(context);
+    }
+
+    protected doUpdate (context: AnimationGraphUpdateContext) {
+        this.pose?.update(context);
+    }
+
+    protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
+        const poseTransformSpaceRequirement = this.getPoseTransformSpaceRequirement();
+        const inputPose = this.pose?.evaluate(context, poseTransformSpaceRequirement)
+            ?? PoseNode.evaluateDefaultPose(context, poseTransformSpaceRequirement);
+
+        const { _modificationQueue: modificationQueue } = this;
+        assertIsTrue(modificationQueue.length === 0);
+        this.modifyPose(context, inputPose, modificationQueue);
+
+        applyTransformModificationQueue(context, inputPose, modificationQueue, this._spaceFlagTable);
+        modificationQueue.clear();
+
+        return inputPose;
+    }
+
+    protected abstract getPoseTransformSpaceRequirement(): PoseTransformSpaceRequirement;
+
+    protected abstract modifyPose(
+        context: AnimationGraphEvaluationContext,
+        pose: Pose,
+        transformModificationQueue: TransformModificationQueue,
+    ): void;
+
+    private _modificationQueue = new TransformModificationQueue();
+    private _spaceFlagTable = new PoseTransformSpaceFlagTable(0);
 }

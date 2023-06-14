@@ -37,6 +37,12 @@ import { CCFloat, IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IFixedConstraint } from '../../../spec/i-physics-constraint';
 
+/**
+ * @en The fixed constraint.
+ * It locks the relative position and rotation between two rigid bodies.
+ * @zh 固定关节。
+ * 固定关节会锁定两个刚体间的相对位置和相对旋转。
+ */
 @ccclass('cc.FixedConstraint')
 @help('i18n:cc.FixedConstraint')
 @menu('Physics/FixedConstraint(beta)')
