@@ -641,7 +641,7 @@ const Elements = {
                 }
             } catch (error) {
                 this.$.filterDifferent.style.display = 'none';
-                console.warn('parse-atlas-file-error:', error);
+                console.warn('parse atlas file error:', error);
             }
         },
     },
