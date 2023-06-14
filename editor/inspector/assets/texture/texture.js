@@ -588,7 +588,7 @@ const Elements = {
                 Editor.Message.send('assets', 'twinkle', this.$.atlasFileName.getAttribute('data-uuid'));
             }, false);
         },
-        async update(...args) {
+        async update() {
             try {
                 const patternPath = this.asset.path.replace(/\/[^/]+$/, '/*');
                 let assets = await Editor.Message.request(
