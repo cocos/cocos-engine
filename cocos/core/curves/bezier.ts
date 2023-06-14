@@ -43,9 +43,9 @@ const sqrt = Math.sqrt;
 
 function crt (v: number): number {
     if (v < 0) {
-        return -Math.pow(-v, 1 / 3);
+        return -((-v) ** (1 / 3));
     } else {
-        return Math.pow(v, 1 / 3);
+        return v ** (1 / 3);
     }
 }
 

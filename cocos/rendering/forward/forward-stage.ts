@@ -179,8 +179,14 @@ export class ForwardStage extends RenderStage {
 
         const framebuffer = camera.window.framebuffer;
         const renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, framebuffer);
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            framebuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 

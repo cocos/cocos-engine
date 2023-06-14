@@ -17,7 +17,7 @@ class BlitScreenMaterial {
     }
 
     @property
-    enable = true
+    enable = true;
 }
 
 @ccclass('cc.BlitScreen')
@@ -26,7 +26,7 @@ class BlitScreenMaterial {
 @executeInEditMode
 export class BlitScreen extends PostProcessSetting {
     @property(Material)
-    _activeMaterials: Material[] = []
+    _activeMaterials: Material[] = [];
     @property({ type: Material, visible: false })
     get activeMaterials (): Material[] {
         return this._activeMaterials;
@@ -36,7 +36,7 @@ export class BlitScreen extends PostProcessSetting {
     }
 
     @property(BlitScreenMaterial)
-    _materials: BlitScreenMaterial[] = []
+    _materials: BlitScreenMaterial[] = [];
 
     @property(BlitScreenMaterial)
     get materials (): BlitScreenMaterial[] {

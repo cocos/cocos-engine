@@ -135,8 +135,11 @@ export class RenderingSubMesh {
      * @param indirectBuffer @en indirect buffer. @zh 间接缓冲区。
      */
     constructor (
-        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
-        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+        vertexBuffers: Buffer[],
+        attributes: Attribute[],
+        primitiveMode: PrimitiveMode,
+        indexBuffer: Buffer | null = null,
+        indirectBuffer: Buffer | null = null,
         isOwnerOfIndexBuffer = true,
     ) {
         this._attributes = attributes;
@@ -324,8 +327,15 @@ export class RenderingSubMesh {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                mapBuffer(dataView, (cur): number => idxMap.indexOf(cur), jointFormat, jointOffset,
-                    bundle.view.length, bundle.view.stride, dataView);
+                mapBuffer(
+                    dataView,
+                    (cur): number => idxMap.indexOf(cur),
+                    jointFormat,
+                    jointOffset,
+                    bundle.view.length,
+                    bundle.view.stride,
+                    dataView,
+                );
                 const buffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.DEVICE,

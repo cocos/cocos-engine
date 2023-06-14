@@ -196,9 +196,15 @@ export class CircumSphere {
     public init (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3): void {
         // calculate circumsphere of 4 points in R^3 space.
         _mat.set(
-            p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
-            p2.x - p0.x, p2.y - p0.y, p2.z - p0.z,
-            p3.x - p0.x, p3.y - p0.y, p3.z - p0.z,
+            p1.x - p0.x,
+            p1.y - p0.y,
+            p1.z - p0.z,
+            p2.x - p0.x,
+            p2.y - p0.y,
+            p2.z - p0.z,
+            p3.x - p0.x,
+            p3.y - p0.y,
+            p3.z - p0.z,
         );
         _mat.invert();
         _mat.transpose();
@@ -553,9 +559,15 @@ export class Delaunay {
         const p3 = this._probes[tetrahedron.vertex3].position;
 
         tetrahedron.matrix.set(
-            p0.x - p3.x, p1.x - p3.x, p2.x - p3.x,
-            p0.y - p3.y, p1.y - p3.y, p2.y - p3.y,
-            p0.z - p3.z, p1.z - p3.z, p2.z - p3.z,
+            p0.x - p3.x,
+            p1.x - p3.x,
+            p2.x - p3.x,
+            p0.y - p3.y,
+            p1.y - p3.y,
+            p2.y - p3.y,
+            p0.z - p3.z,
+            p1.z - p3.z,
+            p2.z - p3.z,
         );
         tetrahedron.matrix.invert();
         tetrahedron.matrix.transpose();

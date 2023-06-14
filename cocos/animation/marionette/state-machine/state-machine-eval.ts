@@ -682,9 +682,7 @@ class TopLevelStateMachineEvaluation {
      *
      * @returns The transition matched, or null if there's no matched transition.
      */
-    private _matchTransition (
-        node: NodeEval, realNode: NodeEval,
-    ): TransitionEval | null {
+    private _matchTransition (node: NodeEval, realNode: NodeEval): TransitionEval | null {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
 
         const { _conditionEvaluationContext: conditionEvaluationContext } = this;

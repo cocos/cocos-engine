@@ -21,7 +21,7 @@ export abstract class PureValueNode extends PoseGraphNode {
         return this._outputTypes.length;
     }
 
-    public getOutputType (outputIndex: number):PoseGraphType {
+    public getOutputType (outputIndex: number): PoseGraphType {
         return this._outputTypes[outputIndex];
     }
 

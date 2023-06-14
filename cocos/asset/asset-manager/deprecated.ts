@@ -302,13 +302,16 @@ export class CCLoader {
         completeCallback: LoadCompleteCallback<T>,
     ): any;
     public loadRes<T extends Asset> (
-        url: string, type?: Constructor<T> | LoadCompleteCallback<T> | LoadProgressCallback,
+        url: string,
+        type?: Constructor<T> | LoadCompleteCallback<T> | LoadProgressCallback,
         progressCallback?: LoadProgressCallback | LoadCompleteCallback<T>,
         completeCallback?: LoadCompleteCallback<T>,
     ): any {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(type as any,
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(
+            type as any,
             progressCallback as LoadProgressCallback,
-            completeCallback as LoadCompleteCallback<T>);
+            completeCallback as LoadCompleteCallback<T>,
+        );
         const extname = path.extname(url);
         if (extname && !resources.getInfoWithPath(url, _type)) {
             // strip extname
@@ -355,9 +358,11 @@ export class CCLoader {
         progressCallback?: LoadProgressCallback,
         completeCallback?: LoadCompleteCallback<T[]>,
     ): void {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(type as any,
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(
+            type as any,
             progressCallback as LoadProgressCallback,
-            completeCallback as LoadCompleteCallback<Asset[]>);
+            completeCallback as LoadCompleteCallback<Asset[]>,
+        );
         urls.forEach((url, i): void => {
             const extname = path.extname(url);
             if (extname && !resources.getInfoWithPath(url, _type)) {
@@ -442,9 +447,11 @@ export class CCLoader {
         progressCallback?: LoadProgressCallback | LoadDirCompleteCallback<T>,
         completeCallback?: LoadDirCompleteCallback<T>,
     ): any {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(
+            type as any,
             progressCallback as LoadProgressCallback,
-            completeCallback as LoadDirCompleteCallback<Asset>);
+            completeCallback as LoadDirCompleteCallback<Asset>,
+        );
         resources.loadDir(url, _type, onProgress, (err, out): void => {
             let urls: string[] = [];
             if (!err) {

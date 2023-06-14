@@ -626,19 +626,13 @@ class ExoticNodeAnimationEvaluator {
         binder: Binder,
     ) {
         if (position) {
-            this._position = createExoticTrackEvaluationRecord(
-                position.times, position.values, Vec3, path, 'position', binder,
-            );
+            this._position = createExoticTrackEvaluationRecord(position.times, position.values, Vec3, path, 'position', binder);
         }
         if (rotation) {
-            this._rotation = createExoticTrackEvaluationRecord(
-                rotation.times, rotation.values, Quat, path, 'rotation', binder,
-            );
+            this._rotation = createExoticTrackEvaluationRecord(rotation.times, rotation.values, Quat, path, 'rotation', binder);
         }
         if (scale) {
-            this._scale = createExoticTrackEvaluationRecord(
-                scale.times, scale.values, Vec3, path, 'scale', binder,
-            );
+            this._scale = createExoticTrackEvaluationRecord(scale.times, scale.values, Vec3, path, 'scale', binder);
         }
     }
 

@@ -45,8 +45,11 @@ function _calculateCircle (center: Vec3, radius: Vec3, segments: number): Vec3[]
     _circlePoints.length = 0;
     const anglePerStep = Math.PI * 2 / segments;
     for (let step = 0; step < segments; ++step) {
-        _circlePoints.push(new Vec3(radius.x * Math.cos(anglePerStep * step) + center.x,
-            radius.y * Math.sin(anglePerStep * step) + center.y, 0));
+        _circlePoints.push(new Vec3(
+            radius.x * Math.cos(anglePerStep * step) + center.x,
+            radius.y * Math.sin(anglePerStep * step) + center.y,
+            0,
+        ));
     }
 
     return _circlePoints;

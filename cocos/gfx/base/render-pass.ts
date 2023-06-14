@@ -42,9 +42,9 @@ export abstract class RenderPass extends GFXObject {
     protected _subpasses: SubpassInfo[] = [];
     protected _hash = 0;
 
-    get colorAttachments () : Readonly<ColorAttachment[]> { return this._colorInfos; }
-    get depthStencilAttachment () : Readonly<DepthStencilAttachment> | null { return this._depthStencilInfo; }
-    get subPasses () : Readonly<SubpassInfo[]> { return this._subpasses; }
+    get colorAttachments (): Readonly<ColorAttachment[]> { return this._colorInfos; }
+    get depthStencilAttachment (): Readonly<DepthStencilAttachment> | null { return this._depthStencilInfo; }
+    get subPasses (): Readonly<SubpassInfo[]> { return this._subpasses; }
     get hash (): number { return this._hash; }
 
     constructor () {

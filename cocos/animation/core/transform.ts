@@ -72,7 +72,7 @@ export class Transform {
             && Vec3.equals(a._scale, b._scale, epsilon);
     }
 
-    public static strictEquals (a: ReadonlyTransform, b: ReadonlyTransform):boolean {
+    public static strictEquals (a: ReadonlyTransform, b: ReadonlyTransform): boolean {
         return Vec3.strictEquals(a._position, b._position)
             && Quat.strictEquals(a._rotation, b._rotation)
             && Vec3.strictEquals(a._scale, b._scale);

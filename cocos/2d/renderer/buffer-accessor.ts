@@ -31,7 +31,7 @@ export class BufferAccessor {
     public get vertexFormatBytes (): number { return this._vertexFormatBytes; }
     public get floatsPerVertex (): number { return this._floatsPerVertex; }
 
-    protected _device: Device = null!
+    protected _device: Device = null!;
     protected _attributes: Attribute[] = null!;
     protected _vertexFormatBytes: number;
     protected _floatsPerVertex: number;

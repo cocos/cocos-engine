@@ -257,8 +257,11 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         const motionLength = bt.ControllerHit_getHitMotionLength(hit);
         const s: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
         if (s) {
-            item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
-                { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
+            item = bulletWorld.cctShapeEventDic.set(
+                this.impl,
+                shapePtr,
+                { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength },
+            );
         }
     }
 }

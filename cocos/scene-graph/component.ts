@@ -363,8 +363,11 @@ class Component extends CCObject {
             // issue: https://github.com/cocos/cocos-engine/issues/14643
             const depend = (this.node as any)._getDependComponent(this);
             if (depend.length > 0) {
-                errorID(3626,
-                    getClassName(this), getClassName(depend[0]));
+                errorID(
+                    3626,
+                    getClassName(this),
+                    getClassName(depend[0]),
+                );
                 return false;
             }
         }

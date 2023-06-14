@@ -248,7 +248,8 @@ export class WebGL2Swapchain extends Swapchain {
         nullTexRegion.texSubres.layerCount = 6;
         WebGL2DeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion],
+            this.nullTexCube,
+            [nullTexRegion],
         );
 
         this._blitManager = new IWebGL2BlitManager();

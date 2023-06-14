@@ -81,7 +81,7 @@ export class Joint2D extends Component {
      * @zh
      * 关节所绑定的刚体组件。
      */
-    _body: RigidBody2D | null = null
+    _body: RigidBody2D | null = null;
     get body (): RigidBody2D | null {
         return this._body;
     }

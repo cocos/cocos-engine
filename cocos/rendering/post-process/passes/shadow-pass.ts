@@ -5,10 +5,10 @@ import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
 
 export class ShadowPass extends BasePass {
-    name = 'ShadowPass'
+    name = 'ShadowPass';
 
-    mainLightShadows: string[] = []
-    spotLightShadows: string[] = []
+    mainLightShadows: string[] = [];
+    spotLightShadows: string[] = [];
 
     public render (camera: Camera, ppl: Pipeline): void {
         passContext.shadowPass = this;

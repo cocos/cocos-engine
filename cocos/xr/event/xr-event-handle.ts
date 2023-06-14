@@ -36,11 +36,11 @@ export enum DeviceType {
  * @zh xr的3DUI事件类型
  */
 export enum XrUIPressEventType {
-    XRUI_HOVER_ENTERED = "xrui-hover-entered",
-    XRUI_HOVER_EXITED = "xrui-hover-exited",
-    XRUI_HOVER_STAY = "xrui-hover-stay",
-    XRUI_CLICK = "xrui-click",
-    XRUI_UNCLICK = "xrui-unclick"
+    XRUI_HOVER_ENTERED = 'xrui-hover-entered',
+    XRUI_HOVER_EXITED = 'xrui-hover-exited',
+    XRUI_HOVER_STAY = 'xrui-hover-stay',
+    XRUI_CLICK = 'xrui-click',
+    XRUI_UNCLICK = 'xrui-unclick'
 }
 
 /**

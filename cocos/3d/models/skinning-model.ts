@@ -126,7 +126,7 @@ export class SkinningModel extends MorphModel {
      * @en Abstract function for [[BakedSkinningModel]], empty implementation.
      * @zh 由 [[BakedSkinningModel]] 继承的空函数。
      */
-    public uploadAnimation () : void {}
+    public uploadAnimation (): void {}
 
     /**
      * @en Bind the skeleton with its skinning root node and the mesh data.

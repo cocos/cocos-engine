@@ -429,8 +429,10 @@ class DeviceRenderQueue {
         this._devicePass = devicePass;
         if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, context.renderGraph.getLayout(id) || 'default');
         if (!this._sceneVisitor) {
-            this._sceneVisitor = new WebSceneVisitor(context.commandBuffer,
-                context.pipeline.pipelineSceneData);
+            this._sceneVisitor = new WebSceneVisitor(
+                context.commandBuffer,
+                context.pipeline.pipelineSceneData,
+            );
         }
     }
     createBlitDesc (blit: Blit): void {
@@ -733,9 +735,11 @@ class DeviceRenderPass {
         //     ));
         // }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass,
+        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
+            this._renderPass,
             swapchain ? [swapchain.colorTexture] : colorTexs,
-            swapchain ? swapchain.depthStencilTexture : depthTex));
+            swapchain ? swapchain.depthStencilTexture : depthTex,
+        ));
     }
     get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
@@ -800,8 +804,13 @@ class DeviceRenderPass {
         const pass = submodel.passes[0];
         const ia = submodel.inputAssembler;
         const device = context.device;
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, pass,
-            submodel.shaders[0], renderPass, ia);
+        const pso = PipelineStateManager.getOrCreatePipelineState(
+            device,
+            pass,
+            submodel.shaders[0],
+            renderPass,
+            ia,
+        );
         const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
         mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet, true);
         profilerViewport.width = rect.width;
@@ -830,10 +839,18 @@ class DeviceRenderPass {
             renderPassArea.width = tex.width;
             renderPassArea.height = tex.height;
         }
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderPassArea,
-            this.clearColor, this.clearDepth, this.clearStencil);
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
-            context.pipeline.descriptorSet);
+        cmdBuff.beginRenderPass(
+            this.renderPass,
+            this.framebuffer,
+            renderPassArea,
+            this.clearColor,
+            this.clearDepth,
+            this.clearStencil,
+        );
+        cmdBuff.bindDescriptorSet(
+            SetIndex.GLOBAL,
+            context.pipeline.descriptorSet,
+        );
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -1004,8 +1021,12 @@ class DevicePreSceneTask extends WebSceneTask {
     protected _graphScene: GraphScene;
     private _cmdBuff: CommandBuffer;
     constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
-        super(context.pipelineSceneData, context.ubo,
-            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
+        super(
+            context.pipelineSceneData,
+            context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null,
+            visitor,
+        );
         this._currentQueue = queue;
         this._graphScene = graphScene;
         this._renderPass = queue.devicePass.renderPass;
@@ -1210,8 +1231,12 @@ class DeviceSceneTask extends WebSceneTask {
     protected _renderPass: RenderPass;
     protected _graphScene: GraphScene;
     constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
-        super(context.pipelineSceneData, context.ubo,
-            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
+        super(
+            context.pipelineSceneData,
+            context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null,
+            visitor,
+        );
         this._currentQueue = queue;
         this._renderPass = this._currentQueue.devicePass.renderPass;
         this._graphScene = graphScene;
@@ -1238,8 +1263,13 @@ class DeviceSceneTask extends WebSceneTask {
             const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
             const shader = subModel.shaders[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice,
-                pass, shader, this._renderPass, inputAssembler);
+            const pso = PipelineStateManager.getOrCreatePipelineState(
+                deviceManager.gfxDevice,
+                pass,
+                shader,
+                this._renderPass,
+                inputAssembler,
+            );
             this.visitor.bindPipelineState(pso);
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
             this.visitor.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
@@ -1266,8 +1296,13 @@ class DeviceSceneTask extends WebSceneTask {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = instance.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass,
-                        shader, this._renderPass, instance.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(
+                        deviceManager.gfxDevice,
+                        pass,
+                        shader,
+                        this._renderPass,
+                        instance.ia,
+                    );
                     if (lastPSO !== pso) {
                         this.visitor.bindPipelineState(pso);
                         lastPSO = pso;
@@ -1314,14 +1349,20 @@ class DeviceSceneTask extends WebSceneTask {
     protected _recordShadowMap (): void {
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.shadowMap.get(this.graphScene.sceneID)!.recordCommandBuffer(context.device,
-            this._renderPass, context.commandBuffer);
+        currSubmitInfo.shadowMap.get(this.graphScene.sceneID)!.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+            context.commandBuffer,
+        );
     }
     protected _recordReflectionProbe (): void {
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.reflectionProbe?.recordCommandBuffer(context.device,
-            this._renderPass, context.commandBuffer);
+        currSubmitInfo.reflectionProbe?.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+            context.commandBuffer,
+        );
     }
 
     private _clearExtBlitDesc (desc, extResId: number[]): void {
@@ -1352,8 +1393,13 @@ class DeviceSceneTask extends WebSceneTask {
         const globalDesc = context.pipeline.descriptorSet;
         let pso;
         if (pass !== null && shader !== null && screenIa !== null) {
-            pso = PipelineStateManager.getOrCreatePipelineState(context.device, pass, shader,
-                devicePass.renderPass, screenIa);
+            pso = PipelineStateManager.getOrCreatePipelineState(
+                context.device,
+                pass,
+                shader,
+                devicePass.renderPass,
+                screenIa,
+            );
         }
         if (pso) {
             this.visitor.bindPipelineState(pso);
@@ -1374,18 +1420,22 @@ class DeviceSceneTask extends WebSceneTask {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.additiveLight?.recordCommandBuffer(context.device,
+        currSubmitInfo.additiveLight?.recordCommandBuffer(
+            context.device,
             this._renderPass,
-            context.commandBuffer);
+            context.commandBuffer,
+        );
     }
 
     private _recordPlanarShadows (): void {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.planarQueue?.recordCommandBuffer(context.device,
+        currSubmitInfo.planarQueue?.recordCommandBuffer(
+            context.device,
             this._renderPass,
-            context.commandBuffer);
+            context.commandBuffer,
+        );
     }
     protected _updateGlobal (data: RenderData): void {
         const devicePass = this._currentQueue.devicePass;
@@ -1472,8 +1522,10 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
-        this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
-            context.pipeline.descriptorSet);
+        this.visitor.bindDescriptorSet(
+            SetIndex.GLOBAL,
+            context.pipeline.descriptorSet,
+        );
         if (graphSceneData.flags & SceneFlags.PLANAR_SHADOW) {
             this._recordPlanarShadows();
         }
@@ -1481,8 +1533,11 @@ class DeviceSceneTask extends WebSceneTask {
             this._recordTransparentList();
         }
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
-            this.camera!.geometryRenderer?.render(devicePass.renderPass,
-                context.commandBuffer, context.pipeline.pipelineSceneData);
+            this.camera!.geometryRenderer?.render(
+                devicePass.renderPass,
+                context.commandBuffer,
+                context.pipeline.pipelineSceneData,
+            );
         }
         if (graphSceneData.flags & SceneFlags.UI) {
             this._recordUI();
@@ -1721,14 +1776,16 @@ class BlitInfo {
 }
 
 class ExecutorContext {
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData,
         width: number,
-        height: number) {
+        height: number,
+    ) {
         this.pipeline = pipeline;
         this.device = device;
         this.commandBuffer = device.commandBuffer;
@@ -1781,12 +1838,15 @@ class ExecutorContext {
 }
 
 export class Executor {
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         layoutGraph: LayoutGraphData,
-        width: number, height: number) {
+        width: number,
+        height: number,
+    ) {
         context = this._context = new ExecutorContext(
             pipeline,
             ubo,

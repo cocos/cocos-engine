@@ -65,7 +65,7 @@ function makeCubicSplineValueConstructor<T> (
             this.outTangent = outTangent || new ConstructorX();
         }
 
-        public lerp (to: CubicSplineValueClass, t: number, dt: number):T {
+        public lerp (to: CubicSplineValueClass, t: number, dt: number): T {
             const p0 = this.dataPoint;
             const p1 = to.dataPoint;
             // dt => t_k+1 - t_k
@@ -106,9 +106,7 @@ function makeCubicSplineValueConstructor<T> (
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
-);
+export const CubicSplineVec2Value = makeCubicSplineValueConstructor('cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd);
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -118,9 +116,7 @@ export type CubicSplineVec2Value = ICubicSplineValue<Vec2>;
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
-);
+export const CubicSplineVec3Value = makeCubicSplineValueConstructor('cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd);
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -130,9 +126,7 @@ export type CubicSplineVec3Value = ICubicSplineValue<Vec3>;
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
-);
+export const CubicSplineVec4Value = makeCubicSplineValueConstructor('cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd);
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -142,9 +136,7 @@ export type CubicSplineVec4Value = ICubicSplineValue<Vec4>;
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
-    'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
-);
+export const CubicSplineQuatValue = makeCubicSplineValueConstructor('cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd);
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.

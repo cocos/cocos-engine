@@ -181,13 +181,15 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  */
 export function tryCatchFunctor_EDITOR (funcName): AnyFunction {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    return Function('target',
+    return Function(
+        'target',
         `${'try {\n'
         + '  target.'}${funcName}();\n`
         + `}\n`
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
-        + `}`);
+        + `}`,
+    );
 }
 
 /**

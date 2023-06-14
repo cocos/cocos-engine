@@ -55,10 +55,22 @@ export class Mat4 extends ValueType {
      */
     public static clone (a: IMat4Like): Mat4 {
         return new Mat4(
-            a.m00, a.m01, a.m02, a.m03,
-            a.m04, a.m05, a.m06, a.m07,
-            a.m08, a.m09, a.m10, a.m11,
-            a.m12, a.m13, a.m14, a.m15,
+            a.m00,
+            a.m01,
+            a.m02,
+            a.m03,
+            a.m04,
+            a.m05,
+            a.m06,
+            a.m07,
+            a.m08,
+            a.m09,
+            a.m10,
+            a.m11,
+            a.m12,
+            a.m13,
+            a.m14,
+            a.m15,
         );
     }
 
@@ -111,10 +123,22 @@ export class Mat4 extends ValueType {
      */
     public static set<Out extends IMat4Like> (
         out: Out,
-        m00: number, m01: number, m02: number, m03: number,
-        m10: number, m11: number, m12: number, m13: number,
-        m20: number, m21: number, m22: number, m23: number,
-        m30: number, m31: number, m32: number, m33: number,
+        m00: number,
+        m01: number,
+        m02: number,
+        m03: number,
+        m10: number,
+        m11: number,
+        m12: number,
+        m13: number,
+        m20: number,
+        m21: number,
+        m22: number,
+        m23: number,
+        m30: number,
+        m31: number,
+        m32: number,
+        m33: number,
     ): Out {
         out.m00 = m00; out.m01 = m01; out.m02 = m02; out.m03 = m03;
         out.m04 = m10; out.m05 = m11; out.m06 = m12; out.m07 = m13;
@@ -967,9 +991,15 @@ export class Mat4 extends ValueType {
     public static toEuler<InType extends IMat4Like, VecLike extends IVec3Like> (m: InType, v: VecLike): boolean {
         Mat3.set(
             m3_1,
-            m.m00, m.m01, m.m02,
-            m.m04, m.m05, m.m06,
-            m.m08, m.m09, m.m10,
+            m.m00,
+            m.m01,
+            m.m02,
+            m.m04,
+            m.m05,
+            m.m06,
+            m.m08,
+            m.m09,
+            m.m10,
         );
         return Mat3.toEuler(m3_1, v);
     }
@@ -1269,8 +1299,15 @@ export class Mat4 extends ValueType {
      * @return The receiving matrix.
      */
     public static perspective<Out extends IMat4Like> (
-        out: Out, fov: number, aspect: number, near: number, far: number,
-        isFOVY = true, minClipZ = -1, projectionSignY = 1, orientation = 0,
+        out: Out,
+        fov: number,
+        aspect: number,
+        near: number,
+        far: number,
+        isFOVY = true,
+        minClipZ = -1,
+        projectionSignY = 1,
+        orientation = 0,
     ): Out {
         const f = 1.0 / Math.tan(fov / 2);
         const nf = 1 / (near - far);
@@ -1315,8 +1352,16 @@ export class Mat4 extends ValueType {
      * @return The receiving matrix.
      */
     public static ortho<Out extends IMat4Like> (
-        out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number,
-        minClipZ = -1, projectionSignY = 1, orientation = 0,
+        out: Out,
+        left: number,
+        right: number,
+        bottom: number,
+        top: number,
+        near: number,
+        far: number,
+        minClipZ = -1,
+        projectionSignY = 1,
+        orientation = 0,
     ): Out {
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top) * projectionSignY;
@@ -1769,10 +1814,22 @@ export class Mat4 extends ValueType {
         m12?: number, m13?: number, m14?: number, m15?: number);
 
     constructor (
-        m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
-        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
-        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
-        m12 = 0, m13 = 0, m14 = 0, m15 = 1,
+        m00: Mat4 | number = 1,
+        m01 = 0,
+        m02 = 0,
+        m03 = 0,
+        m04 = 0,
+        m05 = 1,
+        m06 = 0,
+        m07 = 0,
+        m08 = 0,
+        m09 = 0,
+        m10 = 1,
+        m11 = 0,
+        m12 = 0,
+        m13 = 0,
+        m14 = 0,
+        m15 = 1,
     ) {
         super();
         if (typeof m00 === 'object') {
@@ -1794,10 +1851,22 @@ export class Mat4 extends ValueType {
      */
     public clone (): Mat4 {
         return new Mat4(
-            this.m00, this.m01, this.m02, this.m03,
-            this.m04, this.m05, this.m06, this.m07,
-            this.m08, this.m09, this.m10, this.m11,
-            this.m12, this.m13, this.m14, this.m15,
+            this.m00,
+            this.m01,
+            this.m02,
+            this.m03,
+            this.m04,
+            this.m05,
+            this.m06,
+            this.m07,
+            this.m08,
+            this.m09,
+            this.m10,
+            this.m11,
+            this.m12,
+            this.m13,
+            this.m14,
+            this.m15,
         );
     }
 
@@ -1821,10 +1890,24 @@ export class Mat4 extends ValueType {
         m08?: number, m09?: number, m10?: number, m11?: number,
         m12?: number, m13?: number, m14?: number, m15?: number): Mat4;
 
-    public set (m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
-        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
-        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
-        m12 = 0, m13 = 0, m14 = 0, m15 = 1): Mat4 {
+    public set (
+        m00: Mat4 | number = 1,
+        m01 = 0,
+        m02 = 0,
+        m03 = 0,
+        m04 = 0,
+        m05 = 1,
+        m06 = 0,
+        m07 = 0,
+        m08 = 0,
+        m09 = 0,
+        m10 = 1,
+        m11 = 0,
+        m12 = 0,
+        m13 = 0,
+        m14 = 0,
+        m15 = 1,
+    ): Mat4 {
         if (typeof m00 === 'object') {
             this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
             this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
@@ -2518,10 +2601,22 @@ export function mat4(
     m30?: number, m31?: number, m32?: number, m33?: number): Mat4;
 
 export function mat4 (
-    m00?: Mat4 | number, m01?, m02?, m03?,
-    m10?, m11?, m12?, m13?,
-    m20?, m21?, m22?, m23?,
-    m30?, m31?, m32?, m33?,
+    m00?: Mat4 | number,
+    m01?,
+    m02?,
+    m03?,
+    m10?,
+    m11?,
+    m12?,
+    m13?,
+    m20?,
+    m21?,
+    m22?,
+    m23?,
+    m30?,
+    m31?,
+    m32?,
+    m33?,
 ): Mat4 {
     return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }

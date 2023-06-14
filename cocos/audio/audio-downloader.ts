@@ -44,10 +44,12 @@ export function loadAudioPlayer (url: string, options: Record<string, any>, onCo
     });
 }
 
-function createAudioClip (id: string,
+function createAudioClip (
+    id: string,
     data: AudioMeta,
     options: Record<string, any>,
-    onComplete: ((err: Error | null, data?: AudioClip | null) => void)): void {
+    onComplete: ((err: Error | null, data?: AudioClip | null) => void),
+): void {
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;

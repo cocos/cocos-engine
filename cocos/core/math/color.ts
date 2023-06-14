@@ -819,7 +819,7 @@ export function packRGBE (rgb: Vec3): Vec4 {
         e = clamp(e + 128.0, 0.0, 255.0);
     }
     // eslint-disable-next-line no-restricted-properties
-    const sc = 1.0 / Math.pow(1.1, e - 128.0);
+    const sc = 1.0 / 1.1 ** (e - 128.0);
     const encode = clampVec3(rgb.multiplyScalar(sc), new Vec3(0.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0));
     encode.multiplyScalar(255.0);
     const encode_rounded = floorVec3(encode).add(stepVec3(encode.subtract(floorVec3(encode)), new Vec3(0.5, 0.5, 0.5)));

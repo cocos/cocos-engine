@@ -240,7 +240,7 @@ export class TiffReader {
     }
 
     clampColorSample (colorSample, bitsPerSample): number {
-        const multiplier = Math.pow(2, 8 - bitsPerSample);
+        const multiplier = 2 ** (8 - bitsPerSample);
 
         return Math.floor((colorSample * multiplier) + (multiplier - 1));
     }
@@ -491,7 +491,7 @@ export class TiffReader {
             let colorMapSampleSize = 0;
             if (fileDirectory.ColorMap) {
                 colorMapValues = fileDirectory.ColorMap.values;
-                colorMapSampleSize = Math.pow(2, (sampleProperties[0] as any).bitsPerSample);
+                colorMapSampleSize = 2 ** (sampleProperties[0] as any).bitsPerSample;
             }
 
             // Loop through the strips in the image.
@@ -532,7 +532,7 @@ export class TiffReader {
                         case 0:
                             let invertValue = 0;
                             if ((sampleProperties[0] as any).hasBytesPerSample) {
-                                invertValue = Math.pow(0x10, (sampleProperties[0] as any).bytesPerSample * 2);
+                                invertValue = 0x10 ** ((sampleProperties[0] as any).bytesPerSample * 2);
                             }
 
                             // Invert samples.

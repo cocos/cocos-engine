@@ -140,10 +140,12 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
 
-        const force = Vec3.set(_temp_v3,
+        const force = Vec3.set(
+            _temp_v3,
             this.x.evaluate(normalizedTime, randX)!,
             this.y.evaluate(normalizedTime, randY)!,
-            this.z.evaluate(normalizedTime, randZ)!);
+            this.z.evaluate(normalizedTime, randZ)!,
+        );
         if (this.needTransform) {
             Vec3.transformQuat(force, force, this.rotation);
         }

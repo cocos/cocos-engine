@@ -51,11 +51,19 @@ export class CCTextureAtlasData extends TextureAtlasData {
                 if (!textureData.spriteFrame) {
                     let rect: Rect | null = null;
                     if (textureData.rotated) {
-                        rect = new Rect(textureData.region.x, textureData.region.y,
-                            textureData.region.height, textureData.region.width);
+                        rect = new Rect(
+                            textureData.region.x,
+                            textureData.region.y,
+                            textureData.region.height,
+                            textureData.region.width,
+                        );
                     } else {
-                        rect = new Rect(textureData.region.x, textureData.region.y,
-                            textureData.region.width, textureData.region.height);
+                        rect = new Rect(
+                            textureData.region.x,
+                            textureData.region.y,
+                            textureData.region.width,
+                            textureData.region.height,
+                        );
                         // }
                         // const offset = new Vec2(0, 0);
                         // const size = new Size(rect.width, rect.height);
@@ -107,7 +115,7 @@ export class CCTextureData extends TextureData {
      * @en SpriteFrame assets.
      * @zh SpriteFrame 资源。
      */
-    spriteFrame: SpriteFrame | null = null
+    spriteFrame: SpriteFrame | null = null;
     /**
      * @engineInternal Since v3.7.2 this is an engine private function.
      */

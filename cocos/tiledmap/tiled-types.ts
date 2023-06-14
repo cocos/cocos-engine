@@ -28,7 +28,7 @@ import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import { Texture2D } from '../asset/assets';
 
-export type PropertiesInfo = { [key: string]: number | string };
+export interface PropertiesInfo { [key: string]: number | string }
 export type TiledAnimationType = Map<GID, TiledAnimation>;
 
 export interface TiledAnimation {

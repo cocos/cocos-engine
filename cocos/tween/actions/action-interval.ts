@@ -289,7 +289,7 @@ export class Sequence extends ActionInterval {
         const sequence = new Sequence();
         sequence.initWithTwoActions(actionOne, actionTwo);
         return sequence;
-    }
+    };
 
     private _actions: ActionInterval[] = [];
     private _split = 0;
@@ -731,7 +731,7 @@ export class Spawn extends ActionInterval {
         const pSpawn = new Spawn();
         pSpawn.initWithTwoActions(action1, action2);
         return pSpawn;
-    }
+    };
 
     private _one: ActionInterval | null = null;
     private _two: ActionInterval | null = null;

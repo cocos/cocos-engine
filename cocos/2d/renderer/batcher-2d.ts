@@ -490,8 +490,15 @@ export class Batcher2D implements IBatcher {
      * @param mat - The material used
      * @param enableBatch - component support multi draw batch or not
      */
-    public commitMiddleware (comp: UIRenderer, meshBuffer: MeshBuffer, indexOffset: number,
-        indexCount: number, tex: TextureBase, mat: Material, enableBatch: boolean): void {
+    public commitMiddleware (
+        comp: UIRenderer,
+        meshBuffer: MeshBuffer,
+        indexOffset: number,
+        indexCount: number,
+        tex: TextureBase,
+        mat: Material,
+        enableBatch: boolean,
+    ): void {
         // check if need merge draw batch
         const texture = tex.getGFXTexture();
         if (enableBatch && this._middlewareEnableBatch && this._middlewareBuffer === meshBuffer

@@ -46,8 +46,13 @@ export class EmptyTexture extends Texture {
         this._info.copy(texInfo);
 
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
-        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
-            this.depth, this._info.levelCount) * this._info.layerCount;
+        this._size = FormatSurfaceSize(
+            this._info.format,
+            this.width,
+            this.height,
+            this.depth,
+            this._info.levelCount,
+        ) * this._info.layerCount;
     }
     public destroy (): void {}
 

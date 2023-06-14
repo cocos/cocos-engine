@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { IVec2Like } from '../../core';
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
 import { Joint2D, RigidBody2D } from '../framework';

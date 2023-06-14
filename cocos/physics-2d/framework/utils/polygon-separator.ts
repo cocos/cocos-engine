@@ -84,8 +84,12 @@ export function ConvexPartition (vertices: IVec2Like[]): IVec2Like[][] {
                 if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices))
                     && RightOn(At(i - 1, vertices), At(i, vertices), At(j - 1, vertices))) {
                     // find the povar of intersection
-                    p = LineIntersect(At(i - 1, vertices), At(i, vertices), At(j, vertices),
-                        At(j - 1, vertices));
+                    p = LineIntersect(
+                        At(i - 1, vertices),
+                        At(i, vertices),
+                        At(j, vertices),
+                        At(j - 1, vertices),
+                    );
                     if (Right(At(i + 1, vertices), At(i, vertices), p)) {
                         // make sure it's inside the poly
                         d = SquareDist(At(i, vertices), p);
@@ -100,8 +104,12 @@ export function ConvexPartition (vertices: IVec2Like[]): IVec2Like[][] {
 
                 if (Left(At(i + 1, vertices), At(i, vertices), At(j + 1, vertices))
                     && RightOn(At(i + 1, vertices), At(i, vertices), At(j, vertices))) {
-                    p = LineIntersect(At(i + 1, vertices), At(i, vertices), At(j, vertices),
-                        At(j + 1, vertices));
+                    p = LineIntersect(
+                        At(i + 1, vertices),
+                        At(i, vertices),
+                        At(j, vertices),
+                        At(j + 1, vertices),
+                    );
                     if (Left(At(i - 1, vertices), At(i, vertices), p)) {
                         d = SquareDist(At(i, vertices), p);
                         if (d < upperDist) {

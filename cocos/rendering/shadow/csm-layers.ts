@@ -186,8 +186,17 @@ export class ShadowLayerVolume {
             // snap to whole texels
             const halfOrthoSizeWidth = orthoSizeWidth * 0.5;
             const halfOrthoSizeHeight = orthoSizeHeight * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSizeWidth, halfOrthoSizeWidth, -halfOrthoSizeHeight, halfOrthoSizeHeight,
-                0.1, this._shadowCameraFar, device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+            Mat4.ortho(
+                _matShadowProj,
+                -halfOrthoSizeWidth,
+                halfOrthoSizeWidth,
+                -halfOrthoSizeHeight,
+                halfOrthoSizeHeight,
+                0.1,
+                this._shadowCameraFar,
+                device.capabilities.clipSpaceMinZ,
+                device.capabilities.clipSpaceSignY,
+            );
 
             Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
             Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
@@ -209,8 +218,14 @@ export class ShadowLayerVolume {
             Mat4.copy(this._matShadowViewProj, _matShadowViewProj);
         }
 
-        Frustum.createOrtho(this._validFrustum, orthoSizeWidth, orthoSizeHeight,
-            0.1,  this._shadowCameraFar, _matShadowTrans);
+        Frustum.createOrtho(
+            this._validFrustum,
+            orthoSizeWidth,
+            orthoSizeHeight,
+            0.1,
+            this._shadowCameraFar,
+            _matShadowTrans,
+        );
     }
 }
 export class CSMShadowLayer extends ShadowLayerVolume {
@@ -335,8 +350,17 @@ export class CSMLayers {
         const far = dirLight.shadowFar;
         Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
         Mat4.invert(_matShadowView, _matShadowTrans);
-        Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-            device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+        Mat4.ortho(
+            _matShadowProj,
+            -x,
+            x,
+            -y,
+            y,
+            near,
+            far,
+            device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY,
+        );
         Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
         this._specialLayer.matShadowView = _matShadowView;
         this._specialLayer.matShadowProj = _matShadowProj;
@@ -356,7 +380,7 @@ export class CSMLayers {
             // i ÷ numbers of level
             const si = i / level;
             // eslint-disable-next-line no-restricted-properties
-            const preNear = lambda * (nd * Math.pow(ratio, si)) + (1 - lambda) * (nd + (fd - nd) * si);
+            const preNear = lambda * (nd * ratio ** si) + (1 - lambda) * (nd + (fd - nd) * si);
             // Slightly increase the overlap to avoid fracture
             const nextFar = preNear * 1.005;
             this._layers[i].splitCameraNear = preNear;

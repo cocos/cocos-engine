@@ -36,7 +36,7 @@ const _normal = new Vec2();
 const _vec2 = new Vec2();
 let QUAD_INDICES;
 
-function normal (out:Vec2, dir:Vec2): Vec2 {
+function normal (out: Vec2, dir: Vec2): Vec2 {
     // get perpendicular
     out.x = -dir.y;
     out.y = dir.x;

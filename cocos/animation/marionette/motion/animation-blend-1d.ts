@@ -84,8 +84,13 @@ export class AnimationBlend1D extends AnimationBlend {
         ignoreEmbeddedPlayers: boolean,
     ): any {
         const evaluation = new AnimationBlend1DEval(
-            context, clipOverrides, ignoreEmbeddedPlayers,
-            this, this._items, this._items.map(({ threshold }) => threshold), 0.0,
+            context,
+            clipOverrides,
+            ignoreEmbeddedPlayers,
+            this,
+            this._items,
+            this._items.map(({ threshold }) => threshold),
+            0.0,
         );
         const initialValue = bindOr(
             context,
@@ -111,7 +116,10 @@ class AnimationBlend1DEval extends AnimationBlendEval {
         context: AnimationGraphBindingContext,
         overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-        base: AnimationBlend, items: AnimationBlendItem[], thresholds: readonly number[], input: number,
+        base: AnimationBlend,
+        items: AnimationBlendItem[],
+        thresholds: readonly number[],
+        input: number,
     ) {
         super(context, overrides, ignoreEmbeddedPlayers, base, items, [input]);
         this._thresholds = thresholds;

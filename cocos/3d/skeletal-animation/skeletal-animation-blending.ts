@@ -53,8 +53,7 @@ export abstract class BlendStateBuffer<
         this.deRef(internal.node, internal.property);
     }
 
-    public ref<P extends BlendingPropertyName> (node: Node, property: P): PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P]
-    {
+    public ref<P extends BlendingPropertyName> (node: Node, property: P): PropertyBlendStateTypeMap<PropertyBlendState<Vec3>, PropertyBlendState<Quat>>[P] {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             nodeBlendState = this.createNodeBlendState();
@@ -211,9 +210,7 @@ abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState
             && !properties.scale;
     }
 
-    public refProperty<P extends BlendingPropertyName> (
-        node: Node, property: BlendingPropertyName,
-    ): NodeBlendState<TVec3PropertyBlendState, TQuatPropertyBlendState>['_properties'][P] {
+    public refProperty<P extends BlendingPropertyName> (node: Node, property: BlendingPropertyName): NodeBlendState<TVec3PropertyBlendState, TQuatPropertyBlendState>['_properties'][P] {
         const { _properties: properties } = this;
         let propertyBlendState: TVec3PropertyBlendState | TQuatPropertyBlendState;
         switch (property) {

@@ -489,8 +489,12 @@ export class Director extends EventTarget {
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             // NOTE: the similar function signatures but defined as deferent function types.
-            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
-                onLoaded as ((err?: Error | null) => void) | null);
+            bundle.preloadScene(
+                sceneName,
+                null,
+                onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null,
+            );
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {

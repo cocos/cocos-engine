@@ -1282,8 +1282,11 @@ export class ScrollView extends ViewGroup {
                 return a;
             }, totalMovement);
 
-            out.set(totalMovement.x * (1 - this.brake) / totalTime,
-                totalMovement.y * (1 - this.brake) / totalTime, totalMovement.z);
+            out.set(
+                totalMovement.x * (1 - this.brake) / totalTime,
+                totalMovement.y * (1 - this.brake) / totalTime,
+                totalMovement.z,
+            );
         }
         return out;
     }

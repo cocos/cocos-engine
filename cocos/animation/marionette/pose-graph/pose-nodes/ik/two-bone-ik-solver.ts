@@ -54,18 +54,18 @@ class TargetSpecification {
 
     @serializable
     @editable
-    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
+    @visible(function visible (this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
     public targetPosition = new Vec3();
 
     @serializable
     @editable
     @type(TransformSpace)
-    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
+    @visible(function visible (this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
     public targetPositionSpace = TransformSpace.WORLD;
 
     @serializable
     @editable
-    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.BONE; })
+    @visible(function visible (this: TargetSpecification) { return this.type === TargetSpecificationType.BONE; })
     public targetBone = '';
 
     public bind (context: AnimationGraphBindingContext, sourceBoneHandle: TransformHandle): void {

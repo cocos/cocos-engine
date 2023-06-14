@@ -395,8 +395,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = velocityModule ? velocityModule.enable : false;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule.x, velocityModule.y,
-                velocityModule.z, velocityModule.speedModifier);
+            const packed = packCurveRangeXYZW(
+                this._velocityTexture,
+                this._velocityData,
+                _sample_num,
+                velocityModule.x,
+                velocityModule.y,
+                velocityModule.z,
+                velocityModule.speedModifier,
+            );
             this._velocityTexture = packed.texture;
             this._velocityData = packed.texdata;
             const handle = pass.getHandle('velocity_over_time_tex0');

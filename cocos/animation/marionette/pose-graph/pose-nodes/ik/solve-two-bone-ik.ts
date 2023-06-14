@@ -59,8 +59,10 @@ export const solveTwoBoneIK = ((): (root: Transform, middle: Transform, end: Tra
         const cacheVec3_2 = new Vec3();
         return (
             out: Quat,
-            sourceOrigin: Readonly<Vec3>, sourceDestination: Readonly<Vec3>,
-            targetOrigin: Readonly<Vec3>, targetDestination: Readonly<Vec3>,
+            sourceOrigin: Readonly<Vec3>,
+            sourceDestination: Readonly<Vec3>,
+            targetOrigin: Readonly<Vec3>,
+            targetDestination: Readonly<Vec3>,
         // eslint-disable-next-line arrow-body-style
         ): Quat => {
             return Quat.rotationTo(
@@ -106,16 +108,20 @@ export const solveTwoBoneIK = ((): (root: Transform, middle: Transform, end: Tra
 
         const qA = calculateRotationBetweenRays(
             cacheQuat,
-            pA, pB,
-            pA, bSolved,
+            pA,
+            pB,
+            pA,
+            bSolved,
         );
         Quat.multiply(qA, qA, root.rotation);
         root.rotation = qA;
 
         const qB = calculateRotationBetweenRays(
             cacheQuat,
-            pB, pC,
-            bSolved, cSolved,
+            pB,
+            pC,
+            bSolved,
+            cSolved,
         );
         Quat.multiply(qB, qB, middle.rotation);
         middle.rotation = qB;

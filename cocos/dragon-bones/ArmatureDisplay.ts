@@ -736,8 +736,15 @@ export class ArmatureDisplay extends UIRenderer {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
+                    batcher.commitMiddleware(
+                        this,
+                        meshBuffer,
+                        origin + dc.indexOffset,
+                        dc.indexCount,
+                        dc.texture,
+                        dc.material!,
+                        this._enableBatch,
+                    );
                 }
                 indicesCount += dc.indexCount;
             }

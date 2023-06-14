@@ -81,14 +81,35 @@ export class ParticleNoise {
         const BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
 
         // The perlin noise value 0 -> 1
-        const val = this.scale(this.lerp(w, this.lerp(v, this.lerp(u, this.grad(p[AA], x, y, z), // AND ADD
-            this.grad(p[BA], x - 1, y, z)), // BLENDED
-        this.lerp(u, this.grad(p[AB], x, y - 1, z), // RESULTS
-            this.grad(p[BB], x - 1, y - 1, z))), // FROM  8
-        this.lerp(v, this.lerp(u, this.grad(p[AA + 1], x, y, z - 1), // CORNERS
-            this.grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-        this.lerp(u, this.grad(p[AB + 1], x, y - 1, z - 1),
-            this.grad(p[BB + 1], x - 1, y - 1, z - 1)))));
+        const val = this.scale(this.lerp(
+            w,
+            this.lerp(
+                v,
+                this.lerp(
+                    u,
+                    this.grad(p[AA], x, y, z), // AND ADD
+                    this.grad(p[BA], x - 1, y, z),
+                ), // BLENDED
+                this.lerp(
+                    u,
+                    this.grad(p[AB], x, y - 1, z), // RESULTS
+                    this.grad(p[BB], x - 1, y - 1, z),
+                ),
+            ), // FROM  8
+            this.lerp(
+                v,
+                this.lerp(
+                    u,
+                    this.grad(p[AA + 1], x, y, z - 1), // CORNERS
+                    this.grad(p[BA + 1], x - 1, y, z - 1),
+                ), // OF CUBE
+                this.lerp(
+                    u,
+                    this.grad(p[AB + 1], x, y - 1, z - 1),
+                    this.grad(p[BB + 1], x - 1, y - 1, z - 1),
+                ),
+            ),
+        ));
 
         return min + val * (max - min);
     }

@@ -30,7 +30,7 @@ import Intersection2D from '../intersection-2d';
 const tempVec2 = new Vec2();
 
 export class BuiltinPolygonShape extends BuiltinShape2D {
-    private _worldPoints: Vec2[] = []
+    private _worldPoints: Vec2[] = [];
     get worldPoints (): Readonly<Vec2[]> {
         return this._worldPoints;
     }

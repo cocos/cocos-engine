@@ -85,7 +85,8 @@ export class BuiltinContact {
         } else if (this.testFunc === Intersection2D.polygonCircle) {
             return Intersection2D.polygonCircle(
                 (s1 as BuiltinPolygonShape).worldPoints,
-                (s2 as BuiltinCircleShape).worldPosition, (s2 as BuiltinCircleShape).worldRadius,
+                (s2 as BuiltinCircleShape).worldPosition,
+                (s2 as BuiltinCircleShape).worldRadius,
             );
         }
 

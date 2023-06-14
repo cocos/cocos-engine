@@ -68,11 +68,21 @@ export class OBB {
      * @returns @zh 返回新创建的 OBB 实例。 @en A new OBB instance.
      */
     public static create (
-        cx: number, cy: number, cz: number,
-        hw: number, hh: number, hl: number,
-        ox_1: number, ox_2: number, ox_3: number,
-        oy_1: number, oy_2: number, oy_3: number,
-        oz_1: number, oz_2: number, oz_3: number,
+        cx: number,
+        cy: number,
+        cz: number,
+        hw: number,
+        hh: number,
+        hl: number,
+        ox_1: number,
+        ox_2: number,
+        ox_3: number,
+        oy_1: number,
+        oy_2: number,
+        oy_3: number,
+        oz_1: number,
+        oz_2: number,
+        oz_3: number,
     ): OBB {
         return new OBB(cx, cy, cz, hw, hh, hl, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
     }
@@ -86,11 +96,23 @@ export class OBB {
      * @returns @zh The cloned OBB instance.  @en 克隆出的新对象。
      */
     public static clone (a: OBB): OBB {
-        return new OBB(a.center.x, a.center.y, a.center.z,
-            a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
-            a.orientation.m00, a.orientation.m01, a.orientation.m02,
-            a.orientation.m03, a.orientation.m04, a.orientation.m05,
-            a.orientation.m06, a.orientation.m07, a.orientation.m08);
+        return new OBB(
+            a.center.x,
+            a.center.y,
+            a.center.z,
+            a.halfExtents.x,
+            a.halfExtents.y,
+            a.halfExtents.z,
+            a.orientation.m00,
+            a.orientation.m01,
+            a.orientation.m02,
+            a.orientation.m03,
+            a.orientation.m04,
+            a.orientation.m05,
+            a.orientation.m06,
+            a.orientation.m07,
+            a.orientation.m08,
+        );
     }
 
     /**
@@ -152,11 +174,21 @@ export class OBB {
      */
     public static set (
         out: OBB,
-        cx: number, cy: number, cz: number,
-        hw: number, hh: number, hl: number,
-        ox_1: number, ox_2: number, ox_3: number,
-        oy_1: number, oy_2: number, oy_3: number,
-        oz_1: number, oz_2: number, oz_3: number,
+        cx: number,
+        cy: number,
+        cz: number,
+        hw: number,
+        hh: number,
+        hl: number,
+        ox_1: number,
+        ox_2: number,
+        ox_3: number,
+        oy_1: number,
+        oy_2: number,
+        oy_3: number,
+        oz_1: number,
+        oz_2: number,
+        oz_3: number,
     ): OBB {
         Vec3.set(out.center, cx, cy, cz);
         Vec3.set(out.halfExtents, hw, hh, hl);
@@ -217,11 +249,23 @@ export class OBB {
      * @param oz_2 @zh 方向矩阵参数，第 2 条轴的 z 分量。 @en The z component of the second axis of the OBB.
      * @param oz_3 @zh 方向矩阵参数，第 3 条轴的 z 分量。 @en The z component of the third axis of the OBB.
      */
-    constructor (cx = 0, cy = 0, cz = 0,
-        hw = 1, hh = 1, hl = 1,
-        ox_1 = 1, ox_2 = 0, ox_3 = 0,
-        oy_1 = 0, oy_2 = 1, oy_3 = 0,
-        oz_1 = 0, oz_2 = 0, oz_3 = 1) {
+    constructor (
+        cx = 0,
+        cy = 0,
+        cz = 0,
+        hw = 1,
+        hh = 1,
+        hl = 1,
+        ox_1 = 1,
+        ox_2 = 0,
+        ox_3 = 0,
+        oy_1 = 0,
+        oy_2 = 1,
+        oy_3 = 0,
+        oz_1 = 0,
+        oz_2 = 0,
+        oz_3 = 1,
+    ) {
         this._type = enums.SHAPE_OBB;
         this.center = new Vec3(cx, cy, cz);
         this.halfExtents = new Vec3(hw, hh, hl);

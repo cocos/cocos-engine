@@ -54,7 +54,7 @@ export class WebGL2Sampler extends Sampler {
             glWrapT: 0,
             glWrapR: 0,
 
-            getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler {
+            getGLSampler (device: WebGL2Device, minLod: number, maxLod: number): WebGLSampler {
                 const { gl } = device;
                 const samplerHash = minLod << 16 | maxLod;
                 if (!this.glSamplers.has(samplerHash)) {

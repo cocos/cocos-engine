@@ -377,11 +377,25 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         const axisY = cs.secondaryAxis;
         const axisZ = Vec3.cross(CC_V3_1, axisX, axisY);
 
-        const mat = Mat4.set(CC_MAT4_0,
-            axisX.x, axisX.y, axisX.z, 0,
-            axisY.x, axisY.y, axisY.z, 0,
-            axisZ.x, axisZ.y, axisZ.z, 0,
-            0, 0, 0, 1);
+        const mat = Mat4.set(
+            CC_MAT4_0,
+            axisX.x,
+            axisX.y,
+            axisX.z,
+            0,
+            axisY.x,
+            axisY.y,
+            axisY.z,
+            0,
+            axisZ.x,
+            axisZ.y,
+            axisZ.z,
+            0,
+            0,
+            0,
+            0,
+            1,
+        );
         mat.getRotation(rot_0);
 
         cocos2BulletQuat(quat, rot_0);

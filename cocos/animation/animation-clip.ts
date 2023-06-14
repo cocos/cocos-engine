@@ -790,9 +790,9 @@ export class AnimationClip extends Asset {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     } = {
-        ratios: [],
-        eventGroups: [],
-    };
+            ratios: [],
+            eventGroups: [],
+        };
 
     private _createEvalWithBinder (target: unknown, binder: Binder, rootMotionOptions: RootMotionOptions | undefined): AnimationClipEvaluation {
         if (this._legacyDataDirty) {
@@ -1450,7 +1450,7 @@ class RootMotionEvaluation {
 }
 
 function relativeTransform (out: Mat4, from: Mat4, to: Mat4): void {
-Mat4.invert(out, from);
+    Mat4.invert(out, from);
     Mat4.multiply(out, to, out);
 }
 

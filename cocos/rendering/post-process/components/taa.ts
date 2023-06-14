@@ -8,8 +8,8 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class TAA extends PostProcessSetting {
     @property
-    sampleScale = 1
+    sampleScale = 1;
 
     @property
-    feedback = 0.95
+    feedback = 0.95;
 }

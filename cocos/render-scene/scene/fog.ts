@@ -229,7 +229,7 @@ export class Fog {
     protected _fogRange = 1.2;
     protected _activated = false;
 
-    public initialize (fogInfo : FogInfo): void {
+    public initialize (fogInfo: FogInfo): void {
         this._activated = false;
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;

@@ -12,7 +12,7 @@ import { BasePass } from './base-pass';
 
 export class ForwardFinalPass extends BasePass {
     name = 'ForwardFinalPass';
-    outputNames = ['ForwardFinalColor']
+    outputNames = ['ForwardFinalColor'];
 
     enableInAllEditorCamera = true;
 

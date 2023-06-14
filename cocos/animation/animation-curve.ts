@@ -246,9 +246,7 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
             index = sampler.ratios.length - 1;
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return curve.valueBetween(
-                ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index],
-            );
+            return curve.valueBetween(ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index]);
         }
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

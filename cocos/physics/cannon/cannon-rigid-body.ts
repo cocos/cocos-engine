@@ -102,7 +102,7 @@ export class CannonRigidBody implements IRigidBody {
         this._wakeUpIfSleep();
     }
 
-    useCCD (value:boolean): void {
+    useCCD (value: boolean): void {
         this.impl.ccdSpeedThreshold = value ? 0.01 : -1;
     }
 

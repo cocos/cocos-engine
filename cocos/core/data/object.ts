@@ -394,13 +394,16 @@ if (EDITOR || TEST) {
      * This method is only available for editors and is not recommended for developers
      * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能(该方法仅提供给编辑器使用，不建议开发者使用)。
      */
-    js.getset(prototype, 'objFlags',
+    js.getset(
+        prototype,
+        'objFlags',
         function (this: CCObject) {
             return this._objFlags;
         },
         function (this: CCObject, objFlags: CCObject.Flags) {
             this._objFlags = objFlags;
-        });
+        },
+    );
 
     /*
     * @en
@@ -674,8 +677,11 @@ declare const jsb: any;
 
 if (JSB) {
     copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
-    copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
-        ['constructor', 'name', 'hideFlags', 'isValid']);
+    copyAllProperties(
+        CCObject.prototype,
+        jsb.CCObject.prototype,
+        ['constructor', 'name', 'hideFlags', 'isValid'],
+    );
 
     (CCObject as unknown as any) = jsb.CCObject;
 }

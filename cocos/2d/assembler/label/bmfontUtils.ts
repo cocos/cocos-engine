@@ -48,9 +48,14 @@ let QUAD_INDICES;
 
 export const bmfontUtils = {
 
-    updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData,
-        comp: Label, trans: UITransform): void {
+    updateProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
         style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
@@ -119,8 +124,15 @@ export const bmfontUtils = {
             // generateVertex
             this.resetRenderData(comp);
             outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
-                comp.string, this.generateVertexData);
+            processing.generateRenderInfo(
+                true,
+                style,
+                layout,
+                outputLayoutData,
+                outputRenderData,
+                comp.string,
+                this.generateVertexData,
+            );
 
             renderData.dataLength = outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
@@ -194,8 +206,17 @@ export const bmfontUtils = {
     },
 
     // callBack function
-    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, offset: number,
-        spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number): void {
+    generateVertexData (
+        style: TextStyle,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        offset: number,
+        spriteFrame: SpriteFrame,
+        rect: Rect,
+        rotated: boolean,
+        x: number,
+        y: number,
+    ): void {
         const dataOffset = offset;
         const scale = style.bmfontScale;
 

@@ -46,7 +46,7 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
                 PX.TERRAIN_STATIC[v._uuid] = createHeightField(v, PhysXTerrainShape.heightScale, cooking, physics);
             }
             const hf = PX.TERRAIN_STATIC[v._uuid];
-            const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
+            const pxmat = this.getSharedMaterial(collider.sharedMaterial);
             const geometry = createHeightFieldGeometry(hf, 0, PhysXTerrainShape.heightScale, v.tileSize, v.tileSize);
             this._impl = physics.createShape(geometry, pxmat, true, this._flags);
             this.updateByReAdd();

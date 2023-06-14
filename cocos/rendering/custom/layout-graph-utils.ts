@@ -595,8 +595,10 @@ export class LayoutGraphInfo {
         let passID = lg.locateChild(lg.nullVertex(), passName);
         if (passID === lg.nullVertex()) {
             passID = lg.addVertex<LayoutGraphValue.RenderStage>(
-                LayoutGraphValue.RenderStage, type,
-                passName, new DescriptorDB(),
+                LayoutGraphValue.RenderStage,
+                type,
+                passName,
+                new DescriptorDB(),
                 lg.nullVertex(),
             );
         }
@@ -608,8 +610,10 @@ export class LayoutGraphInfo {
         let subpassID = lg.locateChild(passID, subpassName);
         if (subpassID === lg.nullVertex()) {
             subpassID = lg.addVertex<LayoutGraphValue.RenderStage>(
-                LayoutGraphValue.RenderStage, RenderPassType.RENDER_SUBPASS,
-                subpassName, new DescriptorDB(),
+                LayoutGraphValue.RenderStage,
+                RenderPassType.RENDER_SUBPASS,
+                subpassName,
+                new DescriptorDB(),
                 passID,
             );
         }
@@ -621,8 +625,10 @@ export class LayoutGraphInfo {
         let phaseID = lg.locateChild(subpassOrPassID, phaseName);
         if (phaseID === lg.nullVertex()) {
             phaseID = lg.addVertex<LayoutGraphValue.RenderPhase>(
-                LayoutGraphValue.RenderPhase, new RenderPhase(),
-                phaseName, new DescriptorDB(),
+                LayoutGraphValue.RenderPhase,
+                new RenderPhase(),
+                phaseName,
+                new DescriptorDB(),
                 subpassOrPassID,
             );
         }
@@ -678,8 +684,11 @@ export class LayoutGraphInfo {
             console.warn(`Type mismatch for descriptor ${name}`);
         }
     }
-    private addUniformBlock (block: DescriptorBlock,
-        name: string, gfxBlock: UniformBlock): void {
+    private addUniformBlock (
+        block: DescriptorBlock,
+        name: string,
+        gfxBlock: UniformBlock,
+    ): void {
         const value = block.uniformBlocks.get(name);
         if (value === undefined) {
             block.uniformBlocks.set(name, gfxBlock);
@@ -716,7 +725,9 @@ export class LayoutGraphInfo {
         visDB: VisibilityDB,
         rate: UpdateFrequency,
         infoArray: EffectAsset.IBufferInfo[],
-        type: Type, db: DescriptorDB, counter: DescriptorCounter,
+        type: Type,
+        db: DescriptorDB,
+        counter: DescriptorCounter,
     ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
@@ -744,7 +755,9 @@ export class LayoutGraphInfo {
         rate: UpdateFrequency,
         order: DescriptorTypeOrder,
         infoArray: EffectAsset.ISamplerInfo[] | EffectAsset.IInputAttachmentInfo[],
-        type: Type, db: DescriptorDB, counter: DescriptorCounter,
+        type: Type,
+        db: DescriptorDB,
+        counter: DescriptorCounter,
     ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
@@ -772,7 +785,8 @@ export class LayoutGraphInfo {
         rate: UpdateFrequency,
         order: DescriptorTypeOrder,
         infoArray: EffectAsset.IImageInfo[] | EffectAsset.ISamplerTextureInfo[] | EffectAsset.ITextureInfo[],
-        db: DescriptorDB, counter: DescriptorCounter,
+        db: DescriptorDB,
+        counter: DescriptorCounter,
     ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
@@ -917,9 +931,7 @@ export class LayoutGraphInfo {
                 if (index0.updateFrequency <= UpdateFrequency.PER_PHASE) {
                     continue;
                 }
-                const visIndex = new VisibilityIndex(
-                    index0.updateFrequency, index0.parameterType, index0.descriptorType,
-                );
+                const visIndex = new VisibilityIndex(index0.updateFrequency, index0.parameterType, index0.descriptorType);
                 const passVisBlock = passVisDB.getBlock(visIndex);
 
                 for (const [name, d] of block.descriptors) {
@@ -1141,16 +1153,20 @@ class LayoutGraphBuilder2 {
     addRenderStage (name: string, parentID: number): number {
         return this.lg.addVertex<LayoutGraphDataValue.RenderStage>(
             LayoutGraphDataValue.RenderStage,
-            new RenderStageData(), name,
-            UpdateFrequency.PER_PASS, new PipelineLayoutData(),
+            new RenderStageData(),
+            name,
+            UpdateFrequency.PER_PASS,
+            new PipelineLayoutData(),
             parentID,
         );
     }
     addRenderPhase (name: string, parentID: number): number {
         return this.lg.addVertex<LayoutGraphDataValue.RenderPhase>(
             LayoutGraphDataValue.RenderPhase,
-            new RenderPhaseData(), name,
-            UpdateFrequency.PER_PHASE, new PipelineLayoutData(),
+            new RenderPhaseData(),
+            name,
+            UpdateFrequency.PER_PHASE,
+            new PipelineLayoutData(),
             parentID,
         );
     }
@@ -1337,9 +1353,12 @@ function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: D
 }
 
 // make DescriptorSetLayoutData from effect directly
-export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
-    rate: UpdateFrequency, set: number,
-    descriptors: EffectAsset.IDescriptorInfo): DescriptorSetLayoutData {
+export function makeDescriptorSetLayoutData (
+    lg: LayoutGraphData,
+    rate: UpdateFrequency,
+    set: number,
+    descriptors: EffectAsset.IDescriptorInfo,
+): DescriptorSetLayoutData {
     const map = new Map<string, DescriptorBlockData>();
     const uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
     for (let i = 0; i < descriptors.blocks.length; i++) {
@@ -1466,8 +1485,10 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
 }
 
 // fill DescriptorSetLayoutInfo from DescriptorSetLayoutData
-export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
-    info: DescriptorSetLayoutInfo): void {
+export function initializeDescriptorSetLayoutInfo (
+    layoutData: DescriptorSetLayoutData,
+    info: DescriptorSetLayoutInfo,
+): void {
     for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
         const block = layoutData.descriptorBlocks[i];
         let slot = block.offset;
@@ -1488,8 +1509,11 @@ export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayo
 let _emptyDescriptorSetLayout: DescriptorSetLayout;
 let _emptyPipelineLayout: PipelineLayout;
 
-function populatePipelineLayoutInfo (layout: PipelineLayoutData,
-    rate: UpdateFrequency, info: PipelineLayoutInfo): void {
+function populatePipelineLayoutInfo (
+    layout: PipelineLayoutData,
+    rate: UpdateFrequency,
+    info: PipelineLayoutInfo,
+): void {
     const set = layout.descriptorSets.get(rate);
     if (set && set.descriptorSetLayout) {
         info.setLayouts.push(set.descriptorSetLayout);
@@ -1509,8 +1533,10 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
             if (set.descriptorSetLayout !== null) {
                 console.warn('descriptor set layout already initialized. It will be overwritten');
             }
-            initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData,
-                set.descriptorSetLayoutInfo);
+            initializeDescriptorSetLayoutInfo(
+                set.descriptorSetLayoutData,
+                set.descriptorSetLayoutInfo,
+            );
             set.descriptorSetLayout = device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);
         }
     }
@@ -1558,8 +1584,12 @@ export function getEmptyPipelineLayout (): PipelineLayout {
 }
 
 // get descriptor set from LayoutGraphData (not from ProgramData)
-export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
-    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
+export function getOrCreateDescriptorSetLayout (
+    lg: LayoutGraphData,
+    subpassOrPassID: number,
+    phaseID: number,
+    rate: UpdateFrequency,
+): DescriptorSetLayout {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1589,8 +1619,12 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
 }
 
 // getDescriptorSetLayout from LayoutGraphData
-export function getDescriptorSetLayout (lg: LayoutGraphData,
-    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
+export function getDescriptorSetLayout (
+    lg: LayoutGraphData,
+    subpassOrPassID: number,
+    phaseID: number,
+    rate: UpdateFrequency,
+): DescriptorSetLayout | null {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1620,8 +1654,11 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
 }
 
 // get or create DescriptorBlockData from DescriptorSetLayoutData
-export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
-    type: DescriptorType, vis: ShaderStageFlagBit): DescriptorBlockData {
+export function getOrCreateDescriptorBlockData (
+    data: DescriptorSetLayoutData,
+    type: DescriptorType,
+    vis: ShaderStageFlagBit,
+): DescriptorBlockData {
     const order = getDescriptorTypeOrder(type);
     for (const block of data.descriptorBlocks) {
         if (block.type === order && block.visibility === vis) {
@@ -1658,8 +1695,10 @@ export function getDescriptorName (lg: LayoutGraphData, nameID: number): string 
     return lg.valueNames[nameID];
 }
 
-export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
-    subpassOrPassID: number): DescriptorSetLayoutData | null {
+export function getPerPassDescriptorSetLayoutData (
+    lg: LayoutGraphData,
+    subpassOrPassID: number,
+): DescriptorSetLayoutData | null {
     assert(subpassOrPassID !== lg.nullVertex());
     const node = lg.getLayout(subpassOrPassID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
@@ -1669,8 +1708,10 @@ export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
     return set.descriptorSetLayoutData;
 }
 
-export function getPerPhaseDescriptorSetLayoutData (lg: LayoutGraphData,
-    phaseID: number): DescriptorSetLayoutData | null {
+export function getPerPhaseDescriptorSetLayoutData (
+    lg: LayoutGraphData,
+    phaseID: number,
+): DescriptorSetLayoutData | null {
     assert(phaseID !== lg.nullVertex());
     const node = lg.getLayout(phaseID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PHASE);
@@ -1680,8 +1721,11 @@ export function getPerPhaseDescriptorSetLayoutData (lg: LayoutGraphData,
     return set.descriptorSetLayoutData;
 }
 
-export function getPerBatchDescriptorSetLayoutData (lg: LayoutGraphData,
-    phaseID: number, programID): DescriptorSetLayoutData | null {
+export function getPerBatchDescriptorSetLayoutData (
+    lg: LayoutGraphData,
+    phaseID: number,
+    programID,
+): DescriptorSetLayoutData | null {
     assert(phaseID !== lg.nullVertex());
     const phase = lg.getRenderPhase(phaseID);
     assert(programID < phase.shaderPrograms.length);
@@ -1693,8 +1737,11 @@ export function getPerBatchDescriptorSetLayoutData (lg: LayoutGraphData,
     return set.descriptorSetLayoutData;
 }
 
-export function getPerInstanceDescriptorSetLayoutData (lg: LayoutGraphData,
-    phaseID: number, programID): DescriptorSetLayoutData | null {
+export function getPerInstanceDescriptorSetLayoutData (
+    lg: LayoutGraphData,
+    phaseID: number,
+    programID,
+): DescriptorSetLayoutData | null {
     assert(phaseID !== lg.nullVertex());
     const phase = lg.getRenderPhase(phaseID);
     assert(programID < phase.shaderPrograms.length);

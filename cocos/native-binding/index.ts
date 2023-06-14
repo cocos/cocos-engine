@@ -381,7 +381,7 @@ export declare namespace native {
       * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
       * @param identifier  @en identifier @zh 标识符
       */
-    export type DownloadTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloadTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderTask @zh 下载任务对象
@@ -390,7 +390,7 @@ export declare namespace native {
      * @param identifier  @en identifier @zh 标识符
      * @deprecated since v3.7.0, please use `DownloadTask` to instead.
      */
-    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloaderTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderHints @zh 下载任务的配置接口

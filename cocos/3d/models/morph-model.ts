@@ -45,7 +45,7 @@ export class MorphModel extends Model {
      * @param subModelIndex @en The index for the requested sub model. @zh 子模型的序号。
      * @returns @en The macro patches. @zh 材质宏组合
      */
-    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (this._morphRenderingInstance) {
             const morphInstanceMacroPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);

@@ -388,7 +388,7 @@ export class Vec3 extends ValueType {
      * from normalized `from` to normalized `to`,
      * then scaled by linear interpolation of lengths from `from` to `to`.
      */
-    public static slerp= ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
+    public static slerp = ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
         const cacheV1 = new Vec3();
         const cacheV2 = new Vec3();
         const cacheV3 = new Vec3();

@@ -61,8 +61,12 @@ export class Ray {
      */
     public static clone (a: Ray): Ray {
         return new Ray(
-            a.o.x, a.o.y, a.o.z,
-            a.d.x, a.d.y, a.d.z,
+            a.o.x,
+            a.o.y,
+            a.o.z,
+            a.d.x,
+            a.d.y,
+            a.d.z,
         );
     }
 
@@ -163,8 +167,14 @@ export class Ray {
      * @param dy @en The y component of direction point. @zh 方向的 y 部分。
      * @param dz @en The z component of direction point. @zh 方向的 z 部分。
      */
-    constructor (ox = 0, oy = 0, oz = 0,
-        dx = 0, dy = 0, dz = -1) {
+    constructor (
+        ox = 0,
+        oy = 0,
+        oz = 0,
+        dx = 0,
+        dy = 0,
+        dz = -1,
+    ) {
         this._type = enums.SHAPE_RAY;
         this.o = new Vec3(ox, oy, oz);
         this.d = new Vec3(dx, dy, dz);

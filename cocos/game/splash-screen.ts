@@ -174,7 +174,9 @@ export class SplashScreen {
         const vbSize = vbStride * 4;
         this.vertexBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
         ));
         this.vertexBuffers.update(verts);
 
@@ -184,7 +186,9 @@ export class SplashScreen {
         const ibSize = ibStride * 6;
         this.indicesBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
         ));
         this.indicesBuffers.update(indices);
 
@@ -196,8 +200,18 @@ export class SplashScreen {
         this.quadAssmebler = device.createInputAssembler(IAInfo);
 
         this.projection = new Mat4();
-        Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+        Mat4.ortho(
+            this.projection,
+            -1,
+            1,
+            -1,
+            1,
+            -1,
+            1,
+            device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY,
+            swapchain.surfaceTransform,
+        );
 
         this.isMobile = sys.isMobile;
     }
@@ -250,8 +264,18 @@ export class SplashScreen {
     public update (deltaTime: number): void {
         const settings = this.settings;
         const { device, swapchain } = this;
-        Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+        Mat4.ortho(
+            this.projection,
+            -1,
+            1,
+            -1,
+            1,
+            -1,
+            1,
+            device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY,
+            swapchain.surfaceTransform,
+        );
         const dw = swapchain.width; const dh = swapchain.height;
         this.initScale();
 
@@ -406,8 +430,11 @@ export class SplashScreen {
         region.texExtent.height = watermarkImg.height;
         region.texExtent.depth = 1;
         this.watermarkTexture = this.device.createTexture(new TextureInfo(
-            TextureType.TEX2D, TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-            Format.RGBA8, watermarkImg.width, watermarkImg.height,
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8,
+            watermarkImg.width,
+            watermarkImg.height,
         ));
         this.device.copyTexImagesToTexture([watermarkImg], this.watermarkTexture, [region]);
         // create material
@@ -436,8 +463,18 @@ export class SplashScreen {
                     } else if (xrEye === XREye.RIGHT) {
                         radioRight = Math.abs(Math.tan(xrFov[1])) / Math.abs(Math.tan(xrFov[0]));
                     }
-                    Mat4.ortho(this.projection, -radioLeft, radioRight, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-                        device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+                    Mat4.ortho(
+                        this.projection,
+                        -radioLeft,
+                        radioRight,
+                        -1,
+                        1,
+                        -1,
+                        1,
+                        device.capabilities.clipSpaceMinZ,
+                        device.capabilities.clipSpaceSignY,
+                        swapchain.surfaceTransform,
+                    );
                     // keep scale to [-1, 1] only use offset
                     this.projection.m00 = preTransforms[swapchain.surfaceTransform][0];
                     this.projection.m05 = preTransforms[swapchain.surfaceTransform][3] * device.capabilities.clipSpaceSignY;
@@ -467,8 +504,13 @@ export class SplashScreen {
                 cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 
                 const bgPass = this.bgMat.passes[0];
-                const bgPso = PipelineStateManager.getOrCreatePipelineState(device, bgPass, this.shader, framebuffer.renderPass,
-                    this.quadAssmebler);
+                const bgPso = PipelineStateManager.getOrCreatePipelineState(
+                    device,
+                    bgPass,
+                    this.shader,
+                    framebuffer.renderPass,
+                    this.quadAssmebler,
+                );
 
                 cmdBuff.bindPipelineState(bgPso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, bgPass.descriptorSet);
@@ -476,8 +518,13 @@ export class SplashScreen {
                 cmdBuff.draw(this.quadAssmebler);
 
                 const logoPass = this.logoMat.passes[0];
-                const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass,
-                    this.quadAssmebler);
+                const logoPso = PipelineStateManager.getOrCreatePipelineState(
+                    device,
+                    logoPass,
+                    this.shader,
+                    framebuffer.renderPass,
+                    this.quadAssmebler,
+                );
 
                 cmdBuff.bindPipelineState(logoPso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
@@ -486,8 +533,13 @@ export class SplashScreen {
 
                 if (this.watermarkMat) {
                     const wartermarkPass = this.watermarkMat.passes[0];
-                    const watermarkPso = PipelineStateManager.getOrCreatePipelineState(device,
-                        wartermarkPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
+                    const watermarkPso = PipelineStateManager.getOrCreatePipelineState(
+                        device,
+                        wartermarkPass,
+                        this.shader,
+                        framebuffer.renderPass,
+                        this.quadAssmebler,
+                    );
                     cmdBuff.bindPipelineState(watermarkPso);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, wartermarkPass.descriptorSet);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);

@@ -182,8 +182,14 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return raycastClosest(this, worldRay, options, result);
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
             PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
         }
@@ -191,8 +197,13 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, pool, results);
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
             PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
         }
@@ -200,8 +211,13 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepClosest(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, result);
     }
 
-    sweepSphere (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepSphereGeometry) {
             PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
         }
@@ -209,8 +225,12 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
     }
 
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepSphereGeometry) {
             PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
         }
@@ -218,8 +238,15 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepClosest(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
     }
 
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepCapsuleGeometry) {
             PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
         }
@@ -232,8 +259,14 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepCapsuleGeometry, finalOrientation, options, pool, results);
     }
 
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepCapsuleGeometry) {
             PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
         }
@@ -482,8 +515,11 @@ const PhysXCallback = {
                 const motionDir = new Vec3();
                 motionDir.set(hit.dir.x, hit.dir.y, hit.dir.z);
                 const motionLength = hit.length;
-                item = cctShapeEventDic.set(hit.getCurrentController(), hit.getTouchedShape(),
-                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength });
+                item = cctShapeEventDic.set(
+                    hit.getCurrentController(),
+                    hit.getTouchedShape(),
+                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength },
+                );
             }
         },
         onControllerHit (hit: any): void { //PX.ControllersHit

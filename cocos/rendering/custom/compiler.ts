@@ -157,8 +157,10 @@ class PassVisitor implements RenderGraphVisitor {
                     isPreRaster = true;
                     // TODO: Shadow map is rather special, as it will be merged into one pass later, and then this determination can be removed.
                     if (!this._isShadowMap(this.sceneID)) {
-                        assert(currRaster.loadOp === LoadOp.LOAD,
-                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+                        assert(
+                            currRaster.loadOp === LoadOp.LOAD,
+                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`,
+                        );
                     }
                 }
             }
@@ -392,10 +394,12 @@ class ResourceUseContext {
     computes: Map<number, [ComputeView[]]> = new Map<number, [ComputeView[]]>();
 }
 class CompilerContext {
-    set (pipeline: BasicPipeline,
+    set (
+        pipeline: BasicPipeline,
         resGraph: ResourceGraph,
         renderGraph: RenderGraph,
-        layoutGraph: LayoutGraphData): void {
+        layoutGraph: LayoutGraphData,
+    ): void {
         this.pipeline = pipeline;
         this.resourceGraph = resGraph;
         this.renderGraph = renderGraph;
@@ -417,10 +421,12 @@ export class Compiler {
     private _pipeline: BasicPipeline;
     private _layoutGraph: LayoutGraphData;
     private _visitor: ResourceManagerVisitor;
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         renderGraph: RenderGraph,
         resGraph: ResourceGraph,
-        layoutGraph: LayoutGraphData) {
+        layoutGraph: LayoutGraphData,
+    ) {
         this._pipeline = pipeline;
         this._resourceGraph = resGraph;
         this._layoutGraph = layoutGraph;
@@ -447,8 +453,10 @@ export class Compiler {
                 const firstRaster = use.rasters.get(min)!;
                 switch (trait.residency) {
                 case ResourceResidency.PERSISTENT:
-                    assert(firstRaster.loadOp !== LoadOp.DISCARD,
-                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`);
+                    assert(
+                        firstRaster.loadOp !== LoadOp.DISCARD,
+                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`,
+                    );
                     break;
                 case ResourceResidency.MANAGED:
                     assert(firstRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);

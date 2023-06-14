@@ -69,13 +69,16 @@ markAsWarning(Event, 'Event', [
 ]);
 
 // depracate EventMouse property
-replaceProperty(EventMouse, 'EventMouse',
+replaceProperty(
+    EventMouse,
+    'EventMouse',
     ['DOWN', 'UP', 'MOVE'].map((item) => ({
         name: item,
         newName: `MOUSE_${item}`,
         target: SystemEvent.EventType,
         targetName: 'SystemEvent.EventType',
-    })));
+    })),
+);
 replaceProperty(EventMouse, 'EventMouse', [
     {
         name: 'SCROLL',
@@ -139,7 +142,9 @@ replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
     },
 ]);
 
-markAsWarning(macro.KEY, 'macro.KEY',
+markAsWarning(
+    macro.KEY,
+    'macro.KEY',
     [
         'back',
         'menu',
@@ -148,7 +153,8 @@ markAsWarning(macro.KEY, 'macro.KEY',
         'dpadLeft', 'dpadRight', 'dpadUp', 'dpadDown', 'dpadCenter',
     ].map((item) => ({
         name: item,
-    })));
+    })),
+);
 
 markAsWarning(macro.KEY, 'macro.KEY', [
     {

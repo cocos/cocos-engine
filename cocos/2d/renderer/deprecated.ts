@@ -42,7 +42,9 @@ export { UIDrawBatch };
 class UIDrawBatch extends DrawBatch2D {
 }
 
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
+markAsWarning(
+    MeshBuffer.prototype,
+    'MeshBuffer',
     [
         'byteStart',
         'vertexStart',
@@ -51,7 +53,8 @@ markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
     ].map((item) => ({
         name: item,
         suggest: `please use meshBuffer.accessor.${item} instead`,
-    })));
+    })),
+);
 
 replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
     {

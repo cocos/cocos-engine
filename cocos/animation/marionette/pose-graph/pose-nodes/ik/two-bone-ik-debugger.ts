@@ -62,7 +62,9 @@ const debuggerMap = new WeakMap<object, TwoBoneIKDebugger>();
 
 export function debugTwoBoneIKDraw (
     key: unknown,
-    a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>,
+    a: Readonly<Vec3>,
+    b: Readonly<Vec3>,
+    c: Readonly<Vec3>,
 ): void {
     if (typeof key !== 'object' || !key) {
         return;

@@ -44,9 +44,15 @@ export class Mat3 extends ValueType {
      */
     public static clone <Out extends IMat3Like> (a: Out): Mat3 {
         return new Mat3(
-            a.m00, a.m01, a.m02,
-            a.m03, a.m04, a.m05,
-            a.m06, a.m07, a.m08,
+            a.m00,
+            a.m01,
+            a.m02,
+            a.m03,
+            a.m04,
+            a.m05,
+            a.m06,
+            a.m07,
+            a.m08,
         );
     }
 
@@ -73,9 +79,15 @@ export class Mat3 extends ValueType {
      */
     public static set <Out extends IMat3Like>  (
         out: Out,
-        m00: number, m01: number, m02: number,
-        m03: number, m04: number, m05: number,
-        m06: number, m07: number, m08: number,
+        m00: number,
+        m01: number,
+        m02: number,
+        m03: number,
+        m04: number,
+        m05: number,
+        m06: number,
+        m07: number,
+        m08: number,
     ): Out {
         out.m00 = m00; out.m01 = m01; out.m02 = m02;
         out.m03 = m03; out.m04 = m04; out.m05 = m05;
@@ -356,9 +368,15 @@ export class Mat3 extends ValueType {
         Vec3.cross(v3_2, view, v3_1);
         Mat3.set(
             out,
-            v3_1.x, v3_1.y, v3_1.z,
-            v3_2.x, v3_2.y, v3_2.z,
-            view.x, view.y, view.z,
+            v3_1.x,
+            v3_1.y,
+            v3_1.z,
+            v3_2.x,
+            v3_2.y,
+            v3_2.z,
+            view.x,
+            view.y,
+            view.z,
         );
 
         return out;
@@ -741,9 +759,15 @@ export class Mat3 extends ValueType {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 = 1, m01 = 0, m02 = 0,
-        m03 = 0, m04 = 1, m05 = 0,
-        m06 = 0, m07 = 0, m08 = 1,
+        m00: number | Mat3 = 1,
+        m01 = 0,
+        m02 = 0,
+        m03 = 0,
+        m04 = 1,
+        m05 = 0,
+        m06 = 0,
+        m07 = 0,
+        m08 = 1,
     ) {
         super();
         if (typeof m00 === 'object') {
@@ -764,9 +788,15 @@ export class Mat3 extends ValueType {
     public clone (): Mat3 {
         const t = this;
         return new Mat3(
-            t.m00, t.m01, t.m02,
-            t.m03, t.m04, t.m05,
-            t.m06, t.m07, t.m08,
+            t.m00,
+            t.m01,
+            t.m02,
+            t.m03,
+            t.m04,
+            t.m05,
+            t.m06,
+            t.m07,
+            t.m08,
         );
     }
 
@@ -787,9 +817,17 @@ export class Mat3 extends ValueType {
         m03?: number, m04?: number, m05?: number,
         m06?: number, m07?: number, m08?: number): Mat3;
 
-    public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
-        m03 = 0, m04 = 1, m05 = 0,
-        m06 = 0, m07 = 0, m08 = 1): Mat3 {
+    public set (
+        m00: number | Mat3 = 1,
+        m01 = 0,
+        m02 = 0,
+        m03 = 0,
+        m04 = 1,
+        m05 = 0,
+        m06 = 0,
+        m07 = 0,
+        m08 = 1,
+    ): Mat3 {
         if (typeof m00 === 'object') {
             this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
             this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;

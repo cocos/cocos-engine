@@ -166,9 +166,12 @@ export class ParticleCuller {
 
             // apply startSize.
             if (ps.startSize3D) {
-                Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!,
+                Vec3.set(
+                    particle.startSize,
+                    ps.startSizeX.evaluate(loopDelta, rand)!,
                     ps.startSizeY.evaluate(loopDelta, rand)!,
-                    ps.startSizeZ.evaluate(loopDelta, rand)!);
+                    ps.startSizeZ.evaluate(loopDelta, rand)!,
+                );
             } else {
                 Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;

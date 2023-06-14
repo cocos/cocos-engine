@@ -164,7 +164,8 @@ class RealKeyframeValue extends EditorExtendable {
 
 CCClass.fastDefine(
     'cc.RealKeyframeValue',
-    RealKeyframeValue, {
+    RealKeyframeValue,
+    {
         interpolationMode: RealInterpolationMode.LINEAR,
         tangentWeightMode: TangentWeightMode.NONE,
         value: 0.0,
@@ -556,8 +557,10 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         const nKeyframes = dataView.getUint32(currentOffset, true); currentOffset += FRAME_COUNT_BYTES;
 
         // Times
-        const times = Array.from({ length: nKeyframes },
-            (_, index) => dataView.getFloat32(currentOffset + TIME_BYTES * index, true));
+        const times = Array.from(
+            { length: nKeyframes },
+            (_, index) => dataView.getFloat32(currentOffset + TIME_BYTES * index, true),
+        );
         currentOffset += TIME_BYTES * nKeyframes;
 
         // Frame values

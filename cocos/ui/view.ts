@@ -133,8 +133,11 @@ export class View extends Eventify(System) {
             this.resizeWithBrowserSize(true);
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
             if (designResolution) {
-                this.setDesignResolutionSize(Number(designResolution.width), Number(designResolution.height),
-                    designResolution.policy || ResolutionPolicy.FIXED_HEIGHT);
+                this.setDesignResolutionSize(
+                    Number(designResolution.width),
+                    Number(designResolution.height),
+                    designResolution.policy || ResolutionPolicy.FIXED_HEIGHT,
+                );
             }
         }
 
@@ -359,8 +362,10 @@ export class View extends Eventify(System) {
      * @zh 返回视图窗口可见区域像素尺寸。
      */
     public getVisibleSizeInPixel (): Size {
-        return new Size(this._visibleRect.width * this._scaleX,
-            this._visibleRect.height * this._scaleY);
+        return new Size(
+            this._visibleRect.width * this._scaleX,
+            this._visibleRect.height * this._scaleY,
+        );
     }
 
     /**
@@ -376,8 +381,10 @@ export class View extends Eventify(System) {
      * @zh 返回视图窗口可见区域像素原点。
      */
     public getVisibleOriginInPixel (): Vec2 {
-        return new Vec2(this._visibleRect.x * this._scaleX,
-            this._visibleRect.y * this._scaleY);
+        return new Vec2(
+            this._visibleRect.x * this._scaleX,
+            this._visibleRect.y * this._scaleY,
+        );
     }
 
     /**
@@ -739,9 +746,12 @@ class ContentStrategy {
             contentH = containerH;
         }
 
-        const viewport = new Rect(Math.round((containerW - contentW) / 2),
+        const viewport = new Rect(
+            Math.round((containerW - contentW) / 2),
             Math.round((containerH - contentH) / 2),
-            contentW, contentH);
+            contentW,
+            contentH,
+        );
 
         this._result.scale = [scaleX, scaleY];
         this._result.viewport = viewport;

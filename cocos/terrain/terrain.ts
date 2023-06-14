@@ -293,7 +293,7 @@ class TerrainRenderable extends ModelRenderer {
         return false;
     }
 
-     /**
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightingmap (texture: Texture2D | null, uvParam: Vec4): void {
@@ -445,8 +445,14 @@ export class TerrainBlock {
             new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
         ];
 
-        this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer(), null, false);
+        this._renderable._meshData = new RenderingSubMesh(
+            [vertexBuffer],
+            gfxAttributes,
+            PrimitiveMode.TRIANGLE_LIST,
+            this._terrain._getSharedIndexBuffer(),
+            null,
+            false,
+        );
         this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model.node = this._renderable._model.transform = this._node;

@@ -269,14 +269,22 @@ export const radialFilled: IAssembler = {
             // build uvs
             _calculateUVs(frame);
             _calcIntersectedPoints(
-                _vertices[0], _vertices[2],
-                _vertices[1], _vertices[3],
-                _center, fillStart, _intersectPoint_1,
+                _vertices[0],
+                _vertices[2],
+                _vertices[1],
+                _vertices[3],
+                _center,
+                fillStart,
+                _intersectPoint_1,
             );
             _calcIntersectedPoints(
-                _vertices[0], _vertices[2],
-                _vertices[1], _vertices[3],
-                _center, fillStart + fillRange, _intersectPoint_2,
+                _vertices[0],
+                _vertices[2],
+                _vertices[1],
+                _vertices[3],
+                _center,
+                fillStart + fillRange,
+                _intersectPoint_2,
             );
 
             let offset = 0;
@@ -307,14 +315,21 @@ export const radialFilled: IAssembler = {
                         if (endAngle >= fillEnd) {
                             // startAngle to fillEnd
                             _generateTriangle(
-                                dataList, offset, _center,
+                                dataList,
+                                offset,
+                                _center,
                                 _vertPos[triangle.x],
                                 _intersectPoint_2[triangleIndex],
                             );
                         } else {
                             // startAngle to endAngle
-                            _generateTriangle(dataList, offset, _center,
-                                _vertPos[triangle.x], _vertPos[triangle.y]);
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
+                                _vertPos[triangle.x],
+                                _vertPos[triangle.y],
+                            );
                         }
                         offset += 3;
                     } else if (endAngle > fillStart) {
@@ -322,16 +337,24 @@ export const radialFilled: IAssembler = {
                         if (endAngle <= fillEnd) {
                             renderData.dataLength = offset + 3;
                             // fillStart to endAngle
-                            _generateTriangle(dataList, offset, _center,
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
                                 _intersectPoint_1[triangleIndex],
-                                _vertPos[triangle.y]);
+                                _vertPos[triangle.y],
+                            );
                             offset += 3;
                         } else {
                             renderData.dataLength = offset + 3;
                             // fillStart to fillEnd
-                            _generateTriangle(dataList, offset, _center,
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
                                 _intersectPoint_1[triangleIndex],
-                                _intersectPoint_2[triangleIndex]);
+                                _intersectPoint_2[triangleIndex],
+                            );
                             offset += 3;
                         }
                     }

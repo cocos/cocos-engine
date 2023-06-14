@@ -128,13 +128,13 @@ export abstract class ParticleSystemRendererBase {
 
     public updateTrailMaterial (): void {}
     public getDefaultTrailMaterial (): null { return null; }
-    public abstract getParticleCount () : number;
+    public abstract getParticleCount (): number;
     public abstract getFreeParticle (): Particle | null;
-    public abstract onMaterialModified (index: number, material: Material) : void;
-    public abstract onRebuildPSO (index: number, material: Material) : void;
+    public abstract onMaterialModified (index: number, material: Material): void;
+    public abstract onRebuildPSO (index: number, material: Material): void;
     public abstract updateVertexAttrib (): void;
-    public abstract updateRenderMode () : void;
-    public abstract updateMaterialParams () : void;
+    public abstract updateRenderMode (): void;
+    public abstract updateMaterialParams (): void;
     public abstract setNewParticle (p: Particle): void;
     public abstract getDefaultMaterial(): Material | null;
     public abstract updateRotation (pass: Pass | null): void;

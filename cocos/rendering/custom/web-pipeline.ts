@@ -282,11 +282,13 @@ export class WebSetter {
     protected _currConstant: number[] = [];
 }
 
-function setShadowUBOLightView (setter: WebSetter,
+function setShadowUBOLightView (
+    setter: WebSetter,
     camera: Camera,
     light: Light,
     level: number,
-    layout = 'default'): void {
+    layout = 'default',
+): void {
     const director = cclegacy.director;
     const pipeline = director.root.pipeline;
     const device = pipeline.device;
@@ -392,8 +394,17 @@ function setShadowUBOLightView (setter: WebSetter,
             }
             if (setter.hasUniform(matViewOffset)) setter.offsetMat4(_matView, matViewOffset);
             if (setter.hasUniform(matViewProOffset)) {
-                Mat4.perspective(_mulMatView, (light as any).angle, 1.0, 0.001, (light as any).range,
-                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
+                Mat4.perspective(
+                    _mulMatView,
+                    (light as any).angle,
+                    1.0,
+                    0.001,
+                    (light as any).range,
+                    true,
+                    cap.clipSpaceMinZ,
+                    cap.clipSpaceSignY,
+                    0,
+                );
                 Mat4.multiply(_matView, _mulMatView, _matView);
                 setter.offsetMat4(_matView, matViewProOffset);
             }
@@ -583,10 +594,13 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
     }
 }
 
-function setCameraUBOValues (setter: WebSetter,
-    camera: Readonly<Camera> | null, cfg: Readonly<PipelineSceneData>,
+function setCameraUBOValues (
+    setter: WebSetter,
+    camera: Readonly<Camera> | null,
+    cfg: Readonly<PipelineSceneData>,
     scene: Readonly<RenderScene>,
-    layoutName = 'default'): void {
+    layoutName = 'default',
+): void {
     const director = cclegacy.director;
     const root = director.root;
     const pipeline = root.pipeline as WebPipeline;
@@ -804,14 +818,16 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
-        );
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID);
         const layoutName = this.getLayoutName();
         const scene = cclegacy.director.getScene();
-        setCameraUBOValues(this, camera, this._pipeline,
+        setCameraUBOValues(
+            this,
+            camera,
+            this._pipeline,
             camera.scene ? camera.scene : scene ? scene.renderScene : null,
-            layoutName);
+            layoutName,
+        );
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             setShadowUBOLightView(this, camera, light.light!, light.level, layoutName);
         } else {
@@ -840,13 +856,23 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     // }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
-            name, '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Blit,
+            new Blit(material, passID, sceneFlags, null),
+            name,
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
         const layoutName = this.getLayoutName();
         const scene = cclegacy.director.getScene();
-        setCameraUBOValues(this, null, this._pipeline,
-            scene ? scene.renderScene : null, layoutName);
+        setCameraUBOValues(
+            this,
+            null,
+            this._pipeline,
+            scene ? scene.renderScene : null,
+            layoutName,
+        );
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             // setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -857,13 +883,23 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags = SceneFlags.NONE): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
-            'CameraQuad', '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Blit,
+            new Blit(material, passID, sceneFlags, camera),
+            'CameraQuad',
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
         const layoutName = this.getLayoutName();
         const scene = cclegacy.director.getScene();
-        setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : scene ? scene.renderScene : null, layoutName);
+        setCameraUBOValues(
+            this,
+            camera,
+            this._pipeline,
+            camera.scene ? camera.scene : scene ? scene.renderScene : null,
+            layoutName,
+        );
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             // setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -874,8 +910,13 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     clearRenderTarget (name: string, color: Color = new Color()): void {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
-            RenderGraphValue.Clear, [new ClearView(name, ClearFlagBit.COLOR, color)],
-            'ClearRenderTarget', '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Clear,
+            [new ClearView(name, ClearFlagBit.COLOR, color)],
+            'ClearRenderTarget',
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
     }
     setViewport (viewport: Viewport): void {
@@ -891,8 +932,14 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
 }
 
 export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassBuilder {
-    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData,
-        vertID: number, subpass: RasterSubpass, pipeline: PipelineSceneData) {
+    constructor (
+        data: RenderData,
+        renderGraph: RenderGraph,
+        layoutGraph: LayoutGraphData,
+        vertID: number,
+        subpass: RasterSubpass,
+        pipeline: PipelineSceneData,
+    ) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
         this._layoutGraph = layoutGraph;
@@ -900,9 +947,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass = subpass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(
-            RenderGraphComponent.Layout, this._vertID,
-        );
+        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
@@ -948,9 +993,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         }
         const queue = new RenderQueue(hint);
         const data = new RenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
-        );
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
     get showStatistics (): boolean {
@@ -978,9 +1021,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(
-            RenderGraphComponent.Layout, this._vertID,
-        );
+        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
@@ -1024,24 +1065,30 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         if (loadOp === LoadOp.LOAD) {
             clearFlag = ClearFlagBit.NONE;
         }
-        const view = new RasterView('',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        const view = new RasterView(
+            '',
+            AccessType.WRITE,
+            AttachmentType.RENDER_TARGET,
             loadOp,
             storeOp,
             clearFlag,
-            clearColor);
+            clearColor,
+        );
         this._pass.rasterViews.set(name, view);
     }
     addDepthStencil (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         if (DEBUG) {
             assert(Boolean(name && this._resourceGraph.contains(name)));
         }
-        const view = new RasterView('',
-            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        const view = new RasterView(
+            '',
+            AccessType.WRITE,
+            AttachmentType.DEPTH_STENCIL,
             loadOp,
             storeOp,
             clearFlag,
-            new Color(depth, stencil, 0, 0));
+            new Color(depth, stencil, 0, 0),
+        );
         this._pass.rasterViews.set(name, view);
     }
     private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
@@ -1079,9 +1126,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         this._pass.subpassGraph.addVertex(name, new Subpass());
         const subpass = new RasterSubpass(subpassID, 1, 0);
         const data = new RenderData();
-        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
-            RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
-        );
+        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false);
         const result = new WebRenderSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
         return result;
     }
@@ -1092,34 +1137,51 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         }
         const queue = new RenderQueue(hint);
         const data = new RenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
-        );
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
 
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad'): void {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue,
-            'Queue', '', new RenderData(),
-            false, this._vertID,
+            RenderGraphValue.Queue,
+            queue,
+            'Queue',
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
-            name, '', new RenderData(), false, queueId,
+            RenderGraphValue.Blit,
+            new Blit(material, passID, sceneFlags, null),
+            name,
+            '',
+            new RenderData(),
+            false,
+            queueId,
         );
     }
 
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name = 'CameraQuad'): void {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue,
-            'Queue', '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Queue,
+            queue,
+            'Queue',
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
-            name, '', new RenderData(), false, queueId,
+            RenderGraphValue.Blit,
+            new Blit(material, passID, sceneFlags, camera),
+            name,
+            '',
+            new RenderData(),
+            false,
+            queueId,
         );
     }
     setViewport (viewport: Viewport): void {
@@ -1168,7 +1230,11 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, '', new RenderData(), false, this._vertID,
+            name,
+            '',
+            new RenderData(),
+            false,
+            this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -1187,9 +1253,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(
-            RenderGraphComponent.Layout, this._vertID,
-        );
+        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
@@ -1233,9 +1297,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         }
         const queue = new RenderQueue();
         const data = new RenderData();
-        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
-        );
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
     private readonly _renderGraph: RenderGraph;
@@ -1333,7 +1395,8 @@ export class WebPipeline implements BasicPipeline {
             return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
                 ResourceGraphValue.Framebuffer,
                 renderWindow.framebuffer,
-                name, desc,
+                name,
+                desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),
                 new SamplerInfo(),
@@ -1342,7 +1405,8 @@ export class WebPipeline implements BasicPipeline {
             return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
                 ResourceGraphValue.Swapchain,
                 new RenderSwapchain(renderWindow.swapchain),
-                name, desc,
+                name,
+                desc,
                 new ResourceTraits(ResourceResidency.BACKBUFFER),
                 new ResourceStates(),
                 new SamplerInfo(),
@@ -1646,7 +1710,8 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph.addVertex<ResourceGraphValue.ManagedBuffer>(
             ResourceGraphValue.ManagedBuffer,
             new ManagedBuffer(),
-            name, desc,
+            name,
+            desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(),
@@ -1665,7 +1730,8 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
-            name, desc,
+            name,
+            desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
@@ -1683,7 +1749,8 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
-            name, desc,
+            name,
+            desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
@@ -1701,7 +1768,8 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
-            name, desc,
+            name,
+            desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
@@ -1720,7 +1788,8 @@ export class WebPipeline implements BasicPipeline {
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
-            name, desc,
+            name,
+            desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
@@ -1752,8 +1821,15 @@ export class WebPipeline implements BasicPipeline {
             throw new Error('Cannot run without creating rendergraph');
         }
         if (!this._executor) {
-            this._executor = new Executor(this, this._pipelineUBO, this._device,
-                this._resourceGraph, this.layoutGraph, this.width, this.height);
+            this._executor = new Executor(
+                this,
+                this._pipelineUBO,
+                this._device,
+                this._resourceGraph,
+                this.layoutGraph,
+                this.width,
+                this.height,
+            );
         }
         this._executor.resize(this.width, this.height);
         this._executor.execute(this._renderGraph);
@@ -1806,9 +1882,7 @@ export class WebPipeline implements BasicPipeline {
         pass.quality = quality;
 
         const data = new RenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
-            RenderGraphValue.RasterPass, pass, name, layoutName, data, false,
-        );
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, false);
         const result = new WebRenderPassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');
         initGlobalDescBinding(data, layoutName);

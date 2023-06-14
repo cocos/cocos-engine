@@ -615,7 +615,7 @@ export enum KeyCode {
     */
     QUOTE = 222,
 
-// #region The new allocated key enum since v3.3
+    // #region The new allocated key enum since v3.3
 
     /**
     * @en The right shift key

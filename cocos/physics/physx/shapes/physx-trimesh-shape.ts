@@ -49,7 +49,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
 
             const physics = PhysXInstance.physics;
             const collider = this.collider;
-            const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
+            const pxmat = this.getSharedMaterial(collider.sharedMaterial);
             const meshScale = PhysXShape.MESH_SCALE;
             meshScale.setScale(Vec3.ONE);
             meshScale.setRotation(Quat.IDENTITY);

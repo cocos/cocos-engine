@@ -1077,11 +1077,11 @@ export declare namespace deserialize {
 
     export type ReportMissingClass = (id: string) => void;
 
-    export type ClassFinder = {
+    export interface ClassFinder {
         (id: string, serialized: unknown, owner?: unknown[] | Record<PropertyKey, unknown>, propName?: string): SerializableClassConstructor | undefined;
 
         onDereferenced?: (deserializedList: Array<Record<PropertyKey, unknown> | undefined>, id: number, object: Record<string, unknown> | unknown[], propName: string) => void;
-    };
+    }
 }
 
 deserialize.Details = Details;

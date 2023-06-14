@@ -77,7 +77,7 @@ export class RenderReflectionProbeQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
-    private _rgbeSubModelsArray: SubModel[]=[]
+    private _rgbeSubModelsArray: SubModel[] = [];
     private _instancedQueue: RenderInstancedQueue;
     private _patches: IMacroPatch[] = [];
 

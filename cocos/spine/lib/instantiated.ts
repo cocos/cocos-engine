@@ -47,8 +47,10 @@ function initWasm (wasmUrl): Promise<void> {
     console.log('[Spine]: Using wasm libs.');
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return wasmFactory({
-        instantiateWasm (importObject: WebAssembly.Imports,
-            receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+        instantiateWasm (
+            importObject: WebAssembly.Imports,
+            receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+        ) {
             return instantiateWasm(wasmUrl, importObject).then((result: any) => {
                 receiveInstance(result.instance, result.module);
             });

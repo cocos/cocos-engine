@@ -118,8 +118,7 @@ export class SkinnedMeshUnit {
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
 
-    get copyFrom (): SkinnedMeshRenderer | null
-    {
+    get copyFrom (): SkinnedMeshRenderer | null {
         return null;
     }
 }

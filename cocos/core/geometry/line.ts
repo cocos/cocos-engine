@@ -59,8 +59,12 @@ export class Line {
      */
     public static clone (a: Line): Line {
         return new Line(
-            a.s.x, a.s.y, a.s.z,
-            a.e.x, a.e.y, a.e.z,
+            a.s.x,
+            a.s.y,
+            a.s.z,
+            a.e.x,
+            a.e.y,
+            a.e.z,
         );
     }
 

@@ -9,7 +9,7 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class FSR extends PostProcessSetting {
     @serializable
-    _sharpness = 0.2
+    _sharpness = 0.2;
 
     @slide
     @range([0.05, 1, 0.01])

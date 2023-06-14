@@ -81,7 +81,7 @@ export class RenderDrawInfo {
     protected _useLocal = false;
 
     protected _model: Model | null = null;
-    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _subNode: Node | null = null;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
@@ -276,7 +276,7 @@ export class RenderDrawInfo {
         this._drawInfoType = drawInfoType;
     }
 
-    public setSubNode (node : Node): void {
+    public setSubNode (node: Node): void {
         if (JSB) {
             if (this._subNode !== node) {
                 this._nativeObj.subNode = node;

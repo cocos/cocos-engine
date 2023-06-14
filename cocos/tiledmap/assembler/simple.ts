@@ -56,8 +56,8 @@ let _moveX = 0;
 let _moveY = 0;
 
 let _fillCount = 0;
-let _curTexture : Texture2D | null = null;
-let _tempBuffers : Float32Array;
+let _curTexture: Texture2D | null = null;
+let _tempBuffers: Float32Array;
 let _curLayer: TiledLayer;
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
@@ -325,8 +325,13 @@ function packRenderData (): void {
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
-    rowMoveDir: number, colMoveDir: number, comp: TiledLayer): void {
+function traverseGrids (
+    leftDown: { col: number, row: number },
+    rightTop: { col: number, row: number },
+    rowMoveDir: number,
+    colMoveDir: number,
+    comp: TiledLayer,
+): void {
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
@@ -535,8 +540,16 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     packRenderData();
 }
 
-function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
-    left: number, right: number, top: number, bottom: number, diamondTile: boolean): void {
+function fillByTiledNode (
+    tiledNode: Node,
+    color: Float32Array,
+    vbuf: Float32Array,
+    left: number,
+    right: number,
+    top: number,
+    bottom: number,
+    diamondTile: boolean,
+): void {
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;

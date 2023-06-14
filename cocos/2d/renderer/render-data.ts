@@ -128,7 +128,7 @@ export class BaseRenderData {
     protected _ic = 0;
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
-    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _multiOwner = false;
     get multiOwner (): boolean { return this._multiOwner; }
     set multiOwner (val) {
@@ -267,7 +267,7 @@ export class RenderData extends BaseRenderData {
         this.syncRender2dBuffer();
     }
 
-    get data ():IRenderData[] {
+    get data (): IRenderData[] {
         return this._data;
     }
 

@@ -411,7 +411,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number): void {
+    public addGPUParticleVertexData (p: Particle, num: number, time: number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -450,7 +450,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number): void {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time: number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;

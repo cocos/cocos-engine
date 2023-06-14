@@ -127,11 +127,17 @@ export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number
 }
 
 export function tesselateBezier (
-    ctx: Impl, x1: number, y1: number,
-    x2: number, y2: number,
-    x3: number, y3: number,
-    x4: number, y4: number,
-    level: number, type: number,
+    ctx: Impl,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x3: number,
+    y3: number,
+    x4: number,
+    y4: number,
+    level: number,
+    type: number,
 ): void {
     let x12 = 0;
     let y12 = 0;

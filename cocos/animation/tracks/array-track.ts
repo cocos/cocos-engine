@@ -56,8 +56,10 @@ export class RealArrayTrack extends Track {
             this._channels.splice(value);
         } else if (value > nChannels) {
             this._channels.push(
-                ...Array.from({ length: value - nChannels },
-                    (): Channel<RealCurve> => new Channel<RealCurve>(new RealCurve())),
+                ...Array.from(
+                    { length: value - nChannels },
+                    (): Channel<RealCurve> => new Channel<RealCurve>(new RealCurve()),
+                ),
             );
         }
     }

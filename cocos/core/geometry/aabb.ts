@@ -78,8 +78,14 @@ export class AABB {
       * @returns @zh 克隆出的 AABB 实例。@en The cloned AABB instance.
       */
     public static clone (a: AABB | Readonly<AABB>): AABB {
-        return new AABB(a.center.x, a.center.y, a.center.z,
-            a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
+        return new AABB(
+            a.center.x,
+            a.center.y,
+            a.center.z,
+            a.halfExtents.x,
+            a.halfExtents.y,
+            a.halfExtents.z,
+        );
     }
 
     /**

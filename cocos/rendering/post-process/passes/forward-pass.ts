@@ -13,7 +13,7 @@ import { ShadowPass } from './shadow-pass';
 
 export class ForwardPass extends BasePass {
     name = 'ForwardPass';
-    outputNames = ['ForwardColor', 'ForwardDS']
+    outputNames = ['ForwardColor', 'ForwardDS'];
 
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
@@ -73,10 +73,12 @@ export class ForwardPass extends BasePass {
         }
 
         pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(camera,
+            .addSceneOfCamera(
+                camera,
                 new LightInfo(),
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
+                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY,
+            );
 
         passContext.forwardPass = this;
     }

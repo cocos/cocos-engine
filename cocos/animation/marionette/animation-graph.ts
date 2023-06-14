@@ -938,9 +938,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param type The variable's type.
      * @param initialValue Initial value.
      */
-    public addVariable<TVariableType extends VariableType> (
-        name: string, type: TVariableType, initialValue?: VariableTypeValueTypeMap[TVariableType],
-    ): VariableDescription {
+    public addVariable<TVariableType extends VariableType> (name: string, type: TVariableType, initialValue?: VariableTypeValueTypeMap[TVariableType]): VariableDescription {
         const variable = createVariable(type, initialValue);
         this._variables[name] = variable;
         return variable;

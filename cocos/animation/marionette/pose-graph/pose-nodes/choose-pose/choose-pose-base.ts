@@ -270,9 +270,7 @@ class EvaluationRecord {
                 const item = items[iPose];
                 // Reset starting weight as current weight.
                 // Don't use `item.weight` since it's absolute weight.
-                item.selfSourceWeight = lerp(
-                    item.selfSourceWeight, item.selfTargetWeight, oldUniformTransitionRatio,
-                );
+                item.selfSourceWeight = lerp(item.selfSourceWeight, item.selfTargetWeight, oldUniformTransitionRatio);
                 if (iPose === newChoseIndex) {
                     item.selfTargetWeight = 1.0;
                 } else {

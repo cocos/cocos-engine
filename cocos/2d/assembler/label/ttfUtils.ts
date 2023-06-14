@@ -35,8 +35,14 @@ const Overflow = Label.Overflow;
 
 export const ttfUtils =  {
 
-    updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, comp: Label, trans: UITransform): void {
+    updateProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
         // font info // both
         style.isSystemFontUsed = comp.useSystemFont;
         style.fontSize = comp.fontSize;
@@ -126,8 +132,15 @@ export const ttfUtils =  {
 
             // TextProcessing
             processing.processingString(false, style, layout, outputLayoutData, comp.string);
-            processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData,
-                comp.string, this.generateVertexData);
+            processing.generateRenderInfo(
+                false,
+                style,
+                layout,
+                outputLayoutData,
+                outputRenderData,
+                comp.string,
+                this.generateVertexData,
+            );
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;

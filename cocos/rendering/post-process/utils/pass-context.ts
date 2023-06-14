@@ -11,15 +11,15 @@ import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
-    clearColor = new Color()
-    clearDepthColor = new Color()
-    ppl: Pipeline| undefined
-    camera: Camera| undefined
-    material: Material| undefined
-    pass: RenderPassBuilder| undefined
-    rasterWidth = 0
-    rasterHeight = 0
-    layoutName = ''
+    clearColor = new Color();
+    clearDepthColor = new Color();
+    ppl: Pipeline| undefined;
+    camera: Camera| undefined;
+    material: Material| undefined;
+    pass: RenderPassBuilder| undefined;
+    rasterWidth = 0;
+    rasterHeight = 0;
+    layoutName = '';
 
     shadingScale = 1;
     viewport = new Rect();
@@ -173,7 +173,9 @@ export class PassContext {
 
     blitScreen (passIdx = 0): PassContext {
         this.pass!.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            this.camera!, this.material!, passIdx,
+            this.camera!,
+            this.material!,
+            passIdx,
             SceneFlags.NONE,
         );
         return this;

@@ -93,10 +93,12 @@ export function randomPointBetweenCircleAtFixedAngle (out: Vec3, minRadius: numb
 }
 
 export function randomPointInCube (out: Vec3, extents: Vec3): void {
-    Vec3.set(out,
+    Vec3.set(
+        out,
         randomRange(-extents.x, extents.x),
         randomRange(-extents.y, extents.y),
-        randomRange(-extents.z, extents.z));
+        randomRange(-extents.z, extents.z),
+    );
 }
 
 export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3): void {

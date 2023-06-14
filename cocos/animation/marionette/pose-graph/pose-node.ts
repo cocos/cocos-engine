@@ -94,12 +94,16 @@ export abstract class PoseNode extends PoseGraphNode {
 
         if (POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED) {
             // The stack should certainly increase 1.
-            assertIsTrue(context._stackSize_debugging === stackSizeBefore + 1,
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`);
+            assertIsTrue(
+                context._stackSize_debugging === stackSizeBefore + 1,
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`,
+            );
             // The returned pose should be the increased pose, that's,
             // can not return a already-popped pose.
-            assertIsTrue(context._isStackTopPose_debugging(pose),
-                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`);
+            assertIsTrue(
+                context._isStackTopPose_debugging(pose),
+                `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`,
+            );
         }
 
         const currentSpace = pose._poseTransformSpace;

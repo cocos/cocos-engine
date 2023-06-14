@@ -262,7 +262,7 @@ export default class CurveRange  {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props): readonly ["mode", "constant", "multiplier"] | readonly ["mode", "spline", "multiplier"] | readonly ["mode", "splineMin", "splineMax", "multiplier"] | readonly ["mode", "constantMin", "constantMax", "multiplier"] {
+    public _onBeforeSerialize (props): readonly ['mode', 'constant', 'multiplier'] | readonly ['mode', 'spline', 'multiplier'] | readonly ['mode', 'splineMin', 'splineMax', 'multiplier'] | readonly ['mode', 'constantMin', 'constantMax', 'multiplier'] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }

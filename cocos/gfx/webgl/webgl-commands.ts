@@ -769,8 +769,13 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: Readonly<BufferSource>,
-    offset: number, size: number): void {
+export function WebGLCmdFuncUpdateBuffer (
+    device: WebGLDevice,
+    gpuBuffer: IWebGLGPUBuffer,
+    buffer: Readonly<BufferSource>,
+    offset: number,
+    size: number,
+): void {
     if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         if (ArrayBuffer.isView(buffer)) {
             gpuBuffer.vf32!.set(buffer as Float32Array, offset / Float32Array.BYTES_PER_ELEMENT);
@@ -940,8 +945,17 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
                     w = gpuTexture.width;
                     h = gpuTexture.height;
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0,
-                            gpuTexture.glFormat, gpuTexture.glType, null);
+                        gl.texImage2D(
+                            gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                            i,
+                            gpuTexture.glInternalFmt,
+                            w,
+                            h,
+                            0,
+                            gpuTexture.glFormat,
+                            gpuTexture.glType,
+                            null,
+                        );
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
@@ -1084,8 +1098,17 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
                 w = gpuTexture.width;
                 h = gpuTexture.height;
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h,
-                        0, gpuTexture.glFormat, gpuTexture.glType, null);
+                    gl.texImage2D(
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        i,
+                        gpuTexture.glInternalFmt,
+                        w,
+                        h,
+                        0,
+                        gpuTexture.glFormat,
+                        gpuTexture.glType,
+                        null,
+                    );
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
@@ -1375,9 +1398,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     // WebGL doesn't support Framebuffer Fetch
     for (let i = 0; i < gpuShader.subpassInputs.length; ++i) {
         const subpassInput = gpuShader.subpassInputs[i];
-        gpuShader.samplerTextures.push(new UniformSamplerTexture(
-            subpassInput.set, subpassInput.binding, subpassInput.name, Type.SAMPLER2D, subpassInput.count,
-        ));
+        gpuShader.samplerTextures.push(new UniformSamplerTexture(subpassInput.set, subpassInput.binding, subpassInput.name, Type.SAMPLER2D, subpassInput.count));
     }
 
     // create uniform sampler textures
@@ -2575,24 +2596,38 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                 }
                 if (md) {
                     if (indirects.instancedDraw) {
-                        md.multiDrawElementsInstancedWEBGL(glPrimitive,
-                            indirects.counts, 0,
+                        md.multiDrawElementsInstancedWEBGL(
+                            glPrimitive,
+                            indirects.counts,
+                            0,
                             gpuInputAssembler.glIndexType,
-                            indirects.byteOffsets, 0,
-                            indirects.instances, 0,
-                            indirects.drawCount);
+                            indirects.byteOffsets,
+                            0,
+                            indirects.instances,
+                            0,
+                            indirects.drawCount,
+                        );
                     } else {
-                        md.multiDrawElementsWEBGL(glPrimitive,
-                            indirects.counts, 0,
+                        md.multiDrawElementsWEBGL(
+                            glPrimitive,
+                            indirects.counts,
+                            0,
                             gpuInputAssembler.glIndexType,
-                            indirects.byteOffsets, 0,
-                            indirects.drawCount);
+                            indirects.byteOffsets,
+                            0,
+                            indirects.drawCount,
+                        );
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
                         if (indirects.instances[j] && ia) {
-                            ia.drawElementsInstancedANGLE(glPrimitive, indirects.counts[j],
-                                gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
+                            ia.drawElementsInstancedANGLE(
+                                glPrimitive,
+                                indirects.counts[j],
+                                gpuInputAssembler.glIndexType,
+                                indirects.byteOffsets[j],
+                                indirects.instances[j],
+                            );
                         } else {
                             gl.drawElements(glPrimitive, indirects.counts[j], gpuInputAssembler.glIndexType, indirects.byteOffsets[j]);
                         }
@@ -2600,16 +2635,25 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                 }
             } else if (md) {
                 if (indirects.instancedDraw) {
-                    md.multiDrawArraysInstancedWEBGL(glPrimitive,
-                        indirects.offsets, 0,
-                        indirects.counts, 0,
-                        indirects.instances, 0,
-                        indirects.drawCount);
+                    md.multiDrawArraysInstancedWEBGL(
+                        glPrimitive,
+                        indirects.offsets,
+                        0,
+                        indirects.counts,
+                        0,
+                        indirects.instances,
+                        0,
+                        indirects.drawCount,
+                    );
                 } else {
-                    md.multiDrawArraysWEBGL(glPrimitive,
-                        indirects.offsets, 0,
-                        indirects.counts, 0,
-                        indirects.drawCount);
+                    md.multiDrawArraysWEBGL(
+                        glPrimitive,
+                        indirects.offsets,
+                        0,
+                        indirects.counts,
+                        0,
+                        indirects.drawCount,
+                    );
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
@@ -2624,8 +2668,13 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
             if (indexBuffer) {
                 if (drawInfo.indexCount > 0) {
                     const offset = drawInfo.firstIndex * indexBuffer.stride;
-                    ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
-                        gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                    ia.drawElementsInstancedANGLE(
+                        glPrimitive,
+                        drawInfo.indexCount,
+                        gpuInputAssembler.glIndexType,
+                        offset,
+                        drawInfo.instanceCount,
+                    );
                 }
             } else if (drawInfo.vertexCount > 0) {
                 ia.drawArraysInstancedANGLE(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
@@ -2652,8 +2701,15 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
         switch (cmd) {
         case WebGLCmd.BEGIN_RENDER_PASS: {
             const cmd0 = cmdPackage.beginRenderPassCmds.array[cmdId];
-            WebGLCmdFuncBeginRenderPass(device, cmd0.gpuRenderPass, cmd0.gpuFramebuffer, cmd0.renderArea,
-                cmd0.clearColors, cmd0.clearDepth, cmd0.clearStencil);
+            WebGLCmdFuncBeginRenderPass(
+                device,
+                cmd0.gpuRenderPass,
+                cmd0.gpuFramebuffer,
+                cmd0.renderArea,
+                cmd0.clearColors,
+                cmd0.clearDepth,
+                cmd0.clearStencil,
+            );
             break;
         }
         /*
@@ -2665,8 +2721,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
             */
         case WebGLCmd.BIND_STATES: {
             const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
-            WebGLCmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuInputAssembler,
-                cmd2.gpuDescriptorSets, cmd2.dynamicOffsets, cmd2.dynamicStates);
+            WebGLCmdFuncBindStates(
+                device,
+                cmd2.gpuPipelineState,
+                cmd2.gpuInputAssembler,
+                cmd2.gpuDescriptorSets,
+                cmd2.dynamicOffsets,
+                cmd2.dynamicStates,
+            );
             break;
         }
         case WebGLCmd.DRAW: {
@@ -2715,9 +2777,15 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
         for (let i = 0; i < regions.length; i++) {
             const region = regions[i];
             // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
-            gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                region.texOffset.x, region.texOffset.y,
-                gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+            gl.texSubImage2D(
+                gl.TEXTURE_2D,
+                region.texSubres.mipLevel,
+                region.texOffset.x,
+                region.texOffset.y,
+                gpuTexture.glFormat,
+                gpuTexture.glType,
+                texImages[n++],
+            );
         }
         break;
     }
@@ -2727,9 +2795,15 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
             // console.debug('Copying image to texture cube: ' + region.texExtent.width + ' x ' + region.texExtent.height);
             const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
             for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                    region.texOffset.x, region.texOffset.y,
-                    gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+                gl.texSubImage2D(
+                    gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                    region.texSubres.mipLevel,
+                    region.texOffset.x,
+                    region.texOffset.y,
+                    gpuTexture.glFormat,
+                    gpuTexture.glType,
+                    texImages[n++],
+                );
             }
         }
         break;
@@ -2746,11 +2820,13 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 }
 
 let stagingBuffer = new Uint8Array(1);
-function pixelBufferPick (buffer: ArrayBufferView,
+function pixelBufferPick (
+    buffer: ArrayBufferView,
     format: Format,
     offset: number,
     stride: Extent,
-    extent: Extent): ArrayBufferView {
+    extent: Extent,
+): ArrayBufferView {
     const blockHeight = formatAlignment(format).height;
 
     const bufferSize = FormatSize(format, extent.width, extent.height, extent.depth);
@@ -2835,22 +2911,38 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             }
 
             if (!isCompressed) {
-                gl.texSubImage2D(gl.TEXTURE_2D, mipLevel,
-                    offset.x, offset.y,
-                    destWidth, destHeight,
-                    gpuTexture.glFormat, gpuTexture.glType,
-                    pixels);
-            } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !device.extensions.noCompressedTexSubImage2D) {
-                gl.compressedTexSubImage2D(gl.TEXTURE_2D, mipLevel,
-                    offset.x, offset.y,
-                    destWidth, destHeight,
+                gl.texSubImage2D(
+                    gl.TEXTURE_2D,
+                    mipLevel,
+                    offset.x,
+                    offset.y,
+                    destWidth,
+                    destHeight,
                     gpuTexture.glFormat,
-                    pixels);
+                    gpuTexture.glType,
+                    pixels,
+                );
+            } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !device.extensions.noCompressedTexSubImage2D) {
+                gl.compressedTexSubImage2D(
+                    gl.TEXTURE_2D,
+                    mipLevel,
+                    offset.x,
+                    offset.y,
+                    destWidth,
+                    destHeight,
+                    gpuTexture.glFormat,
+                    pixels,
+                );
             } else { // WEBGL_compressed_texture_etc1
-                gl.compressedTexImage2D(gl.TEXTURE_2D, mipLevel,
+                gl.compressedTexImage2D(
+                    gl.TEXTURE_2D,
+                    mipLevel,
                     gpuTexture.glInternalFmt,
-                    destWidth, destHeight, 0,
-                    pixels);
+                    destWidth,
+                    destHeight,
+                    0,
+                    pixels,
+                );
             }
         }
         break;
@@ -2884,22 +2976,38 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 }
 
                 if (!isCompressed) {
-                    gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, mipLevel,
-                        offset.x, offset.y,
-                        destWidth, destHeight,
-                        gpuTexture.glFormat, gpuTexture.glType,
-                        pixels);
-                } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !device.extensions.noCompressedTexSubImage2D) {
-                    gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, mipLevel,
-                        offset.x, offset.y,
-                        destWidth, destHeight,
+                    gl.texSubImage2D(
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        mipLevel,
+                        offset.x,
+                        offset.y,
+                        destWidth,
+                        destHeight,
                         gpuTexture.glFormat,
-                        pixels);
+                        gpuTexture.glType,
+                        pixels,
+                    );
+                } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL && !device.extensions.noCompressedTexSubImage2D) {
+                    gl.compressedTexSubImage2D(
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        mipLevel,
+                        offset.x,
+                        offset.y,
+                        destWidth,
+                        destHeight,
+                        gpuTexture.glFormat,
+                        pixels,
+                    );
                 } else { // WEBGL_compressed_texture_etc1
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, mipLevel,
+                    gl.compressedTexImage2D(
+                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        mipLevel,
                         gpuTexture.glInternalFmt,
-                        destWidth, destHeight, 0,
-                        pixels);
+                        destWidth,
+                        destHeight,
+                        0,
+                        pixels,
+                    );
                 }
             }
         }
@@ -2953,8 +3061,13 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     gl.deleteFramebuffer(framebuffer);
 }
 
-export function WebGLCmdFuncBlitTexture (device: WebGLDevice,
-    srcTexture: Readonly<IWebGLGPUTexture>, dstTexture: IWebGLGPUTexture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+export function WebGLCmdFuncBlitTexture (
+    device: WebGLDevice,
+    srcTexture: Readonly<IWebGLGPUTexture>,
+    dstTexture: IWebGLGPUTexture,
+    regions: Readonly<TextureBlit []>,
+    filter: Filter,
+): void {
     // logic different from native, because framebuffer map is not implemented in webgl
     device.blitManager.draw(srcTexture, dstTexture, regions as TextureBlit[], filter);
 }

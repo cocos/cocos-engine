@@ -50,7 +50,7 @@ enum BufferDataType {
     NEVER,
 }
 
-type BufferManifest = { [key: string]: number | string; COUNT: number };
+interface BufferManifest { [key: string]: number | string; COUNT: number }
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
 type BufferDataMembersManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
 type BufferArrayType = Float32Array | Uint32Array;

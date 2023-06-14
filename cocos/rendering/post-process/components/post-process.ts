@@ -9,13 +9,13 @@ import { PostProcessSetting } from './post-process-setting';
 @disallowMultiple
 @executeInEditMode
 export class PostProcess extends Component {
-    static all: PostProcess[] = []
+    static all: PostProcess[] = [];
 
     @property
     global = true;
 
     @property
-    _shadingScale = 1
+    _shadingScale = 1;
     @slide
     @range([0.01, 1, 0.01])
     @property
@@ -34,7 +34,7 @@ export class PostProcess extends Component {
     @property
     enableShadingScaleInEditor = false;
 
-    settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map()
+    settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map();
 
     addSetting (setting: PostProcessSetting): void {
         this.settings.set(setting.constructor as typeof PostProcessSetting, setting);

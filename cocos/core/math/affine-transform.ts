@@ -51,9 +51,12 @@ export class AffineTransform {
      */
     public static clone (affineTransform: AffineTransform): AffineTransform {
         return new AffineTransform(
-            affineTransform.a, affineTransform.b,
-            affineTransform.c, affineTransform.d,
-            affineTransform.tx, affineTransform.ty,
+            affineTransform.a,
+            affineTransform.b,
+            affineTransform.c,
+            affineTransform.d,
+            affineTransform.tx,
+            affineTransform.ty,
         );
     }
 
@@ -199,8 +202,15 @@ export class AffineTransform {
      * @param rect The rect object to apply transform.
      * @param anAffineTransform transform matrix.
      */
-    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect,
-        anAffineTransform: AffineTransform, flipY = true): void {
+    public static transformObb (
+        out_bl: Vec2,
+        out_tl: Vec2,
+        out_tr: Vec2,
+        out_br: Vec2,
+        rect: Rect,
+        anAffineTransform: AffineTransform,
+        flipY = true,
+    ): void {
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;

@@ -80,9 +80,7 @@ export class AnimationGraphEval {
         const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(root, this._auxiliaryCurveRegistry);
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
-        const bindingContext = new AnimationGraphBindingContext(
-            root, poseLayoutMaintainer, this._varInstances, controller,
-        );
+        const bindingContext = new AnimationGraphBindingContext(root, poseLayoutMaintainer, this._varInstances, controller);
         bindingContext._setClipOverrides(clipOverrides ?? undefined);
         this._bindingContext = bindingContext;
 

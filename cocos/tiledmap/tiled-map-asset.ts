@@ -70,7 +70,7 @@ export class TiledMapAsset extends Asset {
      */
     @serializable
     @type([SpriteFrame])
-    imageLayerSpriteFrame: SpriteFrame[] = []
+    imageLayerSpriteFrame: SpriteFrame[] = [];
 
     /**
      * @en

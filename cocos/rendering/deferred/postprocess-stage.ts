@@ -110,8 +110,14 @@ export class PostProcessStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            framebuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         // Postprocess
         const builtinPostProcess = (sceneData as DeferredPipelineSceneData).postprocessMaterial;
