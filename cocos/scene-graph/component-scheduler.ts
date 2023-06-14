@@ -548,9 +548,10 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker): void {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        // NOTE: _executeInEditMode is dynamically injected on Editor environment
+        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
-                if (comp.onEnable) {
+                if (comp._internal_onEnable) {
                     if (invoker) {
                         invoker.add(comp);
                         enableInEditor(comp);
@@ -558,7 +559,7 @@ if (EDITOR) {
                     } else {
                         callOnEnableInTryCatch(comp);
 
-                        const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                        const deactivatedDuringOnEnable = !comp.node.activeInHierarchy;
                         if (deactivatedDuringOnEnable) {
                             return;
                         }
@@ -571,9 +572,10 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp): void {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        // NOTE: _executeInEditMode is dynamically injected on Editor environment
+        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
-                if (comp.onDisable) {
+                if (comp._internal_onDisable) {
                     callOnDisableInTryCatch(comp);
                 }
                 this._onDisabled(comp);

@@ -356,7 +356,8 @@ if (EDITOR) {
             // destroyed before activating
             return;
         }
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        // NOTE: _executeInEditMode is dynamically injected on Editor environment
+        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp._internal_preload) {
@@ -398,7 +399,8 @@ if (EDITOR) {
         legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp._internal_onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+            // NOTE: _executeInEditMode is dynamically injected on Editor environment
+            if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }
