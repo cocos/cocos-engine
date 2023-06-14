@@ -27,6 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
+import { setPropertyEnumType } from '../../core/internal-index';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -262,7 +263,7 @@ export default class CurveRange  {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props): readonly ["mode", "constant", "multiplier"] | readonly ["mode", "spline", "multiplier"] | readonly ["mode", "splineMin", "splineMax", "multiplier"] | readonly ["mode", "constantMin", "constantMax", "multiplier"] {
+    public _onBeforeSerialize (props): readonly ['mode', 'constant', 'multiplier'] | readonly ['mode', 'spline', 'multiplier'] | readonly ['mode', 'splineMin', 'splineMax', 'multiplier'] | readonly ['mode', 'constantMin', 'constantMax', 'multiplier'] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }
@@ -287,8 +288,7 @@ setClassAttr(CurveRange, 'multiplier', 'visible', true);
 setClassAttr(CurveRange, 'constantMax', 'visible', true);
 setClassAttr(CurveRange, 'constantMin', 'visible', true);
 setClassAttr(CurveRange, 'constant', 'visible', true);
-setClassAttr(CurveRange, 'mode', 'type', 'Enum');
-setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
+setPropertyEnumType(CurveRange, 'mode', Mode);
 setClassAttr(CurveRange, 'mode', 'visible', true);
 setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
 setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);

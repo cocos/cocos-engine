@@ -27,7 +27,7 @@ import { Material, Texture2D } from '../asset/assets';
 import { errorID, warn } from '../core/platform/debug';
 import { Enum, ccenum } from '../core/value-types/enum';
 import { Component, Node } from '../scene-graph';
-import { CCBoolean, CCClass, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
+import { CCBoolean, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { UIRenderer, UITransform } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -44,6 +44,7 @@ import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
+import { setPropertyEnumType } from '../core/internal-index';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
@@ -118,11 +119,6 @@ export interface SkeletonDrawData {
     material: Material | null;
     indexOffset: number;
     indexCount: number;
-}
-
-function setEnumAttr (obj, propName, enumDef): void {
-    CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');
-    CCClass.Attr.setClassAttr(obj, propName, 'enumList', Enum.getList(enumDef));
 }
 
 /**
@@ -898,7 +894,7 @@ export class Skeleton extends UIRenderer {
         this._enumAnimations = Enum({});
         Object.assign(this._enumAnimations, animEnum);
         Enum.update(this._enumAnimations);
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        setPropertyEnumType(this, '_animationIndex', this._enumAnimations);
     }
     // update skin list for editor
     protected _updateSkinEnum (): void {
@@ -912,7 +908,7 @@ export class Skeleton extends UIRenderer {
         this._enumSkins = Enum({});
         Object.assign(this._enumSkins, skinEnum);
         Enum.update(this._enumSkins);
-        setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
+        setPropertyEnumType(this, '_defaultSkinIndex', this._enumSkins);
     }
 
     protected _refreshInspector (): void {
