@@ -36,7 +36,7 @@ const idGenerator = new IDGenerator('Scheduler');
 export interface ISchedulable {
     id?: string;
     uuid?: string;
-    update (dt: number): void;
+    update? (dt: number): void;
 }
 
 // data structures
@@ -447,21 +447,21 @@ export class Scheduler extends System {
         for (i = 0, list = this._updatesNegList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion && entry.target) {
-                entry.target.update(dt);
+                entry.target.update?.(dt);
             }
         }
 
         for (i = 0, list = this._updates0List, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion && entry.target) {
-                entry.target.update(dt);
+                entry.target.update?.(dt);
             }
         }
 
         for (i = 0, list = this._updatesPosList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion && entry.target) {
-                entry.target.update(dt);
+                entry.target.update?.(dt);
             }
         }
 
