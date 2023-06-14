@@ -213,7 +213,7 @@ module.exports = {
                         'rotation': {
                             displayName: 'Rotation',
                         },
-                        'intensity': {
+                        'intensityValue': {
                             displayName: 'Intensity',
                         },
                     },
