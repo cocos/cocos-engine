@@ -24,11 +24,12 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
@@ -47,6 +48,7 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public set boxSize (val) {
         this._boxSize = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -59,11 +61,18 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public set boxCenter (val) {
         this._boxCenter = val;
+        this.requireRecompile();
     }
 
     @type(CCBoolean)
-    @serializable
-    public surfaceOnly = false;
+    public get surfaceOnly () {
+        return this._surfaceOnly;
+    }
+
+    public set surfaceOnly (val) {
+        this._surfaceOnly = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: BoxLocationModule) {
@@ -78,6 +87,7 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public set surfaceThickness (val) {
         this._surfaceThickness = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -86,13 +96,15 @@ export class BoxLocationModule extends ShapeLocationModule {
     private _boxSize: Vec3Expression | null = null;
     @serializable
     private _boxCenter: Vec3Expression | null = null;
+    @serializable
+    private _surfaceOnly = false;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.boxSize.tick(parameterMap);
-        this.boxCenter.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.boxSize.compile(parameterMap, this);
+        this.boxCenter.compile(parameterMap, this);
         if (this.surfaceOnly) {
-            this.surfaceThickness.tick(parameterMap);
+            this.surfaceThickness.compile(parameterMap, this);
         }
     }
 

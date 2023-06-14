@@ -24,12 +24,13 @@
  */
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Enum, TWO_PI, Vec3, clamp } from '../../core';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 export enum TorusDistributionMode {
     RANDOM,
@@ -51,6 +52,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set largeRadius (val) {
         this._largeRadius = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -63,11 +65,18 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set handleRadius (val) {
         this._handleRadius = val;
+        this.requireRecompile();
     }
 
     @type(Enum(TorusDistributionMode))
-    @serializable
-    public distributionMode = TorusDistributionMode.RANDOM;
+    public get distributionMode () {
+        return this._distributionMode;
+    }
+
+    public set distributionMode (val) {
+        this._distributionMode = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: TorusLocationModule) {
@@ -82,6 +91,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set surfaceDistribution (val) {
         this._surfaceDistribution = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -97,6 +107,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set uDistribution (val) {
         this._uDistribution = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -112,6 +123,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set vDistribution (val) {
         this._vDistribution = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -127,6 +139,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set uPosition (val) {
         this._uPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -142,6 +155,7 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public set vPosition (val) {
         this._vPosition = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -158,18 +172,20 @@ export class TorusLocationModule extends ShapeLocationModule {
     private _uPosition: FloatExpression | null = null;
     @serializable
     private _vPosition: FloatExpression | null = null;
+    @serializable
+    private _distributionMode = TorusDistributionMode.RANDOM;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.largeRadius.tick(parameterMap);
-        this.handleRadius.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.largeRadius.compile(parameterMap, this);
+        this.handleRadius.compile(parameterMap, this);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(parameterMap);
-            this.uDistribution.tick(parameterMap);
-            this.vDistribution.tick(parameterMap);
+            this.surfaceDistribution.compile(parameterMap, this);
+            this.uDistribution.compile(parameterMap, this);
+            this.vDistribution.compile(parameterMap, this);
         } else {
-            this.uPosition.tick(parameterMap);
-            this.vPosition.tick(parameterMap);
+            this.uPosition.compile(parameterMap, this);
+            this.vPosition.compile(parameterMap, this);
         }
     }
 
@@ -182,7 +198,7 @@ export class TorusLocationModule extends ShapeLocationModule {
         const handleRadiusExp = this._handleRadius as FloatExpression;
         largeRadiusExp.bind(parameterMap);
         handleRadiusExp.bind(parameterMap);
-        if (this.distributionMode === TorusDistributionMode.RANDOM) {
+        if (this._distributionMode === TorusDistributionMode.RANDOM) {
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const uDistributionExp = this._uDistribution as FloatExpression;
             const vDistributionExp = this._vDistribution as FloatExpression;

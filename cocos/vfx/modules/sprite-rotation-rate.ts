@@ -24,10 +24,11 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_ROTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 @ccclass('cc.SpriteRotationRateModule')
 @VFXModule.register('SpriteRotationRate', VFXExecutionStageFlags.UPDATE, [P_SPRITE_ROTATION.name], [])
@@ -42,14 +43,16 @@ export class SpriteRotationRateModule extends VFXModule {
 
     public set rate (val) {
         this._rate = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_SPRITE_ROTATION);
-        this.rate.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_SPRITE_ROTATION);
+        this.rate.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

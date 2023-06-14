@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { P_VELOCITY, P_SCALE, P_SPRITE_SIZE, P_POSITION, P_BASE_VELOCITY, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -45,17 +45,19 @@ export class DragModule extends VFXModule {
 
     public set drag (val) {
         this._drag = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _drag: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(P_BASE_VELOCITY);
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_PHYSICS_FORCE);
-        this.drag.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_POSITION);
+        parameterMap.ensure(P_BASE_VELOCITY);
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_PHYSICS_FORCE);
+        this.drag.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

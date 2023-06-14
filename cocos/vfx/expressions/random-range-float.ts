@@ -27,39 +27,62 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
-import { VFXExecutionStage } from '../vfx-module';
+import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.RandomRangeFloat')
 export class RandomRangeFloatExpression extends FloatExpression {
     @type(FloatExpression)
-    @serializable
-    public maximum: FloatExpression = new ConstantFloatExpression(0);
+    public get maximum () {
+        if (!this._maximum) {
+            this._maximum = new ConstantFloatExpression();
+        }
+        return this._maximum;
+    }
+
+    public set maximum (val) {
+        this._maximum = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
-    @serializable
-    public minimum: FloatExpression = new ConstantFloatExpression(0);
+    public get minimum () {
+        if (!this._minimum) {
+            this._minimum = new ConstantFloatExpression();
+        }
+        return this._minimum;
+    }
+
+    public set minimum (val) {
+        this._minimum = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return false;
     }
 
+    @serializable
+    private _maximum: FloatExpression | null = null;
+    @serializable
+    private _minimum: FloatExpression | null = null;
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.maximum.tick(parameterMap);
-        this.minimum.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.maximum.compile(parameterMap, owner);
+        this.minimum.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.UPDATE) {
-            parameterMap.ensureParameter(P_RANDOM_SEED);
+            parameterMap.ensure(P_RANDOM_SEED);
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.maximum.bind(parameterMap);
-        this.minimum.bind(parameterMap);
+        this._maximum!.bind(parameterMap);
+        this._minimum!.bind(parameterMap);
         if (this.usage === VFXExecutionStage.UPDATE) {
             this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
             this._randomOffset = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED).data;
@@ -69,12 +92,12 @@ export class RandomRangeFloatExpression extends FloatExpression {
     }
 
     public evaluate (index: number): number {
-        return lerp(this.minimum.evaluate(index), this.maximum.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
+        return lerp(this._minimum!.evaluate(index), this._maximum!.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
     }
 
     public evaluateSingle (): number {
-        const min = this.minimum.evaluateSingle();
-        const max = this.maximum.evaluateSingle();
+        const min = this._minimum!.evaluateSingle();
+        const max = this._maximum!.evaluateSingle();
         return lerp(min, max, this._randomStream.getFloat());
     }
 }

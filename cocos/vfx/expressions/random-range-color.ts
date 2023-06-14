@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { RandomStream } from '../random-stream';
 import { ColorExpression } from './color';
 import { ConstantColorExpression } from './constant-color';
-import { VFXExecutionStage } from '../vfx-module';
+import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { E_RANDOM_SEED, P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -36,12 +36,30 @@ const tempColor = new Color();
 @ccclass('cc.RandomRangeColor')
 export class RandomRangeColorExpression extends ColorExpression {
     @type(ColorExpression)
-    @serializable
-    public maximum: ColorExpression = new ConstantColorExpression();
+    public get maximum () {
+        if (!this._maximum) {
+            this._maximum = new ConstantColorExpression();
+        }
+        return this._maximum;
+    }
+
+    public set maximum (val) {
+        this._maximum = val;
+        this.requireRecompile();
+    }
 
     @type(ColorExpression)
-    @serializable
-    public minimum: ColorExpression = new ConstantColorExpression();
+    public get minimum () {
+        if (!this._minimum) {
+            this._minimum = new ConstantColorExpression();
+        }
+        return this._minimum;
+    }
+
+    public set minimum (val) {
+        this._minimum = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return false;
@@ -49,21 +67,26 @@ export class RandomRangeColorExpression extends ColorExpression {
 
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
+    @serializable
+    private _maximum: ColorExpression | null = null;
+    @serializable
+    private _minimum: ColorExpression | null = null;
     private declare _seed: Uint32Array;
     private _randomSeed = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.maximum.tick(parameterMap);
-        this.minimum.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.maximum.compile(parameterMap, owner);
+        this.minimum.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.UPDATE) {
-            parameterMap.ensureParameter(P_RANDOM_SEED);
+            parameterMap.ensure(P_RANDOM_SEED);
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.maximum.bind(parameterMap);
-        this.minimum.bind(parameterMap);
+        this._maximum!.bind(parameterMap);
+        this._minimum!.bind(parameterMap);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
         }
@@ -71,12 +94,12 @@ export class RandomRangeColorExpression extends ColorExpression {
     }
 
     public evaluate (index: number, out: Color) {
-        return Color.lerp(out, this.minimum.evaluate(index, out), this.maximum.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomSeed));
+        return Color.lerp(out, this._minimum!.evaluate(index, out), this._maximum!.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomSeed));
     }
 
     public evaluateSingle (out: Color) {
-        const min = this.minimum.evaluateSingle(out);
-        const max = this.maximum.evaluateSingle(tempColor);
+        const min = this._minimum!.evaluateSingle(out);
+        const max = this._maximum!.evaluateSingle(tempColor);
         return Color.lerp(out, min, max, this._randomStream.getFloat());
     }
 }

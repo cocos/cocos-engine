@@ -25,10 +25,11 @@
 
 import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec3 } from '../../core';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_SCALE, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec3();
@@ -39,8 +40,15 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */
-    @serializable
-    public separateAxes = false;
+    @visible(true)
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     /**
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
@@ -57,6 +65,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set uniformMinScalar (val) {
         this._uniformMinScalar = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -71,6 +80,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set uniformMaxScalar (val) {
         this._uniformMaxScalar = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -84,6 +94,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set minScalar (val) {
         this._minScalar = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -97,6 +108,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set maxScalar (val) {
         this._maxScalar = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -110,6 +122,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set minSpeedThreshold (val) {
         this._minSpeedThreshold = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -123,6 +136,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
 
     public set maxSpeedThreshold (val) {
         this._maxSpeedThreshold = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -137,22 +151,25 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     private _minSpeedThreshold: FloatExpression | null = null;
     @serializable
     private _maxSpeedThreshold: FloatExpression | null = null;
+    @serializable
+    private _separateAxes = false;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_SCALE);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.maxScalar.tick(parameterMap);
-            this.minScalar.tick(parameterMap);
+            this.maxScalar.compile(parameterMap, this);
+            this.minScalar.compile(parameterMap, this);
         } else {
-            this.uniformMaxScalar.tick(parameterMap);
-            this.uniformMinScalar.tick(parameterMap);
+            this.uniformMaxScalar.compile(parameterMap, this);
+            this.uniformMinScalar.compile(parameterMap, this);
         }
-        this.minSpeedThreshold.tick(parameterMap);
-        this.maxSpeedThreshold.tick(parameterMap);
+        this.minSpeedThreshold.compile(parameterMap, this);
+        this.maxSpeedThreshold.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
+        const hasVelocity = parameterMap.has(P_VELOCITY);
         if (!hasVelocity) { return; }
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;

@@ -36,6 +36,7 @@ export class ConstantInt32Expression extends Int32Expression {
 
     public set value (val) {
         this._value = val | 0;
+        this.requireRecompile();
     }
 
     public get isConstant () {
@@ -50,14 +51,13 @@ export class ConstantInt32Expression extends Int32Expression {
         this.value = value;
     }
 
-    public tick (parameterMap: VFXParameterMap) {}
     public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number): number {
-        return this.value;
+        return this._value;
     }
 
     public evaluateSingle (): number {
-        return this.value;
+        return this._value;
     }
 }

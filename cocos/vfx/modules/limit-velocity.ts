@@ -24,11 +24,12 @@
  */
 
 import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
-import { lerp, Vec3 } from '../../core';
+import { Enum, lerp, Vec3 } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_VELOCITY } from '../define';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const limit = new Vec3();
 const tempVelocity = new Vec3();
@@ -40,15 +41,28 @@ export class LimitVelocityModule extends VFXModule {
     /**
      * @zh 是否三个轴分开限制。
      */
-    @serializable
-    public separateAxes = false;
+    @visible(true)
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh 计算速度下限时采用的坐标系 [[Space]]。
      */
-    @type(CoordinateSpace)
-    @serializable
-    public coordinateSpace = CoordinateSpace.LOCAL;
+    @type(Enum(CoordinateSpace))
+    public get coordinateSpace () {
+        return this._coordinateSpace;
+    }
+
+    public set coordinateSpace (val) {
+        this._coordinateSpace = val;
+        this.requireRecompile();
+    }
     /**
      * @zh X 轴方向上的速度下限。
      */
@@ -61,6 +75,11 @@ export class LimitVelocityModule extends VFXModule {
             this._uniformLimit = new ConstantFloatExpression(1);
         }
         return this._uniformLimit;
+    }
+
+    public set uniformLimit (val) {
+        this._uniformLimit = val;
+        this.requireRecompile();
     }
 
     /**
@@ -79,18 +98,23 @@ export class LimitVelocityModule extends VFXModule {
 
     public set limit (val) {
         this._limit = val;
+        this.requireRecompile();
     }
 
     /**
      * @zh 当前速度与速度下限的插值。
      */
     @type(FloatExpression)
-    @rangeMin(0)
     public get dampen () {
         if (!this._dampen) {
             this._dampen = new ConstantFloatExpression(0.3);
         }
         return this._dampen;
+    }
+
+    public set dampen (val) {
+        this._dampen = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -99,16 +123,20 @@ export class LimitVelocityModule extends VFXModule {
     private _uniformLimit: FloatExpression | null = null;
     @serializable
     private _limit: Vec3Expression | null = null;
+    @serializable
+    private _separateAxes = false;
+    @serializable
+    private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_BASE_VELOCITY);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_BASE_VELOCITY);
         if (this.separateAxes) {
-            this.limit.bind(parameterMap);
+            this.limit.compile(parameterMap, this);
         } else {
-            this.uniformLimit.bind(parameterMap);
+            this.uniformLimit.compile(parameterMap, this);
         }
-        this.dampen.bind(parameterMap);
+        this.dampen.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

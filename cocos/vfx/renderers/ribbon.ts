@@ -101,7 +101,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
 
-        const hasColor = parameterMap.hasParameter(P_COLOR);
+        const hasColor = parameterMap.has(P_COLOR);
         if (define[CC_VFX_P_COLOR] !== hasColor) {
             define[CC_VFX_P_COLOR] = hasColor;
             needRecompile = true;
@@ -203,11 +203,11 @@ export class RibbonParticleRenderer extends ParticleRenderer {
 
         const positions = parameterMap.getVec3ArrayValue(P_POSITION);
         let sizes: VFXFloatArray | null = null;
-        if (parameterMap.hasParameter(P_RIBBON_WIDTH)) {
+        if (parameterMap.has(P_RIBBON_WIDTH)) {
             sizes = parameterMap.getFloatArrayVale(P_RIBBON_WIDTH);
         }
         let colors: VFXColorArray | null = null;
-        if (parameterMap.hasParameter(P_COLOR)) {
+        if (parameterMap.has(P_COLOR)) {
             colors = parameterMap.getColorArrayValue(P_COLOR);
         }
 
@@ -333,7 +333,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
     }
 
     public render (parameterMap: VFXParameterMap, count: number) {
-        if (!parameterMap.hasParameter(P_POSITION)) {
+        if (!parameterMap.has(P_POSITION)) {
             console.error('particles without position data');
             return;
         }

@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { TWO_PI, Vec3, clamp } from '../../core';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const pos = new Vec3();
 
@@ -46,6 +47,7 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     set length (val) {
         this._length = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -58,6 +60,7 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     set angle (val) {
         this._angle = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -70,6 +73,7 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     set innerAngle (val) {
         this._innerAngle = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -82,6 +86,7 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     set radialAngle (val) {
         this._radialAngle = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -94,6 +99,7 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     set surfaceDistribution (val) {
         this._surfaceDistribution = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -107,13 +113,13 @@ export class ConeLocationModule extends ShapeLocationModule {
     @serializable
     private _surfaceDistribution: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.length.tick(parameterMap);
-        this.angle.tick(parameterMap);
-        this.innerAngle.tick(parameterMap);
-        this.radialAngle.tick(parameterMap);
-        this.surfaceDistribution.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.length.compile(parameterMap, this);
+        this.angle.compile(parameterMap, this);
+        this.innerAngle.compile(parameterMap, this);
+        this.radialAngle.compile(parameterMap, this);
+        this.surfaceDistribution.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

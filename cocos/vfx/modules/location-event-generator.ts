@@ -26,10 +26,11 @@
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEventInfo } from '../parameters/event';
+import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const eventInfo = new VFXEventInfo();
 
@@ -41,11 +42,13 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_INV_LIFETIME);
-        parameterMap.ensureParameter(P_RANDOM_SEED);
-        parameterMap.ensureParameter(P_NORMALIZED_AGE);
-        parameterMap.ensureParameter(P_ID);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(C_EVENTS);
+        parameterMap.ensure(P_INV_LIFETIME);
+        parameterMap.ensure(P_RANDOM_SEED);
+        parameterMap.ensure(P_NORMALIZED_AGE);
+        parameterMap.ensure(P_ID);
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -61,9 +64,9 @@ export class LocationEventGeneratorModule extends VFXModule {
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
         const localToWorld = parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data;
         const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
-        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
-        const hasColor = parameterMap.hasParameter(P_COLOR);
-        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const hasVelocity = parameterMap.has(P_VELOCITY);
+        const hasColor = parameterMap.has(P_COLOR);
+        const hasPosition = parameterMap.has(P_POSITION);
         const velocity = hasVelocity ? parameterMap.getVec3ArrayValue(P_VELOCITY) : null;
         const color = hasColor ? parameterMap.getColorArrayValue(P_COLOR) : null;
         const position = hasPosition ? parameterMap.getVec3ArrayValue(P_POSITION) : null;

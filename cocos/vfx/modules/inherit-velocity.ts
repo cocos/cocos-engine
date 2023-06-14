@@ -25,10 +25,11 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempVelocity = new Vec3();
 const scale = new Vec3();
@@ -44,18 +45,19 @@ export class InheritVelocityModule extends VFXModule {
 
     public set scale (val) {
         this._scale = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
-        this.scale.tick(parameterMap);
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(P_VELOCITY);
+        this.scale.compile(parameterMap, this);
+        parameterMap.ensure(P_POSITION);
+        parameterMap.ensure(P_VELOCITY);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_VELOCITY);
+            parameterMap.ensure(P_BASE_VELOCITY);
         }
     }
 

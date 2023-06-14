@@ -33,7 +33,6 @@ import { vfxManager } from '../vfx-manager';
 import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_MESH_ORIENTATION, CC_VFX_P_POSITION, CC_VFX_P_SCALE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_MESH, E_IS_WORLD_SPACE, E_RENDER_SCALE, E_WORLD_ROTATION, meshColorRGBA8,
     meshNormal, meshPosition, meshUv, P_COLOR, P_MESH_ORIENTATION, P_POSITION, P_SCALE, P_SUB_UV_INDEX1, vfxPColor, vfxPMeshOrientation, vfxPPosition, vfxPScale, vfxPSubUVIndex } from '../define';
 import { ParticleRenderer } from '../particle-renderer';
-import { VFXQuat, VFXVec3, VFXBool } from '../parameters';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -190,31 +189,31 @@ export class MeshParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const hasPosition = parameterMap.has(P_POSITION);
         if (define[CC_VFX_P_POSITION] !== hasPosition) {
             define[CC_VFX_P_POSITION] = hasPosition;
             needRecompile = true;
         }
 
-        const hasMeshOrientation = parameterMap.hasParameter(P_MESH_ORIENTATION);
+        const hasMeshOrientation = parameterMap.has(P_MESH_ORIENTATION);
         if (define[CC_VFX_P_MESH_ORIENTATION] !== hasMeshOrientation) {
             define[CC_VFX_P_MESH_ORIENTATION] = hasMeshOrientation;
             needRecompile = true;
         }
 
-        const hasScale = parameterMap.hasParameter(P_SCALE);
+        const hasScale = parameterMap.has(P_SCALE);
         if (define[CC_VFX_P_SCALE] !== hasScale) {
             define[CC_VFX_P_SCALE] = hasScale;
             needRecompile = true;
         }
 
-        const hasColor = parameterMap.hasParameter(P_COLOR);
+        const hasColor = parameterMap.has(P_COLOR);
         if (define[CC_VFX_P_COLOR] !== hasColor) {
             define[CC_VFX_P_COLOR] = hasColor;
             needRecompile = true;
         }
 
-        const hasSubUVIndex = parameterMap.hasParameter(P_SUB_UV_INDEX1);
+        const hasSubUVIndex = parameterMap.has(P_SUB_UV_INDEX1);
         if (define[CC_VFX_P_SUB_UV_INDEX] !== hasSubUVIndex) {
             define[CC_VFX_P_SUB_UV_INDEX] = hasSubUVIndex;
             needRecompile = true;

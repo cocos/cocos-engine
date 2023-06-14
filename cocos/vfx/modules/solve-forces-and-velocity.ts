@@ -36,12 +36,12 @@ export class SolveForceAndVelocityModule extends VFXModule {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
-        if (parameterMap.hasParameter(P_PHYSICS_FORCE) && parameterMap.hasParameter(P_VELOCITY)) {
+        if (parameterMap.has(P_PHYSICS_FORCE) && parameterMap.has(P_VELOCITY)) {
             const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
             const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
             VFXVec3Array.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_VELOCITY) && parameterMap.hasParameter(P_POSITION)) {
+        if (parameterMap.has(P_VELOCITY) && parameterMap.has(P_POSITION)) {
             const position = parameterMap.getVec3ArrayValue(P_POSITION);
             const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
             VFXVec3Array.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);

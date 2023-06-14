@@ -24,11 +24,12 @@
  */
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../parameters';
+import { VFXEmitter } from '../vfx-emitter';
 
 const spawnInfo = new SpawnInfo();
 
@@ -49,13 +50,15 @@ export class SpawnRateModule extends VFXModule {
 
     public set rate (val) {
         this._rate = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.rate.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.rate.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap)  {

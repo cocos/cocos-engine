@@ -24,6 +24,7 @@
  */
 import { Vec3, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
+import { VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -32,43 +33,78 @@ import { Vec3Expression } from './vec3';
 @ccclass('cc.MakeVec3Expression')
 export class MakeVec3Expression extends Vec3Expression {
     @type(FloatExpression)
-    @serializable
-    public x: FloatExpression = new ConstantFloatExpression();
+    public get x () {
+        if (!this._x) {
+            this._x = new ConstantFloatExpression();
+        }
+        return this._x;
+    }
+
+    public set x (val) {
+        this._x = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
-    @serializable
-    public y: FloatExpression = new ConstantFloatExpression();
+    public get y () {
+        if (!this._y) {
+            this._y = new ConstantFloatExpression();
+        }
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
+    public get z () {
+        if (!this._z) {
+            this._z = new ConstantFloatExpression();
+        }
+        return this._z;
+    }
+
+    public set z (val) {
+        this._z = val;
+        this.requireRecompile();
+    }
+
     @serializable
-    public z: FloatExpression = new ConstantFloatExpression();
+    private _x: FloatExpression | null = null;
+    @serializable
+    private _y: FloatExpression | null = null;
+    @serializable
+    private _z: FloatExpression | null = null;
 
     public get isConstant (): boolean {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.x.tick(parameterMap);
-        this.y.tick(parameterMap);
-        this.z.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.x.compile(parameterMap, owner);
+        this.y.compile(parameterMap, owner);
+        this.z.compile(parameterMap, owner);
     }
     public bind (parameterMap: VFXParameterMap) {
-        this.x.bind(parameterMap);
-        this.y.bind(parameterMap);
-        this.z.bind(parameterMap);
+        this._x!.bind(parameterMap);
+        this._y!.bind(parameterMap);
+        this._z!.bind(parameterMap);
     }
 
     public evaluate (index: number, out: Vec3) {
-        out.x = this.x.evaluate(index);
-        out.y = this.y.evaluate(index);
-        out.z = this.z.evaluate(index);
+        out.x = this._x!.evaluate(index);
+        out.y = this._y!.evaluate(index);
+        out.z = this._z!.evaluate(index);
         return out;
     }
 
     public evaluateSingle (out: Vec3) {
-        out.x = this.x.evaluateSingle();
-        out.y = this.y.evaluateSingle();
-        out.z = this.z.evaluateSingle();
+        out.x = this._x!.evaluateSingle();
+        out.y = this._y!.evaluateSingle();
+        out.z = this._z!.evaluateSingle();
         return out;
     }
 }

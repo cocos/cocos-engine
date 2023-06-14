@@ -24,9 +24,10 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { P_NORMALIZED_AGE, P_IS_DEAD, P_INV_LIFETIME, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 export enum LifetimeElapsedOperation {
     KILL,
@@ -39,15 +40,25 @@ export enum LifetimeElapsedOperation {
 export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
-    @serializable
-    public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
+    public get lifetimeElapsedOperation () {
+        return this._lifetimeElapsedOperation;
+    }
 
-    public tick (parameterMap: VFXParameterMap) {
-        if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
-            parameterMap.ensureParameter(P_IS_DEAD);
+    public set lifetimeElapsedOperation (val) {
+        this._lifetimeElapsedOperation = val;
+        this.requireRecompile();
+    }
+
+    @serializable
+    private _lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
+
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
+            parameterMap.ensure(P_IS_DEAD);
         }
-        parameterMap.ensureParameter(P_NORMALIZED_AGE);
-        parameterMap.ensureParameter(P_INV_LIFETIME);
+        parameterMap.ensure(P_NORMALIZED_AGE);
+        parameterMap.ensure(P_INV_LIFETIME);
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -56,14 +67,14 @@ export class StateModule extends VFXModule {
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
+        if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {
                     normalizedAge[particleHandle] -= 1;
                 }
             }
-        } else if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KEEP) {
+        } else if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.KEEP) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {

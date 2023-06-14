@@ -24,10 +24,11 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_RIBBON_WIDTH, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 @ccclass('cc.ScaleRibbonWidthModule')
 @VFXModule.register('ScaleRibbonWidth', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
@@ -45,17 +46,19 @@ export class ScaleRibbonWidthModule extends VFXModule {
 
     public set scalar (val) {
         this._scalar = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _scalar: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_RIBBON_WIDTH);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_RIBBON_WIDTH);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_RIBBON_WIDTH);
+            parameterMap.ensure(P_BASE_RIBBON_WIDTH);
         }
-        this.scalar.tick(parameterMap);
+        this.scalar.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

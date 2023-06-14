@@ -26,9 +26,9 @@
 import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEmitterState } from '../vfx-emitter';
+import { VFXEmitter, VFXEmitterState } from '../vfx-emitter';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -376,9 +376,15 @@ export enum Quality {
 @ccclass('cc.CurlNoiseForceModule')
 @VFXModule.register('CurlNoiseForce', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [])
 export class CurlNoiseForceModule extends VFXModule {
-    @serializable
     @visible(true)
-    public separateAxes = false;
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     @type(Vec3Expression)
     @visible(function (this: CurlNoiseForceModule) { return this.separateAxes; })
@@ -391,6 +397,7 @@ export class CurlNoiseForceModule extends VFXModule {
 
     public set strength (value) {
         this._strength = value;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -404,6 +411,7 @@ export class CurlNoiseForceModule extends VFXModule {
 
     public set uniformStrength (val) {
         this._uniformStrength = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -416,6 +424,7 @@ export class CurlNoiseForceModule extends VFXModule {
     }
     public set frequency (value) {
         this._frequency = value;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -428,21 +437,29 @@ export class CurlNoiseForceModule extends VFXModule {
 
     public set panSpeed (val) {
         this._panSpeed = val;
+        this.requireRecompile();
     }
 
-    @type(Enum(Algorithm))
-    @visible(true)
-    @serializable
-    public algorithm = Algorithm.PERLIN;
-
     @type(Enum(Quality))
-    @serializable
     @visible(true)
-    public quality = Quality.HIGH;
+    public get quality () {
+        return this._quality;
+    }
 
-    @serializable
+    public set quality (val) {
+        this._quality = val;
+        this.requireRecompile();
+    }
+
     @visible(true)
-    public enableRemap = false;
+    public get enableRemap () {
+        return this._enableRemap;
+    }
+
+    public set enableRemap (val) {
+        this._enableRemap = val;
+        this.requireRecompile();
+    }
 
     @type(RealCurve)
     @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
@@ -454,6 +471,7 @@ export class CurlNoiseForceModule extends VFXModule {
     }
     public set remapX (value) {
         this._remapX = value;
+        this.requireRecompile();
     }
 
     @type(RealCurve)
@@ -466,6 +484,7 @@ export class CurlNoiseForceModule extends VFXModule {
     }
     public set remapY (value) {
         this._remapY = value;
+        this.requireRecompile();
     }
 
     @type(RealCurve)
@@ -478,6 +497,7 @@ export class CurlNoiseForceModule extends VFXModule {
     }
     public set remapZ (value) {
         this._remapZ = value;
+        this.requireRecompile();
     }
 
     @type(RealCurve)
@@ -503,6 +523,12 @@ export class CurlNoiseForceModule extends VFXModule {
     private _remapY: RealCurve | null = null;
     @serializable
     private _remapZ: RealCurve | null = null;
+    @serializable
+    private _separateAxes = false;
+    @serializable
+    private _quality = Quality.HIGH;
+    @serializable
+    private _enableRemap = false;
 
     private _offset = new Vec3();
 
@@ -512,16 +538,17 @@ export class CurlNoiseForceModule extends VFXModule {
         this._offset.multiplyScalar(100);
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_PHYSICS_FORCE);
-        if (this.separateAxes) {
-            this.strength.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_POSITION);
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_PHYSICS_FORCE);
+        if (this._separateAxes) {
+            this.strength.compile(parameterMap, this);
         } else {
-            this.uniformStrength.tick(parameterMap);
+            this.uniformStrength.compile(parameterMap, this);
         }
-        this.panSpeed.tick(parameterMap);
+        this.panSpeed.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -534,8 +561,8 @@ export class CurlNoiseForceModule extends VFXModule {
         const uniformStrengthExp = this._uniformStrength as FloatExpression;
         const panSpeedExp = this._panSpeed as Vec3Expression;
         const offset = this._offset;
-        const separateAxes = this.separateAxes;
-        const remap = this.enableRemap;
+        const separateAxes = this._separateAxes;
+        const remap = this._enableRemap;
         if (separateAxes) {
             strengthExp.bind(parameterMap);
         } else {
@@ -545,7 +572,7 @@ export class CurlNoiseForceModule extends VFXModule {
         frequencyExp.bind(parameterMap);
 
         // eslint-disable-next-line no-lonely-if
-        if (this.quality === Quality.HIGH) {
+        if (this._quality === Quality.HIGH) {
             for (let i = fromIndex; i < toIndex; i++) {
                 panSpeedExp.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
@@ -558,7 +585,7 @@ export class CurlNoiseForceModule extends VFXModule {
                 this.remapAndScale(separateAxes, remap, i, temp1);
                 physicsForce.addVec3At(temp1, i);
             }
-        } else if (this.quality === Quality.MIDDLE) {
+        } else if (this._quality === Quality.MIDDLE) {
             for (let i = fromIndex; i < toIndex; i++) {
                 panSpeedExp.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);

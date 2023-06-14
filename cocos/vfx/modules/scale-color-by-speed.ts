@@ -24,10 +24,11 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -45,6 +46,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
 
     public set minScalar (val) {
         this._minScalar = val;
+        this.requireRecompile();
     }
 
     @type(ColorExpression)
@@ -55,6 +57,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
 
     public set maxScalar (val) {
         this._maxScalar = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -66,6 +69,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
 
     public set minSpeedThreshold (val) {
         this._minSpeedThreshold = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -77,6 +81,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
 
     public set maxSpeedThreshold (val) {
         this._maxSpeedThreshold = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -88,16 +93,17 @@ export class ScaleColorBySpeedModule extends VFXModule {
     @serializable
     private _maxSpeedThreshold: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_COLOR);
-        this.maxScalar.tick(parameterMap);
-        this.minScalar.tick(parameterMap);
-        this.minSpeedThreshold.tick(parameterMap);
-        this.maxSpeedThreshold.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_COLOR);
+        this.maxScalar.compile(parameterMap, this);
+        this.minScalar.compile(parameterMap, this);
+        this.minSpeedThreshold.compile(parameterMap, this);
+        this.maxSpeedThreshold.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
+        const hasVelocity = parameterMap.has(P_VELOCITY);
         if (!hasVelocity) { return; }
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;

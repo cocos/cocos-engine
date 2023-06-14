@@ -24,11 +24,12 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_PHYSICS_FORCE, P_POSITION, P_BASE_VELOCITY, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
@@ -44,17 +45,19 @@ export class GravityModule extends VFXModule {
 
     public set gravity (val) {
         this._gravity = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _gravity: Vec3Expression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(P_BASE_VELOCITY);
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_PHYSICS_FORCE);
-        this.gravity.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_POSITION);
+        parameterMap.ensure(P_BASE_VELOCITY);
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_PHYSICS_FORCE);
+        this.gravity.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

@@ -26,9 +26,10 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempScalar = new Vec3();
 const tempVelocity = new Vec3();
@@ -37,15 +38,27 @@ const tempVelocity = new Vec3();
 @VFXModule.register('ScaleVelocity', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
 export class ScaleVelocityModule extends VFXModule {
     @type(Enum(CoordinateSpace))
-    @serializable
-    public coordinateSpace = CoordinateSpace.LOCAL;
+    public get coordinateSpace () {
+        return this._coordinateSpace;
+    }
+
+    public set coordinateSpace (val) {
+        this._coordinateSpace = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
-    @serializable
     @type(CCBoolean)
-    public separateAxes = false;
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh 速度修正系数。
@@ -61,6 +74,7 @@ export class ScaleVelocityModule extends VFXModule {
 
     public set scalar (val) {
         this._scalar = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -74,19 +88,25 @@ export class ScaleVelocityModule extends VFXModule {
 
     public set uniformScalar (val) {
         this._uniformScalar = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _scalar: Vec3Expression | null = null;
     @serializable
     private _uniformScalar: FloatExpression | null = null;
+    @serializable
+    private _separateAxes = false;
+    @serializable
+    private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_VELOCITY);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_VELOCITY);
         if (this.separateAxes) {
-            this.scalar.tick(parameterMap);
+            this.scalar.compile(parameterMap, this);
         } else {
-            this.uniformScalar.tick(parameterMap);
+            this.uniformScalar.compile(parameterMap, this);
         }
     }
 

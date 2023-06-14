@@ -25,8 +25,9 @@
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { FloatExpression } from './float';
-import { VFXParameter, VFXParameterNamespace } from '../vfx-parameter';
+import { VFXParameter } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
@@ -37,6 +38,7 @@ export class BindingFloatExpression extends FloatExpression {
 
     set bindingParameter (val) {
         this._bindingParameter = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -46,7 +48,7 @@ export class BindingFloatExpression extends FloatExpression {
     private _getFloat = this._getConstant;
 
     public get isConstant (): boolean {
-        return this._bindingParameter?.namespace !== VFXParameterNamespace.PARTICLE;
+        return this._bindingParameter?.isArray !== true;
     }
 
     private _getConstant (index: number): number {
@@ -62,9 +64,10 @@ export class BindingFloatExpression extends FloatExpression {
         this._bindingParameter = vfxParameterIdentity;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        if (this._bindingParameter?.namespace === VFXParameterNamespace.PARTICLE) {
-            parameterMap.ensureParameter(this._bindingParameter);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        if (this._bindingParameter) {
+            parameterMap.ensure(this._bindingParameter);
         }
     }
 
@@ -74,24 +77,12 @@ export class BindingFloatExpression extends FloatExpression {
             this._constant = 0;
             return;
         }
-        switch (this._bindingParameter.namespace) {
-        case VFXParameterNamespace.PARTICLE:
-            this._data = parameterMap.getFloatArrayVale(this._bindingParameter).data;
+        if (this._bindingParameter.isArray) {
             this._getFloat = this._getFloatAt;
-            break;
-        case VFXParameterNamespace.EMITTER:
-            this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
+            this._data = parameterMap.getFloatArrayVale(this._bindingParameter).data;
+        } else {
             this._getFloat = this._getConstant;
-            break;
-        case VFXParameterNamespace.USER:
             this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
-            this._getFloat = this._getConstant;
-            break;
-        case VFXParameterNamespace.CONTEXT:
-            this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
-            this._getFloat = this._getConstant;
-            break;
-        default:
         }
     }
 

@@ -31,26 +31,34 @@ import { FloatExpression } from './float';
 export class ConstantFloatExpression extends FloatExpression {
     @type(CCFloat)
     @visible(true)
-    @serializable
-    public value = 0;
+    public get value () {
+        return this._value;
+    }
+
+    public set value (val) {
+        this._value = val;
+        this.requireRecompile();
+    }
 
     public get isConstant () {
         return true;
     }
+
+    @serializable
+    private _value = 0;
 
     constructor (value = 0) {
         super();
         this.value = value;
     }
 
-    public tick (parameterMap: VFXParameterMap) {}
     public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number): number {
-        return this.value;
+        return this._value;
     }
 
     public evaluateSingle (): number {
-        return this.value;
+        return this._value;
     }
 }

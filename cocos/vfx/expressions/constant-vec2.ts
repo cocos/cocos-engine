@@ -30,16 +30,33 @@ import { Vec2Expression } from './vec2';
 @ccclass('cc.ConstantVec2Expression')
 export class ConstantVec2Expression extends Vec2Expression {
     @type(CCFloat)
-    @serializable
-    public x = 0;
+    public get x () {
+        return this._x;
+    }
+
+    public set x (val) {
+        this._x = val;
+        this.requireRecompile();
+    }
 
     @type(CCFloat)
-    @serializable
-    public y = 0;
+    public get y () {
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return true;
     }
+
+    @serializable
+    private _x = 0;
+    @serializable
+    private _y = 0;
 
     constructor (val: Vec2 = Vec2.ZERO) {
         super();
@@ -47,18 +64,17 @@ export class ConstantVec2Expression extends Vec2Expression {
         this.y = val.y;
     }
 
-    public tick (parameterMap: VFXParameterMap) {}
     public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number, out: Vec2) {
-        out.x = this.x;
-        out.y = this.y;
+        out.x = this._x;
+        out.y = this._y;
         return out;
     }
 
     public evaluateSingle (out: Vec2) {
-        out.x = this.x;
-        out.y = this.y;
+        out.x = this._x;
+        out.y = this._y;
         return out;
     }
 }

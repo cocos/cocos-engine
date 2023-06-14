@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { RandomStream } from '../random-stream';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
-import { VFXExecutionStage } from '../vfx-module';
+import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -37,32 +37,55 @@ const tempRatio = new Vec3();
 @ccclass('cc.RandomRangeVec3')
 export class RandomRangeVec3Expression extends Vec3Expression {
     @type(Vec3Expression)
-    @serializable
-    public maximum: Vec3Expression = new ConstantVec3Expression();
+    public get maximum () {
+        if (!this._maximum) {
+            this._maximum = new ConstantVec3Expression();
+        }
+        return this._maximum;
+    }
+
+    public set maximum (val) {
+        this._maximum = val;
+        this.requireRecompile();
+    }
 
     @type(Vec3Expression)
-    @serializable
-    public minimum: Vec3Expression = new ConstantVec3Expression();
+    public get minimum () {
+        if (!this._minimum) {
+            this._minimum = new ConstantVec3Expression();
+        }
+        return this._minimum;
+    }
+
+    public set minimum (val) {
+        this._minimum = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return false;
     }
 
+    @serializable
+    private _maximum: Vec3Expression | null = null;
+    @serializable
+    private _minimum: Vec3Expression | null = null;
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.maximum.tick(parameterMap);
-        this.minimum.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.maximum.compile(parameterMap, owner);
+        this.minimum.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.UPDATE) {
-            parameterMap.ensureParameter(P_RANDOM_SEED);
+            parameterMap.ensure(P_RANDOM_SEED);
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.maximum.bind(parameterMap);
-        this.minimum.bind(parameterMap);
+        this._maximum!.bind(parameterMap);
+        this._minimum!.bind(parameterMap);
         if (this.usage === VFXExecutionStage.UPDATE) {
             this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
             this._randomOffset = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED).data;
@@ -72,8 +95,8 @@ export class RandomRangeVec3Expression extends Vec3Expression {
     }
 
     public evaluate (index: number, out: Vec3) {
-        this.minimum.evaluate(index, out);
-        this.maximum.evaluate(index, temp);
+        this._minimum!.evaluate(index, out);
+        this._maximum!.evaluate(index, temp);
         const ratio = RandomStream.get3Float(this._seed[index] + this._randomOffset, tempRatio);
         out.x = lerp(out.x, temp.x, ratio.x);
         out.y = lerp(out.y, temp.y, ratio.y);
@@ -82,8 +105,8 @@ export class RandomRangeVec3Expression extends Vec3Expression {
     }
 
     public evaluateSingle (out: Vec3) {
-        this.minimum.evaluateSingle(out);
-        this.maximum.evaluateSingle(temp);
+        this._minimum!.evaluateSingle(out);
+        this._maximum!.evaluateSingle(temp);
         out.x = lerp(out.x, temp.x, this._randomStream.getFloat());
         out.y = lerp(out.y, temp.y, this._randomStream.getFloat());
         out.z = lerp(out.z, temp.z, this._randomStream.getFloat());

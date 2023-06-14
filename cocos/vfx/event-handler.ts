@@ -25,11 +25,11 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { BitMask, Enum, CCFloat } from '../core';
 import { VFXEmitter } from './vfx-emitter';
-import { VFXExecutionStage, VFXModuleStage } from './vfx-module';
+import { VFXExecutionStage, VFXStage } from './vfx-module';
 import { InheritedProperty, VFXEventType } from './define';
 
 @ccclass('cc.EventHandler')
-export class EventHandler extends VFXModuleStage {
+export class EventHandler extends VFXStage {
     @visible(true)
     @serializable
     public target: VFXEmitter | null = null;

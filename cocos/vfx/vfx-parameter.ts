@@ -46,13 +46,6 @@ export enum VFXValueType {
     SPAWN_INFO,
 }
 
-export enum VFXParameterNamespace {
-    EMITTER,
-    PARTICLE,
-    USER,
-    CONTEXT
-}
-
 @ccclass('cc.VFXParameter')
 export class VFXParameter {
     public get id () {
@@ -87,11 +80,11 @@ export class VFXParameter {
     @serializable
     private _type: VFXValueType = VFXValueType.FLOAT;
     @serializable
-    private _namespace: VFXParameterNamespace = VFXParameterNamespace.USER;
+    private _namespace = '';
     @serializable
     private _isArray = false;
 
-    constructor (id: number, name: string, type: VFXValueType, namespace: VFXParameterNamespace, isArray: boolean) {
+    constructor (id: number, name: string, type: VFXValueType, namespace: string, isArray: boolean) {
         this._id = id;
         this._name = name;
         this._type = type;

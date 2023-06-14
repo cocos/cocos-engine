@@ -24,6 +24,7 @@
  */
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
+import { VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
@@ -40,12 +41,27 @@ export enum Vec3Channel {
 @ccclass('cc.MakeFloatFromVec3Expression')
 export class MakeFloatFromVec3Expression extends FloatExpression {
     @type(Vec3Expression)
-    @serializable
-    public vec3 = new ConstantVec3Expression();
+    public get vec3 () {
+        if (!this._vec3) {
+            this._vec3 = new ConstantVec3Expression();
+        }
+        return this._vec3;
+    }
+
+    public set vec3 (val) {
+        this._vec3 = val;
+        this.requireRecompile();
+    }
 
     @type(Enum(Vec3Channel))
-    @serializable
-    public channel = Vec3Channel.X;
+    public get channel () {
+        return this._channel;
+    }
+
+    public set channel (val) {
+        this._channel = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return this.vec3.isConstant;
@@ -65,8 +81,14 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         return vec3.z;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.vec3.tick(parameterMap);
+    @serializable
+    private _channel = Vec3Channel.X;
+    @serializable
+    private _vec3: Vec3Expression | null = null;
+
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.vec3.compile(parameterMap, owner);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
         case Vec3Channel.Y: this._getChannel = this._getY; break;
@@ -76,21 +98,16 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.vec3.bind(parameterMap);
+        this._vec3!.bind(parameterMap);
     }
 
     public evaluate (index: number): number {
-        this.vec3.evaluate(index, temp);
+        this._vec3!.evaluate(index, temp);
         return this._getChannel(temp);
     }
 
     public evaluateSingle (): number {
-        this.vec3.evaluateSingle(temp);
-        switch (this.channel) {
-        case Vec3Channel.X: return temp.x;
-        case Vec3Channel.Y: return temp.y;
-        case Vec3Channel.Z: return temp.z;
-        default: return temp.x;
-        }
+        this._vec3!.evaluateSingle(temp);
+        return this._getChannel(temp);
     }
 }

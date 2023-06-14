@@ -28,16 +28,16 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT, E_SPAWN_REMAINDER, E_SPAWN_REMAINDER_PER_UNIT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode } from './define';
+import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT, E_SPAWN_REMAINDER, E_SPAWN_REMAINDER_PER_UNIT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode, VFXBuiltinNamespace } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { VFXModuleStage, VFXExecutionStage } from './vfx-module';
+import { VFXStage, VFXExecutionStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
 import { RandomStream } from './random-stream';
-import { SpawnInfo, VFXEventInfo } from './parameters';
+import { SpawnInfo, VFXEventInfo } from './data';
 import { VFXArray, Handle } from './vfx-parameter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
@@ -371,19 +371,19 @@ export class VFXEmitter extends Component {
     }
 
     @displayName('发射器更新')
-    @type(VFXModuleStage)
+    @type(VFXStage)
     public get emitterStage () {
         return this._emitterStage;
     }
 
     @displayName('粒子生成')
-    @type(VFXModuleStage)
+    @type(VFXStage)
     public get spawnStage () {
         return this._spawnStage;
     }
 
     @displayName('粒子更新')
-    @type(VFXModuleStage)
+    @type(VFXStage)
     public get updateStage () {
         return this._updateStage;
     }
@@ -428,11 +428,11 @@ export class VFXEmitter extends Component {
     }
 
     @serializable
-    private _emitterStage = new VFXModuleStage(VFXExecutionStage.EMITTER);
+    private _emitterStage = new VFXStage(VFXExecutionStage.EMITTER);
     @serializable
-    private _spawnStage = new VFXModuleStage(VFXExecutionStage.SPAWN);
+    private _spawnStage = new VFXStage(VFXExecutionStage.SPAWN);
     @serializable
-    private _updateStage = new VFXModuleStage(VFXExecutionStage.UPDATE);
+    private _updateStage = new VFXStage(VFXExecutionStage.UPDATE);
     @serializable
     private _eventHandlers: EventHandler[] = [];
     @serializable
@@ -471,6 +471,11 @@ export class VFXEmitter extends Component {
     private _parameterMap = new VFXParameterMap();
     private _particleCapacity = 16;
     private _particleCount = 0;
+    private _needToRecompile = true;
+
+    public requireRecompile () {
+        this._needToRecompile = true;
+    }
 
     /**
      * @en play particle system
@@ -543,6 +548,7 @@ export class VFXEmitter extends Component {
         const eventHandler = new EventHandler();
         this._eventHandlers.push(eventHandler);
         this._eventHandlerCount++;
+        this.requireRecompile();
         return eventHandler;
     }
 
@@ -555,6 +561,7 @@ export class VFXEmitter extends Component {
         assertIsTrue(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
         this._eventHandlers.splice(index, 1);
         this._eventHandlerCount--;
+        this.requireRecompile();
     }
 
     public addRenderer<T extends ParticleRenderer> (Type: Constructor<T>): T {
@@ -618,16 +625,16 @@ export class VFXEmitter extends Component {
     private tick (deltaTime: number) {
         const parameterMap = this._parameterMap;
         const state = this._state;
+        const particleCount = this._particleCount;
+        this.compile(parameterMap);
         parameterMap.getUint32Value(C_EVENT_COUNT).data = 0;
         parameterMap.getFloatValue(C_DELTA_TIME).data = deltaTime;
-        this.preTick(parameterMap);
+        parameterMap.getUint32Value(C_FROM_INDEX).data = 0;
+        parameterMap.getUint32Value(C_TO_INDEX).data = particleCount;
 
         this.updateEmitterState(parameterMap);
         this._emitterStage.execute(parameterMap);
-        const particleCount = this._particleCount;
         if (particleCount > 0) {
-            parameterMap.getUint32Value(C_FROM_INDEX).data = 0;
-            parameterMap.getUint32Value(C_TO_INDEX).data = particleCount;
             this.resetAnimatedState(parameterMap, 0, particleCount);
             this._updateStage.execute(parameterMap);
         }
@@ -656,32 +663,43 @@ export class VFXEmitter extends Component {
     }
 
     private compile (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(C_DELTA_TIME);
-        parameterMap.ensureParameter(C_FROM_INDEX);
-        parameterMap.ensureParameter(C_TO_INDEX);
-        parameterMap.ensureParameter(C_EVENTS);
-        parameterMap.ensureParameter(C_EVENT_COUNT);
-        parameterMap.ensureParameter(E_IS_WORLD_SPACE);
-        parameterMap.ensureParameter(E_CURRENT_DELAY);
-        parameterMap.ensureParameter(E_AGE);
-        parameterMap.ensureParameter(E_LOOPED_AGE);
-        parameterMap.ensureParameter(E_NORMALIZED_LOOP_AGE);
-        parameterMap.ensureParameter(E_CURRENT_LOOP_COUNT);
-        parameterMap.ensureParameter(E_SPAWN_REMAINDER);
-        parameterMap.ensureParameter(E_SPAWN_REMAINDER_PER_UNIT);
-        parameterMap.ensureParameter(E_VELOCITY);
-        parameterMap.ensureParameter(E_LOCAL_TO_WORLD);
-        parameterMap.ensureParameter(E_WORLD_TO_LOCAL);
-        parameterMap.ensureParameter(E_LOCAL_TO_WORLD_RS);
-        parameterMap.ensureParameter(E_WORLD_TO_LOCAL_RS);
-        parameterMap.ensureParameter(E_LOCAL_ROTATION);
-        parameterMap.ensureParameter(E_WORLD_ROTATION);
-        parameterMap.ensureParameter(E_RENDER_SCALE);
-        parameterMap.ensureParameter(E_SIMULATION_POSITION);
-        parameterMap.ensureParameter(E_POSITION);
-        parameterMap.ensureParameter(E_SPAWN_INFOS);
-        parameterMap.ensureParameter(E_SPAWN_INFO_COUNT);
+        if (this._needToRecompile) {
+            parameterMap.ensure(P_POSITION);
+            parameterMap.ensure(C_DELTA_TIME);
+            parameterMap.ensure(C_FROM_INDEX);
+            parameterMap.ensure(C_TO_INDEX);
+            parameterMap.ensure(C_EVENT_COUNT);
+            parameterMap.ensure(E_IS_WORLD_SPACE);
+            parameterMap.ensure(E_CURRENT_DELAY);
+            parameterMap.ensure(E_AGE);
+            parameterMap.ensure(E_LOOPED_AGE);
+            parameterMap.ensure(E_NORMALIZED_LOOP_AGE);
+            parameterMap.ensure(E_CURRENT_LOOP_COUNT);
+            parameterMap.ensure(E_SPAWN_REMAINDER);
+            parameterMap.ensure(E_SPAWN_REMAINDER_PER_UNIT);
+            parameterMap.ensure(E_VELOCITY);
+            parameterMap.ensure(E_LOCAL_TO_WORLD);
+            parameterMap.ensure(E_WORLD_TO_LOCAL);
+            parameterMap.ensure(E_LOCAL_TO_WORLD_RS);
+            parameterMap.ensure(E_WORLD_TO_LOCAL_RS);
+            parameterMap.ensure(E_LOCAL_ROTATION);
+            parameterMap.ensure(E_WORLD_ROTATION);
+            parameterMap.ensure(E_RENDER_SCALE);
+            parameterMap.ensure(E_SIMULATION_POSITION);
+            parameterMap.ensure(E_POSITION);
+            parameterMap.ensure(E_SPAWN_INFOS);
+            parameterMap.ensure(E_SPAWN_INFO_COUNT);
+            this._emitterStage.compile(parameterMap, this);
+            this._spawnStage.compile(parameterMap, this);
+            this._updateStage.compile(parameterMap, this);
+            if (this._eventHandlerCount > 0) {
+                for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
+                    this._eventHandlers[i].compile(parameterMap, this);
+                }
+            }
+            this.reserveParticleParameter(this._particleCapacity);
+            this._needToRecompile = false;
+        }
     }
 
     /**
@@ -777,17 +795,6 @@ export class VFXEmitter extends Component {
         }
     }
 
-    private preTick (parameterMap: VFXParameterMap) {
-        this._emitterStage.tick(parameterMap);
-        this._spawnStage.tick(parameterMap);
-        this._updateStage.tick(parameterMap);
-        if (this._eventHandlerCount > 0) {
-            for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
-                this._eventHandlers[i].tick(parameterMap);
-            }
-        }
-    }
-
     private updateBounds () {
         if (this.boundsMode === BoundsMode.FIXED) {
             Vec3.copy(this._state.boundsMin, this._fixedBoundsMin);
@@ -796,11 +803,22 @@ export class VFXEmitter extends Component {
     }
 
     private removeDeadParticles (parameterMap: VFXParameterMap) {
-        if (parameterMap.hasParameter(P_IS_DEAD)) {
+        if (parameterMap.has(P_IS_DEAD)) {
+            const values = parameterMap.getValueEntriesWithNamespace(VFXBuiltinNamespace.PARTICLE);
+            const valueLength = values.length;
             const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD).data;
             for (let i = this._particleCount - 1; i >= 0; i--) {
                 if (isDead[i]) {
-                    this.removeParticle(i);
+                    const lastParticle = this._particleCount - 1;
+                    if (lastParticle !== i) {
+                        for (let i = 0; i < valueLength; i++) {
+                            const value = values[i];
+                            if (value.isArray) {
+                                (value as VFXArray).moveTo(lastParticle, i);
+                            }
+                        }
+                    }
+                    this._particleCount -= 1;
                 }
             }
         }
@@ -817,6 +835,9 @@ export class VFXEmitter extends Component {
             const eventHandler = this._eventHandlers[i];
             const target = eventHandler.target;
             if (target && target.isValid) {
+                if (!target._parameterMap.has(C_EVENTS)) {
+                    return;
+                }
                 const events = target._parameterMap.getEventArrayValue(C_EVENTS);
                 const eventCount = target._parameterMap.getUint32Value(C_EVENT_COUNT).data;
                 for (let i = 0; i < eventCount; i++) {
@@ -845,29 +866,29 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public resetAnimatedState (parameterMap: VFXParameterMap, fromIndex: number, toIndex: number) {
-        if (parameterMap.hasParameter(P_VELOCITY)) {
-            if (parameterMap.hasParameter(P_BASE_VELOCITY)) {
+        if (parameterMap.has(P_VELOCITY)) {
+            if (parameterMap.has(P_BASE_VELOCITY)) {
                 parameterMap.getVec3ArrayValue(P_VELOCITY).copyFrom(parameterMap.getVec3ArrayValue(P_BASE_VELOCITY), fromIndex, toIndex);
             } else {
                 parameterMap.getVec3ArrayValue(P_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
             }
         }
-        if (parameterMap.hasParameter(P_SCALE)) {
-            if (parameterMap.hasParameter(P_BASE_SCALE)) {
+        if (parameterMap.has(P_SCALE)) {
+            if (parameterMap.has(P_BASE_SCALE)) {
                 parameterMap.getVec3ArrayValue(P_SCALE).copyFrom(parameterMap.getVec3ArrayValue(P_BASE_SCALE), fromIndex, toIndex);
             } else {
                 parameterMap.getVec3ArrayValue(P_SCALE).fill(Vec3.ONE, fromIndex, toIndex);
             }
         }
-        if (parameterMap.hasParameter(P_SPRITE_SIZE)) {
-            if (parameterMap.hasParameter(P_BASE_SPRITE_SIZE)) {
+        if (parameterMap.has(P_SPRITE_SIZE)) {
+            if (parameterMap.has(P_BASE_SPRITE_SIZE)) {
                 parameterMap.getVec2ArrayValue(P_SPRITE_SIZE).copyFrom(parameterMap.getVec2ArrayValue(P_BASE_SPRITE_SIZE), fromIndex, toIndex);
             } else {
                 parameterMap.getVec2ArrayValue(P_SPRITE_SIZE).fill(Vec2.ONE, fromIndex, toIndex);
             }
         }
-        if (parameterMap.hasParameter(P_COLOR)) {
-            if (parameterMap.hasParameter(P_BASE_COLOR)) {
+        if (parameterMap.has(P_COLOR)) {
+            if (parameterMap.has(P_BASE_COLOR)) {
                 parameterMap.getColorArrayValue(P_COLOR).copyFrom(parameterMap.getColorArrayValue(P_BASE_COLOR), fromIndex, toIndex);
             } else {
                 parameterMap.getColorArrayValue(P_COLOR).fill(Color.WHITE, fromIndex, toIndex);
@@ -888,37 +909,37 @@ export class VFXEmitter extends Component {
         this.addNewParticles(spawnCount);
         const numSpawned = this._particleCount - fromIndex;
         const toIndex = this._particleCount;
-        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const hasPosition = parameterMap.has(P_POSITION);
         if (hasPosition) {
             const simulationPosition = parameterMap.getVec3Value(E_SIMULATION_POSITION).data;
             parameterMap.getVec3ArrayValue(P_POSITION).fill(simulationPosition, fromIndex, toIndex);
         }
 
-        if (parameterMap.hasParameter(P_BASE_VELOCITY)) {
+        if (parameterMap.has(P_BASE_VELOCITY)) {
             parameterMap.getVec3ArrayValue(P_BASE_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_MESH_ORIENTATION)) {
+        if (parameterMap.has(P_MESH_ORIENTATION)) {
             parameterMap.getVec3ArrayValue(P_MESH_ORIENTATION).fill(Vec3.ZERO, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_BASE_SCALE)) {
+        if (parameterMap.has(P_BASE_SCALE)) {
             parameterMap.getVec3ArrayValue(P_BASE_SCALE).fill(Vec3.ONE, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_BASE_COLOR)) {
+        if (parameterMap.has(P_BASE_COLOR)) {
             parameterMap.getColorArrayValue(P_BASE_COLOR).fill(initialColor, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_INV_LIFETIME)) {
+        if (parameterMap.has(P_INV_LIFETIME)) {
             parameterMap.getFloatArrayVale(P_INV_LIFETIME).fill(1, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_NORMALIZED_AGE)) {
+        if (parameterMap.has(P_NORMALIZED_AGE)) {
             parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).fill(0, fromIndex, toIndex);
         }
-        if (parameterMap.hasParameter(P_ID)) {
+        if (parameterMap.has(P_ID)) {
             const id = parameterMap.getUint32ArrayValue(P_ID).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 id[i] = ++this._state.maxParticleId;
             }
         }
-        if (parameterMap.hasParameter(P_RANDOM_SEED)) {
+        if (parameterMap.has(P_RANDOM_SEED)) {
             const randomSeed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
             const randomStream = this._state.randomStream;
             for (let i = fromIndex; i < toIndex; i++) {
@@ -983,33 +1004,15 @@ export class VFXEmitter extends Component {
         }
     }
 
-    private removeParticle (handle: Handle) {
-        if (DEBUG) {
-            assertIsTrue(handle >= 0 && handle < this._particleCount);
-        }
-        const parameterMap = this._parameterMap;
-        const lastParticle = this._particleCount - 1;
-        if (lastParticle !== handle) {
-            const parameters = parameterMap.parameters;
-            for (let i = 0, length = parameterMap.parameterCount; i < length; i++) {
-                const parameter = parameters[i];
-                if (parameter.isArray) {
-                    (parameter as VFXArray).moveTo(lastParticle, handle);
-                }
-            }
-        }
-        this._particleCount -= 1;
-    }
-
     private reserveParticleParameter (capacity: number) {
         if (capacity <= this._particleCapacity) return;
         const parameterMap = this._parameterMap;
         this._particleCapacity = capacity;
-        const parameters = parameterMap.parameters;
-        for (let i = 0, length = parameterMap.parameterCount; i < length; i++) {
-            const parameter = parameters[i];
-            if (parameter.isArray) {
-                (parameter as VFXArray).reserve(capacity);
+        const values = parameterMap.getValueEntriesWithNamespace(VFXBuiltinNamespace.PARTICLE);
+        for (let i = 0, length = values.length; i < length; i++) {
+            const value = values[i];
+            if (value.isArray) {
+                (value as VFXArray).reserve(capacity);
             }
         }
     }

@@ -24,18 +24,25 @@
  */
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
-import { VFXParameterMap } from '../../../exports/vfx';
+import { VFXEmitter, VFXParameterMap } from '../../../exports/vfx';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')
 @VFXModule.register('SetMeshScale', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_SCALE.name], [P_NORMALIZED_AGE.name])
 export class SetMeshScaleModule extends VFXModule {
-    @serializable
-    public separateAxes = false;
+    @visible(true)
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: SetMeshScaleModule): boolean { return !this.separateAxes; })
@@ -48,6 +55,7 @@ export class SetMeshScaleModule extends VFXModule {
 
     public set uniformScale (val) {
         this._uniformScale = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -61,23 +69,27 @@ export class SetMeshScaleModule extends VFXModule {
 
     public set scale (val) {
         this._scale = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _uniformScale: FloatExpression | null = null;
     @serializable
     private _scale: Vec3Expression | null = null;
+    @serializable
+    private _separateAxes = false;
 
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_SCALE);
+            parameterMap.ensure(P_BASE_SCALE);
         }
 
-        parameterMap.ensureParameter(P_SCALE);
+        parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.scale.tick(parameterMap);
+            this.scale.compile(parameterMap, this);
         } else {
-            this.uniformScale.tick(parameterMap);
+            this.uniformScale.compile(parameterMap, this);
         }
     }
 

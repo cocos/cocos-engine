@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
@@ -47,11 +47,18 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set radius (val) {
         this._radius = val;
+        this.requireRecompile();
     }
 
     @type(Enum(DistributionMode))
-    @serializable
-    public distributionMode = DistributionMode.RANDOM;
+    public get distributionMode () {
+        return this._distributionMode;
+    }
+
+    public set distributionMode (val) {
+        this._distributionMode = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: SphereLocationModule) { return this.distributionMode === DistributionMode.RANDOM; })
@@ -64,6 +71,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set surfaceDistribution (val) {
         this._surfaceDistribution = val;
+        this.requireRecompile();
     }
 
     @type(Vec2Expression)
@@ -77,6 +85,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set hemisphereDistribution (val) {
         this._hemisphereDistribution = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -90,6 +99,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set uPosition (val) {
         this._uPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -103,6 +113,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set vPosition (val) {
         this._vPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -116,6 +127,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set radiusPosition (val) {
         this._radiusPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -129,6 +141,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set uniformDistribution (val) {
         this._uniformDistribution = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -142,6 +155,7 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public set uniformSpiralAmount (val) {
         this._uniformSpiralAmount = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -160,20 +174,22 @@ export class SphereLocationModule extends ShapeLocationModule {
     private _uniformDistribution: FloatExpression | null = null;
     @serializable
     private _uniformSpiralAmount: FloatExpression | null = null;
+    @serializable
+    private _distributionMode = DistributionMode.RANDOM;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.radius.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.radius.compile(parameterMap, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(parameterMap);
-            this.hemisphereDistribution.tick(parameterMap);
+            this.surfaceDistribution.compile(parameterMap, this);
+            this.hemisphereDistribution.compile(parameterMap, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(parameterMap);
-            this.vPosition.tick(parameterMap);
-            this.radiusPosition.tick(parameterMap);
+            this.uPosition.compile(parameterMap, this);
+            this.vPosition.compile(parameterMap, this);
+            this.radiusPosition.compile(parameterMap, this);
         } else {
-            this.uniformDistribution.tick(parameterMap);
-            this.uniformSpiralAmount.tick(parameterMap);
+            this.uniformDistribution.compile(parameterMap, this);
+            this.uniformSpiralAmount.compile(parameterMap, this);
         }
     }
 

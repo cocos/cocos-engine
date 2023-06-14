@@ -2,7 +2,7 @@ import { EmitterDataSet } from "../../cocos/vfx/emitter-data-set";
 import { UserDataSet } from "../../cocos/vfx/user-data-set";
 import { VFXEmitterParams, VFXEmitterState, ContextDataSet } from "../../cocos/vfx/base";
 import { ParticleDataSet } from "../../cocos/vfx/particle-data-set";
-import { VFXExecutionStage, VFXExecutionStageFlags, VFXModule, VFXModuleStage } from "../../cocos/vfx/vfx-module";
+import { VFXExecutionStage, VFXExecutionStageFlags, VFXModule, VFXStage } from "../../cocos/vfx/vfx-module";
 import { RandomStream } from "../../cocos/vfx/random-stream";
 
 describe('VFXModule', () => {
@@ -250,21 +250,21 @@ describe('VFXModule', () => {
     })
 });
 
-describe('VFXModuleStage', () => {
+describe('VFXStage', () => {
     test('base', () => {
-        const stage = new VFXModuleStage();
+        const stage = new VFXStage();
         expect(stage.modules.length).toBe(0);
         expect(stage.execStage).toBe(VFXExecutionStage.UNKNOWN);
         
-        const stage2 = new VFXModuleStage(VFXExecutionStage.UPDATE);
+        const stage2 = new VFXStage(VFXExecutionStage.UPDATE);
         expect(stage2.modules.length).toBe(0);
         expect(stage2.execStage).toBe(VFXExecutionStage.UPDATE);
 
-        const stage4 = new VFXModuleStage(VFXExecutionStage.EMITTER);
+        const stage4 = new VFXStage(VFXExecutionStage.EMITTER);
         expect(stage4.modules.length).toBe(0);
         expect(stage4.execStage).toBe(VFXExecutionStage.EMITTER);
 
-        const stage5 = new VFXModuleStage(VFXExecutionStage.SPAWN);
+        const stage5 = new VFXStage(VFXExecutionStage.SPAWN);
         expect(stage5.modules.length).toBe(0);
         expect(stage5.execStage).toBe(VFXExecutionStage.SPAWN);
     });
@@ -295,7 +295,7 @@ describe('VFXModuleStage', () => {
                 throw new Error("Method not implemented.");
             }
         }
-        const emitterStage = new VFXModuleStage(VFXExecutionStage.EMITTER);
+        const emitterStage = new VFXStage(VFXExecutionStage.EMITTER);
         expect(emitterStage.modules.length).toBe(0);
         expect(() => emitterStage.addModule(TestModule)).toThrowError();
         expect(() => emitterStage.addModule(TestModule4)).toThrowError();
@@ -308,7 +308,7 @@ describe('VFXModuleStage', () => {
         expect(emitterStage.getModule(TestModule3)).toBeFalsy();
         expect(emitterStage.getModule(TestModule4)).toBeFalsy();
 
-        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
+        const stage = new VFXStage(VFXExecutionStage.UPDATE);
         expect(stage.modules.length).toBe(0);
         expect(stage.getModule(TestModule)).toBeFalsy();
         expect(stage.getModule(TestModule2)).toBeFalsy();
@@ -383,7 +383,7 @@ describe('VFXModuleStage', () => {
                 throw new Error("Method not implemented.");
             }
         }
-        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
+        const stage = new VFXStage(VFXExecutionStage.UPDATE);
         const module1 = stage.addModule(TestModule);
         const module2 = stage.addModule(TestModule);
         const module3 = stage.addModule(TestModule);
@@ -440,7 +440,7 @@ describe('VFXModuleStage', () => {
             }
         }
         const executeOrder: number[] = [];
-        const stage = new VFXModuleStage(VFXExecutionStage.UPDATE);
+        const stage = new VFXStage(VFXExecutionStage.UPDATE);
         const module1 = stage.addModule(TestModule);
         expect(module1.enabled).toBeTruthy();
         module1.enabled = false;
@@ -609,8 +609,8 @@ describe('VFXModuleStage', () => {
             }
         }
 
-        const updateStage = new VFXModuleStage(VFXExecutionStage.UPDATE);
-        const spawnStage = new VFXModuleStage(VFXExecutionStage.SPAWN);
+        const updateStage = new VFXStage(VFXExecutionStage.UPDATE);
+        const spawnStage = new VFXStage(VFXExecutionStage.SPAWN);
 
         const module1 = updateStage.addModule(TestModule);
         const module2 = spawnStage.addModule(TestModule);

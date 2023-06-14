@@ -24,6 +24,7 @@
  */
 import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
+import { VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -32,23 +33,36 @@ import { Vec3Expression } from './vec3';
 @ccclass('cc.Vec3FromFloatExpression')
 export class Vec3FromFloatExpression extends Vec3Expression {
     @type(FloatExpression)
-    @serializable
-    public value: FloatExpression = new ConstantFloatExpression();
+    public get value () {
+        if (!this._value) {
+            this._value = new ConstantFloatExpression();
+        }
+        return this._value;
+    }
+
+    public set value (val) {
+        this._value = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return this.value.isConstant;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.value.tick(parameterMap);
+    @serializable
+    private _value: FloatExpression | null = null;
+
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.value.compile(parameterMap, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.value.bind(parameterMap);
+        this._value!.bind(parameterMap);
     }
 
     public evaluate (index: number, out: Vec3) {
-        const val = this.value.evaluate(index);
+        const val = this._value!.evaluate(index);
         out.x = val;
         out.y = val;
         out.z = val;
@@ -56,7 +70,7 @@ export class Vec3FromFloatExpression extends Vec3Expression {
     }
 
     public evaluateSingle (out: Vec3): Vec3 {
-        const val = this.value.evaluateSingle();
+        const val = this._value!.evaluateSingle();
         out.x = val;
         out.y = val;
         out.z = val;

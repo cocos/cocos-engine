@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
@@ -47,14 +47,21 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set radius (val) {
         this._radius = val;
+        this.requireRecompile();
     }
 
     /**
       * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
       */
     @type(Enum(DistributionMode))
-    @serializable
-    public distributionMode = DistributionMode.RANDOM;
+    public get distributionMode () {
+        return this._distributionMode;
+    }
+
+    public set distributionMode (val) {
+        this._distributionMode = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: CircleLocationModule) {
@@ -69,6 +76,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set radiusCoverage (val) {
         this._radiusCoverage = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -84,6 +92,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set thetaCoverage (val) {
         this._thetaCoverage = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -99,6 +108,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set uPosition (val) {
         this._uPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -114,6 +124,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set radiusPosition (val) {
         this._radiusPosition = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -129,6 +140,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set uniformSpiralAmount (val) {
         this._uniformSpiralAmount = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -144,6 +156,7 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public set uniformSpiralFalloff (val) {
         this._uniformSpiralFalloff = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -160,16 +173,18 @@ export class CircleLocationModule extends ShapeLocationModule {
     private _uniformSpiralAmount: FloatExpression | null = null;
     @serializable
     private _uniformSpiralFalloff: FloatExpression | null = null;
+    @serializable
+    private _distributionMode: DistributionMode = DistributionMode.RANDOM;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.radius.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.radius.compile(parameterMap, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.radiusCoverage.tick(parameterMap);
-            this.thetaCoverage.tick(parameterMap);
+            this.radiusCoverage.compile(parameterMap, this);
+            this.thetaCoverage.compile(parameterMap, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(parameterMap);
-            this.radiusPosition.tick(parameterMap);
+            this.uPosition.compile(parameterMap, this);
+            this.radiusPosition.compile(parameterMap, this);
         }
     }
 

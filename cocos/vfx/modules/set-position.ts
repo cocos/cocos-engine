@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -48,14 +48,16 @@ export class SetPositionModule extends VFXModule {
 
     public set position (val) {
         this._position = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _position: Vec3Expression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        this.position.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_POSITION);
+        this.position.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

@@ -25,6 +25,7 @@
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
+import { VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { BindingFloatExpression } from './binding-float';
 import { ConstantVec3Expression } from './constant-vec3';
@@ -36,24 +37,71 @@ const ratio = new Vec3();
 @ccclass('cc.Vec3FromCurveExpression')
 export class Vec3FromCurveExpression extends Vec3Expression {
     @type(RealCurve)
-    @serializable
-    public x = new RealCurve();
+    public get x () {
+        return this._x;
+    }
+
+    public set x (val) {
+        this._x = val;
+        this.requireRecompile();
+    }
 
     @type(RealCurve)
-    @serializable
-    public y = new RealCurve();
+    public get y () {
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+        this.requireRecompile();
+    }
 
     @type(RealCurve)
-    @serializable
-    public z = new RealCurve();
+    public get z () {
+        return this._z;
+    }
+
+    public set z (val) {
+        this._z = val;
+        this.requireRecompile();
+    }
 
     @type(Vec3Expression)
-    @serializable
-    public scale: Vec3Expression = new ConstantVec3Expression(1, 1, 1);
+    public get scale () {
+        if (!this._scale) {
+            this._scale = new ConstantVec3Expression(1, 1, 1);
+        }
+        return this._scale;
+    }
+
+    public set scale (val) {
+        this._scale = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
+    public get curveIndex () {
+        if (!this._curveIndex) {
+            this._curveIndex = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+        }
+        return this._curveIndex;
+    }
+
+    public set curveIndex (val) {
+        this._curveIndex = val;
+        this.requireRecompile();
+    }
+
     @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+    private _x = new RealCurve();
+    @serializable
+    private _y = new RealCurve();
+    @serializable
+    private _z = new RealCurve();
+    @serializable
+    private _curveIndex: FloatExpression | null = null;
+    @serializable
+    private _scale: Vec3Expression | null = null;
 
     public get isConstant (): boolean {
         return false;
@@ -72,31 +120,32 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         }
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.curveIndex.tick(parameterMap);
-        this.scale.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.curveIndex.compile(parameterMap, owner);
+        this.scale.compile(parameterMap, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.curveIndex.bind(parameterMap);
-        this.scale.bind(parameterMap);
+        this._curveIndex!.bind(parameterMap);
+        this._scale!.bind(parameterMap);
     }
 
     public evaluate (index: number, out: Vec3) {
-        this.scale.evaluate(index, ratio);
-        const time = this.curveIndex.evaluate(index);
-        out.x = this.x.evaluate(time) * ratio.x;
-        out.y = this.y.evaluate(time) * ratio.y;
-        out.z = this.z.evaluate(time) * ratio.z;
+        this._scale!.evaluate(index, ratio);
+        const time = this._curveIndex!.evaluate(index);
+        out.x = this._x.evaluate(time) * ratio.x;
+        out.y = this._y.evaluate(time) * ratio.y;
+        out.z = this._z.evaluate(time) * ratio.z;
         return out;
     }
 
     public evaluateSingle (out: Vec3): Vec3 {
-        this.scale.evaluateSingle(ratio);
-        const time = this.curveIndex.evaluateSingle();
-        out.x = this.x.evaluate(time) * ratio.x;
-        out.y = this.y.evaluate(time) * ratio.y;
-        out.z = this.z.evaluate(time) * ratio.z;
+        this._scale!.evaluateSingle(ratio);
+        const time = this._curveIndex!.evaluateSingle();
+        out.x = this._x.evaluate(time) * ratio.x;
+        out.y = this._y.evaluate(time) * ratio.y;
+        out.z = this._z.evaluate(time) * ratio.z;
         return out;
     }
 }

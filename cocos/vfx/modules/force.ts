@@ -26,9 +26,10 @@
 import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY } from '../define';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const _temp_v3 = new Vec3();
 
@@ -39,9 +40,14 @@ export class ForceModule extends VFXModule {
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
     @type(Enum(CoordinateSpace))
-    @serializable
-    @tooltip('i18n:forceOvertimeModule.space')
-    public coordinateSpace = CoordinateSpace.LOCAL;
+    public get coordinateSpace () {
+        return this._coordinateSpace;
+    }
+
+    public set coordinateSpace (val) {
+        this._coordinateSpace = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh X 轴方向上的加速度分量。
@@ -56,28 +62,32 @@ export class ForceModule extends VFXModule {
 
     public set force (val) {
         this._force = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _force: Vec3Expression | null = null;
+    @serializable
+    private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_POSITION);
-        parameterMap.ensureParameter(P_BASE_VELOCITY);
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_PHYSICS_FORCE);
-        this.force.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_POSITION);
+        parameterMap.ensure(P_BASE_VELOCITY);
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_PHYSICS_FORCE);
+        this.force.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {
         const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
+        const needTransform = this._coordinateSpace !== CoordinateSpace.SIMULATION && (this._coordinateSpace === CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const forceExp = this._force as Vec3Expression;
         forceExp.bind(parameterMap);
         if (needTransform) {
-            const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+            const transform = parameterMap.getMat3Value(this._coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
             if (forceExp.isConstant) {
                 const force = Vec3.transformMat3(_temp_v3, forceExp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

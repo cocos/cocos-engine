@@ -25,11 +25,11 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { CCBoolean, Vec2 } from '../../core';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { VFXVec2Array } from '../parameters';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
-import { VFXParameterMap } from '..';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempVec2 = new Vec2();
 
@@ -39,9 +39,15 @@ export class ScaleSpriteSizeModule extends VFXModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
-    @serializable
     @type(CCBoolean)
-    public separateAxes = false;
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
@@ -57,6 +63,7 @@ export class ScaleSpriteSizeModule extends VFXModule {
 
     public set uniformScalar (val) {
         this._uniformScalar = val;
+        this.requireRecompile();
     }
 
     @type(Vec2Expression)
@@ -70,22 +77,26 @@ export class ScaleSpriteSizeModule extends VFXModule {
 
     public set scalar (val) {
         this._scalar = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _uniformScalar: FloatExpression | null = null;
     @serializable
     private _scalar: Vec2Expression | null = null;
+    @serializable
+    private _separateAxes = false;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_SPRITE_SIZE);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_SPRITE_SIZE);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_SPRITE_SIZE);
+            parameterMap.ensure(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
-            this.uniformScalar.tick(parameterMap);
+            this.uniformScalar.compile(parameterMap, this);
         } else {
-            this.scalar.tick(parameterMap);
+            this.scalar.compile(parameterMap, this);
         }
     }
 

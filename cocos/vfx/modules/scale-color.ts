@@ -25,10 +25,11 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { P_NORMALIZED_AGE, P_BASE_COLOR, P_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempColor = new Color();
 
@@ -48,17 +49,19 @@ export class ScaleColorModule extends VFXModule {
 
     public set scalar (val) {
         this._scalar = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _scalar: ColorExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_COLOR);
+            parameterMap.ensure(P_BASE_COLOR);
         }
-        parameterMap.ensureParameter(P_COLOR);
-        this.scalar.tick(parameterMap);
+        parameterMap.ensure(P_COLOR);
+        this.scalar.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

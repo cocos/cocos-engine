@@ -25,30 +25,30 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { VFXFloat, VFXVec3, VFXColor, VFXUint32, VFXBool, VFXVec2, VFXVec4, VFXInt32, VFXUint8, VFXQuat, VFXMat3, VFXMat4, VFXFloatArray, VFXVec3Array, VFXColorArray, VFXUint32Array, VFXBoolArray, VFXVec2Array, VFXVec4Array, VFXInt32Array, VFXUint8Array, VFXQuatArray, VFXMat3Array, VFXMat4Array, VFXEvent, VFXEventArray, VFXSpawnInfo, VFXSpawnInfoArray } from './parameters';
+import { VFXFloat, VFXVec3, VFXColor, VFXUint32, VFXBool, VFXVec2, VFXVec4, VFXInt32, VFXUint8, VFXQuat, VFXMat3, VFXMat4, VFXFloatArray, VFXVec3Array, VFXColorArray, VFXUint32Array, VFXBoolArray, VFXVec2Array, VFXVec4Array, VFXInt32Array, VFXUint8Array, VFXQuatArray, VFXMat3Array, VFXMat4Array, VFXEvent, VFXEventArray, VFXSpawnInfo, VFXSpawnInfoArray } from './data';
 import { VFXValue, VFXParameter, VFXValueType } from './vfx-parameter';
 
 export class VFXParameterMap {
-    public get parameterCount () {
-        return this._parameterCount;
+    public get count () {
+        return this._count;
     }
 
-    public get parameters (): ReadonlyArray<VFXValue> {
-        return this._parameters;
+    private _id2Value: Record<number, VFXValue> = {};
+    private _namespace2Values: Record<string, VFXValue[]> = {};
+    private _count = 0;
+
+    public has (param: VFXParameter) {
+        return param.id in this._id2Value;
     }
 
-    private _parameterMap: Record<number, VFXValue> = {};
-    private _parameters: VFXValue[] = [];
-    private _parameterCount = 0;
-
-    public hasParameter (param: VFXParameter) {
-        return param.id in this._parameterMap;
-    }
-
-    public ensureParameter (param: VFXParameter) {
-        if (!this.hasParameter(param)) {
-            this.addParameter(param);
+    public ensure (param: VFXParameter) {
+        if (!this.has(param)) {
+            this.register(param);
         }
+    }
+
+    public getValueEntriesWithNamespace (namespace: string): ReadonlyArray<VFXValue> {
+        return this._namespace2Values[namespace];
     }
 
     public getBoolValue (param: VFXParameter) {
@@ -277,90 +277,88 @@ export class VFXParameterMap {
 
     public getValueUnsafe<T extends VFXValue> (param: VFXParameter) {
         if (DEBUG) {
-            assertIsTrue(param.namespace === this._namespace);
-            assertIsTrue(this.hasParameter(param));
+            assertIsTrue(this.has(param));
         }
-        return this._parameterMap[param.id] as T;
+        return this._id2Value[param.id] as T;
     }
 
-    private addParameter_internal (id: number, parameter: VFXValue) {
-        this._parameterCount++;
-        this._parameters.push(parameter);
-        this._parameterMap[id] = parameter;
+    private addParameter_internal (id: number, namespace: string, value: VFXValue) {
+        this._count++;
+        if (!(namespace in this._namespace2Values)) {
+            this._namespace2Values[namespace] = [];
+        }
+        this._namespace2Values[namespace].push(value);
+        this._id2Value[id] = value;
     }
 
-    public addParameter (param: VFXParameter) {
-        if (this.hasParameter(param)) {
+    public register (param: VFXParameter) {
+        if (this.has(param)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
         switch (param.type) {
         case VFXValueType.FLOAT:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXFloat() : new VFXFloatArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXFloat() : new VFXFloatArray());
             break;
         case VFXValueType.VEC3:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXVec3() : new VFXVec3Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXVec3() : new VFXVec3Array());
             break;
         case VFXValueType.COLOR:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXColor() : new VFXColorArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXColor() : new VFXColorArray());
             break;
         case VFXValueType.UINT32:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXUint32() : new VFXUint32Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXUint32() : new VFXUint32Array());
             break;
         case VFXValueType.BOOL:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXBool() : new VFXBoolArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXBool() : new VFXBoolArray());
             break;
         case VFXValueType.VEC2:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXVec2() : new VFXVec2Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXVec2() : new VFXVec2Array());
             break;
         case VFXValueType.VEC4:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXVec4() : new VFXVec4Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXVec4() : new VFXVec4Array());
             break;
         case VFXValueType.INT32:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXInt32() : new VFXInt32Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXInt32() : new VFXInt32Array());
             break;
         case VFXValueType.UINT8:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXUint8() : new VFXUint8Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXUint8() : new VFXUint8Array());
             break;
         case VFXValueType.QUAT:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXQuat() : new VFXQuatArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXQuat() : new VFXQuatArray());
             break;
         case VFXValueType.MAT3:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXMat3() : new VFXMat3Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXMat3() : new VFXMat3Array());
             break;
         case VFXValueType.MAT4:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXMat4() : new VFXMat4Array());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXMat4() : new VFXMat4Array());
             break;
         case VFXValueType.EVENT:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXEvent() : new VFXEventArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXEvent() : new VFXEventArray());
             break;
         case VFXValueType.SPAWN_INFO:
-            this.addParameter_internal(param.id, !param.isArray ? new VFXSpawnInfo() : new VFXSpawnInfoArray());
+            this.addParameter_internal(param.id, param.namespace, !param.isArray ? new VFXSpawnInfo() : new VFXSpawnInfoArray());
             break;
         default:
             throw new Error('Does not support these parameter type in this data set!');
         }
-        this.doAddParameter(param);
     }
 
-    public removeParameter (param: VFXParameter) {
-        if (!this.hasParameter(param)) {
+    public unregister (param: VFXParameter) {
+        if (!this.has(param)) {
             return;
         }
-        const parameter = this._parameterMap[param.id];
+        const value = this._id2Value[param.id];
         if (DEBUG) {
-            assertIsTrue(parameter);
+            assertIsTrue(value);
         }
-        delete this._parameterMap[param.id];
-        this._parameterCount--;
-        const index = this._parameters.indexOf(parameter);
-        this._parameters.splice(index, 1);
+        delete this._id2Value[param.id];
+        this._count--;
+        this._namespace2Values[param.namespace].splice(this._namespace2Values[param.namespace].indexOf(value), 1);
     }
 
     public reset () {
-        this._parameterMap = {};
-        this._parameterCount = 0;
-        this._parameters.length = 0;
+        this._id2Value = {};
+        this._count = 0;
+        this._namespace2Values = {};
     }
-
-    protected doAddParameter (param: VFXParameter) {}
 }

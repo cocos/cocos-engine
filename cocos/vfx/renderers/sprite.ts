@@ -204,37 +204,37 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const hasPosition = parameterMap.has(P_POSITION);
         if (define[CC_VFX_P_POSITION] !== hasPosition) {
             define[CC_VFX_P_POSITION] = hasPosition;
             needRecompile = true;
         }
 
-        const hasSpriteRotation = parameterMap.hasParameter(P_SPRITE_ROTATION);
+        const hasSpriteRotation = parameterMap.has(P_SPRITE_ROTATION);
         if (define[CC_VFX_P_SPRITE_ROTATION] !== hasSpriteRotation) {
             define[CC_VFX_P_SPRITE_ROTATION] = hasSpriteRotation;
             needRecompile = true;
         }
 
-        const hasSpriteSize = parameterMap.hasParameter(P_SPRITE_SIZE);
+        const hasSpriteSize = parameterMap.has(P_SPRITE_SIZE);
         if (define[CC_VFX_P_SPRITE_SIZE] !== hasSpriteSize) {
             define[CC_VFX_P_SPRITE_SIZE] = hasSpriteSize;
             needRecompile = true;
         }
 
-        const hasColor = parameterMap.hasParameter(P_COLOR);
+        const hasColor = parameterMap.has(P_COLOR);
         if (define[CC_VFX_P_COLOR] !== hasColor) {
             define[CC_VFX_P_COLOR] = hasColor;
             needRecompile = true;
         }
 
-        const hasSubUVIndex = parameterMap.hasParameter(P_SUB_UV_INDEX1);
+        const hasSubUVIndex = parameterMap.has(P_SUB_UV_INDEX1);
         if (define[CC_VFX_P_SUB_UV_INDEX] !== hasSubUVIndex) {
             define[CC_VFX_P_SUB_UV_INDEX] = hasSubUVIndex;
             needRecompile = true;
         }
 
-        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
+        const hasVelocity = parameterMap.has(P_VELOCITY);
         if (define[CC_VFX_P_VELOCITY] !== hasVelocity) {
             define[CC_VFX_P_VELOCITY] = hasVelocity;
             needRecompile = true;

@@ -31,28 +31,36 @@ import { ColorExpression } from './color';
 export class ConstantColorExpression extends ColorExpression {
     @type(Color)
     @visible(true)
-    @serializable
-    public color = Color.WHITE.clone();
+    public get color (): Readonly<Color> {
+        return this._color;
+    }
+
+    public set color (val: Readonly<Color>) {
+        Color.copy(this._color, val);
+        this.requireRecompile();
+    }
 
     public get isConstant () {
         return true;
     }
 
+    @serializable
+    private _color = Color.WHITE.clone();
+
     constructor (val: Color = Color.WHITE) {
         super();
-        Color.copy(this.color, val);
+        this.color = val;
     }
 
-    public tick (parameterMap: VFXParameterMap) {}
     public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number, out: Color) {
-        out.set(this.color);
+        out.set(this._color);
         return out;
     }
 
     public evaluateSingle (out: Color) {
-        out.set(this.color);
+        out.set(this._color);
         return out;
     }
 }

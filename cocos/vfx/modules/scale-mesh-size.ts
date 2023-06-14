@@ -25,10 +25,11 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const tempScalar = new Vec3();
 
@@ -38,8 +39,15 @@ export class ScaleMeshSizeModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */
-    @serializable
-    public separateAxes = false;
+    @visible(true)
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     /**
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
@@ -55,6 +63,7 @@ export class ScaleMeshSizeModule extends VFXModule {
 
     public set uniformScalar (val) {
         this._uniformScalar = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -68,22 +77,26 @@ export class ScaleMeshSizeModule extends VFXModule {
 
     public set scalar (val) {
         this._scalar = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _uniformScalar: FloatExpression | null = null;
     @serializable
     private _scalar: Vec3Expression | null = null;
+    @serializable
+    private _separateAxes = false;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_SCALE);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_SCALE);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_SCALE);
+            parameterMap.ensure(P_BASE_SCALE);
         }
         if (this.separateAxes) {
-            this.scalar.tick(parameterMap);
+            this.scalar.compile(parameterMap, this);
         } else {
-            this.uniformScalar.tick(parameterMap);
+            this.uniformScalar.compile(parameterMap, this);
         }
     }
 

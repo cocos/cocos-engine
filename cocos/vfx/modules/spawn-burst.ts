@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { E_LOOPED_AGE, C_DELTA_TIME, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../parameters/spawn-info';
+import { VFXEmitter } from '../vfx-emitter';
 
 const spawnInfo = new SpawnInfo();
 
@@ -49,6 +50,7 @@ export class SpawnBurstModule extends VFXModule {
 
     public set count (val) {
         this._count = val;
+        this.requireRecompile();
     }
 
     /**
@@ -64,6 +66,7 @@ export class SpawnBurstModule extends VFXModule {
 
     public set time (val) {
         this._time = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -71,9 +74,10 @@ export class SpawnBurstModule extends VFXModule {
     @serializable
     private _count: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap): void {
-        this.count.tick(parameterMap);
-        this.time.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage): void {
+        super.compile(parameterMap, owner);
+        this.count.compile(parameterMap, this);
+        this.time.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

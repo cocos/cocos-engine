@@ -24,10 +24,11 @@
  */
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN)
@@ -46,14 +47,16 @@ export class SetLifeTimeModule extends VFXModule {
 
     public set lifetime (val) {
         this._lifetime = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _lifetime: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_INV_LIFETIME);
-        this.lifetime.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_INV_LIFETIME);
+        this.lifetime.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

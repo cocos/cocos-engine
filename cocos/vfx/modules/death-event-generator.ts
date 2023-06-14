@@ -26,9 +26,9 @@
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEventInfo } from '../parameters/event';
+import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const eventInfo = new VFXEventInfo();
@@ -40,10 +40,11 @@ export class DeathEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_RANDOM_SEED);
-        parameterMap.ensureParameter(P_ID);
-        parameterMap.ensureParameter(P_IS_DEAD);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        parameterMap.ensure(C_EVENTS);
+        parameterMap.ensure(P_RANDOM_SEED);
+        parameterMap.ensure(P_ID);
+        parameterMap.ensure(P_IS_DEAD);
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -57,9 +58,9 @@ export class DeathEventGeneratorModule extends VFXModule {
         const events = parameterMap.getEventArrayValue(C_EVENTS);
         const eventCount = parameterMap.getUint32Value(C_EVENT_COUNT);
         const randomOffset = this.randomSeed;
-        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
-        const hasColor = parameterMap.hasParameter(P_COLOR);
-        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const hasVelocity = parameterMap.has(P_VELOCITY);
+        const hasColor = parameterMap.has(P_COLOR);
+        const hasPosition = parameterMap.has(P_POSITION);
         const probability = this.probability;
         const velocity = hasVelocity ? parameterMap.getVec3ArrayValue(P_VELOCITY) : null;
         const color = hasColor ? parameterMap.getColorArrayValue(P_COLOR) : null;

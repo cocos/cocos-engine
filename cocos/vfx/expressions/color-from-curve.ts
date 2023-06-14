@@ -29,38 +29,60 @@ import { FloatExpression } from './float';
 import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
     @type(Gradient)
     @visible(true)
-    @serializable
-    public curve = new Gradient();
+    public get curve () {
+        return this._curve;
+    }
+
+    public set curve (val) {
+        this._curve = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(true)
+    public get curveIndex () {
+        if (!this._curveIndex) {
+            this._curveIndex = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+        }
+        return this._curveIndex;
+    }
+
+    public set curveIndex (val) {
+        this._curveIndex = val;
+        this.requireRecompile();
+    }
+
     @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+    private _curveIndex: FloatExpression | null = null;
+    @serializable
+    private _curve = new Gradient();
 
     public get isConstant (): boolean {
         return this.curveIndex.isConstant;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.curveIndex.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.curveIndex.compile(parameterMap, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.curveIndex.bind(parameterMap);
+        this._curveIndex!.bind(parameterMap);
     }
 
     public evaluateSingle (out: Color) {
-        this.curve.evaluateFast(out, this.curveIndex.evaluateSingle());
+        this._curve.evaluateFast(out, this._curveIndex!.evaluateSingle());
         return out;
     }
 
     public evaluate (index: number, out: Color) {
-        this.curve.evaluateFast(out, this.curveIndex.evaluate(index));
+        this._curve.evaluateFast(out, this._curveIndex!.evaluate(index));
         return out;
     }
 }

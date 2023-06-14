@@ -24,11 +24,12 @@
  */
 
 import { ccclass, serializable, type } from 'cc.decorator';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { E_VELOCITY, C_DELTA_TIME, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../parameters/spawn-info';
+import { VFXEmitter } from '../vfx-emitter';
 
 const spawnInfo = new SpawnInfo();
 @ccclass('cc.SpawnPerUnitModule')
@@ -47,13 +48,15 @@ export class SpawnPerUnitModule extends VFXModule {
 
     public set spawnSpacing (val) {
         this._spawnSpacing = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _spawnSpacing: FloatExpression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.spawnSpacing.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.spawnSpacing.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

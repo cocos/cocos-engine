@@ -106,21 +106,21 @@ export class VFXManager extends System {
     }
 
     simulate (emitter: VFXEmitter, dt: number) {
-        if (!parameterMap.isValid) {
+        if (!emitter.isValid) {
             return;
         }
-        if (parameterMap.lastSimulateFrame === this._totalFrames) {
+        if (emitter.lastSimulateFrame === this._totalFrames) {
             return;
         }
-        if (parameterMap.eventHandlerCount > 0) {
-            for (let i = 0, length = parameterMap.eventHandlerCount; i < length; i++) {
-                const parentEmitter = parameterMap.eventHandlers[i].target;
+        if (emitter.eventHandlerCount > 0) {
+            for (let i = 0, length = emitter.eventHandlerCount; i < length; i++) {
+                const parentEmitter = emitter.eventHandlers[i].target;
                 if (parentEmitter && parentEmitter.isValid && parentEmitter.isPlaying) {
                     this.simulate(parentEmitter, dt);
                 }
             }
         }
-        parameterMap.simulate(dt);
+        emitter.simulate(dt);
     }
 
     resetBuffer () {

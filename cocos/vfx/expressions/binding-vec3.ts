@@ -24,10 +24,11 @@
  */
 import { ccclass, serializable } from '../../core/data/decorators';
 import { Vec3Expression } from './vec3';
-import { VFXParameter, VFXParameterNamespace } from '../vfx-parameter';
-import { VFXVec3Array } from '../parameters';
+import { VFXParameter } from '../vfx-parameter';
+import { VFXVec3Array } from '../data';
 import { Vec3 } from '../../core';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
@@ -38,7 +39,7 @@ export class BindingVec3Expression extends Vec3Expression {
     private _getVec3 = this._getConstant;
 
     public get isConstant (): boolean {
-        return !this._bindParameter || this._bindParameter.namespace !== VFXParameterNamespace.PARTICLE;
+        return !this._bindParameter || !this._bindParameter.isArray;
     }
 
     private _getConstant (index: number, out: Vec3): Vec3 {
@@ -55,14 +56,15 @@ export class BindingVec3Expression extends Vec3Expression {
         this._bindParameter = vfxParameterIdentity;
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
-            parameterMap.ensureParameter(this._bindParameter);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        if (this._bindParameter) {
+            parameterMap.ensure(this._bindParameter);
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
+        if (this._bindParameter?.isArray) {
             this._data = parameterMap.getVec3ArrayValue(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {

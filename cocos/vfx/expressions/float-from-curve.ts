@@ -23,30 +23,64 @@
  THE SOFTWARE.
  */
 import { RealCurve } from '../../core';
-import { ccclass, serializable, type } from '../../core/data/decorators';
+import { ccclass, serializable, type, visible } from '../../core/data/decorators';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.FloatFromCurveExpression')
 export class FloatFromCurveExpression extends FloatExpression {
     @type(RealCurve)
-    @serializable
-    public curve = new RealCurve();
+    public get curve () {
+        return this._curve;
+    }
+
+    public set curve (val) {
+        this._curve = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
-    @serializable
-    public scale: FloatExpression = new ConstantFloatExpression(1);
+    @visible(true)
+    public get scale () {
+        if (!this._scale) {
+            this._scale = new ConstantFloatExpression(1);
+        }
+        return this._scale;
+    }
+
+    public set scale (val) {
+        this._scale = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
-    @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+    @visible(true)
+    public get curveIndex () {
+        if (!this._curveIndex) {
+            this._curveIndex = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
+        }
+        return this._curveIndex;
+    }
+
+    public set curveIndex (val) {
+        this._curveIndex = val;
+        this.requireRecompile();
+    }
 
     public get isConstant (): boolean {
         return this.curveIndex.isConstant && this.scale.isConstant;
     }
+
+    @serializable
+    private _curveIndex: FloatExpression | null = null;
+    @serializable
+    private _scale: FloatExpression | null = null;
+    @serializable
+    private _curve = new RealCurve();
 
     constructor (curve?: RealCurve) {
         super();
@@ -55,21 +89,22 @@ export class FloatFromCurveExpression extends FloatExpression {
         }
     }
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.scale.tick(parameterMap);
-        this.curveIndex.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        super.compile(parameterMap, owner);
+        this.scale.compile(parameterMap, owner);
+        this.curveIndex.compile(parameterMap, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        this.curveIndex.bind(parameterMap);
-        this.scale.bind(parameterMap);
+        this._curveIndex!.bind(parameterMap);
+        this._scale!.bind(parameterMap);
     }
 
     public evaluate (index: number): number {
-        return this.curve.evaluate(this.curveIndex.evaluate(index)) * this.scale.evaluate(index);
+        return this.curve.evaluate(this._curveIndex!.evaluate(index)) * this._scale!.evaluate(index);
     }
 
     public evaluateSingle (): number {
-        return this.curve.evaluate(this.curveIndex.evaluateSingle()) * this.scale.evaluateSingle();
+        return this.curve.evaluate(this._curveIndex!.evaluateSingle()) * this._scale!.evaluateSingle();
     }
 }

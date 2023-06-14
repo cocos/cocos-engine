@@ -24,11 +24,12 @@
  */
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
-import { VFXExecutionStageFlags, VFXModule } from '../vfx-module';
+import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const center = new Vec2();
 const size = new Vec2();
@@ -46,6 +47,7 @@ export class PlaneLocationModule extends ShapeLocationModule {
 
     public set planeSize (val) {
         this._planeSize = val;
+        this.requireRecompile();
     }
 
     @type(Vec2Expression)
@@ -58,6 +60,7 @@ export class PlaneLocationModule extends ShapeLocationModule {
 
     public set planeCenter (val) {
         this._planeCenter = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -65,10 +68,10 @@ export class PlaneLocationModule extends ShapeLocationModule {
     @serializable
     private _planeCenter: Vec2Expression | null = null;
 
-    public tick (parameterMap: VFXParameterMap) {
-        super.tick(parameterMap);
-        this.planeCenter.tick(parameterMap);
-        this.planeSize.tick(parameterMap);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.planeCenter.compile(parameterMap, this);
+        this.planeSize.compile(parameterMap, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

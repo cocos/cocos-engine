@@ -25,11 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
-import { VFXModule } from '../vfx-module';
+import { VFXModule, VFXStage } from '../vfx-module';
 import { VFXVec3Array } from '../parameters';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 const originVec = new Vec3(0, 0, 0);
 const tempVec1 = new Vec3(0, 0, 0);
@@ -63,44 +64,57 @@ export abstract class ShapeLocationModule extends VFXModule {
      * @zh 粒子发射器位置。
      */
     @type(Vec3Expression)
-    get position () {
-        if (!this._position) this._position = new ConstantVec3Expression();
+    public get position () {
+        if (!this._position) {
+            this._position = new ConstantVec3Expression();
+        }
         return this._position;
     }
-    set position (val) {
+    public set position (val) {
         this._position = val;
+        this.requireRecompile();
     }
 
     /**
      * @zh 粒子发射器旋转角度。
      */
     @type(Vec3Expression)
-    get rotation () {
-        if (!this._rotation) this._rotation = new ConstantVec3Expression();
+    public get rotation () {
+        if (!this._rotation) {
+            this._rotation = new ConstantVec3Expression();
+        }
         return this._rotation;
     }
-    set rotation (val) {
+    public set rotation (val) {
         this._rotation = val;
+        this.requireRecompile();
     }
 
     /**
      * @zh 粒子发射器缩放比例。
      */
     @type(Vec3Expression)
-    get scale () {
-        if (!this._scale) this._scale = new ConstantVec3Expression(1, 1, 1);
+    public get scale () {
+        if (!this._scale) {
+            this._scale = new ConstantVec3Expression(1, 1, 1);
+        }
         return this._scale;
     }
-    set scale (val) {
+    public set scale (val) {
         this._scale = val;
+        this.requireRecompile();
     }
 
-    get origin () {
-        if (!this._origin) this._origin = new BindingVec3Expression(P_POSITION);
+    @type(Vec3Expression)
+    public get origin () {
+        if (!this._origin) {
+            this._origin = new BindingVec3Expression(P_POSITION);
+        }
         return this._origin;
     }
-    set origin (val) {
+    public set origin (val) {
         this._origin = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -114,12 +128,13 @@ export abstract class ShapeLocationModule extends VFXModule {
     private _mat = new Mat4();
     protected storePosition = this.storePositionFast;
 
-    public tick (parameterMap: VFXParameterMap) {
-        this.position.tick(parameterMap);
-        this.rotation.tick(parameterMap);
-        this.scale.tick(parameterMap);
-        this.origin.tick(parameterMap);
-        parameterMap.ensureParameter(P_POSITION);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        this.position.compile(parameterMap, this);
+        this.rotation.compile(parameterMap, this);
+        this.scale.compile(parameterMap, this);
+        this.origin.compile(parameterMap, this);
+        parameterMap.ensure(P_POSITION);
     }
 
     public execute (parameterMap: VFXParameterMap) {

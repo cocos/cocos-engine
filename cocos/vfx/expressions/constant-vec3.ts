@@ -30,16 +30,43 @@ import { Vec3Expression } from './vec3';
 @ccclass('cc.ConstantVec3Expression')
 export class ConstantVec3Expression extends Vec3Expression {
     @type(CCFloat)
-    @serializable
-    public x = 0;
+    public get x () {
+        return this._x;
+    }
+
+    public set x (val) {
+        this._x = val;
+        this.requireRecompile();
+    }
 
     @type(CCFloat)
-    @serializable
-    public y = 0;
+    public get y () {
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+        this.requireRecompile();
+    }
 
     @type(CCFloat)
+    public get z () {
+        return this._z;
+    }
+
+    public set z (val) {
+        this._z = val;
+        this.requireRecompile();
+    }
+
     @serializable
-    public z = 0;
+    private _x = 0;
+
+    @serializable
+    private _y = 0;
+
+    @serializable
+    private _z = 0;
 
     public get isConstant (): boolean {
         return true;
@@ -52,20 +79,19 @@ export class ConstantVec3Expression extends Vec3Expression {
         this.z = z;
     }
 
-    public tick (parameterMap: VFXParameterMap) {}
     public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number, out: Vec3) {
-        out.x = this.x;
-        out.y = this.y;
-        out.z = this.z;
+        out.x = this._x;
+        out.y = this._y;
+        out.z = this._z;
         return out;
     }
 
     public evaluateSingle (out: Vec3) {
-        out.x = this.x;
-        out.y = this.y;
-        out.z = this.z;
+        out.x = this._x;
+        out.y = this._y;
+        out.z = this._z;
         return out;
     }
 }

@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_POSITION, P_VELOCITY, E_SIMULATION_POSITION } from '../define';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -42,12 +42,24 @@ export enum VelocityMode {
 @VFXModule.register('AddVelocity', VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.SPAWN, [P_VELOCITY.name])
 export class AddVelocityModule extends VFXModule {
     @type(Enum(VelocityMode))
-    @serializable
-    public velocityMode = VelocityMode.LINEAR;
+    public get velocityMode () {
+        return this._velocityMode;
+    }
+
+    public set velocityMode (val) {
+        this._velocityMode = val;
+        this.requireRecompile();
+    }
 
     @type(Enum(CoordinateSpace))
-    @serializable
-    public coordinateSpace = CoordinateSpace.LOCAL;
+    public get coordinateSpace () {
+        return this._coordinateSpace;
+    }
+
+    public set coordinateSpace (val) {
+        this._coordinateSpace = val;
+        this.requireRecompile();
+    }
 
     @type(Vec3Expression)
     @visible(function (this: AddVelocityModule) {
@@ -62,6 +74,7 @@ export class AddVelocityModule extends VFXModule {
 
     public set velocity (val) {
         this._velocity = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -77,6 +90,7 @@ export class AddVelocityModule extends VFXModule {
 
     public set velocityScale (val) {
         this._velocityScale = val;
+        this.requireRecompile();
     }
 
     @type(FloatExpression)
@@ -92,6 +106,7 @@ export class AddVelocityModule extends VFXModule {
 
     public set speed (val) {
         this._speed = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -107,6 +122,7 @@ export class AddVelocityModule extends VFXModule {
 
     public set velocityOrigin (val) {
         this._velocityOrigin = val;
+        this.requireRecompile();
     }
 
     @type(Vec3Expression)
@@ -122,6 +138,7 @@ export class AddVelocityModule extends VFXModule {
 
     public set defaultPosition (val) {
         this._defaultPosition = val;
+        this.requireRecompile();
     }
 
     @serializable
@@ -134,20 +151,25 @@ export class AddVelocityModule extends VFXModule {
     private _velocityOrigin: Vec3Expression | null = null;
     @serializable
     private _defaultPosition: Vec3Expression | null = null;
+    @serializable
+    private _velocityMode = VelocityMode.LINEAR;
+    @serializable
+    private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public tick (parameterMap: VFXParameterMap) {
-        parameterMap.ensureParameter(P_VELOCITY);
-        parameterMap.ensureParameter(P_POSITION);
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
+        parameterMap.ensure(P_VELOCITY);
+        parameterMap.ensure(P_POSITION);
         if (this.usage !== VFXExecutionStage.UPDATE) {
-            parameterMap.ensureParameter(P_BASE_VELOCITY);
+            parameterMap.ensure(P_BASE_VELOCITY);
         }
-        if (this.velocityMode === VelocityMode.LINEAR) {
-            this.velocity.tick(parameterMap);
-            this.velocityScale.tick(parameterMap);
+        if (this._velocityMode === VelocityMode.LINEAR) {
+            this.velocity.compile(parameterMap, this);
+            this.velocityScale.compile(parameterMap, this);
         } else {
-            this.speed.tick(parameterMap);
-            this.velocityOrigin.tick(parameterMap);
-            this.defaultPosition.tick(parameterMap);
+            this.speed.compile(parameterMap, this);
+            this.velocityOrigin.compile(parameterMap, this);
+            this.defaultPosition.compile(parameterMap, this);
         }
     }
 
@@ -155,9 +177,9 @@ export class AddVelocityModule extends VFXModule {
         const velocity = parameterMap.getVec3ArrayValue(this.usage === VFXExecutionStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
+        const needTransform = this._coordinateSpace !== CoordinateSpace.SIMULATION && (this._coordinateSpace !== CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
 
-        if (this.velocityMode === VelocityMode.LINEAR) {
+        if (this._velocityMode === VelocityMode.LINEAR) {
             const velocityExp = this._velocity as Vec3Expression;
             const velocityScaleExp = this._velocityScale as FloatExpression;
             velocityExp.bind(parameterMap);
@@ -167,14 +189,14 @@ export class AddVelocityModule extends VFXModule {
                 const scale = velocityScaleExp.evaluate(0);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, scale);
                 if (needTransform) {
-                    const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                    const transform = parameterMap.getMat3Value(this._coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                     Vec3.transformMat3(tempVelocity, tempVelocity, transform);
                 }
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (needTransform) {
-                const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const transform = parameterMap.getMat3Value(this._coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocityExp.evaluate(i, tempVelocity);
                     const scale = velocityScaleExp.evaluate(i);
@@ -190,7 +212,7 @@ export class AddVelocityModule extends VFXModule {
                     velocity.addVec3At(tempVelocity, i);
                 }
             }
-        } else if (this.velocityMode === VelocityMode.FROM_POINT) {
+        } else if (this._velocityMode === VelocityMode.FROM_POINT) {
             const speedExp = this._speed as FloatExpression;
             const velocityOriginExp = this._velocityOrigin as Vec3Expression;
             const defaultPositionExp = this._defaultPosition as Vec3Expression;

@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
+import { DEBUG } from 'internal:constants';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
-import { RandomStream } from './random-stream';
-import { VFXEmitterState } from './vfx-emitter';
+import { VFXEmitter, VFXEmitterState } from './vfx-emitter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
 export enum VFXExecutionStage {
@@ -153,6 +153,7 @@ export abstract class VFXModule {
 
     public set enabled (val) {
         this._enabled = val;
+        this.requireRecompile();
     }
 
     @type(CCString)
@@ -160,28 +161,13 @@ export abstract class VFXModule {
         return VFXModule.getModuleIdentityByClass(this.constructor as Constructor<VFXModule>)?.name;
     }
 
-    public get randomSeed () {
-        return this._randomSeed;
-    }
-
-    public get randomStream () {
-        return this._randomStream;
-    }
-
     public get usage () {
-        return this._usage;
+        return this._owner ? this._owner.usage : VFXExecutionStage.UNKNOWN;
     }
 
     @serializable
     private _enabled = true;
-    private _randomSeed = 0;
-    private _randomStream = new RandomStream(0);
-    @serializable
-    private _usage = VFXExecutionStage.UNKNOWN;
-
-    constructor (usage: VFXExecutionStage = VFXExecutionStage.UNKNOWN) {
-        this._usage = usage;
-    }
+    private _owner: VFXStage | null = null;
 
     protected needsFilterSerialization () {
         return false;
@@ -205,7 +191,19 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public tick (parameterMap: VFXParameterMap) {}
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        if (DEBUG) {
+            assertIsTrue(this._owner);
+        }
+        this._owner = owner;
+    }
+
+    public requireRecompile () {
+        if (this._owner) {
+            this._owner.requireRecompile();
+        }
+    }
+
     /**
      * @engineInternal
      * @internal
@@ -216,8 +214,6 @@ export abstract class VFXModule {
      * @internal
      */
     public onPlay (state: VFXEmitterState) {
-        this._randomSeed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
-        this._randomStream.seed = this._randomSeed;
     }
     /**
      * @engineInternal
@@ -226,8 +222,8 @@ export abstract class VFXModule {
     public onStop (state: VFXEmitterState) {}
 }
 
-@ccclass('cc.VFXModuleStage')
-export class VFXModuleStage {
+@ccclass('cc.VFXStage')
+export class VFXStage {
     @type([VFXModule])
     public get modules (): ReadonlyArray<VFXModule> {
         return this._modules;
@@ -241,6 +237,7 @@ export class VFXModuleStage {
     private _modules: VFXModule[] = [];
     @serializable
     private _usage = VFXExecutionStage.UNKNOWN;
+    private _owner: VFXEmitter | null = null;
 
     constructor (stage: VFXExecutionStage = VFXExecutionStage.UNKNOWN) {
         this._usage = stage;
@@ -253,9 +250,10 @@ export class VFXModuleStage {
         const id = VFXModule.getModuleIdentityByClass(ModuleType);
         assertIsTrue(id, 'Particle Module should be registered!');
         if (id.execStages & 1 << this._usage) {
-            const newModule = new ModuleType(this.usage);
+            const newModule = new ModuleType();
             const index = VFXModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
+            this.requireRecompile();
             return newModule;
         } else {
             throw new Error('This stage does not support this module!');
@@ -303,6 +301,7 @@ export class VFXModuleStage {
         const index = this._modules.indexOf(module);
         if (index !== -1) {
             this._modules.splice(index, 1);
+            this.requireRecompile();
         }
     }
 
@@ -312,6 +311,12 @@ export class VFXModuleStage {
             module = this.addModule(moduleType);
         }
         return module;
+    }
+
+    public requireRecompile () {
+        if (this._owner) {
+            this._owner.requireRecompile();
+        }
     }
 
     /**
@@ -340,16 +345,16 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXEmitter) {
+        if (DEBUG) {
+            assertIsTrue(this._owner);
+        }
+        this._owner = owner;
         const modules = this._modules;
-        const moduleInitialRandomSeed = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED);
-        const moduleCurrentRandomSeed = parameterMap.getUint32Value(C_MODULE_CURRENT_RANDOM_SEED);
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                moduleInitialRandomSeed.data = module.randomSeed;
-                moduleCurrentRandomSeed.data = module.randomStream.seed;
-                module.tick(parameterMap);
+                module.compile(parameterMap, this);
             }
         }
     }
@@ -360,15 +365,10 @@ export class VFXModuleStage {
      */
     public execute (parameterMap: VFXParameterMap) {
         const modules = this._modules;
-        const moduleInitialRandomSeed = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED);
-        const moduleCurrentRandomSeed = parameterMap.getUint32Value(C_MODULE_CURRENT_RANDOM_SEED);
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                moduleInitialRandomSeed.data = module.randomSeed;
-                moduleCurrentRandomSeed.data = module.randomStream.seed;
                 module.execute(parameterMap);
-                module.randomStream.seed = moduleCurrentRandomSeed.data;
             }
         }
     }

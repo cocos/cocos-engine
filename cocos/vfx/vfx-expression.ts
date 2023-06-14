@@ -23,18 +23,35 @@
  THE SOFTWARE.
  */
 import { ccclass } from 'cc.decorator';
-import { VFXExecutionStage } from './vfx-module';
+import { DEBUG } from 'internal:constants';
+import { assertIsTrue } from '../core';
+import { VFXExecutionStage, VFXModule } from './vfx-module';
 import { VFXValueType } from './vfx-parameter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {
     public get usage () {
-        return VFXExecutionStage.UNKNOWN;
+        return this._owner ? this._owner.usage : VFXExecutionStage.UNKNOWN;
     }
+
+    private _owner: VFXModule | null = null;
 
     public abstract get valueType (): VFXValueType;
     public abstract get isConstant (): boolean;
-    public abstract tick (parameterMap: VFXParameterMap): void;
+
+    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+        if (DEBUG) {
+            assertIsTrue(this._owner);
+        }
+        this._owner = owner;
+    }
+
+    public requireRecompile () {
+        if (this._owner) {
+            this._owner.requireRecompile();
+        }
+    }
+
     public abstract bind (parameterMap: VFXParameterMap): void;
 }

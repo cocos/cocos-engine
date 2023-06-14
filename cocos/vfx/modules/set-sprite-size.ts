@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
-import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags } from '../vfx-module';
+import { ccclass, serializable, type, visible } from 'cc.decorator';
+import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2 } from '../../core';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
@@ -35,9 +35,15 @@ const tempSize = new Vec2();
 @ccclass('cc.SetSpriteSizeModule')
 @VFXModule.register('SetSpriteSize', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
 export class SetSpriteSizeModule extends VFXModule {
-    @serializable
-    @tooltip('i18n:particle_system.startSize3D')
-    public separateAxes = false;
+    @visible(true)
+    public get separateAxes () {
+        return this._separateAxes;
+    }
+
+    public set separateAxes (val) {
+        this._separateAxes = val;
+        this.requireRecompile();
+    }
 
     @type(FloatExpression)
     @visible(function (this: SetSpriteSizeModule): boolean { return !this.separateAxes; })
@@ -50,6 +56,7 @@ export class SetSpriteSizeModule extends VFXModule {
 
     public set uniformSize (val) {
         this._uniformSize = val;
+        this.requireRecompile();
     }
 
     @type(Vec2Expression)
@@ -63,23 +70,27 @@ export class SetSpriteSizeModule extends VFXModule {
 
     public set size (val) {
         this._size = val;
+        this.requireRecompile();
     }
 
     @serializable
     private _uniformSize: FloatExpression | null = null;
     @serializable
     private _size: Vec2Expression | null = null;
+    @serializable
+    private _separateAxes = false;
 
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensureParameter(P_BASE_SPRITE_SIZE);
+            parameterMap.ensure(P_BASE_SPRITE_SIZE);
         }
 
-        parameterMap.ensureParameter(P_SPRITE_SIZE);
+        parameterMap.ensure(P_SPRITE_SIZE);
         if (this.separateAxes) {
-            this.size.tick(parameterMap);
+            this.size.compile(parameterMap, this);
         } else {
-            this.uniformSize.tick(parameterMap);
+            this.uniformSize.compile(parameterMap, this);
         }
     }
 

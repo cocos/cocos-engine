@@ -25,11 +25,12 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec2, CCBoolean } from '../../core';
-import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
+import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
 import { VFXFloatArray } from '../parameters';
 import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXEmitter } from '../vfx-emitter';
 
 export enum SubUVAnimationMode {
     LINEAR,
@@ -59,11 +60,18 @@ export class SubUVAnimationModule extends VFXModule {
 
     public set subImageSize (val) {
         this._subImageSize = val;
+        this.requireRecompile();
     }
 
     @type(CCBoolean)
-    @serializable
-    public useStartFrameRangeOverride = false;
+    public get useStartFrameRangeOverride () {
+        return this._useStartFrameRangeOverride;
+    }
+
+    public set useStartFrameRangeOverride (val) {
+        this._useStartFrameRangeOverride = val;
+        this.requireRecompile();
+    }
 
     @type(Int32Expression)
     @visible(function (this: SubUVAnimationModule) { return this.useStartFrameRangeOverride; })
@@ -76,11 +84,18 @@ export class SubUVAnimationModule extends VFXModule {
 
     public set startFrameRangeOverride (val) {
         this._startFrameRangeOverride = val;
+        this.requireRecompile();
     }
 
     @type(CCBoolean)
-    @serializable
-    public useEndFrameRangeOverride = false;
+    public get useEndFrameRangeOverride () {
+        return this._useEndFrameRangeOverride;
+    }
+
+    public set useEndFrameRangeOverride (val) {
+        this._useEndFrameRangeOverride = val;
+        this.requireRecompile();
+    }
 
     @type(Int32Expression)
     @visible(function (this: SubUVAnimationModule) { return this.useEndFrameRangeOverride; })
@@ -93,59 +108,81 @@ export class SubUVAnimationModule extends VFXModule {
 
     public set endFrameRangeOverride (val) {
         this._endFrameRangeOverride = val;
+        this.requireRecompile();
     }
 
     @type(Enum(SubUVIndexChannel))
-    @serializable
-    public subUVIndexChannel = SubUVIndexChannel.SUB_UV_INDEX1;
+    public get subUVIndexChannel () {
+        return this._subUVIndexChannel;
+    }
+
+    public set subUVIndexChannel (val) {
+        this._subUVIndexChannel = val;
+        this.requireRecompile();
+    }
 
     /**
      * @zh 动画播放方式 [[SubUVAnimationMode]]。
      */
     @type(Enum(SubUVAnimationMode))
-    @serializable
-    public subUVAnimationMode = SubUVAnimationMode.LINEAR;
+    public get subUVAnimationMode () {
+        return this._subUVAnimationMode;
+    }
+
+    public set subUVAnimationMode (val) {
+        this._subUVAnimationMode = val;
+        this.requireRecompile();
+    }
 
     @serializable
     private _subImageSize: Vec2Expression | null = null;
     @serializable
+    private _useStartFrameRangeOverride = false;
+    @serializable
     private _startFrameRangeOverride: Int32Expression | null = null;
     @serializable
+    private _useEndFrameRangeOverride = false;
+    @serializable
     private _endFrameRangeOverride: Int32Expression | null = null;
+    @serializable
+    private _subUVIndexChannel = SubUVIndexChannel.SUB_UV_INDEX1;
+    @serializable
+    private _subUVAnimationMode = SubUVAnimationMode.LINEAR;
 
-    public tick (parameterMap: VFXParameterMap) {
+    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+        super.compile(parameterMap, owner);
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
-            parameterMap.ensureParameter(P_SUB_UV_INDEX1);
+            parameterMap.ensure(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
-            parameterMap.ensureParameter(P_SUB_UV_INDEX2);
+            parameterMap.ensure(P_SUB_UV_INDEX2);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
-            parameterMap.ensureParameter(P_SUB_UV_INDEX3);
+            parameterMap.ensure(P_SUB_UV_INDEX3);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
-            parameterMap.ensureParameter(P_SUB_UV_INDEX4);
+            parameterMap.ensure(P_SUB_UV_INDEX4);
         }
-        this.subImageSize.tick(parameterMap);
+        this.subImageSize.compile(parameterMap, this);
         if (this.useStartFrameRangeOverride) {
-            this.startFrameRangeOverride.tick(parameterMap);
+            this.startFrameRangeOverride.compile(parameterMap, this);
         }
         if (this.useEndFrameRangeOverride) {
-            this.endFrameRangeOverride.tick(parameterMap);
+            this.endFrameRangeOverride.compile(parameterMap, this);
         }
     }
 
     public execute (parameterMap: VFXParameterMap) {
         let subUVIndex: VFXFloatArray;
-        if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
+        if (this._subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
             subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX1);
-        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
+        } else if (this._subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
             subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX2);
-        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
+        } else if (this._subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
             subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX3);
         } else {
             subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX4);
         }
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        if (this.subUVAnimationMode === SubUVAnimationMode.LINEAR) {
+        if (this._subUVAnimationMode === SubUVAnimationMode.LINEAR) {
             for (let i = fromIndex; i < toIndex; i++) {
 
             }
