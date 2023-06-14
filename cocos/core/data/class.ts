@@ -28,7 +28,7 @@ import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { BitMask } from '../value-types';
-import { Enum } from '../value-types/enum';
+import { Enum, EnumType } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
@@ -36,7 +36,6 @@ import * as RF from './utils/requiring-frame';
 
 import { legacyCC } from '../global-exports';
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
-import { setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
 
 const DELIMETER = attributeUtils.DELIMETER;
 const CCCLASS_TAG = '__ctors__'; // Still use this historical name to avoid unsynchronized version issue
@@ -596,6 +595,23 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     parseSimpleAttribute('step', 'number');
 }
 
+function setPropertyEnumTypeOnAttrs (attrs: Record<string, any>, propertyName: string, enumType: EnumType): void {
+    attrs[`${propertyName}${DELIMETER}type`] = 'Enum';
+    attrs[`${propertyName}${DELIMETER}enumList`] = Enum.getList(enumType);
+}
+
+/**
+ * @zh 设置属性类型为指定的枚举类型。 @en Sets the type of a property to specified enumeration type.
+ *
+ * @param objectOrConstructor @zh 属性所在的对象或类。 @en The object or class to which the property belongs.
+ * @param propertyName @zh 属性名。 @en Property name.
+ * @param enumType @zh 枚举类型。 @en The enumeration type.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function setPropertyEnumType (objectOrConstructor: object, propertyName: string, enumType: EnumType): void {
+    setPropertyEnumTypeOnAttrs(attributeUtils.getClassAttrs(objectOrConstructor), propertyName, enumType);
+}
+
 CCClass.isArray = function (defaultVal): boolean {
     defaultVal = getDefault(defaultVal);
     return Array.isArray(defaultVal);
@@ -606,5 +622,6 @@ CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
 // NOTE: the type of getNewValueTypeCode can be ((value: any) => string) or boolean.
 CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as any;
+CCClass.setPropertyEnumType = setPropertyEnumType;
 
 legacyCC.Class = CCClass;
