@@ -141,9 +141,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this._antiAliasing = AntiAliasing.FXAA;
-        }
         postMat.initialize({
             effectName: 'pipeline/post-process',
             defines: {

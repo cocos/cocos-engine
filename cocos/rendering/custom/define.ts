@@ -456,9 +456,6 @@ export class PostInfo {
     private _init () {
         this.postMaterial = new Material();
         this.postMaterial.name = 'builtin-post-process-material';
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this.antiAliasing = AntiAliasing.FXAA;
-        }
         this.postMaterial.initialize({
             effectName: 'pipeline/post-process',
             defines: {
