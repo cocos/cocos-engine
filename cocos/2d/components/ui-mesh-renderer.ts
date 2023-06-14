@@ -268,7 +268,7 @@ export class UIMeshRenderer extends Component {
      */
     get renderEntity (): RenderEntity {
         if (DEBUG) {
-            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+            assert(Boolean(this._renderEntity), 'this._renderEntity should not be invalid');
         }
         return this._renderEntity;
     }

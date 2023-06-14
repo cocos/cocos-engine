@@ -75,7 +75,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
 
     public forTarget (target: unknown): IValueProxy | undefined {
         if (!(target instanceof Material)) {
-            warnID(3940, target);
+            warnID(3940, target as string);
             return undefined;
         }
 
@@ -101,7 +101,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
         if (type < Type.SAMPLER1D) {
             const realHandle = channelIndex === undefined ? handle : pass.getHandle(uniformName, channelIndex, Type.FLOAT);
             if (!realHandle) {
-                warnID(3943, target.name, passIndex, uniformName, channelIndex);
+                warnID(3943, target.name, passIndex, uniformName, channelIndex!);
                 return undefined;
             }
             if (isUniformArray(pass, uniformName)) {

@@ -426,7 +426,7 @@ class Component extends CCObject {
      * ```
      */
     public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0): void {
-        assertID(callback, 1619);
+        assertID(Boolean(callback), 1619);
 
         interval = interval || 0;
         assertID(interval >= 0, 1620);

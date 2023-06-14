@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { warnID, error, errorID } from '../platform/debug';
+import { warnID, error, errorID, StringSubstitution } from '../platform/debug';
 import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
@@ -348,7 +348,21 @@ const REGEXP_STR = /%s/;
  * js.formatStr(a, b, c);
  * ```
  */
-export function formatStr (msg: string, ...subst: any[]): string {
+export function formatStr (msg: string, ...subst: StringSubstitution[]): string;
+/**
+ * @en
+ * A string tool to constructs a string from an arbitrary sequence of js object arguments.
+ * @zh
+ * 根据任意 js 对象参数序列构造一个字符串。
+ * @returns @en A new formatted string. @zh 格式化后的新字符串。
+ * @example
+ * ```
+ * import { js } from 'cc';
+ * js.formatStr({}, null, undefined);  // [object Object] null undefined
+ * ```
+ */
+export function formatStr (...data: unknown[]): string;
+export function formatStr (msg: unknown, ...subst: unknown[]): string {
     if (arguments.length === 0) {
         return '';
     }
@@ -360,9 +374,9 @@ export function formatStr (msg: string, ...subst: any[]): string {
     if (hasSubstitution) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
-            if (regExpToTest.test(msg)) {
+            if (regExpToTest.test(msg as string)) {
                 const notReplaceFunction = `${arg}`;
-                msg = msg.replace(regExpToTest, notReplaceFunction);
+                msg = (msg as string).replace(regExpToTest, notReplaceFunction);
             } else {
                 msg += ` ${arg}`;
             }
@@ -372,7 +386,7 @@ export function formatStr (msg: string, ...subst: any[]): string {
             msg += ` ${arg}`;
         }
     }
-    return msg;
+    return msg as string;
 }
 
 // see https://github.com/petkaantonov/bluebird/issues/1389
@@ -557,7 +571,7 @@ export function isChildClassOf (subclass: unknown, superclass: unknown): boolean
         }
         if (typeof superclass !== 'function') {
             if (DEV) {
-                warnID(3625, superclass);
+                warnID(3625, superclass as string);
             }
             return false;
         }
