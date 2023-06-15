@@ -40,6 +40,10 @@ const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
 const _originColor = new Color(0, 255, 0, 255);
 const _meshColor = new Color(255, 255, 0, 255);
+let _nodeR: number;
+let _nodeG: number;
+let _nodeB: number;
+let _nodeA: number;
 
 let _accessor: StaticVBAccessor = null!;
 let _tintAccessor: StaticVBAccessor = null!;
@@ -121,6 +125,9 @@ export const simple: IAssembler = {
 };
 
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+    comp.drawList.reset();
+    if (comp.color.a === 0) return;
+    _premultipliedAlpha = comp.premultipliedAlpha;
     _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {
         cacheTraverse(comp);
@@ -133,11 +140,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
 }
 
 function realTimeTraverse (comp: Skeleton) {
-    _premultipliedAlpha = comp.premultipliedAlpha;
-
     const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
-
-    comp.drawList.reset();
     const model = comp.updateRenderData();
     if (!model) return;
     const vc = model.vCount;
@@ -246,9 +249,6 @@ function realTimeTraverse (comp: Skeleton) {
 }
 
 function cacheTraverse (comp: Skeleton) {
-    _premultipliedAlpha = comp.premultipliedAlpha;
-
-    comp.drawList.reset();
     const model = comp.updateRenderData();
 
     const vc = model.vCount;
@@ -259,6 +259,32 @@ function cacheTraverse (comp: Skeleton) {
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);
+
+    const nodeColor = comp.color;
+    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
+        _nodeR = nodeColor.r / 255;
+        _nodeG = nodeColor.g / 255;
+        _nodeB = nodeColor.b / 255;
+        _nodeA = nodeColor.a / 255;
+        for (let i = 0; i < vc; i++) {
+            const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
+            const R = vUint8Buf[index];
+            const G = vUint8Buf[index + 1];
+            const B = vUint8Buf[index + 2];
+            const A = vUint8Buf[index + 3];
+            const fA = A * _nodeA;
+            const multiplier = _premultipliedAlpha ? fA / 255 :  1;
+            vUint8Buf[index] = Math.floor(multiplier * R * _nodeR);
+            vUint8Buf[index + 1] = Math.floor(multiplier * G * _nodeG);
+            vUint8Buf[index + 2] = Math.floor(multiplier * B * _nodeB);
+            vUint8Buf[index + 3] = Math.floor(fA);
+
+            vUint8Buf[index + 4] = Math.floor(vUint8Buf[index + 4] * _nodeR);
+            vUint8Buf[index + 5] = Math.floor(vUint8Buf[index + 5] * _nodeG);
+            vUint8Buf[index + 6] = Math.floor(vUint8Buf[index + 6] * _nodeB);
+            vUint8Buf[index + 7] = _premultipliedAlpha ? 255 : 0;
+        }
+    }
 
     const iUint16Buf = rd.indices;
     iUint16Buf.set(model.iData);
