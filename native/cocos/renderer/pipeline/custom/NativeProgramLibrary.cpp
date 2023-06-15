@@ -1264,8 +1264,8 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
             const auto subpassOrPassID = subpassID == INVALID_ID ? passID : subpassID;
             const auto &srcShaderInfo = *pShaderInfo;
             CC_ENSURES(subpassOrPassID != INVALID_ID && phaseID != INVALID_ID);
-            const auto &passLayout = get(LayoutGraphData::LayoutTag{}, lg, passID);
-            const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, subpassOrPassID);
+            const auto &passLayout = get(LayoutGraphData::LayoutTag{}, lg, subpassOrPassID);
+            const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
 
             // programs
             auto iter = this->phases.find(phaseID);
