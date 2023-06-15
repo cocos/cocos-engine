@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { injectionStyle } = require('../utils/prop');
 const History = require('./asset-history/index');
+const { getAssetDocResolveUrl } = require('../utils/docs');
 
 const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
@@ -146,7 +147,7 @@ const Elements = {
                 return JSON.stringify(meta);
             });
 
-            panel.getHelpUrl(Editor.I18n.t(`ENGINE.help.assets.${panel.type}`));
+            panel.getHelpUrl(getAssetDocResolveUrl(panel.type));
         },
         close() {
             const panel = this;
