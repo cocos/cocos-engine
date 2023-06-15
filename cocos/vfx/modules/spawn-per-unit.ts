@@ -28,12 +28,11 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { E_VELOCITY, C_DELTA_TIME, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { SpawnInfo } from '../parameters/spawn-info';
-import { VFXEmitter } from '../vfx-emitter';
+import { SpawnInfo } from '../data';
 
 const spawnInfo = new SpawnInfo();
 @ccclass('cc.SpawnPerUnitModule')
-@VFXModule.register('SpawnPerUnit', VFXExecutionStageFlags.EMITTER)
+@VFXModule.register('SpawnPerUnit', VFXExecutionStageFlags.EMITTER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
 export class SpawnPerUnitModule extends VFXModule {
     /**
       * @zh 每移动单位距离发射的粒子数。

@@ -28,7 +28,7 @@ import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
-import { VFXEmitter, VFXParameterMap } from '../../../exports/vfx';
+import { VFXParameterMap } from '../../../exports/vfx';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')

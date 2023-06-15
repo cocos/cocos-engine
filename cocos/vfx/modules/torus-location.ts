@@ -30,7 +30,6 @@ import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 export enum TorusDistributionMode {
     RANDOM,

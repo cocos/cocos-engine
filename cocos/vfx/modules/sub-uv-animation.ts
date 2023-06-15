@@ -27,10 +27,9 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec2, CCBoolean } from '../../core';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
-import { VFXFloatArray } from '../parameters';
+import { VFXFloatArray } from '../data';
 import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 export enum SubUVAnimationMode {
     LINEAR,

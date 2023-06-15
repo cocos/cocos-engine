@@ -29,7 +29,6 @@ import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3E
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const tempScalar = new Vec3();
 const tempVelocity = new Vec3();

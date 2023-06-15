@@ -28,7 +28,6 @@ import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();

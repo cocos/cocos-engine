@@ -30,7 +30,6 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { Vec3Expression, ConstantVec3Expression } from '../expressions';
 import { P_MESH_ORIENTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const eulerAngle = new Vec3();
 

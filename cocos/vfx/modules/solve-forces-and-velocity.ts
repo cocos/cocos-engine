@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXModule, VFXExecutionStageFlags } from '../vfx-module';
-import { VFXVec3Array } from '../parameters';
+import { VFXVec3Array } from '../data';
 import { P_POSITION, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, C_DELTA_TIME, P_PHYSICS_FORCE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 

@@ -209,17 +209,6 @@ export abstract class VFXModule {
      * @internal
      */
     public abstract execute (parameterMap: VFXParameterMap);
-    /**
-     * @engineInternal
-     * @internal
-     */
-    public onPlay (state: VFXEmitterState) {
-    }
-    /**
-     * @engineInternal
-     * @internal
-     */
-    public onStop (state: VFXEmitterState) {}
 }
 
 @ccclass('cc.VFXStage')
@@ -316,28 +305,6 @@ export class VFXStage {
     public requireRecompile () {
         if (this._owner) {
             this._owner.requireRecompile();
-        }
-    }
-
-    /**
-     * @engineInternal
-     * @internal
-     */
-    public onPlay (state: VFXEmitterState) {
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
-            module.onPlay(state);
-        }
-    }
-
-    /**
-     * @engineInternal
-     * @internal
-     */
-    public onStop (state: VFXEmitterState) {
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
-            module.onStop(state);
         }
     }
 

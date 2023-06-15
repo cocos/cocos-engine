@@ -28,7 +28,6 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_ROTATION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 @ccclass('cc.SetSpriteRotationModule')
 @VFXModule.register('SetSpriteRotation', VFXExecutionStageFlags.SPAWN)

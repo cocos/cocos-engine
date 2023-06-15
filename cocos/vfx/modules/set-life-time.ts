@@ -28,7 +28,6 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN)

@@ -28,7 +28,7 @@ import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
-import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
+import { P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.RandomRangeFloat')
@@ -75,7 +75,7 @@ export class RandomRangeFloatExpression extends FloatExpression {
         super.compile(parameterMap, owner);
         this.maximum.compile(parameterMap, owner);
         this.minimum.compile(parameterMap, owner);
-        if (this.usage === VFXExecutionStage.UPDATE) {
+        if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_RANDOM_SEED);
         }
     }

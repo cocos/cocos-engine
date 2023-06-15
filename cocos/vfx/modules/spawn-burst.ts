@@ -28,13 +28,12 @@ import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { E_LOOPED_AGE, C_DELTA_TIME, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { SpawnInfo } from '../parameters/spawn-info';
-import { VFXEmitter } from '../vfx-emitter';
+import { SpawnInfo } from '../data';
 
 const spawnInfo = new SpawnInfo();
 
 @ccclass('cc.SpawnBurstModule')
-@VFXModule.register('SpawnBurst', VFXExecutionStageFlags.EMITTER)
+@VFXModule.register('SpawnBurst', VFXExecutionStageFlags.EMITTER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
 export class SpawnBurstModule extends VFXModule {
     /**
       * @zh 发射的粒子的数量。

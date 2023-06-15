@@ -26,11 +26,10 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule, VFXStage } from '../vfx-module';
-import { VFXVec3Array } from '../parameters';
+import { VFXVec3Array } from '../data';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const originVec = new Vec3(0, 0, 0);
 const tempVec1 = new Vec3(0, 0, 0);

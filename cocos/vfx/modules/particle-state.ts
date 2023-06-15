@@ -27,7 +27,6 @@ import { Enum } from '../../core';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { P_NORMALIZED_AGE, P_IS_DEAD, P_INV_LIFETIME, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 export enum LifetimeElapsedOperation {
     KILL,
@@ -35,9 +34,9 @@ export enum LifetimeElapsedOperation {
     KEEP
 }
 
-@ccclass('cc.StateModule')
-@VFXModule.register('State', VFXExecutionStageFlags.UPDATE, [P_NORMALIZED_AGE.name])
-export class StateModule extends VFXModule {
+@ccclass('cc.ParticleStateModule')
+@VFXModule.register('ParticleState', VFXExecutionStageFlags.UPDATE, [P_NORMALIZED_AGE.name])
+export class ParticleStateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
     public get lifetimeElapsedOperation () {

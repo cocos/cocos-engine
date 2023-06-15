@@ -28,7 +28,7 @@ import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEmitter, VFXEmitterState } from '../vfx-emitter';
+import { VFXEmitterState } from '../vfx-emitter';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -532,12 +532,6 @@ export class CurlNoiseForceModule extends VFXModule {
 
     private _offset = new Vec3();
 
-    public onPlay (state: VFXEmitterState) {
-        super.onPlay(state);
-        RandomStream.get3Float(this.randomSeed, this._offset);
-        this._offset.multiplyScalar(100);
-    }
-
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
         parameterMap.ensure(P_POSITION);
@@ -552,6 +546,8 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
+        RandomStream.get3Float(this.randomSeed, this._offset);
+        this._offset.multiplyScalar(100);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const samplePosition = parameterMap.getVec3ArrayValue(P_POSITION);

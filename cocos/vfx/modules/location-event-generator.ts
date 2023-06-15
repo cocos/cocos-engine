@@ -30,7 +30,6 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const eventInfo = new VFXEventInfo();
 

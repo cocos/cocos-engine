@@ -28,7 +28,7 @@ import { RandomStream } from '../random-stream';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
-import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
+import { P_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const temp = new Vec3();

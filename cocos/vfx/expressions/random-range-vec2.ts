@@ -24,7 +24,7 @@
  */
 import { lerp, Vec2 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { C_MODULE_INITIAL_RANDOM_SEED, P_RANDOM_SEED } from '../define';
+import { P_RANDOM_SEED } from '../define';
 import { RandomStream } from '../random-stream';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';

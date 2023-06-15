@@ -35,10 +35,14 @@ export class RandomStream {
         this._seed = val >>> 0;
     }
     private static _gRand = new RandomStream();
-    private _seed = 0;
+    private _seed1 = 0;
+    private _seed2 = 0;
+    private _seed3 = 0;
 
-    public static getFloat (seed: number) {
-        this._gRand.seed = seed;
+    public static getFloat (seed1: number, seed2: number, seed3: number) {
+        this._gRand._seed1 = seed1;
+        this._gRand._seed2 = seed2;
+        this._gRand._seed3 = seed3;
         return this._gRand.getFloat();
     }
 

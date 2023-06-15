@@ -29,7 +29,6 @@ import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
 import { P_COLOR, P_NORMALIZED_AGE, P_BASE_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXEmitter } from '../vfx-emitter';
 
 const tempColor = new Color();
 

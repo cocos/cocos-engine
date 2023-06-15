@@ -141,7 +141,6 @@ export const C_EVENT_COUNT = new VFXParameter(builtinParameterId++, 'event-count
 // #region particle parameters
 builtinParameterId = 2000;
 export const P_ID = new VFXParameter(builtinParameterId++, 'id', VFXValueType.UINT32, VFXBuiltinNamespace.PARTICLE, true);
-export const P_RANDOM_SEED = new VFXParameter(builtinParameterId++, 'random-seed', VFXValueType.UINT32, VFXBuiltinNamespace.PARTICLE, true);
 export const P_INV_LIFETIME = new VFXParameter(builtinParameterId++, 'inv-lifetime', VFXValueType.FLOAT, VFXBuiltinNamespace.PARTICLE, true);
 export const P_NORMALIZED_AGE = new VFXParameter(builtinParameterId++, 'normalized-age', VFXValueType.FLOAT, VFXBuiltinNamespace.PARTICLE, true);
 export const P_IS_DEAD = new VFXParameter(builtinParameterId++, 'is-dead', VFXValueType.BOOL, VFXBuiltinNamespace.PARTICLE, true);
