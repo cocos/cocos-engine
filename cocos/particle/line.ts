@@ -41,7 +41,7 @@ const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 @executeInEditMode
 export class Line extends ModelRenderer {
     @type(Texture2D)
-    private _texture = null;
+    private _texture: Texture2D | null = null;
 
     /**
      * @zh 显示的纹理。
@@ -54,7 +54,7 @@ export class Line extends ModelRenderer {
         return this._texture;
     }
 
-    set texture (val) {
+    set texture (val: Texture2D | null) {
         this._texture = val;
         if (this.material) {
             this.material.setProperty('mainTexture', val);
@@ -72,7 +72,7 @@ export class Line extends ModelRenderer {
         return this.getSharedMaterial(0);
     }
 
-    set lineMaterial (val) {
+    set lineMaterial (val: Material | null) {
         this.setMaterial(val, 0);
     }
 
@@ -83,7 +83,7 @@ export class Line extends ModelRenderer {
         return super.sharedMaterials;
     }
 
-    set sharedMaterials (val) {
+    set sharedMaterials (val: (Material | null)[]) {
         super.sharedMaterials = val;
     }
 
@@ -146,7 +146,7 @@ export class Line extends ModelRenderer {
         return this._width;
     }
 
-    set width (val) {
+    set width (val: CurveRange) {
         this._width = val;
         if (this._models[0]) {
             const lineModel = this._models[0] as LineModel;
@@ -168,7 +168,7 @@ export class Line extends ModelRenderer {
         return this._color;
     }
 
-    set color (val) {
+    set color (val: GradientRange) {
         this._color = val;
         if (this._models[0]) {
             const lineModel = this._models[0] as LineModel;
@@ -195,7 +195,7 @@ export class Line extends ModelRenderer {
         return this._tile;
     }
 
-    set tile (val) {
+    set tile (val: Vec2) {
         this._tile.set(val);
         if (this.material) {
             this._tile_offset.x = this._tile.x;
@@ -214,7 +214,7 @@ export class Line extends ModelRenderer {
         return this._offset;
     }
 
-    set offset (val) {
+    set offset (val: Vec2) {
         this._offset.set(val);
         if (this.material) {
             this._tile_offset.z = this._offset.x;
