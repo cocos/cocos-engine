@@ -94,19 +94,19 @@ export class LifeCycleInvoker {
     /**
      * @engineInternal `_zero` is a protected property, we provide this public property for engine internal usage.
      */
-    public get _internalZero (): js.array.MutableForwardIterator<any> {
+    public get zero (): js.array.MutableForwardIterator<any> {
         return this._zero;
     }
     /**
      * @engineInternal `_neg` is a protected property, we provide this public property for engine internal usage.
      */
-    public get _internalNeg (): js.array.MutableForwardIterator<any> {
+    public get neg (): js.array.MutableForwardIterator<any> {
         return this._neg;
     }
     /**
      * @engineInternal `_pos` is a protected property, we provide this public property for engine internal usage.
      */
-    public get _internalPos (): js.array.MutableForwardIterator<any> {
+    public get pos (): js.array.MutableForwardIterator<any> {
         return this._pos;
     }
     // components which priority === 0 (default)
@@ -412,13 +412,13 @@ export class ComponentScheduler {
         }
 
         // unschedule
-        if (comp._internalStart && !(comp._objFlags & IsStartCalled)) {
+        if (comp.internalStart && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.remove(comp);
         }
-        if (comp._internalUpdate) {
+        if (comp.internalUpdate) {
             this.updateInvoker.remove(comp);
         }
-        if (comp._internalLateUpdate) {
+        if (comp.internalLateUpdate) {
             this.lateUpdateInvoker.remove(comp);
         }
     }
@@ -431,12 +431,12 @@ export class ComponentScheduler {
      */
     public enableComp (comp: Component, invoker?: OneOffInvoker): void {
         if (!(comp._objFlags & IsOnEnableCalled)) {
-            if (comp._internalOnEnable) {
+            if (comp.internalOnEnable) {
                 if (invoker) {
                     invoker.add(comp);
                     return;
                 } else {
-                    comp._internalOnEnable();
+                    comp.internalOnEnable();
 
                     const deactivatedDuringOnEnable = !comp.node.activeInHierarchy;
                     if (deactivatedDuringOnEnable) {
@@ -455,8 +455,8 @@ export class ComponentScheduler {
      */
     public disableComp (comp: Component): void {
         if (comp._objFlags & IsOnEnableCalled) {
-            if (comp._internalOnDisable) {
-                comp._internalOnDisable();
+            if (comp.internalOnDisable) {
+                comp.internalOnDisable();
             }
             this._onDisabled(comp);
         }
@@ -526,13 +526,13 @@ export class ComponentScheduler {
     }
 
     private _scheduleImmediate (comp: Component): void {
-        if (typeof comp._internalStart === 'function' && !(comp._objFlags & IsStartCalled)) {
+        if (typeof comp.internalStart === 'function' && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.add(comp);
         }
-        if (typeof comp._internalUpdate === 'function') {
+        if (typeof comp.internalUpdate === 'function') {
             this.updateInvoker.add(comp);
         }
-        if (typeof comp._internalLateUpdate === 'function') {
+        if (typeof comp.internalLateUpdate === 'function') {
             this.lateUpdateInvoker.add(comp);
         }
     }
@@ -551,7 +551,7 @@ if (EDITOR) {
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
         if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
-                if (comp._internalOnEnable) {
+                if (comp.internalOnEnable) {
                     if (invoker) {
                         invoker.add(comp);
                         enableInEditor(comp);
@@ -575,7 +575,7 @@ if (EDITOR) {
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
         if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
-                if (comp._internalOnDisable) {
+                if (comp.internalOnDisable) {
                     callOnDisableInTryCatch(comp);
                 }
                 this._onDisabled(comp);

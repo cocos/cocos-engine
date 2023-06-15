@@ -61,25 +61,25 @@ class UnsortedInvoker extends LifeCycleInvoker {
 
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
     : createInvokeImpl(
-        (c: Component): void => { c._internalPreload?.(); },
+        (c: Component): void => { c.internalPreload?.(); },
         (iterator: array.MutableForwardIterator<Component>): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                array[iterator.i]._internalPreload?.();
+                array[iterator.i].internalPreload?.();
             }
         },
     );
 const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=${IsOnLoadCalled}`, false, IsOnLoadCalled)
     : createInvokeImpl(
         (c: Component): void => {
-            c._internalOnLoad?.();
+            c.internalOnLoad?.();
             c._objFlags |= IsOnLoadCalled;
         },
         (iterator: array.MutableForwardIterator<Component>): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 const comp: Component = array[iterator.i];
-                comp._internalOnLoad?.();
+                comp.internalOnLoad?.();
                 comp._objFlags |= IsOnLoadCalled;
             }
         },
@@ -101,15 +101,15 @@ activateTasksPool.get = function getActivateTask (): ActivateTask {
     };
 
     // reset index to -1 so we can skip invoked component in cancelInactive
-    task.preload._internalZero.i = -1;
+    task.preload.zero.i = -1;
     let invoker = task.onLoad;
-    invoker._internalZero.i = -1;
-    invoker._internalNeg.i = -1;
-    invoker._internalPos.i = -1;
+    invoker.zero.i = -1;
+    invoker.neg.i = -1;
+    invoker.pos.i = -1;
     invoker = task.onEnable;
-    invoker._internalZero.i = -1;
-    invoker._internalNeg.i = -1;
-    invoker._internalPos.i = -1;
+    invoker.zero.i = -1;
+    invoker.neg.i = -1;
+    invoker.pos.i = -1;
 
     return task;
 };
@@ -195,21 +195,21 @@ export default class NodeActivator {
         }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
-            if (comp._internalPreload) {
+            if (comp.internalPreload) {
                 if (preloadInvoker) {
                     preloadInvoker.add(comp);
                 } else {
-                    comp._internalPreload();
+                    comp.internalPreload();
                 }
             }
         }
         if (!(comp._objFlags & IsOnLoadStarted)) {
             comp._objFlags |= IsOnLoadStarted;
-            if (comp._internalOnLoad) {
+            if (comp.internalOnLoad) {
                 if (onLoadInvoker) {
                     onLoadInvoker.add(comp);
                 } else {
-                    comp._internalOnLoad();
+                    comp.internalOnLoad();
                     comp._objFlags |= IsOnLoadCalled;
                 }
             } else {
@@ -237,8 +237,8 @@ export default class NodeActivator {
         // ensure onDisable called
         legacyCC.director._compScheduler.disableComp(comp);
 
-        if (comp._internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            comp._internalOnDestroy();
+        if (comp.internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
+            comp.internalOnDestroy();
         }
     }
 
@@ -327,7 +327,7 @@ if (EDITOR) {
     const callPreloadInTryCatch = tryCatchFunctor_EDITOR('__preload');
     const callOnLoadInTryCatch = function (c: Component): void {
         try {
-            c._internalOnLoad?.();
+            c.internalOnLoad?.();
         } catch (e) {
             legacyCC._throw(e);
         }
@@ -339,7 +339,7 @@ if (EDITOR) {
     const callOnLostFocusInTryCatch = tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
     const _onLoadInEditor = (comp: Component): void => {
-        if (comp._internalOnLoad && !legacyCC.GAME_VIEW) {
+        if (comp.internalOnLoad && !legacyCC.GAME_VIEW) {
             const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
             if (focused) {
                 if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -360,7 +360,7 @@ if (EDITOR) {
         if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
-                if (comp._internalPreload) {
+                if (comp.internalPreload) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
                     } else if (callPreloadInTryCatch) {
@@ -370,7 +370,7 @@ if (EDITOR) {
             }
             if (!(comp._objFlags & IsOnLoadStarted)) {
                 comp._objFlags |= IsOnLoadStarted;
-                if (comp._internalOnLoad) {
+                if (comp.internalOnLoad) {
                     if (onLoadInvoker) {
                         onLoadInvoker.add(comp);
                     } else if (callOnLoadInTryCatch) {
@@ -398,7 +398,7 @@ if (EDITOR) {
         // ensure onDisable called
         legacyCC.director._compScheduler.disableComp(comp);
 
-        if (comp._internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
+        if (comp.internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
             // NOTE: _executeInEditMode is dynamically injected on Editor environment
             if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
