@@ -373,9 +373,12 @@ class SystemInfo extends EventTarget {
         }
     }
 
+    public exit (): void {
+        window.close();
+    }
+
     public close (): void {
         this.emit('close');
-        window.close();
     }
 }
 
