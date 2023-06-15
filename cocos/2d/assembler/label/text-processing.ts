@@ -88,6 +88,8 @@ export class TextProcessing {
     public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]) {
         if (!isBmFont) {
+            this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale,
+                outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
         } else {
@@ -141,12 +143,13 @@ export class TextProcessing {
 
     private _getStyleFontScale (fontSize: number, fontScale: number, canvasWidth: number, canvasHeight: number) {
         let scale = fontScale;
+        scale = parseFloat(scale.toFixed(1));
         if (scale * fontSize > this._maxFontSize && fontSize < this._maxFontSize) { // Font size limit
             scale = this._maxFontSize / fontSize;
         }
         if (canvasWidth * scale > MAX_SIZE || canvasHeight * scale > MAX_SIZE) { // Canvas limit
             const maxValue  = Math.max(canvasWidth * scale, canvasHeight * scale);
-            scale = MAX_SIZE * scale / maxValue;
+            scale = MAX_SIZE / maxValue;
         }
         if (scale < 1) { scale = 1; }
         scale = parseFloat(scale.toFixed(1));
@@ -159,7 +162,7 @@ export class TextProcessing {
             return;
         }
 
-        style.actualFontSize = style.fontSize;
+        style.actualFontSize = style.fontSize * this._fontScale;
         const paragraphedStrings = inputString.split('\n');
 
         const _splitStrings = outputLayoutData.parsedString = paragraphedStrings;
@@ -174,14 +177,15 @@ export class TextProcessing {
                 const paraLength = safeMeasureText(this._context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
+            canvasSizeY = (_splitStrings.length + BASELINE_RATIO)
+            * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
             const rawWidth = parseFloat(canvasSizeX.toFixed(2));
             const rawHeight = parseFloat(canvasSizeY.toFixed(2));
 
-            outputLayoutData.canvasSize.width = rawWidth + outputLayoutData.canvasPadding.width;
-            outputLayoutData.canvasSize.height = rawHeight + outputLayoutData.canvasPadding.height;
-            outputLayoutData.nodeContentSize.width = rawWidth + outputLayoutData.contentSizeExtend.width;
-            outputLayoutData.nodeContentSize.height = rawHeight + outputLayoutData.contentSizeExtend.height;
+            outputLayoutData.canvasSize.width = (rawWidth + outputLayoutData.canvasPadding.width * this._fontScale) / this._fontScale;
+            outputLayoutData.canvasSize.height = (rawHeight + outputLayoutData.canvasPadding.height * this._fontScale) / this._fontScale;
+            outputLayoutData.nodeContentSize.width = (rawWidth + outputLayoutData.contentSizeExtend.width * this._fontScale) / this._fontScale;
+            outputLayoutData.nodeContentSize.height = (rawHeight + outputLayoutData.contentSizeExtend.height * this._fontScale) / this._fontScale;
             break;
         }
         case Overflow.SHRINK: {
@@ -198,14 +202,28 @@ export class TextProcessing {
             const rawHeight = (outputLayoutData.parsedString.length + BASELINE_RATIO)
             * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
 
-            outputLayoutData.canvasSize.height = rawHeight + outputLayoutData.canvasPadding.height;
+            outputLayoutData.canvasSize.height = (rawHeight + outputLayoutData.canvasPadding.height * this._fontScale) / this._fontScale;
             // set node height
-            outputLayoutData.nodeContentSize.height = rawHeight + outputLayoutData.contentSizeExtend.height;
+            outputLayoutData.nodeContentSize.height = (rawHeight + outputLayoutData.contentSizeExtend.height * this._fontScale) / this._fontScale;
             break;
         }
         default: {
             // nop
         }
+        }
+        style.fontDesc = style.fontDesc.replace(
+            /(\d+)(\.\d+)?(px|em|rem|pt)/g,
+            (w, m: string, n: string, u: string) => (+m / this._fontScale + (+n || 0) / this._fontScale).toString() + u,
+        );
+        style.actualFontSize /= this._fontScale;
+
+        // check & limit canvas size
+        if ((outputLayoutData.canvasSize.width < MAX_SIZE && outputLayoutData.canvasSize.height < MAX_SIZE)
+            && (outputLayoutData.canvasSize.width * this._fontScale > MAX_SIZE || outputLayoutData.canvasSize.height * this._fontScale > MAX_SIZE)) {
+            this._fontScale = this._getStyleFontScale(style.fontSize, this._fontScale,
+                outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+            this._updatePaddingRect(style, outputLayoutData);
+            this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
         }
     }
 
@@ -248,13 +266,13 @@ export class TextProcessing {
         let _fontSize = style.actualFontSize;
 
         if (layout.wrapping) {
-            const canvasWidthNoMargin = outputLayoutData.nodeContentSize.width;
-            const canvasHeightNoMargin = outputLayoutData.nodeContentSize.height;
+            const canvasWidthNoMargin = outputLayoutData.nodeContentSize.width * this._fontScale;
+            const canvasHeightNoMargin = outputLayoutData.nodeContentSize.height * this._fontScale;
             if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                 return;
             }
             totalHeight = canvasHeightNoMargin + 1;
-            const actualFontSize = style.fontSize + 1;
+            const actualFontSize = style.actualFontSize + 1;
             let textFragment: string[] = [];
             let left = 0;
             let right = actualFontSize | 0;
@@ -305,10 +323,10 @@ export class TextProcessing {
                     maxLength = paragraphLength[i];
                 }
             }
-            const scaleX = (outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width) / maxLength;
-            const scaleY = outputLayoutData.canvasSize.height / totalHeight;
+            const scaleX = (outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width) * this._fontScale / maxLength;
+            const scaleY = (outputLayoutData.canvasSize.height * this._fontScale) / totalHeight;
 
-            _fontSize = (style.fontSize * Math.min(1, scaleX, scaleY)) | 0;
+            _fontSize = (style.actualFontSize * Math.min(1, scaleX, scaleY)) | 0;
             _fontDesc = this._getFontDesc(_fontSize, style.fontFamily, style.isBold, style.isItalic);
             this._context.font = _fontDesc;
         }
@@ -321,7 +339,7 @@ export class TextProcessing {
         if (!layout.wrapping || !this._context) return;
 
         let _splitStrings: string[] = [];
-        const canvasWidthNoMargin = outputLayoutData.nodeContentSize.width;
+        const canvasWidthNoMargin = outputLayoutData.nodeContentSize.width * this._fontScale;
         const _fontDesc = this._getFontDesc(style.actualFontSize, style.fontFamily, style.isBold, style.isItalic);
         this._context.font = _fontDesc;
         for (let i = 0; i < paragraphedStrings.length; ++i) {
@@ -371,7 +389,7 @@ export class TextProcessing {
         }
         if (style.isItalic) {
             // 0.0174532925 = 3.141592653 / 180
-            const offset = style.actualFontSize * Math.tan(12 * 0.0174532925);
+            const offset = style.fontSize * Math.tan(12 * 0.0174532925);
             right += offset;
             outputLayoutData.contentSizeExtend.width += offset;
         }
