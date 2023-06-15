@@ -29,6 +29,8 @@ import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
 
+export type EnumType = Record<string, string | number>;
+
 /**
  * @en
  * Define an enum type. <br/>
