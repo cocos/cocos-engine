@@ -517,7 +517,7 @@ class Component extends CCObject {
     protected update? (dt: number): void;
 
     /**
-     * @engineInternal please access `update` instead.
+     * @engineInternal `update` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_update (): ((dt: number) => void) | undefined {
         return this.update;
@@ -534,7 +534,7 @@ class Component extends CCObject {
     protected lateUpdate? (dt: number): void;
 
     /**
-     * @engineInternal please access `lateUpdate` instead.
+     * @engineInternal `lateUpdate` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_lateUpdate (): ((dt: number) => void) | undefined {
         return this.lateUpdate;
@@ -554,7 +554,7 @@ class Component extends CCObject {
     protected __preload? (): void;
 
     /**
-     * @engineInternal please access `__preload` instead.
+     * @engineInternal `__preload` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_preload (): (() => void) | undefined {
         return this.__preload;
@@ -573,7 +573,7 @@ class Component extends CCObject {
     protected onLoad? (): void;
 
     /**
-     * @engineInternal please access `onLoad` instead.
+     * @engineInternal `onLoad` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_onLoad (): (() => void) | undefined {
         return this.onLoad;
@@ -592,7 +592,7 @@ class Component extends CCObject {
     protected start? (): void;
 
     /**
-     * @engineInternal please access `start` instead.
+     * @engineInternal `start` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_start(): (() => void) | undefined {
         return this.start;
@@ -608,7 +608,7 @@ class Component extends CCObject {
     protected onEnable? (): void;
 
     /**
-     * @engineInternal please access `onEnable` instead.
+     * @engineInternal `onEnable` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_onEnable (): (() => void) | undefined {
         return this.onEnable;
@@ -624,7 +624,7 @@ class Component extends CCObject {
     protected onDisable? (): void;
 
     /**
-     * @engineInternal please access `onDisable` instead.
+     * @engineInternal `onDisable` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_onDisable (): (() => void) | undefined {
         return this.onDisable;
@@ -640,7 +640,7 @@ class Component extends CCObject {
     protected onDestroy? (): void;
 
     /**
-     * @engineInternal please access `onDestroy` instead.
+     * @engineInternal `onDestroy` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_onDestroy (): (() => void) | undefined {
         return this.onDestroy;

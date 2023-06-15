@@ -92,34 +92,34 @@ export class LifeCycleInvoker {
     public static stableRemoveInactive = stableRemoveInactive;
 
     /**
-     * @engineInternal please access `_zero` instead.
+     * @engineInternal `_zero` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_zero (): js.array.MutableForwardIterator<any> {
         return this._zero;
     }
     /**
-     * @engineInternal please access `_neg` instead.
+     * @engineInternal `_neg` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_neg (): js.array.MutableForwardIterator<any> {
         return this._neg;
     }
     /**
-     * @engineInternal please access `_pos` instead.
+     * @engineInternal `_pos` is a protected property, we provide this public property for engine internal usage.
      */
     public get _internal_pos (): js.array.MutableForwardIterator<any> {
         return this._pos;
     }
+    // components which priority === 0 (default)
     protected _zero: js.array.MutableForwardIterator<any>;
+    // components which priority < 0
     protected _neg: js.array.MutableForwardIterator<any>;
+    // components which priority > 0
     protected _pos: js.array.MutableForwardIterator<any>;
     protected _invoke: InvokeFunc;
     constructor (invokeFunc: InvokeFunc) {
         const Iterator = js.array.MutableForwardIterator;
-        // components which priority === 0 (default)
         this._zero = new Iterator([]);
-        // components which priority < 0
         this._neg = new Iterator([]);
-        // components which priority > 0
         this._pos = new Iterator([]);
 
         if (TEST) {
