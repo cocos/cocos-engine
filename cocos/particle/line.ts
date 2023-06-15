@@ -126,7 +126,7 @@ export class Line extends ModelRenderer {
         return this._positions;
     }
 
-    set positions (val) {
+    set positions (val: Vec3[]) {
         this._positions = val;
         if (this._models[0]) {
             const lineModel = this._models[0] as LineModel;
