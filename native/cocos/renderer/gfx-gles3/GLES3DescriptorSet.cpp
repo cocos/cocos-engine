@@ -29,6 +29,7 @@
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3Texture.h"
+#include "GLES3Device.h"
 #include "gfx-gles3/GLES3GPUObjects.h"
 #include "states/GLES3Sampler.h"
 
@@ -73,11 +74,23 @@ void GLES3DescriptorSet::update() {
                     descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i].ptr)->gpuBuffer();
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (_textures[i].ptr) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i].ptr)->gpuTextureView();
-                }
                 if (_samplers[i].ptr) {
                     descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i].ptr)->gpuSampler();
+                }
+
+                if (_textures[i].ptr) {
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i].ptr)->gpuTextureView();
+
+                    // work around for sample depth stencil texture, delete when rdg support set sampler.
+                    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(
+                            _textures[i].ptr->getFormat())];
+                    if (info.hasDepth || info.hasStencil) {
+                        gfx::SamplerInfo samplerInfo = {};
+                        samplerInfo.minFilter = gfx::Filter::POINT;
+                        samplerInfo.magFilter = gfx::Filter::POINT;
+                        descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(Device::getInstance()->getSampler(
+                                samplerInfo))->gpuSampler();
+                    }
                 }
             }
         }

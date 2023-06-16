@@ -840,7 +840,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             },                                                 \
         },                                                     \
         {                                                      \
-            PassType::COMPUTE,                                 \
+            PassType::COPY,                                    \
             {                                                  \
                 {{"3"}, {"7"}},                                \
             },                                                 \
@@ -852,7 +852,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             },                                                 \
         },                                                     \
         {                                                      \
-            PassType::COMPUTE,                                 \
+            PassType::RASTER,                                  \
             {                                                  \
                 {{"1"}, {"9"}},                                \
             },                                                 \
@@ -864,7 +864,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             },                                                 \
         },                                                     \
         {                                                      \
-            PassType::COMPUTE,                                 \
+            PassType::COPY,                                    \
             {                                                  \
                 {{"14"}, {"15"}},                              \
             },                                                 \
@@ -935,7 +935,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             {"8", 8, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
         },                                                     \
         {                                                      \
-            {"1", 1, cc::gfx::ShaderStageFlagBit::VERTEX},     \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
             {"9", 9, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
         },                                                     \
         {                                                      \

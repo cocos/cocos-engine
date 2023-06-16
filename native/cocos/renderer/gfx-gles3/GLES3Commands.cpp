@@ -714,7 +714,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             ccstd::vector<GLuint> &ssbo = device->stateCache()->glBindSSBOs;
             for (GLuint i = 0; i < ssbo.size(); i++) {
                 if (ssbo[i] == gpuBuffer->glBuffer) {
-                    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, i, 0));
+                    GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, 0));
                     device->stateCache()->glShaderStorageBuffer = 0;
                     ssbo[i] = 0;
                 }
@@ -1211,6 +1211,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GL
 
     gpuShader->glBuffers.resize(blockCount + bufferCount);
 
+    GLuint uboBinding = 0;
     for (GLint i = 0; i < blockCount; ++i) {
         GLES3GPUUniformBuffer &glBlock = gpuShader->glBuffers[i];
         memset(glName, 0, sizeof(glName));
@@ -1229,8 +1230,9 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GL
             if (block.name == glBlock.name) {
                 glBlock.set = block.set;
                 glBlock.binding = block.binding;
-                glBlock.glBinding = block.binding + device->bindingMappings().blockOffsets[block.set];
-                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, glBlock.glBinding));
+                glBlock.glBinding = uboBinding;
+                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, uboBinding));
+                uboBinding += block.count;
                 break;
             }
         }
