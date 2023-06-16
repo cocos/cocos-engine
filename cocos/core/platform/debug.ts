@@ -170,13 +170,13 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
             logToWebPage(formatString(message, ...optionalParams));
         };
     }
-    // eslint-disable-next-line no-fallthrough
+    // fallthrough
     case DebugMode.WARN_FOR_WEB_PAGE: {
         ccWarn = (message?: any, ...optionalParams: any[]) => {
             logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
         };
     }
-    // eslint-disable-next-line no-fallthrough
+    // fallthrough
     case DebugMode.ERROR_FOR_WEB_PAGE: {
         ccError = (message?: any, ...optionalParams: any[]) => {
             logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
@@ -210,7 +210,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
     // Don't change the case order.
     switch (mode) {
     case DebugMode.VERBOSE: // Do nothing.
-    // eslint-disable-next-line no-fallthrough
+    // fallthrough
     case DebugMode.INFO: {
         if (EDITOR) {
             ccLog = console.log.bind(console);
@@ -225,7 +225,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
             }
         }
     }
-    // eslint-disable-next-line no-fallthrough
+    // fallthrough
     case DebugMode.WARN: {
         if (EDITOR) {
             ccWarn = console.warn.bind(console);
@@ -236,7 +236,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
             ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
         }
     }
-    // eslint-disable-next-line no-fallthrough
+    // fallthrough
     case DebugMode.ERROR: {
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
