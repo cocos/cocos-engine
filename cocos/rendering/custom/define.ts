@@ -167,7 +167,7 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
             } else {
                 const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY;
                 out.x = level % 2 * 0.5 * w;
-                if (screenSpaceSignY) {
+                if (screenSpaceSignY > 0) {
                     out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
                 } else {
                     out.y = Math.floor(level / 2) * 0.5 * h;
