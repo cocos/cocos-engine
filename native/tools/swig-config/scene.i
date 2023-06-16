@@ -22,6 +22,7 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "scene/Skin.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
@@ -472,6 +473,10 @@ using namespace cc;
 %attribute(cc::scene::Fog, float, fogRange, getFogRange, setFogRange);
 %attribute(cc::scene::Fog, cc::Vec4&, colorArray, getColorArray);
 
+%attribute(cc::scene::Skin, bool, enabled, isEnabled, setEnabled);
+%attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
+%attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
+
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, subModels, getSubModels);
@@ -671,6 +676,7 @@ using namespace cc;
 %include "scene/Fog.h"
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
+%include "scene/Skin.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
