@@ -44,4 +44,4 @@ export * from './vfx-dynamic-buffer';
 export * from './modules';
 export * from './expressions';
 export * from './renderers';
-export * from './parameters';
+export * from './data';

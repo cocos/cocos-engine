@@ -33,6 +33,6 @@ export abstract class Vec3Expression extends VFXExpression {
     public get valueType (): VFXValueType {
         return VFXValueType.VEC2;
     }
-    public abstract evaluateSingle (out: Vec3): Vec3;
+
     public abstract evaluate (index: number, out: Vec3): Vec3;
 }

@@ -24,7 +24,7 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { RandomStream } from '../random-stream';
+import { RandomStream } from '../rand';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
@@ -101,15 +101,6 @@ export class RandomRangeVec3Expression extends Vec3Expression {
         out.x = lerp(out.x, temp.x, ratio.x);
         out.y = lerp(out.y, temp.y, ratio.y);
         out.z = lerp(out.z, temp.z, ratio.z);
-        return out;
-    }
-
-    public evaluateSingle (out: Vec3) {
-        this._minimum!.evaluateSingle(out);
-        this._maximum!.evaluateSingle(temp);
-        out.x = lerp(out.x, temp.x, this._randomStream.getFloat());
-        out.y = lerp(out.y, temp.y, this._randomStream.getFloat());
-        out.z = lerp(out.z, temp.z, this._randomStream.getFloat());
         return out;
     }
 }

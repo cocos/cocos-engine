@@ -72,10 +72,6 @@ export class BindingVec3Expression extends Vec3Expression {
         }
     }
 
-    public evaluateSingle (out: Vec3): Vec3 {
-        return this._getVec3(0, out);
-    }
-
     public evaluate (index: number, out: Vec3): Vec3 {
         return this._getVec3(index, out);
     }

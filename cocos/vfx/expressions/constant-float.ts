@@ -57,8 +57,4 @@ export class ConstantFloatExpression extends FloatExpression {
     public evaluate (index: number): number {
         return this._value;
     }
-
-    public evaluateSingle (): number {
-        return this._value;
-    }
 }

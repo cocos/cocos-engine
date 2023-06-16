@@ -68,12 +68,4 @@ export class Vec3FromFloatExpression extends Vec3Expression {
         out.z = val;
         return out;
     }
-
-    public evaluateSingle (out: Vec3): Vec3 {
-        const val = this._value!.evaluateSingle();
-        out.x = val;
-        out.y = val;
-        out.z = val;
-        return out;
-    }
 }

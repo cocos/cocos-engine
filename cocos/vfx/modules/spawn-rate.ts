@@ -71,7 +71,7 @@ export class SpawnRateModule extends VFXModule {
         }
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(parameterMap);
-        const spawnRate = rateExp.evaluateSingle();
+        const spawnRate = rateExp.evaluate(0);
         const intervalDt = 1 / spawnRate;
         const interpStartDt = (1 - spawnRemainder.data) * intervalDt;
         const count = spawnRemainder.data + (loopedAge > 0 ? spawnRate : 0) * deltaTime;

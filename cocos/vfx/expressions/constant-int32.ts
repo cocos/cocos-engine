@@ -56,8 +56,4 @@ export class ConstantInt32Expression extends Int32Expression {
     public evaluate (index: number): number {
         return this._value;
     }
-
-    public evaluateSingle (): number {
-        return this._value;
-    }
 }

@@ -70,7 +70,7 @@ export class SpawnPerUnitModule extends VFXModule {
         }
         const spawnSpacingExp = this._spawnSpacing as FloatExpression;
         spawnSpacingExp.bind(parameterMap);
-        let spawnSpacing = spawnSpacingExp.evaluateSingle();
+        let spawnSpacing = spawnSpacingExp.evaluate(0);
         spawnSpacing = spawnSpacing <= 0 ? 0 : (1 / Math.max(spawnSpacing, 1e-6));
         spawnSpacing *= velocity.length();
         const spawnCount =  spawnRemainderPerUnit.data + spawnSpacing * deltaTime;

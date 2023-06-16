@@ -24,7 +24,7 @@
  */
 import { lerp } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { RandomStream } from '../random-stream';
+import { RandomStream } from '../rand';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
@@ -93,11 +93,5 @@ export class RandomRangeFloatExpression extends FloatExpression {
 
     public evaluate (index: number): number {
         return lerp(this._minimum!.evaluate(index), this._maximum!.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
-    }
-
-    public evaluateSingle (): number {
-        const min = this._minimum!.evaluateSingle();
-        const max = this._maximum!.evaluateSingle();
-        return lerp(min, max, this._randomStream.getFloat());
     }
 }

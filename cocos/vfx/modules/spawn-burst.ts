@@ -91,8 +91,8 @@ export class SpawnBurstModule extends VFXModule {
         const timeExp = this._time as FloatExpression;
         countExp.bind(parameterMap);
         timeExp.bind(parameterMap);
-        const spawnCount = countExp.evaluateSingle();
-        const spawnTime = timeExp.evaluateSingle();
+        const spawnCount = countExp.evaluate(0);
+        const spawnTime = timeExp.evaluate(0);
 
         const spawnStartDt = (spawnTime - (loopAge - deltaTime));
 

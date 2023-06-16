@@ -139,13 +139,4 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         out.z = this._z.evaluate(time) * ratio.z;
         return out;
     }
-
-    public evaluateSingle (out: Vec3): Vec3 {
-        this._scale!.evaluateSingle(ratio);
-        const time = this._curveIndex!.evaluateSingle();
-        out.x = this._x.evaluate(time) * ratio.x;
-        out.y = this._y.evaluate(time) * ratio.y;
-        out.z = this._z.evaluate(time) * ratio.z;
-        return out;
-    }
 }

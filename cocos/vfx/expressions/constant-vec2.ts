@@ -71,10 +71,4 @@ export class ConstantVec2Expression extends Vec2Expression {
         out.y = this._y;
         return out;
     }
-
-    public evaluateSingle (out: Vec2) {
-        out.x = this._x;
-        out.y = this._y;
-        return out;
-    }
 }

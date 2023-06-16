@@ -27,7 +27,7 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
-import { RandomStream } from '../random-stream';
+import { RandomStream } from '../rand';
 import { VFXEmitterState } from '../vfx-emitter';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';

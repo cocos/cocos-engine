@@ -58,9 +58,4 @@ export class ConstantColorExpression extends ColorExpression {
         out.set(this._color);
         return out;
     }
-
-    public evaluateSingle (out: Color) {
-        out.set(this._color);
-        return out;
-    }
 }

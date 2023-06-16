@@ -86,10 +86,6 @@ export class BindingFloatExpression extends FloatExpression {
         }
     }
 
-    public evaluateSingle (): number {
-        return this._getFloat(0);
-    }
-
     public evaluate (index: number): number {
         return this._getFloat(index);
     }

@@ -100,11 +100,4 @@ export class MakeVec3Expression extends Vec3Expression {
         out.z = this._z!.evaluate(index);
         return out;
     }
-
-    public evaluateSingle (out: Vec3) {
-        out.x = this._x!.evaluateSingle();
-        out.y = this._y!.evaluateSingle();
-        out.z = this._z!.evaluateSingle();
-        return out;
-    }
 }

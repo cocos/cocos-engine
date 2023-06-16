@@ -103,8 +103,4 @@ export class FloatFromCurveExpression extends FloatExpression {
     public evaluate (index: number): number {
         return this.curve.evaluate(this._curveIndex!.evaluate(index)) * this._scale!.evaluate(index);
     }
-
-    public evaluateSingle (): number {
-        return this.curve.evaluate(this._curveIndex!.evaluateSingle()) * this._scale!.evaluateSingle();
-    }
 }

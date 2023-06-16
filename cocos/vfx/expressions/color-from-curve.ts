@@ -76,11 +76,6 @@ export class ColorFromCurveExpression extends ColorExpression {
         this._curveIndex!.bind(parameterMap);
     }
 
-    public evaluateSingle (out: Color) {
-        this._curve.evaluateFast(out, this._curveIndex!.evaluateSingle());
-        return out;
-    }
-
     public evaluate (index: number, out: Color) {
         this._curve.evaluateFast(out, this._curveIndex!.evaluate(index));
         return out;

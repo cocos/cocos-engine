@@ -19,7 +19,8 @@
         "source.fixAll": true,
     },
     "files.associations": {
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "*.ipp": "c"
     },
     "cmake.configureOnOpen": false,
 }

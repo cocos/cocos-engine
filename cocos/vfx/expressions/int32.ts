@@ -33,6 +33,5 @@ export abstract class Int32Expression extends VFXExpression {
         return VFXValueType.INT32;
     }
 
-    public abstract evaluateSingle (): number;
     public abstract evaluate (index: number): number;
 }

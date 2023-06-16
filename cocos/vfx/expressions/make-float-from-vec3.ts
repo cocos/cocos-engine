@@ -105,9 +105,4 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         this._vec3!.evaluate(index, temp);
         return this._getChannel(temp);
     }
-
-    public evaluateSingle (): number {
-        this._vec3!.evaluateSingle(temp);
-        return this._getChannel(temp);
-    }
 }

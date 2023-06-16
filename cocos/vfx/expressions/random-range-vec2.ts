@@ -25,7 +25,7 @@
 import { lerp, Vec2 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { P_RANDOM_SEED } from '../define';
-import { RandomStream } from '../random-stream';
+import { RandomStream } from '../rand';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec2Expression } from './constant-vec2';
@@ -101,14 +101,6 @@ export class RandomRangeVec2Expression extends Vec2Expression {
         const ratio = RandomStream.get2Float(this._seed[index] + this._randomOffset, tempRatio);
         out.x = lerp(out.x, temp.x, ratio.x);
         out.y = lerp(out.y, temp.y, ratio.y);
-        return out;
-    }
-
-    public evaluateSingle (out: Vec2) {
-        this._minimum!.evaluateSingle(out);
-        this._maximum!.evaluateSingle(temp);
-        out.x = lerp(out.x, temp.x, this._randomStream.getFloat());
-        out.y = lerp(out.y, temp.y, this._randomStream.getFloat());
         return out;
     }
 }

@@ -24,7 +24,7 @@
  */
 import { Color } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { RandomStream } from '../random-stream';
+import { RandomStream } from '../rand';
 import { ColorExpression } from './color';
 import { ConstantColorExpression } from './constant-color';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
@@ -95,11 +95,5 @@ export class RandomRangeColorExpression extends ColorExpression {
 
     public evaluate (index: number, out: Color) {
         return Color.lerp(out, this._minimum!.evaluate(index, out), this._maximum!.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomSeed));
-    }
-
-    public evaluateSingle (out: Color) {
-        const min = this._minimum!.evaluateSingle(out);
-        const max = this._maximum!.evaluateSingle(tempColor);
-        return Color.lerp(out, min, max, this._randomStream.getFloat());
     }
 }

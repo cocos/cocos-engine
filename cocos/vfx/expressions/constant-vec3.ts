@@ -87,11 +87,4 @@ export class ConstantVec3Expression extends Vec3Expression {
         out.z = this._z;
         return out;
     }
-
-    public evaluateSingle (out: Vec3) {
-        out.x = this._x;
-        out.y = this._y;
-        out.z = this._z;
-        return out;
-    }
 }

@@ -33,6 +33,5 @@ export abstract class FloatExpression extends VFXExpression {
         return VFXValueType.FLOAT;
     }
 
-    public abstract evaluateSingle (): number;
     public abstract evaluate (index: number): number;
 }

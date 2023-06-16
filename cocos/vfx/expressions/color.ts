@@ -33,6 +33,6 @@ export abstract  class ColorExpression extends VFXExpression {
     public get valueType () {
         return VFXValueType.COLOR;
     }
-    abstract evaluateSingle (out: Color): Color;
+
     abstract evaluate (index: number, out: Color): Color;
 }
