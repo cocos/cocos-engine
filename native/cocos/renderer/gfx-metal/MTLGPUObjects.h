@@ -34,6 +34,7 @@
 #import "MTLDevice.h"
 #import "MTLUtils.h"
 #include "base/std/container/queue.h"
+#include <array>
 
 namespace cc {
 namespace gfx {
@@ -111,6 +112,8 @@ struct CCMTLGPUShader {
     ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
     ccstd::vector<CCMTLGPUSubpassAttachment> outputs;
 
+    std::array<uint32_t, 3> workGroupSize{0, 0, 0};
+    
     NSString *shaderSrc = nil;
     bool specializeColor = true;
 
