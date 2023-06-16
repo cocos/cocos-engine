@@ -209,7 +209,12 @@ function resetDebugSettingNormal (mode: DebugMode): void {
 
     // Don't change the case order.
     switch (mode) {
-    case DebugMode.VERBOSE: // Do nothing.
+    case DebugMode.VERBOSE: {
+        if (typeof console.debug === 'function') {
+            const vendorDebug = console.debug.bind(console);
+            ccDebug = (...data: any[]) => vendorDebug(...data);
+        }
+    }
     // fallthrough
     case DebugMode.INFO: {
         if (EDITOR) {
