@@ -199,12 +199,14 @@ public:
     ~DefaultResource() = default;
 
     Texture *getTexture(TextureType type) const;
+    Buffer *getBuffer() const;
 
 private:
     IntrusivePtr<Texture> _texture2D;
     IntrusivePtr<Texture> _texture2DArray;
     IntrusivePtr<Texture> _textureCube;
     IntrusivePtr<Texture> _texture3D;
+    IntrusivePtr<Buffer> _buffer;
 };
 
 //////////////////////////////////////////////////////////////////////////
