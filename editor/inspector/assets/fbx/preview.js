@@ -671,16 +671,16 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.__protected__.removeBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.__protected__.addBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onAssetChange(uuids) {
-        if (uuids.includes(this.asset.uuid)) {
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
             // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
@@ -689,7 +689,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -731,7 +731,7 @@ exports.ready = function() {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -762,7 +762,7 @@ exports.update = async function(assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

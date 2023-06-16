@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
-import { AccessType, AttachmentType, ComputeView, QueueHint, RasterView, ResourceResidency, SceneFlags } from '../../custom/types';
+import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
@@ -164,9 +164,7 @@ export class PassContext {
     }
     setPassInput (inputName: string, shaderName: string) {
         if (this.ppl!.containsResource(inputName)) {
-            const computeView = new ComputeView();
-            computeView.name = shaderName;
-            this.pass!.addComputeView(inputName, computeView);
+            this.pass!.addTexture(inputName, shaderName);
         }
         return this;
     }
