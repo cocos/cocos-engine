@@ -49,7 +49,7 @@ CCEffect %{
       propertyIndex: 0
     - vert: terrain-vs
       frag: terrain-fs
-      phase: deferred-forwar
+      phase: deferred-forward
       propertyIndex: 0
 }%
 
