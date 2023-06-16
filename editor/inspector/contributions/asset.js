@@ -15,11 +15,11 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-button class="save tiny green" tooltip="i18n:ENGINE.assets.save">
+        <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny" tooltip="i18n:ENGINE.assets.reset">
-            <ui-icon value="reset" color></ui-icon>
+        <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
+            <ui-icon value="reset"></ui-icon>
         </ui-button>
         <ui-button class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
@@ -577,6 +577,24 @@ exports.methods = {
         } else {
             panel.$.help.style.display = 'none';
         }
+    },
+    replaceContainerWithUISection(params) {
+        const panel = this;
+        const $containerDiv = panel.$.container;
+        const $header = panel.$.container.querySelector('.header');
+        $header.setAttribute('slot', 'header');
+
+        const $content = panel.$.container.querySelector('.content');
+
+        const $containerUISection = document.createElement('ui-section');
+        $containerUISection.setAttribute('class', 'container config no-padding');
+        $containerUISection.setAttribute('cache-expand', params.uuid);
+
+        $containerUISection.appendChild($header);
+        $containerUISection.appendChild($content);
+
+        $containerDiv.replaceWith($containerUISection);
+
     },
 };
 

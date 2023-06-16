@@ -24,6 +24,13 @@
     box-sizing: border-box;
 }
 
+:host > ui-section.container > .header {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    border-bottom: none;
+}
+
 :host > .container > .header > .icon {
     width: 16px;
     font-size: 12px;
@@ -83,9 +90,8 @@
 :host > .container > .header > .tiny {
     display: none;
     padding: 0 4px;
-    height: 18px;
-    line-height: 16px;
-    margin-left: 8px;
+    height: 19px;
+    margin-left: 4px;
 }
 
 :host > .container > .header[dirty] > .tiny {

@@ -26,7 +26,9 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-    .asset-effect {  }
+    .asset-effect { 
+        padding-right: 4px;    
+    }
 
     .asset-effect[multiple-invalid] > *:not(.multiple-warn-tip) {
         display: none!important;
