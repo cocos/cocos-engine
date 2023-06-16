@@ -251,7 +251,7 @@ export class TextProcessing {
             nodeSpacingY = nodeSpacingY * fontSize / drawFontsize;
         }
 
-        return nodeSpacingY | 0;
+        return nodeSpacingY;
     }
 
     private _calculateShrinkFont (paragraphedStrings: string[], style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData) {
