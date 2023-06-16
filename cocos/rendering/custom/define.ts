@@ -1697,9 +1697,6 @@ class HBAOParams {
         this.randomTexture.setMipFilter(Texture2D.Filter.NONE);
         this.randomTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         this.randomTexture.image = image;
-        if (!this.randomTexture.getGFXTexture()) {
-            console.warn('Unexpected: failed to create ao texture?');
-        }
         this.hbaoMaterial.setProperty('RandomTex', this.randomTexture, 0);
     }
 

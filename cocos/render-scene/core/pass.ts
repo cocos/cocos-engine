@@ -27,7 +27,7 @@ import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc, errorID, assertID, cclegacy } from '../../core';
+import { murmurhash2_32_gc, errorID, assertID, cclegacy, warnID } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, UniformBlock,
@@ -347,7 +347,7 @@ export class Pass {
      * @param value The override pipeline state info
      */
     public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
-        console.warn('base pass cannot override states, please use pass instance instead.');
+        warnID(12102);
     }
 
     /**
@@ -491,7 +491,7 @@ export class Pass {
                 this._device, this._phaseID, this._programName, this._defines,
             );
             if (!program) {
-                console.warn(`create shader ${this._programName} failed, please restart editor`);
+                warnID(12103, this._programName);
                 return false;
             }
             this._shader = program.shader;
@@ -499,7 +499,7 @@ export class Pass {
         } else {
             const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
             if (!shader) {
-                console.warn(`create shader ${this._programName} failed`);
+                warnID(12104, this._programName);
                 return false;
             }
             this._shader = shader;
@@ -517,7 +517,7 @@ export class Pass {
      */
     public getShaderVariant (patches: Readonly<IMacroPatch[] | null> = null): Shader | null {
         if (!this._shader && !this.tryCompile()) {
-            console.warn('pass resources incomplete');
+            warnID(12105);
             return null;
         }
 
@@ -528,7 +528,7 @@ export class Pass {
         if (EDITOR) {
             for (let i = 0; i < patches.length; i++) {
                 if (!patches[i].name.startsWith('CC_')) {
-                    console.warn('cannot patch non-builtin macros');
+                    warnID(12106);
                     return null;
                 }
             }
@@ -584,11 +584,11 @@ export class Pass {
                 }
             }
             if (this._passID === r.INVALID_ID) {
-                console.error(`Invalid render pass, program: ${info.program}, please restart editor`);
+                errorID(12107, info.program);
                 return;
             }
             if (this._phaseID === r.INVALID_ID) {
-                console.error(`Invalid render phase, program: ${info.program}, please restart editor`);
+                errorID(12108, info.program);
                 return;
             }
         }
