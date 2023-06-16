@@ -3,6 +3,7 @@
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+const { escape } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
 const effectDirRE = /^effects\//i;
@@ -13,7 +14,8 @@ const effectDirRE = /^effects\//i;
 function formatOptionLabel(label) {
     // 1. remove group name if matched
     // 2. remove prefix 'effects'(after 'db://' prefix removed)
-    return label.replace(effectGroupNameRE, '').replace(effectDirRE, '');
+    // 3. escape label string because it will be used as html template string
+    return escape(label.replace(effectGroupNameRE, '').replace(effectDirRE, ''));
 }
 
 /**
