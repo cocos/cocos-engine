@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { cclegacy, toRadian, Vec2, Vec4, Vec3, v3 } from '../../../core';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { Pipeline, QueueHint } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 

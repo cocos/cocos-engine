@@ -24,11 +24,11 @@
 
 import { Vec4, Vec3, cclegacy, warnID } from '../../../core';
 import { Camera } from '../../../render-scene/scene';
-import { BasicPipeline, LightInfo, PipelineRuntime, QueueHint, SceneFlags } from '../../custom';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
+import { BasicPipeline, PipelineRuntime } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { MeshRenderer } from '../../../3d/framework/mesh-renderer';
 import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 

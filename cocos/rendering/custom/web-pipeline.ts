@@ -1281,9 +1281,6 @@ export class WebPipeline implements BasicPipeline {
     addCustomTexture (name: string, info: TextureInfo, type: string): number {
         throw new Error('Method not implemented.');
     }
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
-        return this.addRenderWindow(name, format, width, height, renderWindow);
-    }
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;

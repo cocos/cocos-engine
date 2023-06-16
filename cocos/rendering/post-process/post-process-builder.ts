@@ -17,7 +17,6 @@ import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
-import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
@@ -223,5 +222,3 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 }
-
-setCustomPipeline('Custom', new PostProcessBuilder());
