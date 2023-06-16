@@ -43,7 +43,7 @@ function overrideDefineArrayProp (prototype, getPropVector, name) {
 
 function overrideClass (wasm) {
     spine.wasmUtil = wasm.SpineWasmUtil;
-    spine.wasmUtil.HEAPU8 = wasm.HEAPU8;
+    spine.wasmUtil.wasm = wasm;
     spine.wasmUtil.spineWasmInit();
 
     spine.MathUtils = wasm.MathUtils;

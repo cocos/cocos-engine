@@ -36,12 +36,12 @@ const PAGESIZE = 65536; // 64KiB
 
 // How many pages of the wasm memory
 // TODO: let this can be canfiguable by user.
-const PAGECOUNT = 64 * 16;
+const PAGECOUNT = 32 * 16;
 
 // How mush memory size of the wasm memory
 const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 64 MiB
 
-const wasmInstance: SpineWasm.instance = {} as any;
+let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl): Promise<void> {
@@ -54,11 +54,11 @@ function initWasm (wasmUrl): Promise<void> {
             });
         },
     }).then((Instance: any) => {
-        Object.assign(wasmInstance, Instance);
+        wasmInstance = Instance;
         registerList.forEach((cb) => {
             cb(wasmInstance);
         });
-    }, (reason: any) => { console.error('[Spine]:', `Spine wasm load failed: ${reason}`); });
+    }, (reason: any) => { console.error(`[Spine]: Spine wasm load failed: ${reason}`); });
 }
 
 function initAsm (): Promise<void> {
@@ -72,8 +72,9 @@ function initAsm (): Promise<void> {
                 status: 200,
             } as Partial<XMLHttpRequest>,
         };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return asmFactory(module).then((instance: any) => {
-            Object.assign(wasmInstance, instance);
+            wasmInstance = instance;
             registerList.forEach((cb) => {
                 cb(wasmInstance);
             });

@@ -29,7 +29,7 @@ import { Enum, ccenum } from '../core/value-types/enum';
 import { Component, Node } from '../scene-graph';
 import { CCBoolean, CCClass, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { UIRenderer, UITransform } from '../2d';
+import { Graphics, UIRenderer, UITransform } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
@@ -249,12 +249,17 @@ export class Skeleton extends UIRenderer {
     protected _skeletonCache: SkeletonCache | null = null;
     protected _animCache: AnimationCache | null = null;
     /**
-     * @internal
+     * @engineInternal
      */
     public _curFrame: AnimationFrame | null = null;
     // Is need update skeltonData
     protected _needUpdateSkeltonData = true;
     protected _listener: TrackEntryListeners | null = null;
+
+    /**
+     * @engineInternal
+     */
+    public _debugRenderer: Graphics | null = null;
 
     constructor () {
         super();
@@ -798,7 +803,7 @@ export class Skeleton extends UIRenderer {
                 const dc = this._drawList.data[i];
                 if (this._texture) {
                     batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, this._texture, dc.material!, false);
+                        dc.indexCount, this._texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -808,7 +813,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal
+     * @engineInternal
      */
     public requestDrawData (material: Material, indexOffset: number, indexCount: number) {
         const draw = this._drawList.add();
@@ -946,9 +951,9 @@ export class Skeleton extends UIRenderer {
      */
     public markForUpdateRenderData (enable = true) {
         super.markForUpdateRenderData(enable);
-        // if (this._debugRenderer) {
-        //     this._debugRenderer.markForUpdateRenderData(enable);
-        // }
+        if (this._debugRenderer) {
+            this._debugRenderer.markForUpdateRenderData(enable);
+        }
     }
 
     /**
@@ -1227,7 +1232,30 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _updateDebugDraw () {
-        // TODO next
+        if (this.debugBones || this.debugSlots || this.debugMesh) {
+            if (!this._debugRenderer) {
+                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+                const debugDraw = debugDrawNode.addComponent(Graphics);
+                debugDraw.lineWidth = 1;
+                debugDraw.strokeColor = new Color(255, 0, 0, 255);
+
+                this._debugRenderer = debugDraw;
+                debugDrawNode.parent = this.node;
+            }
+
+            if (this.isAnimationCached()) {
+                warn('Debug bones or slots is invalid in cached mode');
+            } else {
+                this._instance.setDebugMode(true);
+            }
+        } else if (this._debugRenderer) {
+            this._debugRenderer.node.destroy();
+            this._debugRenderer = null;
+            if (!this.isAnimationCached()) {
+                this._instance.setDebugMode(false);
+            }
+        }
     }
 
     private _updateUITransform () {
@@ -1417,6 +1445,13 @@ export class Skeleton extends UIRenderer {
      */
     public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
         TrackEntryListeners.getListeners(entry).event = listener;
+    }
+
+    /**
+     * @engineInternal
+    */
+    public getDebugShapes (): any {
+        return this._instance.getDebugShapes();
     }
 }
 
