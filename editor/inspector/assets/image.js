@@ -26,11 +26,11 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
+    <ui-section expand class="sub-panel-section config no-padding" cache-expand="image-sub-panel-section">
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
-    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
+    <ui-section expand class="sub-texture-panel-section config no-padding" cache-expand="image-sub-panel-section" hidden>
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
@@ -38,7 +38,7 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-
+:host .asset-image > ui-prop { margin-right: 4px; }
 `;
 
 exports.$ = {

@@ -8,13 +8,17 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+.asset-render-pipeline {
+    padding-right: 4px;
+}
+
 .asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
- }
+}
 
  .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
     display: block;
- }
+}
 
 .asset-render-pipeline .multiple-warn-tip {
     display: none;
