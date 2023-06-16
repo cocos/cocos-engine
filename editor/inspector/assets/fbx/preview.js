@@ -76,6 +76,10 @@ exports.style = /* css*/`
     min-height: 200px;
     border-top: 1px solid var(--color-normal-border);
 }
+.preview-container > .animation-info {
+    padding-right: 4px;
+}
+
 .preview[hoving] > .preview-container {
     outline: 2px solid var(--color-focus-fill-weaker);
     outline-offset: -1px;
@@ -86,6 +90,7 @@ exports.style = /* css*/`
 }
 .preview-container > .model-info {
     display: none;
+    padding: 2px 4px;
 }
 .preview-container > .model-info > ui-label {
     margin-right: 6px;

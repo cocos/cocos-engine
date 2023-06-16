@@ -21,8 +21,10 @@ exports.style = /* css */`
 }
 
 .asset-fbx > .header {
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px 4px;
+}
+.asset-fbx > .header > .tabs {
+    height: 24px;
 }
 `;
 
@@ -67,6 +69,7 @@ const Elements = {
 
             panel.tabs.forEach((tab) => {
                 const button = document.createElement('ui-button');
+                button.setAttribute('size', 'medium');
                 panel.$.tabs.appendChild(button);
 
                 const label = document.createElement('ui-label');

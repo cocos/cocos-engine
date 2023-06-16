@@ -60,13 +60,13 @@ exports.template = /* html */ `
 `;
 
 exports.style = /* css */`
-.asset-erp-texture-cube  ui-prop{
-    margin-top: 4px;
+.asset-erp-texture-cube ui-prop{
+    margin-right: 4px;
 }
 .asset-erp-texture-cube #filterAdvancedSection,
 .asset-erp-texture-cube #wrapAdvancedSection,
 .asset-erp-texture-cube #generateMipmapsSection {
-    margin-left: 1.2em;
+    margin-left: 1em;
     display: none;
 }
 `;

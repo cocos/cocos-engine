@@ -18,7 +18,7 @@
 
 .prefab {
     display: flex;
-    padding: 4px 4px 0 4px;
+    padding: 4px;
 }
 
 .prefab[hidden] {
@@ -41,8 +41,7 @@
 
 .header {
     display: none;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin: 2px 4px 2px 0;
 }
 
 .header > .active {
@@ -60,6 +59,11 @@
 .scene {
     display: none;
     border-top: solid 1px var(--color-normal-border);
+}
+
+.scene ui-prop[ui-section-config],
+.scene ui-section.config {
+    margin-top: 0;
 }
 
 .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
@@ -213,6 +217,5 @@
 }
 
 .section-asset > ui-panel[type="asset"] {
-    --asset-container-margin-top: 0;
     --asset-container-content-section-overflow: visible;
 }
