@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ANDROID, JSB } from 'internal:constants';
+import { JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
@@ -156,10 +156,6 @@ export class TextProcessing {
         }
 
         style.actualFontSize = style.fontSize * this._fontScale;
-        if (ANDROID) {
-            style.actualFontSize = Math.floor(style.actualFontSize);
-            this._fontScale = style.actualFontSize / style.fontSize;
-        }
         const paragraphedStrings = inputString.split('\n');
 
         const _splitStrings = outputLayoutData.parsedString = paragraphedStrings;
