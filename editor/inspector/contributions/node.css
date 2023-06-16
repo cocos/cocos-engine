@@ -41,9 +41,7 @@
 
 .header {
     display: none;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    margin-right: 4px;
+    margin: 2px 4px 2px 0;
 }
 
 .header > .active {

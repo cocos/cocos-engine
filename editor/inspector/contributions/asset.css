@@ -20,6 +20,7 @@
     align-items: center;
     height: 24px;
     border-bottom: solid 1px var(--color-normal-fill-emphasis);
+    padding-bottom: 1px;
     box-sizing: border-box;
 }
 
@@ -58,9 +59,10 @@
 }
 
 :host > .container > .header > .copy {
-    padding: 0 4px;
+    padding: 0 2px;
     height: 18px;
     margin-left: 4px;
+    margin-right: 2px;
 }
 
 :host > .container > .header > .help {
