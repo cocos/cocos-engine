@@ -45,17 +45,17 @@ public:
     }
 
     /**
-     * @en Enable skip.
-     * @zh 是否开启皮肤后效。
+     * @en Getter/Setter sampler width.
+     * @zh 设置或者获取采样宽度。
      */
     void setBlurRadius(float val);
     inline float getBlurRadius() const {
         return _blurRadius;
     }
 
-        /**
-     * @en Enable skip.
-     * @zh 是否开启皮肤后效。
+    /**
+     * @en Getter/Setter depth unit scale.
+     * @zh 设置或者获取深度单位比例。
      */
     void setSSSIntensity(float val);
     inline float getSSSIntensity() const {
@@ -89,8 +89,8 @@ public:
     }
 
     /**
-     * @en Enable skip.
-     * @zh 是否开启皮肤后效。
+     * @en Getter/Setter sampler width.
+     * @zh 设置或者获取采样宽度。
      */
     inline float getBlurRadius() const {
         return _blurRadius;
@@ -100,8 +100,8 @@ public:
     }
 
     /**
-     * @en Enable skip.
-     * @zh 是否开启皮肤后效。
+     * @en Getter/Setter depth unit scale.
+     * @zh 设置或者获取深度单位比例。
      */
     inline float getSSSIntensity() const {
         return _sssIntensity;
