@@ -491,7 +491,7 @@ export class Pass {
                 this._device, this._phaseID, this._programName, this._defines,
             );
             if (!program) {
-                console.warn(`create shader ${this._programName} failed`);
+                console.warn(`create shader ${this._programName} failed, please restart editor`);
                 return false;
             }
             this._shader = program.shader;
@@ -584,11 +584,11 @@ export class Pass {
                 }
             }
             if (this._passID === r.INVALID_ID) {
-                console.error(`Invalid render pass, program: ${info.program}`);
+                console.error(`Invalid render pass, program: ${info.program}, please restart editor`);
                 return;
             }
             if (this._phaseID === r.INVALID_ID) {
-                console.error(`Invalid render phase, program: ${info.program}`);
+                console.error(`Invalid render phase, program: ${info.program}, please restart editor`);
                 return;
             }
         }
