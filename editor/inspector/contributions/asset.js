@@ -15,13 +15,13 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
+        <ui-button class="save tiny green transparent" size='small' tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
+        <ui-button class="reset tiny red transparent" size='small' tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-button class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+        <ui-button class="copy transparent" size='small' tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
         <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
@@ -237,7 +237,7 @@ const Elements = {
                 panel.$.name.setAttribute('readonly', '');
 
                 if (panel.asset.source && panel.asset.importer !== 'database') {
-                    panel.$.copy.style.display = 'inline-block';
+                    panel.$.copy.style.display = 'inline-flex';
                 } else {
                     panel.$.copy.style.display = 'none';
                 }
