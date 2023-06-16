@@ -67,6 +67,7 @@ exports.style = /* css */`
     display: flex;
     flex: 1;
     flex-direction: column;
+    padding-right: 4px;
 }
 .asset-texture > .content {
     flex: 1;

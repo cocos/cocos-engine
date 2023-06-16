@@ -12,8 +12,6 @@ exports.template = /* html */`
             <ui-select class="preview-type">
             </ui-select>
         </div>
-    </div>
-    <div>
         <div>
             <ui-label value="" class="minPosLabel"></ui-label>
         </div>
@@ -29,10 +27,11 @@ exports.template = /* html */`
 
 exports.style = /* css */`
 .preview {
+
     border-top: 1px solid var(--color-normal-border);
 }
 .preview > .info {
-    padding-top: 4px;
+    padding: 4px 4px 0 4px;
 }
 .preview > .info > ui-label {
     margin-right: 6px;

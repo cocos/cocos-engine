@@ -39,7 +39,7 @@ CCEffect %{
         vatRotationMap:                   { value: grey, target: vatRotationTexture, editor: { displayName: RotationMap } }
         vatRotSignMap:                    { value: white, target: vatRotSignTexture,  editor: { displayName: RotSignMap } }
         vatRotAlphaMap:                   { value: grey, target: vatRotAlphaTexture,  editor: { displayName: RotAlphaMap } }
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: none
     - &forward-add
       vert: standard-vs
@@ -77,15 +77,21 @@ CCEffect %{
       frag: reflect-map-fs
       phase: reflect-map
       propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      rasterizerState: *r1
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -94,6 +100,14 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -113,7 +127,7 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta USE_TWOSIDE
   #pragma define-meta IS_ANISOTROPY
-  #pragma define-meta USE_VERTEX_COLOR  
+  #pragma define-meta USE_VERTEX_COLOR
   #define CC_SURFACES_USE_SECOND_UV 1
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
@@ -164,11 +178,11 @@ CCProgram surface-vertex %{
   #endif
   #if CC_SURFACES_USE_TANGENT_SPACE
     vec3 tangent = In.tangent.xzy;
-  #else    
+  #else
     vec3 tangent = vec3(0.0);
-  #endif  
+  #endif
 
-  VATGetLocalPositionRigidBody20_UE(In.position.xyz, In.normal.xyz, tangent, color, thisFrameUV, 
+  VATGetLocalPositionRigidBody20_UE(In.position.xyz, In.normal.xyz, tangent, color, thisFrameUV,
     vatMaxMin.x, vatMaxMin.y, vatMaxMin.z, vatMaxMin.w,
     vatPositionTexture, vatPosSignTexture, vatPosAlphaTexture, vatRotationTexture, vatRotSignTexture, vatRotAlphaTexture);
 
@@ -217,7 +231,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
@@ -243,7 +257,7 @@ CCProgram surface-fragment %{
       #if USE_ALBEDO_MAP
         alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
       #endif
-  
+
       if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
   }

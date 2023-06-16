@@ -166,6 +166,14 @@ DefaultResource::DefaultResource(Device *device) {
         region.texSubres.baseArrayLayer = 1;
         device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
     }
+    {
+        BufferInfo bufferInfo = {};
+        bufferInfo.usage = BufferUsageBit::STORAGE | BufferUsageBit::TRANSFER_DST | BufferUsageBit::TRANSFER_SRC | BufferUsageBit::VERTEX | BufferUsageBit::INDEX | BufferUsageBit::INDIRECT;
+        bufferInfo.memUsage = MemoryUsageBit::DEVICE | MemoryUsageBit::HOST;
+        bufferInfo.size = 5 * sizeof(uint32_t); // for indirect command buffer
+        bufferInfo.stride = bufferInfo.size;
+        _buffer = device->createBuffer(bufferInfo);
+    }
 }
 
 Texture *DefaultResource::getTexture(TextureType type) const {
@@ -182,6 +190,10 @@ Texture *DefaultResource::getTexture(TextureType type) const {
             CC_ABORT();
             return nullptr;
     }
+}
+
+Buffer *DefaultResource::getBuffer() const {
+    return _buffer;
 }
 
 } // namespace gfx

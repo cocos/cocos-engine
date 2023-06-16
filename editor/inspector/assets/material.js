@@ -61,6 +61,13 @@ exports.style = `
 .invalid[active] { display: block; }
 .invalid[active] ~ * { display: none; }
 
+:host > .header {
+    padding-right: 4px;
+}
+:host > .default > .section {
+    padding-right: 4px;
+}
+
 .custom[src] + .default { display: none; }
 
 ui-button.location { flex: none; margin-left: 4px; }

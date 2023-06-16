@@ -132,18 +132,11 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(node2subpassRes2.endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     //node3
+    // renderpass info layout instead
     const auto& node3 = barrierMap.at(3);
-    ExpectEq(node3.blockBarrier.frontBarriers.size() == 1, true);
-    ExpectEq(node3.blockBarrier.rearBarriers.size() == 1, true);
+    ExpectEq(node3.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node3.blockBarrier.rearBarriers.empty(), true);
     ExpectEq(node3.subpassBarriers.empty(), true);
-
-    const auto& node3block = node3.blockBarrier;
-    ExpectEq(node3block.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
-    ExpectEq(node3block.rearBarriers[0].resourceID == 4, true);
-    ExpectEq(node3block.rearBarriers[0].beginStatus.vertID == 3, true);
-    ExpectEq(node3block.rearBarriers[0].beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node3block.rearBarriers[0].endStatus.vertID == 3, true);
-    ExpectEq(node3block.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     //node4
     const auto& node4 = barrierMap.at(4);
@@ -196,41 +189,25 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(res7in5.resourceID == 7, true);
     ExpectEq(res7in5.beginStatus.vertID == 5, true);
     ExpectEq(res7in5.endStatus.vertID == 5, true);
-    ExpectEq(res7in5.beginStatus.passType == PassType::COMPUTE, true);
+    ExpectEq(res7in5.beginStatus.passType == PassType::COPY, true);
     ExpectEq(res7in5.endStatus.passType == PassType::COPY, true);
     ExpectEq(res7in5.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
     ExpectEq(res7in5.endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     const auto& node6 = barrierMap.at(6);
     ExpectEq(node6.blockBarrier.frontBarriers.size() == 1, true);
-    ExpectEq(node6.blockBarrier.rearBarriers.size() == 1, true);
+    // resource later used by raster pass, so that layout can be transferred automatically.
+    ExpectEq(node6.blockBarrier.rearBarriers.empty(), true);
     ExpectEq(node6.subpassBarriers.empty(), true);
-
-    auto iter8in6 = findBarrierByResID(node6.blockBarrier.rearBarriers, 8);
-    const auto& res8in6 = (*iter8in6);
-    ExpectEq(res8in6.type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
-    ExpectEq(res8in6.resourceID == 8, true);
-    ExpectEq(res8in6.beginStatus.vertID == 6, true);
-    ExpectEq(res8in6.endStatus.vertID == 13, true);
-    ExpectEq(res8in6.beginStatus.passType == PassType::COPY, true);
-    ExpectEq(res8in6.endStatus.passType == PassType::RASTER, true);
-    ExpectEq(res8in6.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(res8in6.endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     // node7
     const auto& node7 = barrierMap.at(7);
-    ExpectEq(node7.blockBarrier.frontBarriers.size() == 1, true);
-    ExpectEq(node7.blockBarrier.rearBarriers.empty(), false);
+    // undefined layout already in initial layout
+    ExpectEq(node7.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node7.blockBarrier.rearBarriers.empty(), true);
     ExpectEq(node7.subpassBarriers.empty(), true);
 
-    auto iter9in7 = findBarrierByResID(node7.blockBarrier.rearBarriers, 9);
-    const auto& res9in7 = (*iter9in7);
-    ExpectEq(res9in7.type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
-    ExpectEq(res9in7.resourceID == 9, true);
-    ExpectEq(res9in7.beginStatus.vertID == 7, true);
-    ExpectEq(res9in7.endStatus.vertID == 10, true);
-    ExpectEq(res9in7.beginStatus.passType == PassType::COMPUTE, true);
-    ExpectEq(res9in7.endStatus.passType == PassType::RASTER, true);
+    ExpectEq(node7.blockBarrier.rearBarriers.size(), 0);
 
     //node8: almost the same as node7
     //node9: almost the same as node8
@@ -240,42 +217,9 @@ TEST(complicatedBarrierTest, test12) {
 
     //node13
     const auto& node13 = barrierMap.at(13);
-    ExpectEq(node13.blockBarrier.frontBarriers.size() == 3, true);
-    ExpectEq(node13.blockBarrier.rearBarriers.size() == 1, true);
+    ExpectEq(node13.blockBarrier.frontBarriers.size(), 0);
+    ExpectEq(node13.blockBarrier.rearBarriers.size(), 0);
     ExpectEq(node13.subpassBarriers.empty(), true);
-
-    auto iter8in13 = findBarrierByResID(node13.blockBarrier.frontBarriers, 8);
-    const auto& res8in13 = (*iter8in13);
-    ExpectEq(res8in13.type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(res8in13.resourceID == 8, true);
-    ExpectEq(res8in13.beginStatus.vertID == 6, true);
-    ExpectEq(res8in13.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(res8in13.beginStatus.passType == PassType::COPY, true);
-    ExpectEq(res8in13.endStatus.vertID == 13, true);
-    ExpectEq(res8in13.endStatus.access == MemoryAccessBit::READ_ONLY, true);
-    ExpectEq(res8in13.endStatus.passType == PassType::RASTER, true);
-
-    auto iter10in13 = findBarrierByResID(node13.blockBarrier.frontBarriers, 10);
-    const auto& res10in13 = (*iter10in13);
-    ExpectEq(res10in13.type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(res10in13.resourceID == 10, true);
-    ExpectEq(res10in13.beginStatus.vertID == 10, true);
-    ExpectEq(res10in13.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(res10in13.beginStatus.passType == PassType::RASTER, true);
-    ExpectEq(res10in13.endStatus.vertID == 13, true);
-    ExpectEq(res10in13.endStatus.access == MemoryAccessBit::READ_ONLY, true);
-    ExpectEq(res10in13.endStatus.passType == PassType::RASTER, true);
-
-    auto iter11in13 = findBarrierByResID(node13.blockBarrier.rearBarriers, 11);
-    const auto& res11in13 = (*iter11in13);
-    ExpectEq(res11in13.type == cc::gfx::BarrierType::FULL, true);
-    ExpectEq(res11in13.resourceID == 11, true);
-    ExpectEq(res11in13.beginStatus.vertID == 13, true);
-    ExpectEq(res11in13.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(res11in13.beginStatus.passType == PassType::RASTER, true);
-    ExpectEq(res11in13.endStatus.vertID == 13, true);
-    ExpectEq(res11in13.endStatus.access == MemoryAccessBit::READ_ONLY, true);
-    ExpectEq(res11in13.endStatus.passType == PassType::RASTER, true);
 
     //node14: almost the same as 13
 
