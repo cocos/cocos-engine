@@ -9,7 +9,6 @@
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    margin-top: -1px;
 }
 
 :host > .container[whole] {
@@ -18,8 +17,10 @@
 
 :host > .container > .header {
     display: flex;
-    flex: 1;
-    min-width: 0;
+    align-items: center;
+    height: 24px;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+    box-sizing: border-box;
 }
 
 :host > .container > .header > .icon {
@@ -128,10 +129,6 @@
     left: 0;
     top: 0;
     z-index: 1;
-}
-
-:host-context(ui-panel[type="asset"]) > .container {
-    margin-top: var(--asset-container-margin-top, -1px);
 }
 
 :host-context(ui-panel[type="asset"]) > .container > .content > .content-section {

@@ -43,6 +43,7 @@
     display: none;
     margin-top: 4px;
     margin-bottom: 4px;
+    margin-right: 4px;
 }
 
 .header > .active {
@@ -213,6 +214,5 @@
 }
 
 .section-asset > ui-panel[type="asset"] {
-    --asset-container-margin-top: 0;
     --asset-container-content-section-overflow: visible;
 }

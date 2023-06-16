@@ -57,12 +57,13 @@ exports.style = /* css */`
         color: var(--color-info-contrast-important);
     }
     .asset-effect > .codes .tabs  {
-        margin: 4px auto;
-        text-align: center;
+        margin: 4px auto 6px auto;
     }
     .asset-effect > .codes .tabs > .tab  {
         padding: 0;
         width: 110px;
+        height: 20px;
+        box-sizing: border-box;
         text-align: center;
         cursor: pointer;
         display: inline-block;

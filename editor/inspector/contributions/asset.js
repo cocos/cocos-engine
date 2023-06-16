@@ -10,8 +10,8 @@ exports.listeners = {};
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole scrollable="false" class="container config">
-    <header class="header" slot="header">
+<div class="container">
+    <header class="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
@@ -33,7 +33,7 @@ exports.template = `
         <section class="content-section"></section>
         <section class="content-footer"></section>
     </section>
-</ui-section>
+</div>
 `;
 
 exports.$ = {
