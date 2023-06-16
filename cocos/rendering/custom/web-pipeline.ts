@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
+import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
@@ -932,12 +932,6 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
     }
-    addRasterView (name: string, view: RasterView): void {
-        throw new Error('Method not implemented.');
-    }
-    addComputeView (name: string, view: ComputeView): void {
-        throw new Error('Method not implemented.');
-    }
     setViewport (viewport: Viewport): void {
         throw new Error('Method not implemented.');
     }
@@ -985,23 +979,6 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
         throw new Error('Method not implemented.');
-    }
-    addRasterView (name: string, view: RasterView) {
-        this._pass.rasterViews.set(name, view);
-    }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(view.name);
-            assert(name && this._resourceGraph.contains(name));
-            const descriptorName = view.name;
-            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
-            assert(descriptorID !== undefined);
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
     }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
@@ -1215,16 +1192,6 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     }
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
-    }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
     }
     addQueue (layoutName = 'default') {
         if (DEBUG) {

@@ -24,7 +24,7 @@ module.exports = {
                 },
                 'PoseNodeUseStashedPose': {
                     displayName: 'Use Stashed Pose',
-                    title: 'Use Stashed Pose {stashName}',
+                    title: 'Use Stash {stashName}',
                 },
                 'PoseNodeStateMachine': {
                     displayName: 'State Machine',
@@ -213,7 +213,7 @@ module.exports = {
                         'rotation': {
                             displayName: 'Rotation',
                         },
-                        'intensity': {
+                        'intensityValue': {
                             displayName: 'Intensity',
                         },
                     },
