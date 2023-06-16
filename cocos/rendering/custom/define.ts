@@ -2018,7 +2018,6 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
-
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
 
