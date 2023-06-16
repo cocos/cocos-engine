@@ -32,8 +32,8 @@ import {
 import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
-    AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
-    QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair,
+    AccessType, AttachmentType, CopyPair, LightInfo,
+    QueueHint, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair,
 } from './types';
 import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert, nextPow2 } from '../../core';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
@@ -43,7 +43,6 @@ import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
-import { MeshRenderer } from '../../3d';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
@@ -934,141 +933,6 @@ export function buildUIPass (camera: Camera,
     }
 }
 
-export function buildNativeForwardPass (camera: Camera, ppl: BasicPipeline) {
-    const cameraID = getCameraUniqueID(camera);
-    const cameraName = `Camera${cameraID}`;
-    const area = getRenderArea(camera, camera.window.width, camera.window.height);
-    const width = area.width;
-    const height = area.height;
-
-    // Resources
-    const forwardPassRTName = `dsForwardPassColor${cameraName}`;
-    const forwardPassDSName = `dsForwardPassDS${cameraName}`;
-    if (!ppl.containsResource(forwardPassRTName)) {
-        ppl.addRenderTexture(forwardPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    }
-
-    ppl.updateRenderWindow(forwardPassRTName, camera.window);
-    ppl.updateDepthStencil(forwardPassDSName, width, height);
-    // Passes
-    const forwardPass = ppl.addRenderPass(width, height, 'default');
-    forwardPass.name = `CameraForwardPass${cameraID}`;
-    forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
-
-    const cameraRenderTargetLoadOp = getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET);
-    const cameraDepthStencilLoadOp = getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL);
-
-    forwardPass.addRasterView(forwardPassRTName,
-        new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            cameraRenderTargetLoadOp,
-            StoreOp.STORE,
-            getClearFlags(AttachmentType.RENDER_TARGET, camera.clearFlag, cameraRenderTargetLoadOp),
-            new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w)));
-    forwardPass.addRasterView(forwardPassDSName,
-        new RasterView('_',
-            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-            cameraDepthStencilLoadOp,
-            StoreOp.STORE,
-            getClearFlags(AttachmentType.DEPTH_STENCIL, camera.clearFlag, cameraDepthStencilLoadOp),
-            new Color(camera.clearDepth, camera.clearStencil, 0, 0)));
-
-    forwardPass
-        .addQueue(QueueHint.RENDER_OPAQUE)
-        .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT
-            | SceneFlags.PLANAR_SHADOW
-            | SceneFlags.CUTOUT_OBJECT
-            | SceneFlags.DEFAULT_LIGHTING
-            | SceneFlags.DRAW_INSTANCING);
-    forwardPass
-        .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.TRANSPARENT_OBJECT
-            | SceneFlags.GEOMETRY);
-    forwardPass
-        .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.UI);
-    forwardPass.showStatistics = true;
-}
-
-export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline) {
-    const cameraID = getCameraUniqueID(camera);
-    const area = getRenderArea(camera, camera.window.width, camera.window.height);
-    const width = area.width;
-    const height = area.height;
-    if (!ppl.containsResource('Albedo')) {
-        // GBuffers
-        ppl.addRenderTarget('Albedo', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
-        ppl.addRenderTarget('Normal', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
-        ppl.addRenderTarget('Emissive', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil('DepthStencil', Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-        // Lighting
-        ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
-    }
-    if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
-    }
-    // GeometryPass
-    {
-        const gBufferPass = ppl.addRenderPass(width, height, 'default');
-        gBufferPass.name = 'GeometryPass';
-        gBufferPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
-
-        gBufferPass.addRasterView('Albedo', new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
-        gBufferPass.addRasterView('Normal', new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
-        gBufferPass.addRasterView('Emissive', new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
-        gBufferPass.addRasterView('DepthStencil', new RasterView('_',
-            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-            LoadOp.CLEAR, StoreOp.STORE,
-            ClearFlagBit.DEPTH_STENCIL,
-            new Color(1, 0, 0, 0)));
-        gBufferPass
-            .addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
-    }
-    // LightingPass
-    {
-        const lightingPass = ppl.addRenderPass(width, height, 'default');
-        lightingPass.name = 'LightingPass';
-        lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
-
-        const lightingClearColor = new Color(0, 0, 0, 0);
-        if (camera.clearFlag & ClearFlagBit.COLOR) {
-            lightingClearColor.x = camera.clearColor.x;
-            lightingClearColor.y = camera.clearColor.y;
-            lightingClearColor.z = camera.clearColor.z;
-        }
-        lightingClearColor.w = 1;
-        lightingPass.addRasterView('Color', new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE,
-            camera.clearFlag,
-            lightingClearColor));
-
-        lightingPass.addComputeView('Albedo', new ComputeView('gbuffer_albedoMap'));
-        lightingPass.addComputeView('Normal', new ComputeView('gbuffer_normalMap'));
-        lightingPass.addComputeView('Emissive', new ComputeView('gbuffer_emissiveMap'));
-        lightingPass.addComputeView('DepthStencil', new ComputeView('depth_stencil'));
-
-        lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            camera, lightingInfo.deferredLightingMaterial, 0,
-            SceneFlags.VOLUMETRIC_LIGHTING,
-        );
-        lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera,
-            new LightInfo(),
-            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
-    }
-}
-
 export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>) {
     const pipeline = cclegacy.director.root.pipeline;
     const sceneData = ppl.pipelineSceneData;
@@ -1482,18 +1346,10 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
-        const computeView = new ComputeView();
-        computeView.name = 'depthRaw';
-        copyInputDSPass.addComputeView(inputDS, computeView);
+        copyInputDSPass.addTexture(inputDS, 'depthRaw');
     }
-    const copyInputDSPassView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR,
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(1.0, 0.0, 0.0, 0.0));
-    copyInputDSPass.addRasterView(ssssBlurDSName, copyInputDSPassView);
+    copyInputDSPass.addRenderTarget(ssssBlurDSName,
+        LoadOp.CLEAR, StoreOp.STORE, new Color(1.0, 0.0, 0.0, 0.0));
     copyInputDSPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, COPY_INPUT_DS_PASS_INDEX,
         SceneFlags.NONE,
@@ -1509,9 +1365,7 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
-        const computeView = new ComputeView();
-        computeView.name = 'colorTex';
-        ssssblurXPass.addComputeView(inputRT, computeView);
+        ssssblurXPass.addTexture(inputRT, 'colorTex');
     }
     if (ppl.containsResource(ssssBlurDSName)) {
         const verId = webPipeline.resourceGraph.vertex(ssssBlurDSName);
@@ -1519,26 +1373,11 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
-        const computeView = new ComputeView();
-        computeView.name = 'depthTex';
-        ssssblurXPass.addComputeView(ssssBlurDSName, computeView);
+        ssssblurXPass.addTexture(ssssBlurDSName, 'depthTex');
     }
-    const ssssBlurXPassRTView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR,
-        StoreOp.STORE,
-        camera.clearFlag,
-        ssssBlurClearColor);
-    ssssblurXPass.addRasterView(ssssBlurRTName, ssssBlurXPassRTView);
-    const ssssBlurXPassDSView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.DEPTH_STENCIL,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
+    ssssblurXPass.addRenderTarget(ssssBlurRTName, LoadOp.CLEAR, StoreOp.STORE, ssssBlurClearColor);
+    ssssblurXPass.addDepthStencil(inputDS, LoadOp.LOAD, StoreOp.STORE,
+        camera.clearDepth, camera.clearStencil, camera.clearFlag);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
         ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_X_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
@@ -1557,9 +1396,7 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
-        const computeView = new ComputeView();
-        computeView.name = 'colorTex';
-        ssssblurYPass.addComputeView(ssssBlurRTName, computeView);
+        ssssblurYPass.addTexture(ssssBlurRTName, 'colorTex');
     }
     if (ppl.containsResource(ssssBlurDSName)) {
         const verId = webPipeline.resourceGraph.vertex(ssssBlurDSName);
@@ -1567,26 +1404,11 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
-        const computeView = new ComputeView();
-        computeView.name = 'depthTex';
-        ssssblurYPass.addComputeView(ssssBlurDSName, computeView);
+        ssssblurYPass.addTexture(ssssBlurDSName, 'depthTex');
     }
-    const ssssBlurYPassView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.RENDER_TARGET,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
-        ssssBlurClearColor);
-    ssssblurYPass.addRasterView(inputRT, ssssBlurYPassView);
-    const ssssBlurYPassDSView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.DEPTH_STENCIL,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    ssssblurYPass.addRasterView(inputDS, ssssBlurYPassDSView);
+    ssssblurYPass.addRenderTarget(inputRT, LoadOp.LOAD, StoreOp.STORE, ssssBlurClearColor);
+    ssssblurYPass.addDepthStencil(inputDS, LoadOp.LOAD, StoreOp.STORE,
+        camera.clearDepth, camera.clearStencil, camera.clearFlag);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
         ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_Y_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_Y_PASS_INDEX);
@@ -1648,24 +1470,15 @@ export function buildToneMappingPass (camera: Camera,
     toneMappingPass.name = `CameraToneMappingPass${cameraID}`;
     toneMappingPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputRT)) {
-        const computeView = new ComputeView();
-        computeView.name = 'u_texSampler';
-        toneMappingPass.addComputeView(inputRT, computeView);
+        toneMappingPass.addTexture(inputRT, 'u_texSampler');
     }
-    const toneMappingPassView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+    toneMappingPass.addRenderTarget(toneMappingPassRTName,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
-        StoreOp.STORE,
-        camera.clearFlag,
-        toneMappingClearColor);
-    const toneMappingPassDSView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        StoreOp.STORE, toneMappingClearColor);
+    toneMappingPass.addDepthStencil(toneMappingPassDS,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
         StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    toneMappingPass.addRasterView(toneMappingPassRTName, toneMappingPassView);
-    toneMappingPass.addRasterView(toneMappingPassDS, toneMappingPassDSView);
+        camera.clearDepth, camera.clearStencil, camera.clearFlag);
     toneMappingPass.addQueue(QueueHint.NONE).addFullscreenQuad(
         toneMappingInfo.toneMappingMaterial, 0, SceneFlags.NONE,
     );
@@ -1704,22 +1517,12 @@ export function buildTransparencyPass (camera: Camera,
             alphaPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
     }
-    const alphaPassView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.RENDER_TARGET,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
+    alphaPass.addRenderTarget(inputRT,
+        LoadOp.LOAD, StoreOp.STORE,
         new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    const alphaPassDSView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.DEPTH_STENCIL,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    alphaPass.addRasterView(inputRT, alphaPassView);
-    alphaPass.addRasterView(inputDS, alphaPassDSView);
+    alphaPass.addDepthStencil(inputDS,
+        LoadOp.LOAD, StoreOp.STORE,
+        camera.clearDepth, camera.clearStencil, camera.clearFlag);
     alphaPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
@@ -1745,32 +1548,20 @@ function _buildSpecularPass (camera: Camera,
     specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView('cc_shadowMap');
-            specalurPass.addComputeView(dirShadowName, computeView);
+            specalurPass.addTexture(dirShadowName, 'cc_shadowMap');
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView('cc_spotShadowMap');
-            specalurPass.addComputeView(spotShadowName, computeView);
+            specalurPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
     }
-    const passView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.RENDER_TARGET,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
+    specalurPass.addRenderTarget(inputRT,
+        LoadOp.LOAD, StoreOp.STORE,
         new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    const passDSView = new RasterView('_',
-        AccessType.WRITE,
-        AttachmentType.DEPTH_STENCIL,
-        LoadOp.LOAD,
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    specalurPass.addRasterView(inputRT, passView);
-    specalurPass.addRasterView(inputDS, passDSView);
+    specalurPass.addDepthStencil(inputDS,
+        LoadOp.LOAD, StoreOp.STORE,
+        camera.clearDepth, camera.clearStencil, camera.clearFlag);
     specalurPass
         .addQueue(QueueHint.RENDER_OPAQUE, 'default')
         .addSceneOfCamera(camera, new LightInfo(),
@@ -1974,9 +1765,7 @@ function _buildHBAOPass (camera: Camera,
         sampler.minFilter = sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
         sampler.addressU = sampler.addressV = Address.CLAMP;
-        const computeView = new ComputeView();
-        computeView.name = 'DepthTex';
-        hbaoPass.addComputeView(inputDS, computeView);
+        hbaoPass.addTexture(inputDS, 'DepthTex');
     }
     hbaoPass.addRenderTarget(
         hbaoRTName,
@@ -2037,9 +1826,7 @@ function _buildHBAOBlurPass (camera: Camera,
         sampler.minFilter = sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
         sampler.addressU = sampler.addressV = Address.CLAMP;
-        const computeView = new ComputeView();
-        computeView.name = 'DepthTex';
-        blurPass.addComputeView(inputDS, computeView);
+        blurPass.addTexture(inputDS, 'DepthTex');
     }
     if (ppl.containsResource(inputRTName)) {
         const webPipeline = (ppl as WebPipeline);
@@ -2048,9 +1835,7 @@ function _buildHBAOBlurPass (camera: Camera,
         sampler.minFilter = sampler.magFilter = Filter.LINEAR;
         sampler.mipFilter = Filter.NONE;
         sampler.addressU = sampler.addressV = Address.CLAMP;
-        const computeView = new ComputeView();
-        computeView.name = 'AOTexNearest';
-        blurPass.addComputeView(inputRTName, computeView);
+        blurPass.addTexture(inputRTName, 'AOTexNearest');
     }
     blurPass.addRenderTarget(
         outputRTName,
@@ -2101,9 +1886,7 @@ function _buildHBAOCombinedPass (camera: Camera,
         sampler.minFilter = sampler.magFilter = Filter.LINEAR;
         sampler.mipFilter = Filter.NONE;
         sampler.addressU = sampler.addressV = Address.CLAMP;
-        const computeView = new ComputeView();
-        computeView.name = 'AOTexNearest';
-        hbaoPass.addComputeView(inputRTName, computeView);
+        hbaoPass.addTexture(inputRTName, 'AOTexNearest');
     }
 
     hbaoPass.addRenderTarget(

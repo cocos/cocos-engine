@@ -466,11 +466,105 @@ void NativeRenderPassBuilder::addDepthStencil(
         stencil);
 }
 
+namespace {
+
+void addComputeView(NativeRenderPassBuilder &builder, const ccstd::string &name, const ComputeView &view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &pass = get(RasterPassTag{}, builder.nodeID, *builder.renderGraph);
+    auto iter = pass.computeViews.find(name.c_str());
+    if (iter == pass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = pass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
+}
+
+void addComputeView(NativeComputePassBuilder &builder, const ccstd::string &name, const ComputeView &view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &pass = get(ComputeTag{}, builder.nodeID, *builder.renderGraph);
+    auto iter = pass.computeViews.find(name.c_str());
+    if (iter == pass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = pass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
+}
+
+template <class Tag>
+void addComputeViewImpl(
+    const ccstd::string &name, const ComputeView &view,
+    RenderGraph::vertex_descriptor subpassID,
+    RenderGraph &renderGraph) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &subpass = get(Tag{}, subpassID, renderGraph);
+    const auto passID = parent(subpassID, renderGraph);
+    CC_EXPECTS(passID != RenderGraph::null_vertex());
+    CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
+    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    CC_EXPECTS(subpass.computeViews.size() == subpassData.computeViews.size());
+    {
+        auto iter = subpassData.computeViews.find(name.c_str());
+        if (iter == subpassData.computeViews.end()) {
+            bool added = false;
+            std::tie(iter, added) = subpassData.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple());
+            CC_ENSURES(added);
+        }
+        iter->second.emplace_back(view);
+    }
+    {
+        auto iter = subpass.computeViews.find(name.c_str());
+        if (iter == subpass.computeViews.end()) {
+            bool added = false;
+            std::tie(iter, added) = subpass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple());
+            CC_ENSURES(added);
+        }
+        iter->second.emplace_back(view);
+    }
+    CC_ENSURES(subpass.computeViews.size() == subpassData.computeViews.size());
+    CC_ENSURES(subpass.computeViews.find(std::string_view{name}) != subpass.computeViews.end());
+    CC_ENSURES(subpassData.computeViews.find(std::string_view{name}) != subpassData.computeViews.end());
+    CC_ENSURES(subpass.computeViews.find(std::string_view{name})->second.size() ==
+               subpassData.computeViews.find(std::string_view{name})->second.size());
+}
+
+void addComputeView(
+    NativeRenderSubpassBuilderImpl &builder,
+    const ccstd::string &name, const ComputeView &view) {
+    addComputeViewImpl<RasterSubpassTag>(name, view, builder.nodeID, *builder.renderGraph);
+}
+
+void addComputeView(
+    NativeComputeSubpassBuilder &builder, const ccstd::string &name, const ComputeView &view) {
+    addComputeViewImpl<ComputeSubpassTag>(name, view, builder.nodeID, *builder.renderGraph);
+}
+
+} // namespace
+
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeRenderPassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -493,6 +587,7 @@ void NativeRenderPassBuilder::addTexture(
 void NativeRenderPassBuilder::addStorageBuffer(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -507,6 +602,7 @@ void NativeRenderPassBuilder::addStorageBuffer(
 void NativeRenderPassBuilder::addStorageImage(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -542,33 +638,6 @@ void NativeRenderPassBuilder::setCustomShaderStages(
             }
         }
     }
-}
-
-void NativeRenderPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
-    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
-    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
-    auto res = pass.rasterViews.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(view));
-    CC_ENSURES(res.second);
-    res.first->second.slotID = slotID;
-}
-
-void NativeRenderPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    CC_EXPECTS(!name.empty());
-    CC_EXPECTS(!view.name.empty());
-    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
-    auto iter = pass.computeViews.find(name.c_str());
-    if (iter == pass.computeViews.end()) {
-        bool added = false;
-        std::tie(iter, added) = pass.computeViews.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.c_str()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    iter->second.emplace_back(view);
 }
 
 bool NativeRenderPassBuilder::getShowStatistics() const {
@@ -652,52 +721,6 @@ void addRasterViewImpl(
     CC_ENSURES(subpass.rasterViews.size() == subpassData.rasterViews.size());
 }
 
-template <class Tag>
-void addComputeViewImpl(
-    const ccstd::string &name, const ComputeView &view,
-    RenderGraph::vertex_descriptor subpassID,
-    RenderGraph &renderGraph) {
-    CC_EXPECTS(!name.empty());
-    CC_EXPECTS(!view.name.empty());
-    auto &subpass = get(Tag{}, subpassID, renderGraph);
-    const auto passID = parent(subpassID, renderGraph);
-    CC_EXPECTS(passID != RenderGraph::null_vertex());
-    CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
-    auto &pass = get(RasterPassTag{}, passID, renderGraph);
-    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
-    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
-    CC_EXPECTS(subpass.computeViews.size() == subpassData.computeViews.size());
-    {
-        auto iter = subpassData.computeViews.find(name.c_str());
-        if (iter == subpassData.computeViews.end()) {
-            bool added = false;
-            std::tie(iter, added) = subpassData.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(name.c_str()),
-                std::forward_as_tuple());
-            CC_ENSURES(added);
-        }
-        iter->second.emplace_back(view);
-    }
-    {
-        auto iter = subpass.computeViews.find(name.c_str());
-        if (iter == subpass.computeViews.end()) {
-            bool added = false;
-            std::tie(iter, added) = subpass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(name.c_str()),
-                std::forward_as_tuple());
-            CC_ENSURES(added);
-        }
-        iter->second.emplace_back(view);
-    }
-    CC_ENSURES(subpass.computeViews.size() == subpassData.computeViews.size());
-    CC_ENSURES(subpass.computeViews.find(std::string_view{name}) != subpass.computeViews.end());
-    CC_ENSURES(subpassData.computeViews.find(std::string_view{name}) != subpassData.computeViews.end());
-    CC_ENSURES(subpass.computeViews.find(std::string_view{name})->second.size() ==
-               subpassData.computeViews.find(std::string_view{name})->second.size());
-}
-
 } // namespace
 
 void NativeRenderSubpassBuilderImpl::addRenderTarget(
@@ -746,6 +769,7 @@ void NativeRenderSubpassBuilderImpl::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -768,6 +792,7 @@ void NativeRenderSubpassBuilderImpl::addTexture(
 void NativeRenderSubpassBuilderImpl::addStorageBuffer(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -782,6 +807,7 @@ void NativeRenderSubpassBuilderImpl::addStorageBuffer(
 void NativeRenderSubpassBuilderImpl::addStorageImage(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -846,10 +872,6 @@ void setSubpassResourceShaderStages(
 void NativeRenderSubpassBuilderImpl::setCustomShaderStages(
     const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
     setSubpassResourceShaderStages<RasterSubpassTag>(*renderGraph, nodeID, name, stageFlags);
-}
-
-void NativeRenderSubpassBuilderImpl::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    addComputeViewImpl<RasterSubpassTag>(name, view, nodeID, *renderGraph);
 }
 
 void NativeRenderSubpassBuilderImpl::setViewport(const gfx::Viewport &viewport) {
@@ -937,6 +959,7 @@ void NativeComputeSubpassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -959,6 +982,7 @@ void NativeComputeSubpassBuilder::addTexture(
 void NativeComputeSubpassBuilder::addStorageBuffer(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -973,6 +997,7 @@ void NativeComputeSubpassBuilder::addStorageBuffer(
 void NativeComputeSubpassBuilder::addStorageImage(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -987,10 +1012,6 @@ void NativeComputeSubpassBuilder::addStorageImage(
 void NativeComputeSubpassBuilder::setCustomShaderStages(
     const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
     setSubpassResourceShaderStages<ComputeSubpassTag>(*renderGraph, nodeID, name, stageFlags);
-}
-
-void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    addComputeViewImpl<ComputeSubpassTag>(name, view, nodeID, *renderGraph);
 }
 
 ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &phaseName) {
@@ -1662,6 +1683,7 @@ void NativeComputePassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -1684,6 +1706,7 @@ void NativeComputePassBuilder::addTexture(
 void NativeComputePassBuilder::addStorageBuffer(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -1698,6 +1721,7 @@ void NativeComputePassBuilder::addStorageBuffer(
 void NativeComputePassBuilder::addStorageImage(
     const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
+        *this,
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
@@ -1726,22 +1750,6 @@ void NativeComputePassBuilder::setCustomShaderStages(
             }
         }
     }
-}
-
-void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    CC_EXPECTS(!name.empty());
-    CC_EXPECTS(!view.name.empty());
-    auto &pass = get(ComputeTag{}, nodeID, *renderGraph);
-    auto iter = pass.computeViews.find(name.c_str());
-    if (iter == pass.computeViews.end()) {
-        bool added = false;
-        std::tie(iter, added) = pass.computeViews.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.c_str()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    iter->second.emplace_back(view);
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &phaseName) {
