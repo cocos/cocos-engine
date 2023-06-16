@@ -71,7 +71,6 @@ export class ForwardPass extends BasePass {
                 }
             }
         }
-
         pass.addQueue(QueueHint.RENDER_OPAQUE)
             .addSceneOfCamera(camera,
                 new LightInfo(),

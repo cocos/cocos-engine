@@ -33,7 +33,6 @@ CCProgram post-process-vs %{
     CCDecode(In);
     CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
     gl_Position = In.position;
-    gl_Position.y = gl_Position.y;
     v_uv = a_texCoord;
   }
 }%

@@ -1236,7 +1236,7 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
     }
 
     // generate constant macros string
-    generateConstantMacros(device, lg.constantMacros, false);
+    generateConstantMacros(device, lg.constantMacros);
 }
 
 void NativeProgramLibrary::setPipeline(PipelineRuntime *pipelineIn) {

@@ -761,7 +761,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
     // pipeline construct.
-    generateConstantMacros(device, constantMacros, false);
+    generateConstantMacros(device, constantMacros);
 
     _commandBuffers.resize(1, device->getCommandBuffer());
 

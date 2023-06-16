@@ -1,5 +1,5 @@
 #if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
-  #if CC_FORWARD_ADD && !CC_ENABLE_CLUSTERED_LIGHT_CULLING
+  #if CC_FORWARD_ADD
     void CCSurfacesLighting(inout LightingResult lightingResultAccumulated, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
     {
       vec3 worldPos;
@@ -30,7 +30,7 @@
         vec3 lightDirWithLength = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -normalize(cc_lightDir[i].xyz) : cc_lightPos[i].xyz - worldPos;
         CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, lightingResult.specularColorWithEnvLighting, surfaceData, lightingData);
-  
+
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
 
@@ -57,7 +57,7 @@
           #endif
         }
       #endif
-      
+
       #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
         if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW)
           shadow = 1.0;
@@ -134,11 +134,11 @@
     {
       vec3 worldPos;
       HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
-      
+
       LightingIntermediateData lightingData;
       CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
       CCSurfacesInitializeLightingResult(lightingResult, surfaceData);
-      
+
       CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, lightingResult.specularColorWithEnvLighting, surfaceData, lightingData);
 
       CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
@@ -182,7 +182,7 @@
       #if CC_SURFACES_USE_LIGHT_MAP && !CC_FORWARD_ADD
         float lightmapShadow, lightmapAO;
         GetLightMapColor(lightingResult.lightmapColor, lightmapShadow, lightmapAO, cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z, surfaceData.worldNormal);
-      
+
         #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
           lightingResult.shadow *= lightmapShadow;
         #endif
@@ -204,7 +204,7 @@
       lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
       #if !CC_DISABLE_DIRECTIONAL_LIGHT && !CC_FORWARD_ADD
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, lightingResult.specularColorWithEnvLighting, surfaceData, lightingData);
-  
+
         CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
       #endif
 
@@ -220,7 +220,7 @@
         CCSurfacesLightingCalculateDirectTransmitSpecular(lightingResult.directTransmitSpecular, lightingData, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTransmitSpecular(lightingResult.environmentTransmitSpecular, lightingData, cc_ambientSky.w);
       #endif
-      
+
       #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
         LightingIntermediateData lightingDataTD;
         CCSurfacesGetLightingIntermediateDataTransmitDiffuse(lightingDataTD, lightingData, surfaceData);
