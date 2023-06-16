@@ -366,6 +366,8 @@ public:
 
     void calculateObliqueMat(const Vec4 &viewSpacePlane);
 
+    float getClipSpaceMinz() const;
+
 protected:
     void setExposure(float ev100);
 
