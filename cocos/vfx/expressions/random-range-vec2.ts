@@ -22,13 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { lerp, Vec2 } from '../../core';
-import { ccclass, serializable, type } from '../../core/data/decorators';
-import { P_RANDOM_SEED } from '../define';
-import { RandomStream } from '../rand';
+import { Enum, lerp, Vec2 } from '../../core';
+import { ccclass, serializable, type, visible } from '../../core/data/decorators';
+import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
+import { randFloat2 } from '../rand';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec2Expression } from './constant-vec2';
+import { RandomRangeFloatExpression } from './random-range-float';
 import { Vec2Expression } from './vec2';
 
 const temp = new Vec2();
@@ -62,25 +63,43 @@ export class RandomRangeVec2Expression extends Vec2Expression {
         this.requireRecompile();
     }
 
+    @type(Enum(VFXRandomEvaluationMode))
+    @visible(function (this: RandomRangeFloatExpression) { return this.usage !== VFXExecutionStage.SPAWN; })
+    public get evaluationMode () {
+        return this._evaluationMode;
+    }
+
+    public set evaluationMode (val: VFXRandomEvaluationMode) {
+        this._evaluationMode = val;
+        this.requireRecompile();
+    }
+
     public get isConstant (): boolean {
         return false;
     }
-
-    private declare _seed: Uint32Array;
-    private _randomOffset = 0;
-    private declare _randomStream: RandomStream;
 
     @serializable
     private _maximum: Vec2Expression | null = null;
     @serializable
     private _minimum: Vec2Expression | null = null;
+    @serializable
+    private _evaluationMode = VFXRandomEvaluationMode.SPAWN_ONLY;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
+    private declare _seed2: Uint32Array;
+    private _randomSeed = 0;
+    private _randomSeed2 = 0;
+    private _getRandFloat2: (out: Vec2, index: number) => void = this._getParticleRandFloat2;
 
     public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
         super.compile(parameterMap, owner);
         this.maximum.compile(parameterMap, owner);
         this.minimum.compile(parameterMap, owner);
-        if (this.usage === VFXExecutionStage.UPDATE) {
-            parameterMap.ensure(P_RANDOM_SEED);
+        if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
+            parameterMap.ensure(P_ID);
+            this._getRandFloat2 = this._getParticleRandFloat2;
+        } else {
+            this._getRandFloat2 = this._getEmitterRandFloat2;
         }
     }
 
@@ -88,19 +107,31 @@ export class RandomRangeVec2Expression extends Vec2Expression {
         this._maximum!.bind(parameterMap);
         this._minimum!.bind(parameterMap);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
-            this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
-            this._randomOffset = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED).data;
+            this._seed2 = parameterMap.getUint32ArrayValue(P_ID).data;
+        }
+        if (this._evaluationMode === VFXRandomEvaluationMode.SPAWN_ONLY || this.usage === VFXExecutionStage.SPAWN) {
+            this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+            this._randomSeed2 = this._randomOffset;
         } else {
-            this._randomStream = parameterMap.moduleRandomStream;
+            this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data + this._randomOffset;
+            this._randomSeed2 = parameterMap.getUint32Value(C_TICK_COUNT).data;
         }
     }
 
     public evaluate (index: number, out: Vec2) {
         this._minimum!.evaluate(index, out);
         this._maximum!.evaluate(index, temp);
-        const ratio = RandomStream.get2Float(this._seed[index] + this._randomOffset, tempRatio);
-        out.x = lerp(out.x, temp.x, ratio.x);
-        out.y = lerp(out.y, temp.y, ratio.y);
+        this._getRandFloat2(tempRatio, index);
+        out.x = lerp(out.x, temp.x, tempRatio.x);
+        out.y = lerp(out.y, temp.y, tempRatio.y);
         return out;
+    }
+
+    private _getParticleRandFloat2 (out: Vec2, index: number) {
+        randFloat2(out, this._randomSeed, this._seed2[index], this._randomSeed2);
+    }
+
+    private _getEmitterRandFloat2 (out: Vec2, index: number) {
+        randFloat2(out, this._randomSeed, 0, this._randomSeed2);
     }
 }

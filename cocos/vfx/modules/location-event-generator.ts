@@ -25,9 +25,9 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
-import { C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
+import { C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_RANDOM_SEED, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
-import { RandomStream } from '../rand';
+import { randFloat } from '../rand';
 import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
@@ -41,21 +41,23 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
+
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
         parameterMap.ensure(C_EVENTS);
+        parameterMap.ensure(C_EVENT_COUNT);
         parameterMap.ensure(P_INV_LIFETIME);
-        parameterMap.ensure(P_RANDOM_SEED);
         parameterMap.ensure(P_NORMALIZED_AGE);
         parameterMap.ensure(P_ID);
     }
 
     public execute (parameterMap: VFXParameterMap) {
         const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).data;
-        const randomSeed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
+        const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
         const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME).data;
         const id = parameterMap.getUint32ArrayValue(P_ID).data;
-        const randomOffset = this.randomSeed;
         const events = parameterMap.getEventArrayValue(C_EVENTS);
         const eventCount = parameterMap.getUint32Value(C_EVENT_COUNT);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
@@ -69,9 +71,10 @@ export class LocationEventGeneratorModule extends VFXModule {
         const velocity = hasVelocity ? parameterMap.getVec3ArrayValue(P_VELOCITY) : null;
         const color = hasColor ? parameterMap.getColorArrayValue(P_COLOR) : null;
         const position = hasPosition ? parameterMap.getVec3ArrayValue(P_POSITION) : null;
+        const randomOffset = this._randomOffset;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {
+                if (randFloat(randomSeed, id[i], randomOffset) > this.probability) {
                     continue;
                 }
                 Vec3.zero(eventInfo.position);
@@ -93,7 +96,6 @@ export class LocationEventGeneratorModule extends VFXModule {
                 eventInfo.particleId = id[i];
                 eventInfo.currentTime = 1 / invLifeTime[i] * normalizedAge[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
-                eventInfo.randomSeed = randomSeed[i];
                 eventInfo.type = VFXEventType.LOCATION;
                 if (eventCount.data >= events.capacity) {
                     events.reserve(events.capacity * 2);

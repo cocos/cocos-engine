@@ -27,9 +27,8 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
-import { RandomStream } from '../rand';
-import { VFXEmitterState } from '../vfx-emitter';
-import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { randFloat3 } from '../rand';
+import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 export class PerlinNoise1DCache {
@@ -373,6 +372,8 @@ export enum Quality {
     HIGH
 }
 
+const randVec3 = new Vec3();
+
 @ccclass('cc.CurlNoiseForceModule')
 @VFXModule.register('CurlNoiseForce', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [])
 export class CurlNoiseForceModule extends VFXModule {
@@ -529,8 +530,8 @@ export class CurlNoiseForceModule extends VFXModule {
     private _quality = Quality.HIGH;
     @serializable
     private _enableRemap = false;
-
-    private _offset = new Vec3();
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
@@ -546,17 +547,17 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        RandomStream.get3Float(this.randomSeed, this._offset);
-        this._offset.multiplyScalar(100);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const samplePosition = parameterMap.getVec3ArrayValue(P_POSITION);
         const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
+        const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
         const frequencyExp = this._frequency as FloatExpression;
         const strengthExp = this._strength as Vec3Expression;
         const uniformStrengthExp = this._uniformStrength as FloatExpression;
         const panSpeedExp = this._panSpeed as Vec3Expression;
-        const offset = this._offset;
+        randFloat3(randVec3, randomSeed, 0, this._randomOffset);
+        const offset = Vec3.multiplyScalar(randVec3, randVec3, 100);
         const separateAxes = this._separateAxes;
         const remap = this._enableRemap;
         if (separateAxes) {

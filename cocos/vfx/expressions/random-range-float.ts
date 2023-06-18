@@ -22,14 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { lerp } from '../../core';
-import { ccclass, serializable, type } from '../../core/data/decorators';
-import { RandomStream } from '../rand';
+import { Enum, lerp } from '../../core';
+import { ccclass, serializable, type, visible } from '../../core/data/decorators';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
-import { P_RANDOM_SEED } from '../define';
+import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randFloat } from '../rand';
 
 @ccclass('cc.RandomRangeFloat')
 export class RandomRangeFloatExpression extends FloatExpression {
@@ -59,6 +59,17 @@ export class RandomRangeFloatExpression extends FloatExpression {
         this.requireRecompile();
     }
 
+    @type(Enum(VFXRandomEvaluationMode))
+    @visible(function (this: RandomRangeFloatExpression) { return this.usage !== VFXExecutionStage.SPAWN; })
+    public get evaluationMode () {
+        return this._evaluationMode;
+    }
+
+    public set evaluationMode (val: VFXRandomEvaluationMode) {
+        this._evaluationMode = val;
+        this.requireRecompile();
+    }
+
     public get isConstant (): boolean {
         return false;
     }
@@ -67,31 +78,51 @@ export class RandomRangeFloatExpression extends FloatExpression {
     private _maximum: FloatExpression | null = null;
     @serializable
     private _minimum: FloatExpression | null = null;
-    private declare _seed: Uint32Array;
-    private _randomOffset = 0;
-    private declare _randomStream: RandomStream;
+    @serializable
+    private _evaluationMode = VFXRandomEvaluationMode.SPAWN_ONLY;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
+    private declare _seed2: Uint32Array;
+    private _randomSeed = 0;
+    private _randomSeed2 = 0;
+    private _getRandFloat: (index: number) => number = this._getParticleRandFloat;
 
     public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
         super.compile(parameterMap, owner);
         this.maximum.compile(parameterMap, owner);
         this.minimum.compile(parameterMap, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
-            parameterMap.ensure(P_RANDOM_SEED);
+            parameterMap.ensure(P_ID);
+            this._getRandFloat = this._getParticleRandFloat;
+        } else {
+            this._getRandFloat = this._getEmitterRandFloat;
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
         this._maximum!.bind(parameterMap);
         this._minimum!.bind(parameterMap);
-        if (this.usage === VFXExecutionStage.UPDATE) {
-            this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
-            this._randomOffset = parameterMap.getUint32Value(C_MODULE_INITIAL_RANDOM_SEED).data;
+        if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
+            this._seed2 = parameterMap.getUint32ArrayValue(P_ID).data;
+        }
+        if (this._evaluationMode === VFXRandomEvaluationMode.SPAWN_ONLY || this.usage === VFXExecutionStage.SPAWN) {
+            this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+            this._randomSeed2 = this._randomOffset;
         } else {
-            this._randomStream = parameterMap.moduleRandomStream;
+            this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data + this._randomOffset;
+            this._randomSeed2 = parameterMap.getUint32Value(C_TICK_COUNT).data;
         }
     }
 
     public evaluate (index: number): number {
-        return lerp(this._minimum!.evaluate(index), this._maximum!.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
+        return lerp(this._minimum!.evaluate(index), this._maximum!.evaluate(index), this._getRandFloat(index));
+    }
+
+    private _getParticleRandFloat (index: number) {
+        return randFloat(this._randomSeed, this._seed2[index], this._randomSeed2);
+    }
+
+    private _getEmitterRandFloat (index: number) {
+        return randFloat(this._randomSeed, 0, this._randomSeed2);
     }
 }

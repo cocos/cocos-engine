@@ -26,9 +26,9 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, displayName, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { approx, Color, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT, E_SPAWN_REMAINDER, E_SPAWN_REMAINDER_PER_UNIT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode, VFXBuiltinNamespace, E_RANDOM_SEED } from './define';
+import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode, VFXBuiltinNamespace, E_RANDOM_SEED, C_TICK_COUNT } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
@@ -543,10 +543,12 @@ export class VFXEmitter extends Component {
             const initialTransform = isWorldSpace ? parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data : Mat4.IDENTITY;
             const initialVelocity = isWorldSpace ? parameterMap.getVec3Value(E_VELOCITY).data : Vec3.ZERO;
             const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT).data;
-            const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
-            for (let i = 0; i < spawnInfoCount; i++) {
-                spawnInfos.getSpawnInfoAt(spawnInfo, i);
-                this.spawn(spawnInfo.count, spawnInfo.intervalDt, spawnInfo.interpStartDt, initialTransform, initialVelocity, Color.WHITE);
+            if (spawnInfoCount > 0) {
+                const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
+                for (let i = 0; i < spawnInfoCount; i++) {
+                    spawnInfos.getSpawnInfoAt(spawnInfo, i);
+                    this.spawn(spawnInfo.count, spawnInfo.intervalDt, spawnInfo.interpStartDt, initialTransform, initialVelocity, Color.WHITE);
+                }
             }
         }
 
@@ -557,19 +559,12 @@ export class VFXEmitter extends Component {
 
     private compile (parameterMap: VFXParameterMap) {
         if (this._needToRecompile) {
-            parameterMap.ensure(P_POSITION);
+            parameterMap.ensure(C_EVENT_COUNT);
             parameterMap.ensure(C_DELTA_TIME);
+            parameterMap.ensure(C_TICK_COUNT);
             parameterMap.ensure(C_FROM_INDEX);
             parameterMap.ensure(C_TO_INDEX);
-            parameterMap.ensure(C_EVENT_COUNT);
             parameterMap.ensure(E_IS_WORLD_SPACE);
-            parameterMap.ensure(E_CURRENT_DELAY);
-            parameterMap.ensure(E_AGE);
-            parameterMap.ensure(E_LOOPED_AGE);
-            parameterMap.ensure(E_NORMALIZED_LOOP_AGE);
-            parameterMap.ensure(E_CURRENT_LOOP_COUNT);
-            parameterMap.ensure(E_SPAWN_REMAINDER);
-            parameterMap.ensure(E_SPAWN_REMAINDER_PER_UNIT);
             parameterMap.ensure(E_VELOCITY);
             parameterMap.ensure(E_LOCAL_TO_WORLD);
             parameterMap.ensure(E_WORLD_TO_LOCAL);
@@ -580,7 +575,6 @@ export class VFXEmitter extends Component {
             parameterMap.ensure(E_RENDER_SCALE);
             parameterMap.ensure(E_SIMULATION_POSITION);
             parameterMap.ensure(E_POSITION);
-            parameterMap.ensure(E_SPAWN_INFOS);
             parameterMap.ensure(E_SPAWN_INFO_COUNT);
             this._emitterStage.compile(parameterMap, this);
             this._spawnStage.compile(parameterMap, this);
@@ -598,6 +592,7 @@ export class VFXEmitter extends Component {
     private updatePrerequisite (parameterMap: VFXParameterMap, deltaTime: number) {
         parameterMap.getBoolValue(E_IS_WORLD_SPACE).data = !this._localSpace;
         parameterMap.getUint32Value(C_EVENT_COUNT).data = 0;
+        parameterMap.getUint32Value(C_TICK_COUNT).data++;
         parameterMap.getFloatValue(C_DELTA_TIME).data = deltaTime;
         parameterMap.getUint32Value(C_FROM_INDEX).data = 0;
         parameterMap.getUint32Value(C_TO_INDEX).data = this._particleCount;
@@ -676,27 +671,26 @@ export class VFXEmitter extends Component {
             const eventHandler = this._eventHandlers[i];
             const target = eventHandler.target;
             if (target && target.isValid) {
-                if (!target._parameterMap.has(C_EVENTS)) {
-                    return;
-                }
-                const events = target._parameterMap.getEventArrayValue(C_EVENTS);
                 const eventCount = target._parameterMap.getUint32Value(C_EVENT_COUNT).data;
-                for (let i = 0; i < eventCount; i++) {
-                    events.getEventAt(eventInfo, i);
-                    if (eventInfo.type !== eventHandler.eventType) { continue; }
-                    Vec3.normalize(dir, eventInfo.velocity);
-                    const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
-                    Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
-                    Quat.fromViewUp(rot, dir, up);
-                    Mat4.fromRT(tempEmitterTransform, rot, eventInfo.position);
-                    const initialVelocity = new Vec3();
-                    Vec3.copy(initialVelocity, eventInfo.velocity);
-                    if (!isWorldSpace) {
-                        Mat4.multiply(tempEmitterTransform, worldToLocal, tempEmitterTransform);
-                        Vec3.transformMat4(initialVelocity, initialVelocity, worldToLocal);
+                if (eventCount > 0) {
+                    const events = target._parameterMap.getEventArrayValue(C_EVENTS);
+                    for (let i = 0; i < eventCount; i++) {
+                        events.getEventAt(eventInfo, i);
+                        if (eventInfo.type !== eventHandler.eventType) { continue; }
+                        Vec3.normalize(dir, eventInfo.velocity);
+                        const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
+                        Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
+                        Quat.fromViewUp(rot, dir, up);
+                        Mat4.fromRT(tempEmitterTransform, rot, eventInfo.position);
+                        const initialVelocity = new Vec3();
+                        Vec3.copy(initialVelocity, eventInfo.velocity);
+                        if (!isWorldSpace) {
+                            Mat4.multiply(tempEmitterTransform, worldToLocal, tempEmitterTransform);
+                            Vec3.transformMat4(initialVelocity, initialVelocity, worldToLocal);
+                        }
+                        this.spawn(eventHandler.spawnCount, 0, 0, tempEmitterTransform, initialVelocity, eventInfo.color);
+                        eventHandler.execute(parameterMap);
                     }
-                    this.spawn(eventHandler.spawnCount, 0, 0, tempEmitterTransform, initialVelocity, eventInfo.color);
-                    eventHandler.execute(parameterMap);
                 }
             }
         }

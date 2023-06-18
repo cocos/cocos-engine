@@ -104,11 +104,17 @@ export enum VFXBuiltinNamespace {
     CONTEXT = 'context',
 }
 
+export enum VFXRandomEvaluationMode {
+    SPAWN_ONLY,
+    EVERY_FRAME
+}
+
 // #region emitter parameters
 let builtinParameterId = 1;
 export const E_AGE = new VFXParameter(builtinParameterId++, 'age', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_IS_WORLD_SPACE = new VFXParameter(builtinParameterId++, 'is-world-space', VFXValueType.BOOL, VFXBuiltinNamespace.EMITTER, false);
-export const E_CURRENT_DELAY = new VFXParameter(builtinParameterId++, 'current-delay', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
+export const E_CURRENT_LOOP_DURATION = new VFXParameter(builtinParameterId++, 'current-loop-duration', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
+export const E_CURRENT_LOOP_DELAY = new VFXParameter(builtinParameterId++, 'current-loop-delay', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_LOOPED_AGE = new VFXParameter(builtinParameterId++, 'looped-age', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_NORMALIZED_LOOP_AGE = new VFXParameter(builtinParameterId++, 'normalized-loop-age', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_SPAWN_REMAINDER = new VFXParameter(builtinParameterId++, 'spawn-remainder', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
@@ -132,6 +138,7 @@ export const E_RANDOM_SEED = new VFXParameter(builtinParameterId++, 'random-seed
 // #region context parameters
 builtinParameterId = 1000;
 export const C_DELTA_TIME = new VFXParameter(builtinParameterId++, 'delta-time', VFXValueType.FLOAT, VFXBuiltinNamespace.CONTEXT, false);
+export const C_TICK_COUNT = new VFXParameter(builtinParameterId++, 'tick-count', VFXValueType.UINT32, VFXBuiltinNamespace.CONTEXT, false);
 export const C_FROM_INDEX = new VFXParameter(builtinParameterId++, 'from-index', VFXValueType.UINT32, VFXBuiltinNamespace.CONTEXT, false);
 export const C_TO_INDEX = new VFXParameter(builtinParameterId++, 'to-index', VFXValueType.UINT32, VFXBuiltinNamespace.CONTEXT, false);
 export const C_EVENTS = new VFXParameter(builtinParameterId++, 'events', VFXValueType.EVENT, VFXBuiltinNamespace.CONTEXT, true);

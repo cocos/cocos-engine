@@ -27,13 +27,15 @@ import { ShapeLocationModule } from './shape-location';
 import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
-import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randFloat3, randRangedInt32 } from '../rand';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
 const tempBoxSize = new Vec3();
 const tempBoxCenter = new Vec3();
+const randVec3 = new Vec3();
 @ccclass('cc.BoxLocationModule')
 @VFXModule.register('BoxLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class BoxLocationModule extends ShapeLocationModule {
@@ -97,9 +99,12 @@ export class BoxLocationModule extends ShapeLocationModule {
     private _boxCenter: Vec3Expression | null = null;
     @serializable
     private _surfaceOnly = false;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
+        parameterMap.ensure(P_ID);
         this.boxSize.compile(parameterMap, this);
         this.boxCenter.compile(parameterMap, this);
         if (this.surfaceOnly) {
@@ -112,28 +117,33 @@ export class BoxLocationModule extends ShapeLocationModule {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
+        const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const randomOffset = this._randomOffset;
+        const randomOffsetFace = this._randomOffset + 1767283;
+        const randomOffsetThickness = this._randomOffset + 6176272;
         const boxSizeExp = this._boxSize as Vec3Expression;
         const boxCenterExp = this._boxCenter as Vec3Expression;
         boxSizeExp.bind(parameterMap);
         boxCenterExp.bind(parameterMap);
-
-        const rand = this.randomStream;
         if (!this.surfaceOnly) {
             for (let i = fromIndex; i < toIndex; ++i) {
                 boxSizeExp.evaluate(i, tempBoxSize);
                 boxCenterExp.evaluate(i, tempBoxCenter);
-                Vec3.set(pos, (rand.getFloat() - tempBoxCenter.x) * tempBoxSize.x,
-                    (rand.getFloat() - tempBoxCenter.y) * tempBoxSize.y, (rand.getFloat() - tempBoxCenter.z) * tempBoxSize.z);
+                randFloat3(randVec3, randomSeed, id[i], randomOffset);
+                Vec3.set(pos, (randVec3.x - tempBoxCenter.x) * tempBoxSize.x,
+                    (randVec3.y - tempBoxCenter.y) * tempBoxSize.y, (randVec3.z - tempBoxCenter.z) * tempBoxSize.z);
                 this.storePosition(i, pos, position);
             }
         } else {
             const surfaceThicknessExp = this._surfaceThickness as FloatExpression;
             surfaceThicknessExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
-                const x = rand.getFloat();
-                const y = rand.getFloat();
-                const z = rand.getFloat();
-                const face = rand.getIntFromRange(0, 3);
+                randFloat3(randVec3, randomSeed, id[i], randomOffset);
+                const x = randVec3.x;
+                const y = randVec3.y;
+                const z = randVec3.z;
+                const face = randRangedInt32(0, 3, randomSeed, id[i], randomOffsetFace);
                 Vec3.set(tempPosition,
                     face === 0 ? (x >= 0.5 ? 1 : 0) : x,
                     face === 1 ? (y >= 0.5 ? 1 : 0) : y,
@@ -141,9 +151,10 @@ export class BoxLocationModule extends ShapeLocationModule {
                 boxSizeExp.evaluate(i, tempBoxSize);
                 boxCenterExp.evaluate(i, tempBoxCenter);
                 const thickness = surfaceThicknessExp.evaluate(i);
-                tempPosition.x *= rand.getFloatFromRange(tempBoxSize.x - thickness, tempBoxSize.x);
-                tempPosition.y *= rand.getFloatFromRange(tempBoxSize.y - thickness, tempBoxSize.y);
-                tempPosition.z *= rand.getFloatFromRange(tempBoxSize.z - thickness, tempBoxSize.z);
+                randFloat3(randVec3, randomSeed, id[i], randomOffsetThickness);
+                tempPosition.x *= tempBoxSize.x - thickness * randVec3.x;
+                tempPosition.y *= tempBoxSize.y - thickness * randVec3.y;
+                tempPosition.z *= tempBoxSize.z - thickness * randVec3.z;
                 Vec3.set(pos, tempPosition.x - tempBoxSize.x * tempBoxCenter.x, tempPosition.y - tempBoxSize.y * tempBoxCenter.y, tempPosition.z - tempBoxSize.z * tempBoxCenter.z);
                 this.storePosition(i, pos, position);
             }

@@ -55,6 +55,10 @@ export class SpawnPerUnitModule extends VFXModule {
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
+        parameterMap.ensure(E_SPAWN_REMAINDER_PER_UNIT);
+        parameterMap.ensure(E_SPAWN_INFOS);
+        parameterMap.ensure(E_SPAWN_INFO_COUNT);
+        parameterMap.ensure(E_LOOPED_AGE);
         this.spawnSpacing.compile(parameterMap, this);
     }
 

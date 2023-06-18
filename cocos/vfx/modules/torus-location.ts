@@ -28,8 +28,9 @@ import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Enum, TWO_PI, Vec3, clamp } from '../../core';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
-import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randRangedFloat } from '../rand';
 
 export enum TorusDistributionMode {
     RANDOM,
@@ -173,12 +174,15 @@ export class TorusLocationModule extends ShapeLocationModule {
     private _vPosition: FloatExpression | null = null;
     @serializable
     private _distributionMode = TorusDistributionMode.RANDOM;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
         this.largeRadius.compile(parameterMap, this);
         this.handleRadius.compile(parameterMap, this);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
+            parameterMap.ensure(P_ID);
             this.surfaceDistribution.compile(parameterMap, this);
             this.uDistribution.compile(parameterMap, this);
             this.vDistribution.compile(parameterMap, this);
@@ -193,26 +197,31 @@ export class TorusLocationModule extends ShapeLocationModule {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
+
         const largeRadiusExp = this._largeRadius as FloatExpression;
         const handleRadiusExp = this._handleRadius as FloatExpression;
         largeRadiusExp.bind(parameterMap);
         handleRadiusExp.bind(parameterMap);
         if (this._distributionMode === TorusDistributionMode.RANDOM) {
+            const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+            const id = parameterMap.getUint32Value(P_ID).data;
+            const randomOffset = this._randomOffset;
+            const randomOffsetV = randomOffset + 617230;
+            const randomOffsetRadius = randomOffset + 741238;
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const uDistributionExp = this._uDistribution as FloatExpression;
             const vDistributionExp = this._vDistribution as FloatExpression;
             surfaceDistributionExp.bind(parameterMap);
             uDistributionExp.bind(parameterMap);
             vDistributionExp.bind(parameterMap);
-            const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const largeRadius = largeRadiusExp.evaluate(i);
                 const surfaceDistribution = clamp(surfaceDistributionExp.evaluate(i), 0, 999);
                 const uDistribution = clamp(uDistributionExp.evaluate(i), 0, 1);
                 const vDistribution = clamp(vDistributionExp.evaluate(i), 0, 1);
-                const randomU = randomStream.getFloatFromRange(uDistribution, 1) * TWO_PI;
-                const randomV = randomStream.getFloatFromRange(vDistribution, 1) * TWO_PI;
-                const randomRadius = randomStream.getFloatFromRange(surfaceDistribution, 1);
+                const randomU = randRangedFloat(uDistribution, 1, randomSeed, id[i], randomOffset) * TWO_PI;
+                const randomV = randRangedFloat(vDistribution, 1, randomSeed, id[i], randomOffsetV) * TWO_PI;
+                const randomRadius = randRangedFloat(surfaceDistribution, 1, randomSeed, id[i], randomOffsetRadius);
                 const handleRadius = Math.sqrt(randomRadius) * handleRadiusExp.evaluate(i);
                 const radius = largeRadius + handleRadius * Math.cos(randomV);
                 Vec3.set(pos, radius * Math.cos(randomU), radius * Math.sin(randomU), handleRadius * Math.sin(randomV));

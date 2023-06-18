@@ -24,11 +24,12 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
-import { Enum, TWO_PI, Vec3 } from '../../core';
+import { Enum, TWO_PI, Vec3, random } from '../../core';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
-import { C_FROM_INDEX, C_TO_INDEX, P_POSITION } from '../define';
+import { C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID, P_POSITION } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randRangedFloat } from '../rand';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
@@ -175,11 +176,14 @@ export class CircleLocationModule extends ShapeLocationModule {
     private _uniformSpiralFalloff: FloatExpression | null = null;
     @serializable
     private _distributionMode: DistributionMode = DistributionMode.RANDOM;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xFFFFFFFF);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
         this.radius.compile(parameterMap, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
+            parameterMap.ensure(P_ID);
             this.radiusCoverage.compile(parameterMap, this);
             this.thetaCoverage.compile(parameterMap, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
@@ -196,14 +200,17 @@ export class CircleLocationModule extends ShapeLocationModule {
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
+            const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+            const id = parameterMap.getUint32ArrayValue(P_ID).data;
+            const randomOffset = this._randomOffset;
+            const randomOffsetTheta = randomOffset + 8718230;
             const radiusCoverageExp = this._radiusCoverage as FloatExpression;
             const thetaCoverageExp = this._thetaCoverage as FloatExpression;
             radiusCoverageExp.bind(parameterMap);
             thetaCoverageExp.bind(parameterMap);
-            const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverageExp.evaluate(i), 1)) * radiusExp.evaluate(i);
-                const theta = randomStream.getFloatFromRange(1 - thetaCoverageExp.evaluate(i), 1) * TWO_PI;
+                const r = Math.sqrt(randRangedFloat(1 - radiusCoverageExp.evaluate(i), 1, randomSeed, id[i], randomOffset)) * radiusExp.evaluate(i);
+                const theta = randRangedFloat(1 - thetaCoverageExp.evaluate(i), 1, randomSeed, id[i], randomOffsetTheta) * TWO_PI;
                 pos.x = Math.cos(theta) * r;
                 pos.y = Math.sin(theta) * r;
                 pos.z = 0;

@@ -25,7 +25,7 @@
 
 import { Vec2, Vec3 } from '../core';
 
-export function Rand1 (seed1: number, seed2: number, seed3: number) {
+export function randFloat (seed1: number, seed2: number, seed3: number) {
     let x = ((Math.imul(seed1, 1664525) >>> 0) + 1013904223) >>> 0;
     let y = ((Math.imul(seed2, 1664525) >>> 0) + 1013904223) >>> 0;
     let z = ((Math.imul(seed3, 1664525) >>> 0) + 1013904223) >>> 0;
@@ -37,7 +37,19 @@ export function Rand1 (seed1: number, seed2: number, seed3: number) {
     return (x >>> 8) / 16777216.0;
 }
 
-export function Rand2 (out: Vec2, seed1: number, seed2: number, seed3: number) {
+export function randUint32 (seed1: number, seed2: number, seed3: number) {
+    let x = ((Math.imul(seed1, 1664525) >>> 0) + 1013904223) >>> 0;
+    let y = ((Math.imul(seed2, 1664525) >>> 0) + 1013904223) >>> 0;
+    let z = ((Math.imul(seed3, 1664525) >>> 0) + 1013904223) >>> 0;
+    x = ((Math.imul(y, z) >>> 0) + x) >>> 0;
+    y = ((Math.imul(x, z) >>> 0) + y) >>> 0;
+    z = ((Math.imul(x, y) >>> 0) + z) >>> 0;
+    x = ((Math.imul(y, z) >>> 0) + x) >>> 0;
+
+    return x;
+}
+
+export function randFloat2 (out: Vec2, seed1: number, seed2: number, seed3: number) {
     let x = ((Math.imul(seed1, 1664525) >>> 0) + 1013904223) >>> 0;
     let y = ((Math.imul(seed2, 1664525) >>> 0) + 1013904223) >>> 0;
     let z = ((Math.imul(seed3, 1664525) >>> 0) + 1013904223) >>> 0;
@@ -51,7 +63,7 @@ export function Rand2 (out: Vec2, seed1: number, seed2: number, seed3: number) {
     out.y = (y >>> 8) / 16777216.0;
 }
 
-export function Rand3 (out: Vec3, seed1: number, seed2: number, seed3: number) {
+export function randFloat3 (out: Vec3, seed1: number, seed2: number, seed3: number) {
     let x = ((Math.imul(seed1, 1664525) >>> 0) + 1013904223) >>> 0;
     let y = ((Math.imul(seed2, 1664525) >>> 0) + 1013904223) >>> 0;
     let z = ((Math.imul(seed3, 1664525) >>> 0) + 1013904223) >>> 0;
@@ -67,6 +79,10 @@ export function Rand3 (out: Vec3, seed1: number, seed2: number, seed3: number) {
     out.z = (z >>> 8) / 16777216.0;
 }
 
-export function RandRanged1 (min: number, max: number, seed1: number, seed2: number, seed3: number) {
-    return min + (max - min) * Rand1(seed1, seed2, seed3);
+export function randRangedFloat (min: number, max: number, seed1: number, seed2: number, seed3: number) {
+    return min + (max - min) * randFloat(seed1, seed2, seed3);
+}
+
+export function randRangedInt32 (min: number, max: number, seed1: number, seed2: number, seed3: number) {
+    return randUint32(seed1, seed2, seed3) % (max - min) + min;
 }

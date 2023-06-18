@@ -3,7 +3,7 @@ import { Color, assertIsTrue, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
-const STRIDE = 12;
+const STRIDE = 11;
 export class VFXEventInfo {
     public type = VFXEventType.UNKNOWN;
     public particleId = 0;
@@ -12,7 +12,6 @@ export class VFXEventInfo {
     public position = new Vec3();
     public velocity = new Vec3();
     public color = new Color();
-    public randomSeed = 0;
 
     copy (src: VFXEventInfo) {
         this.type = src.type;
@@ -22,7 +21,6 @@ export class VFXEventInfo {
         Vec3.copy(this.position, src.position);
         Vec3.copy(this.velocity, src.velocity);
         Color.copy(this.color, src.color);
-        this.randomSeed = src.randomSeed;
     }
 }
 
@@ -61,7 +59,6 @@ export class VFXEventArray extends VFXArray {
         this._data[offsetB + 8] = this._data[offsetA + 8];
         this._data[offsetB + 9] = this._data[offsetA + 9];
         this._data[offsetB + 10] = this._data[offsetA + 10];
-        this._data[offsetB + 11] = this._data[offsetA + 11];
     }
 
     getEventAt (out: VFXEventInfo, handle: Handle) {
@@ -75,7 +72,6 @@ export class VFXEventArray extends VFXArray {
         Vec3.set(out.position, data[offset + 4], data[offset + 5], data[offset + 6]);
         Vec3.set(out.velocity, data[offset + 7], data[offset + 8], data[offset + 9]);
         Color.fromUint32(out.color, uint32Data[offset + 10]);
-        out.randomSeed = uint32Data[offset + 11];
         return out;
     }
 
@@ -94,7 +90,6 @@ export class VFXEventArray extends VFXArray {
         data[offset + 8] = event.velocity.y;
         data[offset + 9] = event.velocity.z;
         uint32Data[offset + 10] = Color.toUint32(event.color);
-        uint32Data[offset + 11] = event.randomSeed;
     }
 
     copyFrom (src: VFXEventArray, fromIndex: Handle, toIndex: Handle) {

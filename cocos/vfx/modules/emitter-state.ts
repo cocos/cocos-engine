@@ -24,7 +24,7 @@
  */
 import { Enum } from '../../core';
 import { ccclass, rangeMin, serializable, type, visible } from '../../core/data/decorators';
-import { C_DELTA_TIME, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, LoopMode } from '../define';
+import { C_DELTA_TIME, DelayMode, E_AGE, E_CURRENT_LOOP_DELAY, E_CURRENT_LOOP_DURATION, E_CURRENT_LOOP_COUNT, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, LoopMode } from '../define';
 import { ConstantFloatExpression, ConstantInt32Expression, FloatExpression, Int32Expression } from '../expressions';
 import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -119,30 +119,55 @@ export class EmitterStateModule extends VFXModule {
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
+        parameterMap.ensure(E_CURRENT_LOOP_DELAY);
+        parameterMap.ensure(E_CURRENT_LOOP_DURATION);
+        parameterMap.ensure(E_CURRENT_LOOP_COUNT);
+        parameterMap.ensure(E_AGE);
+        parameterMap.ensure(E_LOOPED_AGE);
+        parameterMap.ensure(E_NORMALIZED_LOOP_AGE);
+        this.loopDuration.compile(parameterMap, this);
+        if (this.loopMode === LoopMode.MULTIPLE) {
+            this.loopCount.compile(parameterMap, this);
+        }
+        if (this.delayMode !== DelayMode.NONE) {
+            this.loopDelay.compile(parameterMap, this);
+        }
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        parameterMap.getFloatValue(E_CURRENT_DELAY).data = ;
-        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
-
         const delayMode = this._delayMode;
-        const delay = parameterMap.getFloatValue(E_CURRENT_DELAY).data;
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        const currentDuration = parameterMap.getFloatValue(E_CURRENT_LOOP_DURATION);
+        const currentDelay = parameterMap.getFloatValue(E_CURRENT_LOOP_DELAY);
         const loopMode = this._loopMode;
-        const loopCount = this._loopCount;
-        const duration = this._loopDuration;
+        const loopDurationExp = this._loopDuration!;
+        const loopCountExp = this._loopCount!;
+        const loopDelayExp = this._loopDelay!;
+
+        loopDurationExp.bind(parameterMap);
+        if (delayMode !== DelayMode.NONE) {
+            loopDelayExp.bind(parameterMap);
+        }
+        if (loopMode === LoopMode.MULTIPLE) {
+            loopCountExp.bind(parameterMap);
+        }
+
+        currentDuration.data = loopDurationExp.evaluate(0);
+        currentDelay.data = delayMode !== DelayMode.NONE ? loopDelayExp.evaluate(0) : 0;
 
         const age = parameterMap.getFloatValue(E_AGE);
         let prevTime = age.data;
         age.data += deltaTime;
         let currentTime = age.data;
-        prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(prevTime - delay, 0) : prevTime;
-        currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(currentTime - delay, 0) : currentTime;
+
+        prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? (prevTime - currentDelay.data) : prevTime;
+        currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? (currentTime - currentDelay.data) : currentTime;
         const expectedLoopCount = loopMode === LoopMode.INFINITE ? Number.MAX_SAFE_INTEGER
-            : (loopMode === LoopMode.MULTIPLE ? loopCount : 1);
-        const invDuration = 1 / duration;
-        const durationAndDelay = delayMode === DelayMode.EVERY_LOOP ? (duration + delay) : duration;
+            : (loopMode === LoopMode.MULTIPLE ? loopCountExp.evaluate(0) : 1);
+        const invDuration = 1 / currentDuration.data;
+        const durationAndDelay = delayMode === DelayMode.EVERY_LOOP ? (currentDuration.data + currentDelay.data) : currentDuration.data;
         const invDurationAndDelay = delayMode === DelayMode.EVERY_LOOP ? (1 / durationAndDelay) : invDuration;
-        const count = Math.floor(currentTime * invDurationAndDelay);
+        const count = Math.max(0, Math.floor(currentTime * invDurationAndDelay));
         if (count < expectedLoopCount) {
             prevTime %= durationAndDelay;
             currentTime %= durationAndDelay;
@@ -157,8 +182,8 @@ export class EmitterStateModule extends VFXModule {
             parameterMap.getUint32Value(E_CURRENT_LOOP_COUNT).data = expectedLoopCount;
         }
         if (delayMode === DelayMode.EVERY_LOOP) {
-            prevTime = Math.max(prevTime - delay, 0);
-            currentTime = Math.max(currentTime - delay, 0);
+            prevTime -= currentDelay.data;
+            currentTime -= currentDelay.data;
         }
 
         parameterMap.getFloatValue(E_LOOPED_AGE).data = currentTime;

@@ -75,6 +75,9 @@ export class SpawnBurstModule extends VFXModule {
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage): void {
         super.compile(parameterMap, owner);
+        parameterMap.ensure(E_SPAWN_INFOS);
+        parameterMap.ensure(E_SPAWN_INFO_COUNT);
+        parameterMap.ensure(E_LOOPED_AGE);
         this.count.compile(parameterMap, this);
         this.time.compile(parameterMap, this);
     }
@@ -96,7 +99,7 @@ export class SpawnBurstModule extends VFXModule {
 
         const spawnStartDt = (spawnTime - (loopAge - deltaTime));
 
-        if (spawnStartDt >= 0 && (spawnTime - loopAge) < 0) {
+        if (spawnStartDt >= 0 && spawnTime < loopAge) {
             spawnInfo.count = spawnCount;
             spawnInfo.intervalDt = 0;
             spawnInfo.interpStartDt = spawnStartDt;

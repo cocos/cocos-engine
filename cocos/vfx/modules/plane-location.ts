@@ -27,12 +27,14 @@ import { ShapeLocationModule } from './shape-location';
 import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, P_ID, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randFloat2 } from '../rand';
 
 const center = new Vec2();
 const size = new Vec2();
 const pos = new Vec3();
+const randVec2 = new Vec2();
 @ccclass('cc.PlaneLocationModule')
 @VFXModule.register('PlaneLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
 export class PlaneLocationModule extends ShapeLocationModule {
@@ -66,9 +68,12 @@ export class PlaneLocationModule extends ShapeLocationModule {
     private _planeSize: Vec2Expression | null = null;
     @serializable
     private _planeCenter: Vec2Expression | null = null;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
+        parameterMap.ensure(P_ID);
         this.planeCenter.compile(parameterMap, this);
         this.planeSize.compile(parameterMap, this);
     }
@@ -78,16 +83,19 @@ export class PlaneLocationModule extends ShapeLocationModule {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
+        const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const randomOffset = this._randomOffset;
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
         planeSizeExp.bind(parameterMap);
         planeCenterExp.bind(parameterMap);
 
-        const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {
             planeCenterExp.evaluate(i, center);
             planeSizeExp.evaluate(i, size);
-            Vec2.set(pos, rand.getFloatFromRange(0, size.x), rand.getFloatFromRange(0, size.y));
+            randFloat2(randVec2, randomSeed, id[i], randomOffset);
+            Vec2.set(pos, randVec2.x * size.x, randVec2.y * size.y);
             pos.x -= size.x * center.x;
             pos.y -= size.y * center.y;
             this.storePosition(i, pos, position);

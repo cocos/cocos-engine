@@ -28,8 +28,9 @@ import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
-import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, P_ID, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { randFloat, randRangedFloat } from '../rand';
 
 const pos = new Vec3();
 const distribution = new Vec2();
@@ -176,11 +177,14 @@ export class SphereLocationModule extends ShapeLocationModule {
     private _uniformSpiralAmount: FloatExpression | null = null;
     @serializable
     private _distributionMode = DistributionMode.RANDOM;
+    @serializable
+    private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
         super.compile(parameterMap, owner);
         this.radius.compile(parameterMap, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
+            parameterMap.ensure(P_ID);
             this.surfaceDistribution.compile(parameterMap, this);
             this.hemisphereDistribution.compile(parameterMap, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
@@ -201,21 +205,25 @@ export class SphereLocationModule extends ShapeLocationModule {
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
+            const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
+            const randomOffset = this._randomOffset;
+            const randomOffsetTheta = randomOffset + 483890;
+            const randomOffsetDis  = randomOffset + 588190;
+            const id = parameterMap.getUint32ArrayValue(P_ID).data;
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const hemisphereDistributionExp = this._hemisphereDistribution as Vec2Expression;
             surfaceDistributionExp.bind(parameterMap);
             hemisphereDistributionExp.bind(parameterMap);
-            const random = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 hemisphereDistributionExp.evaluate(i, distribution);
                 const surfaceDistribution = Math.max(surfaceDistributionExp.evaluate(i), 0);
                 const radialAngle = clamp(degreesToRadians(distribution.x), 0, TWO_PI);
-                const angle = Math.acos(random.getFloatFromRange(Math.cos(degreesToRadians(distribution.y * 0.5)), 1));
-                const theta = random.getFloatFromRange(0, radialAngle);
+                const angle = Math.acos(randRangedFloat(Math.cos(degreesToRadians(distribution.y * 0.5)), 1, randomSeed, id[i], randomOffset));
+                const theta = randFloat(randomSeed, id[i], randomOffsetTheta) * radialAngle;
                 Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
                 Vec3.multiplyScalar(pos, pos, Math.sin(angle));
                 pos.z = Math.cos(angle);
-                Vec3.multiplyScalar(pos, pos, random.getFloatFromRange(surfaceDistribution, 1.0) ** 0.3333 * radiusExp.evaluate(i));
+                Vec3.multiplyScalar(pos, pos, randRangedFloat(surfaceDistribution, 1.0, randomSeed, id[i], randomOffsetDis) ** 0.3333 * radiusExp.evaluate(i));
                 this.storePosition(i, pos, position);
             }
         } else if (this.distributionMode === DistributionMode.DIRECT) {
