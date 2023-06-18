@@ -145,7 +145,6 @@ export class TextProcessing {
             scale = this._maxFontSize / fontSize;
         }
         if (scale < 1) { scale = 1; }
-        scale = Math.round(scale * 10) / 10;
         return scale;
     }
 
@@ -157,6 +156,7 @@ export class TextProcessing {
 
         style.actualFontSize = style.fontSize * this._fontScale;
         if (ANDROID) {
+            // Android restriction only accepts integer font sizes
             style.actualFontSize = Math.floor(style.actualFontSize);
             this._fontScale = style.actualFontSize / style.fontSize;
         }
@@ -220,7 +220,6 @@ export class TextProcessing {
             const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
             let scale = MAX_SIZE / maxValue;
             if (scale < 1) { scale = 1; }
-            this._fontScale = Math.round(scale * 10) / 10;
 
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
