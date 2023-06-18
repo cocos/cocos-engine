@@ -220,6 +220,7 @@ export class TextProcessing {
             const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
             let scale = MAX_SIZE / maxValue;
             if (scale < 1) { scale = 1; }
+            this._fontScale = scale;
 
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
