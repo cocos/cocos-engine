@@ -8,4 +8,14 @@ declare module 'pal/wasm' {
      * @param importObject the standard `WebAssembly.Imports` instance
      */
     export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any>;
+
+    /**
+     * Fetch binary data from wasm url or js mem url.
+     * NOTE: This method should only use to instantiate asm.js compiled with `-O2` options,
+     * because not all platforms support instantiate wasm by wasm binary.
+     * eg. WeChat can only instantiate wasm by wasm url.
+     *
+     * @param binaryUrl the url of wasm or js mem, this should be a url relative from build output chunk.
+     */
+    export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer>;
 }
