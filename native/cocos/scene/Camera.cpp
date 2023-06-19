@@ -406,6 +406,10 @@ void Camera::calculateObliqueMat(const Vec4 &viewSpacePlane) {
     _matProj.m[14] = m3.w;
 }
 
+float Camera::getClipSpaceMinz() const {
+    return _device->getCapabilities().clipSpaceMinZ;
+}
+
 void Camera::setNode(Node *val) { _node = val; }
 
 void Camera::setExposure(float ev100) {
