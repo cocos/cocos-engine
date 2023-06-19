@@ -607,9 +607,22 @@ class PlaneShape extends Shape {
 
 function getConvexMesh (v) {
     if (!jsbPhy.CACHE.convex[v._uuid]) {
-        const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+        const subMeshCount = v.renderingSubMeshes.length;
+        const vertexCount = v.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const vb = v.readAttribute(idx, 'a_position');
+            const vCount = vb.length / 3;
+            return acc + vCount;
+        }, 0);
+
+        const vBuffer = new Float32Array(vertexCount * 3);
+        let offset = 0;
+        for (let i = 0; i < subMeshCount; i++) {
+            const vb = v.readAttribute(i, 'a_position');
+            vBuffer.set(vb, offset);
+            offset += vb.length;
+        }
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
-        const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
+        const convex = { positions: vBuffer, positionLength: vBuffer.length / 3 };
         jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
     }
     return jsbPhy.CACHE.convex[v._uuid];
@@ -617,16 +630,36 @@ function getConvexMesh (v) {
 
 function getTriangleMesh (v) {
     if (!jsbPhy.CACHE.trimesh[v._uuid]) {
-        const indArr = v.readIndices(0);
-        // const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
-        const posArr = v.readAttribute(0, 'a_position');
+        const subMeshCount = v.renderingSubMeshes.length;
+        const vertexCount = v.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const vb = v.readAttribute(idx, 'a_position');
+            const vCount = vb.length / 3;
+            return acc + vCount;
+        }, 0);
+        const indexCount = v.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const ib = v.readIndices(idx);
+            return acc + ib.length;
+        }, 0);
+        const vBuffer = new Float32Array(vertexCount * 3);
+        const iBuffer = new Uint32Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < subMeshCount; i++) {
+            const vb = v.readAttribute(i, 'a_position');
+            const ib = v.readIndices(i);
+            const vCount = offset / 3;
+            for (let j = 0; j < ib.length; j++) {
+                iBuffer[j] = ib[j] + vCount;
+            }
+            vBuffer.set(vb, offset);
+            offset += vb.length;
+        }
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const trimesh = {
-            positions: new Float32Array(posArr),
-            positionLength: posArr.length / 3,
-            triangles: new Uint16Array(indArr),
-            triangleLength: indArr.length / 3,
-            isU16: true,
+            positions: vBuffer,
+            positionLength: vBuffer.length / 3,
+            triangles: iBuffer,
+            triangleLength: iBuffer.length / 3,
+            isU16: false,
         };
         jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
     }
