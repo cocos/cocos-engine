@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum } from '../core';
+import { CCString, Enum, error } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
@@ -203,7 +203,7 @@ export class SkeletonData extends Asset {
 
         if (!(this.textures && this.textures.length > 0) && this.textureNames && this.textureNames.length > 0) {
             if (!quiet) {
-                console.error(`${this.name} no textures found!`);
+                error(`${this.name} no textures found!`);
             }
             return null;
         }

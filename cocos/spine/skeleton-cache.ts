@@ -27,6 +27,7 @@ import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
+import { warn } from '../core/platform/debug';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -97,7 +98,7 @@ export class AnimationCache {
         });
         //const animation = this._skeletonData.findAnimation(animationName);
         if (!animation) {
-            console.warn(`find no animation named ${animationName} !!!`);
+            warn(`find no animation named ${animationName} !!!`);
             return;
         }
         this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);

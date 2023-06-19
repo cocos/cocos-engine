@@ -28,7 +28,7 @@ import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
 import wasmFactory from 'external:emscripten/spine/spine.wasm.js';
 import spineWasmUrl from 'external:emscripten/spine/spine.wasm';
 import { game } from '../../game';
-import { sys } from '../../core';
+import { error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 
@@ -58,7 +58,7 @@ function initWasm (wasmUrl): Promise<void> {
         registerList.forEach((cb) => {
             cb(wasmInstance);
         });
-    }, (reason: any) => { console.error(`[Spine]: Spine wasm load failed: ${reason}`); });
+    }, (reason: any) => { error(`[Spine]: Spine wasm load failed: ${reason}`); });
 }
 
 function initAsm (): Promise<void> {
@@ -84,7 +84,7 @@ function initAsm (): Promise<void> {
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { console.error(msg); };
+        const errorReport = (msg: any) => { error(msg); };
         if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(spineWasmUrl).then(resolve).catch(errorReport);

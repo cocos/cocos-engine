@@ -24,7 +24,7 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { errorID, warn } from '../core/platform/debug';
+import { error, warn } from '../core/platform/debug';
 import { Enum, ccenum } from '../core/value-types/enum';
 import { Component, Node } from '../scene-graph';
 import { CCBoolean, CCClass, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
@@ -339,7 +339,7 @@ export class Skeleton extends UIRenderer {
             skinsEnum = this.skeletonData.getSkinsEnum();
         }
         if (!skinsEnum) {
-            console.error(`${this.name} skin enums are invalid`);
+            error(`${this.name} skin enums are invalid`);
             return;
         }
 
@@ -350,7 +350,7 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             this.markForUpdateRenderData();
         } else {
-            console.error(`${this.name} skin enums are invalid`);
+            error(`${this.name} skin enums are invalid`);
         }
     }
 
@@ -387,7 +387,7 @@ export class Skeleton extends UIRenderer {
             animsEnum = this.skeletonData.getAnimsEnum();
         }
         if (!animsEnum) {
-            console.error(`${this.name} animation enums are invalid`);
+            error(`${this.name} animation enums are invalid`);
             return;
         }
         const animName = animsEnum[value];
@@ -400,7 +400,7 @@ export class Skeleton extends UIRenderer {
                 this.animation = animName;
             }
         } else {
-            console.error(`${this.name} animation enums are invalid`);
+            error(`${this.name} animation enums are invalid`);
         }
     }
 
@@ -1079,7 +1079,7 @@ export class Skeleton extends UIRenderer {
      */
     public setMix (fromAnimation: string, toAnimation: string, duration: number): void {
         if (this.isAnimationCached()) {
-            console.warn('cached mode not support setMix!!!');
+            warn('cached mode not support setMix!!!');
             return;
         }
         if (this._state) {
@@ -1141,7 +1141,7 @@ export class Skeleton extends UIRenderer {
             const target = sockets[i].target;
             if (target) {
                 if (!target.parent || (target.parent !== this.node)) {
-                    console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
+                    error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
                     continue;
                 }
             }
@@ -1150,7 +1150,7 @@ export class Skeleton extends UIRenderer {
         sockets.forEach((x: SpineSocket) => {
             if (x.target) {
                 if (uniqueSocketNode.get(x.target)) {
-                    console.error(`Target node ${x.target.name} has existed.`);
+                    error(`Target node ${x.target.name} has existed.`);
                 } else {
                     uniqueSocketNode.set(x.target, true);
                 }
@@ -1166,7 +1166,7 @@ export class Skeleton extends UIRenderer {
             if (socket.path && socket.target) {
                 const boneIdx = this._cachedSockets.get(socket.path);
                 if (!boneIdx) {
-                    console.error(`Skeleton data does not contain path ${socket.path}`);
+                    error(`Skeleton data does not contain path ${socket.path}`);
                     continue;
                 }
                 this._socketNodes.set(boneIdx, socket.target);
