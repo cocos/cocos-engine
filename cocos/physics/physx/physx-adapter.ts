@@ -47,6 +47,8 @@ import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
 import { degreesToRadians } from '../../core/utils/misc';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { Mesh } from '../../3d/assets';
+import { AttributeName, IndirectBuffer } from '../../gfx';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -360,6 +362,101 @@ export function setupCommonCookingParam (params: any, skipMeshClean = false, ski
         params.setMeshPreprocessParams(params.getMeshPreprocessParams() & ~PX.MeshPreprocessingFlag.eDISABLE_ACTIVE_EDGES_PRECOMPUTE);
     } else {
         params.setMeshPreprocessParams(params.getMeshPreprocessParams() | PX.MeshPreprocessingFlag.eDISABLE_ACTIVE_EDGES_PRECOMPUTE);
+    }
+}
+
+export function createConvexMeshShape (mesh: Mesh, cooking: any, physics: any) {
+    const subMeshCount = mesh.renderingSubMeshes.length;
+    if (USE_BYTEDANCE) {
+        // count all vertices through reduction
+        const vertexCount = mesh.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const vb = mesh.readAttribute(idx, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            const vCount = vb.length / 3;
+            return acc + vCount;
+        }, 0);
+
+        const vBuffer = new Float32Array(vertexCount * 3);
+        let offset = 0;
+        for (let i = 0; i < subMeshCount; i++) {
+            const vb = mesh.readAttribute(i, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            vBuffer.set(vb, offset);
+            offset += vb.length;
+        }
+        const cdesc = new PX.ConvexMeshDesc();
+        cdesc.setPointsData(vBuffer);
+        cdesc.setPointsCount(vertexCount);
+        cdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
+        cdesc.setConvexFlags(PX.ConvexFlag.eCOMPUTE_CONVEX);
+        return cooking.createConvexMesh(cdesc);
+    } else {
+        const vArr = new PX.PxVec3Vector();
+        mesh.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const vb = mesh.readAttribute(idx, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            const vCount = vb.length / 3;
+            for (let i = 0; i < vCount; i++) {
+                acc.push_back({ x: vb[i * 3], y: vb[i * 3 + 1], z: vb[i * 3 + 2] });
+            }
+            return acc;
+        }, vArr);
+        const r = cooking.createConvexMesh(vArr, physics);
+        vArr.delete();
+        return r;
+    }
+}
+
+export function createTriangleMeshShape (mesh: Mesh, cooking: any, physics: any) {
+    const subMeshCount = mesh.renderingSubMeshes.length;
+    if (USE_BYTEDANCE) {
+        const vertexCount = mesh.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const vb = mesh.readAttribute(idx, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            const vCount = vb.length / 3;
+            return acc + vCount;
+        }, 0);
+        const indexCount = mesh.renderingSubMeshes.reduce((acc, sm, idx) => {
+            const ib = mesh.readIndices(idx)! as unknown as Uint32Array;
+            return acc + ib.length;
+        }, 0);
+        const vBuffer = new Float32Array(vertexCount * 3);
+        const iBuffer = new Uint32Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < subMeshCount; i++) {
+            const vb = mesh.readAttribute(i, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            const ib = mesh.readIndices(i)! as unknown as Uint32Array;
+            const vCount = offset / 3;
+            for (let j = 0; j < ib.length; j++) {
+                iBuffer[j] = ib[j] + vCount;
+            }
+            vBuffer.set(vb, offset);
+            offset += vb.length;
+        }
+        const tdesc = new PX.TriangleMeshDesc();
+        tdesc.setPointsData(vBuffer);
+        // tdesc.setPointsCount(vertexCount);
+        // tdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
+        tdesc.setTrianglesData(iBuffer);
+        // tdesc.setTrianglesCount(indexCount / 3);
+        // tdesc.setTrianglesStride(3 * Uint32Array.BYTES_PER_ELEMENT);
+        return cooking.createTriangleMesh(tdesc);
+    } else {
+        const vArr = new PX.PxVec3Vector();
+        const iArr = new PX.PxU16Vector();
+        for (let i = 0; i < subMeshCount; i++) {
+            const vb = mesh.readAttribute(i, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
+            const ib = mesh.readIndices(i)! as unknown as Uint32Array;
+            const vCount = vb.length / 3;
+            const iCount = ib.length;
+            const vOffset = vArr.size() as number;
+            for (let j = 0; j < iCount; j++) {
+                iArr.push_back(ib[j] + vOffset);
+            }
+            for (let j = 0; j < vCount; j++) {
+                vArr.push_back({ x: vb[j * 3], y: vb[j * 3 + 1], z: vb[j * 3 + 2] });
+            }
+        }
+        const r = cooking.createTriMeshExt(vArr, iArr, physics);
+        vArr.delete();
+        iArr.delete();
+        return r;
     }
 }
 
