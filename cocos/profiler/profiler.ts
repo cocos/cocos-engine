@@ -95,7 +95,7 @@ const _constants = {
 
 export class Profiler extends System {
     /**
-     * * @deprecated We have removed this private interface in version 3.8, please use the public interface getStats() instead.
+     * * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
     private _stats: IProfilerState | null = null;
     private _showFPS = false;
@@ -147,7 +147,7 @@ export class Profiler extends System {
      * @zh 获取引擎运行性能状态
      * @en Get engine performance status
      */
-    public getStats () {
+    public get stats () {
         return this._stats;
     }
 
