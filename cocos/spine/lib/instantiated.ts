@@ -21,13 +21,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { instantiateWasm } from 'pal/wasm';
+import { instantiateWasm, fetchBuffer } from 'pal/wasm';
 import { JSB, WASM_SUPPORT_MODE } from 'internal:constants';
 import asmFactory from 'external:emscripten/spine/spine.asm.js';
-import wasmFactory from 'external:emscripten/spine/spine.js';
+import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
+import wasmFactory from 'external:emscripten/spine/spine.wasm.js';
 import spineWasmUrl from 'external:emscripten/spine/spine.wasm';
 import { game } from '../../game';
-import { sys } from '../../core';
+import { error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 
@@ -35,15 +36,15 @@ const PAGESIZE = 65536; // 64KiB
 
 // How many pages of the wasm memory
 // TODO: let this can be canfiguable by user.
-const PAGECOUNT = 64 * 16;
+const PAGECOUNT = 32 * 16;
 
 // How mush memory size of the wasm memory
 const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 64 MiB
 
-const wasmInstance: SpineWasm.instance = {} as any;
+let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmUrl) {
+function initWasm (wasmUrl): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return wasmFactory({
         instantiateWasm (importObject: WebAssembly.Imports,
@@ -53,40 +54,47 @@ function initWasm (wasmUrl) {
             });
         },
     }).then((Instance: any) => {
-        Object.assign(wasmInstance, Instance);
+        wasmInstance = Instance;
         registerList.forEach((cb) => {
             cb(wasmInstance);
         });
-    }, (reason: any) => { console.error('[Spine]:', `Spine wasm load failed: ${reason}`); });
+    }, (reason: any) => { error(`[Spine]: Spine wasm load failed: ${reason}`); });
 }
 
-function initAsm (resolve) {
-    const wasmMemory: any = {};
-    wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-    const module = {
-        wasmMemory,
-    };
-    return asmFactory(module).then((instance: any) => {
-        Object.assign(wasmInstance, instance);
-        registerList.forEach((cb) => {
-            cb(wasmInstance);
+function initAsm (): Promise<void> {
+    return fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
+        const wasmMemory: any = {};
+        wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
+        const module = {
+            wasmMemory,
+            memoryInitializerRequest: {
+                response: arrayBuffer,
+                status: 200,
+            } as Partial<XMLHttpRequest>,
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return asmFactory(module).then((instance: any) => {
+            wasmInstance = instance;
+            registerList.forEach((cb) => {
+                cb(wasmInstance);
+            });
         });
     });
 }
 
-export function waitForSpineWasmInstantiation () {
+export function waitForSpineWasmInstantiation (): Promise<void> {
     return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { console.error(msg); };
+        const errorReport = (msg: any) => { error(msg); };
         if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(spineWasmUrl).then(resolve).catch(errorReport);
             } else {
-                initAsm(asmFactory).then(resolve).catch(errorReport);
+                initAsm().then(resolve).catch(errorReport);
             }
         } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
             initWasm(spineWasmUrl).then(resolve).catch(errorReport);
         } else {
-            initAsm(asmFactory).then(resolve).catch(errorReport);
+            initAsm().then(resolve).catch(errorReport);
         }
     });
 }
