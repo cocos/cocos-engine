@@ -21,14 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
-import { JSB, WASM_SUPPORT_MODE } from 'internal:constants';
+import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
 import asmFactory from 'external:emscripten/spine/spine.asm.js';
 import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
 import wasmFactory from 'external:emscripten/spine/spine.wasm.js';
 import spineWasmUrl from 'external:emscripten/spine/spine.wasm';
 import { game } from '../../game';
-import { error, sys } from '../../core';
+import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 
@@ -62,41 +63,45 @@ function initWasm (wasmUrl): Promise<void> {
 }
 
 function initAsm (): Promise<void> {
-    return fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
-        const wasmMemory: any = {};
-        wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-        const module = {
-            wasmMemory,
-            memoryInitializerRequest: {
-                response: arrayBuffer,
-                status: 200,
-            } as Partial<XMLHttpRequest>,
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return asmFactory(module).then((instance: any) => {
-            wasmInstance = instance;
-            registerList.forEach((cb) => {
-                cb(wasmInstance);
+    return new Promise<void>((resolve, reject) => {
+        if (CULL_ASM_JS_MODULE) {
+            reject(getError(4601));
+            return;
+        }
+        fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
+            const wasmMemory: any = {};
+            wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
+            const module = {
+                wasmMemory,
+                memoryInitializerRequest: {
+                    response: arrayBuffer,
+                    status: 200,
+                } as Partial<XMLHttpRequest>,
+            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return asmFactory(module).then((instance: any) => {
+                wasmInstance = instance;
+                registerList.forEach((cb) => {
+                    cb(wasmInstance);
+                });
             });
-        });
+        }).then(resolve).catch(reject);
     });
 }
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
-    return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { error(msg); };
-        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                initWasm(spineWasmUrl).then(resolve).catch(errorReport);
-            } else {
-                initAsm().then(resolve).catch(errorReport);
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-            initWasm(spineWasmUrl).then(resolve).catch(errorReport);
+    const errorReport = (msg: any) => { error(msg); };
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        if (sys.hasFeature(sys.Feature.WASM)) {
+            return initWasm(spineWasmUrl).catch(errorReport);
         } else {
-            initAsm().then(resolve).catch(errorReport);
+            return initAsm().catch(errorReport);
         }
-    });
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return initWasm(spineWasmUrl).catch(errorReport);
+    } else {
+        return initAsm().catch(errorReport);
+    }
 }
 if (!JSB) {
     game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation);
