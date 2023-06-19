@@ -77,8 +77,12 @@ public:
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
     }
 
-    inline void dispatch(id<MTLBuffer> indirectBuffer, NSUInteger offset, MTLSize groupsPerGrid) {
-        [_mtlEncoder dispatchThreadgroupsWithIndirectBuffer:indirectBuffer indirectBufferOffset:offset threadsPerThreadgroup:groupsPerGrid];
+    inline void dispatch(MTLSize groupsPerGrid, MTLSize workGroupSize) {
+        [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:workGroupSize];
+    }
+
+    inline void dispatch(id<MTLBuffer> indirectBuffer, NSUInteger offset, MTLSize localSize) {
+        [_mtlEncoder dispatchThreadgroupsWithIndirectBuffer:indirectBuffer indirectBufferOffset:offset threadsPerThreadgroup:localSize];
     }
 
     inline void endEncoding() {

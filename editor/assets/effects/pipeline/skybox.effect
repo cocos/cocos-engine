@@ -6,11 +6,18 @@ CCEffect %{
       properties: &props
         environmentMap:     { value: grey }
       priority: max - 10
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: none
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
+    - vert: sky-vs:vert
+      frag: sky-fs:frag
+      propertyIndex: 0
+      priority: max - 10
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
 }%
 
 CCProgram sky-vs %{

@@ -1345,6 +1345,7 @@ class VMSMInternalState extends EventifiedStateEval {
 
     public reenter (initialTimeNormalized: number): void {
         this._progress = initialTimeNormalized;
+        this._port?.reenter();
     }
 
     public getStatus (): MotionStateStatus {

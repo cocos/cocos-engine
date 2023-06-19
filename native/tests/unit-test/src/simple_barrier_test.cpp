@@ -70,7 +70,7 @@ TEST(barrierTest, test10) {
 
     //// 2nd node
     const auto& node2 = barrierMap.at(2);
-    ExpectEq(node2.blockBarrier.frontBarriers.size() == 1, true);
+    ExpectEq(node2.blockBarrier.frontBarriers.size(), 0);
     ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
 
     const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
