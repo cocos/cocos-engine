@@ -95,10 +95,9 @@ const _constants = {
 
 export class Profiler extends System {
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * * @deprecated We have removed this private interface in version 3.8, please use the public interface getStats() instead.
      */
-    public _stats: IProfilerState | null = null;
-
+    private _stats: IProfilerState | null = null;
     private _showFPS = false;
 
     private _rootNode: Node | null = null;
@@ -142,6 +141,14 @@ export class Profiler extends System {
         } else {
             this.hideStats();
         }
+    }
+
+    /**
+     * @zh 获取引擎运行性能状态
+     * @en Get engine performance status
+     */
+    public getStats () {
+        return this._stats;
     }
 
     public isShowingStats () {
