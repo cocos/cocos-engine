@@ -1517,6 +1517,8 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
+                 cocos/scene/Skin.h
+                 cocos/scene/Skin.cpp
 )
 
 ##### primitive
