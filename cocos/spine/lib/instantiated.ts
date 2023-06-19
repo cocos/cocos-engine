@@ -40,7 +40,7 @@ const PAGESIZE = 65536; // 64KiB
 const PAGECOUNT = 32 * 16;
 
 // How mush memory size of the wasm memory
-const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 64 MiB
+const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 32 MiB
 
 let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
