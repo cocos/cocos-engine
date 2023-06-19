@@ -41,6 +41,10 @@ CCEffect %{
       propertyIndex: 0
       rasterizerState:
         cullMode: back
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred-forward
+      propertyIndex: 0
 }%
 
 CCProgram terrain-vs %{
@@ -309,7 +313,7 @@ CCProgram shadow-caster-fs %{
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
 
     //todo: do not support linear mode spot shadow
-    
+
     #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       return packDepthToRGBA(clipDepth);
     #else

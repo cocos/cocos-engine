@@ -9,7 +9,6 @@
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    margin-top: -1px;
 }
 
 :host > .container[whole] {
@@ -18,8 +17,17 @@
 
 :host > .container > .header {
     display: flex;
+    align-items: center;
+    height: 24px;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+    box-sizing: border-box;
+}
+
+:host > ui-section.container > .header {
+    display: flex;
     flex: 1;
     min-width: 0;
+    border-bottom: none;
 }
 
 :host > .container > .header > .icon {
@@ -57,15 +65,14 @@
 }
 
 :host > .container > .header > .copy {
-    padding: 0 4px;
-    height: 18px;
     margin-left: 4px;
+    margin-right: 2px;
 }
 
 :host > .container > .header > .help {
     display: none;
     margin-left: 8px;
-    margin-right: 3px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .lock {
@@ -79,14 +86,11 @@
 
 :host > .container > .header > .tiny {
     display: none;
-    padding: 0 4px;
-    height: 18px;
-    line-height: 16px;
-    margin-left: 8px;
+    margin-left: 4px;
 }
 
 :host > .container > .header[dirty] > .tiny {
-    display: inline-block;
+    display: inline-flex;
 }
 
 :host > .container > .content {
@@ -128,10 +132,6 @@
     left: 0;
     top: 0;
     z-index: 1;
-}
-
-:host-context(ui-panel[type="asset"]) > .container {
-    margin-top: var(--asset-container-margin-top, -1px);
 }
 
 :host-context(ui-panel[type="asset"]) > .container > .content > .content-section {

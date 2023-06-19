@@ -2,6 +2,12 @@
 // cc_cameraPos.w is flipNDCSign
 #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv, flipNDCSign) uv = flipNDCSign == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
+#ifdef CC_USE_METAL
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y) y = -y
+#else
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y)
+#endif
+
 
 // return 0-1
 vec2 GetScreenUV(vec4 clipPos, float flipNDCSign)

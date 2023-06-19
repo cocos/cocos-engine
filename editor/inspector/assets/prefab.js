@@ -15,6 +15,12 @@ exports.$ = {
     persistentCheckbox: '.persistent-checkbox',
 };
 
+exports.style = /* css */`
+.asset-scene {
+    padding-right: 4px;
+}
+`;
+
 exports.ready = function() {
     const panel = this;
 

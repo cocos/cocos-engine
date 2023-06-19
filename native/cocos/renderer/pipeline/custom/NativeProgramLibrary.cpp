@@ -852,10 +852,8 @@ void overwriteShaderSourceBinding(
     const gfx::ShaderInfo &shaderInfo,
     ccstd::string &source,
     boost::container::pmr::memory_resource *scratch) {
-
-    const char* keyWords[] = {
-        " uniform ", " buffer "
-    };
+    const char *keyWords[] = {
+        " uniform ", " buffer "};
 
     for (auto &keyword : keyWords) {
         // find first uniform
@@ -1236,7 +1234,7 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
     }
 
     // generate constant macros string
-    generateConstantMacros(device, lg.constantMacros, false);
+    generateConstantMacros(device, lg.constantMacros);
 }
 
 void NativeProgramLibrary::setPipeline(PipelineRuntime *pipelineIn) {
@@ -1265,7 +1263,7 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
             const auto &srcShaderInfo = *pShaderInfo;
             CC_ENSURES(subpassOrPassID != INVALID_ID && phaseID != INVALID_ID);
             const auto &passLayout = get(LayoutGraphData::LayoutTag{}, lg, subpassOrPassID);
-            const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, subpassOrPassID);
+            const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
 
             // programs
             auto iter = this->phases.find(phaseID);

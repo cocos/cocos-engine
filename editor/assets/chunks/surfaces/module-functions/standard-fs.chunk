@@ -236,15 +236,15 @@ void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccum
 
 
 #if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
-  vec4 CCSurfacesDeferredOutput0(in SurfacesMaterialData surfaceData)
+  vec4 CCSurfacesDeferredOutputBaseColor(in SurfacesMaterialData surfaceData)
   {
     return surfaceData.baseColor;
   }
-  vec4 CCSurfacesDeferredOutput1(in SurfacesMaterialData surfaceData)
+  vec4 CCSurfacesDeferredOutputNormalMR(in SurfacesMaterialData surfaceData)
   {
     return vec4(float32x3_to_oct(surfaceData.worldNormal), surfaceData.roughness, surfaceData.metallic);
   }
-  vec4 CCSurfacesDeferredOutput2(in SurfacesMaterialData surfaceData)
+  vec4 CCSurfacesDeferredOutputEmissiveAO(in SurfacesMaterialData surfaceData)
   {
     return vec4(surfaceData.emissive, surfaceData.ao);
   }

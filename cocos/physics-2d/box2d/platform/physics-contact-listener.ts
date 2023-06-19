@@ -56,16 +56,12 @@ export class PhysicsContactListener extends b2.ContactListener {
         if (PhysicsContactListener._contactMap.has(key)) {
             const retContact = PhysicsContactListener._contactMap.get(key)!;
             retContact.ref++;
-            //console.log('   collision++', key, 'current ref is:', retContact.ref);
             if (retContact.status === Contact2DType.END_CONTACT) {
                 retContact.status = Contact2DType.STAY_CONTACT;
-                //console.log('   set as stay');
             } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
                 retContact.status = Contact2DType.BEGIN_CONTACT;
-                //console.log('   set as enter');
             }
         } else {
-            //console.log('   new collision', key, 'current ref is:', 1);
             const retCollision = new PhysicsContact(contact);
             PhysicsContactListener._contactMap.set(key, retCollision);
             retCollision.status = Contact2DType.BEGIN_CONTACT;
@@ -79,9 +75,7 @@ export class PhysicsContactListener extends b2.ContactListener {
         assert(typeof retContact !== 'undefined');
 
         retContact.ref--;
-        //console.log('   collision--', key, 'current ref is:', retCollision.ref);
         if (retContact.ref <= 0) {
-            //console.log('   set as exit');
             retContact.status = Contact2DType.END_CONTACT;
         }
     }
@@ -94,18 +88,13 @@ export class PhysicsContactListener extends b2.ContactListener {
 
     public finalizeContactEvent (): void {
         PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string): void => {
-            //console.log('forEach', key, collision);
-
             // emit collision event
             if (!contact.disabled || contact.status === Contact2DType.BEGIN_CONTACT) { //BEGIN_CONTACT always emits
                 if (contact.status === Contact2DType.END_CONTACT) {
-                    //console.log('   report end collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.END_CONTACT, contact);
                 } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
-                    //console.log('   report enter collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.BEGIN_CONTACT, contact);
                 } else if (contact.status === Contact2DType.STAY_CONTACT) {
-                    //console.log('   report stay collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.STAY_CONTACT, contact);
                 }
             }
