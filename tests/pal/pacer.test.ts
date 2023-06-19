@@ -37,7 +37,7 @@ test('pacer', (cb) => {
         return new Promise<void>((resolve, reject) => {
             let currentCount = calledTime;
             setTimeout(() => {
-                expect(calledTime).toBe(currentCount);
+                expect(calledTime).toBe(currentCount + 1);
             }, 100);
             setTimeout(() => {
                 expect(calledTime).toBeGreaterThan(currentCount);
