@@ -31,17 +31,17 @@ import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
-    @type(VFXParameter)
-    get bindingParameter () {
-        return this._bindingParameter;
+    get bindingParameterId () {
+        return this._bindingParameterId;
     }
 
-    set bindingParameter (val) {
-        this._bindingParameter = val;
+    set bindingParameterId (val) {
+        this._bindingParameterId = val;
         this.requireRecompile();
     }
 
     @serializable
+    private _bindingParameterId = -1;
     private _bindingParameter: VFXParameter | null = null;
     private declare _data: Float32Array;
     private _constant = 0;
@@ -61,11 +61,12 @@ export class BindingFloatExpression extends FloatExpression {
 
     constructor (vfxParameterIdentity: VFXParameter) {
         super();
-        this._bindingParameter = vfxParameterIdentity;
+        this._bindingParameterId = vfxParameterIdentity.id;
     }
 
     public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
         super.compile(parameterMap, owner);
+
         if (this._bindingParameter) {
             parameterMap.ensure(this._bindingParameter);
         }

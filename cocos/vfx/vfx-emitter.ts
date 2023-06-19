@@ -37,7 +37,7 @@ import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
 import { SpawnInfo, VFXEventInfo } from './data';
-import { VFXArray } from './vfx-parameter';
+import { VFXArray, VFXParameterRegistry } from './vfx-parameter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
 const startPositionOffset = new Vec3();
@@ -70,6 +70,19 @@ export class VFXEmitter extends Component {
     public static CullingMode = CullingMode;
 
     /**
+     * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
+     */
+    @type(CCBoolean)
+    @tooltip('i18n:particle_system.simulationSpace')
+    public get localSpace () {
+        return this._localSpace;
+    }
+
+    public set localSpace (val) {
+        this._localSpace = val;
+    }
+
+    /**
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @tooltip('i18n:particle_system.prewarm')
@@ -99,19 +112,6 @@ export class VFXEmitter extends Component {
 
     public set prewarmTimeStep (val) {
         this._prewarmTimeStep = Math.max(val, 0.001);
-    }
-
-    /**
-     * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
-     */
-    @type(CCBoolean)
-    @tooltip('i18n:particle_system.simulationSpace')
-    public get localSpace () {
-        return this._localSpace;
-    }
-
-    public set localSpace (val) {
-        this._localSpace = val;
     }
 
     /**
@@ -353,9 +353,9 @@ export class VFXEmitter extends Component {
     @serializable
     private _boundsMode = BoundsMode.AUTO;
     @serializable
-    private _fixedBoundsMin = new Vec3(-100, -100, -100);
+    private _fixedBoundsMin = new Vec3(-1, -1, -1);
     @serializable
-    private _fixedBoundsMax = new Vec3(100, 100, 100);
+    private _fixedBoundsMax = new Vec3(1, 1, 1);
     @serializable
     private _cullingMode = CullingMode.ALWAYS_SIMULATE;
     @serializable
@@ -386,10 +386,15 @@ export class VFXEmitter extends Component {
     private _playOnAwake = true;
     private _state = new VFXEmitterState();
     private _parameterMap = new VFXParameterMap();
+    private _parameterRegistry = new VFXParameterRegistry();
     private _particleCapacity = 16;
     private _particleCount = 0;
     private _needToRecompile = true;
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public requireRecompile () {
         this._needToRecompile = true;
     }
@@ -451,6 +456,10 @@ export class VFXEmitter extends Component {
         this._particleCount = 0;
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public addEventHandler () {
         const eventHandler = new EventHandler();
         this._eventHandlers.push(eventHandler);
@@ -459,6 +468,10 @@ export class VFXEmitter extends Component {
         return eventHandler;
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public removeEventHandler (eventHandler: EventHandler) {
         const index = this._eventHandlers.indexOf(eventHandler);
         if (index !== -1) {
@@ -468,6 +481,10 @@ export class VFXEmitter extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public addRenderer<T extends ParticleRenderer> (Type: Constructor<T>): T {
         const renderer = new Type();
         this._renderers.push(renderer);
@@ -540,14 +557,14 @@ export class VFXEmitter extends Component {
 
         if (state.isEmitting) {
             const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
-            const initialTransform = isWorldSpace ? parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data : Mat4.IDENTITY;
+            const initialPosition = parameterMap.getVec3Value(E_SIMULATION_POSITION).data;
             const initialVelocity = isWorldSpace ? parameterMap.getVec3Value(E_VELOCITY).data : Vec3.ZERO;
             const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT).data;
             if (spawnInfoCount > 0) {
                 const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
                 for (let i = 0; i < spawnInfoCount; i++) {
                     spawnInfos.getSpawnInfoAt(spawnInfo, i);
-                    this.spawn(spawnInfo.count, spawnInfo.intervalDt, spawnInfo.interpStartDt, initialTransform, initialVelocity, Color.WHITE);
+                    this.spawn(spawnInfo.count, spawnInfo.intervalDt, spawnInfo.interpStartDt, initialPosition, initialVelocity, Color.WHITE);
                 }
             }
         }
@@ -660,13 +677,11 @@ export class VFXEmitter extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @engineInternal
-     */
-    public processEvents (parameterMap: VFXParameterMap) {
+    private processEvents (parameterMap: VFXParameterMap) {
         const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const worldToLocal = parameterMap.getMat4Value(E_WORLD_TO_LOCAL).data;
+        const initialVelocity = new Vec3();
+        const initialPosition = new Vec3();
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
             const eventHandler = this._eventHandlers[i];
             const target = eventHandler.target;
@@ -677,18 +692,13 @@ export class VFXEmitter extends Component {
                     for (let i = 0; i < eventCount; i++) {
                         events.getEventAt(eventInfo, i);
                         if (eventInfo.type !== eventHandler.eventType) { continue; }
-                        Vec3.normalize(dir, eventInfo.velocity);
-                        const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
-                        Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
-                        Quat.fromViewUp(rot, dir, up);
-                        Mat4.fromRT(tempEmitterTransform, rot, eventInfo.position);
-                        const initialVelocity = new Vec3();
                         Vec3.copy(initialVelocity, eventInfo.velocity);
+                        Vec3.copy(initialPosition, eventInfo.position);
                         if (!isWorldSpace) {
-                            Mat4.multiply(tempEmitterTransform, worldToLocal, tempEmitterTransform);
+                            Vec3.transformMat4(initialPosition, initialPosition, worldToLocal);
                             Vec3.transformMat4(initialVelocity, initialVelocity, worldToLocal);
                         }
-                        this.spawn(eventHandler.spawnCount, 0, 0, tempEmitterTransform, initialVelocity, eventInfo.color);
+                        this.spawn(eventHandler.spawnCount, 0, 0, initialPosition, initialVelocity, eventInfo.color);
                         eventHandler.execute(parameterMap);
                     }
                 }
@@ -696,11 +706,7 @@ export class VFXEmitter extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @engineInternal
-     */
-    public resetAnimatedState (parameterMap: VFXParameterMap, fromIndex: number, toIndex: number) {
+    private resetAnimatedState (parameterMap: VFXParameterMap, fromIndex: number, toIndex: number) {
         if (parameterMap.has(P_VELOCITY)) {
             if (parameterMap.has(P_BASE_VELOCITY)) {
                 parameterMap.getVec3ArrayValue(P_VELOCITY).copyFrom(parameterMap.getVec3ArrayValue(P_BASE_VELOCITY), fromIndex, toIndex);
@@ -731,11 +737,7 @@ export class VFXEmitter extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @engineInternal
-     */
-    public spawn (spawnCount: number, intervalDt: number, interpStartDt: number, initialTransform: Mat4, initialVelocity: Vec3, initialColor: Color) {
+    private spawn (spawnCount: number, intervalDt: number, interpStartDt: number, initialPosition: Vec3, initialVelocity: Vec3, initialColor: Color) {
         if (spawnCount === 0) {
             return;
         }
@@ -746,8 +748,7 @@ export class VFXEmitter extends Component {
         const toIndex = this._particleCount;
         const hasPosition = parameterMap.has(P_POSITION);
         if (hasPosition) {
-            const simulationPosition = parameterMap.getVec3Value(E_SIMULATION_POSITION).data;
-            parameterMap.getVec3ArrayValue(P_POSITION).fill(simulationPosition, fromIndex, toIndex);
+            parameterMap.getVec3ArrayValue(P_POSITION).fill(initialPosition, fromIndex, toIndex);
         }
 
         if (parameterMap.has(P_BASE_VELOCITY)) {
@@ -812,11 +813,7 @@ export class VFXEmitter extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @engineInternal
-     */
-    public addNewParticles (numToEmit: number) {
+    private addNewParticles (numToEmit: number) {
         const capacity = this._capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : this._maxCapacity;
         if (numToEmit + this._particleCount > capacity) {
             numToEmit = capacity - this._particleCount;

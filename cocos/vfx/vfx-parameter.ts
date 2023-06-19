@@ -93,6 +93,34 @@ export class VFXParameter {
     }
 }
 
+export class VFXParameterRegistry {
+    private _id2parameter: Record<number, VFXParameter> = {};
+    private _name2parameter: Record<string, VFXParameter> = {};
+
+    public register (parameter: VFXParameter) {
+        this._id2parameter[parameter.id] = parameter;
+        this._name2parameter[parameter.name] = parameter;
+    }
+
+    public unregister (parameter: VFXParameter) {
+        delete this._id2parameter[parameter.id];
+        delete this._name2parameter[parameter.name];
+    }
+
+    public findParameterById (id: number) {
+        return id in this._id2parameter ? this._id2parameter[id] : null;
+    }
+
+    public findParameterByName (name: string) {
+        return name in this._name2parameter ? this._name2parameter[name] : null;
+    }
+
+    public clear () {
+        this._id2parameter = {};
+        this._name2parameter = {};
+    }
+}
+
 export abstract class VFXValue {
     get isArray () {
         return false;
