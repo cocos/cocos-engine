@@ -765,6 +765,13 @@ export class Label extends UIRenderer {
         this._applyFontTexture();
     }
 
+    public onRestore (): void {
+        this._textStyle = this._textStyle ? this._textStyle : new TextStyle();
+        this._textLayout = this._textLayout ? this._textLayout : new TextLayout();
+        this._textLayoutData = this._textLayoutData ? this._textLayoutData : new TextOutputLayoutData();
+        this._textRenderData = this._textRenderData ? this._textRenderData : new TextOutputRenderData();
+    }
+
     public onDestroy () {
         if (this._assembler && this._assembler.resetAssemblerData) {
             this._assembler.resetAssemblerData(this._assemblerData!);
