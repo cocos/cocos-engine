@@ -18,9 +18,8 @@
 :host > .container > .header {
     display: flex;
     align-items: center;
-    height: 24px;
+    height: 28px;
     border-bottom: solid 1px var(--color-normal-fill-emphasis);
-    box-sizing: border-box;
 }
 
 :host > ui-section.container > .header {
@@ -65,13 +64,11 @@
 }
 
 :host > .container > .header > .copy {
-    margin-left: 4px;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .help {
     display: none;
-    margin-left: 8px;
     margin-right: 4px;
 }
 
@@ -86,7 +83,8 @@
 
 :host > .container > .header > .tiny {
     display: none;
-    margin-left: 4px;
+    margin-right: 4px;
+    padding: 0 3px;
 }
 
 :host > .container > .header[dirty] > .tiny {
