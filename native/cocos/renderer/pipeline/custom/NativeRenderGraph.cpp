@@ -255,7 +255,7 @@ void setCameraUBOValues(
     setVec4Impl(data, layoutGraph, "cc_fogAdd",
                 Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
     setVec4Impl(data, layoutGraph, "cc_nearFar",
-                Vec4(camera.getNearClip(), camera.getFarClip(), 0.0F, 0.0F));
+                Vec4(camera.getNearClip(), camera.getFarClip(), camera.getClipSpaceMinz(), 0.0F));
     setVec4Impl(data, layoutGraph, "cc_viewPort",
                 Vec4(
                     camera.getViewport().x,
