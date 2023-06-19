@@ -126,6 +126,148 @@ export function debug (...data: any[]) {
     return ccDebug(...data);
 }
 
+function resetDebugSettingForWebPage (mode: DebugMode): void {
+    // Log to web page.
+    const logToWebPage = (msg: string) => {
+        if (!legacyCC.game.canvas) {
+            return;
+        }
+
+        if (!logList) {
+            const logDiv = ccdocument.createElement('Div');
+            logDiv.setAttribute('id', 'logInfoDiv');
+            logDiv.setAttribute('width', '200');
+            logDiv.setAttribute('height', legacyCC.game.canvas.height);
+            const logDivStyle = logDiv.style;
+            logDivStyle.zIndex = '99999';
+            logDivStyle.position = 'absolute';
+            logDivStyle.top = logDivStyle.left = '0';
+
+            logList = ccdocument.createElement('textarea');
+            logList.setAttribute('rows', '20');
+            logList.setAttribute('cols', '30');
+            logList.setAttribute('disabled', 'true');
+            const logListStyle = logList.style;
+            logListStyle.backgroundColor = 'transparent';
+            logListStyle.borderBottom = '1px solid #cccccc';
+            logListStyle.borderTopWidth = logListStyle.borderLeftWidth = logListStyle.borderRightWidth = '0px';
+            logListStyle.borderTopStyle = logListStyle.borderLeftStyle = logListStyle.borderRightStyle = 'none';
+            logListStyle.padding = '0px';
+            logListStyle.margin = '0px';
+
+            logDiv.appendChild(logList);
+            legacyCC.game.canvas.parentNode.appendChild(logDiv);
+        }
+
+        logList.value = `${logList.value + msg}\r\n`;
+        logList.scrollTop = logList.scrollHeight;
+    };
+
+    // Don't change the case order.
+    switch (mode) {
+    case DebugMode.INFO_FOR_WEB_PAGE: {
+        ccLog = (message?: any, ...optionalParams: any[]) => {
+            logToWebPage(formatString(message, ...optionalParams));
+        };
+    }
+    // fallthrough
+    case DebugMode.WARN_FOR_WEB_PAGE: {
+        ccWarn = (message?: any, ...optionalParams: any[]) => {
+            logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
+        };
+    }
+    // fallthrough
+    case DebugMode.ERROR_FOR_WEB_PAGE: {
+        ccError = (message?: any, ...optionalParams: any[]) => {
+            logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
+        };
+        break;
+    }
+    default:
+        break;
+    }
+
+    ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        if (!condition) {
+            logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
+        }
+    };
+}
+
+function resetDebugSettingNormal (mode: DebugMode): void {
+    if (!console) {
+        return;
+    }
+
+    // For JSB
+    if (!console.error) {
+        console.error = console.log;
+    }
+    if (!console.warn) {
+        console.warn = console.log;
+    }
+
+    // Don't change the case order.
+    switch (mode) {
+    case DebugMode.VERBOSE: {
+        if (typeof console.debug === 'function') {
+            const vendorDebug = console.debug.bind(console);
+            ccDebug = (...data: any[]) => vendorDebug(...data);
+        }
+    }
+    // fallthrough
+    case DebugMode.INFO: {
+        if (EDITOR) {
+            ccLog = console.log.bind(console);
+        } else if (mode <= DebugMode.INFO) {
+            if (JSB) {
+                ccLog = console.log;
+            } else if (console.log.bind) {
+                // use bind to avoid pollute call stacks
+                ccLog = console.log.bind(console);
+            } else {
+                ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
+            }
+        }
+    }
+    // fallthrough
+    case DebugMode.WARN: {
+        if (EDITOR) {
+            ccWarn = console.warn.bind(console);
+        } else if (console.warn.bind) {
+            // use bind to avoid pollute call stacks
+            ccWarn = console.warn.bind(console);
+        } else {
+            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
+        }
+    }
+    // fallthrough
+    case DebugMode.ERROR: {
+        if (EDITOR || console.error.bind) {
+            // use bind to avoid pollute call stacks
+            ccError = console.error.bind(console);
+        } else {
+            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        if (!condition) {
+            const errorText = formatString(message, ...optionalParams);
+            if (DEV) {
+                // eslint-disable-next-line no-debugger
+                debugger;
+            } else {
+                throw new Error(errorText);
+            }
+        }
+    };
+}
+
 /**
  * @engineInternal
  */
@@ -138,120 +280,10 @@ export function _resetDebugSetting (mode: DebugMode) {
         return;
     }
 
-    if (mode > DebugMode.ERROR) {
-        // Log to web page.
-        const logToWebPage = (msg: string) => {
-            if (!legacyCC.game.canvas) {
-                return;
-            }
-
-            if (!logList) {
-                const logDiv = ccdocument.createElement('Div');
-                logDiv.setAttribute('id', 'logInfoDiv');
-                logDiv.setAttribute('width', '200');
-                logDiv.setAttribute('height', legacyCC.game.canvas.height);
-                const logDivStyle = logDiv.style;
-                logDivStyle.zIndex = '99999';
-                logDivStyle.position = 'absolute';
-                logDivStyle.top = logDivStyle.left = '0';
-
-                logList = ccdocument.createElement('textarea');
-                logList.setAttribute('rows', '20');
-                logList.setAttribute('cols', '30');
-                logList.setAttribute('disabled', 'true');
-                const logListStyle = logList.style;
-                logListStyle.backgroundColor = 'transparent';
-                logListStyle.borderBottom = '1px solid #cccccc';
-                logListStyle.borderTopWidth = logListStyle.borderLeftWidth = logListStyle.borderRightWidth = '0px';
-                logListStyle.borderTopStyle = logListStyle.borderLeftStyle = logListStyle.borderRightStyle = 'none';
-                logListStyle.padding = '0px';
-                logListStyle.margin = '0px';
-
-                logDiv.appendChild(logList);
-                legacyCC.game.canvas.parentNode.appendChild(logDiv);
-            }
-
-            logList.value = `${logList.value + msg}\r\n`;
-            logList.scrollTop = logList.scrollHeight;
-        };
-
-        ccError = (message?: any, ...optionalParams: any[]) => {
-            logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
-        };
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
-            if (!condition) {
-                logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
-            }
-        };
-        if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
-            ccWarn = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
-            };
-        }
-        if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
-            ccLog = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage(formatString(message, ...optionalParams));
-            };
-        }
-    } else if (console) {
-        // Log to console.
-
-        // For JSB
-        if (!console.error) {
-            console.error = console.log;
-        }
-        if (!console.warn) {
-            console.warn = console.log;
-        }
-
-        if (EDITOR || console.error.bind) {
-            // use bind to avoid pollute call stacks
-            ccError = console.error.bind(console);
-        } else {
-            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
-        }
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
-            if (!condition) {
-                const errorText = formatString(message, ...optionalParams);
-                if (DEV) {
-                    // eslint-disable-next-line no-debugger
-                    debugger;
-                } else {
-                    throw new Error(errorText);
-                }
-            }
-        };
-    }
-
-    if (mode !== DebugMode.ERROR) {
-        if (EDITOR) {
-            ccWarn = console.warn.bind(console);
-        } else if (console.warn.bind) {
-            // use bind to avoid pollute call stacks
-            ccWarn = console.warn.bind(console);
-        } else {
-            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
-        }
-    }
-
-    if (EDITOR) {
-        ccLog = console.log.bind(console);
-    } else if (mode <= DebugMode.INFO) {
-        if (JSB) {
-            ccLog = console.log;
-        } else if (console.log.bind) {
-            // use bind to avoid pollute call stacks
-            ccLog = console.log.bind(console);
-        } else {
-            ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
-        }
-    }
-
-    if (mode <= DebugMode.VERBOSE) {
-        if (typeof console.debug === 'function') {
-            const vendorDebug = console.debug.bind(console);
-            ccDebug = (...data: any[]) => vendorDebug(...data);
-        }
+    if (mode >= DebugMode.INFO_FOR_WEB_PAGE) {
+        resetDebugSettingForWebPage(mode);
+    } else {
+        resetDebugSettingNormal(mode);
     }
 }
 
