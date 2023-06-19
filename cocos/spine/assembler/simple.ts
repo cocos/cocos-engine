@@ -146,8 +146,11 @@ function realTimeTraverse (comp: Skeleton) {
     const vc = model.vCount;
     const ic = model.iCount;
     const rd = comp.renderData!;
-    rd.resize(vc, ic);
-    rd.indices = new Uint16Array(ic);
+
+    if (rd.vertexCount !== vc || rd.indexCount !== ic) {
+        rd.resize(vc, ic);
+        rd.indices = new Uint16Array(ic);
+    }
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
 
@@ -158,7 +161,7 @@ function realTimeTraverse (comp: Skeleton) {
     vUint8Buf.set(vData);
 
     const iPtr = model.iPtr;
-    const ibuf = rd.indices;
+    const ibuf = rd.indices!;
     const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
@@ -166,7 +169,7 @@ function realTimeTraverse (comp: Skeleton) {
     iUint8Buf.set(iData);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
-        rd.indices[i] += chunkOffset;
+        ibuf[i] += chunkOffset;
     }
 
     const meshes = model.getMeshes();
@@ -270,8 +273,10 @@ function cacheTraverse (comp: Skeleton) {
     const vc = model.vCount;
     const ic = model.iCount;
     const rd = comp.renderData!;
-    rd.resize(vc, ic);
-    rd.indices = new Uint16Array(ic);
+    if (rd.vertexCount !== vc || rd.indexCount !== ic) {
+        rd.resize(vc, ic);
+        rd.indices = new Uint16Array(ic);
+    }
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);
@@ -302,11 +307,11 @@ function cacheTraverse (comp: Skeleton) {
         }
     }
 
-    const iUint16Buf = rd.indices;
+    const iUint16Buf = rd.indices!;
     iUint16Buf.set(model.iData);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
-        rd.indices[i] += chunkOffset;
+        iUint16Buf[i] += chunkOffset;
     }
 
     const meshes = model.meshes;
