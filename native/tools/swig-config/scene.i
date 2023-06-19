@@ -299,6 +299,7 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);
 %attribute(cc::scene::Pass, uint32_t, phase, getPhase);
+%attribute(cc::scene::Pass, uint32_t, phaseID, getPhaseID);
 %attribute(cc::scene::Pass, cc::gfx::RasterizerState *, rasterizerState, getRasterizerState);
 %attribute(cc::scene::Pass, cc::gfx::DepthStencilState *, depthStencilState, getDepthStencilState);
 %attribute(cc::scene::Pass, cc::gfx::BlendState *, blendState, getBlendState);

@@ -1274,6 +1274,7 @@ export class MeshRenderer extends ModelRenderer {
         const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
         if (this._enabledGlobalStandardSkinObject) {
             pipelineSceneData.standardSkinMeshRenderer = this;
+            pipelineSceneData.standardSkinModel = this.model;
         }
         if (!pipelineSceneData.skinMaterialModel && this._model) {
             const subModels = this._model.subModels;

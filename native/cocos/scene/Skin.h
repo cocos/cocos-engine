@@ -64,7 +64,7 @@ public:
 
     void activate(Skin *resource);
 
-    bool _enabled{false};
+    bool _enabled{true};
 
     Skin *_resource{nullptr};
 
@@ -77,7 +77,7 @@ public:
     Skin() = default;
     ~Skin() = default;
 
-    void initialize(const SkinInfo &shadowsInfo);
+    void initialize(const SkinInfo &skinInfo);
 
     /**
      * @en Enable skip.
@@ -111,7 +111,7 @@ public:
     }
 
 private:
-    bool _enabled{false};
+    bool _enabled{true};
 
     float _blurRadius{0.01F};
     float _sssIntensity{3.F};
