@@ -1528,7 +1528,7 @@ function overrideProperty_JitterEffect () {
             property: 'jitterY',
             getter: prototype.getJitterY,
             setter: prototype.setJitterY,
-        }
+        },
     ];
     propertyPolyfills.forEach((prop) => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
@@ -1561,7 +1561,7 @@ function overrideProperty_SwirlEffect () {
             property: 'angle',
             getter: prototype.getAngle,
             setter: prototype.setAngle,
-        }
+        },
     ];
     propertyPolyfills.forEach((prop) => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
