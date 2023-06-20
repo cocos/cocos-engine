@@ -52,6 +52,6 @@ export function assertIsTrue (expr: unknown, message?: string): asserts expr {
  * Assets that the index is valid.
  * @engineInternal
  */
-export function assertsArrayIndex<T> (array: T[], index: number) {
+export function assertsArrayIndex<T> (array: T[], index: number): void {
     assertIsTrue(index >= 0 && index < array.length, `Array index ${index} out of bounds: [0, ${array.length})`);
 }

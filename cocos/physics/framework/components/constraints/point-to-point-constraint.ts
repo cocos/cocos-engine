@@ -36,6 +36,12 @@ import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 
+/**
+ * @en The point to point constraint.
+ * It locks the relative position of the pivots between two rigid bodies.
+ * @zh 点对点约束。
+ * 点对点约束会锁定两个刚体间的连接点的相对位置。
+ */
 @ccclass('cc.PointToPointConstraint')
 @help('i18n:cc.PointToPointConstraint')
 @menu('Physics/PointToPointConstraint(beta)')
@@ -48,7 +54,7 @@ export class PointToPointConstraint extends Constraint {
      */
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.pivotA')
-    get pivotA () {
+    get pivotA (): IVec3Like {
         return this._pivotA;
     }
 
@@ -67,7 +73,7 @@ export class PointToPointConstraint extends Constraint {
      */
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.pivotB')
-    get pivotB () {
+    get pivotB (): IVec3Like {
         return this._pivotB;
     }
 

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,15 @@
  THE SOFTWARE.
 */
 
-// Wasm Memory Page Size is 65536
-export const pageSize = 65536; // 64KiB
+import { Enum, EnumType } from '../../value-types/enum';
+import { getClassAttrs, DELIMETER } from './attribute';
 
-// How many pages of the wasm memory
-// TODO: let this can be canfiguable by user.
-export const pageCount = 250;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function setPropertyEnumType (objectOrConstructor: object, propertyName: string, enumType: EnumType): void {
+    setPropertyEnumTypeOnAttrs(getClassAttrs(objectOrConstructor), propertyName, enumType);
+}
 
-// How mush memory size of the wasm memory
-export const memorySize = pageSize * pageCount; // 16 MiB
-
-// The import function used in c++ code, same as DLL Import
-export const importFunc = {
-    syncPhysicsToGraphics (id: number): void {
-        const bt = globalThis.Bullet;
-        const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
-        body.syncPhysicsToGraphics();
-    },
-    onShapeHitExt (hit: number, controller: number): void {
-        const bt = globalThis.Bullet;
-        const cct = bt.CACHE.getWrapper(controller, bt.CCT_CACHE_NAME);
-        cct.onShapeHitExt(hit);
-    },
-};
+export function setPropertyEnumTypeOnAttrs (attrs: Record<string, any>, propertyName: string, enumType: EnumType): void {
+    attrs[`${propertyName}${DELIMETER}type`] = 'Enum';
+    attrs[`${propertyName}${DELIMETER}enumList`] = Enum.getList(enumType);
+}

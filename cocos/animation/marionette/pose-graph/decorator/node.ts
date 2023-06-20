@@ -17,7 +17,7 @@ export type {
 } from '../foundation/authoring/node-authoring';
 
 function makeNodeEditorMetadataModifier (edit: (metadata: PoseGraphNodeEditorMetadata) => void): ClassDecorator {
-    return (target) => {
+    return (target): void => {
         if (!checkDecoratingClass(target)) {
             return;
         }
@@ -26,21 +26,21 @@ function makeNodeEditorMetadataModifier (edit: (metadata: PoseGraphNodeEditorMet
     };
 }
 
-export const poseGraphNodeCategory = (category: string) => makeNodeEditorMetadataModifier((metadata) => {
+export const poseGraphNodeCategory = (category: string): ClassDecorator => makeNodeEditorMetadataModifier((metadata): void => {
     metadata.category = category;
 });
 
-export const poseGraphCreateNodeFactory = (factory: PoseGraphCreateNodeFactory<any>) => makeNodeEditorMetadataModifier((metadata) => {
+export const poseGraphCreateNodeFactory = (factory: PoseGraphCreateNodeFactory<any>): ClassDecorator => makeNodeEditorMetadataModifier((metadata): void => {
     metadata.factory = factory;
 });
 
-export const poseGraphNodeHide = (hide = true) => makeNodeEditorMetadataModifier((metadata) => {
+export const poseGraphNodeHide = (hide = true): ClassDecorator => makeNodeEditorMetadataModifier((metadata): void => {
     metadata.hide = hide;
 });
 
 export const poseGraphNodeAppearance = (
     appearance: Readonly<PoseGraphNodeAppearanceOptions>,
-) => makeNodeEditorMetadataModifier((metadata) => {
+): ClassDecorator => makeNodeEditorMetadataModifier((metadata): void => {
     Object.assign(metadata.appearance ??= {}, appearance);
 });
 

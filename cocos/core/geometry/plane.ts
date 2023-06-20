@@ -52,7 +52,7 @@ export class Plane {
      * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
      * @returns @en The created plane object. @zh 新创建的平面。
      */
-    public static create (nx: number, ny: number, nz: number, d: number) {
+    public static create (nx: number, ny: number, nz: number, d: number): Plane {
         return new Plane(nx, ny, nz, d);
     }
 
@@ -64,7 +64,7 @@ export class Plane {
      * @param p @en The Plane object to be cloned from. @zh 克隆的来源平面对象。
      * @returns @en The cloned Plane object @zh 克隆出的平面对象。
      */
-    public static clone (p: Plane) {
+    public static clone (p: Plane): Plane {
         return new Plane(p.n.x, p.n.y, p.n.z, p.d);
     }
 
@@ -77,7 +77,7 @@ export class Plane {
      * @param p @en The source of replication. @zh 复制的来源。
      * @returns @en The object to be operated on. @zh 接受操作的对象。
      */
-    public static copy (out: Plane, p: Plane) {
+    public static copy (out: Plane, p: Plane): Plane {
         Vec3.copy(out.n, p.n);
         out.d = p.d;
 
@@ -95,7 +95,7 @@ export class Plane {
      * @param c @en The point c. @zh 点 c。
      * @returns @en The Plane object to be operated on, same as `out` parameter. @zh 接受操作的对象，与 `out` 相同。
      */
-    public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3) {
+    public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3): Plane {
         Vec3.subtract(v1, b, a);
         Vec3.subtract(v2, c, a);
 
@@ -117,7 +117,7 @@ export class Plane {
      * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
      * @returns @en The object to be operated on, same as the `out` parameter. @zh 接受操作的对象，与 `out` 参数相同。
      */
-    public static set (out: Plane, nx: number, ny: number, nz: number, d: number) {
+    public static set (out: Plane, nx: number, ny: number, nz: number, d: number): Plane {
         out.n.x = nx;
         out.n.y = ny;
         out.n.z = nz;
@@ -136,7 +136,7 @@ export class Plane {
      * @param point @en A point in the plane. @zh 平面上的一点。
      * @returns @en The object to be operated on, same as the `out` parameter. @zh 接受操作的对象，与 `out` 参数相同。
      */
-    public static fromNormalAndPoint (out: Plane, normal: Vec3, point: Vec3) {
+    public static fromNormalAndPoint (out: Plane, normal: Vec3, point: Vec3): Plane {
         Vec3.copy(out.n, normal);
         out.d = Vec3.dot(normal, point);
 
@@ -152,7 +152,7 @@ export class Plane {
      * @param a @en Source data for the operation. @zh 操作的源数据。
      * @returns @en The object to be operated on, sames as the `out` parameter. @zh 接受操作的对象，与 `out` 相同。
      */
-    public static normalize (out: Plane, a: Plane) {
+    public static normalize (out: Plane, a: Plane): Plane {
         const len = a.n.length();
         Vec3.normalize(out.n, a.n);
         if (len > 0) {
@@ -183,19 +183,19 @@ export class Plane {
      * @zh
      * 获取形状的类型，值为 `enums.SHAPE_PLANE`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
     // compatibility with vector interfaces
     set x (val) { this.n.x = val; }
-    get x () { return this.n.x; }
+    get x (): number { return this.n.x; }
     set y (val) { this.n.y = val; }
-    get y () { return this.n.y; }
+    get y (): number { return this.n.y; }
     set z (val) { this.n.z = val; }
-    get z () { return this.n.z; }
+    get z (): number { return this.n.z; }
     set w (val) { this.d = val; }
-    get w () { return this.d; }
+    get w (): number { return this.d; }
 
     protected declare readonly _type: number;
 

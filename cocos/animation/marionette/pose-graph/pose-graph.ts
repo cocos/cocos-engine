@@ -23,7 +23,7 @@ export class PoseGraph extends EditorExtendable {
      * @zh 姿势图的输出结点。
      * @en The pose graph's output node.
      */
-    public get outputNode () {
+    public get outputNode (): PoseGraphOutputNode {
         return this._outputNode;
     }
 
@@ -31,7 +31,7 @@ export class PoseGraph extends EditorExtendable {
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         assertIsTrue(this._nodes.length === this._shells.length);
         for (let iNode = 0; iNode < this._nodes.length; ++iNode) {
             const node = this._nodes[iNode];
@@ -61,7 +61,7 @@ export class PoseGraph extends EditorExtendable {
      * @en Note, the node to add should be "freestanding",
      * means it should not been already in any graph. Otherwise, an exception would be thrown.
      */
-    public addNode<TNode extends PoseGraphNode> (node: TNode) {
+    public addNode<TNode extends PoseGraphNode> (node: TNode): TNode {
         if (this._shellMap.has(node)) {
             throw new AddNonFreestandingNodeError(node);
         }
@@ -82,7 +82,7 @@ export class PoseGraph extends EditorExtendable {
      * @en If the removal node is not within graph or is the output node of graph,
      * this method takes no effect.
      */
-    public removeNode (removal: PoseGraphNode) {
+    public removeNode (removal: PoseGraphNode): void {
         if (removal === this._outputNode) {
             error(`Can not remove the output node.`);
             return;
@@ -114,7 +114,7 @@ export class PoseGraph extends EditorExtendable {
      * Gets the specified node's shell in pose graph.
      * @internal
      */
-    public getShell (node: PoseGraphNode) {
+    public getShell (node: PoseGraphNode): PoseGraphNodeShell | undefined {
         return this._shellMap.get(node);
     }
 

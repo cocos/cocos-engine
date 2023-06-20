@@ -44,7 +44,7 @@ export class AudioContextAgent {
     constructor () {
         this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
         this._eventTarget = new EventTarget();
-        this._context.onstatechange = () => {
+        this._context.onstatechange = (): void => {
             if (this._context.state === 'running') {
                 this._isRunning = true;
                 this._eventTarget.emit(_contextRunningEvent);
@@ -54,19 +54,19 @@ export class AudioContextAgent {
         };
     }
 
-    get isRunning () {
+    get isRunning (): boolean {
         return this._isRunning;
     }
 
-    get currentTime () {
+    get currentTime (): number {
         return this._context.currentTime;
     }
 
-    public onceRunning (cb: (...args: any[]) => void, target?: any) {
+    public onceRunning (cb: (...args: any[]) => void, target?: any): void {
         this._eventTarget.once(_contextRunningEvent, cb, target);
     }
 
-    public offRunning (cb?: (...args: any[]) => void, target?: any) {
+    public offRunning (cb?: (...args: any[]) => void, target?: any): void {
         this._eventTarget.off(_contextRunningEvent, cb, target);
     }
 
@@ -101,7 +101,7 @@ export class AudioContextAgent {
             // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
             const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
-            const onGesture = () => {
+            const onGesture = (): void => {
                 context.resume().then(() => {
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
                     canvas?.removeEventListener('mouseup', onGesture, { capture: true });
@@ -113,7 +113,7 @@ export class AudioContextAgent {
         });
     }
 
-    public createBufferSource (audioBuffer?: AudioBuffer, loop?: boolean) {
+    public createBufferSource (audioBuffer?: AudioBuffer, loop?: boolean): AudioBufferSourceNode {
         const sourceBufferNode = this._context.createBufferSource();
         if (audioBuffer !== undefined) {
             sourceBufferNode.buffer = audioBuffer;
@@ -124,13 +124,13 @@ export class AudioContextAgent {
         return sourceBufferNode;
     }
 
-    public createGain (volume = 1) {
+    public createGain (volume = 1): GainNode {
         const gainNode = this._context.createGain();
         this.setGainValue(gainNode, volume);
         return gainNode;
     }
 
-    public setGainValue (gain: GainNode, volume: number) {
+    public setGainValue (gain: GainNode, volume: number): void {
         if (gain.gain.setTargetAtTime) {
             try {
                 gain.gain.setTargetAtTime(volume, this._context.currentTime, 0);
@@ -143,7 +143,7 @@ export class AudioContextAgent {
         }
     }
 
-    public connectContext (audioNode: GainNode) {
+    public connectContext (audioNode: GainNode): void {
         if (!this._context) {
             return;
         }
@@ -163,7 +163,7 @@ export class OneShotAudioWeb {
     private _currentTimer = 0;
     private _url: string;
 
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -171,7 +171,7 @@ export class OneShotAudioWeb {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -241,7 +241,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    destroy () {
+    destroy (): void {
         this._audioTimer.destroy();
         if (this._audioBuffer) {
             // NOTE: need to release AudioBuffer instance
@@ -272,7 +272,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             xhr.open('GET', url, true);
             xhr.responseType = 'arraybuffer';
 
-            xhr.onload = () => {
+            xhr.onload = (): void => {
                 if (xhr.status === 200 || xhr.status === 0) {
                     audioContextAgent!.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
                         audioBufferManager.addCache(url, decodedAudioBuffer);
@@ -282,9 +282,9 @@ export class AudioPlayerWeb implements OperationQueueable {
                     reject(new Error(`${errInfo}${xhr.status}(no response)`));
                 }
             };
-            xhr.onerror = () => { reject(new Error(`${errInfo}${xhr.status}(error)`)); };
-            xhr.ontimeout = () => { reject(new Error(`${errInfo}${xhr.status}(time out)`)); };
-            xhr.onabort = () => { reject(new Error(`${errInfo}${xhr.status}(abort)`)); };
+            xhr.onerror = (): void => { reject(new Error(`${errInfo}${xhr.status}(error)`)); };
+            xhr.ontimeout = (): void => { reject(new Error(`${errInfo}${xhr.status}(time out)`)); };
+            xhr.onabort = (): void => { reject(new Error(`${errInfo}${xhr.status}(abort)`)); };
 
             xhr.send(null);
         });
@@ -307,7 +307,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
     }
 
-    private _onInterruptedBegin () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -315,7 +315,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onInterruptedEnd () {
+    private _onInterruptedEnd (): void {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
@@ -355,7 +355,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     get currentTime (): number {
         return this._audioTimer.currentTime;
     }
-    private offRunning () {
+    private offRunning (): void {
         if (this._runningCallback) {
             audioContextAgent!.offRunning(this._runningCallback);
             this._runningCallback = undefined;
@@ -395,7 +395,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 resolve();
             } else {
                 this.offRunning();
-                this._runningCallback = () => {
+                this._runningCallback = (): void => {
                     this._startSourceNode();
                     resolve();
                 };
@@ -409,7 +409,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
-    private _startSourceNode () {
+    private _startSourceNode (): void {
         // one AudioBufferSourceNode can't start twice
         this._stopSourceNode();
         this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
@@ -421,7 +421,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         /* still not supported by all platforms *
         this._sourceNode.onended = this._onEnded;
         /* doing it manually for now */
-        const checkEnded = () => {
+        const checkEnded = (): void => {
             if (this.loop) {
                 this._currentTimer = window.setTimeout(checkEnded, this._audioBuffer.duration * 1000);
             } else {  // do ended
@@ -434,7 +434,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._audioTimer.currentTime) * 1000);
     }
 
-    private _stopSourceNode () {
+    private _stopSourceNode (): void {
         try {
             if (this._sourceNode) {
                 this._sourceNode.stop();
@@ -471,10 +471,10 @@ export class AudioPlayerWeb implements OperationQueueable {
         return Promise.resolve();
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

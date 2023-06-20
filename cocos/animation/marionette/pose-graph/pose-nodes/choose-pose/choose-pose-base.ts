@@ -23,7 +23,7 @@ export abstract class PoseNodeChoosePoseBase extends PoseNode {
         this._fadeInDurations.fill(0.0);
     }
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         for (const pose of this._poses) {
             pose?.bind(context);
         }
@@ -37,7 +37,7 @@ export abstract class PoseNodeChoosePoseBase extends PoseNode {
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         for (const pose of this._poses) {
             pose?.reenter();
         }
@@ -81,7 +81,7 @@ export abstract class PoseNodeChoosePoseBase extends PoseNode {
         }
     }
 
-    public doEvaluate (context: AnimationGraphEvaluationContext) {
+    public doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const {
             _poses: poses,
             _evaluationRecord: evaluationRecord,
@@ -130,7 +130,7 @@ export abstract class PoseNodeChoosePoseBase extends PoseNode {
     @serializable
     protected _fadeInDurations: number[] = [];
 
-    protected getChosenIndex () {
+    protected getChosenIndex (): number {
         return 0;
     }
 
@@ -144,7 +144,7 @@ class EvaluationRecord {
         itemCount: number,
         initialChosenIndex: number,
     ) {
-        const items =  Array.from({ length: itemCount }, () => new ItemEvaluationRecord());
+        const items =  Array.from({ length: itemCount }, (): ItemEvaluationRecord => new ItemEvaluationRecord());
         if (initialChosenIndex >= 0 && initialChosenIndex < itemCount) {
             items[initialChosenIndex].selfSourceWeight = 1.0;
             items[initialChosenIndex].selfTargetWeight = 1.0;
@@ -157,11 +157,11 @@ class EvaluationRecord {
         return this._items;
     }
 
-    public allWeightsAreZero () {
+    public allWeightsAreZero (): boolean {
         return this._chosenPoseIndex < 0;
     }
 
-    public update (deltaTime: number, newChoseIndex: number, fadeInDurations: readonly number[]) {
+    public update (deltaTime: number, newChoseIndex: number, fadeInDurations: readonly number[]): void {
         assertIsTrue(deltaTime >= 0.0);
 
         this._checkAlternation(newChoseIndex, fadeInDurations);
@@ -218,7 +218,7 @@ class EvaluationRecord {
 
     private _blendingDuration = 0.0;
 
-    private _checkAlternation (newChoseIndex: number, fadeInDurations: readonly number[]) {
+    private _checkAlternation (newChoseIndex: number, fadeInDurations: readonly number[]): void {
         const {
             _items: items,
             _chosenPoseIndex: oldChoseIndex,

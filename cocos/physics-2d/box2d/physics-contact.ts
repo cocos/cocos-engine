@@ -82,11 +82,11 @@ export class PhysicsContact implements IPhysics2DContact {
     private _inverted = false;
     private _b2contact: b2Contact | null = null;
 
-    _setImpulse (impulse: b2.ContactImpulse | null) {
+    _setImpulse (impulse: b2.ContactImpulse | null): void {
         this._impulse = impulse;
     }
 
-    private init (b2contact) {
+    private init (b2contact): void {
         this.colliderA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider;
         this.colliderB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider;
         this.disabled = false;
@@ -98,7 +98,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this._b2contact = b2contact;
     }
 
-    reset () {
+    reset (): void {
         this.setTangentSpeed(0);
         this.resetFriction();
         this.resetRestitution();
@@ -110,7 +110,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this._b2contact = null;
     }
 
-    getWorldManifold () {
+    getWorldManifold (): IPhysics2DWorldManifold {
         const points = worldmanifold.points;
         const separations = worldmanifold.separations;
         const normal = worldmanifold.normal;
@@ -142,7 +142,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return worldmanifold;
     }
 
-    getManifold () {
+    getManifold (): { type: number; localPoint: Vec2; localNormal: Vec2; points: ManifoldPoint[]; } {
         const points = manifold.points;
         const localNormal = manifold.localNormal;
         const localPoint = manifold.localPoint;
@@ -176,7 +176,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return manifold;
     }
 
-    getImpulse () {
+    getImpulse (): IPhysics2DImpulse | null {
         const b2impulse = this._impulse;
         if (!b2impulse) return null;
 
@@ -193,43 +193,43 @@ export class PhysicsContact implements IPhysics2DContact {
         return impulse;
     }
 
-    setEnabled (value) {
+    setEnabled (value): void {
         this._b2contact!.SetEnabled(value);
     }
 
-    isTouching () {
+    isTouching (): boolean {
         return this._b2contact!.IsTouching();
     }
 
-    setTangentSpeed (value) {
+    setTangentSpeed (value): void {
         this._b2contact!.SetTangentSpeed(value);
     }
 
-    getTangentSpeed () {
+    getTangentSpeed (): number {
         return this._b2contact!.GetTangentSpeed();
     }
 
-    setFriction (value) {
+    setFriction (value): void {
         this._b2contact!.SetFriction(value);
     }
 
-    getFriction () {
+    getFriction (): number {
         return this._b2contact!.GetFriction();
     }
 
-    resetFriction () {
+    resetFriction (): void {
         return this._b2contact!.ResetFriction();
     }
 
-    setRestitution (value) {
+    setRestitution (value): void {
         this._b2contact!.SetRestitution(value);
     }
 
-    getRestitution () {
+    getRestitution (): number {
         return this._b2contact!.GetRestitution();
     }
 
-    resetRestitution () {
+    resetRestitution (): void {
         return this._b2contact!.ResetRestitution();
     }
 }

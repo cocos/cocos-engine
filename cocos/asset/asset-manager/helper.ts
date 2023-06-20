@@ -80,7 +80,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
     if (options!.nativeExt) {
         options!.ext = options!.nativeExt;
     }
-    const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
+    const bundle = bundles.find((b): boolean => !!b.getAssetInfo(uuid));
     if (bundle) {
         options!.bundle = bundle.name;
     }
@@ -99,7 +99,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
  * @returns @en Whether or not the asset is a SceneAsset. @zh 此资源是否是场景资源。
  *
  */
-export function isScene (asset) {
+export function isScene (asset): boolean {
     return !!asset && (asset instanceof cclegacy.SceneAsset || asset instanceof cclegacy.Scene);
 }
 

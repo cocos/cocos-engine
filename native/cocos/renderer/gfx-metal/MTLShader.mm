@@ -159,7 +159,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage, CCMTLRenderPass *r
         spirv->initialize(2); // vulkan >= 1.2  spirv >= 1.5
     }
 
-    spirv->compileGLSL(stage.stage, "#version 450\n" + stage.source);
+    spirv->compileGLSL(stage.stage, "#version 450\n#define CC_USE_METAL 1\n" + stage.source);
     if (stage.stage == ShaderStageFlagBit::VERTEX) spirv->compressInputLocations(_attributes);
 
     auto* spvData = spirv->getOutputData();

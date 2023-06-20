@@ -34,6 +34,7 @@ import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
+import type { MaterialInstance } from '../../render-scene';
 
 let _accessor: StaticVBAccessor = null!;
 let _tintAccessor: StaticVBAccessor = null!;
@@ -44,7 +45,7 @@ let _useTint = false;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
-function _getSlotMaterial (blendMode: number, comp: Skeleton) {
+function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance {
     let src: BlendFactor;
     let dst: BlendFactor;
     switch (blendMode) {
@@ -114,7 +115,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {
         cacheTraverse(comp);
@@ -126,7 +127,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 
-function realTimeTraverse (comp: Skeleton) {
+function realTimeTraverse (comp: Skeleton): void {
     _premultipliedAlpha = comp.premultipliedAlpha;
 
     const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
@@ -174,7 +175,7 @@ function realTimeTraverse (comp: Skeleton) {
     }
 }
 
-function cacheTraverse (comp: Skeleton) {
+function cacheTraverse (comp: Skeleton): void {
     _premultipliedAlpha = comp.premultipliedAlpha;
 
     comp.drawList.reset();

@@ -11,13 +11,13 @@ import { getSetting, SettingPass } from './setting-pass';
 import { game } from '../../../game';
 
 export class FSRPass extends SettingPass {
-    get setting () { return getSetting(FSR); }
+    get setting (): FSR { return getSetting(FSR); }
 
     name = 'FSRPass'
     effectName = 'pipeline/post-process/fsr';
     outputNames = ['FSRColor']
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;

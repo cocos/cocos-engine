@@ -33,7 +33,7 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         this._layerRecords = layerEvaluationRecords;
     }
 
-    get layerCount () {
+    get layerCount (): number {
         return this._layerRecords.length;
     }
 
@@ -55,21 +55,21 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         }
     }
 
-    public getLayerWeight (layerIndex: number) {
+    public getLayerWeight (layerIndex: number): number {
         assertIsTrue(layerIndex >= 0 && layerIndex < this._layerRecords.length, `Invalid layer index`);
         return this._layerRecords[layerIndex].weight;
     }
 
-    public setLayerWeight (layerIndex: number, weight: number) {
+    public setLayerWeight (layerIndex: number, weight: number): void {
         assertIsTrue(layerIndex >= 0 && layerIndex < this._layerRecords.length, `Invalid layer index`);
         this._layerRecords[layerIndex].weight = weight;
     }
 
-    public getLayerTopLevelStateMachineEvaluation (layerIndex: number) {
+    public getLayerTopLevelStateMachineEvaluation (layerIndex: number): TopLevelStateMachineEvaluation {
         return this._layerRecords[layerIndex].stateMachineEvaluation;
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext) {
+    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
         const { _layerRecords: layerRecords } = this;
         const nLayers = layerRecords.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
@@ -152,11 +152,11 @@ class LayerEvaluationRecord {
         bindingContext._unsetLayerWideContextProperties();
     }
 
-    get stateMachineEvaluation () {
+    get stateMachineEvaluation (): TopLevelStateMachineEvaluation {
         return this._topLevelStateMachineEval;
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         if (this._mask) {
             this.transformFilter = context.createTransformFilter(this._mask);
         }
@@ -168,13 +168,13 @@ class LayerEvaluationRecord {
         this._topLevelStateMachineEval.settle(context);
     }
 
-    public update (context: AnimationGraphUpdateContext) {
+    public update (context: AnimationGraphUpdateContext): void {
         this.stateMachineEvaluation.update(context);
 
         this._motionSyncManager.sync();
     }
 
-    public postEvaluate () {
+    public postEvaluate (): void {
         // Reset stash resources.
         this._stashManager.reset();
     }

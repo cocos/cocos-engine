@@ -34,14 +34,14 @@ export class SetAction extends ActionInstant {
         props !== undefined && this.init(props);
     }
 
-    init (props) {
+    init (props): boolean {
         for (const name in props) {
             this._props[name] = props[name];
         }
         return true;
     }
 
-    update () {
+    update (): void {
         const props = this._props;
         const target = this.target;
         for (const name in props) {
@@ -49,7 +49,7 @@ export class SetAction extends ActionInstant {
         }
     }
 
-    clone () {
+    clone (): SetAction {
         const action = new SetAction();
         action.init(this._props);
         return action;

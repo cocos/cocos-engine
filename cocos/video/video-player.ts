@@ -84,7 +84,7 @@ export class VideoPlayer extends Component {
      */
     @type(ResourceType)
     @tooltip('i18n:videoplayer.resourceType')
-    get resourceType () {
+    get resourceType (): number {
         return this._resourceType;
     }
     set resourceType (val) {
@@ -101,7 +101,7 @@ export class VideoPlayer extends Component {
      * 远程视频的 URL。
      */
     @tooltip('i18n:videoplayer.remoteURL')
-    get remoteURL () {
+    get remoteURL (): string {
         return this._remoteURL;
     }
     set remoteURL (val: string) {
@@ -119,7 +119,7 @@ export class VideoPlayer extends Component {
      */
     @type(VideoClip)
     @tooltip('i18n:videoplayer.clip')
-    get clip () {
+    get clip (): VideoClip | null {
         return this._clip;
     }
     set clip (val) {
@@ -136,7 +136,7 @@ export class VideoPlayer extends Component {
      * 视频加载后是否自动开始播放。
      */
     @tooltip('i18n:videoplayer.playOnAwake')
-    get playOnAwake () {
+    get playOnAwake (): boolean {
         return this._playOnAwake;
     }
     set playOnAwake (value) {
@@ -152,7 +152,7 @@ export class VideoPlayer extends Component {
     @slide
     @range([0.0, 10, 1.0])
     @tooltip('i18n:videoplayer.playbackRate')
-    get playbackRate () {
+    get playbackRate (): number {
         return this._playbackRate;
     }
     set playbackRate (value: number) {
@@ -171,7 +171,7 @@ export class VideoPlayer extends Component {
     @slide
     @range([0.0, 1.0, 0.1])
     @tooltip('i18n:videoplayer.volume')
-    get volume () {
+    get volume (): number {
         return this._volume;
     }
     set volume (value: number) {
@@ -188,7 +188,7 @@ export class VideoPlayer extends Component {
      * 是否静音视频。设置音量为0时是静音，取消静音是恢复原来的音量。
      */
     @tooltip('i18n:videoplayer.mute')
-    get mute () {
+    get mute (): boolean {
         return this._mute;
     }
     set mute (value) {
@@ -205,7 +205,7 @@ export class VideoPlayer extends Component {
      * 视频是否应在结束时再次播放。
      */
     @tooltip('i18n:videoplayer.loop')
-    get loop () {
+    get loop (): boolean {
         return this._loop;
     }
     set loop (value) {
@@ -222,7 +222,7 @@ export class VideoPlayer extends Component {
      * 是否保持视频原来的宽高比。
      */
     @tooltip('i18n:videoplayer.keepAspectRatio')
-    get keepAspectRatio () {
+    get keepAspectRatio (): boolean {
         return this._keepAspectRatio;
     }
     set keepAspectRatio (value) {
@@ -241,7 +241,7 @@ export class VideoPlayer extends Component {
      * 是否全屏播放视频。
      */
     @tooltip('i18n:videoplayer.fullScreenOnAwake')
-    get fullScreenOnAwake () {
+    get fullScreenOnAwake (): boolean {
         if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._impl) {
                 this._fullScreenOnAwake = this._impl.fullScreenOnAwake;
@@ -271,7 +271,7 @@ export class VideoPlayer extends Component {
      * 注意：该属性只有在 Web 平台上有效果。由于各浏览器的支持与限制，效果可能无法保证一致。
      */
     @tooltip('i18n:videoplayer.stayOnBottom')
-    get stayOnBottom () {
+    get stayOnBottom (): boolean {
         return this._stayOnBottom;
     }
     set stayOnBottom (value: boolean) {
@@ -304,7 +304,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 获取原始视频对象，一般用于用户定制。
      */
-    get nativeVideo () {
+    get nativeVideo (): HTMLVideoElement | null {
         return (this._impl && this._impl.video) || null;
     }
 
@@ -314,7 +314,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 获取当前视频播放的时间进度。
      */
-    get currentTime () {
+    get currentTime (): number {
         if (!this._impl) { return this._cachedCurrentTime; }
         return this._impl.getCurrentTime();
     }
@@ -340,7 +340,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 获取以秒为单位的视频总时长。
      */
-    get duration () {
+    get duration (): number {
         if (!this._impl) { return 0; }
         return this._impl.getDuration();
     }
@@ -351,7 +351,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 获取当前视频状态。
      */
-    get state () {
+    get state (): EventType {
         if (!this._impl) { return EventType.NONE; }
         return this._impl.state;
     }
@@ -362,12 +362,12 @@ export class VideoPlayer extends Component {
      * @zh
      * 当前视频是否正在播放，返回值为布尔类型。
      */
-    get isPlaying () {
+    get isPlaying (): boolean {
         if (!this._impl) { return false; }
         return this._impl.isPlaying;
     }
 
-    protected syncSource () {
+    protected syncSource (): void {
         if (!this._impl) { return; }
         if (this._resourceType === ResourceType.REMOTE) {
             this._impl.syncURL(this._remoteURL);
@@ -376,7 +376,7 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public __preload () {
+    public __preload (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
@@ -404,68 +404,68 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (this._impl) {
             this._impl.enable();
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this._impl) {
             this._impl.disable();
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._impl) {
             this._impl.destroy();
             this._impl = null;
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         if (this._impl) {
             this._impl.syncMatrix();
         }
     }
 
-    public onMetaLoaded () {
+    public onMetaLoaded (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
         this.node.emit('meta-loaded', this);
     }
 
-    public onReadyToPlay () {
+    public onReadyToPlay (): void {
         if (this._playOnAwake && !this.isPlaying) { this.play(); }
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
         this.node.emit(EventType.READY_TO_PLAY, this);
     }
 
-    public onPlaying () {
+    public onPlaying (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
         this.node.emit(EventType.PLAYING, this);
     }
 
-    public onPaused () {
+    public onPaused (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit(EventType.PAUSED, this);
     }
 
-    public onStopped () {
+    public onStopped (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
         this.node.emit(EventType.STOPPED, this);
     }
 
-    public onCompleted () {
+    public onCompleted (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
         this.node.emit(EventType.COMPLETED, this);
     }
 
-    public onError () {
+    public onError (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
         this.node.emit(EventType.ERROR, this);
     }
 
-    public onClicked () {
+    public onClicked (): void {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
         this.node.emit(EventType.CLICKED, this);
     }
@@ -480,7 +480,7 @@ export class VideoPlayer extends Component {
      * 如果视频处于正在播放状态，将会重新开始播放视频。<br>
      * 如果视频处于暂停状态，则会继续播放视频。
      */
-    public play () {
+    public play (): void {
         if (this._impl) {
             this._impl.play();
         }
@@ -493,7 +493,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 继续播放。如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
      */
-    public resume () {
+    public resume (): void {
         if (this._impl) {
             this._impl.resume();
         }
@@ -505,7 +505,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 暂停播放。
      */
-    public pause () {
+    public pause (): void {
         if (this._impl) {
             this._impl.pause();
         }
@@ -517,7 +517,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 停止播放。
      */
-    public stop () {
+    public stop (): void {
         if (this._impl) {
             this._impl.stop();
         }

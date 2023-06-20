@@ -56,38 +56,38 @@ const BuiltinValueTypes: (typeof ValueType)[] = [
 ];
 
 // Used for Data.ValueTypeCreated.
-function BuiltinValueTypeParsers_xyzw (obj: Vec4 | Quat, data: number[]) {
+function BuiltinValueTypeParsers_xyzw (obj: Vec4 | Quat, data: number[]): void {
     obj.x = data[1];
     obj.y = data[2];
     obj.z = data[3];
     obj.w = data[4];
 }
 const BuiltinValueTypeSetters: ((obj: any, data: number[]) => void)[] = [
-    (obj: Vec2, data: number[]) => {
+    (obj: Vec2, data: number[]): void => {
         obj.x = data[1];
         obj.y = data[2];
     },
-    (obj: Vec3, data: number[]) => {
+    (obj: Vec3, data: number[]): void => {
         obj.x = data[1];
         obj.y = data[2];
         obj.z = data[3];
     },
     BuiltinValueTypeParsers_xyzw,   // Vec4
     BuiltinValueTypeParsers_xyzw,   // Quat
-    (obj: Color, data: number[]) => {
+    (obj: Color, data: number[]): void => {
         obj._val = data[1];
     },
-    (obj: Size, data: number[]) => {
+    (obj: Size, data: number[]): void => {
         obj.width = data[1];
         obj.height = data[2];
     },
-    (obj: Rect, data: number[]) => {
+    (obj: Rect, data: number[]): void => {
         obj.x = data[1];
         obj.y = data[2];
         obj.width = data[3];
         obj.height = data[4];
     },
-    (obj: Mat4, data: number[]) => {
+    (obj: Mat4, data: number[]): void => {
         Mat4.fromArray(obj, data, 1);
     },
 ];
@@ -566,7 +566,7 @@ export class Details {
      * @method init
      * @param {Object} data
      */
-    init (data?: IFileData) {
+    init (data?: IFileData): void {
         if (FORCE_COMPILED || data) {
             this.uuidObjList = data![File.DependObjs];
             this.uuidPropList = data![File.DependKeys];
@@ -586,7 +586,7 @@ export class Details {
     /**
      * @method reset
      */
-    reset  () {
+    reset  (): void {
         if (FORCE_COMPILED) {
             this.uuidList = null;
             this.uuidObjList = null;
@@ -610,14 +610,14 @@ export class Details {
      * @param {String} uuid
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    push (obj: object, propName: string, uuid: string, type?: string) {
+    push (obj: object, propName: string, uuid: string, type?: string): void {
         this.uuidObjList!.push(obj);
         this.uuidPropList!.push(propName);
         this.uuidList!.push(uuid);
         this.uuidTypeList.push(type || '');
     }
 }
-Details.pool.get = function () {
+Details.pool.get = function (): Details {
     return this._get() || new Details();
 };
 if (EDITOR || TEST) {
@@ -625,7 +625,7 @@ if (EDITOR || TEST) {
         type: Constructor<Asset>;
         owner: Record<string, unknown>;
         prop: string;
-    }) => any) {
+    }) => any): void {
         for (let i = 0, len = this.uuidList!.length; i < len; i++) {
             const obj = this.uuidObjList![i] as Record<string, unknown>;
             const prop = this.uuidPropList![i] as string;
@@ -673,7 +673,7 @@ export function dereference (refs: IRefs, instances: IFileData[File.Instances], 
 
 //
 
-function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
+function deserializeCCObject (data: IFileData, objectData: IClassObjectData): Record<string, any> {
     const mask = data[File.SharedMasks][objectData[OBJ_DATA_MASK]];
     const clazz = mask[MASK_CLASS];
     const ctor = clazz[CLASS_TYPE] as Exclude<AnyCtor, ICustomClass>;
@@ -707,7 +707,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
     return obj;
 }
 
-function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
+function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent): ICustomClass {
     // eslint-disable-next-line new-cap
     const obj = new ctor();
     if (obj._deserialize) {
@@ -722,11 +722,11 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
 
 type ParseFunction<T> = (data: IFileData, owner: any, key: string, value: T) => void;
 
-function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]) {
+function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]): void {
     owner[key] = value;
 }
 
-function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex) {
+function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex): void {
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
     } else {
@@ -735,7 +735,7 @@ function assignInstanceRef (data: IFileData, owner: any, key: string, value: Ins
 }
 
 function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
-    return (data: IFileData, owner: any, key: string, value: T[]) => {
+    return (data: IFileData, owner: any, key: string, value: T[]): void => {
         for (let i = 0; i < value.length; ++i) {
             parser(data, value, i as unknown as string, value[i]);
         }
@@ -743,21 +743,21 @@ function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
     };
 }
 
-function parseAssetRefByInnerObj (data: IFileData, owner: any, key: string, value: number) {
+function parseAssetRefByInnerObj (data: IFileData, owner: any, key: string, value: number): void {
     owner[key] = null;
     data[File.DependObjs][value] = owner;
 }
 
-function parseClass (data: IFileData, owner: any, key: string, value: IClassObjectData) {
+function parseClass (data: IFileData, owner: any, key: string, value: IClassObjectData): void {
     owner[key] = deserializeCCObject(data, value);
 }
 
-function parseCustomClass (data: IFileData, owner: any, key: string, value: ICustomObjectData) {
+function parseCustomClass (data: IFileData, owner: any, key: string, value: ICustomObjectData): void {
     const ctor = data[File.SharedClasses][value[CUSTOM_OBJ_DATA_CLASS]] as CCClassConstructor<ICustomClass>;
     owner[key] = deserializeCustomCCObject(data, ctor, value[CUSTOM_OBJ_DATA_CONTENT]);
 }
 
-function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData) {
+function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData): void {
     /**BuiltinValueTypes index: Vec2=0, Vec3=1, Vec4=2, Quat=3, Color=4, Size=5, Rect=6, Mat4=7
        The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
        so we need to set to native after value changed
@@ -771,18 +771,18 @@ function parseValueTypeCreated (data: IFileData, owner: any, key: string, value:
     }
 }
 
-function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData) {
+function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData): void {
     const val: ValueType = new BuiltinValueTypes[value[VALUETYPE_SETTER]]();
     BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
     owner[key] = val;
 }
 
-function parseTRS (data: IFileData, owner: any, key: string, value: ITRSData) {
+function parseTRS (data: IFileData, owner: any, key: string, value: ITRSData): void {
     const typedArray = owner[key] as (Float32Array | Float64Array);
     typedArray.set(value);
 }
 
-function parseDict (data: IFileData, owner: any, key: string, value: IDictData) {
+function parseDict (data: IFileData, owner: any, key: string, value: IDictData): void {
     const dict = value[DICT_JSON_LAYOUT];
     owner[key] = dict;
     for (let i = DICT_JSON_LAYOUT + 1; i < value.length; i += 3) {
@@ -794,7 +794,7 @@ function parseDict (data: IFileData, owner: any, key: string, value: IDictData) 
     }
 }
 
-function parseArray (data: IFileData, owner: any, key: string, value: IArrayData) {
+function parseArray (data: IFileData, owner: any, key: string, value: IArrayData): void {
     const array = value[ARRAY_ITEM_VALUES];
     for (let i = 0; i < array.length; ++i) {
         const subValue = array[i];
@@ -901,13 +901,13 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 //     }
 // }
 
-function getMissingClass (hasCustomFinder, type, reportMissingClass: deserialize.ReportMissingClass) {
+function getMissingClass (hasCustomFinder, type, reportMissingClass: deserialize.ReportMissingClass): ObjectConstructor {
     if (!hasCustomFinder) {
         reportMissingClass(type);
     }
     return Object;
 }
-function doLookupClass (classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder, reportMissingClass: deserialize.ReportMissingClass) {
+function doLookupClass (classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder, reportMissingClass: deserialize.ReportMissingClass): void {
     let klass = classFinder(type);
     if (!klass) {
         // if (klass.__FSA__) {
@@ -915,7 +915,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
         // }
         if (silent) {
             // generate a lazy proxy for ctor
-            container[index] = ((c, i, t) => function proxy () {
+            container[index] = ((c, i, t) => function proxy (): any {
                 const actualClass = classFinder(t) || getMissingClass(hasCustomFinder, t, reportMissingClass);
                 c[i] = actualClass;
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return, new-cap
@@ -929,7 +929,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
     container[index] = klass;
 }
 
-function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass) {
+function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass): void {
     const classFinder = customFinder || js.getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
@@ -948,7 +948,7 @@ function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: Cl
     }
 }
 
-function cacheMasks (data: IPackedFileData) {
+function cacheMasks (data: IPackedFileData): void {
     const masks = data[File.SharedMasks];
     if (masks) {
         const classes = data[File.SharedClasses];
@@ -959,7 +959,7 @@ function cacheMasks (data: IPackedFileData) {
     }
 }
 
-function parseResult (data: IFileData) {
+function parseResult (data: IFileData): void {
     const instances = data[File.Instances];
     const sharedStrings = data[File.SharedStrings];
     const dependSharedUuids = data[File.SharedUuids];
@@ -1142,7 +1142,7 @@ function getDependUuidList (json: IFileData): string[] {
     return json[File.DependUuidIndices].map((index) => sharedUuids[index]);
 }
 
-export function parseUuidDependencies (serialized: unknown) {
+export function parseUuidDependencies (serialized: unknown): string[] {
     // eslint-disable-next-line @typescript-eslint/ban-types
     if (!DEV || isCompiledJson(serialized as object)) {
         return getDependUuidList(serialized as IFileData);

@@ -69,7 +69,7 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 bt.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
+function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<void> {
     console.debug('[Physics][Bullet]: Using wasm Bullet libs.');
     return instantiateWasm(wasmUrl, importObject).then((results) => {
         const btInstance = results.instance.exports as Bullet.instance;
@@ -77,7 +77,7 @@ function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
     });
 }
 
-function initAsm (resolve) {
+function initAsm (resolve): void {
     console.debug('[Physics][Bullet]: Using asmjs Bullet libs.');
     const env: any = importFunc;
     const wasmMemory: any = {};
@@ -89,7 +89,7 @@ function initAsm (resolve) {
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any) => { console.info(msg); };
+    const infoReport = (msg: any): void => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,
@@ -113,9 +113,9 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
-export function waitForAmmoInstantiation () {
+export function waitForAmmoInstantiation (): Promise<void> {
     return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { console.error(msg); };
+        const errorReport = (msg: any): void => { console.error(msg); };
         if (FORCE_BANNING_BULLET_WASM) {
             initAsm(resolve);
         } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {

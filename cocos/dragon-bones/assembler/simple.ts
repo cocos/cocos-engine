@@ -83,7 +83,7 @@ const _slotMat = new Mat4();
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
-function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
+function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode): MaterialInstance | null {
     if (!tex) return null;
 
     let src: BlendFactor;
@@ -110,7 +110,7 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     return _comp!.getMaterialForBlend(src, dst);
 }
 
-function _handleColor (color: {r: number, g: number, b: number, a: number}, parentOpacity: number) {
+function _handleColor (color: {r: number, g: number, b: number, a: number}, parentOpacity: number): void {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
     const _r = color.r * _nodeR * _multiply / 255.0;
@@ -131,7 +131,7 @@ let _accessor: StaticVBAccessor = null!;
 export const simple: IAssembler = {
     accessor: _accessor,
     vCount: 32767,
-    ensureAccessor () {
+    ensureAccessor (): StaticVBAccessor {
         if (!_accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
@@ -143,7 +143,7 @@ export const simple: IAssembler = {
         return this.accessor as StaticVBAccessor;
     },
 
-    createData (comp: ArmatureDisplay) {
+    createData (comp: ArmatureDisplay): RenderData {
         let rd = comp.renderData;
         if (!rd) {
             this.ensureAccessor() as StaticVBAccessor;
@@ -170,7 +170,7 @@ export const simple: IAssembler = {
         return rd;
     },
 
-    updateRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
+    updateRenderData (comp: ArmatureDisplay, batcher: Batcher2D): void {
         _comp = comp;
         const armature = comp._armature;
         if (armature) {
@@ -178,13 +178,13 @@ export const simple: IAssembler = {
         }
     },
 
-    updateColor (comp: ArmatureDisplay) {
+    updateColor (comp: ArmatureDisplay): void {
         if (!comp) return;
         _comp = comp;
         _comp.markForUpdateRenderData();
     },
 };
-function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4) {
+function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4): void {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
     _ibuf = rd.indices!;
@@ -311,7 +311,7 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
     }
 }
 
-function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
+function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4): void {
     if (!frame) return;
     const segments = frame.segments;
     if (segments.length === 0) return;
@@ -406,7 +406,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
+function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D): void {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;

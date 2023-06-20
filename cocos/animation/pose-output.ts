@@ -34,14 +34,14 @@ export class PoseOutput {
         this._pose = pose;
     }
 
-    public destroy () {
+    public destroy (): void {
         for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
             this._pose.destroyWriter(this._blendStateWriters[iBlendStateWriter]);
         }
         this._blendStateWriters.length = 0;
     }
 
-    public createPoseWriter (node: Node, property: BlendingPropertyName, constants: boolean) {
+    public createPoseWriter (node: Node, property: BlendingPropertyName, constants: boolean): BlendStateWriter<BlendingPropertyName> {
         const writer = this._pose.createWriter(node, property, this, constants);
         this._blendStateWriters.push(writer);
         return writer;

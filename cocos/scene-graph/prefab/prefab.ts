@@ -147,7 +147,7 @@ export class Prefab extends Asset {
     /**
      * @engineInternal
      */
-    public _doInstantiate (rootToRedirect?: any) {
+    public _doInstantiate (rootToRedirect?: any): Node {
         if (!this.data._prefab) {
             // temp guard code
             warnID(3700);
@@ -185,7 +185,7 @@ export class Prefab extends Asset {
         return node;
     }
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         this.data = new Node();
         this.data.name = '(Missing Node)';
@@ -195,11 +195,11 @@ export class Prefab extends Asset {
         this.data._prefab = prefabInfo;
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this.data;
     }
 
-    public onLoaded () {
+    public onLoaded (): void {
         const rootNode = this.data as Node;
         utils.expandNestedPrefabInstanceNode(rootNode);
         utils.applyTargetOverrides(rootNode);

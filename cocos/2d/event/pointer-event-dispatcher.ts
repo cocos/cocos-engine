@@ -70,7 +70,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return true;
     }
 
-    public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
+    public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor): void {
         if (this._inDispatchCount === 0) {
             if (!this._pointerEventProcessorList.includes(pointerEventProcessor)) {
                 this._pointerEventProcessorList.push(pointerEventProcessor);
@@ -82,7 +82,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         js.array.remove(this._processorListToRemove, pointerEventProcessor);
     }
 
-    public removePointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
+    public removePointerEventProcessor (pointerEventProcessor: NodeEventProcessor): void {
         if (this._inDispatchCount === 0) {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
@@ -92,7 +92,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         js.array.remove(this._processorListToAdd, pointerEventProcessor);
     }
 
-    public dispatchEventMouse (eventMouse: EventMouse) {
+    public dispatchEventMouse (eventMouse: EventMouse): boolean {
         this._inDispatchCount++;
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
@@ -116,7 +116,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return dispatchToNextEventDispatcher;
     }
 
-    public dispatchEventTouch (eventTouch: EventTouch) {
+    public dispatchEventTouch (eventTouch: EventTouch): boolean {
         this._inDispatchCount++;
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
@@ -159,7 +159,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return dispatchToNextEventDispatcher;
     }
 
-    private _updatePointerEventProcessorList () {
+    private _updatePointerEventProcessorList (): void {
         const listToAdd = this._processorListToAdd;
         const addLength = listToAdd.length;
         for (let i = 0; i < addLength; ++i) {
@@ -175,7 +175,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         listToRemove.length = 0;
     }
 
-    private _sortPointerEventProcessorList () {
+    private _sortPointerEventProcessorList (): void {
         if (!this._isListDirty) {
             return;
         }
@@ -193,7 +193,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         this._isListDirty = false;
     }
 
-    private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor) {
+    private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor): number {
         const node1: Node = p1.node;
         const node2: Node = p2.node;
         if (!p2 || !node2 || !node2.activeInHierarchy || !node2._uiProps.uiTransformComp) {
@@ -226,7 +226,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return ex ? priority1 - priority2 : priority2 - priority1;
     }
 
-    private _markListDirty () {
+    private _markListDirty (): void {
         this._isListDirty = true;
     }
 }

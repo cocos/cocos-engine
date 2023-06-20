@@ -112,7 +112,7 @@ export class Gradient {
      * @param colorKeys @en Array of color keys @zh 颜色关键帧列表
      * @param alphaKeys @en Array of alpha keys @zh 透明度关键帧列表
      */
-    public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
+    public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]): void {
         this.colorKeys = colorKeys;
         this.alphaKeys = alphaKeys;
     }
@@ -121,12 +121,12 @@ export class Gradient {
      * @en Sort color keys and alpha keys.
      * @zh 对颜色和透明度的关键帧进行排序。
      */
-    public sortKeys () {
+    public sortKeys (): void {
         if (this.colorKeys.length > 1) {
-            this.colorKeys.sort((a, b) => a.time - b.time);
+            this.colorKeys.sort((a, b): number => a.time - b.time);
         }
         if (this.alphaKeys.length > 1) {
-            this.alphaKeys.sort((a, b) => a.time - b.time);
+            this.alphaKeys.sort((a, b): number => a.time - b.time);
         }
     }
 
@@ -138,7 +138,7 @@ export class Gradient {
      *
      * @deprecated since v3.8 please use [[evaluateFast]] instead.
      */
-    public evaluate (time: number) {
+    public evaluate (time: number): Color {
         return this.evaluateFast(new Color(), time);
     }
 
@@ -149,7 +149,7 @@ export class Gradient {
      * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
      * @returns @en Interpolated color value. @zh 插值过后的颜色值。
      */
-    public evaluateFast (out: Color, time: number) {
+    public evaluateFast (out: Color, time: number): Color {
         this.getRGB(out, time);
         out._set_a_unsafe(this.getAlpha(time)!);
         return out;
@@ -161,7 +161,7 @@ export class Gradient {
      * @returns @en Randomized color. @zh 随机生成的颜色。
      * @deprecated since v3.8 please use [[getRandomColor]] instead.
      */
-    public randomColor () {
+    public randomColor (): Color {
         return this.getRandomColor(new Color());
     }
 
@@ -171,7 +171,7 @@ export class Gradient {
      * @param out @en Randomized color. @zh 随机生成的颜色。
      * @returns @en Randomized color. @zh 随机生成的颜色。
      */
-    public getRandomColor (out: Color) {
+    public getRandomColor (out: Color): Color {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
         out.set(c.color);
@@ -179,7 +179,7 @@ export class Gradient {
         return out;
     }
 
-    private getRGB (out: Color, time: number) {
+    private getRGB (out: Color, time: number): Color {
         const colorKeys = this.colorKeys;
         const length = colorKeys.length;
         if (length > 1) {
@@ -214,7 +214,7 @@ export class Gradient {
         return out;
     }
 
-    private getAlpha (time: number) {
+    private getAlpha (time: number): number {
         const basicAlpha = 0; // default alpha is 0
         const alphaKeys = this.alphaKeys;
         const length = alphaKeys.length;

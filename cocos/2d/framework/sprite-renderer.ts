@@ -54,7 +54,7 @@ export class SpriteRenderer extends ModelRenderer {
     * @zh 该组件应渲染的 spriteFrame。
     */
     @type(SpriteFrame)
-    get spriteFrame () {
+    get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
 
@@ -81,7 +81,7 @@ export class SpriteRenderer extends ModelRenderer {
      * @en Rendering model of the component.
      * @zh 该组件的渲染模型。
      */
-    get model () {
+    get model (): Model | null {
         return this._model;
     }
 
@@ -101,7 +101,7 @@ export class SpriteRenderer extends ModelRenderer {
 
     private _model: Model | null = null;
 
-    public onLoad () {
+    public onLoad (): void {
         if (this._spriteFrame) {
             if (!this._spriteFrame.mesh) {
                 this._spriteFrame.ensureMeshData();
@@ -111,14 +111,14 @@ export class SpriteRenderer extends ModelRenderer {
         this._updateModels();
     }
 
-    public onRestore () {
+    public onRestore (): void {
         this._updateModels();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         if (!this._model) {
             this._updateModels();
@@ -126,13 +126,13 @@ export class SpriteRenderer extends ModelRenderer {
         this._attachToScene();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this._model) {
             this._detachFromScene();
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._model) {
             cclegacy.director.root.destroyModel(this._model);
             this._model = null;
@@ -140,7 +140,7 @@ export class SpriteRenderer extends ModelRenderer {
         }
     }
 
-    protected _updateModels () {
+    protected _updateModels (): void {
         if (!this._spriteFrame) {
             return;
         }
@@ -162,7 +162,7 @@ export class SpriteRenderer extends ModelRenderer {
         }
     }
 
-    protected _createModel () {
+    protected _createModel (): void {
         const model = this._model = (cclegacy.director.root as Root).createModel<Model>(Model);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
@@ -170,7 +170,7 @@ export class SpriteRenderer extends ModelRenderer {
         this._models.push(this._model);
     }
 
-    protected _updateModelParams () {
+    protected _updateModelParams (): void {
         if (!this._spriteFrame || !this._model) { return; }
         this._spriteFrame.ensureMeshData();
         const mesh = this._spriteFrame.mesh!;
@@ -193,12 +193,12 @@ export class SpriteRenderer extends ModelRenderer {
         this._model.enabled = true;
     }
 
-    protected _getBuiltinMaterial () {
+    protected _getBuiltinMaterial (): Material {
         // classic ugly pink indicating missing material
         return builtinResMgr.get<Material>('missing-material');
     }
 
-    protected _onMaterialModified (idx: number, material: Material | null) {
+    protected _onMaterialModified (idx: number, material: Material | null): void {
         super._onMaterialModified(idx, material);
         if (!this._spriteFrame || !this._model || !this._model.inited) {
             return;
@@ -209,13 +209,13 @@ export class SpriteRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _onRebuildPSO (idx: number, material: Material) {
+    public _onRebuildPSO (idx: number, material: Material): void {
         if (!this._model || !this._model.inited) { return; }
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLocalDescriptorSet();
     }
 
-    protected _onUpdateLocalDescriptorSet () {
+    protected _onUpdateLocalDescriptorSet (): void {
         if (!this._spriteFrame || !this._model || !this._model.inited) {
             return;
         }
@@ -233,7 +233,7 @@ export class SpriteRenderer extends ModelRenderer {
         }
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
         if (!this.node.scene || !this._model) {
             return;
         }
@@ -247,7 +247,7 @@ export class SpriteRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _detachFromScene () {
+    public _detachFromScene (): void {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

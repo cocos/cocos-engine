@@ -34,7 +34,7 @@ const CANNON_AABB_LOCAL = new CANNON.AABB();
 const CANNON_AABB = new CANNON.AABB();
 const CANNON_TRANSFORM = new CANNON.Transform();
 // eslint-disable-next-line func-names
-CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, quat: CANNON.Quaternion, min: CANNON.Vec3, max: CANNON.Vec3) {
+CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, quat: CANNON.Quaternion, min: CANNON.Vec3, max: CANNON.Vec3): void {
     const frame = CANNON_TRANSFORM;
     const result = CANNON_AABB;
     Vec3.copy(frame.position, pos);
@@ -49,11 +49,11 @@ CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, qu
 };
 
 export class CannonTerrainShape extends CannonShape implements ITerrainShape {
-    get collider () {
+    get collider (): TerrainCollider {
         return this._collider as TerrainCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Heightfield {
         return this._shape as CANNON.Heightfield;
     }
 
@@ -96,7 +96,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
         this._terrainID = '';
     }
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         const terrain = this.collider.terrain;
         if (terrain) {
             const sizeI = terrain.getVertexCountI();
@@ -114,12 +114,12 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
         this._shape = new CANNON.Heightfield(this.data, this.options);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setTerrain(this.collider.terrain);
     }
 
-    updateProperties (data: number[][], elementSize: number) {
+    updateProperties (data: number[][], elementSize: number): void {
         const impl = this.impl;
         impl.data = data;
         impl.elementSize = elementSize;
@@ -133,7 +133,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
     }
 
     // override
-    protected _setCenter (v: IVec3Like) {
+    protected _setCenter (v: IVec3Like): void {
         const terrain = this.collider.terrain;
         if (terrain) {
             Quat.fromEuler(this._orient, -90, 0, 0);

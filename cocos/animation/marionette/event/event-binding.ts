@@ -22,11 +22,11 @@ export class AnimationGraphEventBinding {
      * @zh 获取该绑定是否绑定了任何事件。
      * @en Tells if there's any event bound to this binding.
      */
-    get isBound () {
+    get isBound (): boolean {
         return !!this.methodName;
     }
 
-    public emit (origin: Node) {
+    public emit (origin: Node): void {
         if (!this.methodName) {
             return;
         }
@@ -34,7 +34,7 @@ export class AnimationGraphEventBinding {
         invokeComponentMethodsEngagedInAnimationEvent(origin, this.methodName);
     }
 
-    public copyTo (that: AnimationGraphEventBinding) {
+    public copyTo (that: AnimationGraphEventBinding): AnimationGraphEventBinding {
         that.methodName = this.methodName;
         return this;
     }

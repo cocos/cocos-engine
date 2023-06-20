@@ -31,13 +31,13 @@ import { ISimplexShape } from '../../spec/i-physics-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
-    setShapeType (v: SimplexCollider.ESimplexType) {
+    setShapeType (v: SimplexCollider.ESimplexType): void {
         if (this._isBinding) {
             // TODO: change the type after init
         }
     }
 
-    setVertices (v: IVec3Like[]) {
+    setVertices (v: IVec3Like[]): void {
         const length = this.vertices.length;
         if (length === 4) {
             const ws = this._collider.node.worldScale;
@@ -57,17 +57,17 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         }
     }
 
-    get collider () {
+    get collider (): SimplexCollider {
         return this._collider as SimplexCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Particle | CANNON.ConvexPolyhedron {
         return this._shape as CANNON.Particle | CANNON.ConvexPolyhedron;
     }
 
     readonly vertices: CANNON.Vec3[] = [];
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         const type = this.collider.shapeType;
         if (type === SimplexCollider.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
@@ -82,7 +82,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         }
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.collider.updateVertices();
     }
@@ -93,14 +93,14 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
     }
 }
 
-const createTetra = (function () {
+const createTetra = (function (): (verts: CANNON.Vec3[]) => CANNON.ConvexPolyhedron {
     const faces = [
         [0, 3, 2], // -x
         [0, 1, 3], // -y
         [0, 2, 1], // -z
         [1, 2, 3], // +xyz
     ];
-    return function (verts: CANNON.Vec3[]) {
+    return function (verts: CANNON.Vec3[]): CANNON.ConvexPolyhedron {
         return new CANNON.ConvexPolyhedron(verts, faces);
     };
 }());

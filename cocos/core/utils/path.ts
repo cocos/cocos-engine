@@ -80,7 +80,7 @@ export function mainFileName (fileName: string): string {
  * @returns @en The file name. @zh 文件名。
  * @example {@link cocos/core/utils/CCPath/basename.js}
  */
-export function basename (path: string, extName?: string) {
+export function basename (path: string, extName?: string): string {
     const index = path.indexOf('?');
     if (index > 0) {
         path = path.substring(0, index);
@@ -158,7 +158,7 @@ export function changeBasename (path: string, newBaseName: string, keepExt?: boo
 }
 
 // todo make public after verification
-export function _normalize (url) {
+export function _normalize (url): any {
     let oldUrl = url = String(url);
 
     // removing all ../
@@ -176,7 +176,7 @@ export function _normalize (url) {
  * @returns @en A new file path without last file separator.
  * @zh 路径最后分隔符的新路径。
  */
-export function stripSep (path: string) {
+export function stripSep (path: string): string {
     return path.replace(/[\/\\]$/, '');
 }
 
@@ -186,6 +186,6 @@ export function stripSep (path: string) {
  * @zh 获取不同平台的文件分割符。类 unix 系统是 `/`，windows 系统是 `\`。
  * @returns @en File separator. @zh 文件分割符。
  */
-export function getSeperator () {
+export function getSeperator (): string {
     return systemInfo.os === OS.WINDOWS ? '\\' : '/';
 }

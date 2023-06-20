@@ -62,7 +62,7 @@ class TrackPath {
      * @en The length of the path.
      * @zh 此路径的段数。
      */
-    get length () {
+    get length (): number {
         return this._paths.length;
     }
 
@@ -72,7 +72,7 @@ class TrackPath {
      * @param name The property's name.
      * @returns `this`
      */
-    public toProperty (name: string) {
+    public toProperty (name: string): TrackPath {
         this._paths.push(name);
         return this;
     }
@@ -83,7 +83,7 @@ class TrackPath {
      * @param index The element's index.
      * @returns `this`
      */
-    public toElement (index: number) {
+    public toElement (index: number): TrackPath {
         this._paths.push(index);
         return this;
     }
@@ -94,7 +94,7 @@ class TrackPath {
      * @param nodePath Path to the children.
      * @returns `this`
      */
-    public toHierarchy (nodePath: string) {
+    public toHierarchy (nodePath: string): TrackPath {
         this._paths.push(new HierarchyPath(nodePath));
         return this;
     }
@@ -105,7 +105,7 @@ class TrackPath {
      * @param constructor @en The constructor of the component. @zh 组件的构造函数。
      * @returns `this`
      */
-    public toComponent<T extends Component> (constructor: Constructor<T> | string) {
+    public toComponent<T extends Component> (constructor: Constructor<T> | string): TrackPath {
         const path = new ComponentPath(typeof constructor === 'string' ? constructor : js.getClassName(constructor));
         this._paths.push(path);
         return this;
@@ -114,7 +114,7 @@ class TrackPath {
     /**
      * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
-    public toCustomized (resolver: CustomizedTrackPathResolver) {
+    public toCustomized (resolver: CustomizedTrackPathResolver): TrackPath {
         this._paths.push(resolver);
         return this;
     }
@@ -125,8 +125,8 @@ class TrackPath {
      * @param trackPaths Paths to append.
      * @returns `this`.
      */
-    public append (...trackPaths: TrackPath[]) {
-        const paths = this._paths.concat(...trackPaths.map((trackPath) => trackPath._paths));
+    public append (...trackPaths: TrackPath[]): TrackPath {
+        const paths = this._paths.concat(...trackPaths.map((trackPath): TargetPath[] => trackPath._paths));
         this._paths = paths;
         return this;
     }
@@ -137,7 +137,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The judgement result.
      */
-    public isPropertyAt (index: number) {
+    public isPropertyAt (index: number): boolean {
         return typeof (this._paths[index]) === 'string';
     }
 
@@ -157,7 +157,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The judgement result.
      */
-    public isElementAt (index: number) {
+    public isElementAt (index: number): boolean {
         return typeof this._paths[index] === 'number';
     }
 
@@ -177,7 +177,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The judgement result.
      */
-    public isHierarchyAt (index: number) {
+    public isHierarchyAt (index: number): boolean {
         return this._paths[index] instanceof HierarchyPath;
     }
 
@@ -187,7 +187,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The hierarchy path.
      */
-    public parseHierarchyAt (index: number) {
+    public parseHierarchyAt (index: number): string {
         assertIsTrue(this.isHierarchyAt(index));
         return (this._paths[index] as HierarchyPath).path;
     }
@@ -198,7 +198,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The judgement result.
      */
-    public isComponentAt (index: number) {
+    public isComponentAt (index: number): boolean {
         return this._paths[index] instanceof ComponentPath;
     }
 
@@ -208,7 +208,7 @@ class TrackPath {
      * @param index Index to the segment。
      * @returns The component path.
      */
-    public parseComponentAt (index: number) {
+    public parseComponentAt (index: number): string {
         assertIsTrue(this.isComponentAt(index));
         return (this._paths[index] as ComponentPath).component;
     }
@@ -220,7 +220,7 @@ class TrackPath {
      * @param endIndex End index to the segment. Default to the last segment.
      * @returns The new path.
      */
-    public slice (beginIndex?: number, endIndex?: number) {
+    public slice (beginIndex?: number, endIndex?: number): TrackPath {
         const trackPath = new TrackPath();
         trackPath._paths = this._paths.slice(beginIndex, endIndex);
         return trackPath;
@@ -229,7 +229,7 @@ class TrackPath {
     /**
      * @internal
      */
-    public trace (object: unknown, beginIndex?: number, endIndex?: number) {
+    public trace (object: unknown, beginIndex?: number, endIndex?: number): unknown {
         beginIndex ??= 0;
         endIndex ??= this._paths.length;
         return this[normalizedFollowTag](object, beginIndex, endIndex);
@@ -238,7 +238,7 @@ class TrackPath {
     /**
      * @internal
      */
-    public [parseTrsPathTag] () {
+    public [parseTrsPathTag] (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
         const { _paths: paths } = this;
         const nPaths = paths.length;
 
@@ -284,7 +284,7 @@ class TrackPath {
     /**
      * @internal
      */
-    public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number) {
+    public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number): unknown {
         const { _paths: paths } = this;
         let result = root;
         for (let iPath = beginIndex; iPath < endIndex; ++iPath) {
@@ -331,7 +331,7 @@ export class TrackBinding {
 
     private static _animationFunctions = new WeakMap<Constructor, Map<string | number, AnimationFunction>>();
 
-    public parseTrsPath () {
+    public parseTrsPath (): { node: string; property: "position" | "scale" | "rotation" | "eulerAngles"; } | null {
         if (this.proxy) {
             return null;
         } else {
@@ -339,7 +339,7 @@ export class TrackBinding {
         }
     }
 
-    public createRuntimeBinding (target: unknown, poseOutput: PoseOutput | undefined, isConstant: boolean) {
+    public createRuntimeBinding (target: unknown, poseOutput: PoseOutput | undefined, isConstant: boolean): RuntimeBinding<unknown> | { target: any; setValue: any; getValue: any; } | null {
         const { path, proxy } = this;
         const nPaths = path.length;
         const iLastPath = nPaths - 1;
@@ -376,10 +376,10 @@ export class TrackBinding {
                 setValue = accessor.setValue;
                 getValue = accessor.getValue;
             } else {
-                setValue = (value: unknown) => {
+                setValue = (value: unknown): void => {
                     resultTarget[lastPropertyKey] = value;
                 };
-                getValue = () => resultTarget[lastPropertyKey] as unknown;
+                getValue = (): unknown => resultTarget[lastPropertyKey] as unknown;
             }
             return {
                 target: resultTarget,
@@ -399,20 +399,20 @@ export class TrackBinding {
                 return null;
             }
             const binding: RuntimeBinding = {
-                setValue: (value) => {
+                setValue: (value): void => {
                     runtimeProxy.set(value);
                 },
             };
             const proxyGet = runtimeProxy.get;
             if (proxyGet) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                binding.getValue = () => proxyGet.call(runtimeProxy);
+                binding.getValue = (): any => proxyGet.call(runtimeProxy);
             }
             return binding;
         }
     }
 
-    public isMaskedOff (mask: AnimationMask) {
+    public isMaskedOff (mask: AnimationMask): boolean {
         const trsPath = this.parseTrsPath();
         if (!trsPath) {
             return false;
@@ -454,7 +454,7 @@ export abstract class Track {
      * @en Track path.
      * @zh 轨道路径。
      */
-    get path () {
+    get path (): Readonly<TrackPath> {
         return this._binding.path;
     }
 
@@ -466,7 +466,7 @@ export abstract class Track {
      * @en Value proxy for the target.
      * @zh 目标的值代理。
      */
-    get proxy () {
+    get proxy (): IValueProxyFactory | undefined {
         return this._binding.proxy;
     }
 
@@ -477,7 +477,7 @@ export abstract class Track {
     /**
      * @internal
      */
-    get [trackBindingTag] () {
+    get [trackBindingTag] (): TrackBinding {
         return this._binding;
     }
 
@@ -552,7 +552,7 @@ export class Channel<T = Curve> {
      * @en The curve within the channel.
      * @zh 通道中的曲线。
      */
-    get curve () {
+    get curve (): T {
         return this._curve;
     }
 
@@ -579,7 +579,7 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
      * @en The channel within the track.
      * @zh 轨道包含的通道。
      */
-    get channel () {
+    get channel (): Channel<TCurve> {
         return this._channel;
     }
 
@@ -610,11 +610,11 @@ class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval<unknown>
     constructor (private _curve: TCurve) {
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return false;
     }
 
-    public evaluate (time: number) {
+    public evaluate (time: number): unknown {
         return this._curve.evaluate(time);
     }
 }

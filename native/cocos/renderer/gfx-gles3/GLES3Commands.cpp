@@ -718,7 +718,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             ccstd::vector<GLuint> &ssbo = device->stateCache()->glBindSSBOs;
             for (GLuint i = 0; i < ssbo.size(); i++) {
                 if (ssbo[i] == gpuBuffer->glBuffer) {
-                    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, i, 0));
+                    GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, 0));
                     device->stateCache()->glShaderStorageBuffer = 0;
                     ssbo[i] = 0;
                 }
@@ -1235,6 +1235,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GL
 
     gpuShader->glBuffers.resize(blockCount + bufferCount);
 
+    GLuint uboBinding = 0;
     for (GLint i = 0; i < blockCount; ++i) {
         GLES3GPUUniformBuffer &glBlock = gpuShader->glBuffers[i];
         memset(glName, 0, sizeof(glName));
@@ -1253,8 +1254,9 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GL
             if (block.name == glBlock.name) {
                 glBlock.set = block.set;
                 glBlock.binding = block.binding;
-                glBlock.glBinding = block.binding + device->bindingMappings().blockOffsets[block.set];
-                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, glBlock.glBinding));
+                glBlock.glBinding = uboBinding;
+                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, uboBinding));
+                uboBinding += block.count;
                 break;
             }
         }
@@ -1484,7 +1486,6 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
 }
 
 void cmdFuncGLES3DestroyRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *gpuRenderPass) {
-
 }
 
 void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler) {
@@ -2161,11 +2162,11 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
         performStoreOp(i, indices[i]);
     }
     performDepthStencilStoreOp(gpuRenderPass->depthStencil);
-//    if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
-//        GL_CHECK(glFramebufferFetchBarrierEXT());
-//    } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
-//        GL_CHECK(glFramebufferFetchBarrierQCOM());
-//    }
+    //    if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
+    //        GL_CHECK(glFramebufferFetchBarrierEXT());
+    //    } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
+    //        GL_CHECK(glFramebufferFetchBarrierQCOM());
+    //    }
 }
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
@@ -2693,7 +2694,7 @@ void cmdFuncGLES3DrawIndirect(GLES3Device *device,
     if (device->constantRegistry()->multiDrawIndirect) {
         if (indexed) {
             GL_CHECK(glMultiDrawElementsIndirectEXT(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType,
-                ptr + bufferOffset, count, stride));
+                                                    ptr + bufferOffset, count, stride));
         } else {
             GL_CHECK(glMultiDrawArraysIndirectEXT(primitive, ptr + bufferOffset, count, stride));
         }

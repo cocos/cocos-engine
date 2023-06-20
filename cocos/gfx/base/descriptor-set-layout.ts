@@ -29,15 +29,15 @@ import { GFXObject, ObjectType, DescriptorSetLayoutBinding, DescriptorSetLayoutI
  * @zh GFX 描述符集布局。
  */
 export abstract class DescriptorSetLayout extends GFXObject {
-    get bindings () {
+    get bindings (): DescriptorSetLayoutBinding[] {
         return this._bindings;
     }
 
-    get bindingIndices () {
+    get bindingIndices (): number[] {
         return this._bindingIndices;
     }
 
-    get descriptorIndices () {
+    get descriptorIndices (): number[] {
         return this._descriptorIndices;
     }
 

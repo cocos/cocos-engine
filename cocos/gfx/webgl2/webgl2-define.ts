@@ -106,10 +106,10 @@ export interface IWebGL2Extensions {
 
 // put the global instance here so that we won't have circular dependencies
 export class WebGL2DeviceManager {
-    static get instance () {
+    static get instance (): WebGL2Device {
         return WebGL2DeviceManager._instance!;
     }
-    static setInstance (instance: WebGL2Device) {
+    static setInstance (instance: WebGL2Device): void {
         WebGL2DeviceManager._instance = instance;
     }
     private static _instance: WebGL2Device | null = null;

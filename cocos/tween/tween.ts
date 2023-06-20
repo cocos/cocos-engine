@@ -26,7 +26,7 @@ import { TweenSystem } from './tween-system';
 import { warn } from '../core';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc } from './actions/action-instant';
-import { Action } from './actions/action';
+import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
 import { SetAction } from './set-action';
@@ -70,7 +70,7 @@ export class Tween<T> {
      * @method tag
      * @param tag @en The tag set for this tween @zh 为当前缓动设置的标签
      */
-    tag (tag: number) {
+    tag (tag: number): Tween<T> {
         this._tag = tag;
         return this;
     }
@@ -407,7 +407,7 @@ export class Tween<T> {
      * @zh
      * 停止所有缓动
      */
-    static stopAll () {
+    static stopAll (): void {
         TweenSystem.instance.ActionManager.removeAllActions();
     }
     /**
@@ -417,7 +417,7 @@ export class Tween<T> {
      * 停止所有指定标签的缓动
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    static stopAllByTag (tag: number, target?: object) {
+    static stopAllByTag (tag: number, target?: object): void {
         TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as any);
     }
     /**
@@ -427,11 +427,11 @@ export class Tween<T> {
      * 停止所有指定对象的缓动
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    static stopAllByTarget (target?: object) {
+    static stopAllByTarget (target?: object): void {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as any);
     }
 
-    private _union () {
+    private _union (): Action {
         const actions = this._actions;
         let action: Action;
         if (actions.length === 1) {
@@ -443,13 +443,13 @@ export class Tween<T> {
         return action;
     }
 
-    private _destroy () {
+    private _destroy (): void {
         this.stop();
     }
 
     private static readonly _tmp_args: Tween<any>[] | Action[] = [];
 
-    private static _wrappedSequence (...args: Action[] | Tween<any>[]) {
+    private static _wrappedSequence (...args: Action[] | Tween<any>[]): ActionInterval {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
@@ -462,7 +462,7 @@ export class Tween<T> {
         return sequence.apply(sequence, tmp_args as any);
     }
 
-    private static _wrappedParallel (...args: Action[] | Tween<any>[]) {
+    private static _wrappedParallel (...args: Action[] | Tween<any>[]): FiniteTimeAction {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
@@ -491,7 +491,7 @@ legacyCC.Tween = Tween;
  *   .by(1, {scale: new Vec3(-1, -1, -1)}, {easing: 'sineOutIn'})
  *   .start()
  */
-export function tween<T> (target?: T) {
+export function tween<T> (target?: T): Tween<T> {
     return new Tween<T>(target);
 }
 legacyCC.tween = tween;
@@ -503,7 +503,7 @@ legacyCC.tween = tween;
  * tweenUtil 是一个工具函数，帮助实例化 Tween 实例。
  * @deprecated please use `tween` instead.
  */
-export function tweenUtil<T> (target?: T) {
+export function tweenUtil<T> (target?: T): Tween<T> {
     warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
     return new Tween<T>(target);
 }

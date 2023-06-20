@@ -40,11 +40,11 @@ export function isUICamera (camera: Camera): boolean {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function replacer (key: unknown, value: unknown) {
+export function replacer (key: unknown, value: unknown): unknown {
     if (value instanceof Map) {
         return {
             meta_t: 'Map',
-            value: Array.from(value.entries()).sort((a, b) => String(a[0]).localeCompare(b[0])),
+            value: Array.from(value.entries()).sort((a, b): number => String(a[0]).localeCompare(b[0])),
         };
     } else if (value instanceof Set) {
         return {
@@ -56,7 +56,7 @@ export function replacer (key: unknown, value: unknown) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-export function reviver (key: unknown, value: any) {
+export function reviver (key: unknown, value: any): any {
     if (typeof value === 'object' && value !== null) {
         if (value.meta_t === 'Map') {
             return new Map(value.value);
@@ -68,11 +68,11 @@ export function reviver (key: unknown, value: any) {
     return value;
 }
 
-export function stringify (data: unknown, space?: string | number | undefined) {
+export function stringify (data: unknown, space?: string | number | undefined): string {
     return JSON.stringify(data, replacer, space);
 }
 
-export function parse (text: string) {
+export function parse (text: string): any {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return JSON.parse(text, reviver);
 }

@@ -79,7 +79,7 @@ export class BakedSkinningModel extends MorphModel {
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
-    public destroy () {
+    public destroy (): void {
         this.uploadedAnim = undefined; // uninitialized
         this._jointsMedium.boundsInfo = null;
         if (this._jointsMedium.buffer) {
@@ -91,7 +91,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     // Override
-    public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
+    public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null): void {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
@@ -109,7 +109,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     // Override
-    public updateTransform (stamp: number) {
+    public updateTransform (stamp: number): void {
         super.updateTransform(stamp);
 
         if (!this.uploadedAnim) { return; }
@@ -123,7 +123,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     // Override, update fid buffer only when visible
-    public updateUBOs (stamp: number) {
+    public updateUBOs (stamp: number): boolean {
         super.updateUBOs(stamp);
 
         const info = this._jointsMedium.animInfo;
@@ -161,7 +161,7 @@ export class BakedSkinningModel extends MorphModel {
      * @param anim @en The animation clip to be uploaded to the joint texture. @zh 需要上传到骨骼贴图上的动画片段。
      * @returns void
      */
-    public uploadAnimation (anim: AnimationClip | null) {
+    public uploadAnimation (anim: AnimationClip | null): void {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
@@ -178,7 +178,7 @@ export class BakedSkinningModel extends MorphModel {
         this._applyJointTexture(texture);
     }
 
-    protected _applyJointTexture (texture: IJointTextureHandle | null = null) {
+    protected _applyJointTexture (texture: IJointTextureHandle | null = null): void {
         const oldTex = this._jointsMedium.texture;
         if (oldTex && oldTex !== texture) { this._dataPoolManager.jointTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
@@ -198,7 +198,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet): void {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const { buffer, texture, animInfo } = this._jointsMedium;
         descriptorSet.bindBuffer(UBOSkinningTexture.BINDING, buffer!);
@@ -210,13 +210,13 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel): void {
         super._updateInstancedAttributes(attributes, subModel);
         this._instAnimInfoIdx = subModel.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
 
-    private updateInstancedJointTextureInfo () {
+    private updateInstancedJointTextureInfo (): void {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         for (let i = 0; i < this._subModels.length; i++) {

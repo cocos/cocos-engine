@@ -34,7 +34,7 @@ enum _keyMap {
     colors = AttributeName.ATTR_COLOR,
 }
 
-export function readMesh (mesh: Mesh, iPrimitive = 0) {
+export function readMesh (mesh: Mesh, iPrimitive = 0): IGeometry {
     const out: IGeometry = { positions: [] };
     const dataView = new DataView(mesh.data.buffer, mesh.data.byteOffset, mesh.data.byteLength);
     const struct = mesh.struct;

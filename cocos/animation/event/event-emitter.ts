@@ -8,7 +8,7 @@ import { Node } from '../../scene-graph';
  * @param methodName The method name to invoke.
  * @param args The arguments passed to the method.
  */
-export function invokeComponentMethodsEngagedInAnimationEvent (node: Node, methodName: string, ...args: unknown[]) {
+export function invokeComponentMethodsEngagedInAnimationEvent (node: Node, methodName: string, ...args: unknown[]): void {
     const components = node.components;
     const nComponents = components.length;
     for (let iComponent = 0; iComponent < nComponents; ++iComponent) {

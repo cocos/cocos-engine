@@ -31,7 +31,7 @@ import { legacyCC } from '../../global-exports';
 
 export const DELIMETER = '$_$';
 
-export function createAttrsSingle (owner: Object, superAttrs?: any) {
+export function createAttrsSingle (owner: Object, superAttrs?: any): any {
     const attrs = superAttrs ? Object.create(superAttrs) : {};
     value(owner, '__attrs__', attrs);
     return attrs;
@@ -40,7 +40,7 @@ export function createAttrsSingle (owner: Object, superAttrs?: any) {
 /**
  * @param subclass Should not have '__attrs__'.
  */
-export function createAttrs (subclass: any) {
+export function createAttrs (subclass: any): any {
     if (typeof subclass !== 'function') {
         // attributes only in instance
         const instance = subclass;
@@ -86,11 +86,11 @@ export function attr (constructor: any, propertyName: string): { [attributeName:
 /**
  * Returns a read-only meta-object.
  */
-export function getClassAttrs (constructor: any) {
+export function getClassAttrs (constructor: any): any {
     return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);
 }
 
-export function setClassAttr (ctor, propName, key, value) {
+export function setClassAttr (ctor, propName, key, value): void {
     getClassAttrs(ctor)[propName + DELIMETER + key] = value;
 }
 
@@ -104,7 +104,7 @@ export class PrimitiveType<T> {
         this.default = defaultValue;
     }
 
-    public toString () {
+    public toString (): string {
         return this.name;
     }
 }
@@ -205,7 +205,7 @@ legacyCC.CCString = CCString;
 
 // Ensures the type matches its default value
 export function getTypeChecker_ET (type: string, attributeName: string) {
-    return function (constructor: Function, mainPropertyName: string) {
+    return function (constructor: Function, mainPropertyName: string): void {
         const propInfo = `"${getClassName(constructor)}.${mainPropertyName}"`;
         const mainPropAttrs = attr(constructor, mainPropertyName);
         let mainPropAttrsType = mainPropAttrs.type;
@@ -257,7 +257,7 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
 
 // Ensures the type matches its default value
 export function getObjTypeChecker_ET (typeCtor) {
-    return function (classCtor, mainPropName) {
+    return function (classCtor, mainPropName): void {
         getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
         // check ValueType
         const defaultDef = getClassAttrs(classCtor)[`${mainPropName + DELIMETER}default`];

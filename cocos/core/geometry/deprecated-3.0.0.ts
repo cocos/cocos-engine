@@ -170,7 +170,7 @@ replaceProperty(intersect, 'intersect', [
     },
 ]);
 
-function deprecatedClassMessage (oldClassName: string, newClassName) {
+function deprecatedClassMessage (oldClassName: string, newClassName): void {
     console.warn(`${oldClassName} is deprecated, please use ${newClassName} instead.`);
 }
 

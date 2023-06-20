@@ -21,22 +21,22 @@ export class IntensitySpecification {
 
     @serializable
     @editable
-    @visible(function visible (this: IntensitySpecification) { return this.type === IntensityType.VALUE; })
+    @visible(function visible (this: IntensitySpecification): boolean { return this.type === IntensityType.VALUE; })
     public value = 1.0;
 
     @serializable
     @editable
-    @visible(function visible (this: IntensitySpecification) { return this.type === IntensityType.AUXILIARY_CURVE; })
+    @visible(function visible (this: IntensitySpecification): boolean { return this.type === IntensityType.AUXILIARY_CURVE; })
     public auxiliaryCurveName = '';
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         if (this.type === IntensityType.AUXILIARY_CURVE && this.auxiliaryCurveName) {
             const handle = context.bindAuxiliaryCurve(this.auxiliaryCurveName);
             this._handle = handle;
         }
     }
 
-    public evaluate (pose: Readonly<Pose>) {
+    public evaluate (pose: Readonly<Pose>): number {
         if (this.type === IntensityType.AUXILIARY_CURVE && this._handle) {
             const value = pose.auxiliaryCurves[this._handle.index];
             return value;

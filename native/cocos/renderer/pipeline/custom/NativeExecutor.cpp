@@ -46,8 +46,8 @@
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
-#include "cocos/scene/gpu-scene/GPUScene.h"
 #include "cocos/scene/Skybox.h"
+#include "cocos/scene/gpu-scene/GPUScene.h"
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "details/Range.h"
@@ -497,6 +497,7 @@ gfx::DescriptorSet* initDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -517,10 +518,6 @@ gfx::DescriptorSet* initDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -608,6 +605,7 @@ gfx::DescriptorSet* initDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
+            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
             case DescriptorTypeOrder::STORAGE_BUFFER:
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -629,13 +627,11 @@ gfx::DescriptorSet* initDescriptorSet(
                             found = true;
                         }
                     }
-                    CC_ENSURES(found);
+                    if (!found) {
+                        newSet->bindBuffer(bindID, defaultResource.getBuffer());
+                    }
                     bindID += d.count;
                 }
-                break;
-            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -704,6 +700,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -723,10 +720,6 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -772,13 +765,24 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
-            case DescriptorTypeOrder::STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
+            case DescriptorTypeOrder::STORAGE_BUFFER:
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    bool found = false;
+                    CC_EXPECTS(d.count == 1);
+                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                        iter != user.buffers.end()) {
+                        newSet->bindBuffer(bindID, iter->second.get());
+                        found = true;
+                    } else {
+                        auto* prevBuffer = prevSet.getBuffer(bindID);
+                        CC_ENSURES(prevBuffer);
+                        newSet->bindBuffer(bindID, prevBuffer);
+                    }
+                    auto name = lg.valueNames[d.descriptorID.value];
+                    bindID += d.count;
+                }
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -1559,7 +1563,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 queue.transparentInstancingQueue.recordCommandBuffer(
                     ctx.currentPass, ctx.cmdBuff);
             }
-			// Stanley TODO
+            // Stanley TODO
             //queue.transparentBatchingQueue.recordCommandBuffer(ctx.device, camera, ctx.currentPass, ctx.cmdBuff, queue.sceneFlags);
         }
         if (any(sceneData.flags & SceneFlags::UI)) {
@@ -1594,13 +1598,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!pso) {
             return;
         }
-        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
+        // auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
-        ctx.cmdBuff->bindDescriptorSet(
-            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
+        // ctx.cmdBuff->bindDescriptorSet(
+        //     static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
         ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }

@@ -57,7 +57,7 @@ export const INT_MIN = -1 << (INT_BITS - 1);
  * @en Returns -1, 0, +1 depending on sign of x.
  * @zh 根据x的符号返回 -1，0，+1。
  */
-export function sign (v: number) {
+export function sign (v: number): number {
     return ((v > 0) as unknown as number) - ((v < 0) as unknown as number);
 }
 
@@ -65,7 +65,7 @@ export function sign (v: number) {
  * @en Computes absolute value of integer.
  * @zh 计算整数的绝对值。
  */
-export function abs (v: number) {
+export function abs (v: number): number {
     const mask = v >> (INT_BITS - 1);
     return (v ^ mask) - mask;
 }
@@ -74,7 +74,7 @@ export function abs (v: number) {
  * @en Computes minimum of integers x and y.
  * @zh 计算整数x和y中的最小值。
  */
-export function min (x: number, y: number) {
+export function min (x: number, y: number): number {
     return y ^ ((x ^ y) & -(x < y));
 }
 
@@ -82,7 +82,7 @@ export function min (x: number, y: number) {
  * @en Computes maximum of integers x and y.
  * @zh 计算整数x和y中的最大值。
  */
-export function max (x: number, y: number) {
+export function max (x: number, y: number): number {
     return x ^ ((x ^ y) & -(x < y));
 }
 
@@ -90,7 +90,7 @@ export function max (x: number, y: number) {
  * @en Checks if a number is a power of two.
  * @zh 检查一个数字是否是2的幂。
  */
-export function isPow2 (v: number) {
+export function isPow2 (v: number): boolean {
     return !(v & (v - 1)) && (!!v);
 }
 
@@ -98,7 +98,7 @@ export function isPow2 (v: number) {
  * @en Computes log base 2 of v.
  * @zh 计算以 2 为底的 v 的对数。
  */
-export function log2 (v: number) {
+export function log2 (v: number): number {
     let r: number;
     let shift: number;
     r = ((v > 0xFFFF) as unknown as number) << 4; v >>>= r;
@@ -112,7 +112,7 @@ export function log2 (v: number) {
  * @en Computes log base 10 of v.
  * @zh 计算以 10 为底的 v 的对数。
  */
-export function log10 (v: number) {
+export function log10 (v: number): number {
     return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7
         : (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4
             : (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
@@ -122,7 +122,7 @@ export function log10 (v: number) {
  * @en Counts number of bits.
  * @zh 计算传入数字二进制表示中 1 的数量。
  */
-export function popCount (v: number) {
+export function popCount (v: number): number {
     v -= ((v >>> 1) & 0x55555555);
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
     return ((v + (v >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
@@ -132,7 +132,7 @@ export function popCount (v: number) {
  * @en Counts number of trailing zeros.
  * @zh 计算传入数字二进制表示尾随零的数量。
  */
-export function countTrailingZeros (v: number) {
+export function countTrailingZeros (v: number): number {
     let c = 32;
     v &= -v;
     if (v) { c--; }
@@ -148,7 +148,7 @@ export function countTrailingZeros (v: number) {
  * @en Rounds to next power of 2.
  * @zh 计算大于等于v的最小的二的整数次幂的数字。
  */
-export function nextPow2 (v: number) {
+export function nextPow2 (v: number): number {
     --v;
     v |= v >>> 1;
     v |= v >>> 2;
@@ -162,7 +162,7 @@ export function nextPow2 (v: number) {
  * @en Rounds down to previous power of 2.
  * @zh 计算小于等于v的最小的二的整数次幂的数字。
  */
-export function prevPow2 (v: number) {
+export function prevPow2 (v: number): number {
     v |= v >>> 1;
     v |= v >>> 2;
     v |= v >>> 4;
@@ -175,7 +175,7 @@ export function prevPow2 (v: number) {
  * @en Computes parity of word.
  * @zh 奇偶校验。
  */
-export function parity (v: number) {
+export function parity (v: number): number {
     v ^= v >>> 16;
     v ^= v >>> 8;
     v ^= v >>> 4;
@@ -185,7 +185,7 @@ export function parity (v: number) {
 
 const REVERSE_TABLE: number[] = new Array(256);
 
-((tab: number[]) => {
+((tab: number[]): void => {
     for (let i = 0; i < 256; ++i) {
         let v = i;
         let r = i;
@@ -203,7 +203,7 @@ const REVERSE_TABLE: number[] = new Array(256);
  * @en Reverse bits in a 32 bit word.
  * @zh 翻转 32 位二进制数字。
  */
-export function reverse (v: number) {
+export function reverse (v: number): number {
     return (REVERSE_TABLE[v & 0xff] << 24)
         | (REVERSE_TABLE[(v >>> 8) & 0xff] << 16)
         | (REVERSE_TABLE[(v >>> 16) & 0xff] << 8)
@@ -214,7 +214,7 @@ export function reverse (v: number) {
  * @en Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes.
  * @zh 将两个 16 位数字按位交错编码。有利于在快速四叉树中使用。
  */
-export function interleave2 (x: number, y: number) {
+export function interleave2 (x: number, y: number): number {
     x &= 0xFFFF;
     x = (x | (x << 8)) & 0x00FF00FF;
     x = (x | (x << 4)) & 0x0F0F0F0F;
@@ -234,7 +234,7 @@ export function interleave2 (x: number, y: number) {
  * @en Extracts the nth interleaved component.
  * @zh 提取第 n 个交错分量。
  */
-export function deinterleave2 (v: number, n: number) {
+export function deinterleave2 (v: number, n: number): number {
     v = (v >>> n) & 0x55555555;
     v = (v | (v >>> 1)) & 0x33333333;
     v = (v | (v >>> 2)) & 0x0F0F0F0F;
@@ -247,7 +247,7 @@ export function deinterleave2 (v: number, n: number) {
  * @en Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes.
  * @zh 将三个数字按位交错编码，每个数字占十位。有利于在八叉树中使用。
  */
-export function interleave3 (x: number, y: number, z: number) {
+export function interleave3 (x: number, y: number, z: number): number {
     x &= 0x3FF;
     x = (x | (x << 16)) & 4278190335;
     x = (x | (x << 8)) & 251719695;
@@ -274,7 +274,7 @@ export function interleave3 (x: number, y: number, z: number) {
  * @en Extracts nth interleaved component of a 3-tuple.
  * @zh 提取三个数字中的第n个交错分量。
  */
-export function deinterleave3 (v: number, n: number) {
+export function deinterleave3 (v: number, n: number): number {
     v = (v >>> n) & 1227133513;
     v = (v | (v >>> 2)) & 3272356035;
     v = (v | (v >>> 4)) & 251719695;
@@ -287,7 +287,7 @@ export function deinterleave3 (v: number, n: number) {
  * @en Compute the lexicographically next bit permutation
  * @zh 计算下一组字典序的比特排列
  */
-export function nextCombination (v: number) {
+export function nextCombination (v: number): number {
     const t = v | (v - 1);
     return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
 }

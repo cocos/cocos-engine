@@ -44,21 +44,21 @@ import { Stage } from '../renderer/stencil-manager';
 export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
-    public __preload () {
+    public __preload (): void {
         // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
         // issue: https://github.com/cocos/cocos-engine/issues/14637
         (this as any).node._uiProps.uiComp = this;
     }
 
-    public onEnable () {
+    public onEnable (): void {
     }
 
-    public onDisable () {
+    public onDisable (): void {
 
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
         // issue: https://github.com/cocos/cocos-engine/issues/14637
@@ -76,13 +76,13 @@ export class UIComponent extends Component {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
-    public postUpdateAssembler (render: IBatcher) {
+    public postUpdateAssembler (render: IBatcher): void {
     }
 
     /**
      * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
-    public markForUpdateRenderData (enable = true) {
+    public markForUpdateRenderData (enable = true): void {
     }
 
     /**
@@ -93,12 +93,12 @@ export class UIComponent extends Component {
     /**
      * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
-    public setNodeDirty () {
+    public setNodeDirty (): void {
     }
 
     /**
      * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
-    public setTextureDirty () {
+    public setTextureDirty (): void {
     }
 }

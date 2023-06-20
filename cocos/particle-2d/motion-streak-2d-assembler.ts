@@ -36,14 +36,14 @@ const _normal = new Vec2();
 const _vec2 = new Vec2();
 let QUAD_INDICES;
 
-function normal (out:Vec2, dir:Vec2) {
+function normal (out:Vec2, dir:Vec2): Vec2 {
     // get perpendicular
     out.x = -dir.y;
     out.y = dir.x;
     return out;
 }
 
-function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
+function computeMiter (miter, lineA, lineB, halfThick, maxMultiple): number {
     // get tangent line
     lineA.add(lineB, _tangent);
     _tangent.normalize();
@@ -63,14 +63,14 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 }
 
 export const MotionStreakAssembler: IAssembler = {
-    createData (comp: MotionStreak) {
+    createData (comp: MotionStreak): RenderData {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(16, (16 - 2) * 3);
         return renderData;
     },
 
-    update (comp: MotionStreak, dt: number) {
+    update (comp: MotionStreak, dt: number): void {
         const stroke = comp.stroke / 2;
 
         const node = comp.node;
@@ -189,7 +189,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateWorldVertexAllData (comp: MotionStreak) {
+    updateWorldVertexAllData (comp: MotionStreak): void {
         const renderData = comp.renderData!;
         const stride = renderData.floatStride;
         const dataList = renderData.data;
@@ -205,7 +205,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    createQuadIndices (comp, indexCount) {
+    createQuadIndices (comp, indexCount): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
         const vid = 0;
@@ -224,7 +224,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
+    updateRenderDataCache (comp: MotionStreak, renderData: RenderData): void {
         if (renderData.passDirty) {
             renderData.updatePass(comp);
         }
@@ -240,7 +240,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateRenderData (comp: MotionStreak) {
+    updateRenderData (comp: MotionStreak): void {
         if (JSB) {
             // A dirty hack
             // The world matrix was updated in advance and needs to be avoided at the cpp level
@@ -250,10 +250,10 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateColor (comp: MotionStreak) {
+    updateColor (comp: MotionStreak): void {
     },
 
-    fillBuffers (comp: MotionStreak, renderer: IBatcher) {
+    fillBuffers (comp: MotionStreak, renderer: IBatcher): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
         const dataList = renderData.data;
@@ -296,7 +296,7 @@ export const MotionStreakAssembler: IAssembler = {
 };
 
 export const MotionStreakAssemblerManager: IAssemblerManager = {
-    getAssembler (comp: MotionStreak) {
+    getAssembler (comp: MotionStreak): IAssembler {
         return MotionStreakAssembler;
     },
 };

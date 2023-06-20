@@ -36,7 +36,7 @@ export class WebGL2InputAssembler extends InputAssembler {
 
     private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
 
-    public initialize (info: Readonly<InputAssemblerInfo>) {
+    public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
             console.error('InputAssemblerInfo.vertexBuffers is null.');
             return;
@@ -96,7 +96,7 @@ export class WebGL2InputAssembler extends InputAssembler {
         WebGL2CmdFuncCreateInputAssember(WebGL2DeviceManager.instance, this._gpuInputAssembler);
     }
 
-    public destroy () {
+    public destroy (): void {
         const device = WebGL2DeviceManager.instance;
         if (this._gpuInputAssembler && device.extensions.useVAO) {
             WebGL2CmdFuncDestroyInputAssembler(device, this._gpuInputAssembler);

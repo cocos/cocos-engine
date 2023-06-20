@@ -60,7 +60,7 @@ export function createCustomPipeline (): BasicPipeline {
 
 export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 
-export function setCustomPipeline (name: string, builder: PipelineBuilder) {
+export function setCustomPipeline (name: string, builder: PipelineBuilder): void {
     customPipelineBuilderMap.set(name, builder);
 }
 export function getCustomPipeline (name: string): PipelineBuilder {
@@ -76,7 +76,7 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     return builder;
 }
 
-function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
+function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Deprecated', new CustomPipelineBuilder());
@@ -84,7 +84,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {
         const readBinaryData = new BinaryInputArchive(arrayBuffer);
         loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
@@ -92,7 +92,7 @@ export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 
-export function destroy () {
+export function destroy (): void {
     terminateLayoutGraphData(defaultLayoutGraph);
 }
 

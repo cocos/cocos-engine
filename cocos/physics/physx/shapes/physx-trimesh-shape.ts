@@ -99,27 +99,27 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
 
     /* override */
 
-    setMaterial (v: PhysicsMaterial | null) {
+    setMaterial (v: PhysicsMaterial | null): void {
         if (this._impl) super.setMaterial(v);
     }
 
-    setCenter (v: IVec3Like) {
+    setCenter (v: IVec3Like): void {
         if (this._impl) super.setCenter(v);
     }
 
-    setAsTrigger (v: boolean) {
+    setAsTrigger (v: boolean): void {
         if (this._impl) super.setAsTrigger(v);
     }
 
-    setFilerData (v: any) {
+    setFilerData (v: any): void {
         if (this._impl) super.setFilerData(v);
     }
 
-    addToBody () {
+    addToBody (): void {
         if (this._impl) super.addToBody();
     }
 
-    removeFromBody () {
+    removeFromBody (): void {
         if (this._impl) super.removeFromBody();
     }
 }

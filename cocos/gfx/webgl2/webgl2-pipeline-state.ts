@@ -53,7 +53,7 @@ export class WebGL2PipelineState extends PipelineState {
 
     private _gpuPipelineState: IWebGL2GPUPipelineState | null = null;
 
-    public initialize (info: Readonly<PipelineStateInfo>) {
+    public initialize (info: Readonly<PipelineStateInfo>): void {
         this._primitive = info.primitive;
         this._shader = info.shader;
         this._pipelineLayout = info.pipelineLayout;
@@ -62,7 +62,7 @@ export class WebGL2PipelineState extends PipelineState {
             const bsInfo = info.blendState;
             const { targets } = bsInfo;
             if (targets) {
-                targets.forEach((t, i) => {
+                targets.forEach((t, i): void => {
                     bs.setTarget(i, t);
                 });
             }
@@ -96,7 +96,7 @@ export class WebGL2PipelineState extends PipelineState {
         };
     }
 
-    public destroy () {
+    public destroy (): void {
         this._gpuPipelineState = null;
     }
 }

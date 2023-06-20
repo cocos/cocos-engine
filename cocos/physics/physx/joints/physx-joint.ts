@@ -74,7 +74,7 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     get impl (): any { return this._impl; }
-    get constraint () { return this._com; }
+    get constraint (): Constraint { return this._com; }
 
     protected _impl!: any;
     protected _com!: Constraint;
@@ -96,8 +96,8 @@ export class PhysXJoint implements IBaseConstraint {
     protected onComponentSet (): void { }
 
     // virtual
-    updateScale0 () { }
-    updateScale1 () { }
+    updateScale0 (): void { }
+    updateScale1 (): void { }
 
     onEnable (): void {
         const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;

@@ -47,7 +47,7 @@ export class WebGLBuffer extends Buffer {
     private _gpuBufferView: IWebGLGPUBufferView | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
-    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -97,7 +97,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuBuffer) {
             WebGLCmdFuncDestroyBuffer(WebGLDeviceManager.instance, this._gpuBuffer);
             WebGLDeviceManager.instance.memoryStatus.bufferSize -= this._size;
@@ -109,7 +109,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public resize (size: number) {
+    public resize (size: number): void {
         if (this._isBufferView) {
             console.warn('cannot resize buffer views!');
             return;
@@ -139,7 +139,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public update (buffer: Readonly<BufferSource>, size?: number) {
+    public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;

@@ -346,7 +346,9 @@ nodeProto.resumeSystemEvents = function resumeSystemEvents(recursive: boolean): 
     this._eventProcessor.setEnabled(true, recursive);
 };
 
-nodeProto.getWritableComponents = function (this: JsbNode) { return this._components; }
+nodeProto.getWritableComponents = function (this: JsbNode) { return this._components; };
+
+nodeProto._setActiveInHierarchy = function (this: JsbNode, v: boolean) { return this._activeInHierarchy = v; };
 
 nodeProto._removeComponent = function (component: Component) {
     if (!component) {

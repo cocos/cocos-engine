@@ -25,7 +25,7 @@
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 
-const contains = (a: number[], t: number) => {
+const contains = (a: number[], t: number): boolean => {
     for (let i = 0; i < a.length; ++i) {
         if (a[i] === t) return true;
     }
@@ -166,7 +166,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
         return view.subarray(index, index + count);
     }
 
-    public free (handle: IHandle<P>) {
+    public free (handle: IHandle<P>): void {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freeLists.length

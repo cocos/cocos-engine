@@ -79,7 +79,7 @@ const SampleOffsets = {
 };
 
 export class TAAPass extends SettingPass {
-    get setting () { return getSetting(TAA); }
+    get setting (): TAA { return getSetting(TAA); }
 
     name = 'TAAPass'
     effectName = 'pipeline/post-process/taa';
@@ -94,7 +94,7 @@ export class TAAPass extends SettingPass {
     forceRender = true;
     dirty = false;
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;
@@ -105,7 +105,7 @@ export class TAAPass extends SettingPass {
         return enable;
     }
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         if (!this.checkEnable(camera)) {
             return this.lastPass!.slotName(camera, index);
         }
@@ -117,7 +117,7 @@ export class TAAPass extends SettingPass {
         return super.slotName(camera, (this.taaTextureIndex + 1) % 2);
     }
 
-    applyCameraJitter (camera: Camera) {
+    applyCameraJitter (camera: Camera): void {
         (camera as any)._isProjDirty = true;
         camera.update(true);
 
@@ -130,7 +130,7 @@ export class TAAPass extends SettingPass {
         camera.frustum.update(camera.matViewProj, camera.matViewProjInv);
     }
 
-    updateSample () {
+    updateSample (): void {
         if (this.dirty || this.forceRender) {
             this.sampleIndex++;
             this.taaTextureIndex++;

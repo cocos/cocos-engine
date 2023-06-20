@@ -146,7 +146,7 @@ export default function box (options?: IBoxOptions): IGeometry {
     const maxPos = new Vec3(hw, hh, hl);
     const boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
 
-    function _buildPlane (side: number, uSegments: number, vSegments: number) {
+    function _buildPlane (side: number, uSegments: number, vSegments: number): void {
         let u: number;
         let v: number;
         let ix: number;

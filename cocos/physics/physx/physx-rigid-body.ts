@@ -116,7 +116,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._isUsingCCD = v;
     }
 
-    isUsingCCD () { return this._isUsingCCD; }
+    isUsingCCD (): boolean { return this._isUsingCCD; }
 
     setLinearFactor (v: IVec3Like): void {
         if (this.isStatic) return;

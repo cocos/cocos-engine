@@ -10,57 +10,6 @@ import { PoseGraphType } from '../foundation/type-system';
 import { assertIsTrue, CachedArray, Pool } from '../../../../core';
 import { Transform } from '../../../core/transform';
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeModifyPoseBase`)
-@poseGraphNodeHide()
-export abstract class PoseNodeModifyPoseBase extends PoseNode {
-    @serializable
-    @input({ type: PoseGraphType.POSE })
-    public pose: PoseNode | null = null;
-
-    public settle (context: AnimationGraphSettleContext) {
-        this.pose?.settle(context);
-        this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
-    }
-
-    public reenter () {
-        this.pose?.reenter();
-    }
-
-    public bind (context: AnimationGraphBindingContext): void {
-        this.pose?.bind(context);
-    }
-
-    protected doUpdate (context: AnimationGraphUpdateContext) {
-        this.pose?.update(context);
-    }
-
-    protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
-        const poseTransformSpaceRequirement = this.getPoseTransformSpaceRequirement();
-        const inputPose = this.pose?.evaluate(context, poseTransformSpaceRequirement)
-            ?? PoseNode.evaluateDefaultPose(context, poseTransformSpaceRequirement);
-
-        const { _modificationQueue: modificationQueue } = this;
-        assertIsTrue(modificationQueue.length === 0);
-        this.modifyPose(context, inputPose, modificationQueue);
-
-        applyTransformModificationQueue(context, inputPose, modificationQueue, this._spaceFlagTable);
-        modificationQueue.clear();
-
-        return inputPose;
-    }
-
-    protected abstract getPoseTransformSpaceRequirement(): PoseTransformSpaceRequirement;
-
-    protected abstract modifyPose(
-        context: AnimationGraphEvaluationContext,
-        pose: Pose,
-        transformModificationQueue: TransformModificationQueue,
-    ): void;
-
-    private _modificationQueue = new TransformModificationQueue();
-    private _spaceFlagTable = new PoseTransformSpaceFlagTable(0);
-}
-
 class TransformModification {
     public transformIndex = -1;
     public transform = new Transform();
@@ -69,15 +18,15 @@ class TransformModification {
 export type { TransformModification };
 
 class TransformModificationQueue {
-    get length () {
+    get length (): number {
         return this._array.length;
     }
 
-    get array () {
+    get array (): TransformModification[] {
         return this._array.array;
     }
 
-    public push (transformIndex: number, transform: Transform) {
+    public push (transformIndex: number, transform: Transform): void {
         if (DEBUG) {
             assertIsTrue(transformIndex > this._debugLastTransformIndex, `Unexpected transform modification order`);
             this._debugLastTransformIndex = transformIndex;
@@ -88,7 +37,7 @@ class TransformModificationQueue {
         this._array.push(mod);
     }
 
-    public clear () {
+    public clear (): void {
         const length = this._array.length;
         for (let iMod = 0; iMod < length; ++iMod) {
             const mod = this._array.get(iMod);
@@ -101,7 +50,7 @@ class TransformModificationQueue {
         }
     }
 
-    private _pool: Pool<TransformModification> = new Pool(() => new TransformModification(), 3);
+    private _pool: Pool<TransformModification> = new Pool((): TransformModification => new TransformModification(), 3);
     private _array = new CachedArray<TransformModification>(3);
     private _debugLastTransformIndex = -1;
 }
@@ -116,7 +65,7 @@ class PoseTransformSpaceFlagTable {
     /**
      * Set all transforms' flags to false.
      */
-    public clear () {
+    public clear (): void {
         this._transformFlags.fill(false);
     }
 
@@ -125,7 +74,7 @@ class PoseTransformSpaceFlagTable {
      * @param transformIndex Transform index.
      * @returns True if the transform's flag is set to true.
      */
-    public test (transformIndex: number) {
+    public test (transformIndex: number): boolean {
         return this._transformFlags[transformIndex];
     }
 
@@ -133,7 +82,7 @@ class PoseTransformSpaceFlagTable {
      * Sets the transform's flag to true.
      * @param transformIndex Transform index.
      */
-    public set (transformIndex: number) {
+    public set (transformIndex: number): void {
         this._transformFlags[transformIndex] = true;
     }
 
@@ -141,7 +90,7 @@ class PoseTransformSpaceFlagTable {
      * Sets the transform's flag to false.
      * @param transformIndex Transform index.
      */
-    public unset (transformIndex: number) {
+    public unset (transformIndex: number): void {
         this._transformFlags[transformIndex] = false;
     }
 
@@ -156,7 +105,7 @@ function applyTransformModificationQueue (
     pose: Pose,
     queue: TransformModificationQueue,
     spaceFlagTable: PoseTransformSpaceFlagTable,
-) {
+): void {
     const nMods = queue.length;
     if (nMods === 0) {
         return;
@@ -248,4 +197,55 @@ function applyTransformModificationQueue (
             pose.transforms.setTransform(transformIndex, transform);
         }
     }
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeModifyPoseBase`)
+@poseGraphNodeHide()
+export abstract class PoseNodeModifyPoseBase extends PoseNode {
+    @serializable
+    @input({ type: PoseGraphType.POSE })
+    public pose: PoseNode | null = null;
+
+    public settle (context: AnimationGraphSettleContext): void {
+        this.pose?.settle(context);
+        this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
+    }
+
+    public reenter (): void {
+        this.pose?.reenter();
+    }
+
+    public bind (context: AnimationGraphBindingContext): void {
+        this.pose?.bind(context);
+    }
+
+    protected doUpdate (context: AnimationGraphUpdateContext): void {
+        this.pose?.update(context);
+    }
+
+    protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
+        const poseTransformSpaceRequirement = this.getPoseTransformSpaceRequirement();
+        const inputPose = this.pose?.evaluate(context, poseTransformSpaceRequirement)
+            ?? PoseNode.evaluateDefaultPose(context, poseTransformSpaceRequirement);
+
+        const { _modificationQueue: modificationQueue } = this;
+        assertIsTrue(modificationQueue.length === 0);
+        this.modifyPose(context, inputPose, modificationQueue);
+
+        applyTransformModificationQueue(context, inputPose, modificationQueue, this._spaceFlagTable);
+        modificationQueue.clear();
+
+        return inputPose;
+    }
+
+    protected abstract getPoseTransformSpaceRequirement(): PoseTransformSpaceRequirement;
+
+    protected abstract modifyPose(
+        context: AnimationGraphEvaluationContext,
+        pose: Pose,
+        transformModificationQueue: TransformModificationQueue,
+    ): void;
+
+    private _modificationQueue = new TransformModificationQueue();
+    private _spaceFlagTable = new PoseTransformSpaceFlagTable(0);
 }

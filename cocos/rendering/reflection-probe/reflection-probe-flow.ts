@@ -53,11 +53,11 @@ export class ReflectionProbeFlow extends RenderFlow {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline): void {
         super.activate(pipeline);
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         if (!cclegacy.internal.reflectionProbeManager) {
             return;
         }
@@ -71,10 +71,10 @@ export class ReflectionProbeFlow extends RenderFlow {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
     }
-    private _renderStage (camera: Camera, probe: ReflectionProbe) {
+    private _renderStage (camera: Camera, probe: ReflectionProbe): void {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {

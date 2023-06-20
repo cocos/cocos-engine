@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../gfx';
+import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit, InputAssembler } from '../gfx';
 import { IGeometry } from '../primitive/define';
 
-export function createIA (device: Device, data: IGeometry) {
+export function createIA (device: Device, data: IGeometry): InputAssembler | null {
     if (!data.positions) {
         console.error('The data must have positions field');
         return null;

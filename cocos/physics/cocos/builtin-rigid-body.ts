@@ -29,13 +29,13 @@ import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltInWorld } from './builtin-world';
 
 export class BuiltinRigidBody implements IRigidBody {
-    get impl () { return this; }
-    get isAwake () { return true; }
-    get isSleepy () { return false; }
-    get isSleeping () { return false; }
+    get impl (): BuiltinRigidBody { return this; }
+    get isAwake (): boolean { return true; }
+    get isSleepy (): boolean { return false; }
+    get isSleeping (): boolean { return false; }
 
-    get rigidBody () { return this._rigidBody; }
-    get sharedBody () { return this._sharedBody; }
+    get rigidBody (): RigidBody { return this._rigidBody; }
+    get sharedBody (): BuiltinSharedBody { return this._sharedBody; }
 
     private _rigidBody!: RigidBody;
     protected _sharedBody!: BuiltinSharedBody;
@@ -46,30 +46,30 @@ export class BuiltinRigidBody implements IRigidBody {
         this._sharedBody.reference = true;
     }
 
-    onEnable () {
+    onEnable (): void {
         this._sharedBody.enabled = true;
     }
 
-    onDisable () {
+    onDisable (): void {
         this._sharedBody.enabled = false;
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         (this._rigidBody as any) = null;
         (this._sharedBody as any) = null;
     }
 
-    setMass (v: number) { }
-    setType (v: ERigidBodyType) { }
-    setLinearDamping (v: number) { }
-    setAngularDamping (v: number) { }
-    useGravity (v: boolean) { }
-    useCCD (v: boolean) { }
-    isUsingCCD () { return false; }
-    setLinearFactor (v: IVec3Like) { }
-    setAngularFactor (v: IVec3Like) { }
-    setAllowSleep (v: boolean) { }
+    setMass (v: number): void { }
+    setType (v: ERigidBodyType): void { }
+    setLinearDamping (v: number): void { }
+    setAngularDamping (v: number): void { }
+    useGravity (v: boolean): void { }
+    useCCD (v: boolean): void { }
+    isUsingCCD (): boolean { return false; }
+    setLinearFactor (v: IVec3Like): void { }
+    setAngularFactor (v: IVec3Like): void { }
+    setAllowSleep (v: boolean): void { }
     wakeUp (): void { }
     sleep (): void { }
     clearState (): void { }

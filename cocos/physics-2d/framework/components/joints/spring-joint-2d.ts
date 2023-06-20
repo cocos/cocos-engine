@@ -44,7 +44,7 @@ export class SpringJoint2D extends Joint2D {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.joint.frequency')
-    get frequency () {
+    get frequency (): number {
         return this._frequency;
     }
     set frequency (v) {
@@ -62,7 +62,7 @@ export class SpringJoint2D extends Joint2D {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.joint.dampingRatio')
-    get dampingRatio () {
+    get dampingRatio (): number {
         return this._dampingRatio;
     }
     set dampingRatio (v) {
@@ -80,7 +80,7 @@ export class SpringJoint2D extends Joint2D {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.joint.distance')
-    get distance () {
+    get distance (): number {
         if (this._autoCalcDistance) {
             if (this.connectedBody) {
                 return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
@@ -105,7 +105,7 @@ export class SpringJoint2D extends Joint2D {
      */
     @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
-    get autoCalcDistance () {
+    get autoCalcDistance (): boolean {
         return this._autoCalcDistance;
     }
     set autoCalcDistance (v) {

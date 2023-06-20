@@ -61,7 +61,7 @@ export class Animation extends Eventify(Component) {
      */
     @type([AnimationClip])
     @tooltip('i18n:animation.clips')
-    get clips () {
+    get clips (): (AnimationClip | null)[] {
         return this._clips;
     }
 
@@ -104,7 +104,7 @@ export class Animation extends Eventify(Component) {
      */
     @type(AnimationClip)
     @tooltip('i18n:animation.default_clip')
-    get defaultClip () {
+    get defaultClip (): AnimationClip | null {
         return this._defaultClip;
     }
 
@@ -161,7 +161,7 @@ export class Animation extends Eventify(Component) {
      */
     private _hasBeenPlayed = false;
 
-    public onLoad () {
+    public onLoad (): void {
         this.clips = this._clips;
         for (const stateName in this._nameToState) {
             const state = this._nameToState[stateName];
@@ -169,21 +169,21 @@ export class Animation extends Eventify(Component) {
         }
     }
 
-    public start () {
+    public start (): void {
         if (!EDITOR_NOT_IN_PREVIEW && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this._crossFade.resume();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this._crossFade.pause();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._crossFade.stop();
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
@@ -199,7 +199,7 @@ export class Animation extends Eventify(Component) {
      * 立即切换到指定动画状态。
      * @param name The name of the animation to be played, if absent, the default clip will be played
      */
-    public play (name?: string) {
+    public play (name?: string): void {
         this._hasBeenPlayed = true;
         if (!name) {
             if (!this._defaultClip) {
@@ -218,7 +218,7 @@ export class Animation extends Eventify(Component) {
      * @param name The name of the animation to switch to
      * @param duration The duration of the cross fade, default value is 0.3s
      */
-    public crossFade (name: string, duration = 0.3) {
+    public crossFade (name: string, duration = 0.3): void {
         this._hasBeenPlayed = true;
         const state = this._nameToState[name];
         if (state) {
@@ -232,7 +232,7 @@ export class Animation extends Eventify(Component) {
      * @zh
      * 暂停所有动画状态，并暂停所有切换。
      */
-    public pause () {
+    public pause (): void {
         this._crossFade.pause();
     }
 
@@ -242,7 +242,7 @@ export class Animation extends Eventify(Component) {
      * @zh
      * 恢复所有动画状态，并恢复所有切换。
      */
-    public resume () {
+    public resume (): void {
         this._crossFade.resume();
     }
 
@@ -252,7 +252,7 @@ export class Animation extends Eventify(Component) {
      * @zh
      * 停止所有动画状态，并停止所有切换。
      */
-    public stop () {
+    public stop (): void {
         this._crossFade.stop();
     }
 
@@ -264,7 +264,7 @@ export class Animation extends Eventify(Component) {
      * @param name The name of the animation
      * @returns If no animation found, return null, otherwise the correspond animation state is returned
      */
-    public getState (name: string) {
+    public getState (name: string): AnimationState {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
             state.initialize(this.node);
@@ -283,7 +283,7 @@ export class Animation extends Eventify(Component) {
      * @param name The animation state name, if absent, the default clip's name will be used
      * @returns The animation state created
      */
-    public createState (clip: AnimationClip, name?: string) {
+    public createState (clip: AnimationClip, name?: string): AnimationState {
         name = name || clip.name;
         this.removeState(name);
 
@@ -297,7 +297,7 @@ export class Animation extends Eventify(Component) {
      * 停止并移除指定的动画状态。
      * @param name The name of the animation state
      */
-    public removeState (name: string) {
+    public removeState (name: string): void {
         const state = this._nameToState[name];
         if (state) {
             state.allowLastFrameEvent(false);
@@ -334,7 +334,7 @@ export class Animation extends Eventify(Component) {
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
      * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
-    public removeClip (clip: AnimationClip, force?: boolean) {
+    public removeClip (clip: AnimationClip, force?: boolean): void {
         let removalState: AnimationState | undefined;
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
@@ -390,7 +390,7 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): TFunction {
         const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -398,7 +398,7 @@ export class Animation extends Eventify(Component) {
         return ret;
     }
 
-    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any) {
+    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any): TFunction {
         const ret = super.once(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -420,7 +420,7 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: EventType, callback?: (...any) => void, thisArg?: any) {
+    public off (type: EventType, callback?: (...any) => void, thisArg?: any): void {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
@@ -430,14 +430,14 @@ export class Animation extends Eventify(Component) {
     /**
      * @internal
      */
-    protected _createState (clip: AnimationClip, name?: string) {
+    protected _createState (clip: AnimationClip, name?: string): AnimationState {
         return new AnimationState(clip, name);
     }
 
     /**
      * @internal
      */
-    protected _doCreateState (clip: AnimationClip, name: string) {
+    protected _doCreateState (clip: AnimationClip, name: string): AnimationState {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
         state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
@@ -451,12 +451,12 @@ export class Animation extends Eventify(Component) {
     /**
      * @internal This method only friends to skeletal animation component.
      */
-    protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+    protected doPlayOrCrossFade (state: AnimationState, duration: number): void {
         this._crossFade.play();
         this._crossFade.crossFade(state, duration);
     }
 
-    private _removeStateOfAutomaticClip (clip: AnimationClip) {
+    private _removeStateOfAutomaticClip (clip: AnimationClip): void {
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {
@@ -466,7 +466,7 @@ export class Animation extends Eventify(Component) {
         }
     }
 
-    private _syncAllowLastFrameEvent () {
+    private _syncAllowLastFrameEvent (): void {
         if (this.hasEventListener(EventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(true);
@@ -474,7 +474,7 @@ export class Animation extends Eventify(Component) {
         }
     }
 
-    private _syncDisallowLastFrameEvent () {
+    private _syncDisallowLastFrameEvent (): void {
         if (!this.hasEventListener(EventType.LASTFRAME)) {
             for (const stateName in this._nameToState) {
                 this._nameToState[stateName].allowLastFrameEvent(false);
@@ -489,7 +489,7 @@ export declare namespace Animation {
     export type EventType = EventType_;
 }
 
-function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
+function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null): string | boolean {
     if (clip1 === clip2) {
         return true;
     }

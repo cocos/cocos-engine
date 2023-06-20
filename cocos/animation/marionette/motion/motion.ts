@@ -79,9 +79,11 @@ export abstract class Motion extends EditorExtendable {
      * // TODO: HACK
      * @internal
      */
-    __callOnAfterDeserializeRecursive () { }
+    __callOnAfterDeserializeRecursive (): void { }
 }
 
 export interface MotionPort {
     evaluate(progress: number, context: AnimationGraphEvaluationContext): Pose;
+
+    reenter(): void;
 }

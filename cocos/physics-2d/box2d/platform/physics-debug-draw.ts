@@ -44,7 +44,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         this._drawer = drawer;
     }
 
-    _DrawPolygon (vertices, vertexCount) {
+    _DrawPolygon (vertices, vertexCount): void {
         const drawer = this._drawer!;
 
         for (let i = 0; i < vertexCount; i++) {
@@ -60,37 +60,37 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.close();
     }
 
-    DrawPolygon (vertices, vertexCount, color) {
+    DrawPolygon (vertices, vertexCount, color): void {
         this._applyStrokeColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer!.stroke();
     }
 
-    DrawSolidPolygon (vertices, vertexCount, color) {
+    DrawSolidPolygon (vertices, vertexCount, color): void {
         this._applyFillColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer!.fill();
         this._drawer!.stroke();
     }
 
-    _DrawCircle (center: b2.Vec2, radius: number) {
+    _DrawCircle (center: b2.Vec2, radius: number): void {
         const p = this._xf.p;
         this._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO, (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
 
-    DrawCircle (center: b2.Vec2, radius: number, color) {
+    DrawCircle (center: b2.Vec2, radius: number, color): void {
         this._applyStrokeColor(color);
         this._DrawCircle(center, radius);
         this._drawer!.stroke();
     }
 
-    DrawSolidCircle (center: b2.Vec2, radius: number, axis, color) {
+    DrawSolidCircle (center: b2.Vec2, radius: number, axis, color): void {
         this._applyFillColor(color);
         this._DrawCircle(center, radius);
         this._drawer!.fill();
     }
 
-    DrawSegment (p1: b2.Vec2, p2: b2.Vec2, color) {
+    DrawSegment (p1: b2.Vec2, p2: b2.Vec2, color): void {
         const drawer = this._drawer!;
 
         if (p1.x === p2.x && p1.y === p2.y) {
@@ -108,7 +108,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.stroke();
     }
 
-    DrawTransform (xf: b2.Transform) {
+    DrawTransform (xf: b2.Transform): void {
         const drawer = this._drawer!;
 
         drawer.strokeColor = RED_COLOR;
@@ -136,13 +136,13 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.stroke();
     }
 
-    DrawPoint (center, radius, color) {
+    DrawPoint (center, radius, color): void {
     }
 
-    DrawParticles () {
+    DrawParticles (): void {
     }
 
-    _applyStrokeColor (color) {
+    _applyStrokeColor (color): void {
         this._drawer!.strokeColor = _tmp_color.set(
             color.r * 255,
             color.g * 255,
@@ -151,7 +151,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         );
     }
 
-    _applyFillColor (color) {
+    _applyFillColor (color): void {
         this._drawer!.fillColor = _tmp_color.set(
             color.r * 255,
             color.g * 255,
@@ -160,11 +160,11 @@ export class PhysicsDebugDraw extends b2.Draw {
         );
     }
 
-    PushTransform (xf) {
+    PushTransform (xf): void {
         this._xf = xf;
     }
 
-    PopTransform () {
+    PopTransform (): void {
         this._xf = this._dxf;
     }
 }

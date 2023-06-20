@@ -27,6 +27,11 @@ class AnimationGraphPartialPreviewer {
         this._dummyAnimationController.node.destroy();
     }
 
+    public clear() {
+        this._varInstances = {};
+        this._motionRecords = [];
+    }
+
     public evaluate() {
         const { _evaluationContext: evaluationContext } = this;
         const pose = this.doEvaluate(evaluationContext);

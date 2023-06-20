@@ -20,7 +20,7 @@ export class ColorGrading extends PostProcessSetting {
     set contribute (value: number) {
         this._contribute = value;
     }
-    get contribute () {
+    get contribute (): number {
         return this._contribute;
     }
 
@@ -29,7 +29,7 @@ export class ColorGrading extends PostProcessSetting {
     set colorGradingMap (val: Texture2D) {
         this._colorGradingMap = val;
     }
-    get colorGradingMap () {
+    get colorGradingMap (): Texture2D {
         return this._colorGradingMap!;
     }
 }

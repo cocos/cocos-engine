@@ -34,14 +34,14 @@ const _typeMap: Record<string, string> = {
     [FormatType.FLOAT]: 'Float',
     default: 'Uint',
 };
-function _getDataViewType (info: FormatInfo) {
+function _getDataViewType (info: FormatInfo): string {
     const type = _typeMap[info.type] || _typeMap.default;
     const bytes = info.size / info.count * 8;
     return `${type}${bytes}`;
 }
 
 // default params bahaves just like on an plain, compact Float32Array
-export function writeBuffer (target: DataView, data: number[], format: Format = Format.R32F, offset = 0, stride = 0) {
+export function writeBuffer (target: DataView, data: number[], format: Format = Format.R32F, offset = 0, stride = 0): void {
     const info = FormatInfos[format];
     if (!stride) { stride = info.size; }
     const writer = `set${_getDataViewType(info)}`;
@@ -60,7 +60,7 @@ export function writeBuffer (target: DataView, data: number[], format: Format = 
 export function readBuffer (
     target: DataView, format: Format = Format.R32F, offset = 0,
     length: number = target.byteLength - offset, stride = 0, out: number[] = [],
-) {
+): number[] {
     const info = FormatInfos[format];
     if (!stride) { stride = info.size; }
     const reader = `get${_getDataViewType(info)}`;
@@ -80,7 +80,7 @@ export function readBuffer (
 export function mapBuffer (
     target: DataView, callback: (cur: number, idx: number, view: DataView) => number, format: Format = Format.R32F,
     offset = 0, length: number = target.byteLength - offset, stride = 0, out?: DataView,
-) {
+): DataView {
     if (!out) { out = new DataView(target.buffer.slice(target.byteOffset, target.byteOffset + target.byteLength)); }
     const info = FormatInfos[format];
     if (!stride) { stride = info.size; }

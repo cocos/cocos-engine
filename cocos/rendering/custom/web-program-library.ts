@@ -50,7 +50,7 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
 }
 
 // overwrite IProgramInfo using gfx.ShaderInfo
-function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo) {
+function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo): void {
     const set = _setIndex[UpdateFrequency.PER_BATCH];
     for (const block of programInfo.blocks) {
         let found = false;
@@ -75,7 +75,7 @@ function populateGroupedShaderInfo (
     layout: DescriptorSetLayoutData,
     descriptorInfo: EffectAsset.IDescriptorInfo,
     set: number, shaderInfo: ShaderInfo, blockSizes: number[],
-) {
+): void {
     for (const descriptorBlock of layout.descriptorBlocks) {
         const visibility = descriptorBlock.visibility;
         let binding = descriptorBlock.offset;
@@ -89,7 +89,7 @@ function populateGroupedShaderInfo (
                 blockSizes.push(getSize(block.members));
                 shaderInfo.blocks.push(
                     new UniformBlock(set, binding, block.name,
-                        block.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)),
                         1), // count is always 1 for UniformBlock
                 );
                 ++binding;
@@ -175,7 +175,7 @@ function populateGroupedShaderInfo (
 // add merged descriptor to gfx.ShaderInfo
 function populateMergedShaderInfo (valueNames: string[],
     layout: DescriptorSetLayoutData,
-    set: number, shaderInfo: ShaderInfo, blockSizes: number[]) {
+    set: number, shaderInfo: ShaderInfo, blockSizes: number[]): void {
     for (const descriptorBlock of layout.descriptorBlocks) {
         let binding = descriptorBlock.offset;
         switch (descriptorBlock.type) {
@@ -189,7 +189,7 @@ function populateMergedShaderInfo (valueNames: string[],
                 blockSizes.push(getSize(uniformBlock.members));
                 shaderInfo.blocks.push(
                     new UniformBlock(set, binding, valueNames[block.descriptorID],
-                        uniformBlock.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        uniformBlock.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)),
                         1), // count is always 1 for UniformBlock
                 );
                 ++binding;
@@ -263,12 +263,12 @@ function populateMergedShaderInfo (valueNames: string[],
 function populateShaderInfo (
     descriptorInfo: EffectAsset.IDescriptorInfo,
     set: number, shaderInfo: ShaderInfo, blockSizes: number[],
-) {
+): void {
     for (let i = 0; i < descriptorInfo.blocks.length; i++) {
         const block = descriptorInfo.blocks[i];
         blockSizes.push(getSize(block.members));
         shaderInfo.blocks.push(new UniformBlock(set, block.binding, block.name,
-            block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+            block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
     }
     for (let i = 0; i < descriptorInfo.samplerTextures.length; i++) {
         const samplerTexture = descriptorInfo.samplerTextures[i];
@@ -312,24 +312,24 @@ function populateShaderInfo (
 function populateLocalShaderInfo (
     target: EffectAsset.IDescriptorInfo,
     source: IDescriptorSetLayoutInfo, shaderInfo: ShaderInfo, blockSizes: number[],
-) {
+): void {
     const set = _setIndex[UpdateFrequency.PER_INSTANCE];
     for (let i = 0; i < target.blocks.length; i++) {
         const block = target.blocks[i];
         const info = source.layouts[block.name] as UniformBlock | undefined;
-        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${block.name}' not available!`);
             continue;
         }
         blockSizes.push(getSize(block.members));
         shaderInfo.blocks.push(new UniformBlock(set, binding.binding, block.name,
-            block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+            block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
     }
     for (let i = 0; i < target.samplerTextures.length; i++) {
         const samplerTexture = target.samplerTextures[i];
         const info = source.layouts[samplerTexture.name] as UniformSamplerTexture;
-        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin samplerTexture '${samplerTexture.name}' not available!`);
             continue;
@@ -363,7 +363,7 @@ function getIDescriptorSetLayoutInfoSamplerTextureCapacity (info: IDescriptorSet
 }
 
 function setFlattenedUniformBlockBinding (setOffsets: number[],
-    descriptors: UniformBlock[]) {
+    descriptors: UniformBlock[]): void {
     for (const d of descriptors) {
         d.flattened = setOffsets[d.set] + d.binding;
     }
@@ -376,7 +376,7 @@ function setFlattenedSamplerTextureBinding (setOffsets: number[],
     | UniformTexture[]
     | UniformStorageBuffer[]
     | UniformStorageImage[]
-    | UniformInputAttachment[]) {
+    | UniformInputAttachment[]): void {
     for (const d of descriptors) {
         d.flattened = setOffsets[d.set] + d.binding - uniformBlockCapacities[d.set];
     }
@@ -386,7 +386,7 @@ function calculateFlattenedBinding (
     descriptorSets: (DescriptorSetLayoutData | null)[],
     fixedInstanceDescriptorSetLayout: IDescriptorSetLayoutInfo | null,
     shaderInfo: ShaderInfo,
-) {
+): void {
     // Descriptors of UniformBlock starts from 0, and Descriptors of SamplerTexture starts from the end of UniformBlock.
     const uniformBlockCapacities = new Array(4);
     {
@@ -584,7 +584,7 @@ function buildProgramData (
     srcShaderInfo: EffectAsset.IShaderInfo,
     lg: LayoutGraphData, phase: RenderPhaseData, programData: ShaderProgramData,
     fixedLocal: boolean,
-) {
+): void {
     {
         const perBatch = makeDescriptorSetLayoutData(lg,
             UpdateFrequency.PER_BATCH,
@@ -875,7 +875,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         // prepare variant
         const macroArray = prepareDefines(defines, programInfo.defines);
         const prefix = this.layoutGraph.constantMacros + programInfo.constantMacros
-            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+            + macroArray.reduce((acc, cur): string => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let src = programInfo.glsl3;
         const deviceShaderVersion = getDeviceShaderVersion(device);

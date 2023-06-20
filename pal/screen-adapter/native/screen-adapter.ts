@@ -71,7 +71,7 @@ class ScreenAdapter extends EventTarget {
         return false;
     }
 
-    public get devicePixelRatio () {
+    public get devicePixelRatio (): number {
         return jsb.device.getDevicePixelRatio() || 1;
     }
 
@@ -91,12 +91,12 @@ class ScreenAdapter extends EventTarget {
         console.warn('Setting window size is not supported yet.');
     }
 
-    public get resolution () {
+    public get resolution (): Size {
         const windowSize = this.windowSize;
         const resolutionScale = this.resolutionScale;
         return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
-    public get resolutionScale () {
+    public get resolutionScale (): number {
         return this._resolutionScale;
     }
     public set resolutionScale (v: number) {
@@ -155,7 +155,7 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         if (!EDITOR) {
             this._cbToUpdateFrameBuffer();
@@ -169,14 +169,14 @@ class ScreenAdapter extends EventTarget {
         return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
     }
 
-    private _registerEvent () {
-        jsb.onResize = (event: jsb.WindowEvent) => {
+    private _registerEvent (): void {
+        jsb.onResize = (event: jsb.WindowEvent): void => {
             if (event.width === 0 || event.height === 0) return;
             // TODO: remove this function calling
             window.resize(event.width / this.devicePixelRatio, event.height / this.devicePixelRatio);
             this.emit('window-resize', event.width, event.height, event.windowId);
         };
-        jsb.onOrientationChanged = (event) => {
+        jsb.onOrientationChanged = (event): void => {
             this.emit('orientation-change');
         };
     }

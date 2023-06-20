@@ -31,11 +31,11 @@ import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framewor
 import { absolute, VEC3_0 } from '../../utils/util';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
-    public get collider () {
+    public get collider (): BoxCollider {
         return this._collider as BoxCollider;
     }
 
-    public get impl () {
+    public get impl (): CANNON.Box {
         return this._shape as CANNON.Box;
     }
 
@@ -46,7 +46,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         this._shape = new CANNON.Box(this.halfExtent.clone());
     }
 
-    updateSize () {
+    updateSize (): void {
         Vec3.multiplyScalar(this.halfExtent, this.collider.size, 0.5);
         const ws = absolute(VEC3_0.set(this.collider.node.worldScale));
         const x = this.halfExtent.x * ws.x;
@@ -62,7 +62,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         }
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.updateSize();
     }

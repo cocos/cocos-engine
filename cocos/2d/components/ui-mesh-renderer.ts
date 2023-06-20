@@ -66,7 +66,7 @@ export class UIMeshRenderer extends Component {
      * @en Get the model component on this node
      * @zh 获取同节点的 model 组件
      */
-    public get modelComponent () {
+    public get modelComponent (): ModelRenderer | null {
         return this._modelComponent;
     }
 
@@ -78,21 +78,21 @@ export class UIMeshRenderer extends Component {
     public _dirtyVersion = -1;
     public _internalId = -1;
 
-    public __preload () {
+    public __preload (): void {
         this.node._uiProps.uiComp = this;
     }
 
-    onEnable () {
+    onEnable (): void {
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
     }
 
-    onDisable () {
+    onDisable (): void {
         uiRendererManager.removeRenderer(this);
         this.renderEntity.enabled = this._canRender();
     }
 
-    public onLoad () {
+    public onLoad (): void {
         if (!this.node._uiProps.uiTransformComp) {
             this.node.addComponent('cc.UITransform');
         }
@@ -108,7 +108,7 @@ export class UIMeshRenderer extends Component {
         this.renderEntity.setNode(this.node);
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this.renderEntity.setNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
@@ -130,7 +130,7 @@ export class UIMeshRenderer extends Component {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public _render (render: IBatcher) {
+    public _render (render: IBatcher): boolean {
         if (this._modelComponent) {
             const models = this._modelComponent._collectModels();
             this._modelComponent._detachFromScene();
@@ -148,7 +148,7 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public fillBuffers (render: IBatcher) {
+    public fillBuffers (render: IBatcher): void {
         if (this.enabled) {
             this._render(render);
         }
@@ -158,7 +158,7 @@ export class UIMeshRenderer extends Component {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     // Native updateAssembler
-    public updateRenderer () {
+    public updateRenderer (): void {
         if (JSB) {
             this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
@@ -176,7 +176,7 @@ export class UIMeshRenderer extends Component {
         }
     }
 
-    private _uploadRenderData (index) {
+    private _uploadRenderData (index): void {
         if (JSB) {
             const renderData = MeshRenderData.add();
             // TODO: here we weirdly use UIMeshRenderer as UIRenderer
@@ -199,10 +199,10 @@ export class UIMeshRenderer extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: IBatcher) {
+    public postUpdateAssembler (render: IBatcher): void {
     }
 
-    public update () {
+    public update (): void {
         if (JSB) {
             if (this._modelComponent) {
                 this.markForUpdateRenderData();
@@ -211,7 +211,7 @@ export class UIMeshRenderer extends Component {
         this._fitUIRenderQueue();
     }
 
-    private _fitUIRenderQueue () {
+    private _fitUIRenderQueue (): void {
         if (!this._modelComponent) {
             return;
         }
@@ -238,7 +238,7 @@ export class UIMeshRenderer extends Component {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     // interface
-    public markForUpdateRenderData (enable = true) {
+    public markForUpdateRenderData (enable = true): void {
         uiRendererManager.markDirtyRenderer(this);
     }
 
@@ -250,25 +250,25 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public setNodeDirty () {
+    public setNodeDirty (): void {
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public setTextureDirty () {
+    public setTextureDirty (): void {
     }
 
-    protected _canRender () {
+    protected _canRender (): boolean {
         return (this.enabled && this._modelComponent !== null);
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get renderEntity () {
+    get renderEntity (): RenderEntity {
         if (DEBUG) {
-            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+            assert(Boolean(this._renderEntity), 'this._renderEntity should not be invalid');
         }
         return this._renderEntity;
     }
@@ -277,7 +277,7 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get renderData () {
+    get renderData (): RenderData | null {
         return this._renderData;
     }
 }

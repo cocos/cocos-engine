@@ -43,8 +43,7 @@ const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 64 MiB
 const wasmInstance: SpineWasm.instance = {} as any;
 const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmUrl) {
-    console.log('[Spine]: Using wasm libs.');
+function initWasm (wasmUrl): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return wasmFactory({
         instantiateWasm (importObject: WebAssembly.Imports,
@@ -61,8 +60,7 @@ function initWasm (wasmUrl) {
     }, (reason: any) => { console.error('[Spine]:', `Spine wasm load failed: ${reason}`); });
 }
 
-function initAsm (resolve) {
-    console.log('[Spine]: Using asmjs libs.');
+function initAsm (resolve): Promise<void> {
     const wasmMemory: any = {};
     wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
     const module = {
@@ -76,10 +74,9 @@ function initAsm (resolve) {
     });
 }
 
-export function waitForSpineWasmInstantiation () {
-    console.log('[spine] waitForSpineWasmInstantiation');
+export function waitForSpineWasmInstantiation (): Promise<void> {
     return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { console.error(msg); };
+        const errorReport = (msg: any): void => { console.error(msg); };
         if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(spineWasmUrl).then(resolve).catch(errorReport);
