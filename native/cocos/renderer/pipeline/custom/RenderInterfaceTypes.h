@@ -280,10 +280,6 @@ public:
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
