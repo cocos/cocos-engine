@@ -41,7 +41,7 @@ CCEffect %{
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
-        cullMode: back
+        cullMode: none
     - &reflect-map
       vert: terrain-vs
       frag: reflect-map-fs
