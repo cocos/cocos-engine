@@ -93,9 +93,9 @@ public:
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
     inline scene::Model *getStandardSkinModel() const { return _standardSkinModel; }
-    inline void setStandardSkinModel(scene::Model *val) { _standardSkinModel = val; }
+    inline void setStandardSkinModel(scene::Model *val);
     inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel; }
-    inline void setSkinMaterialModel(scene::Model *val) { _skinMaterialModel = val; }
+    inline void setSkinMaterialModel(scene::Model *val);
 
 protected:
     void initOcclusionQuery();

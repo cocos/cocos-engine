@@ -171,5 +171,13 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     return _device->createInputAssembler(info);
 }
 
+void PipelineSceneData::setStandardSkinModel(scene::Model* val) {
+    _standardSkinModel = val;
+}
+
+void PipelineSceneData::setSkinMaterialModel(scene::Model* val) {
+    _skinMaterialModel = val;
+}
+
 } // namespace pipeline
 } // namespace cc
