@@ -37,6 +37,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
