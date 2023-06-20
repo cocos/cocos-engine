@@ -211,6 +211,9 @@ export class PipelineSceneData {
         this._occlusionQueryVertexBuffer = null;
         this._occlusionQueryIndicesBuffer?.destroy();
         this._occlusionQueryIndicesBuffer = null;
+        this._standardSkinMeshRenderer = null;
+        this._standardSkinModel = null;
+        this._skinMaterialModel = null;
     }
 
     private _createOcclusionQueryIA () {

@@ -110,6 +110,8 @@ protected:
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+    IntrusivePtr<scene::Model> _standardSkinModel{nullptr};
+    IntrusivePtr<scene::Model> _skinMaterialModel{nullptr};
 
     gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
@@ -131,10 +133,6 @@ protected:
     // manage memory manually
     scene::Skin *_skin{nullptr};
     // manage memory manually
-    scene::Model *_standardSkinModel{nullptr};
-    // manage memory manually
-    scene::Model *_skinMaterialModel{nullptr};
-
     CSMLayers *_csmLayers{nullptr};
 
     bool _isHDR{true};

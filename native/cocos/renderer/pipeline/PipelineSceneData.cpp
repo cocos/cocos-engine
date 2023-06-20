@@ -86,6 +86,8 @@ void PipelineSceneData::destroy() {
     _occlusionQueryInputAssembler = nullptr;
     _occlusionQueryVertexBuffer = nullptr;
     _occlusionQueryIndicesBuffer = nullptr;
+    _standardSkinModel = nullptr;
+    _skinMaterialModel = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
