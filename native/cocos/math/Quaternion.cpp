@@ -389,57 +389,53 @@ void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
 
     int biggestIndex = 0;
     float fourBiggestSquaredMinus1 = fourWSquaredMinus1;
-    if(fourXSquaredMinus1 > fourBiggestSquaredMinus1)
-    {
+    if (fourXSquaredMinus1 > fourBiggestSquaredMinus1) {
         fourBiggestSquaredMinus1 = fourXSquaredMinus1;
         biggestIndex = 1;
     }
-    if(fourYSquaredMinus1 > fourBiggestSquaredMinus1)
-    {
+    if (fourYSquaredMinus1 > fourBiggestSquaredMinus1) {
         fourBiggestSquaredMinus1 = fourYSquaredMinus1;
         biggestIndex = 2;
     }
-    if(fourZSquaredMinus1 > fourBiggestSquaredMinus1)
-    {
+    if (fourZSquaredMinus1 > fourBiggestSquaredMinus1) {
         fourBiggestSquaredMinus1 = fourZSquaredMinus1;
         biggestIndex = 3;
     }
 
-    float biggestVal = sqrt(fourBiggestSquaredMinus1 + 1) * 0.5F;
+    float biggestVal = std::sqrt(fourBiggestSquaredMinus1 + 1) * 0.5F;
 	float mult = 0.25F / biggestVal;
-    switch(biggestIndex)
-    {
+    switch(biggestIndex) {
     case 0:
         out->w =  biggestVal;
         out->x = (m12 - m21) * mult;
         out->y = (m20 - m02) * mult;
         out->z = (m01 - m10) * mult;
-        return;
+        break;
     case 1:
         out->w =  (m12 - m21) * mult;
         out->x = biggestVal;
         out->y = (m01 + m10) * mult;
         out->z = (m20 + m02) * mult;
-        return;
+        break;
     case 2:
         out->w = (m20 - m02) * mult;
         out->x = (m01 + m10) * mult;
         out->y = biggestVal;
         out->z = (m12 + m21) * mult;
-        return;
+        break;
     case 3:
         out->w = (m01 - m10) * mult;
         out->x = (m20 + m02) * mult;
         out->y = (m12 + m21) * mult;
         out->z = biggestVal;
-        return;
+        break;
     default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
-        assert(false);
+        CC_ASSERT(false);
         out->w = 1.F;
         out->x = 0.F;
         out->y = 0.F;
         out->z = 0.F;
-        return;
+        break;
     }
 }
 
