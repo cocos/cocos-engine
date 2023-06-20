@@ -121,7 +121,6 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-//#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -153,14 +152,17 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
         fbfLevelStr                += "_DEPTH_STENCIL";
     }
-//#endif
 
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
         if (checkExtension("multisampled_render_to_texture2")) {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+            _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)]          = true;
+            _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)]   = true;
+            _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = true;
         } else {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
+            _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = true;
         }
     }
 #endif

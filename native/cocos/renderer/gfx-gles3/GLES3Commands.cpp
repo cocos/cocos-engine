@@ -1545,7 +1545,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *d
         drawBuffers.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j));
 
         if (gpuResolveTexture) {
-            if (autoResolve) {
+            if (autoResolve && gpuResolveTexture->glTexture != 0) {
                 GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                               gpuResolveTexture->glTarget, gpuResolveTexture->glTexture,
                                                               gpuResolveTextureView->baseLevel, gpuColorTexture->glSamples));

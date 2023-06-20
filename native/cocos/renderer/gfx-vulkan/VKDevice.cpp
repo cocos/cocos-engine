@@ -768,6 +768,12 @@ void CCVKDevice::initDeviceFeature() {
     _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
+
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = true;
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)] = true;
+    bool resolveDS = checkExtension("VK_KHR_depth_stencil_resolve");
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)] = resolveDS;
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = resolveDS;
 }
 
 void CCVKDevice::initFormatFeature() {
