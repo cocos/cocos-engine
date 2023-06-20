@@ -99,13 +99,13 @@ export class ScaleVelocityModule extends VFXModule {
     @serializable
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_VELOCITY);
         if (this.separateAxes) {
-            this.scalar.compile(parameterMap, this);
+            this.scalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformScalar.compile(parameterMap, this);
+            this.uniformScalar.compile(parameterMap, parameterRegistry, this);
         }
     }
 

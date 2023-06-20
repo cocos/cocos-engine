@@ -29,6 +29,7 @@ import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_PHYSICS_FORCE, P_POSITION, P_BASE_VELOCITY, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
@@ -50,13 +51,13 @@ export class GravityModule extends VFXModule {
     @serializable
     private _gravity: Vec3Expression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_BASE_VELOCITY);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
-        this.gravity.compile(parameterMap, this);
+        this.gravity.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

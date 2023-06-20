@@ -27,6 +27,7 @@ import { ccclass, rangeMin, serializable, type, visible } from '../../core/data/
 import { C_DELTA_TIME, DelayMode, E_AGE, E_CURRENT_LOOP_DELAY, E_CURRENT_LOOP_DURATION, E_CURRENT_LOOP_COUNT, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, LoopMode } from '../define';
 import { ConstantFloatExpression, ConstantInt32Expression, FloatExpression, Int32Expression } from '../expressions';
 import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.EmitterStateModule')
@@ -117,20 +118,20 @@ export class EmitterStateModule extends VFXModule {
     @serializable
     private _loopDelay: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_CURRENT_LOOP_DELAY);
         parameterMap.ensure(E_CURRENT_LOOP_DURATION);
         parameterMap.ensure(E_CURRENT_LOOP_COUNT);
         parameterMap.ensure(E_AGE);
         parameterMap.ensure(E_LOOPED_AGE);
         parameterMap.ensure(E_NORMALIZED_LOOP_AGE);
-        this.loopDuration.compile(parameterMap, this);
+        this.loopDuration.compile(parameterMap, parameterRegistry, this);
         if (this.loopMode === LoopMode.MULTIPLE) {
-            this.loopCount.compile(parameterMap, this);
+            this.loopCount.compile(parameterMap, parameterRegistry, this);
         }
         if (this.delayMode !== DelayMode.NONE) {
-            this.loopDelay.compile(parameterMap, this);
+            this.loopDelay.compile(parameterMap, parameterRegistry, this);
         }
     }
 

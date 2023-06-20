@@ -29,6 +29,7 @@ import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { E_VELOCITY, C_DELTA_TIME, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../data';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const spawnInfo = new SpawnInfo();
 @ccclass('cc.SpawnPerUnitModule')
@@ -53,13 +54,13 @@ export class SpawnPerUnitModule extends VFXModule {
     @serializable
     private _spawnSpacing: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_REMAINDER_PER_UNIT);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.spawnSpacing.compile(parameterMap, this);
+        this.spawnSpacing.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

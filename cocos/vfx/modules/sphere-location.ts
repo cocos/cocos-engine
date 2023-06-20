@@ -31,6 +31,7 @@ import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, P_ID, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randFloat, randRangedFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const pos = new Vec3();
 const distribution = new Vec2();
@@ -180,20 +181,20 @@ export class SphereLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
-        this.radius.compile(parameterMap, this);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.radius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.surfaceDistribution.compile(parameterMap, this);
-            this.hemisphereDistribution.compile(parameterMap, this);
+            this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+            this.hemisphereDistribution.compile(parameterMap, parameterRegistry, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.compile(parameterMap, this);
-            this.vPosition.compile(parameterMap, this);
-            this.radiusPosition.compile(parameterMap, this);
+            this.uPosition.compile(parameterMap, parameterRegistry, this);
+            this.vPosition.compile(parameterMap, parameterRegistry, this);
+            this.radiusPosition.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformDistribution.compile(parameterMap, this);
-            this.uniformSpiralAmount.compile(parameterMap, this);
+            this.uniformDistribution.compile(parameterMap, parameterRegistry, this);
+            this.uniformSpiralAmount.compile(parameterMap, parameterRegistry, this);
         }
     }
 

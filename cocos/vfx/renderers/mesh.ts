@@ -30,11 +30,12 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, MemoryUsageBit, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { vfxManager } from '../vfx-manager';
-import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_MESH_ORIENTATION, CC_VFX_P_POSITION, CC_VFX_P_SCALE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_MESH, E_IS_WORLD_SPACE, E_RENDER_SCALE, E_WORLD_ROTATION, meshColorRGBA8,
+import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_MESH_ORIENTATION, CC_VFX_P_POSITION, CC_VFX_P_SCALE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_MESH, E_IS_WORLD_SPACE, E_PARTICLE_NUM, E_RENDER_SCALE, E_WORLD_ROTATION, meshColorRGBA8,
     meshNormal, meshPosition, meshUv, P_COLOR, P_MESH_ORIENTATION, P_POSITION, P_SCALE, P_SUB_UV_INDEX1, vfxPColor, vfxPMeshOrientation, vfxPPosition, vfxPScale, vfxPSubUVIndex } from '../define';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 export enum MeshFacingMode {
     NONE,
@@ -86,12 +87,13 @@ export class MeshParticleRenderer extends ParticleRenderer {
     private _vertexStreamSize = 0;
     private _vertexAttributeHash = '';
 
-    public render (parameterMap: VFXParameterMap, count: number) {
+    public render (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry) {
         const material = this.material;
         const mesh = this._mesh;
         if (!material || !mesh) {
             return;
         }
+        const count = parameterMap.getUint32Value(E_PARTICLE_NUM).data;
         this._compileMaterial(material, parameterMap);
         this._updateRotation(material, parameterMap);
         this._updateRenderScale(material, parameterMap);

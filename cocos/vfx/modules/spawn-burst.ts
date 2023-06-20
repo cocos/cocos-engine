@@ -29,6 +29,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { E_LOOPED_AGE, C_DELTA_TIME, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../data';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const spawnInfo = new SpawnInfo();
 
@@ -73,13 +74,13 @@ export class SpawnBurstModule extends VFXModule {
     @serializable
     private _count: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage): void {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage): void {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.count.compile(parameterMap, this);
-        this.time.compile(parameterMap, this);
+        this.count.compile(parameterMap, parameterRegistry, this);
+        this.time.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

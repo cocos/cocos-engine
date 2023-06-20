@@ -30,6 +30,7 @@ import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID, P_POSITION } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randRangedFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
@@ -179,16 +180,16 @@ export class CircleLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xFFFFFFFF);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
-        this.radius.compile(parameterMap, this);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.radius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.radiusCoverage.compile(parameterMap, this);
-            this.thetaCoverage.compile(parameterMap, this);
+            this.radiusCoverage.compile(parameterMap, parameterRegistry, this);
+            this.thetaCoverage.compile(parameterMap, parameterRegistry, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.compile(parameterMap, this);
-            this.radiusPosition.compile(parameterMap, this);
+            this.uPosition.compile(parameterMap, parameterRegistry, this);
+            this.radiusPosition.compile(parameterMap, parameterRegistry, this);
         }
     }
 

@@ -30,6 +30,7 @@ import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2E
 import { VFXVec2Array } from '../data';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempVec2 = new Vec2();
 
@@ -87,16 +88,16 @@ export class ScaleSpriteSizeModule extends VFXModule {
     @serializable
     private _separateAxes = false;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SPRITE_SIZE);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
-            this.uniformScalar.compile(parameterMap, this);
+            this.uniformScalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.scalar.compile(parameterMap, this);
+            this.scalar.compile(parameterMap, parameterRegistry, this);
         }
     }
 

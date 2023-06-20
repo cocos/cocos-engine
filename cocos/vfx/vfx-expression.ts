@@ -40,7 +40,7 @@ export abstract class VFXExpression {
     public abstract get valueType (): VFXValueType;
     public abstract get isConstant (): boolean;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
         if (DEBUG) {
             assertIsTrue(this._owner);
         }

@@ -25,6 +25,7 @@
 import { Vec3, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -82,11 +83,11 @@ export class MakeVec3Expression extends Vec3Expression {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.x.compile(parameterMap, owner);
-        this.y.compile(parameterMap, owner);
-        this.z.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.x.compile(parameterMap, parameterRegistry, owner);
+        this.y.compile(parameterMap, parameterRegistry, owner);
+        this.z.compile(parameterMap, parameterRegistry, owner);
     }
     public bind (parameterMap: VFXParameterMap) {
         this._x!.bind(parameterMap);

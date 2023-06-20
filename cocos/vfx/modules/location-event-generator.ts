@@ -30,6 +30,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { randFloat } from '../rand';
 import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const eventInfo = new VFXEventInfo();
 
@@ -44,8 +45,8 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(C_EVENTS);
         parameterMap.ensure(C_EVENT_COUNT);
         parameterMap.ensure(P_INV_LIFETIME);

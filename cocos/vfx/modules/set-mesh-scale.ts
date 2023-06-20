@@ -28,7 +28,8 @@ import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
-import { VFXParameterMap } from '../../../exports/vfx';
+import { VFXParameterRegistry } from '../vfx-parameter';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')
@@ -79,17 +80,17 @@ export class SetMeshScaleModule extends VFXModule {
     @serializable
     private _separateAxes = false;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SCALE);
         }
 
         parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.scale.compile(parameterMap, this);
+            this.scale.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformScale.compile(parameterMap, this);
+            this.uniformScale.compile(parameterMap, parameterRegistry, this);
         }
     }
 

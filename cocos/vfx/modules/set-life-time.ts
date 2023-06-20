@@ -28,6 +28,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN)
@@ -52,10 +53,10 @@ export class SetLifeTimeModule extends VFXModule {
     @serializable
     private _lifetime: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_INV_LIFETIME);
-        this.lifetime.compile(parameterMap, this);
+        this.lifetime.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

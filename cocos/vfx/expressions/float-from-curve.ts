@@ -30,6 +30,7 @@ import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.FloatFromCurveExpression')
 export class FloatFromCurveExpression extends FloatExpression {
@@ -89,10 +90,10 @@ export class FloatFromCurveExpression extends FloatExpression {
         }
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.scale.compile(parameterMap, owner);
-        this.curveIndex.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.scale.compile(parameterMap, parameterRegistry, owner);
+        this.curveIndex.compile(parameterMap, parameterRegistry, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {

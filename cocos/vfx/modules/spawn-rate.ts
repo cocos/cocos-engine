@@ -29,6 +29,7 @@ import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { SpawnInfo } from '../data';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const spawnInfo = new SpawnInfo();
 
@@ -55,13 +56,13 @@ export class SpawnRateModule extends VFXModule {
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_REMAINDER);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.rate.compile(parameterMap, this);
+        this.rate.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap)  {

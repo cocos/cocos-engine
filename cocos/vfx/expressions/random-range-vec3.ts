@@ -31,6 +31,7 @@ import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { RandomRangeFloatExpression } from './random-range-float';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const temp = new Vec3();
 const tempRatio = new Vec3();
@@ -91,10 +92,10 @@ export class RandomRangeVec3Expression extends Vec3Expression {
     private _randomSeed2 = 0;
     private _getRandFloat3: (out: Vec3, index: number) => void = this._getParticleRandFloat3;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.maximum.compile(parameterMap, owner);
-        this.minimum.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.maximum.compile(parameterMap, parameterRegistry, owner);
+        this.minimum.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_ID);
             this._getRandFloat3 = this._getParticleRandFloat3;

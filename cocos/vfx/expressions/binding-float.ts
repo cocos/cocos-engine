@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { FloatExpression } from './float';
-import { VFXParameter } from '../vfx-parameter';
+import { VFXParameter, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXModule } from '../vfx-module';
 
@@ -41,7 +41,7 @@ export class BindingFloatExpression extends FloatExpression {
     }
 
     @serializable
-    private _bindingParameterId = -1;
+    private _bindingParameterId = 0;
     private _bindingParameter: VFXParameter | null = null;
     private declare _data: Float32Array;
     private _constant = 0;
@@ -64,25 +64,30 @@ export class BindingFloatExpression extends FloatExpression {
         this._bindingParameterId = vfxParameterIdentity.id;
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
 
+        if (this._bindingParameterId !== 0) {
+            this._bindingParameter = parameterRegistry.findParameterById(this._bindingParameterId);
+        }
         if (this._bindingParameter) {
             parameterMap.ensure(this._bindingParameter);
+            if (this._bindingParameter.isArray) {
+                this._getFloat = this._getFloatAt;
+            } else {
+                this._getFloat = this._getConstant;
+            }
+        } else {
+            this._getFloat = this._getConstant;
+            this._constant = 0;
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        if (!this._bindingParameter) {
-            this._getFloat = this._getConstant;
-            this._constant = 0;
-            return;
-        }
+        if (!this._bindingParameter) { return; }
         if (this._bindingParameter.isArray) {
-            this._getFloat = this._getFloatAt;
             this._data = parameterMap.getFloatArrayVale(this._bindingParameter).data;
         } else {
-            this._getFloat = this._getConstant;
             this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
         }
     }

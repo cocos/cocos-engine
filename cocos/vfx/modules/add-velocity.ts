@@ -29,8 +29,11 @@ import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO
 import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempVelocity = new Vec3();
+const defaultPosition = new Vec3();
+const originPosition = new Vec3();
 
 export enum VelocityMode {
     LINEAR,
@@ -156,20 +159,20 @@ export class AddVelocityModule extends VFXModule {
     @serializable
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_POSITION);
         if (this.usage !== VFXExecutionStage.UPDATE) {
             parameterMap.ensure(P_BASE_VELOCITY);
         }
         if (this._velocityMode === VelocityMode.LINEAR) {
-            this.velocity.compile(parameterMap, this);
-            this.velocityScale.compile(parameterMap, this);
+            this.velocity.compile(parameterMap, parameterRegistry, this);
+            this.velocityScale.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.speed.compile(parameterMap, this);
-            this.velocityOrigin.compile(parameterMap, this);
-            this.defaultPosition.compile(parameterMap, this);
+            this.speed.compile(parameterMap, parameterRegistry, this);
+            this.velocityOrigin.compile(parameterMap, parameterRegistry, this);
+            this.defaultPosition.compile(parameterMap, parameterRegistry, this);
         }
     }
 
@@ -219,6 +222,13 @@ export class AddVelocityModule extends VFXModule {
             speedExp.bind(parameterMap);
             velocityOriginExp.bind(parameterMap);
             defaultPositionExp.bind(parameterMap);
+            for (let i = fromIndex; i < toIndex; i++) {
+                defaultPositionExp.evaluate(i, defaultPosition);
+                Vec3.subtract(tempVelocity, defaultPosition, velocityOriginExp.evaluate(i, originPosition));
+                Vec3.normalize(tempVelocity, tempVelocity);
+                Vec3.multiplyScalar(tempVelocity, tempVelocity, speedExp.evaluate(i));
+                velocity.addVec3At(tempVelocity, i);
+            }
         }
     }
 }

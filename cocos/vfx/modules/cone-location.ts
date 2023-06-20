@@ -31,6 +31,7 @@ import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, P_ID, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randRangedFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const pos = new Vec3();
 
@@ -115,14 +116,14 @@ export class ConeLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.length.compile(parameterMap, this);
-        this.angle.compile(parameterMap, this);
-        this.innerAngle.compile(parameterMap, this);
-        this.radialAngle.compile(parameterMap, this);
-        this.surfaceDistribution.compile(parameterMap, this);
+        this.length.compile(parameterMap, parameterRegistry, this);
+        this.angle.compile(parameterMap, parameterRegistry, this);
+        this.innerAngle.compile(parameterMap, parameterRegistry, this);
+        this.radialAngle.compile(parameterMap, parameterRegistry, this);
+        this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

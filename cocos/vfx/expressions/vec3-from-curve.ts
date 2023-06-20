@@ -26,6 +26,7 @@ import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { BindingFloatExpression } from './binding-float';
 import { ConstantVec3Expression } from './constant-vec3';
@@ -120,10 +121,10 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         }
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.curveIndex.compile(parameterMap, owner);
-        this.scale.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.curveIndex.compile(parameterMap, parameterRegistry, owner);
+        this.scale.compile(parameterMap, parameterRegistry, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {

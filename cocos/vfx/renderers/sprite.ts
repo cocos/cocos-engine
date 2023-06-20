@@ -28,10 +28,11 @@ import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
-import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_RENDER_SCALE, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
+import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_PARTICLE_NUM, E_RENDER_SCALE, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 /**
  * @en Particle alignment mode.
@@ -96,12 +97,12 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _vertexAttributeHash = '';
     private declare _dynamicVBO: VFXDynamicBuffer;
 
-    public render (parameterMap: VFXParameterMap, count: number) {
+    public render (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry) {
         const material = this.material;
         if (!material) {
             return;
         }
-
+        const count = parameterMap.getUint32Value(E_PARTICLE_NUM).data;
         this._compileMaterial(material, parameterMap);
         this._updateSubUvTilesAndVelocityLengthScale(material);
         this._updateRotation(material, parameterMap);

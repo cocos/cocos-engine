@@ -30,6 +30,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { VFXEventInfo } from '../data/event';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const eventInfo = new VFXEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
@@ -43,7 +44,7 @@ export class DeathEventGeneratorModule extends VFXModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
         parameterMap.ensure(C_EVENTS);
         parameterMap.ensure(C_EVENT_COUNT);
         parameterMap.ensure(P_ID);

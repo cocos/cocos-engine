@@ -24,7 +24,7 @@
  */
 import { ccclass, serializable } from '../../core/data/decorators';
 import { Vec3Expression } from './vec3';
-import { VFXParameter } from '../vfx-parameter';
+import { VFXParameter, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXVec3Array } from '../data';
 import { Vec3 } from '../../core';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -33,6 +33,7 @@ import { VFXModule } from '../vfx-module';
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
     @serializable
+    private _bindParameterId = 0;
     private _bindParameter: VFXParameter | null = null;
     private declare _data: VFXVec3Array;
     private _constant = new Vec3();
@@ -56,19 +57,32 @@ export class BindingVec3Expression extends Vec3Expression {
         this._bindParameter = vfxParameterIdentity;
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        if (this._bindParameterId) {
+            this._bindParameter = parameterRegistry.findParameterById(this._bindParameterId);
+        }
         if (this._bindParameter) {
             parameterMap.ensure(this._bindParameter);
+            if (this._bindParameter.isArray) {
+                this._getVec3 = this._getVec3At;
+            } else {
+                this._getVec3 = this._getConstant;
+            }
+        } else {
+            this._getVec3 = this._getConstant;
+            Vec3.copy(this._constant, Vec3.ZERO);
         }
     }
 
     public bind (parameterMap: VFXParameterMap) {
-        if (this._bindParameter?.isArray) {
+        if (!this._bindParameter) {
+            return;
+        }
+        if (this._bindParameter.isArray) {
             this._data = parameterMap.getVec3ArrayValue(this._bindParameter);
-            this._getVec3 = this._getVec3At;
         } else {
-            this._getVec3 = this._getConstant;
+            Vec3.copy(this._constant, parameterMap.getVec3Value(this._bindParameter).data);
         }
     }
 

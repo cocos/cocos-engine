@@ -29,6 +29,7 @@ import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const _temp_v3 = new Vec3();
 
@@ -69,13 +70,13 @@ export class ForceModule extends VFXModule {
     @serializable
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_BASE_VELOCITY);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
-        this.force.compile(parameterMap, this);
+        this.force.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

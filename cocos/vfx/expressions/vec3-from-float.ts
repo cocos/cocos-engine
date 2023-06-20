@@ -25,6 +25,7 @@
 import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -52,9 +53,9 @@ export class Vec3FromFloatExpression extends Vec3Expression {
     @serializable
     private _value: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.value.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.value.compile(parameterMap, parameterRegistry, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {

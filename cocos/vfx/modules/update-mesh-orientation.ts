@@ -30,6 +30,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { Vec3Expression, ConstantVec3Expression } from '../expressions';
 import { P_MESH_ORIENTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const eulerAngle = new Vec3();
 
@@ -55,10 +56,10 @@ export class UpdateMeshOrientationModule extends VFXModule {
     @serializable
     private _rotationRate: Vec3Expression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_MESH_ORIENTATION);
-        this.rotationRate.compile(parameterMap, this);
+        this.rotationRate.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

@@ -27,6 +27,7 @@ import { Enum } from '../../core';
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { P_NORMALIZED_AGE, P_IS_DEAD, P_INV_LIFETIME, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 export enum LifetimeElapsedOperation {
     KILL,
@@ -51,8 +52,8 @@ export class ParticleStateModule extends VFXModule {
     @serializable
     private _lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
             parameterMap.ensure(P_IS_DEAD);
         }

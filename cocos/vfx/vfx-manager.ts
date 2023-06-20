@@ -29,7 +29,7 @@ import { VFXEmitter } from './vfx-emitter';
 import { VFXRenderer } from './vfx-renderer';
 import { VFXDynamicBuffer } from './vfx-dynamic-buffer';
 import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager, Attribute, FormatInfos } from '../gfx';
-import { meshPosition, meshUv } from './define';
+import { meshPosition, meshUv, PlayingState } from './define';
 
 export class VFXManager extends System {
     get totalFrames () {
@@ -115,12 +115,12 @@ export class VFXManager extends System {
         if (emitter.eventHandlerCount > 0) {
             for (let i = 0, length = emitter.eventHandlerCount; i < length; i++) {
                 const parentEmitter = emitter.eventHandlers[i].target;
-                if (parentEmitter && parentEmitter.isValid && parentEmitter.isPlaying) {
+                if (parentEmitter && parentEmitter.isValid && parentEmitter.playingState === PlayingState.PLAYING) {
                     this.simulate(parentEmitter, dt);
                 }
             }
         }
-        emitter.simulate(dt);
+        emitter.tick(dt);
     }
 
     resetBuffer () {

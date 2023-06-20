@@ -29,6 +29,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_SCALE, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec3();
@@ -153,18 +154,18 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     @serializable
     private _separateAxes = false;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.maxScalar.compile(parameterMap, this);
-            this.minScalar.compile(parameterMap, this);
+            this.maxScalar.compile(parameterMap, parameterRegistry, this);
+            this.minScalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformMaxScalar.compile(parameterMap, this);
-            this.uniformMinScalar.compile(parameterMap, this);
+            this.uniformMaxScalar.compile(parameterMap, parameterRegistry, this);
+            this.uniformMinScalar.compile(parameterMap, parameterRegistry, this);
         }
-        this.minSpeedThreshold.compile(parameterMap, this);
-        this.maxSpeedThreshold.compile(parameterMap, this);
+        this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

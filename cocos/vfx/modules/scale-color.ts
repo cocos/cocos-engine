@@ -29,6 +29,7 @@ import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { P_NORMALIZED_AGE, P_BASE_COLOR, P_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempColor = new Color();
 
@@ -54,13 +55,13 @@ export class ScaleColorModule extends VFXModule {
     @serializable
     private _scalar: ColorExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_COLOR);
         }
         parameterMap.ensure(P_COLOR);
-        this.scalar.compile(parameterMap, this);
+        this.scalar.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

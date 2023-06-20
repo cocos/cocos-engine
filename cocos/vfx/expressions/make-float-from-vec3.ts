@@ -25,6 +25,7 @@
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
@@ -86,9 +87,9 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
     @serializable
     private _vec3: Vec3Expression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.vec3.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.vec3.compile(parameterMap, parameterRegistry, owner);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
         case Vec3Channel.Y: this._getChannel = this._getY; break;

@@ -29,6 +29,7 @@ import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempVelocity = new Vec3();
 const scale = new Vec3();
@@ -50,9 +51,9 @@ export class InheritVelocityModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
         if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
-        this.scale.compile(parameterMap, this);
+        this.scale.compile(parameterMap, parameterRegistry, this);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_VELOCITY);
         if (this.usage === VFXExecutionStage.SPAWN) {

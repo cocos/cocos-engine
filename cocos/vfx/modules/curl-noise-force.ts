@@ -30,6 +30,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { randFloat3 } from '../rand';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 export class PerlinNoise1DCache {
     i0 = 0;
@@ -533,17 +534,17 @@ export class CurlNoiseForceModule extends VFXModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
         if (this._separateAxes) {
-            this.strength.compile(parameterMap, this);
+            this.strength.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformStrength.compile(parameterMap, this);
+            this.uniformStrength.compile(parameterMap, parameterRegistry, this);
         }
-        this.panSpeed.compile(parameterMap, this);
+        this.panSpeed.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

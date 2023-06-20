@@ -29,6 +29,7 @@ import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO
 import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const limit = new Vec3();
 const tempVelocity = new Vec3();
@@ -127,15 +128,15 @@ export class LimitVelocityModule extends VFXModule {
     @serializable
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_BASE_VELOCITY);
         if (this.separateAxes) {
-            this.limit.compile(parameterMap, this);
+            this.limit.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformLimit.compile(parameterMap, this);
+            this.uniformLimit.compile(parameterMap, parameterRegistry, this);
         }
-        this.dampen.compile(parameterMap, this);
+        this.dampen.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

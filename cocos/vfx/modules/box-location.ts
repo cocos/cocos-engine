@@ -30,6 +30,7 @@ import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3E
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randFloat3, randRangedInt32 } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
@@ -102,13 +103,13 @@ export class BoxLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.boxSize.compile(parameterMap, this);
-        this.boxCenter.compile(parameterMap, this);
+        this.boxSize.compile(parameterMap, parameterRegistry, this);
+        this.boxCenter.compile(parameterMap, parameterRegistry, this);
         if (this.surfaceOnly) {
-            this.surfaceThickness.compile(parameterMap, this);
+            this.surfaceThickness.compile(parameterMap, parameterRegistry, this);
         }
     }
 

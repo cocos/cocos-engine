@@ -28,6 +28,7 @@ import { VFXModule, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_ROTATION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.SetSpriteRotationModule')
 @VFXModule.register('SetSpriteRotation', VFXExecutionStageFlags.SPAWN)
@@ -48,10 +49,10 @@ export class SetSpriteRotationModule extends VFXModule {
     @serializable
     private _rotation: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SPRITE_ROTATION);
-        this.rotation.compile(parameterMap, this);
+        this.rotation.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

@@ -27,6 +27,7 @@ import { ccclass, serializable, type, visible } from '../../core/data/decorators
 import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
 import { randFloat2 } from '../rand';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec2Expression } from './constant-vec2';
 import { RandomRangeFloatExpression } from './random-range-float';
@@ -91,10 +92,10 @@ export class RandomRangeVec2Expression extends Vec2Expression {
     private _randomSeed2 = 0;
     private _getRandFloat2: (out: Vec2, index: number) => void = this._getParticleRandFloat2;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.maximum.compile(parameterMap, owner);
-        this.minimum.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.maximum.compile(parameterMap, parameterRegistry, owner);
+        this.minimum.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_ID);
             this._getRandFloat2 = this._getParticleRandFloat2;

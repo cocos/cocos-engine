@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, visible } from '../core/data/decorators';
+import { CUSTOM_PARAMETER_ID_BEGIN } from './define';
 
 const DEFAULT_CAPACITY = 16;
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
@@ -93,31 +94,90 @@ export class VFXParameter {
     }
 }
 
+@ccclass('cc.VFXParameterRegistry')
 export class VFXParameterRegistry {
-    private _id2parameter: Record<number, VFXParameter> = {};
-    private _name2parameter: Record<string, VFXParameter> = {};
+    public static get globalParameters (): ReadonlyArray<VFXParameter> {
+        return this._globalParameters;
+    }
 
-    public register (parameter: VFXParameter) {
-        this._id2parameter[parameter.id] = parameter;
-        this._name2parameter[parameter.name] = parameter;
+    public static registerGlobalParameter (name: string, type: VFXValueType, namespace: string, isArray: boolean) {
+        if (!(namespace in this._namespaceCurrentId)) {
+            this._namespaceCurrentId[namespace] = this._namespaceIdBegin;
+            this._namespaceIdBegin += 2000;
+        }
+        const parameter = new VFXParameter(++this._namespaceCurrentId[namespace], name, type, namespace, isArray);
+        this._id2GlobalParameter[parameter.id] = parameter;
+        this._name2GlobalParameter[parameter.name] = parameter;
+        this._globalParameters.push(parameter);
+        return parameter;
+    }
+
+    public static unregisterGlobalParameter (parameter: VFXParameter) {
+        delete this._id2GlobalParameter[parameter.id];
+        delete this._name2GlobalParameter[parameter.name];
+        const index = this._globalParameters.indexOf(parameter);
+        if (index !== -1) {
+            this._globalParameters.splice(index, 1);
+        }
+    }
+
+    public get parameters (): ReadonlyArray<VFXParameter> {
+        return this._parameters;
+    }
+
+    private static _id2GlobalParameter: Record<number, VFXParameter> = {};
+    private static _name2GlobalParameter: Record<string, VFXParameter> = {};
+    private static _globalParameters: VFXParameter[] = [];
+    private static _namespaceCurrentId: Record<string, number> = {};
+    private static _namespaceIdBegin = 0;
+    @serializable
+    private _currentId = CUSTOM_PARAMETER_ID_BEGIN;
+    @serializable
+    private _parameters: VFXParameter[] = [];
+
+    public register (name: string, type: VFXValueType, namespace: string, isArray: boolean) {
+        const parameter = new VFXParameter(++this._currentId, name, type, namespace, isArray);
+        this._parameters.push(parameter);
+        return parameter;
     }
 
     public unregister (parameter: VFXParameter) {
-        delete this._id2parameter[parameter.id];
-        delete this._name2parameter[parameter.name];
+        const index = this._parameters.indexOf(parameter);
+        if (index !== -1) {
+            this._parameters.splice(index, 1);
+        }
     }
 
     public findParameterById (id: number) {
-        return id in this._id2parameter ? this._id2parameter[id] : null;
+        if (id < CUSTOM_PARAMETER_ID_BEGIN) {
+            return id in VFXParameterRegistry._id2GlobalParameter ? VFXParameterRegistry._id2GlobalParameter[id] : null;
+        } else {
+            const parameters = this._parameters;
+            for (let i = 0, length = parameters.length; i < length; ++i) {
+                if (parameters[i].id === id) {
+                    return parameters[i];
+                }
+            }
+        }
+        return null;
     }
 
     public findParameterByName (name: string) {
-        return name in this._name2parameter ? this._name2parameter[name] : null;
+        if (name in VFXParameterRegistry._name2GlobalParameter) {
+            return VFXParameterRegistry._name2GlobalParameter[name];
+        } else {
+            const parameters = this._parameters;
+            for (let i = 0, length = parameters.length; i < length; ++i) {
+                if (parameters[i].name === name) {
+                    return parameters[i];
+                }
+            }
+        }
+        return null;
     }
 
     public clear () {
-        this._id2parameter = {};
-        this._name2parameter = {};
+        this._parameters.length = 0;
     }
 }
 

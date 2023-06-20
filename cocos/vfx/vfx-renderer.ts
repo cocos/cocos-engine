@@ -29,6 +29,7 @@ import { ModelRenderer } from '../misc';
 import { VFXEmitter } from './vfx-emitter';
 import { vfxManager } from './vfx-manager';
 import { scene } from '../render-scene';
+import { Vec3 } from '../core';
 
 @ccclass('cc.VFXRenderer')
 @menu('Effects/VFXRenderer')
@@ -54,6 +55,7 @@ export class VFXRenderer extends ModelRenderer {
             this._model = legacyCC.director.root.createModel(scene.Model) as scene.Model;
             this._model.visFlags = this.node.layer;
             this._model.node = this._model.transform = this.node;
+            this._model.createBoundingShape(Vec3.ZERO, Vec3.ZERO);
         }
         this._models.push(this._model);
         this._getRenderScene().addModel(this._model);
@@ -121,6 +123,6 @@ export class VFXRenderer extends ModelRenderer {
             }
             subModels.length = subModelIndex;
         }
-        model.createBoundingShape(this._emitter.boundsMin, this._emitter.boundsMax);
+        model.worldBounds.copy(this._emitter.bounds);
     }
 }

@@ -30,6 +30,7 @@ import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXModule } from '../vfx-module';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
@@ -67,9 +68,9 @@ export class ColorFromCurveExpression extends ColorExpression {
         return this.curveIndex.isConstant;
     }
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.curveIndex.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.curveIndex.compile(parameterMap, parameterRegistry, owner);
     }
 
     public bind (parameterMap: VFXParameterMap) {

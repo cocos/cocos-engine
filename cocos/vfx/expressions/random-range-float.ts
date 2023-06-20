@@ -30,6 +30,7 @@ import { VFXExecutionStage, VFXModule } from '../vfx-module';
 import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.RandomRangeFloat')
 export class RandomRangeFloatExpression extends FloatExpression {
@@ -87,10 +88,10 @@ export class RandomRangeFloatExpression extends FloatExpression {
     private _randomSeed2 = 0;
     private _getRandFloat: (index: number) => number = this._getParticleRandFloat;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXModule) {
-        super.compile(parameterMap, owner);
-        this.maximum.compile(parameterMap, owner);
-        this.minimum.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.maximum.compile(parameterMap, parameterRegistry, owner);
+        this.minimum.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_ID);
             this._getRandFloat = this._getParticleRandFloat;

@@ -28,6 +28,7 @@ import { VFXExecutionStageFlags, VFXModule, VFXStage } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -92,13 +93,13 @@ export class ScaleColorBySpeedModule extends VFXModule {
     @serializable
     private _maxSpeedThreshold: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_COLOR);
-        this.maxScalar.compile(parameterMap, this);
-        this.minScalar.compile(parameterMap, this);
-        this.minSpeedThreshold.compile(parameterMap, this);
-        this.maxSpeedThreshold.compile(parameterMap, this);
+        this.maxScalar.compile(parameterMap, parameterRegistry, this);
+        this.minScalar.compile(parameterMap, parameterRegistry, this);
+        this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

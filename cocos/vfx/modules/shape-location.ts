@@ -30,6 +30,7 @@ import { VFXVec3Array } from '../data';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const originVec = new Vec3(0, 0, 0);
 const tempVec1 = new Vec3(0, 0, 0);
@@ -127,12 +128,12 @@ export abstract class ShapeLocationModule extends VFXModule {
     private _mat = new Mat4();
     protected storePosition = this.storePositionFast;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
-        this.position.compile(parameterMap, this);
-        this.rotation.compile(parameterMap, this);
-        this.scale.compile(parameterMap, this);
-        this.origin.compile(parameterMap, this);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.position.compile(parameterMap, parameterRegistry, this);
+        this.rotation.compile(parameterMap, parameterRegistry, this);
+        this.scale.compile(parameterMap, parameterRegistry, this);
+        this.origin.compile(parameterMap, parameterRegistry, this);
         parameterMap.ensure(P_POSITION);
     }
 

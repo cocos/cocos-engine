@@ -30,6 +30,7 @@ import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, P_ID, E_RANDOM_SEED } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randFloat2 } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 const center = new Vec2();
 const size = new Vec2();
@@ -71,11 +72,11 @@ export class PlaneLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.planeCenter.compile(parameterMap, this);
-        this.planeSize.compile(parameterMap, this);
+        this.planeCenter.compile(parameterMap, parameterRegistry, this);
+        this.planeSize.compile(parameterMap, parameterRegistry, this);
     }
 
     public execute (parameterMap: VFXParameterMap) {

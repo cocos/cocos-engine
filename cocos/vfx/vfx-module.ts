@@ -26,8 +26,9 @@
 import { DEBUG } from 'internal:constants';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
-import { VFXEmitter, VFXEmitterState } from './vfx-emitter';
+import { VFXEmitter } from './vfx-emitter';
 import { VFXParameterMap } from './vfx-parameter-map';
+import { VFXParameterRegistry } from './vfx-parameter';
 
 export enum VFXExecutionStage {
     UNKNOWN = -1,
@@ -191,7 +192,7 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
         if (DEBUG) {
             assertIsTrue(this._owner);
         }
@@ -312,7 +313,7 @@ export class VFXStage {
      * @engineInternal
      * @internal
      */
-    public compile (parameterMap: VFXParameterMap, owner: VFXEmitter) {
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXEmitter) {
         if (DEBUG) {
             assertIsTrue(this._owner);
         }
@@ -321,7 +322,7 @@ export class VFXStage {
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                module.compile(parameterMap, this);
+                module.compile(parameterMap, parameterRegistry, this);
             }
         }
     }

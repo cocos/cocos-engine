@@ -31,6 +31,7 @@ import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX, E_RANDOM_SEED, P_ID } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { randRangedFloat } from '../rand';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 export enum TorusDistributionMode {
     RANDOM,
@@ -177,18 +178,18 @@ export class TorusLocationModule extends ShapeLocationModule {
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
-        this.largeRadius.compile(parameterMap, this);
-        this.handleRadius.compile(parameterMap, this);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
+        this.largeRadius.compile(parameterMap, parameterRegistry, this);
+        this.handleRadius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.surfaceDistribution.compile(parameterMap, this);
-            this.uDistribution.compile(parameterMap, this);
-            this.vDistribution.compile(parameterMap, this);
+            this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+            this.uDistribution.compile(parameterMap, parameterRegistry, this);
+            this.vDistribution.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uPosition.compile(parameterMap, this);
-            this.vPosition.compile(parameterMap, this);
+            this.uPosition.compile(parameterMap, parameterRegistry, this);
+            this.vPosition.compile(parameterMap, parameterRegistry, this);
         }
     }
 

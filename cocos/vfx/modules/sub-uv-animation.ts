@@ -30,6 +30,7 @@ import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32E
 import { VFXFloatArray } from '../data';
 import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { VFXParameterRegistry } from '../vfx-parameter';
 
 export enum SubUVAnimationMode {
     LINEAR,
@@ -148,8 +149,8 @@ export class SubUVAnimationModule extends VFXModule {
     @serializable
     private _subUVAnimationMode = SubUVAnimationMode.LINEAR;
 
-    public compile (parameterMap: VFXParameterMap, owner: VFXStage) {
-        super.compile(parameterMap, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        super.compile(parameterMap, parameterRegistry, owner);
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
             parameterMap.ensure(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
@@ -159,12 +160,12 @@ export class SubUVAnimationModule extends VFXModule {
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
             parameterMap.ensure(P_SUB_UV_INDEX4);
         }
-        this.subImageSize.compile(parameterMap, this);
+        this.subImageSize.compile(parameterMap, parameterRegistry, this);
         if (this.useStartFrameRangeOverride) {
-            this.startFrameRangeOverride.compile(parameterMap, this);
+            this.startFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
         }
         if (this.useEndFrameRangeOverride) {
-            this.endFrameRangeOverride.compile(parameterMap, this);
+            this.endFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
         }
     }
 

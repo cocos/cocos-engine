@@ -24,24 +24,20 @@
  */
 
 import { VFXEmitter } from './vfx-emitter';
-import { EventHandler } from './event-handler';
+import './event-handler';
 import './vfx-manager';
 import { VFXRenderer } from './vfx-renderer';
-import { VFXExpression } from './vfx-expression';
+import './vfx-expression';
+import './vfx-parameter-map';
+import './particle-renderer';
+import './vfx-parameter';
 import './vfx-dynamic-buffer';
+import './modules';
+import './expressions';
+import './renderers';
+import './data';
 
 export {
     VFXEmitter,
     VFXRenderer,
-    EventHandler,
-    VFXExpression,
 };
-
-export * from './vfx-parameter-map';
-export * from './particle-renderer';
-export * from './vfx-parameter';
-export * from './vfx-dynamic-buffer';
-export * from './modules';
-export * from './expressions';
-export * from './renderers';
-export * from './data';

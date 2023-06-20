@@ -26,12 +26,12 @@ import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Color, Vec3 } from '../../core';
 import { Attribute, Format, FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
-import { CC_VFX_P_COLOR, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_RIBBON, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
-import { VFXColorArray, VFXFloatArray } from '../parameters';
+import { CC_VFX_P_COLOR, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_RIBBON, E_PARTICLE_NUM, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
+import { VFXColorArray, VFXFloatArray } from '../data';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { vfxManager } from '../vfx-manager';
-import { Handle } from '../vfx-parameter';
+import { Handle, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 
 const ribbonPosition = new Attribute('a_vfx_p_position', Format.RGB32F, false, 0, true);       // ribbon position
@@ -332,11 +332,12 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         });
     }
 
-    public render (parameterMap: VFXParameterMap, count: number) {
+    public render (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry) {
         if (!parameterMap.has(P_POSITION)) {
             console.error('particles without position data');
             return;
         }
+        const count = parameterMap.getUint32Value(E_PARTICLE_NUM).data;
         this.clearCollects();
         this.collectSegments(parameterMap, count);
 
