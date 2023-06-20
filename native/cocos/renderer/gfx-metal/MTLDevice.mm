@@ -138,13 +138,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
-    
-    const uint32_t samples[] = {2, 4, 8, 16, 32};
-    for (auto sampleCount : samples) {
-        if  ([mtlDevice supportsTextureSampleCount:sampleCount]) {
-            _gpuDeviceObj->supportSamples.emplace_back(sampleCount);
-        }
-    }
 
     _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily: MTLGPUFamilyApple3];
 
@@ -537,6 +530,19 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
 }
 
 SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    const SampleCount samples[] = {
+        SampleCount::X64,
+        SampleCount::X32,
+        SampleCount::X16,
+        SampleCount::X8,
+        SampleCount::X4,
+        SampleCount::X2,
+    };
+    for (auto sampleCount : samples) {
+        if  ([mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)] {
+            return sampleCount;
+        }
+    }
     return SampleCount::X1;
 }
 
