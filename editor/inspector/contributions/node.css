@@ -128,10 +128,6 @@
     color: var(--color-focus-fill-weakest);
 }
 
-.node {
-    display: none;
-}
-
 .node .layer-content {
     display: flex;
 }
@@ -212,8 +208,4 @@
 
 .section-asset:empty {
     display: none;
-}
-
-.section-asset > ui-panel[type="asset"] {
-    --asset-container-content-section-overflow: visible;
 }
