@@ -370,7 +370,7 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
     out->z = attitude;
 }
 
-void Quaternion::fromMat3(const Mat3& m, Quaternion* out) {
+void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
 	CC_ASSERT(out);
     float m00 = m.m[0];
     float m01 = m.m[1];
