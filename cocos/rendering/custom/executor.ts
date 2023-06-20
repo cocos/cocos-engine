@@ -866,6 +866,8 @@ class DeviceRenderPass {
     }
     resetResource (id: number, pass: RasterPass) {
         this._rasterInfo.applyInfo(id, pass);
+        this._layoutName = context.renderGraph.getLayout(id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.length = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
