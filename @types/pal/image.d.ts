@@ -1,5 +1,6 @@
 declare module 'pal/image' {
     type ImageSource = import('pal/image/types').ImageSource;
+    type IMemoryImageSource = import('pal/image/types').IMemoryImageSource;
     export class ImageData {
         constructor (imageAsset?: ImageSource | ArrayBufferView);
         //constructor (content: string, manifestRoot: string);

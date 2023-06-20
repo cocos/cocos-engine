@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
+import { IMemoryImageSource } from 'pal/image';
+import { ImageAsset } from '../assets/image-asset';
 import { js } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';

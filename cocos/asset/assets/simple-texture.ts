@@ -24,14 +24,13 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { ImageData, ImageSource } from 'pal/image';
+import { ImageData, IMemoryImageSource } from 'pal/image';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
 import dependUtil from '../asset-manager/depend-util';
-import { IMemoryImageSource } from '../../../pal/image/types';
 
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 

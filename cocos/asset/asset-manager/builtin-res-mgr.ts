@@ -23,8 +23,9 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { ImageSource } from 'pal/image';
 import { Asset } from '../assets/asset';
-import { ImageAsset, ImageSource } from '../assets/image-asset';
+import { ImageAsset } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';

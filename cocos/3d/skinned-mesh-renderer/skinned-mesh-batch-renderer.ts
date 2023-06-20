@@ -469,7 +469,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 region.texExtent.height = unit.size.y * this.atlasSize;
                 const { data } = partial.image;
                 if (!ArrayBuffer.isView(data)) {
-                    texImages.push(data);
+                    texImages.push(data as TexImageSource);
                     texImageRegions.push(region);
                 } else {
                     texBuffers.push(data);
