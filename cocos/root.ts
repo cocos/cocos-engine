@@ -822,7 +822,8 @@ export class Root {
     }
 
     private _resizeMaxJointForDS () {
-        const usedUBOVectorCount = (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4;
+        // TODO: usedUBOVectorCount should be estimated more carefully, the UBOs used could vary in different scenes.
+        const usedUBOVectorCount = Math.max((UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4, 100);
         let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - usedUBOVectorCount) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
