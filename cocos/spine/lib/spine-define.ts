@@ -43,7 +43,7 @@ function overrideDefineArrayProp (prototype, getPropVector, name) {
 
 function overrideClass (wasm) {
     spine.wasmUtil = wasm.SpineWasmUtil;
-    spine.wasmUtil.HEAPU8 = wasm.HEAPU8;
+    spine.wasmUtil.wasm = wasm;
     spine.wasmUtil.spineWasmInit();
 
     spine.MathUtils = wasm.MathUtils;
@@ -214,7 +214,7 @@ function overrideProperty_ConstraintData () {
         },
     ];
     propertyPolyfills.forEach((prop) => {
-        js.getset(prop.proto, prop.property, prop.getter);
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
 }
 
@@ -1514,6 +1514,60 @@ function overrideProperty_Skeleton () {
     overrideDefineArrayProp(prototype, prototype.getPathConstraints, 'pathConstraints');
 }
 
+function overrideProperty_JitterEffect () {
+    const prototype = spine.JitterEffect.prototype as any;
+    const propertyPolyfills = [
+        {
+            proto: prototype,
+            property: 'jitterX',
+            getter: prototype.getJitterX,
+            setter: prototype.setJitterX,
+        },
+        {
+            proto: prototype,
+            property: 'jitterY',
+            getter: prototype.getJitterY,
+            setter: prototype.setJitterY,
+        },
+    ];
+    propertyPolyfills.forEach((prop) => {
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
+    });
+}
+
+function overrideProperty_SwirlEffect () {
+    const prototype = spine.SwirlEffect.prototype as any;
+    const propertyPolyfills = [
+        {
+            proto: prototype,
+            property: 'centerX',
+            getter: prototype.getCenterX,
+            setter: prototype.setCenterX,
+        },
+        {
+            proto: prototype,
+            property: 'centerY',
+            getter: prototype.getCenterY,
+            setter: prototype.setCenterY,
+        },
+        {
+            proto: prototype,
+            property: 'radius',
+            getter: prototype.getRadius,
+            setter: prototype.setRadius,
+        },
+        {
+            proto: prototype,
+            property: 'angle',
+            getter: prototype.getAngle,
+            setter: prototype.setAngle,
+        },
+    ];
+    propertyPolyfills.forEach((prop) => {
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
+    });
+}
+
 export function overrideSpineDefine (wasm) {
     overrideClass(wasm);
     overrideProperty_BoneData();
@@ -1552,4 +1606,6 @@ export function overrideSpineDefine (wasm) {
     overrideProperty_AnimationState();
     overrideProperty_Animation();
     overrideProperty_Skeleton();
+    overrideProperty_JitterEffect();
+    overrideProperty_SwirlEffect();
 }

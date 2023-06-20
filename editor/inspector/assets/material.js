@@ -1,7 +1,7 @@
 'use strict';
 
 const { materialTechniquePolyfill } = require('../utils/material');
-const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
+const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
 const { escape } = require('lodash');
 
@@ -219,6 +219,7 @@ exports.methods = {
 
                 const filePath = join(packagePath, relatePath.split(name)[1]);
                 if (this.$.custom.getAttribute('src') !== filePath) {
+                    this.$.custom.injectionStyle(injectionStyle);
                     this.$.custom.setAttribute('src', filePath);
                 }
 

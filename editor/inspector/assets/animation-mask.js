@@ -43,7 +43,7 @@ exports.style = /* css */`
 }
 
 .asset-animation-mask > .header {
-    margin-top: 8px;
+    margin-top: 4px;
     margin-right: 4px;
     display: flex;
 }

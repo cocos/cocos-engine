@@ -18,7 +18,7 @@
 
 .prefab {
     display: flex;
-    padding: 4px;
+    padding: 4px 4px 0 4px;
 }
 
 .prefab[hidden] {
@@ -41,7 +41,7 @@
 
 .header {
     display: none;
-    margin: 2px 4px 2px 0;
+    margin: 4px 4px 4px 0;
 }
 
 .header > .active {
@@ -143,10 +143,6 @@
 
 .node .layer-content > .layer-edit {
     margin-left: 4px;
-}
-
-.node .node-section {
-    margin-top: 4px;
 }
 
 :host([sub-type='node']) > .container > .node {

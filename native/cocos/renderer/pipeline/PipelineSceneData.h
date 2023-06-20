@@ -43,6 +43,7 @@ class Skybox;
 class Fog;
 class Octree;
 class Light;
+class Skin;
 } // namespace scene
 namespace gi {
 class LightProbes;
@@ -74,6 +75,7 @@ public:
     inline scene::Fog *getFog() const { return _fog; }
     inline scene::Octree *getOctree() const { return _octree; }
     inline gi::LightProbes *getLightProbes() const { return _lightProbes; }
+    inline scene::Skin *getSkin() const { return _skin; }
     inline gfx::InputAssembler *getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *getOcclusionQueryShader() const { return _occlusionQueryShader; }
@@ -90,6 +92,10 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
+    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel; }
+    inline void setStandardSkinModel(scene::Model *val) { _standardSkinModel = val; }
+    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel; }
+    inline void setSkinMaterialModel(scene::Model *val) { _skinMaterialModel = val; }
 
 protected:
     void initOcclusionQuery();
@@ -122,6 +128,12 @@ protected:
     scene::Octree *_octree{nullptr};
     // manage memory manually
     gi::LightProbes *_lightProbes{nullptr};
+    // manage memory manually
+    scene::Skin *_skin{nullptr};
+    // manage memory manually
+    scene::Model *_standardSkinModel{nullptr};
+    // manage memory manually
+    scene::Model *_skinMaterialModel{nullptr};
 
     CSMLayers *_csmLayers{nullptr};
 

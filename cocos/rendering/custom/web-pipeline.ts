@@ -721,7 +721,7 @@ function setCameraUBOValues (setter: WebSetter,
     if (camera) {
         uniformOffset = setter.getUniformOffset('cc_nearFar', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
-            _uboVec.set(camera.nearClip, camera.farClip, 0.0, 0.0);
+            _uboVec.set(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0.0);
             setter.offsetVec4(_uboVec, uniformOffset);
         }
         uniformOffset = setter.getUniformOffset('cc_viewPort', Type.FLOAT4);

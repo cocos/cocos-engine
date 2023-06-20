@@ -36,6 +36,7 @@
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "scene/Skin.h"
 
 namespace cc {
 namespace pipeline {
@@ -48,6 +49,7 @@ PipelineSceneData::PipelineSceneData() {
     _csmLayers = ccnew CSMLayers();
     _octree = ccnew scene::Octree();
     _lightProbes = ccnew gi::LightProbes();
+    _skin = ccnew scene::Skin();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -58,6 +60,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_octree);
     CC_SAFE_DELETE(_csmLayers);
     CC_SAFE_DELETE(_lightProbes);
+    CC_SAFE_DELETE(_skin);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {

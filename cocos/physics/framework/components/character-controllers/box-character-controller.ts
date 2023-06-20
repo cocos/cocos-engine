@@ -43,10 +43,9 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.BoxCharacterController')
-//@help('i18n:cc.BoxCharacterController')
+@help('i18n:cc.BoxCharacterController')
 @menu('Physics/BoxCharacterController')
 @executeInEditMode
-@disallowMultiple
 @executionOrder(-1)
 export class BoxCharacterController extends CharacterController {
     constructor () {

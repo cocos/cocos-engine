@@ -1975,6 +1975,10 @@ Graphics: There is no model in %s.
 
 Script attached to '%s' is missing or invalid.
 
+### 4601
+
+Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake.
+
 ### 4700
 
 The dom control is not created!
