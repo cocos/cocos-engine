@@ -173,11 +173,16 @@ enum class Feature : uint32_t {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // @deprecated
-    INPUT_ATTACHMENT_BENEFIT,
+
+    INPUT_ATTACHMENT_BENEFIT, // @deprecated
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
     RASTERIZATION_ORDER_NOCOHERENT,
+
+    MULTI_SAMPLE_LEVEL1,  // offscreen msaa && resolve color 0
+    MULTI_SAMPLE_LEVEL2,  // resolve colors
+    MULTI_SAMPLE_RESOLVE_DEPTH,   // resolve depth stencil
+    MULTI_SAMPLE_RESOLVE_STENCIL, // resolve depth stencil
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);

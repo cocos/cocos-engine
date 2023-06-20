@@ -73,7 +73,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    
+
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -87,7 +87,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     _version = std::to_string(_mtlFeatureSet);
-    
+
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -146,13 +146,18 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         }
     }
 
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = true;
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)] = true;
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)] = [device supportsFamily: MTLGPUFamilyApple3];
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = [device supportsFamily: MTLGPUFamilyApple5];
+
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
-    
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;

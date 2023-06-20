@@ -453,6 +453,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         for (uint32_t resolveIn : subpassInfo.resolves) {
             VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             auto resolve = resolveIn == gfx::INVALID_BINDING ? VK_ATTACHMENT_UNUSED : resolveIn;
+            CC_ASSERT(INVALID_BINDING == VK_ATTACHMENT_UNUSED);
             attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, resolve, layout, VK_IMAGE_ASPECT_COLOR_BIT});
         }
 

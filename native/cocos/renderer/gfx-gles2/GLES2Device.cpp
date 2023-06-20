@@ -176,6 +176,10 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         }
     }
 #endif
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = false; // not implement yet.
+    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)] = false; // not implement yet.
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)]   = false; // not implement yet.
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = false; // not implement yet.
 
     ccstd::string compressedFmts;
     if (getFormatFeatures(Format::ETC_RGB8) != FormatFeature::NONE) {

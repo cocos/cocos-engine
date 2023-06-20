@@ -919,6 +919,10 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
     }
 }
 
+void CCMTLCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    // not supported.
+}
+
 void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
     ccstd::vector<TextureBlit> blitRegions(count);
     for (uint32_t i = 0; i < count; ++i) {
