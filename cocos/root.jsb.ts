@@ -128,17 +128,17 @@ rootProto.createModel = function (ModelCtor) {
     return model;
 };
 
-rootProto.removeModel = function (m) {
+rootProto.destroyModel = function (m) {
     const p = this._modelPools.get(m.constructor);
     if (p) {
         p.free(m);
-        m.destroy();
         if (m.scene) {
             m.scene.removeModel(m);
         }
     } else {
         warnID(1300, m.constructor.name);
     }
+    m.destroy();
 };
 
 rootProto.createLight = function (LightCtor) {
