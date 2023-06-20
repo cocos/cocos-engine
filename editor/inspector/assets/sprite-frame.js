@@ -105,7 +105,7 @@ exports.style = /* css */`
     .asset-sprite-frame > .content > .edit-row {
         text-align: center;
         margin-top: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
     }
     .asset-sprite-frame > .content > .edit-row > .edit-button {
         padding: 0 24px;

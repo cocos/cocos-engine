@@ -394,7 +394,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
             Quat.invert(rot_1, cb.node.worldRotation);
             Quat.multiply(rot_0, rot_1, rot_0);
             if (cs.autoPivotB) {
-                Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotA);
+                Vec3.multiply(v3_0, cs.node.worldScale, cs.pivotA);
                 Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
                 Vec3.add(v3_0, v3_0, cs.node.worldPosition);
                 Vec3.subtract(v3_0, v3_0, cb.node.worldPosition);

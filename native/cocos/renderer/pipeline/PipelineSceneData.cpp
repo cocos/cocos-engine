@@ -37,6 +37,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
@@ -86,6 +87,8 @@ void PipelineSceneData::destroy() {
     _occlusionQueryInputAssembler = nullptr;
     _occlusionQueryVertexBuffer = nullptr;
     _occlusionQueryIndicesBuffer = nullptr;
+    _standardSkinModel = nullptr;
+    _skinMaterialModel = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
@@ -167,6 +170,14 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create cube input assembler
     gfx::InputAssemblerInfo info{attributes, {_occlusionQueryVertexBuffer}, _occlusionQueryIndicesBuffer};
     return _device->createInputAssembler(info);
+}
+
+void PipelineSceneData::setStandardSkinModel(scene::Model* val) {
+    _standardSkinModel = val;
+}
+
+void PipelineSceneData::setSkinMaterialModel(scene::Model* val) {
+    _skinMaterialModel = val;
 }
 
 } // namespace pipeline

@@ -2,6 +2,8 @@
 const path = require('path');
 const { injectionStyle } = require('../../utils/prop');
 
+let cacheActiveTab = 'animation';
+
 exports.template = /* html */`
 <div class="asset-fbx">
     <header class="header">
@@ -48,11 +50,11 @@ const Elements = {
             const panel = this;
 
             panel.$.tabs.addEventListener('change', () => {
-                panel.activeTab = panel.tabs[panel.$.tabs.value];
+                cacheActiveTab = panel.activeTab = panel.tabs[panel.$.tabs.value];
                 Elements.tabPanel.update.call(panel);
             });
 
-            panel.activeTab = 'animation';
+            panel.activeTab = cacheActiveTab;
         },
         update() {
             const panel = this;
