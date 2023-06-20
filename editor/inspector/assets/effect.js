@@ -69,8 +69,7 @@ exports.style = /* css */`
         text-align: center;
         cursor: pointer;
         display: inline-block;
-        background-color: var(--color-normal-fill);
-        color: var(--color-default-contrast-emphasis);
+        color: var(--color-normal-contrast-emphasis);
         border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border);
     }
     .asset-effect > .codes .tabs > .tab:first-child  {
@@ -83,8 +82,11 @@ exports.style = /* css */`
         border-bottom-right-radius: 2px;
         border-left: 1px solid var(--color-default-border);
     }
+    .asset-effect > .codes .tabs > .tab:hover,
     .asset-effect > .codes .tabs > .tab[active="true"]  {
         background-color: var(--color-default-fill-normal);
+        background-color: var(--color-default-fill-important);
+        color: var(--color-normal-contrast);
     }
     .asset-effect > .codes ui-code  {
         max-height: 400px;
