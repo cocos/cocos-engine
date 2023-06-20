@@ -371,45 +371,75 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 }
 
 void Quaternion::fromMat3(const Mat3& m, Quaternion* out) {
-    CC_ASSERT(out);
+	CC_ASSERT(out);
     float m00 = m.m[0];
-    float m03 = m.m[1];
-    float m06 = m.m[2];
-    float m01 = m.m[3];
-    float m04 = m.m[4];
-    float m07 = m.m[5];
-    float m02 = m.m[6];
-    float m05 = m.m[7];
-    float m08 = m.m[8];
-    float trace = m00 + m04 + m08;
-    if (trace > 0) {
-        const float s = 0.5F / sqrtf(trace + 1.F);
-        out->w = 0.25F / s;
-        out->x = (m05 - m07) * s;
-        out->y = (m06 - m02) * s;
-        out->z = (m01 - m03) * s;
+    float m01 = m.m[1];
+    float m02 = m.m[2];
+    float m10 = m.m[3];
+    float m11 = m.m[4];
+    float m12 = m.m[5];
+    float m20 = m.m[6];
+    float m21 = m.m[7];
+    float m22 = m.m[8];
+
+    float fourXSquaredMinus1 = m00 - m11 - m22;
+    float fourYSquaredMinus1 = m11 - m00 - m22;
+    float fourZSquaredMinus1 = m22 - m00 - m11;
+    float fourWSquaredMinus1 = m00 + m11 + m22;
+
+    int biggestIndex = 0;
+    float fourBiggestSquaredMinus1 = fourWSquaredMinus1;
+    if(fourXSquaredMinus1 > fourBiggestSquaredMinus1)
+    {
+        fourBiggestSquaredMinus1 = fourXSquaredMinus1;
+        biggestIndex = 1;
     }
-    else if ((m00 > m04) && (m00 > m08)) {
-        //m00 - m04 - m08 consistent with ts engine, otherwise y-axis rotation greater than 90 degrees will not get the correct result
-        const float s = 0.5F / sqrtf(1.F + m00 - m04 - m08);
-        out->w = (m05 - m07) * s;
-        out->x = 0.25F / s;
-        out->y = (m03 + m01) * s;
-        out->z = (m06 + m02) * s;
+    if(fourYSquaredMinus1 > fourBiggestSquaredMinus1)
+    {
+        fourBiggestSquaredMinus1 = fourYSquaredMinus1;
+        biggestIndex = 2;
     }
-    else if (m04 > m08) {
-        const float s = 0.5F / sqrtf(1.F + m04 - m00 - m08);
-        out->w = (m06 - m02) * s;
-        out->x = (m03 + m01) * s;
-        out->y = 0.25F / s;
-        out->z = (m07 + m05) * s;
+    if(fourZSquaredMinus1 > fourBiggestSquaredMinus1)
+    {
+        fourBiggestSquaredMinus1 = fourZSquaredMinus1;
+        biggestIndex = 3;
     }
-    else {
-        const float s = 0.5F / sqrtf(1.F + m08 - m00 - m04);
-        out->w = (m01 - m03) * s;
-        out->x = (m06 + m02) * s;
-        out->y = (m07 + m05) * s;
-        out->z = 0.25F / s;
+
+    float biggestVal = sqrt(fourBiggestSquaredMinus1 + 1) * 0.5;
+	float mult = 0.25 / biggestVal;
+    switch(biggestIndex)
+    {
+    case 0:
+        out->w =  biggestVal;
+        out->x = (m12 - m21) * mult;
+        out->y = (m20 - m02) * mult;
+        out->z = (m01 - m10) * mult;
+        return;
+    case 1:
+        out->w =  (m12 - m21) * mult;
+        out->x = biggestVal;
+        out->y = (m01 + m10) * mult;
+        out->z = (m20 + m02) * mult;
+        return;
+    case 2:
+        out->w = (m20 - m02) * mult;
+        out->x = (m01 + m10) * mult;
+        out->y = biggestVal;
+        out->z = (m12 + m21) * mult;
+        return;
+    case 3:
+        out->w = (m01 - m10) * mult;
+        out->x = (m20 + m02) * mult;
+        out->y = (m12 + m21) * mult;
+        out->z = biggestVal;
+        return;
+    default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
+        assert(false);
+        out->w = 1;
+        out->x = 0;
+        out->y = 0;
+        out->z = 0;
+        return;
     }
 }
 
