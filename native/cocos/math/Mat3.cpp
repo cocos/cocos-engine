@@ -106,9 +106,9 @@ void Mat3::fromViewUp(const Vec3 &view, const Vec3 &up, Mat3 *out) {
         return;
     }
     Vec3::cross(view, vTempA, &vTempB);
-    out->set(vTempA.x, vTempA.y, vTempA.z,
-             vTempB.x, vTempB.y, vTempB.z,
-             view.x, view.y, view.z);
+    out->set(vTempA.x, vTempB.x, view.x,
+            vTempA.y, vTempB.y, view.y,
+            vTempA.z, vTempB.z, view.z);
 }
 
 void Mat3::transpose() {
