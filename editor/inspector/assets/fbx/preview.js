@@ -440,12 +440,6 @@ exports.methods = {
         // save animation event info
         await this.events.apply.call(this);
     },
-    abort() {
-        exports.update.call(this, this.assetList, this.metaList);
-    },
-    reset() {
-        exports.update.call(this, this.assetList, this.metaList);
-    },
     async refreshPreview() {
         const panel = this;
 

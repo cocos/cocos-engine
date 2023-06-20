@@ -96,7 +96,7 @@ exports.methods = {
     },
 
     queryKeyStyle(x) {
-        return `transform: translateX(${x | 0}px);`;
+        return `transform: translateX(${x || 0}px);`;
     },
 
     onDomMouseDown() {
