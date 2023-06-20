@@ -524,7 +524,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.editButton.style.display = 'none';
             } else {
-                panel.$.editButton.style.display = undefined; // depends on component itself
+                panel.$.editButton.style.display = 'inline-flex';
             }
 
             if (panel.uuidInSpriteEditor !== panel.meta.uuid) {
