@@ -24,7 +24,7 @@
 
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { LightInfo, QueueHint, SceneFlags } from '../../custom';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';

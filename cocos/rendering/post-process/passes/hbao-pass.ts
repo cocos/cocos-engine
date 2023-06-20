@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { cclegacy, toRadian, Vec2, Vec4, Vec3, v3 } from '../../../core';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { Pipeline, QueueHint } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -135,9 +135,6 @@ class HBAOParams {
         this.randomTexture.setMipFilter(Texture2D.Filter.NONE);
         this.randomTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         this.randomTexture.image = image;
-        if (!this.randomTexture.getGFXTexture()) {
-            console.warn('Unexpected: failed to create ao texture?');
-        }
     }
 
     public update () {
