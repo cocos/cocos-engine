@@ -405,8 +405,8 @@ void Quaternion::fromMat3(const Mat3& m, Quaternion* out) {
         biggestIndex = 3;
     }
 
-    float biggestVal = sqrt(fourBiggestSquaredMinus1 + 1) * 0.5;
-	float mult = 0.25 / biggestVal;
+    float biggestVal = sqrt(fourBiggestSquaredMinus1 + 1) * 0.5F;
+	float mult = 0.25F / biggestVal;
     switch(biggestIndex)
     {
     case 0:
@@ -435,10 +435,10 @@ void Quaternion::fromMat3(const Mat3& m, Quaternion* out) {
         return;
     default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
         assert(false);
-        out->w = 1;
-        out->x = 0;
-        out->y = 0;
-        out->z = 0;
+        out->w = 1.F;
+        out->x = 0.F;
+        out->y = 0.F;
+        out->z = 0.F;
         return;
     }
 }
