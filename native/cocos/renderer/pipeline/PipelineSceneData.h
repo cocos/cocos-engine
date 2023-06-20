@@ -92,10 +92,10 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
-    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel; }
-    inline void setStandardSkinModel(scene::Model *val) { _standardSkinModel = val; }
-    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel; }
-    inline void setSkinMaterialModel(scene::Model *val) { _skinMaterialModel = val; }
+    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel.get(); }
+    void setStandardSkinModel(scene::Model *val);
+    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel.get(); }
+    void setSkinMaterialModel(scene::Model *val);
 
 protected:
     void initOcclusionQuery();
@@ -110,6 +110,8 @@ protected:
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+    IntrusivePtr<scene::Model> _standardSkinModel;
+    IntrusivePtr<scene::Model> _skinMaterialModel;
 
     gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
@@ -131,10 +133,6 @@ protected:
     // manage memory manually
     scene::Skin *_skin{nullptr};
     // manage memory manually
-    scene::Model *_standardSkinModel{nullptr};
-    // manage memory manually
-    scene::Model *_skinMaterialModel{nullptr};
-
     CSMLayers *_csmLayers{nullptr};
 
     bool _isHDR{true};
