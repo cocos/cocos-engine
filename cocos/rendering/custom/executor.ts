@@ -49,12 +49,11 @@ import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData
 import { BasicPipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
-    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
-import { AttachmentType, ComputeView, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView, ComputeView, RasterView } from './render-graph';
+import { AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
-import { stringify } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
@@ -867,6 +866,8 @@ class DeviceRenderPass {
     }
     resetResource (id: number, pass: RasterPass) {
         this._rasterInfo.applyInfo(id, pass);
+        this._layoutName = context.renderGraph.getLayout(id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.length = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];

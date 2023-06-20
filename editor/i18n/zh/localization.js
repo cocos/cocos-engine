@@ -117,6 +117,8 @@ module.exports = link(mixin({
             HingeConstraint: `${url}/${version}/manual/zh/physics/physics-constraint.html`,
             PointToPointConstraint: `${url}/${version}/manual/zh/physics/physics-constraint.html`,
             RigidBody: `${url}/${version}/manual/zh/physics/physics-rigidbody.html`,
+            BoxCharacterController: `${url}/${version}/manual/zh/physics/character-controller/index.html`,
+            CapsuleCharacterController: `${url}/${version}/manual/zh/physics/character-controller/index.html`,
             PhysicsMaterial: `${url}/${version}/manual/zh/physics/physics-material.html`,
             ConstantForce: `${url}/${version}/manual/zh/physics/physics-component.html`,
             VideoPlayer: `${url}/${version}/manual/zh/ui-system/components/editor/videoplayer.html`,

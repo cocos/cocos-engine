@@ -96,6 +96,8 @@ exports.style = /* css */`
         display: flex;
         flex: 1;
         flex-direction: column;
+        padding-right: 4px;
+
      }
     .asset-sprite-frame > .content {
         flex: 1;
@@ -103,7 +105,10 @@ exports.style = /* css */`
     .asset-sprite-frame > .content > .edit-row {
         text-align: center;
         margin-top: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
+    }
+    .asset-sprite-frame > .content > .edit-row > .edit-button {
+        padding: 0 24px;
     }
 `;
 

@@ -1090,6 +1090,14 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             gpuShader->outputs[i].set = set;
             gpuShader->outputs[i].binding = loc;
         }
+    } else if (executionModel == spv::ExecutionModelGLCompute) {
+        spirv_cross::SpecializationConstant x, y, z;
+        auto workGroupID = msl.get_work_group_size_specialization_constants(x, y, z);
+        const auto& workGroupSizeSpv = msl.get_constant(workGroupID);
+        const auto& workGroupSize = workGroupSizeSpv.vector().r;
+        gpuShader->workGroupSize[0] = workGroupSize[0].u32;
+        gpuShader->workGroupSize[1] = workGroupSize[1].u32;
+        gpuShader->workGroupSize[2] = workGroupSize[2].u32;
     }
 
     // Compile to MSL, ready to give to metal driver.

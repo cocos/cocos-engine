@@ -8,7 +8,7 @@ CCEffect %{
       frag: standard-fs
       properties: &props
         mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
-        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }
         albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
         alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
@@ -18,10 +18,10 @@ CCEffect %{
         shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
+        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } }
         specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } }
         transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
@@ -60,25 +60,37 @@ CCEffect %{
         albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
         alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } }
         transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
-      properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -169,7 +181,7 @@ CCProgram surface-fragment %{
     uniform sampler2D transparencyMap;
     #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
   #endif
- 
+
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
   #endif
@@ -220,7 +232,7 @@ CCProgram surface-fragment %{
     #endif
       return specularIntensityMultiplier;
   }
-  
+
   vec4 getSpecularColorAndFactor()
   {
     vec3 inSpecular = specularColor.rgb * specularFactor;
@@ -271,7 +283,7 @@ CCProgram surface-fragment %{
 
   #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
   vec3 SurfacesFragmentModifyEmissive()
-  { 
+  {
     vec3 emissiveColor = emissive.rgb;
     #if USE_EMISSIVE_MAP
         emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
@@ -284,7 +296,7 @@ CCProgram surface-fragment %{
     #else
         emissiveColor.rgb *= emissiveScale;
     #endif
-    
+
     return emissiveColor;
   }
 

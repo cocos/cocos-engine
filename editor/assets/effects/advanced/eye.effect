@@ -65,15 +65,20 @@ CCEffect %{
       frag: reflect-map-fs
       phase: reflect-map
       propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -82,6 +87,14 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward-transparent
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -131,7 +144,7 @@ CCProgram surface-fragment %{
   in vec4 v_planeT;
   #if USE_IRIS_REFRACTION
     uniform sampler2D irisNormalMap;
-  #endif  
+  #endif
   uniform sampler2D irisHeightMap;
   uniform sampler2D irisHeightMapAlpha;
   uniform sampler2D irisColorMaskMap;
@@ -178,7 +191,7 @@ CCProgram surface-fragment %{
     return vec2(dot(refract, planeT), dot(refract, -planeB));
   }
 
-  
+
   // definition of SurfacesMaterialData structure with corresponding shading-model
   #include <surfaces/data-structures/standard>
 
@@ -189,7 +202,7 @@ CCProgram surface-fragment %{
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
 
-    float irisHeightScale = irisParams.x;    
+    float irisHeightScale = irisParams.x;
     float IrisUVRadius = irisParams.z * 2.0; // default is 0.5
     float PupilScale = irisParams.w;
     float VeinsPower = irisParams.y;
@@ -252,7 +265,7 @@ CCProgram surface-fragment %{
   #if USE_IRIS_REFRACTION
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
-    
+
     vec3 L = lightingData.L;
     vec3 viewDir = normalize(cc_cameraPos.xyz - worldPos);
 
@@ -261,7 +274,7 @@ CCProgram surface-fragment %{
     CCSurfacesLightingGetIntermediateData_PerLight(lightingDataRefract, newL);
     if (surfaceData.emissive.x > 0.0) {
       result.directSpecular = CalculateDirectSpecular(lightingDataRefract, miscData.lightColorAndIntensity);
-      
+
       #if !CC_FORWARD_ADD
         lightingDataRefract.V = -CalculateRefractDirection(surfaceData.worldNormal, viewDir, dot(surfaceData.worldNormal, viewDir), CONREAL_IOR);
         result.environmentSpecular = CalculateEnvironmentSpecular(lightingDataRefract, cc_ambientSky.w);

@@ -32,6 +32,13 @@ CCEffect %{
       depthStencilState: *d1
       blendState: *b1
       properties: *p2
+    - vert: vert:vs_main
+      frag: tinted-fs:add
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
   - name: alpha-blend
     passes:
     - vert: vert:vs_main
@@ -40,6 +47,13 @@ CCEffect %{
       depthStencilState: *d1
       blendState: *b2
       properties: *p2
+    - vert: vert:vs_main
+      frag: tinted-fs:add
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
   - name: add-multiply
     passes:
     - vert: vert:vs_main
@@ -48,6 +62,13 @@ CCEffect %{
       depthStencilState: *d1
       blendState: *b2
       properties: *p2
+    - vert: vert:vs_main
+      frag: tinted-fs:multiply
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
   - name: add-smooth
     passes:
     - vert: vert:vs_main
@@ -56,6 +77,13 @@ CCEffect %{
       depthStencilState: *d1
       blendState: *b2
       properties: *p1
+    - vert: vert:vs_main
+      frag: no-tint-fs:addSmooth
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
   - name: premultiply-blend
     passes:
     - vert: vert:vs_main
@@ -64,6 +92,13 @@ CCEffect %{
       depthStencilState: *d1
       blendState: *b2
       properties: *p1
+    - vert: vert:vs_main
+      frag: no-tint-fs:premultiplied
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
 }%
 
 // TODO: soft particle

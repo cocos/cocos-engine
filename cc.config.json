@@ -660,6 +660,12 @@
             "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "CULL_ASM_JS_MODULE": {
+            "comment": "Whether cull the asm js module.\nThe external modules ending with '.asm.js'. or '.js.mem' is culled if this constant is true.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     },
 

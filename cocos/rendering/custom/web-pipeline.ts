@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
+import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
@@ -139,10 +139,15 @@ export class WebSetter {
         return layout.uniformBlocks.get(nameID);
     }
 
-    protected _getCurrDescriptorBlock (block: string) {
+    protected _getCurrDescSetLayoutData () {
         const nodeId = this._lg.locateChild(0xFFFFFFFF, this._currStage);
         const ppl = this._lg.getLayout(nodeId);
         const layout = ppl.descriptorSets.get(UpdateFrequency.PER_PASS)!.descriptorSetLayoutData;
+        return layout;
+    }
+
+    protected _getCurrDescriptorBlock (block: string) {
+        const layout = this._getCurrDescSetLayoutData();
         const nameID: number = this._lg.attributeIndex.get(block)!;
         for (const block of layout.descriptorBlocks) {
             for (let i = 0; i !== block.descriptors.length; ++i) {
@@ -716,7 +721,7 @@ function setCameraUBOValues (setter: WebSetter,
     if (camera) {
         uniformOffset = setter.getUniformOffset('cc_nearFar', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
-            _uboVec.set(camera.nearClip, camera.farClip, 0.0, 0.0);
+            _uboVec.set(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0.0);
             setter.offsetVec4(_uboVec, uniformOffset);
         }
         uniformOffset = setter.getUniformOffset('cc_viewPort', Type.FLOAT4);
@@ -932,12 +937,6 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
     }
-    addRasterView (name: string, view: RasterView): void {
-        throw new Error('Method not implemented.');
-    }
-    addComputeView (name: string, view: ComputeView): void {
-        throw new Error('Method not implemented.');
-    }
     setViewport (viewport: Viewport): void {
         throw new Error('Method not implemented.');
     }
@@ -985,23 +984,6 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
         throw new Error('Method not implemented.');
-    }
-    addRasterView (name: string, view: RasterView) {
-        this._pass.rasterViews.set(name, view);
-    }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(view.name);
-            assert(name && this._resourceGraph.contains(name));
-            const descriptorName = view.name;
-            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
-            assert(descriptorID !== undefined);
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
     }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
@@ -1216,16 +1198,6 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
     }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
-    }
     addQueue (layoutName = 'default') {
         if (DEBUG) {
             const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
@@ -1313,9 +1285,6 @@ export class WebPipeline implements BasicPipeline {
     }
     addCustomTexture (name: string, info: TextureInfo, type: string): number {
         throw new Error('Method not implemented.');
-    }
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
-        return this.addRenderWindow(name, format, width, height, renderWindow);
     }
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         const desc = new ResourceDesc();

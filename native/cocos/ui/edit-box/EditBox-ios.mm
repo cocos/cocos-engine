@@ -546,7 +546,9 @@ static EditboxManager *instance = nil;
     ((UITextField*)[ret inputOnToolbar]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     ((UITextField*)[ret inputOnView]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     setTextFieldReturnType((UITextField*)[ret inputOnToolbar], showInfo->confirmType);
+    setTextFieldReturnType((UITextField*)[ret inputOnView], showInfo->confirmType);
     setTextFieldKeyboardType((UITextField*)[ret inputOnToolbar], showInfo->inputType);
+    setTextFieldKeyboardType((UITextField*)[ret inputOnView], showInfo->inputType);
     return ret;
 }
 

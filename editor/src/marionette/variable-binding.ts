@@ -10,9 +10,14 @@ import {
     MotionState,
     SubStateMachine,
     VariableType,
+    ProceduralPoseState,
 } from '../../../cocos/animation/marionette/asset-creation';
+import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
 import { TCBindingValueType } from '../../../cocos/animation/marionette/state-machine/condition/binding/binding';
 import { TCVariableBinding } from '../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
+import { PVNodeGetVariableBase } from '../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable';
+import { PoseGraphType } from '../../../cocos/animation/marionette/pose-graph/foundation/type-system';
+import { assertIsTrue } from '../../../exports/base';
 
 export interface VariableBindingView {
     /**
@@ -111,7 +116,32 @@ export function* viewVariableBindings(animationGraph: AnimationGraph): Generator
                 }
             } else if (state instanceof SubStateMachine) {
                 yield* visitStateMachine(state.stateMachine);
+            } else if (state instanceof ProceduralPoseState) {
+                for (const node of state.graph.nodes()) {
+                    if (node instanceof PoseNodeStateMachine) {
+                        yield* visitStateMachine(node.stateMachine);
+                    } else if (node instanceof PVNodeGetVariableBase) {
+                        const outputType = node.getOutputType(0);
+                        assertIsTrue(outputType !== PoseGraphType.POSE);
+                        yield createVariableBindingView(
+                            node,
+                            'variableName',
+                            poseGraphTypeToAcceptableVariableType(outputType),
+                        );
+                    }
+                }
             }
         }
+    }
+}
+
+function poseGraphTypeToAcceptableVariableType(poseGraphType: Exclude<PoseGraphType, PoseGraphType.POSE>) {
+    switch (poseGraphType) {
+        default: throw new Error(`Unhandled pose graph type ${PoseGraphType[poseGraphType]}`);
+        case PoseGraphType.FLOAT: return VariableType.FLOAT;
+        case PoseGraphType.INTEGER: return VariableType.INTEGER;
+        case PoseGraphType.BOOLEAN: return VariableType.BOOLEAN;
+        case PoseGraphType.VEC3: return VariableType.VEC3_experimental;
+        case PoseGraphType.QUAT: return VariableType.QUAT_experimental;
     }
 }

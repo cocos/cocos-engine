@@ -24,11 +24,11 @@
 
 import { Vec4, Vec3, cclegacy, warnID } from '../../../core';
 import { Camera } from '../../../render-scene/scene';
-import { BasicPipeline, LightInfo, PipelineRuntime, QueueHint, SceneFlags } from '../../custom';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
+import { BasicPipeline, PipelineRuntime } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { MeshRenderer } from '../../../3d/framework/mesh-renderer';
 import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 
@@ -41,7 +41,7 @@ export const SSSS_BLUR_Y_PASS_INDEX = 2;
 
 function hasSkinObject (ppl: PipelineRuntime) {
     const sceneData = ppl.pipelineSceneData;
-    return !!sceneData.skin && sceneData.skin.enabled && !!sceneData.skinMaterialModel;
+    return sceneData.skin.enabled && sceneData.skinMaterialModel !== null;
 }
 
 const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
@@ -230,8 +230,8 @@ export class SkinPass extends SettingPass {
         let halfExtents = new Vec3(0.2, 0.2, 0.2);
         const standardSkinModel = pipelineSceneData.standardSkinModel;
         const skinMaterialModel = pipelineSceneData.skinMaterialModel;
-        if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
-            halfExtents = standardSkinModel.model.worldBounds.halfExtents;
+        if (standardSkinModel && standardSkinModel.worldBounds) {
+            halfExtents = standardSkinModel.worldBounds.halfExtents;
         } else if (skinMaterialModel && skinMaterialModel.worldBounds) {
             halfExtents = skinMaterialModel.worldBounds.halfExtents;
         }
@@ -269,9 +269,6 @@ export class SkinPass extends SettingPass {
             .setClearFlag(ClearFlagBit.COLOR)
             .setClearColor(0, 0, 0, 1)
             .addRasterView(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl))
-            .setClearFlag(ClearFlagBit.NONE)
-            .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
-            .addRasterView(inputDS, Format.DEPTH_STENCIL)
             .blitScreen(passIdx)
             .version();
 
@@ -289,9 +286,6 @@ export class SkinPass extends SettingPass {
             .setClearFlag(ClearFlagBit.NONE)
             .setClearColor(0, 0, 0, 1)
             .addRasterView(inputRT, getRTFormatBeforeToneMapping(ppl))
-            .setClearFlag(ClearFlagBit.NONE)
-            .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
-            .addRasterView(inputDS, Format.DEPTH_STENCIL)
             .blitScreen(passIdx)
             .version();
     }

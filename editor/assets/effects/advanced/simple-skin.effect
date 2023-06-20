@@ -31,9 +31,9 @@ CCEffect %{
         transmitColor:                    { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting, red for human skin' } }
         dualLobeRoughness:                { value: 0.5, target: dualLobeParams.x, editor: { parent: USE_DUAL_LOBE_SPECULAR, range: [0, 1.0] } }
         dualLobeIntensity:                { value: 0.02, target: dualLobeParams.w, editor: { parent: USE_DUAL_LOBE_SPECULAR, slide: true, range: [0, 0.1], step: 0.001 } }
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: None
-      depthStencilState:
+      depthStencilState: &d1
         depthFunc: less_equal
         depthTest: true
         depthWrite: true
@@ -69,15 +69,24 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      rasterizerState: *r1
+      depthStencilState: *d1
+
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &dt
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -86,6 +95,14 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward-transparent
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *dt
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -113,7 +130,7 @@ CCProgram macro-remapping %{
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-  
+
   #define CC_SURFACES_LIGHTING_DUAL_LOBE_SPECULAR USE_DUAL_LOBE_SPECULAR
   #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT USE_BACK_LIT
@@ -184,7 +201,7 @@ CCProgram surface-fragment %{
   {
     return vec3(0.0);//1.0, 0.2, 0.05);
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
@@ -226,7 +243,7 @@ CCProgram surface-fragment %{
     pbr.w *= cavity;
     return pbr;
   }
-  
+
   #include <common-functions>
   #include <lighting-models/default-functions/simple-skin>
 }%

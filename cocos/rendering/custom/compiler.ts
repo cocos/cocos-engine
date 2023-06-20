@@ -29,9 +29,9 @@ import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
-    RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
+    RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
     RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
-import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
+import { AccessType, ResourceResidency, SceneFlags } from './types';
 
 let hashCode = 0;
 

@@ -1,10 +1,8 @@
-import { EDITOR } from 'internal:constants';
 import { Vec4 } from '../../../core';
-import { director } from '../../../game';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom';
+import { Camera } from '../../../render-scene/scene';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
@@ -71,7 +69,6 @@ export class ForwardPass extends BasePass {
                 }
             }
         }
-
         pass.addQueue(QueueHint.RENDER_OPAQUE)
             .addSceneOfCamera(camera,
                 new LightInfo(),
