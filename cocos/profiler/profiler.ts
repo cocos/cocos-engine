@@ -141,7 +141,7 @@ export class Profiler extends System {
     }
 
     /**
-     * * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
+     * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
     public get _stats () {
         console.warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
