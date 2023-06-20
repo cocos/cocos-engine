@@ -5,7 +5,7 @@ import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
-import { buildReflectionProbePasss, getCameraUniqueID } from '../custom/define';
+import { buildForwardPass, buildReflectionProbePasss, getCameraUniqueID } from '../custom/define';
 
 import { BasePass } from './passes/base-pass';
 import { ForwardPass } from './passes/forward-pass';
@@ -154,6 +154,15 @@ export class PostProcessBuilder implements PipelineBuilder  {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (!camera.scene) {
+                continue;
+            }
+            const isGameView = camera.cameraUsage === CameraUsage.GAME
+                || camera.cameraUsage === CameraUsage.GAME_VIEW;
+            if (!isGameView) {
+                // forward pass
+                buildForwardPass(camera, ppl, isGameView);
+                // reflection probe pass
+                buildReflectionProbePasss(camera, ppl);
                 continue;
             }
             ppl.update(camera);
