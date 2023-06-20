@@ -92,10 +92,10 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
-    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel; }
-    inline void setStandardSkinModel(scene::Model *val);
-    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel; }
-    inline void setSkinMaterialModel(scene::Model *val);
+    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel.get(); }
+    inline void setStandardSkinModel(scene::Model *val) { _standardSkinModel = val; };
+    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel.get(); }
+    inline void setSkinMaterialModel(scene::Model *val) { _skinMaterialModel = val; };
 
 protected:
     void initOcclusionQuery();
@@ -110,8 +110,8 @@ protected:
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
-    IntrusivePtr<scene::Model> _standardSkinModel{nullptr};
-    IntrusivePtr<scene::Model> _skinMaterialModel{nullptr};
+    IntrusivePtr<scene::Model> _standardSkinModel;
+    IntrusivePtr<scene::Model> _skinMaterialModel;
 
     gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
