@@ -1299,7 +1299,7 @@ export class ParticleSystem extends ModelRenderer {
             this._needAttach = true;
         }
 
-        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
+        if (!this._isPlaying) return;
 
         // update render data
         this.processor.updateRenderData();
