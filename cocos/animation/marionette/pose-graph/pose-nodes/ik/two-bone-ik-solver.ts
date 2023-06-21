@@ -44,7 +44,9 @@ ccenum(TargetSpecificationType);
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeTwoBoneIKSolver.TargetSpecification`)
 class TargetSpecification {
     constructor (type?: TargetSpecificationType) {
-        this.type = type ?? TargetSpecificationType.NONE;
+        if (typeof type !== 'undefined') {
+            this.type = type;
+        }
     }
 
     @serializable
