@@ -26,12 +26,14 @@
 #include "application/ApplicationManager.h"
 #include "base/Data.h"
 #include "base/DeferredReleasePool.h"
+#include "base/Log.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "bindings/auto/jsb_cocos_auto.h"
 #include "core/data/JSBNativeDataHolder.h"
+#include "engine/Engine.h"
 #include "gfx-base/GFXDef.h"
 #include "jsb_conversions.h"
 #include "network/Downloader.h"
@@ -56,6 +58,25 @@ static LegacyThreadPool *gThreadPool = nullptr;
 static std::shared_ptr<cc::network::Downloader> gLocalDownloader = nullptr;
 static ccstd::unordered_map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
 static uint64_t gLocalDownloaderTaskId = 1000000;
+
+static bool jsb_set_blocking_timeout(se::State &state) { // NOLINT
+    int32_t blockingTimeout = state.args()[0].toInt32();
+    if (blockingTimeout < 0) {
+        CC_LOG_WARNING("The blockingTimeout value must be zero or greater. Setting a negative value will automatically default it to zero, subsequently disabling block detection.");
+        blockingTimeout = 0;
+    }
+    auto *engine = static_cast<cc::Engine *>(CC_CURRENT_ENGINE().get());
+    engine->setBlockingTimeout(blockingTimeout);
+    return true;
+}
+SE_BIND_PROP_SET(jsb_set_blocking_timeout)
+
+static bool jsb_get_blocking_timeout(se::State &state) { // NOLINT
+    auto *engine = static_cast<cc::Engine *>(CC_CURRENT_ENGINE().get());
+    state.rval().setInt32(engine->getBlockingTimeout());
+    return true;
+}
+SE_BIND_PROP_GET(jsb_get_blocking_timeout)
 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
@@ -1423,6 +1444,10 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
+
+    se::HandleObject blockingDetection(se::Object::createPlainObject());
+    __jsbObj->setProperty("blkDct", se::Value(blockingDetection));
+    blockingDetection->defineProperty("timeout", _SE(jsb_get_blocking_timeout), _SE(jsb_set_blocking_timeout));
 
     // Create process object
     se::HandleObject processObj{se::Object::createPlainObject()};

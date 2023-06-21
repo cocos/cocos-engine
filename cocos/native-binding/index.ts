@@ -381,7 +381,7 @@ export declare namespace native {
       * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
       * @param identifier  @en identifier @zh 标识符
       */
-    export type DownloadTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloadTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderTask @zh 下载任务对象
@@ -390,7 +390,7 @@ export declare namespace native {
      * @param identifier  @en identifier @zh 标识符
      * @deprecated since v3.7.0, please use `DownloadTask` to instead.
      */
-    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloaderTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderHints @zh 下载任务的配置接口
@@ -1400,5 +1400,52 @@ export declare namespace native {
          * @zh 获取当前传递给执行文件的参数列表
          */
         export const argv: Readonly<string[]>;
+    }
+
+    /**
+     * @en A module to detect blocking execution of the gameTick procedure.
+     * @zh 用于检测 gameTick 执行阻塞的模块
+     */
+    namespace blkDct {
+        /**
+         * @en
+         * The timeout field allows developers to define the maximum execution time, in milliseconds, for
+         * the gameTick function. If the gameTick function exceeds this specified time limit,
+         * the system will invoke the native.blockingDetection.callback function.
+         * The first argument of this callback function will provide a string representation
+         * of the JavaScript call stack. It is important to note that setting timeout
+         * to 0 will disable this monitoring mechanism.
+         *
+         * Please be aware that the mechanism for blocking checks is based on signals.
+         * This could lead to some potential issues, including conflicts with signals from
+         * third-party libraries or signals defined by the user themselves.
+         *
+         * @zh
+         * timeout 字段允许开发者定义 gameTick 函数的最大执行时间, 单位为毫秒(ms)。
+         * 如果 gameTick 函数超出这个指定的时间限制,系统将调用 native.blockingDetection.callback
+         * 回调函数。这个回调函数的第一个参数将提供 JavaScript 调用栈的字符串表示。
+         * 将 timeout 设置为 0 将禁用这个监控机制。
+         *
+         * 请注意，阻塞检查的机制是基于信号（signal）的。这可能会引发一些潜在问题，
+         * 包括与第三方库的信号或用户自定义的信号监听发生冲突。
+         */
+        // eslint-disable-next-line import/no-mutable-exports
+        export let timeout: number;
+        /**
+         * @en
+         * Callback function triggered when a blocking operation is detected during the execution of gameTick.
+         * The first argument provides a string representation of the JavaScript call stack.
+         * This callback can be used to handle or log the occurrence of blocking operations in the gameTick function.
+         * It is recommended to investigate and optimize any blocking operations to ensure smooth gameplay and responsiveness.
+         * If the timeout parameter is set to 0, this callback will not be triggered as the monitoring mechanism is disabled.
+         * @zh
+         * 当在 gameTick 执行过程中检测到阻塞操作时 (超过 timeout) 触发的回调函数。
+         * 第一个参数提供了 JavaScript 调用栈的字符串表示形式。
+         * 此回调函数可用于处理或记录 gameTick 中阻塞操作的发生。
+         * 建议调查和优化任何阻塞操作，以确保游戏的流畅性和响应性。
+         * 如果将 timeout 参数设置为 0，则禁用此监控机制，回调函数将不会被触发。
+         */
+        // eslint-disable-next-line import/no-mutable-exports
+        export let callback: (stackStr?: string) => void;
     }
 }

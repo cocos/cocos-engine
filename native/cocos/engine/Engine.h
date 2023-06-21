@@ -102,6 +102,18 @@ public:
 
     bool isInited() const override { return _inited; }
 
+    /**
+     * @brief Set the blocking timeout for tick function,
+     */
+    int32_t getBlockingTimeout() const { return _blockingTimeoutMS; }
+
+    /**
+     * @brief The timeout value, in milliseconds, for blocking detection.
+     * If set to 0, the blocking detection mechanism will be disabled.
+     * Otherwise, the system will monitor the execution time of the operation
+     */
+    void setBlockingTimeout(int32_t timeout) { _blockingTimeoutMS = timeout; }
+
 private:
     void destroy();
     void tick();
@@ -130,6 +142,9 @@ private:
     ProgramLib *_programLib{nullptr};
 
     events::WindowEvent::Listener _windowEventListener;
+
+    // The timeout value, in milliseconds, for blocking detection.
+    int32_t _blockingTimeoutMS{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
