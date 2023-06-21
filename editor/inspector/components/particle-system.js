@@ -655,8 +655,8 @@ exports.update = function(dump) {
     }
 };
 exports.style = /* css */`
-    .particle-system-component > .content >.indent {
-        margin-left: 10px;
+    .particle-system-component > .content > .indent {
+        margin-left: calc(var(--ui-prop-margin-left) + 8px);
     }
     .particle-system-component ui-section .header ui-checkbox {
         margin-right: 4px;
