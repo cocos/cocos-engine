@@ -366,11 +366,16 @@ exports.methods = {
             renderData[renderName] = [];
 
             for (let i = 0; i < contentRender.__panels__.length; i++) {
-                if (contentRender.__panels__[i].panelObject.record) {
-                    const data = await contentRender.__panels__[i].callMethod('record');
-                    renderData[renderName].push(data);
-                } else {
+                try {
+                    if (contentRender.__panels__[i].panelObject.record) {
+                        const data = await contentRender.__panels__[i].callMethod('record');
+                        renderData[renderName].push(data);
+                    } else {
+                        renderData[renderName].push(null);
+                    }
+                } catch (error) {
                     renderData[renderName].push(null);
+                    console.debug(error);
                 }
             }
         }

@@ -1,8 +1,10 @@
 'use strict';
 
+const { join, sep, normalize } = require('path');
+module.paths.push(join(Editor.App.path, 'node_modules'));
+
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
-const { join, sep, normalize } = require('path');
 const { escape } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
