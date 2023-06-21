@@ -461,6 +461,18 @@ using namespace spine;
 %attribute(spine::VertexAttachment, size_t, worldVerticesLength, getWorldVerticesLength, setWorldVerticesLength);
 %attribute(spine::VertexAttachment, spine::VertexAttachment*, deformAttachment, getDeformAttachment, setDeformAttachment);
 
+%attribute(spine::ClippingAttachment, spine::SlotData*, endSlot, getEndSlot, setEndSlot);
+
+%attribute(spine::MeshAttachment, ccstd::string&, path, getPath, setPath);
+%attribute(spine::MeshAttachment, ccstd::vector<float>&, regionUVs, getRegionUVs);
+%attribute(spine::MeshAttachment, ccstd::vector<float>&, uvs, getUVs);
+%attribute(spine::MeshAttachment, ccstd::vector<unsigned short>&, triangles, getTriangles);
+%attribute(spine::MeshAttachment, spine::Color&, color, getColor);
+%attribute(spine::MeshAttachment, float, width, getWidth, setWidth);
+%attribute(spine::MeshAttachment, float, height, getHeight, setHeight);
+%attribute(spine::MeshAttachment, int, hullLength, getHullLength, setHullLength);
+%attribute(spine::MeshAttachment, ccstd::vector<unsigned short>&, edges, getEdges);
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
