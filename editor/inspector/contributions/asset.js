@@ -373,8 +373,9 @@ exports.methods = {
                     } else {
                         renderData[renderName].push(null);
                     }
-                } catch (e) {
+                } catch (error) {
                     renderData[renderName].push(null);
+                    console.debug(error);
                 }
             }
         }
