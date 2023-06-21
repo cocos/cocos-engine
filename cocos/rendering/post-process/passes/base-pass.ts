@@ -5,11 +5,20 @@ import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
 import { BasicPipeline, Pipeline, PipelineRuntime } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { Format } from '../../../gfx';
+import { Address, Filter, Format, Sampler, SamplerInfo } from '../../../gfx';
 import { supportsRGBA16HalfFloatTexture } from '../../define';
 import { cclegacy, macro } from '../../../core';
 
 let _BasePassID = 0;
+let _pointSampler: Sampler| null = null;
+const _samplerPointInfo = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+);
 
 export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -30,6 +39,16 @@ export function forceEnableFloatOutput (ppl: PipelineRuntime) {
 export function disablePostProcessForDebugView () {
     const debugView = cclegacy.director.root.debugView;
     return debugView.singleMode as number > 0;
+}
+
+export function getShadowMapSampler () {
+    if (!_pointSampler) {
+        const director = cclegacy.director;
+        const pipeline = director.root.pipeline;
+        const device = pipeline.device;
+        _pointSampler = device.getSampler(_samplerPointInfo);
+    }
+    return _pointSampler;
 }
 
 export abstract class BasePass {

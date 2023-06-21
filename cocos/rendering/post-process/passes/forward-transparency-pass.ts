@@ -28,7 +28,7 @@ import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass, getRTFormatBeforeToneMapping } from './base-pass';
+import { BasePass, getRTFormatBeforeToneMapping, getShadowMapSampler } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardTransparencyPass extends BasePass {
@@ -61,12 +61,12 @@ export class ForwardTransparencyPass extends BasePass {
         if (shadowPass) {
             for (const dirShadowName of shadowPass.mainLightShadows) {
                 if (ppl.containsResource(dirShadowName)) {
-                    pass.addTexture(dirShadowName, 'cc_shadowMap');
+                    pass.addTexture(dirShadowName, 'cc_shadowMap', getShadowMapSampler());
                 }
             }
             for (const spotShadowName of shadowPass.spotLightShadows) {
                 if (ppl.containsResource(spotShadowName)) {
-                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
+                    pass.addTexture(spotShadowName, 'cc_spotShadowMap', getShadowMapSampler());
                 }
             }
         }
