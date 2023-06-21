@@ -29,9 +29,9 @@ import { Asset } from './asset';
 /**
  * @en
  * `BufferAsset` is a kind of assets whose internal data is a section of memory buffer
- * that you can access through the [[BufferAsset.buffer]] function.
+ * that you can access through `BufferAsset.view`.
  * @zh
- * `BufferAsset` 是一类资产，其内部数据是一段内存缓冲，你可以通过 [[BufferAsset.buffer]] 函数获取其内部数据。
+ * `BufferAsset` 是一类资产，其内部数据是一段内存缓冲，你可以通过 `BufferAsset.view` 获取其内部数据。
  */
 @ccclass('cc.BufferAsset')
 export class BufferAsset extends Asset {
