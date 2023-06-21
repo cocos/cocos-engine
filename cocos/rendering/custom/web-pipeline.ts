@@ -53,6 +53,7 @@ import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
+import { Root } from '../../root';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -293,7 +294,7 @@ function setShadowUBOLightView (setter: WebSetter,
     level: number,
     layout = 'default') {
     const director = cclegacy.director;
-    const pipeline = director.root.pipeline;
+    const pipeline = (director.root as Root).pipeline;
     const device = pipeline.device;
     const sceneData = pipeline.pipelineSceneData;
     const shadowInfo = sceneData.shadows;
@@ -337,7 +338,7 @@ function setShadowUBOLightView (setter: WebSetter,
                     }
                     uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                     if (setter.hasUniform(uniformOffset)) {
-                        _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                        _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, 0);
                         setter.offsetVec4(_uboVec, uniformOffset);
                     }
                 } else {
@@ -375,7 +376,7 @@ function setShadowUBOLightView (setter: WebSetter,
                 }
                 uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                 if (setter.hasUniform(uniformOffset)) {
-                    _uboVec.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
+                    _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, levelCount);
                     setter.offsetVec4(_uboVec, uniformOffset);
                 }
                 uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
@@ -414,7 +415,7 @@ function setShadowUBOLightView (setter: WebSetter,
             }
             uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
             if (setter.hasUniform(uniformOffset)) {
-                _uboVec.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                _uboVec.set(LightType.SPOT, packing, spotLight.shadowNormalBias, 0.0);
                 setter.offsetVec4(_uboVec, uniformOffset);
             }
         }
@@ -424,7 +425,7 @@ function setShadowUBOLightView (setter: WebSetter,
     }
     uniformOffset = setter.getUniformOffset('cc_shadowColor', Type.FLOAT4);
     if (setter.hasUniform(uniformOffset)) {
-        _uboCol.copy(shadowInfo.shadowColor);
+        _uboCol.set(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y, shadowInfo.shadowColor.z, shadowInfo.shadowColor.w);
         setter.offsetColor(_uboCol, uniformOffset);
     }
 }
@@ -435,11 +436,11 @@ function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number
     case PCFType.HARD:
         return 0.0;
     case PCFType.SOFT:
-        return 1.0  / (shadowMapSize * 0.5);
+        return 1.0 / (shadowMapSize * 0.5);
     case PCFType.SOFT_2X:
-        return 2.0  / (shadowMapSize * 0.5);
-    // case PCFType.SOFT_4X:
-    //     return 3.0  / (shadowMapSize * 0.5);
+        return 2.0 / (shadowMapSize * 0.5);
+    case PCFType.SOFT_4X:
+        return 3.0 / (shadowMapSize * 0.5);
     default:
     }
     return 0.0;
@@ -494,7 +495,7 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         }
                         uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                         if (setter.hasUniform(uniformOffset)) {
-                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                            _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, 0);
                             setter.offsetVec4(_uboVec, uniformOffset);
                         }
                     }
@@ -503,7 +504,8 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         const layerThreshold = getPCFRadius(shadowInfo, mainLight);
                         setter.setCurrConstant('CCCSM', layout);
                         for (let i = 0; i < mainLight.csmLevel; i++) {
-                            const matShadowView = csmLayers.layers[i].matShadowView;
+                            const layer = csmLayers.layers[i];
+                            const matShadowView = layer.matShadowView;
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir0', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
                                 _uboVec.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
@@ -511,29 +513,25 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir1', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                _uboVec.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, 0.0);
+                                _uboVec.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, layer.splitCameraNear);
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir2', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                _uboVec.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
+                                _uboVec.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, layer.splitCameraFar);
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmAtlas', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                const csmAtlas = csmLayers.layers[i].csmAtlas;
+                                const csmAtlas = layer.csmAtlas;
                                 setter.offsetVec4(csmAtlas, uniformOffset);
-                            }
-                            uniformOffset = setter.getUniformOffset('cc_csmSplitsInfo', Type.FLOAT, i);
-                            if (setter.hasUniform(uniformOffset)) {
-                                setter.offsetFloat(csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_matCSMViewProj', Type.MAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                                const matShadowViewProj = layer.matShadowViewProj;
                                 setter.offsetMat4(matShadowViewProj, uniformOffset);
                             }
-                            const matShadowProj = csmLayers.layers[i].matShadowProj;
+                            const matShadowProj = layer.matShadowProj;
                             uniformOffset = setter.getUniformOffset('cc_csmProjDepthInfo', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
                                 _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
@@ -545,6 +543,11 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                         }
+                        uniformOffset = setter.getUniformOffset('cc_csmSplitsInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(mainLight.csmTransitionRange, 0, 0, 0);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
                     }
                     if (hasCCShadow) {
                         setter.setCurrConstant('CCShadow', layout);
@@ -555,7 +558,7 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         }
                         uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                         if (setter.hasUniform(uniformOffset)) {
-                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
+                            _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
                             setter.offsetVec4(_uboVec, uniformOffset);
                         }
                     }
@@ -627,7 +630,7 @@ function setCameraUBOValues (setter: WebSetter,
         }
         uniformOffset = setter.getUniformOffset('cc_surfaceTransform', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
-            _uboVec.set(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle())));
+            _uboVec.set(camera.surfaceTransform, camera.cameraUsage, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle())));
             setter.offsetVec4(_uboVec, uniformOffset);
         }
         uniformOffset = setter.getUniformOffset('cc_exposure', Type.FLOAT4);

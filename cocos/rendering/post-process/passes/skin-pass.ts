@@ -33,7 +33,7 @@ import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 
 import { SettingPass } from './setting-pass';
-import { forceEnableFloatOutput, getRTFormatBeforeToneMapping } from './base-pass';
+import { forceEnableFloatOutput, getRTFormatBeforeToneMapping, getShadowMapSampler } from './base-pass';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -312,12 +312,12 @@ export class SkinPass extends SettingPass {
         if (shadowPass) {
             for (const dirShadowName of shadowPass.mainLightShadows) {
                 if (ppl.containsResource(dirShadowName)) {
-                    pass.addTexture(dirShadowName, 'cc_shadowMap');
+                    pass.addTexture(dirShadowName, 'cc_shadowMap', getShadowMapSampler());
                 }
             }
             for (const spotShadowName of shadowPass.spotLightShadows) {
                 if (ppl.containsResource(spotShadowName)) {
-                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
+                    pass.addTexture(spotShadowName, 'cc_spotShadowMap', getShadowMapSampler());
                 }
             }
         }
