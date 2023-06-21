@@ -1,5 +1,7 @@
 'use strict';
 
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
+
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
