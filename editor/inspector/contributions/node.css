@@ -150,7 +150,7 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    margin-right: 4px;
+    margin-right: 2px;
 }
 
 .component .component-header ui-drag-item {
