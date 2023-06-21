@@ -4,8 +4,8 @@ CCEffect %{
   techniques:
   - passes:
     - vert: color-grading-vs
-      frag: color-grading-32-fs
-      pass: color-grading-32
+      frag: color-grading-nx1-fs
+      pass: color-grading-nx1
       rasterizerState: &rasterizerState
         cullMode: none
       blendState: &blendState
@@ -26,6 +26,7 @@ CCEffect %{
 
 CCProgram ubo %{
     uniform ColorGradingUBO {
+        vec2 textureSize;
         float contribute;
     };
     #pragma rate sceneColorMap pass
@@ -38,21 +39,21 @@ CCProgram color-grading-vs %{
   #include <./chunks/vs>
 }%
 
-CCProgram color-grading-32-fs %{
+CCProgram color-grading-nx1-fs %{
   precision highp float;
   #include <ubo>
   in vec2 v_uv;
 
-  #define COLORS 32.0
-  #define COLOR_GRADING_SCALE  vec3((COLORS - 1.0) / (COLORS * COLORS), (COLORS - 1.0) / COLORS, 1.0 / COLORS)
-  #define COLOR_GRADING_OFFSET vec2(1.0 / (2.0 * COLORS * COLORS), 1.0 / (2.0 * COLORS))
-
   vec3 ColorGrading(sampler2D lutTexture, vec3 color) {
-    vec2 uv = vec2(color.r, 1.0 - color.g) * COLOR_GRADING_SCALE.xy + COLOR_GRADING_OFFSET;
-    float b = color.b * (COLORS - 1.0);
+    float colors = textureSize.x / textureSize.y;
+    vec3 colorGradingScale =  vec3((colors - 1.0) / (colors * colors), (colors - 1.0) / colors, 1.0 / colors);
+    vec2 colorGradingOffset = vec2(1.0 / (2.0 * colors * colors), 1.0 / (2.0 * colors));
+
+    vec2 uv = vec2(color.r, 1.0 - color.g) * colorGradingScale.xy + colorGradingOffset;
+    float b = color.b * (colors - 1.0);
     vec2 lr = floor(vec2(b, b + 1.0));
     float lerp = b - lr.x;
-    lr *= COLOR_GRADING_SCALE.z;
+    lr *= colorGradingScale.z;
     vec3 left = texture(lutTexture, uv + vec2(lr.x, 0.0)).rgb;
     vec3 right = texture(lutTexture, uv + vec2(lr.y, 0.0)).rgb;
     return mix(left, right, lerp);

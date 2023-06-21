@@ -1277,7 +1277,7 @@ module.exports = link(mixin({
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
     color_grading: {
-        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
+        originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
 },
 
