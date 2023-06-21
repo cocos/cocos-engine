@@ -456,7 +456,7 @@ export class SubpassGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getSubpass (v: number): Subpass {
@@ -862,7 +862,7 @@ export class ResourceGraph implements BidirectionalGraph
         { // UuidGraph
             const key = this._names[u];
             this._valueIndex.delete(key);
-            this._valueIndex.forEach((v) => {
+            this._valueIndex.forEach((v): void => {
                 if (v > u) { --v; }
             });
         }
@@ -996,7 +996,7 @@ export class ResourceGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getDesc (v: number): ResourceDesc {
@@ -1871,13 +1871,13 @@ export class RenderGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getLayout (v: number): string {
         return this._layoutNodes[v];
     }
-    setLayout (v: number, value: string) {
+    setLayout (v: number, value: string): void {
         this._layoutNodes[v] = value;
     }
     getData (v: number): RenderData {
@@ -1886,7 +1886,7 @@ export class RenderGraph implements BidirectionalGraph
     getValid (v: number): boolean {
         return this._valid[v];
     }
-    setValid (v: number, value: boolean) {
+    setValid (v: number, value: boolean): void {
         this._valid[v] = value;
     }
     //-----------------------------------------------------------------

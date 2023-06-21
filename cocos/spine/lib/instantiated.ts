@@ -46,20 +46,23 @@ let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return wasmFactory({
-        instantiateWasm (importObject: WebAssembly.Imports,
-            receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
-            return instantiateWasm(wasmUrl, importObject).then((result: any) => {
-                receiveInstance(result.instance, result.module);
+    return new Promise<void>((resolve, reject) => {
+        const errorMessage = (err: any): string => `[Spine]: Spine wasm load failed: ${err}`;
+        wasmFactory({
+            instantiateWasm (importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+                // NOTE: the Promise return by instantiateWasm hook can't be caught.
+                instantiateWasm(wasmUrl, importObject).then((result: any) => {
+                    receiveInstance(result.instance, result.module);
+                }).catch((err) => reject(errorMessage(err)));
+            },
+        }).then((Instance: any) => {
+            wasmInstance = Instance;
+            registerList.forEach((cb) => {
+                cb(wasmInstance);
             });
-        },
-    }).then((Instance: any) => {
-        wasmInstance = Instance;
-        registerList.forEach((cb) => {
-            cb(wasmInstance);
-        });
-    }, (reason: any) => { error(`[Spine]: Spine wasm load failed: ${reason}`); });
+        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
+    });
 }
 
 function initAsm (): Promise<void> {

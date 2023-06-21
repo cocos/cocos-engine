@@ -27,6 +27,7 @@ package com.cocos.game;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import com.cocos.service.SDKWrapper;
 import com.cocos.lib.CocosActivity;
