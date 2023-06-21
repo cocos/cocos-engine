@@ -425,7 +425,7 @@ function setShadowUBOLightView (setter: WebSetter,
     }
     uniformOffset = setter.getUniformOffset('cc_shadowColor', Type.FLOAT4);
     if (setter.hasUniform(uniformOffset)) {
-        _uboCol.copy(shadowInfo.shadowColor);
+        _uboCol.set(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y, shadowInfo.shadowColor.z, shadowInfo.shadowColor.w);
         setter.offsetColor(_uboCol, uniformOffset);
     }
 }
@@ -436,11 +436,11 @@ function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number
     case PCFType.HARD:
         return 0.0;
     case PCFType.SOFT:
-        return 1.0  / (shadowMapSize * 0.5);
+        return 1.0 / (shadowMapSize * 0.5);
     case PCFType.SOFT_2X:
-        return 2.0  / (shadowMapSize * 0.5);
+        return 2.0 / (shadowMapSize * 0.5);
     case PCFType.SOFT_4X:
-        return 3.0  / (shadowMapSize * 0.5);
+        return 3.0 / (shadowMapSize * 0.5);
     default:
     }
     return 0.0;
