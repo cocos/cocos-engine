@@ -23,7 +23,7 @@
 */
 
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
-import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, WASM_FALLBACK, HTML5 } from 'internal:constants';
 import asmFactory from 'external:emscripten/spine/spine.asm.js';
 import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
 import wasmFactory from 'external:emscripten/spine/spine.wasm.js';
@@ -32,6 +32,8 @@ import { game } from '../../game';
 import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
+import { systemInfo } from 'pal/system-info';
+import { BrowserType } from '../../../pal/system-info/enum-type';
 
 const PAGESIZE = 65536; // 64KiB
 
@@ -48,6 +50,36 @@ const registerList: any[] = [];
 function initWasm (wasmUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[Spine]: Spine wasm load failed: ${err}`;
+        if (WASM_FALLBACK) {
+            if (HTML5 && systemInfo.isMobile && systemInfo.browserType === BrowserType.SAFARI) {
+                const safariVersion = /Version\/([\d.]+)/.exec(window.navigator.userAgent)?.[1];
+                if (safariVersion && Number.parseInt(safariVersion.split('.')[0]) < 15) {
+                    // NOTE: we need to fallback to the wasm which is compiled by lower version of emscripten.
+                    Promise.all([
+                        import('external:emscripten/spine/spine.wasm.fallback'),
+                        import('external:emscripten/spine/spine.wasm.fallback.js')]).then(([
+                        { default: wasmFallbackUrl },
+                        { default: wasmFallbackFactory },
+                    ]) => {
+                        wasmFallbackFactory({
+                            instantiateWasm (importObject: WebAssembly.Imports,
+                                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+                                // NOTE: the Promise return by instantiateWasm hook can't be caught.
+                                instantiateWasm(wasmFallbackUrl, importObject).then((result: any) => {
+                                    receiveInstance(result.instance, result.module);
+                                }).catch((err) => reject(errorMessage(err)));
+                            },
+                        }).then((Instance: any) => {
+                            wasmInstance = Instance;
+                            registerList.forEach((cb) => {
+                                cb(wasmInstance);
+                            });
+                        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
+                    }).catch(reject);
+                    return;
+                }
+            }
+        }
         wasmFactory({
             instantiateWasm (importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
