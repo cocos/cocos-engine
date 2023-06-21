@@ -23,6 +23,7 @@
 */
 
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
+import { systemInfo } from 'pal/system-info';
 import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, WASM_FALLBACK, HTML5 } from 'internal:constants';
 import asmFactory from 'external:emscripten/spine/spine.asm.js';
 import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
@@ -32,7 +33,6 @@ import { game } from '../../game';
 import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
-import { systemInfo } from 'pal/system-info';
 import { BrowserType } from '../../../pal/system-info/enum-type';
 
 const PAGESIZE = 65536; // 64KiB
