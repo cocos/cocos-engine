@@ -33,7 +33,7 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings } from '../core';
+import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
@@ -144,7 +144,7 @@ export class Profiler extends System {
      * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
     public get _stats () {
-        console.warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
+        warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
         return this._profilerStats;
     }
 
