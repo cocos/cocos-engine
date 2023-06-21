@@ -6,7 +6,7 @@ replaceProperty(
     'BufferAsset',
     [{
         name: 'buffer',
-        newName: 'bytes',
+        newName: 'view',
         target: BufferAsset.prototype,
         targetName: 'BufferAsset',
         customFunction: BufferAsset.prototype.buffer,

@@ -40,33 +40,33 @@ export class BufferAsset extends Asset {
      * @en Byte view of the buffered data.
      */
     @serializable
-    public bytes = new Uint8Array();
+    public view = new Uint8Array();
 
     /**
-     * @zh 首次调用将 **复制** 此时的`this.bytes`，并返回副本的 `ArrayBuffer`；该副本会在后续调用中直接返回。
-     * @en The first invocation on this method will **clone** `this.bytes` and returns `ArrayBuffer` of the copy.
+     * @zh 首次调用将 **复制** 此时的`this.view`，并返回副本的 `ArrayBuffer`；该副本会在后续调用中直接返回。
+     * @en The first invocation on this method will **clone** `this.view` and returns `ArrayBuffer` of the copy.
      * The copy will be directly returned in following invocations.
      *
      * @returns @en The `ArrayBuffer`. @zh `ArrayBuffer`。
      *
-     * @deprecated @zh 自 3.9.0，此方法废弃，调用此方法将带来可观的性能开销；请转而使用 `this.bytes`。
+     * @deprecated @zh 自 3.9.0，此方法废弃，调用此方法将带来可观的性能开销；请转而使用 `this.view`。
      * @en Since 3.9.0, this method is deprecated.
-     * Invocation on this method leads to significate cost. Use `this.bytes` instead.
+     * Invocation on this method leads to significate cost. Use `this.view` instead.
      */
     public buffer () {
-        if (!this._bytesLegacy) {
-            this._bytesLegacy = new Uint8Array(this.bytes);
+        if (!this._bufferLegacy) {
+            this._bufferLegacy = new Uint8Array(this.view);
         }
-        return this._bytesLegacy.buffer;
+        return this._bufferLegacy.buffer;
     }
 
     /**
      * This field is preserved here for compatibility purpose:
      * prior to 3.9.0, `buffer()` returns `ArrayBuffer`.
-     * We can't directly returns `this._bytes` in `this.buffer()`
-     * since `this._bytes` does not view entire underlying buffer.
+     * We can't directly returns `this.view` in `this.buffer()`
+     * since `this.view` does not view entire underlying buffer.
      */
-    private _bytesLegacy: undefined | Uint8Array = undefined;
+    private _bufferLegacy: undefined | Uint8Array = undefined;
 }
 
 cclegacy.BufferAsset = BufferAsset;
