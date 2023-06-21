@@ -466,43 +466,65 @@ export class Quat extends ValueType {
      */
     public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
-            m00, m03: m01, m06: m02,
-            m01: m10, m04: m11, m07: m12,
-            m02: m20, m05: m21, m08: m22,
+            m00, m01, m02, //colum 0
+            m03: m10, m04: m11, m05: m12, //colum 1
+            m06: m20, m07: m21, m08: m22, //colum 2
         } = m;
 
-        const trace = m00 + m11 + m22;
+        const fourXSquaredMinus1 = m00 - m11 - m22;
+        const fourYSquaredMinus1 = m11 - m00 - m22;
+        const fourZSquaredMinus1 = m22 - m00 - m11;
+        const fourWSquaredMinus1 = m00 + m11 + m22;
 
-        if (trace > 0) {
-            const s = 0.5 / Math.sqrt(trace + 1.0);
-
-            out.w = 0.25 / s;
-            out.x = (m21 - m12) * s;
-            out.y = (m02 - m20) * s;
-            out.z = (m10 - m01) * s;
-        } else if ((m00 > m11) && (m00 > m22)) {
-            const s = 0.5 / Math.sqrt(1.0 + m00 - m11 - m22);
-
-            out.w = (m21 - m12) * s;
-            out.x = 0.25 / s;
-            out.y = (m01 + m10) * s;
-            out.z = (m02 + m20) * s;
-        } else if (m11 > m22) {
-            const s = 0.5 / Math.sqrt(1.0 + m11 - m00 - m22);
-
-            out.w = (m02 - m20) * s;
-            out.x = (m01 + m10) * s;
-            out.y = 0.25 / s;
-            out.z = (m12 + m21) * s;
-        } else {
-            const s = 0.5 / Math.sqrt(1.0 + m22 - m00 - m11);
-
-            out.w = (m10 - m01) * s;
-            out.x = (m02 + m20) * s;
-            out.y = (m12 + m21) * s;
-            out.z = 0.25 / s;
+        let biggestIndex = 0;
+        let fourBiggestSquaredMinus1 = fourWSquaredMinus1;
+        if (fourXSquaredMinus1 > fourBiggestSquaredMinus1) {
+            fourBiggestSquaredMinus1 = fourXSquaredMinus1;
+            biggestIndex = 1;
+        }
+        if (fourYSquaredMinus1 > fourBiggestSquaredMinus1) {
+            fourBiggestSquaredMinus1 = fourYSquaredMinus1;
+            biggestIndex = 2;
+        }
+        if (fourZSquaredMinus1 > fourBiggestSquaredMinus1) {
+            fourBiggestSquaredMinus1 = fourZSquaredMinus1;
+            biggestIndex = 3;
         }
 
+        const biggestVal = Math.sqrt(fourBiggestSquaredMinus1 + 1) * 0.5;
+        const mult = 0.25 / biggestVal;
+        switch (biggestIndex) {
+        case 0:
+            out.w =  biggestVal;
+            out.x = (m12 - m21) * mult;
+            out.y = (m20 - m02) * mult;
+            out.z = (m01 - m10) * mult;
+            break;
+        case 1:
+            out.w =  (m12 - m21) * mult;
+            out.x = biggestVal;
+            out.y = (m01 + m10) * mult;
+            out.z = (m20 + m02) * mult;
+            break;
+        case 2:
+            out.w = (m20 - m02) * mult;
+            out.x = (m01 + m10) * mult;
+            out.y = biggestVal;
+            out.z = (m12 + m21) * mult;
+            break;
+        case 3:
+            out.w = (m01 - m10) * mult;
+            out.x = (m20 + m02) * mult;
+            out.y = (m12 + m21) * mult;
+            out.z = biggestVal;
+            break;
+        default:
+            out.w = 1;
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+            break;
+        }
         return out;
     }
 

@@ -6,9 +6,9 @@ CCEffect %{
     - switch: USE_OUTLINE_PASS
       vert: legacy/main-functions/outline-vs:vert
       frag: legacy/main-functions/outline-fs:frag
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: front
-      depthStencilState:
+      depthStencilState: &d1
         depthFunc: less_equal
         depthTest: true
         depthWrite: true
@@ -100,6 +100,17 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+    - switch: USE_OUTLINE_PASS
+      vert: legacy/main-functions/outline-vs:vert
+      frag: legacy/main-functions/outline-fs:frag
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      propertyIndex: 0
+    - vert: toon-vs:vert
+      frag: toon-fs:frag
+      phase: deferred-forward
+      propertyIndex: 1
 }%
 
 CCProgram shared-ubos %{
@@ -314,7 +325,7 @@ CCProgram shadow-caster-fs %{
   #include <shared-ubos>
   #include <common/data/packing>
   #include <legacy/shadow-map-base>
-  
+
   in vec2 v_uv;
   in vec4 v_worldPos;
   in highp vec2 v_clip_depth;

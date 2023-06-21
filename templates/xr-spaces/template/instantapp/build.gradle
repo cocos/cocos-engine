@@ -18,7 +18,6 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.cocos.helloworld"
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1

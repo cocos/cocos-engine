@@ -43,7 +43,8 @@ exports.style = /* css */`
 }
 
 .asset-animation-mask > .header {
-    margin-top: 10px;
+    margin-top: 4px;
+    margin-right: 4px;
     display: flex;
 }
 
@@ -286,7 +287,7 @@ exports.ready = function() {
             ],
             listeners: {
                 async confirm(detail) {
-                    if (!detail) return;
+                    if (!detail) { return; }
                     const info = await Editor.Message.request('asset-db', 'query-asset-info', detail.value);
                     if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {
                         console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${detail.value})}`);

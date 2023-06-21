@@ -110,11 +110,6 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
-    return addRenderWindow(name, format, width, height, renderWindow);
-}
-
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
@@ -511,9 +506,13 @@ void NativePipeline::updateShadingRateTexture(
 void NativePipeline::beginFrame() {
 }
 
-void NativePipeline::update(const scene::Camera* camera) {
+void NativePipeline::update(const scene::Camera *camera) {
     const auto *sceneData = getPipelineSceneData();
-    sceneData->getCSMLayers()->update(sceneData, camera);
+    const auto *shadows = sceneData->getShadows();
+    if (shadows && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP &&
+        camera && camera->getScene() && camera->getScene()->getMainLight()) {
+        sceneData->getCSMLayers()->update(sceneData, camera);
+    }
 }
 
 void NativePipeline::endFrame() {
@@ -741,6 +740,13 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
         setValue("CC_CASCADED_LAYERS_TRANSITION", 0);
     }
 
+    setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
+#if ENABLE_FLOAT_OUTPUT
+    setValue("CC_USE_FLOAT_OUTPUT", true);
+# else
+    setValue("CC_USE_FLOAT_OUTPUT", false);
+#endif
+
     swapchain = swapchainIn;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
@@ -750,7 +756,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
     // pipeline construct.
-    generateConstantMacros(device, constantMacros, false);
+    generateConstantMacros(device, constantMacros);
 
     _commandBuffers.resize(1, device->getCommandBuffer());
 

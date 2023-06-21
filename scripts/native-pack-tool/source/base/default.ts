@@ -449,7 +449,11 @@ export abstract class NativePackTool {
             }
         });
         Object.keys(config).forEach((key: string) => {
-            content += config[key] + '\n';
+            if(typeof config[key] !== 'string')  {
+                console.error(`cMakeConfig.${key} is not a string, "${config[key]}"`);
+            } else {
+                content += config[key] + '\n';
+            }
         });
         console.debug(`generateCMakeConfig, ${JSON.stringify(config)}`);
         await fs.outputFile(file, content);

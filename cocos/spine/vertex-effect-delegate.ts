@@ -41,13 +41,13 @@ export class VertexEffectDelegate {
      * @en Spine vertex effect object instance.
      * @zh Spine 顶点特效对象实例。
      */
-    _vertexEffect: spine.VertexEffect | null = null;
-    private _interpolation: spine.Interpolation | null = null;
+    _vertexEffect: spine.VertexEffect;
+    private _interpolation: spine.Interpolation;
     private _effectType: string;
 
     constructor () {
-        this._vertexEffect = null;
-        this._interpolation = null;
+        this._vertexEffect = null!;
+        this._interpolation = null!;
         this._effectType = 'none';
     }
 
@@ -56,8 +56,8 @@ export class VertexEffectDelegate {
      * @zh 清空顶点特效。
      */
     clear () {
-        this._vertexEffect = null;
-        this._interpolation = null;
+        this._vertexEffect = null!;
+        this._interpolation = null!;
         this._effectType = 'none';
     }
 
@@ -97,7 +97,7 @@ export class VertexEffectDelegate {
      * @param {Number} power
      * @return {sp.spine.SwirlEffect} @en Return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
-    initSwirlWithPowOut (radius: number, power: number) {
+    initSwirlWithPowOut (radius: number, power: number): spine.VertexEffect {
         this._effectType = 'swirl';
         this._interpolation = new spine.PowOut(power);
         this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);

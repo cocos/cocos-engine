@@ -34,9 +34,7 @@ import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
-import { ModelRenderer } from '../misc/model-renderer';
-import { scene } from '../render-scene';
-import { Model, ToneMapping } from '../render-scene/scene';
+import { Model } from '../render-scene/scene';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
@@ -76,16 +74,24 @@ export class PipelineSceneData {
      * @returns The model id
      */
     get standardSkinModel  () { return this._standardSkinModel; }
+    set standardSkinModel (val: Model | null) {
+        this._standardSkinModel = val;
+    }
 
     /**
      * @engineInternal
-     * @en Set the Separable-SSS skin standard model.
-     * @zh 设置一个全局的4s标准模型
+     * @en Set the Separable-SSS skin standard model component.
+     * @zh 设置一个全局的4s标准模型组件
      * @returns The model id
      */
-    set standardSkinModel (val: MeshRenderer | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
-        this._standardSkinModel = val;
+    get standardSkinMeshRenderer () { return this._standardSkinMeshRenderer; }
+    set standardSkinMeshRenderer (val: MeshRenderer | null) {
+        if (this._standardSkinMeshRenderer && this._standardSkinMeshRenderer !== val) {
+            this._standardSkinMeshRenderer.clearGlobalStandardSkinObjectFlag();
+        }
+
+        this._standardSkinMeshRenderer = val;
+        this.standardSkinModel = val ? val.model : null;
     }
 
     get skinMaterialModel () {
@@ -102,7 +108,6 @@ export class PipelineSceneData {
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
     public skin: Skin = new Skin();
-    public tonemapping: ToneMapping = new ToneMapping();
     public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
@@ -129,7 +134,8 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
-    private _standardSkinModel: MeshRenderer | null = null;
+    private _standardSkinMeshRenderer: MeshRenderer | null = null;
+    private _standardSkinModel: Model | null = null;
     private _skinMaterialModel: Model | null = null;
 
     constructor () {
@@ -205,6 +211,9 @@ export class PipelineSceneData {
         this._occlusionQueryVertexBuffer = null;
         this._occlusionQueryIndicesBuffer?.destroy();
         this._occlusionQueryIndicesBuffer = null;
+        this._standardSkinMeshRenderer = null;
+        this._standardSkinModel = null;
+        this._skinMaterialModel = null;
     }
 
     private _createOcclusionQueryIA () {

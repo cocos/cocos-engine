@@ -222,7 +222,7 @@ void setReadWriteTextureImpl(RenderData &data, const LayoutGraphData &lg, const 
 
 void setSamplerImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler) {
     auto nameID = getNameID(lg.attributeIndex, name);
-    data.samplers[nameID.value].ptr = sampler;
+    data.samplers[nameID.value] = sampler;
 }
 
 LayoutGraphData::vertex_descriptor getSubpassOrPassID(

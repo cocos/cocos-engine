@@ -401,7 +401,7 @@ void updateGlobal(
         }
         auto* sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(descriptorSet, bindId, value.get());
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
@@ -496,6 +496,7 @@ gfx::DescriptorSet* initDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -516,19 +517,15 @@ gfx::DescriptorSet* initDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-
-                    auto iter = resourceIndex.find(d.descriptorID);
-                    if (iter != resourceIndex.end()) {
+                    // texture
+                    if (auto iter = resourceIndex.find(d.descriptorID);
+                        iter != resourceIndex.end()) {
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
@@ -576,7 +573,15 @@ gfx::DescriptorSet* initDescriptorSet(
                             }
                             newSet->bindTexture(bindID, defaultResource.getTexture(type));
                         }
+                    } // texture end
+
+                    // user provided samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
                     }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -586,7 +591,7 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         gfx::SamplerInfo info{};
                         auto* sampler = device->getSampler(info);
@@ -599,6 +604,7 @@ gfx::DescriptorSet* initDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
+            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
             case DescriptorTypeOrder::STORAGE_BUFFER:
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -620,13 +626,11 @@ gfx::DescriptorSet* initDescriptorSet(
                             found = true;
                         }
                     }
-                    CC_ENSURES(found);
+                    if (!found) {
+                        newSet->bindBuffer(bindID, defaultResource.getBuffer());
+                    }
                     bindID += d.count;
                 }
-                break;
-            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -695,6 +699,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -714,24 +719,29 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-                    auto iter = user.textures.find(d.descriptorID.value);
-                    if (iter != user.textures.end()) {
+                    // textures
+                    if (auto iter = user.textures.find(d.descriptorID.value);
+                        iter != user.textures.end()) {
                         newSet->bindTexture(bindID, iter->second.get());
                     } else {
                         auto* prevTexture = prevSet.getTexture(bindID);
                         CC_ENSURES(prevTexture);
                         newSet->bindTexture(bindID, prevTexture);
                     }
+
+                    // samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
+                    }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -741,7 +751,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         auto* prevSampler = prevSet.getSampler(bindID);
                         CC_ENSURES(prevSampler);
@@ -754,13 +764,24 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
-            case DescriptorTypeOrder::STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
+            case DescriptorTypeOrder::STORAGE_BUFFER:
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    bool found = false;
+                    CC_EXPECTS(d.count == 1);
+                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                        iter != user.buffers.end()) {
+                        newSet->bindBuffer(bindID, iter->second.get());
+                        found = true;
+                    } else {
+                        auto* prevBuffer = prevSet.getBuffer(bindID);
+                        CC_ENSURES(prevBuffer);
+                        newSet->bindBuffer(bindID, prevBuffer);
+                    }
+                    auto name = lg.valueNames[d.descriptorID.value];
+                    bindID += d.count;
+                }
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -1560,13 +1581,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!pso) {
             return;
         }
-        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
+        // auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
-        ctx.cmdBuff->bindDescriptorSet(
-            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
+        // ctx.cmdBuff->bindDescriptorSet(
+        //     static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
         ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }

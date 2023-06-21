@@ -124,7 +124,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.layer = Layers.Enum.UI_2D;
 
             this._debugGraphics = node.addComponent(Graphics);
-            this._debugGraphics.lineWidth = 2;
+            this._debugGraphics.lineWidth = 3;
 
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
             this._b2DebugDrawer = debugDraw;

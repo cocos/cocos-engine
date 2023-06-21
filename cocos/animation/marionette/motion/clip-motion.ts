@@ -149,6 +149,9 @@ class ClipMotionEval implements MotionEval {
 
         const pose = clipEval.evaluate(clipTime, context);
 
+        // Sample frame events.
+        this._frameEventEval?.sample(wrapInfo.ratio, wrapInfo.direction, wrapInfo.iterations);
+
         // Evaluate embedded players.
         this._clipEmbeddedPlayerEval?.evaluate(clipTime, Math.trunc(wrapInfo.iterations));
 
@@ -163,6 +166,10 @@ class ClipMotionEval implements MotionEval {
         }
     }
 
+    public reenter () {
+        this._frameEventEval?.reset();
+    }
+
     /**
      * Preserved here for clip overriding.
      */
@@ -173,12 +180,14 @@ class ClipMotionEval implements MotionEval {
     private declare _clip: AnimationClip;
     private declare _clipEval: AnimationClipAGEvaluation;
     private _clipEmbeddedPlayerEval: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']> | null = null;
+    private _frameEventEval: ReturnType<AnimationClip['createEventEvaluator']> | null = null;
     private _wrapInfo = new WrappedInfo();
     private _duration = 0.0;
     private _ignoreEmbeddedPlayers: boolean;
 
     private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext) {
         this._clipEval?.destroy();
+        this._frameEventEval = null;
         if (this._clipEmbeddedPlayerEval) {
             this._clipEmbeddedPlayerEval.destroy();
             this._clipEmbeddedPlayerEval = null;
@@ -189,6 +198,7 @@ class ClipMotionEval implements MotionEval {
             ? 0.0
             : clip.duration / clip.speed; // TODO, a test for `clip.speed === 0` is required!
         this._clipEval = createAnimationAGEvaluation(clip, context);
+        this._frameEventEval = clip.createEventEvaluator(context.origin);
         if (!this._ignoreEmbeddedPlayers && clip.containsAnyEmbeddedPlayer()) {
             this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.origin);
         }
@@ -202,6 +212,10 @@ class ClipMotionPort implements MotionPort {
 
     public evaluate (progress: number, context: AnimationGraphEvaluationContext): Pose {
         return this._eval[evaluatePortTag](progress, context);
+    }
+
+    public reenter () {
+        this._eval.reenter();
     }
 
     private _eval: ClipMotionEval;

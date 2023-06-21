@@ -26,11 +26,11 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
+    <ui-section expand class="sub-panel-section config no-padding" cache-expand="image-sub-panel-section">
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
-    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
+    <ui-section expand class="sub-texture-panel-section config no-padding" cache-expand="image-sub-panel-section" hidden>
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
@@ -38,7 +38,7 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-
+:host .asset-image > ui-prop { margin-right: 4px; }
 `;
 
 exports.$ = {
@@ -203,6 +203,10 @@ const Elements = {
 };
 
 exports.methods = {
+    apply() {
+        // if the image type changes between sprite-frame
+        this.spriteFrameChange = this.checkSpriteFrameChange(this.originImageType, this.meta.userData.type);
+    },
     updatePanel() {
         this.setPanel(this.$.panelSection, this.meta.userData.type);
 
@@ -370,15 +374,14 @@ exports.update = function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (this.originMetaList && !this.asset.readonly) {
-        // if the image type changes between sprite-frame
-        const spriteFrameChange = this.checkSpriteFrameChange(this.originMetaList[0].userData.type, this.meta.userData.type);
-        this.handleTypeChange(spriteFrameChange, this.meta.userData.type);
+    if (this.spriteFrameChange && this.originMetaList && !this.asset.readonly) {
+        this.handleTypeChange(this.spriteFrameChange, this.meta.userData.type);
         // same as panel handle
         if (this.meta.userData.type === 'sprite-frame') {
-            this.handleTypeChange(spriteFrameChange, 'texture');
+            this.handleTypeChange(this.spriteFrameChange, 'texture');
         }
     }
+    this.originImageType = this.meta.userData.type;
     // change originMetaList
     this.originMetaList = JSON.parse(JSON.stringify(this.metaList));
 

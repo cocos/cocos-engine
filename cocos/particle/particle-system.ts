@@ -28,7 +28,7 @@ import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Renderer } from '../misc/renderer';
 import { ModelRenderer } from '../misc/model-renderer';
 import { Material } from '../asset/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy } from '../core';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy, warn } from '../core';
 import { scene } from '../render-scene';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';
@@ -981,7 +981,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     public pause () {
         if (this._isStopped) {
-            console.warn('pause(): particle system is already stopped.');
+            warn('pause(): particle system is already stopped.');
             return;
         }
         if (this._isPlaying) {
@@ -1299,7 +1299,7 @@ export class ParticleSystem extends ModelRenderer {
             this._needAttach = true;
         }
 
-        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
+        if (!this._isPlaying) return;
 
         // update render data
         this.processor.updateRenderData();

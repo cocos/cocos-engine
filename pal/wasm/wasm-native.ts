@@ -25,16 +25,27 @@ import { EDITOR } from 'internal:constants';
 import { native } from '../../cocos/native-binding/index';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    // NOTE: when it's in EDITOR, wasmUrl is a url with `external:` protocol.
-    if (EDITOR) {
-        return Editor.Message.request('engine', 'query-engine-info').then((info) => {
-            const externalRoot = `${info.native.path}/external/`;
-            wasmUrl = wasmUrl.replace('external:', externalRoot);
-            const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
-            return WebAssembly.instantiate(arrayBuffer, importObject);
-        }) as Promise<any>;
-    }
-    wasmUrl = `src/cocos-js/${wasmUrl}`;
-    const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
-    return WebAssembly.instantiate(arrayBuffer, importObject);
+    return fetchBuffer(wasmUrl).then((arrayBuffer) => WebAssembly.instantiate(arrayBuffer, importObject));
+}
+
+export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        try {
+            // NOTE: when it's in EDITOR, binaryUrl is a url with `external:` protocol.
+            if (EDITOR) {
+                Editor.Message.request('engine', 'query-engine-info').then((info) => {
+                    const externalRoot = `${info.native.path}/external/`;
+                    binaryUrl = binaryUrl.replace('external:', externalRoot);
+                    const arrayBuffer = native.fileUtils.getDataFromFile(binaryUrl);
+                    resolve(arrayBuffer);
+                });
+                return;
+            }
+            binaryUrl = `src/cocos-js/${binaryUrl}`;
+            const arrayBuffer = native.fileUtils.getDataFromFile(binaryUrl);
+            resolve(arrayBuffer);
+        } catch (e) {
+            reject(e);
+        }
+    });
 }

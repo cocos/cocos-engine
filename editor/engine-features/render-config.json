@@ -234,7 +234,7 @@
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "native": "USE_SPINE",
-	        "wechatPlugin": true,
+	        "wechatPlugin": false,
             "category": "2d"
         },
         "dragon-bones": {

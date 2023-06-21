@@ -1,56 +1,72 @@
 'use strict';
 
-const { materialTechniquePolyfill } = require('../utils/material');
-const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+module.paths.push(join(Editor.App.path, 'node_modules'));
+
+const { materialTechniquePolyfill } = require('../utils/material');
+const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
+const { escape } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
 const effectDirRE = /^effects\//i;
 
 /**
+ * @param {string} label
+ */
+function formatOptionLabel(label) {
+    // 1. remove group name if matched
+    // 2. remove prefix 'effects'(after 'db://' prefix removed)
+    // 3. escape label string because it will be used as html template string
+    return escape(label.replace(effectGroupNameRE, '').replace(effectDirRE, ''));
+}
+
+/**
  * 
- * @param {{name: string; uuid: string; assetPath: string}[]} sortedEffects 
+ * @param {{name: string; uuid: string; assetPath: string}[]} effects 
  * @returns html template
  */
-function renderGroupEffectOptions(sortedEffects) {
-    const groupNames = new Set();
+function renderGroupEffectOptions(effects) {
+    // group effects by group name, and no longer rely on the ordering of the input `effects`.
+    const groups = {};
 
-    let htmlTemplate = '';
-    let currGroup = '';
+    /**
+     * ungrouped options. html template string.
+     * @type {string[]} 
+     */
+    const extras = [];
 
-    for (const effect of sortedEffects) {
+    for (const effect of effects) {
         const groupName = effectGroupNameRE.exec(effect.assetPath)?.[1] ?? '';
-        let optionLabel = effect.assetPath;
 
         if (groupName !== '') {
-            // complete prev group
-            if (currGroup !== '' && currGroup !== groupName) {
-                htmlTemplate += '</optgroup>';
+            let group = groups[groupName];
+            // group not found yet, init it
+            if (!Array.isArray(group)) {
+                group = [];
+                groups[groupName] = group;
             }
 
-            if (!groupNames.has(groupName)) {
-                groupNames.add(groupName);
+            const label = formatOptionLabel(effect.assetPath);
 
-                currGroup = groupName;
+            group.push(`<option value="${effect.name}" data-uuid="${effect.uuid}">${label}</option>`);
 
-                htmlTemplate += `<optgroup label="${groupName}">`;
-            }
-
-            // for option label, remove group name if matched
-            optionLabel = optionLabel.replace(effectGroupNameRE, '');
+            continue;
         }
 
-        // remove prefix 'effects'(after 'db://' prefix removed)
-        if (effectDirRE.test(optionLabel)) {
-            optionLabel = optionLabel.replace(effectDirRE, '');
-        }
-
-        // use full name as option value
-        htmlTemplate += `<option value="${effect.name}" data-uuid="${effect.uuid}">${optionLabel}</option>`;
+        // no group name, add to extras and render as ungrouped(before grouped options)
+        const label = formatOptionLabel(effect.name);
+        extras.push(`<option value="${effect.name}" data-uuid="${effect.uuid}">${label}</option>`);
     }
 
-    if (currGroup !== '') {
-        htmlTemplate += '</optgroup>';
+    let htmlTemplate = '';
+
+    for (const extra of extras) {
+        htmlTemplate += extra;
+    }
+
+    for (const name in groups) {
+        const options = groups[name];
+        htmlTemplate += `<optgroup label="${name}">${options.join('')}</optgroup>`;
     }
 
     return htmlTemplate;
@@ -60,6 +76,13 @@ exports.style = `
 .invalid { display: none; }
 .invalid[active] { display: block; }
 .invalid[active] ~ * { display: none; }
+
+:host > .header {
+    padding-right: 4px;
+}
+:host > .default > .section {
+    padding-right: 4px;
+}
 
 .custom[src] + .default { display: none; }
 
@@ -198,6 +221,7 @@ exports.methods = {
 
                 const filePath = join(packagePath, relatePath.split(name)[1]);
                 if (this.$.custom.getAttribute('src') !== filePath) {
+                    this.$.custom.injectionStyle(injectionStyle);
                     this.$.custom.setAttribute('src', filePath);
                 }
 

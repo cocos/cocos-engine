@@ -9,7 +9,6 @@
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    margin-top: -1px;
 }
 
 :host > .container[whole] {
@@ -18,24 +17,32 @@
 
 :host > .container > .header {
     display: flex;
+    align-items: center;
+    height: 28px;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+:host > ui-section.container > .header {
+    display: flex;
     flex: 1;
     min-width: 0;
+    border-bottom: none;
 }
 
 :host > .container > .header > .icon {
     width: 16px;
     font-size: 12px;
     cursor: pointer;
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .image {
     width: 16px;
     height: 16px;
     cursor: pointer;
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .icon:hover,
@@ -45,7 +52,6 @@
 
 :host > .container > .header > .name {
     flex: 1;
-    padding-left: 4px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -57,15 +63,12 @@
 }
 
 :host > .container > .header > .copy {
-    padding: 0 4px;
-    height: 18px;
-    margin-left: 4px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .help {
     display: none;
-    margin-left: 8px;
-    margin-right: 3px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .lock {
@@ -79,14 +82,12 @@
 
 :host > .container > .header > .tiny {
     display: none;
-    padding: 0 4px;
-    height: 18px;
-    line-height: 16px;
-    margin-left: 8px;
+    margin-right: 4px;
+    padding: 0 3px;
 }
 
 :host > .container > .header[dirty] > .tiny {
-    display: inline-block;
+    display: inline-flex;
 }
 
 :host > .container > .content {
@@ -104,7 +105,7 @@
 
 :host > .container > .content > .content-section {
     flex: 1;
-    overflow: scroll;
+    overflow: auto;
 }
 
 :host > .container > .content > section > ui-panel {
@@ -128,12 +129,4 @@
     left: 0;
     top: 0;
     z-index: 1;
-}
-
-:host-context(ui-panel[type="asset"]) > .container {
-    margin-top: var(--asset-container-margin-top, -1px);
-}
-
-:host-context(ui-panel[type="asset"]) > .container > .content > .content-section {
-    overflow: var(--asset-container-content-section-overflow, auto);
 }

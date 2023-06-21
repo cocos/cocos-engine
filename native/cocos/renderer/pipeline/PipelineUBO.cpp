@@ -202,6 +202,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
 
     output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 0] = static_cast<float>(camera->getNearClip());
     output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 1] = static_cast<float>(camera->getFarClip());
+    output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 2] = static_cast<float>(camera->getClipSpaceMinz());
 
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 0] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getWidth()) * camera->getViewport().x;
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 1] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().y;

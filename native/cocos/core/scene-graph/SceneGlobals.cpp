@@ -31,6 +31,7 @@
 #include "scene/Fog.h"
 #include "scene/Octree.h"
 #include "scene/Shadow.h"
+#include "scene/Skin.h"
 #include "scene/Skybox.h"
 
 namespace cc {
@@ -44,6 +45,7 @@ SceneGlobals::SceneGlobals() {
     _lightProbeInfo = ccnew gi::LightProbeInfo();
     _bakedWithStationaryMainLight = false;
     _bakedWithHighpLightmap = false;
+    _skinInfo = ccnew scene::SkinInfo();
 }
 
 void SceneGlobals::activate(Scene *scene) {
@@ -70,6 +72,10 @@ void SceneGlobals::activate(Scene *scene) {
 
     if (_lightProbeInfo != nullptr && sceneData->getLightProbes() != nullptr) {
         _lightProbeInfo->activate(scene, sceneData->getLightProbes());
+    }
+
+    if (_skinInfo != nullptr && sceneData->getSkin()) {
+        _skinInfo->activate(sceneData->getSkin());
     }
 
     Root::getInstance()->onGlobalPipelineStateChanged();
@@ -105,6 +111,10 @@ void SceneGlobals::setBakedWithStationaryMainLight(bool value) {
 
 void SceneGlobals::setBakedWithHighpLightmap(bool value) {
     _bakedWithHighpLightmap = value;
+}
+
+void SceneGlobals::setSkinInfo(scene::SkinInfo* info) {
+    _skinInfo = info;
 }
 
 } // namespace cc

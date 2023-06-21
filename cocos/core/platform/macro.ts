@@ -987,30 +987,12 @@ interface Macro {
 
     /**
      * @en
-     * Used to set FXAA post-processing anti-aliasing, the default value is false.
-     * @zh
-     * 用于开启 FXAA 后处理抗锯齿, 默认值为 false。
-     * @default false
-     */
-    ENABLE_ANTIALIAS_FXAA: boolean;
-
-    /**
-     * @en
      * Used to set float output, the default value is false.
      * @zh
      * 用于开启浮点格式的输出, 默认值为 false。
      * @default false
      */
     ENABLE_FLOAT_OUTPUT: boolean;
-
-    /**
-     * @en
-     * Used to set bloom, the default value is false.
-     * @zh
-     * 用于开启 bloom, 默认值为 false。
-     * @default false
-     */
-    ENABLE_BLOOM: boolean;
 
     /**
      * @en
@@ -1116,9 +1098,7 @@ const macro: Macro = {
     TOUCH_TIMEOUT: 5000,
     ENABLE_TRANSPARENT_CANVAS: false,
     ENABLE_WEBGL_ANTIALIAS: true,
-    ENABLE_ANTIALIAS_FXAA: false,
     ENABLE_FLOAT_OUTPUT: false,
-    ENABLE_BLOOM: false,
     CLEANUP_IMAGE_CACHE: false,
     ENABLE_MULTI_TOUCH: true,
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
