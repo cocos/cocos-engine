@@ -24,6 +24,7 @@
 */
 
 import './deprecation';
+import './deprecated-3.9.0';
 
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';

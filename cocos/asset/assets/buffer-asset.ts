@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass, override } from 'cc.decorator';
-import { assertIsNonNullable, cclegacy } from '../../core';
+import { ccclass, override, serializable } from 'cc.decorator';
+import { cclegacy } from '../../core';
 import { Asset } from './asset';
 
 /**
@@ -35,36 +35,38 @@ import { Asset } from './asset';
  */
 @ccclass('cc.BufferAsset')
 export class BufferAsset extends Asset {
-    private _buffer: ArrayBuffer | null = null;
+    /**
+     * @zh 缓冲数据的字节视图。
+     * @en Byte view of the buffered data.
+     */
+    @serializable
+    public bytes = new Uint8Array();
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @zh 首次调用将 **复制** 此时的`this.bytes`，并返回副本的 `ArrayBuffer`；该副本会在后续调用中直接返回。
+     * @en The first invocation on this method will **clone** `this.bytes` and returns `ArrayBuffer` of the copy.
+     * The copy will be directly returned in following invocations.
+     *
+     * @returns @en The `ArrayBuffer`. @zh `ArrayBuffer`。
+     *
+     * @deprecated @zh 自 3.9.0，此方法废弃，调用此方法将带来可观的性能开销；请转而使用 `this.bytes`。
+     * @en Since 3.9.0, this method is deprecated.
+     * Invocation on this method leads to significate cost. Use `this.bytes` instead.
      */
-    @override
-    get _nativeAsset (): ArrayBuffer | ArrayBufferView {
-        return this._buffer as ArrayBuffer;
-    }
-    set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
-        if (bin instanceof ArrayBuffer) {
-            this._buffer = bin;
-        } else {
-            this._buffer = bin.buffer;
+    public buffer () {
+        if (!this._bytesLegacy) {
+            this._bytesLegacy = new Uint8Array(this.bytes);
         }
+        return this._bytesLegacy.buffer;
     }
 
     /**
-     * @zh 获取此资源中的缓冲数据。
-     * @en Get the ArrayBuffer data of this asset.
-     * @returns @en The ArrayBuffer. @zh 缓冲数据。
+     * This field is preserved here for compatibility purpose:
+     * prior to 3.9.0, `buffer()` returns `ArrayBuffer`.
+     * We can't directly returns `this._bytes` in `this.buffer()`
+     * since `this._bytes` does not view entire underlying buffer.
      */
-    public buffer (): ArrayBuffer {
-        assertIsNonNullable(this._buffer);
-        return this._buffer;
-    }
-
-    public validate (): boolean {
-        return !!this._buffer;
-    }
+    private _bytesLegacy: undefined | Uint8Array = undefined;
 }
 
 cclegacy.BufferAsset = BufferAsset;
