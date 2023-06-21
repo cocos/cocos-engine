@@ -45,6 +45,26 @@ export enum VFXValueType {
     MAT4,
     EVENT,
     SPAWN_INFO,
+    COUNT,
+}
+
+export enum VFXValueTypeFlags {
+    NONE = 0,
+    FLOAT = 1 << VFXValueType.FLOAT,
+    BOOL = 1 << VFXValueType.BOOL,
+    VEC2 = 1 << VFXValueType.VEC2,
+    VEC3 = 1 << VFXValueType.VEC3,
+    VEC4 = 1 << VFXValueType.VEC4,
+    QUAT = 1 << VFXValueType.QUAT,
+    COLOR = 1 << VFXValueType.COLOR,
+    INT32 = 1 << VFXValueType.INT32,
+    UINT32 = 1 << VFXValueType.UINT32,
+    UINT8 = 1 << VFXValueType.UINT8,
+    MAT3 = 1 << VFXValueType.MAT3,
+    MAT4 = 1 << VFXValueType.MAT4,
+    EVENT = 1 << VFXValueType.EVENT,
+    SPAWN_INFO = 1 << VFXValueType.SPAWN_INFO,
+    ALL = (1 << VFXValueType.COUNT) - 1,
 }
 
 @ccclass('cc.VFXParameter')
@@ -178,6 +198,26 @@ export class VFXParameterRegistry {
 
     public clear () {
         this._parameters.length = 0;
+    }
+}
+
+@ccclass('cc.VFXParameterBinding')
+export class VFXParameterBinding {
+    get bindingParameterId () {
+        return this._bindingParameterId;
+    }
+
+    @serializable
+    private _bindingParameterId = 0;
+
+    constructor (parameter?: VFXParameter) {
+        if (parameter) {
+            this._bindingParameterId = parameter.id;
+        }
+    }
+
+    public getBindingParameter (registry: VFXParameterRegistry) {
+        return registry.findParameterById(this._bindingParameterId);
     }
 }
 

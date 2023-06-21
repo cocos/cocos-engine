@@ -33,6 +33,7 @@ import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { vfxManager } from '../vfx-manager';
 import { Handle, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
+import { AABB } from '../../core/geometry';
 
 const ribbonPosition = new Attribute('a_vfx_p_position', Format.RGB32F, false, 0, true);       // ribbon position
 const ribbonSize = new Attribute('a_vfx_p_scale', Format.RGB32F, false, 0, true);              // ribbon scale
@@ -366,5 +367,9 @@ export class RibbonParticleRenderer extends ParticleRenderer {
             this._instanceCount = 0;
             this._firstInstance = 0;
         }
+    }
+
+    public updateBounds (bounds: AABB, parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry): void {
+        throw new Error('Method not implemented.');
     }
 }

@@ -25,23 +25,24 @@
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { FloatExpression } from './float';
-import { VFXParameter, VFXParameterRegistry } from '../vfx-parameter';
+import { VFXParameter, VFXParameterBinding, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
-    get bindingParameterId () {
-        return this._bindingParameterId;
+    @type(VFXParameterBinding)
+    get binding () {
+        return this._binding;
     }
 
-    set bindingParameterId (val) {
-        this._bindingParameterId = val;
+    set binding (val) {
+        this._binding = val;
         this.requireRecompile();
     }
 
     @serializable
-    private _bindingParameterId = 0;
+    private _binding: VFXParameterBinding | null = null;
     private _bindingParameter: VFXParameter | null = null;
     private declare _data: Float32Array;
     private _constant = 0;
@@ -59,16 +60,18 @@ export class BindingFloatExpression extends FloatExpression {
         return this._data[index];
     }
 
-    constructor (vfxParameterIdentity: VFXParameter) {
+    constructor (parameter?: VFXParameter) {
         super();
-        this._bindingParameterId = vfxParameterIdentity.id;
+        if (parameter) {
+            this._binding = new VFXParameterBinding(parameter);
+        }
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
         super.compile(parameterMap, parameterRegistry, owner);
 
-        if (this._bindingParameterId !== 0) {
-            this._bindingParameter = parameterRegistry.findParameterById(this._bindingParameterId);
+        if (this._binding) {
+            this._bindingParameter = this._binding.getBindingParameter(parameterRegistry);
         }
         if (this._bindingParameter) {
             parameterMap.ensure(this._bindingParameter);

@@ -302,7 +302,7 @@ export class VFXEmitter extends Component {
     }
 
     public get rendererCount () {
-        return this._rendererCount;
+        return this._renderers.length;
     }
 
     public get lastSimulateFrame () {
@@ -326,9 +326,7 @@ export class VFXEmitter extends Component {
     @serializable
     private _renderers: ParticleRenderer[] = [];
     @serializable
-    private _rendererCount = 0;
-    @serializable
-    private _boundsMode = BoundsMode.AUTO;
+    private _boundsMode = BoundsMode.DYNAMIC;
     @serializable
     private _fixedBoundsMin = new Vec3(-1, -1, -1);
     @serializable
@@ -336,7 +334,7 @@ export class VFXEmitter extends Component {
     @serializable
     private _cullingMode = CullingMode.ALWAYS_SIMULATE;
     @serializable
-    private _capacityMode = CapacityMode.AUTO;
+    private _capacityMode = CapacityMode.DYNAMIC;
     @serializable
     private _maxCapacity = 100;
     @serializable
@@ -473,8 +471,14 @@ export class VFXEmitter extends Component {
     public addRenderer<T extends ParticleRenderer> (Type: Constructor<T>): T {
         const renderer = new Type();
         this._renderers.push(renderer);
-        this._rendererCount++;
         return renderer;
+    }
+
+    public removeRenderer (renderer: ParticleRenderer) {
+        const index = this._renderers.indexOf(renderer);
+        if (index !== -1) {
+            this._renderers.splice(index, 1);
+        }
     }
 
     /**
@@ -621,14 +625,30 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public render () {
-        for (let i = 0, length = this._renderers.length; i < length; i++) {
-            this._renderers[i].render(this._parameterMap, this._parameterRegistry);
+        const renderers = this._renderers;
+        const parameterMap = this._parameterMap;
+        const parameterRegistry = this._parameterRegistry;
+        for (let i = 0, length = renderers.length; i < length; i++) {
+            if (renderers[i].enabled) {
+                renderers[i].render(parameterMap, parameterRegistry);
+            }
         }
     }
 
     private updateBounds () {
         if (this.boundsMode === BoundsMode.FIXED) {
             geometry.AABB.fromPoints(this._bounds, this._fixedBoundsMin, this._fixedBoundsMax);
+        } else {
+            const renderers = this._renderers;
+            const bounds = this._bounds;
+            const parameterMap = this._parameterMap;
+            const parameterRegistry = this._parameterRegistry;
+            geometry.AABB.fromPoints(this._bounds, Vec3.ZERO, Vec3.ZERO);
+            for (let i = 0, length = renderers.length; i < length; i++) {
+                if (renderers[i].enabled) {
+                    renderers[i].updateBounds(bounds, parameterMap, parameterRegistry);
+                }
+            }
         }
     }
 
@@ -793,7 +813,7 @@ export class VFXEmitter extends Component {
     }
 
     private addNewParticles (numToEmit: number) {
-        const capacity = this._capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : this._maxCapacity;
+        const capacity = this._capacityMode === CapacityMode.DYNAMIC ? Number.MAX_SAFE_INTEGER : this._maxCapacity;
         const particleNum = this._parameterMap.getUint32Value(E_PARTICLE_NUM);
         if (numToEmit + particleNum.data > capacity) {
             numToEmit = capacity - particleNum.data;

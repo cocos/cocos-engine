@@ -36,6 +36,7 @@ import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXParameterRegistry } from '../vfx-parameter';
+import { AABB } from '../../core/geometry';
 
 export enum MeshFacingMode {
     NONE,
@@ -308,5 +309,9 @@ export class MeshParticleRenderer extends ParticleRenderer {
             this._renderingSubMesh = new RenderingSubMesh([vertexBuffer, dynamicBuffer.buffer], vertexStreamAttributes,
                 PrimitiveMode.TRIANGLE_LIST, indexBuffer);
         }
+    }
+
+    public updateBounds (bounds: AABB, parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry): void {
+        throw new Error('Method not implemented.');
     }
 }

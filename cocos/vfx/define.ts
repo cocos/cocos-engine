@@ -69,12 +69,12 @@ export enum DelayMode {
 }
 
 export enum BoundsMode {
-    AUTO,
+    DYNAMIC,
     FIXED,
 }
 
 export enum CapacityMode {
-    AUTO,
+    DYNAMIC,
     FIXED,
 }
 

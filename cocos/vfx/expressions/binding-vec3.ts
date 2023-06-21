@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable } from '../../core/data/decorators';
+import { ccclass, serializable, type } from '../../core/data/decorators';
 import { Vec3Expression } from './vec3';
-import { VFXParameter, VFXParameterRegistry } from '../vfx-parameter';
+import { VFXParameter, VFXParameterBinding, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXVec3Array } from '../data';
 import { Vec3 } from '../../core';
 import { VFXParameterMap } from '../vfx-parameter-map';
@@ -32,8 +32,18 @@ import { VFXModule } from '../vfx-module';
 
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
+    @type(VFXParameterBinding)
+    get binding () {
+        return this._binding;
+    }
+
+    set binding (val) {
+        this._binding = val;
+        this.requireRecompile();
+    }
+
     @serializable
-    private _bindParameterId = 0;
+    private _binding: VFXParameterBinding | null = null;
     private _bindParameter: VFXParameter | null = null;
     private declare _data: VFXVec3Array;
     private _constant = new Vec3();
@@ -59,8 +69,8 @@ export class BindingVec3Expression extends Vec3Expression {
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
         super.compile(parameterMap, parameterRegistry, owner);
-        if (this._bindParameterId) {
-            this._bindParameter = parameterRegistry.findParameterById(this._bindParameterId);
+        if (this._binding) {
+            this._bindParameter = this._binding.getBindingParameter(parameterRegistry);
         }
         if (this._bindParameter) {
             parameterMap.ensure(this._bindParameter);

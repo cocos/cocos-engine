@@ -32,7 +32,8 @@ import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SP
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { VFXParameterMap } from '../vfx-parameter-map';
-import { VFXParameterRegistry } from '../vfx-parameter';
+import { VFXParameterBinding, VFXParameterRegistry } from '../vfx-parameter';
+import { AABB } from '../../core/geometry';
 
 /**
  * @en Particle alignment mode.
@@ -87,6 +88,91 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     @type(Enum(SpriteFacingMode))
     @serializable
     public facingMode = SpriteFacingMode.CAMERA;
+
+    @type(VFXParameterBinding)
+    public get positionBinding () {
+        if (!this._positionBinding) {
+            this._positionBinding = new VFXParameterBinding(P_POSITION);
+        }
+        return this._positionBinding;
+    }
+
+    public set positionBinding (val) {
+        this._positionBinding = val;
+    }
+
+    @type(VFXParameterBinding)
+    public get colorBinding () {
+        if (!this._colorBinding) {
+            this._colorBinding = new VFXParameterBinding(P_COLOR);
+        }
+        return this._colorBinding;
+    }
+
+    public set colorBinding (val) {
+        this._colorBinding = val;
+    }
+
+    @type(VFXParameterBinding)
+    public get velocityBinding () {
+        if (!this._velocityBinding) {
+            this._velocityBinding = new VFXParameterBinding(P_VELOCITY);
+        }
+        return this._velocityBinding;
+    }
+
+    public set velocityBinding (val) {
+        this._velocityBinding = val;
+    }
+
+    @type(VFXParameterBinding)
+    public get spriteRotationBinding () {
+        if (!this._spriteRotationBinding) {
+            this._spriteRotationBinding = new VFXParameterBinding(P_SPRITE_ROTATION);
+        }
+        return this._spriteRotationBinding;
+    }
+
+    public set spriteRotationBinding (val) {
+        this._spriteRotationBinding = val;
+    }
+
+    @type(VFXParameterBinding)
+    public get spriteSizeBinding () {
+        if (!this._spriteSizeBinding) {
+            this._spriteSizeBinding = new VFXParameterBinding(P_SPRITE_SIZE);
+        }
+        return this._spriteSizeBinding;
+    }
+
+    public set spriteSizeBinding (val) {
+        this._spriteSizeBinding = val;
+    }
+
+    @type(VFXParameterBinding)
+    public get subUVIndexBinding () {
+        if (!this._subUVIndexBinding) {
+            this._subUVIndexBinding = new VFXParameterBinding(P_SUB_UV_INDEX1);
+        }
+        return this._subUVIndexBinding;
+    }
+
+    public set subUVIndexBinding (val) {
+        this._subUVIndexBinding = val;
+    }
+
+    @serializable
+    private _positionBinding: VFXParameterBinding | null = null;
+    @serializable
+    private _colorBinding: VFXParameterBinding | null = null;
+    @serializable
+    private _velocityBinding: VFXParameterBinding | null = null;
+    @serializable
+    private _spriteRotationBinding: VFXParameterBinding | null = null;
+    @serializable
+    private _spriteSizeBinding: VFXParameterBinding | null = null;
+    @serializable
+    private _subUVIndexBinding: VFXParameterBinding | null = null;
 
     private _subUVTilesAndVelLenScale = new Vec4(1, 1, 1, 1);
     private _isSubUVTilesAndVelLenScaleDirty = true;
@@ -299,5 +385,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             this._vertexCount = vfxManager.sharedSpriteVertexCount;
             this._indexCount = vfxManager.sharedSpriteIndexCount;
         }
+    }
+
+    public updateBounds (bounds: AABB, parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry): void {
+        throw new Error('Method not implemented.');
     }
 }

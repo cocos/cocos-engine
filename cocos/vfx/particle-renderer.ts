@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, displayName, serializable, type } from 'cc.decorator';
-import { CCBoolean } from '../core';
+import { CCBoolean, geometry } from '../core';
 import { Material, RenderingSubMesh } from '../asset/assets';
 import { MaterialInstance } from '../render-scene';
 import { VFXParameterMap } from './vfx-parameter-map';
@@ -114,4 +114,5 @@ export abstract class ParticleRenderer {
     private _enabled = true;
 
     public abstract render (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry): void;
+    public abstract updateBounds (bounds: geometry.AABB, parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry): void;
 }
