@@ -642,7 +642,6 @@ const Elements = {
                 for (const dump of panel.dumps) {
                     const prefab = dump.__prefab__;
                     switch (role) {
-                        case 'unlink':
                         case 'reset': {
                             recordings.push(prefab.rootUuid);
                         }
