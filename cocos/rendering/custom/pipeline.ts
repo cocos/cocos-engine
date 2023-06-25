@@ -41,7 +41,7 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
 /**
- * @engineInternal
+ * @internal
  * @en PipelineRuntime is the runtime of both classical and custom pipelines.
  * It is used internally and should not be called directly.
  * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
@@ -51,20 +51,16 @@ export interface PipelineRuntime {
     /**
      * @en Activate PipelineRuntime with default swapchain
      * @zh 用默认交换链初始化PipelineRuntime
-     * @param swapchain @en Default swapchain @zh 默认的交换链
-     * @returns Success or not
      */
     activate (swapchain: Swapchain): boolean;
     /**
      * @en Destroy resources of PipelineRuntime
      * @zh 销毁PipelineRuntime所持资源
-     * @returns Success or not
      */
     destroy (): boolean;
     /**
      * @en Render contents of cameras
-     * @zh 根据相机进行绘制
-     * @param cameras @en Camera list @zh 相机列表
+     * @zh 渲染各相机需要绘制的内容
      */
     render (cameras: Camera[]): void;
     /**
@@ -131,46 +127,40 @@ export interface PipelineRuntime {
      * @en Get macro as string.
      * @zh 根据宏名获得字符串
      * @param name @en Name of macro @zh 宏的名字
-     * @returns String value
      */
     getMacroString (name: string): string;
     /**
      * @en Get macro as integer.
      * @zh 根据宏名获得整型
      * @param name @en Name of macro @zh 宏的名字
-     * @returns Integer value
      */
     getMacroInt (name: string): number;
     /**
      * @en Get macro as boolean.
      * @zh 根据宏名获得布尔值
      * @param name @en Name of macro @zh 宏的名字
-     * @returns Boolean value
      */
     getMacroBool (name: string): boolean;
     /**
      * @en Assign string value to macro.
      * @zh 给宏赋值字符串
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en String value @zh 字符串
      */
     setMacroString (name: string, value: string): void;
     /**
      * @en Assign integer value to macro.
      * @zh 给宏赋值整型
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en Integer value @zh 整型值
      */
     setMacroInt (name: string, value: number): void;
     /**
      * @en Assign boolean value to macro.
      * @zh 给宏赋值布尔值
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en Boolean value @zh 布尔值
      */
     setMacroBool (name: string, value: boolean): void;
     /**
-     * @en Trigger pipeline state change event
+     * @en trigger pipeline state change event
      * @zh 触发管线状态更新事件
      */
     onGlobalPipelineStateChanged (): void;

@@ -78,7 +78,7 @@ namespace cc {
 namespace render {
 
 /**
- * @engineInternal
+ * @internal
  * @en PipelineRuntime is the runtime of both classical and custom pipelines.
  * It is used internally and should not be called directly.
  * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
@@ -96,20 +96,16 @@ public:
     /**
      * @en Activate PipelineRuntime with default swapchain
      * @zh 用默认交换链初始化PipelineRuntime
-     * @param swapchain @en Default swapchain @zh 默认的交换链
-     * @returns Success or not
      */
     virtual bool activate(gfx::Swapchain *swapchain) = 0;
     /**
      * @en Destroy resources of PipelineRuntime
      * @zh 销毁PipelineRuntime所持资源
-     * @returns Success or not
      */
     virtual bool destroy() noexcept = 0;
     /**
      * @en Render contents of cameras
-     * @zh 根据相机进行绘制
-     * @param cameras @en Camera list @zh 相机列表
+     * @zh 渲染各相机需要绘制的内容
      */
     virtual void render(const ccstd::vector<scene::Camera*> &cameras) = 0;
     /**
@@ -178,46 +174,40 @@ public:
      * @en Get macro as string.
      * @zh 根据宏名获得字符串
      * @param name @en Name of macro @zh 宏的名字
-     * @returns String value
      */
     virtual const ccstd::string &getMacroString(const ccstd::string &name) const = 0;
     /**
      * @en Get macro as integer.
      * @zh 根据宏名获得整型
      * @param name @en Name of macro @zh 宏的名字
-     * @returns Integer value
      */
     virtual int32_t getMacroInt(const ccstd::string &name) const = 0;
     /**
      * @en Get macro as boolean.
      * @zh 根据宏名获得布尔值
      * @param name @en Name of macro @zh 宏的名字
-     * @returns Boolean value
      */
     virtual bool getMacroBool(const ccstd::string &name) const = 0;
     /**
      * @en Assign string value to macro.
      * @zh 给宏赋值字符串
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en String value @zh 字符串
      */
     virtual void setMacroString(const ccstd::string &name, const ccstd::string &value) = 0;
     /**
      * @en Assign integer value to macro.
      * @zh 给宏赋值整型
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en Integer value @zh 整型值
      */
     virtual void setMacroInt(const ccstd::string &name, int32_t value) = 0;
     /**
      * @en Assign boolean value to macro.
      * @zh 给宏赋值布尔值
      * @param name @en Name of macro @zh 宏的名字
-     * @param value @en Boolean value @zh 布尔值
      */
     virtual void setMacroBool(const ccstd::string &name, bool value) = 0;
     /**
-     * @en Trigger pipeline state change event
+     * @en trigger pipeline state change event
      * @zh 触发管线状态更新事件
      */
     virtual void onGlobalPipelineStateChanged() = 0;
