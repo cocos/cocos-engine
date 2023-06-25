@@ -207,7 +207,7 @@ public:
      */
     virtual void setMacroBool(const ccstd::string &name, bool value) = 0;
     /**
-     * @en trigger pipeline state change event
+     * @en Trigger pipeline state change event
      * @zh 触发管线状态更新事件
      */
     virtual void onGlobalPipelineStateChanged() = 0;
@@ -218,6 +218,11 @@ public:
     virtual bool isRenderQueueReset() const = 0;
 };
 
+/**
+ * @en Type of render pipeline.
+ * Different types of pipeline have different hardward capabilities and interfaces.
+ * @zh 管线类型，不同类型的管线具有不同的硬件能力与接口
+ */
 enum class PipelineType {
     BASIC,
     STANDARD,

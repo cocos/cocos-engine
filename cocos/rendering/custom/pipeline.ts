@@ -160,12 +160,17 @@ export interface PipelineRuntime {
      */
     setMacroBool (name: string, value: boolean): void;
     /**
-     * @en trigger pipeline state change event
+     * @en Trigger pipeline state change event
      * @zh 触发管线状态更新事件
      */
     onGlobalPipelineStateChanged (): void;
 }
 
+/**
+ * @en Type of render pipeline.
+ * Different types of pipeline have different hardward capabilities and interfaces.
+ * @zh 管线类型，不同类型的管线具有不同的硬件能力与接口
+ */
 export enum PipelineType {
     BASIC,
     STANDARD,
