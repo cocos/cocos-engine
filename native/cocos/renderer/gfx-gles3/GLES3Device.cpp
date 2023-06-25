@@ -153,10 +153,13 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         fbfLevelStr                += "_DEPTH_STENCIL";
     }
 
+    ccstd::string msaaLevelStr = "NONE";
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
+        msaaLevelStr = "MRT1";
         if (checkExtension("multisampled_render_to_texture2")) {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+            msaaLevelStr = "MRT2";
         } else {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
         }
@@ -241,6 +244,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
     CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
+    CC_LOG_INFO("MULTI_SAMPLE_RENDER_TO_TEXTURE: %s", msaaLevelStr.c_str());
 
     if (_xr) {
         _xr->initializeGLESData(pfnGLES3wLoadProc(), GLES3Device::getInstance()->context());
