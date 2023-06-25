@@ -551,8 +551,14 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             VkResolveModeFlagBits depthResolveMode = VK_RESOLVE_MODES[toNumber(subpassInfo.depthResolveMode)];
             VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODES[toNumber(subpassInfo.stencilResolveMode)];
 
-            if ((depthResolveMode & prop.supportedDepthResolveModes) == 0) depthResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
-            if ((stencilResolveMode & prop.supportedStencilResolveModes) == 0) stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+            if ((depthResolveMode & prop.supportedDepthResolveModes) == 0) {
+                depthResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                CC_LOG_WARNING("render pass depth resolve mode [%u] not supported, use Sample0 instead.", toNumber(subpassInfo.depthResolveMode));
+            }
+            if ((stencilResolveMode & prop.supportedStencilResolveModes) == 0) {
+                stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+                CC_LOG_WARNING("render pass stencil resolve mode [%u] not supported, use Sample0 instead.", toNumber(subpassInfo.stencilResolveMode));
+            }
 
             if (!prop.independentResolveNone && stencilResolveMode != depthResolveMode) {
                 stencilResolveMode = depthResolveMode;
