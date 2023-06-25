@@ -93,15 +93,16 @@ export class RandomRangeVec3Expression extends Vec3Expression {
     private _getRandFloat3: (out: Vec3, index: number) => void = this._getParticleRandFloat3;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.maximum.compile(parameterMap, parameterRegistry, owner);
-        this.minimum.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.maximum.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.minimum.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_ID);
             this._getRandFloat3 = this._getParticleRandFloat3;
         } else {
             this._getRandFloat3 = this._getEmitterRandFloat3;
         }
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

@@ -33,7 +33,7 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 
 const _tempVec3 = new Vec3();
 @ccclass('cc.DragModule')
-@VFXModule.register('Drag', VFXExecutionStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name, P_SCALE.name, P_SPRITE_SIZE.name])
+@VFXModule.register('Drag', VFXExecutionStageFlags.UPDATE, [P_PHYSICS_FORCE.name], [P_VELOCITY.name])
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
@@ -53,12 +53,13 @@ export class DragModule extends VFXModule {
     private _drag: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_BASE_VELOCITY);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
-        this.drag.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.drag.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

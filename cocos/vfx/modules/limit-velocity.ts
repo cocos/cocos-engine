@@ -129,14 +129,16 @@ export class LimitVelocityModule extends VFXModule {
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_BASE_VELOCITY);
         if (this.separateAxes) {
-            this.limit.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.limit.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformLimit.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformLimit.compile(parameterMap, parameterRegistry, this);
         }
-        this.dampen.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.dampen.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

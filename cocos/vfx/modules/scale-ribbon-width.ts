@@ -53,12 +53,13 @@ export class ScaleRibbonWidthModule extends VFXModule {
     private _scalar: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_RIBBON_WIDTH);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_RIBBON_WIDTH);
         }
-        this.scalar.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.scalar.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -67,16 +68,10 @@ export class ScaleRibbonWidthModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;
         scalarExp.bind(parameterMap);
-        if (scalarExp.isConstant) {
-            const scalar = scalarExp.evaluate(0);
-            for (let i = fromIndex; i < toIndex; i++) {
-                ribbonWidth.multiplyFloatAt(scalar, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const scalar = scalarExp.evaluate(i);
-                ribbonWidth.multiplyFloatAt(scalar, i);
-            }
+
+        for (let i = fromIndex; i < toIndex; i++) {
+            const scalar = scalarExp.evaluate(i);
+            ribbonWidth.multiplyFloatAt(scalar, i);
         }
     }
 }

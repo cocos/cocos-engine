@@ -46,12 +46,13 @@ export class LocationEventGeneratorModule extends VFXModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        const compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(C_EVENTS);
         parameterMap.ensure(C_EVENT_COUNT);
         parameterMap.ensure(P_INV_LIFETIME);
         parameterMap.ensure(P_NORMALIZED_AGE);
         parameterMap.ensure(P_ID);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

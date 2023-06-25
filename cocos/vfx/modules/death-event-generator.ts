@@ -45,10 +45,12 @@ export class DeathEventGeneratorModule extends VFXModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        const compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(C_EVENTS);
         parameterMap.ensure(C_EVENT_COUNT);
         parameterMap.ensure(P_ID);
         parameterMap.ensure(P_IS_DEAD);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

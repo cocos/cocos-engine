@@ -26,7 +26,7 @@ import { ccclass } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { VFXExecutionStage, VFXModule } from './vfx-module';
-import { VFXValueType } from './vfx-parameter';
+import { VFXParameterRegistry, VFXValueType } from './vfx-parameter';
 import { VFXParameterMap } from './vfx-parameter-map';
 
 @ccclass('cc.VFXExpression')
@@ -45,6 +45,7 @@ export abstract class VFXExpression {
             assertIsTrue(this._owner);
         }
         this._owner = owner;
+        return true;
     }
 
     public requireRecompile () {

@@ -34,7 +34,7 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 const spawnInfo = new SpawnInfo();
 
 @ccclass('cc.SpawnRateModule')
-@VFXModule.register('SpawnRate', VFXExecutionStageFlags.EMITTER | VFXExecutionStageFlags.EVENT_HANDLER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
+@VFXModule.register('SpawnRate', VFXExecutionStageFlags.EMITTER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
 export class SpawnRateModule extends VFXModule {
     /**
      * @zh 每秒发射的粒子数。

@@ -31,7 +31,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.SetSpriteRotationModule')
-@VFXModule.register('SetSpriteRotation', VFXExecutionStageFlags.SPAWN)
+@VFXModule.register('SetSpriteRotation', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER, [P_SPRITE_ROTATION.name], [])
 export class SetSpriteRotationModule extends VFXModule {
     @type(FloatExpression)
     public get rotation () {

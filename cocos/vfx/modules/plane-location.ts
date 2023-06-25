@@ -73,10 +73,11 @@ export class PlaneLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.planeCenter.compile(parameterMap, parameterRegistry, this);
-        this.planeSize.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.planeCenter.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.planeSize.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

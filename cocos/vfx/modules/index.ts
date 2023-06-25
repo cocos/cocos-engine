@@ -58,7 +58,7 @@ export * from './circle-location';
 export * from './plane-location';
 export * from './drag';
 export * from './limit-velocity';
-export * from './force';
+export * from './acceleration-force';
 export * from './curl-noise-force';
 export * from './sprite-rotation-rate';
 export * from './update-mesh-orientation';

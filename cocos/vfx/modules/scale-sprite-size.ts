@@ -108,28 +108,18 @@ export class ScaleSpriteSizeModule extends VFXModule {
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
             uniformScalarExp.bind(parameterMap);
-            if (uniformScalarExp.isConstant) {
-                const scalar = uniformScalarExp.evaluate(0);
-                VFXVec2Array.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = uniformScalarExp.evaluate(i);
-                    spriteSize.multiplyScalarAt(scalar, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const scalar = uniformScalarExp.evaluate(i);
+                spriteSize.multiplyScalarAt(scalar, i);
             }
         } else {
             const scalarExp = this._scalar as Vec2Expression;
             scalarExp.bind(parameterMap);
-            if (scalarExp.isConstant) {
-                const scalar = scalarExp.evaluate(0, tempVec2);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    spriteSize.multiplyVec2At(scalar, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = scalarExp.evaluate(i, tempVec2);
-                    spriteSize.multiplyVec2At(scalar, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const scalar = scalarExp.evaluate(i, tempVec2);
+                spriteSize.multiplyVec2At(scalar, i);
             }
         }
     }

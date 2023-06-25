@@ -53,12 +53,13 @@ export class ParticleStateModule extends VFXModule {
     private _lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        const compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
             parameterMap.ensure(P_IS_DEAD);
         }
         parameterMap.ensure(P_NORMALIZED_AGE);
         parameterMap.ensure(P_INV_LIFETIME);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

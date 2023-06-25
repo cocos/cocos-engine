@@ -117,13 +117,14 @@ export class ConeLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.length.compile(parameterMap, parameterRegistry, this);
-        this.angle.compile(parameterMap, parameterRegistry, this);
-        this.innerAngle.compile(parameterMap, parameterRegistry, this);
-        this.radialAngle.compile(parameterMap, parameterRegistry, this);
-        this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.length.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.angle.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.innerAngle.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.radialAngle.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

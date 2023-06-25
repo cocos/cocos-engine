@@ -160,20 +160,21 @@ export class AddVelocityModule extends VFXModule {
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_POSITION);
         if (this.usage !== VFXExecutionStage.UPDATE) {
             parameterMap.ensure(P_BASE_VELOCITY);
         }
         if (this._velocityMode === VelocityMode.LINEAR) {
-            this.velocity.compile(parameterMap, parameterRegistry, this);
-            this.velocityScale.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.velocity.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.velocityScale.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.speed.compile(parameterMap, parameterRegistry, this);
-            this.velocityOrigin.compile(parameterMap, parameterRegistry, this);
-            this.defaultPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.speed.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.velocityOrigin.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.defaultPosition.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -187,18 +188,7 @@ export class AddVelocityModule extends VFXModule {
             const velocityScaleExp = this._velocityScale as FloatExpression;
             velocityExp.bind(parameterMap);
             velocityScaleExp.bind(parameterMap);
-            if (velocityExp.isConstant && velocityScaleExp.isConstant) {
-                velocityExp.evaluate(0, tempVelocity);
-                const scale = velocityScaleExp.evaluate(0);
-                Vec3.multiplyScalar(tempVelocity, tempVelocity, scale);
-                if (needTransform) {
-                    const transform = parameterMap.getMat3Value(this._coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
-                    Vec3.transformMat3(tempVelocity, tempVelocity, transform);
-                }
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else if (needTransform) {
+            if (needTransform) {
                 const transform = parameterMap.getMat3Value(this._coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocityExp.evaluate(i, tempVelocity);

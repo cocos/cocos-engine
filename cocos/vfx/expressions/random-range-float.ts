@@ -89,15 +89,16 @@ export class RandomRangeFloatExpression extends FloatExpression {
     private _getRandFloat: (index: number) => number = this._getParticleRandFloat;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.maximum.compile(parameterMap, parameterRegistry, owner);
-        this.minimum.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.maximum.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.minimum.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_ID);
             this._getRandFloat = this._getParticleRandFloat;
         } else {
             this._getRandFloat = this._getEmitterRandFloat;
         }
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

@@ -31,7 +31,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.SetLifeTimeModule')
-@VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN)
+@VFXModule.register('SetLifeTime', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER)
 export class SetLifeTimeModule extends VFXModule {
     /**
       * @zh 粒子生命周期。

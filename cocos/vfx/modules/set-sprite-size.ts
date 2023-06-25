@@ -34,7 +34,7 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 const tempSize = new Vec2();
 
 @ccclass('cc.SetSpriteSizeModule')
-@VFXModule.register('SetSpriteSize', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetSpriteSize', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.EVENT_HANDLER | VFXExecutionStageFlags.UPDATE, [P_SPRITE_SIZE.name], [])
 export class SetSpriteSizeModule extends VFXModule {
     @visible(true)
     public get separateAxes () {

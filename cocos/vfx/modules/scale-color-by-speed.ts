@@ -94,12 +94,13 @@ export class ScaleColorBySpeedModule extends VFXModule {
     private _maxSpeedThreshold: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_COLOR);
-        this.maxScalar.compile(parameterMap, parameterRegistry, this);
-        this.minScalar.compile(parameterMap, parameterRegistry, this);
-        this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
-        this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.maxScalar.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.minScalar.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -114,24 +115,13 @@ export class ScaleColorBySpeedModule extends VFXModule {
         const minScalarExp = this._minScalar as ColorExpression;
         const maxScalarExp = this._maxScalar as ColorExpression;
 
-        if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
-            const min = minSpeedThresholdExp.evaluate(0);
-            const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
+        for (let i = fromIndex; i < toIndex; i++) {
+            const min = minSpeedThresholdExp.evaluate(i);
+            const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
             const speedOffset = -min * speedScale;
-            for (let i = fromIndex; i < toIndex; i++) {
-                velocity.getVec3At(tempVelocity, i);
-                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                color.multiplyColorAt(Color.lerp(tempColor3, minScalarExp.evaluate(i, tempColor), maxScalarExp.evaluate(i, tempColor2), ratio), i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const min = minSpeedThresholdExp.evaluate(i);
-                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
-                const speedOffset = -min * speedScale;
-                velocity.getVec3At(tempVelocity, i);
-                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                color.multiplyColorAt(Color.lerp(tempColor3, minScalarExp.evaluate(i, tempColor), maxScalarExp.evaluate(i, tempColor2), ratio), i);
-            }
+            velocity.getVec3At(tempVelocity, i);
+            const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+            color.multiplyColorAt(Color.lerp(tempColor3, minScalarExp.evaluate(i, tempColor), maxScalarExp.evaluate(i, tempColor2), ratio), i);
         }
     }
 }

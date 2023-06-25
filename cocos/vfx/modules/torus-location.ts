@@ -41,7 +41,7 @@ export enum TorusDistributionMode {
 const pos = new Vec3();
 
 @ccclass('cc.TorusLocationModule')
-@VFXModule.register('TorusLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('TorusLocation', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.EVENT_HANDLER, [P_POSITION.name])
 export class TorusLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     public get largeRadius () {

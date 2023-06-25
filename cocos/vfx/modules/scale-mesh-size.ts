@@ -88,16 +88,17 @@ export class ScaleMeshSizeModule extends VFXModule {
     private _separateAxes = false;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SCALE);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SCALE);
         }
         if (this.separateAxes) {
-            this.scalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.scalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformScalar.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -107,30 +108,18 @@ export class ScaleMeshSizeModule extends VFXModule {
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
             uniformScalarExp.bind(parameterMap);
-            if (uniformScalarExp.isConstant) {
-                const scalar = uniformScalarExp.evaluate(0);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiplyScalarAt(scalar, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = uniformScalarExp.evaluate(i);
-                    scale.multiplyScalarAt(scalar, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const scalar = uniformScalarExp.evaluate(i);
+                scale.multiplyScalarAt(scalar, i);
             }
         } else {
             const scalarExp = this._scalar as Vec3Expression;
             scalarExp.bind(parameterMap);
-            if (scalarExp.isConstant) {
-                const scalar = scalarExp.evaluate(0, tempScalar);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiplyVec3At(scalar, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = scalarExp.evaluate(i, tempScalar);
-                    scale.multiplyVec3At(scalar, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const scalar = scalarExp.evaluate(i, tempScalar);
+                scale.multiplyVec3At(scalar, i);
             }
         }
     }

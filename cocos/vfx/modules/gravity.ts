@@ -52,12 +52,13 @@ export class GravityModule extends VFXModule {
     private _gravity: Vec3Expression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_BASE_VELOCITY);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
-        this.gravity.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.gravity.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -69,20 +70,8 @@ export class GravityModule extends VFXModule {
         gravityExp.bind(parameterMap);
         if (needTransform) {
             const transform = parameterMap.getMat3Value(E_WORLD_TO_LOCAL_RS).data;
-            if (gravityExp.isConstant) {
-                const force = Vec3.transformMat3(gravity, gravityExp.evaluate(0, gravity), transform);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    physicsForce.addVec3At(force, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const force = Vec3.transformMat3(gravity, gravityExp.evaluate(i, gravity), transform);
-                    physicsForce.addVec3At(force, i);
-                }
-            }
-        } else if (gravityExp.isConstant) {
-            const force = gravityExp.evaluate(0, gravity);
             for (let i = fromIndex; i < toIndex; i++) {
+                const force = Vec3.transformMat3(gravity, gravityExp.evaluate(i, gravity), transform);
                 physicsForce.addVec3At(force, i);
             }
         } else {

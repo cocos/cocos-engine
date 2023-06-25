@@ -181,16 +181,17 @@ export class CircleLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xFFFFFFFF);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.radius.compile(parameterMap, parameterRegistry, this);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.radius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.radiusCoverage.compile(parameterMap, parameterRegistry, this);
-            this.thetaCoverage.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.radiusCoverage.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.thetaCoverage.compile(parameterMap, parameterRegistry, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.compile(parameterMap, parameterRegistry, this);
-            this.radiusPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.radiusPosition.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

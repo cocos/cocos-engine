@@ -27,7 +27,7 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, VFXExecutionStage, VFXExecutionStageFlags, VFXStage } from '../vfx-module';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
+import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY, E_SIMULATION_VELOCITY } from '../define';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXParameterRegistry } from '../vfx-parameter';
 
@@ -52,33 +52,26 @@ export class InheritVelocityModule extends VFXModule {
     private _scale: Vec3Expression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
-        this.scale.compile(parameterMap, parameterRegistry, this);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.scale.compile(parameterMap, parameterRegistry, this);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_VELOCITY);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_VELOCITY);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
-        const initialVelocity = parameterMap.getVec3Value(E_VELOCITY).data;
-        if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
+        const initialVelocity = parameterMap.getVec3Value(E_SIMULATION_VELOCITY).data;
         const velocity = parameterMap.getVec3ArrayValue(this.usage === VFXExecutionStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
         const scaleExp = this._scale as Vec3Expression;
         scaleExp.bind(parameterMap);
-        if (scaleExp.isConstant) {
-            Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(0, scale));
-            for (let i = fromIndex; i < toIndex; i++) {
-                velocity.addVec3At(tempVelocity, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(i, scale));
-                velocity.addVec3At(tempVelocity, i);
-            }
+        for (let i = fromIndex; i < toIndex; i++) {
+            Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(i, scale));
+            velocity.addVec3At(tempVelocity, i);
         }
     }
 }

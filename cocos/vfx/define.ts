@@ -121,6 +121,7 @@ export const E_NORMALIZED_LOOP_AGE = VFXParameterRegistry.registerGlobalParamete
 export const E_SPAWN_REMAINDER = VFXParameterRegistry.registerGlobalParameter('spawn-remainder', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_SPAWN_REMAINDER_PER_UNIT = VFXParameterRegistry.registerGlobalParameter('spawn-remainder-per-unit', VFXValueType.FLOAT, VFXBuiltinNamespace.EMITTER, false);
 export const E_CURRENT_LOOP_COUNT = VFXParameterRegistry.registerGlobalParameter('current-loop-count', VFXValueType.UINT32, VFXBuiltinNamespace.EMITTER, false);
+export const E_SIMULATION_VELOCITY = VFXParameterRegistry.registerGlobalParameter('simulation-velocity', VFXValueType.VEC3, VFXBuiltinNamespace.EMITTER, false);
 export const E_VELOCITY = VFXParameterRegistry.registerGlobalParameter('velocity', VFXValueType.VEC3, VFXBuiltinNamespace.EMITTER, false);
 export const E_SIMULATION_POSITION = VFXParameterRegistry.registerGlobalParameter('simulation-position', VFXValueType.VEC3, VFXBuiltinNamespace.EMITTER, false);
 export const E_POSITION = VFXParameterRegistry.registerGlobalParameter('position', VFXValueType.VEC3, VFXBuiltinNamespace.EMITTER, false);

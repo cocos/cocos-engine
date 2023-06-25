@@ -33,7 +33,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')
-@VFXModule.register('SetMeshScale', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_SCALE.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetMeshScale', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER, [P_SCALE.name], [P_NORMALIZED_AGE.name])
 export class SetMeshScaleModule extends VFXModule {
     @visible(true)
     public get separateAxes () {

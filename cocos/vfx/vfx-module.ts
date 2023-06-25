@@ -58,12 +58,12 @@ export abstract class VFXModule {
                     throw new Error(`Duplicated name ${name} with other module!`);
                 }
             }
-            const identity = new VFXModuleIdentity(ctor, name, stages, provide, consume);
+            const identity = new VFXModuleMetadata(ctor, name, stages, provide, consume);
             VFXModule._allRegisteredModules.push(identity);
         };
     }
 
-    public static get allRegisteredModules (): ReadonlyArray<VFXModuleIdentity> {
+    public static get allRegisteredModules (): ReadonlyArray<VFXModuleMetadata> {
         return this._allRegisteredModules;
     }
 
@@ -71,14 +71,14 @@ export abstract class VFXModule {
         if (fromIndex === toIndex) {
             return fromIndex;
         }
-        const identity = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
+        const identity = VFXModule.getModuleMetadataByClassUnsafe(module.constructor as Constructor<VFXModule>);
         const provideParams = identity.provideParams;
         const consumeParams = identity.consumeParams;
         let lastIndexOfPreDependency = -1;
         for (let i = 0, l = consumeParams.length; i < l; i++) {
             for (let j = fromIndex; j < toIndex; j++) {
                 const module = modules[j];
-                const currentModuleId = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
+                const currentModuleId = VFXModule.getModuleMetadataByClassUnsafe(module.constructor as Constructor<VFXModule>);
                 const currentProduceParams = currentModuleId.provideParams;
                 if (currentProduceParams.includes(consumeParams[i])) {
                     if (j > lastIndexOfPreDependency) {
@@ -91,7 +91,7 @@ export abstract class VFXModule {
         for (let i = 0, l = provideParams.length; i < l; i++) {
             for (let j = toIndex - 1; j >= fromIndex; j--) {
                 const module = modules[j];
-                const currentModuleId = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
+                const currentModuleId = VFXModule.getModuleMetadataByClassUnsafe(module.constructor as Constructor<VFXModule>);
                 const currentConsumeParams = currentModuleId.consumeParams;
                 if (currentConsumeParams.includes(provideParams[i])) {
                     if (j < firstIndexOfPostDependency) {
@@ -107,13 +107,13 @@ export abstract class VFXModule {
         }
     }
 
-    public static getModuleIdentityByClassUnsafe (ctor: Constructor<VFXModule>) {
-        const identity = this.getModuleIdentityByClass(ctor);
+    public static getModuleMetadataByClassUnsafe (ctor: Constructor<VFXModule>) {
+        const identity = this.getModuleMetadataByClass(ctor);
         assertIsTrue(identity, 'Module not registered!');
         return identity;
     }
 
-    public static getModuleIdentityByClass (ctor: Constructor<VFXModule>) {
+    public static getModuleMetadataByClass (ctor: Constructor<VFXModule>) {
         for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
             if (VFXModule._allRegisteredModules[i].ctor === ctor) {
                 return VFXModule._allRegisteredModules[i];
@@ -122,7 +122,7 @@ export abstract class VFXModule {
         return null;
     }
 
-    public static getModuleIdentityByName (name: string) {
+    public static getModuleMetadataByName (name: string) {
         for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
             if (VFXModule._allRegisteredModules[i].name === name) {
                 return VFXModule._allRegisteredModules[i];
@@ -131,7 +131,8 @@ export abstract class VFXModule {
         return null;
     }
 
-    public static getModuleIdentitiesWithSpecificStage (stage: VFXExecutionStage, out: VFXModuleIdentity[]) {
+    public static getModuleMetadataWithSpecificStage (stage: VFXExecutionStage) {
+        const out: VFXModuleMetadata[] = [];
         for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
             const identity = VFXModule._allRegisteredModules[i];
             if (identity.execStages & 1 << stage) {
@@ -145,7 +146,7 @@ export abstract class VFXModule {
         this._allRegisteredModules.length = 0;
     }
 
-    private static _allRegisteredModules: VFXModuleIdentity[] = [];
+    private static _allRegisteredModules: VFXModuleMetadata[] = [];
 
     @type(CCBoolean)
     public get enabled () {
@@ -159,7 +160,7 @@ export abstract class VFXModule {
 
     @type(CCString)
     public get name () {
-        return VFXModule.getModuleIdentityByClass(this.constructor as Constructor<VFXModule>)?.name;
+        return VFXModule.getModuleMetadataByClass(this.constructor as Constructor<VFXModule>)?.name;
     }
 
     public get usage () {
@@ -197,6 +198,7 @@ export abstract class VFXModule {
             assertIsTrue(this._owner);
         }
         this._owner = owner;
+        return true;
     }
 
     public requireRecompile () {
@@ -226,6 +228,8 @@ export class VFXStage {
     @serializable
     private _modules: VFXModule[] = [];
     @serializable
+    private _moduleCount = 0;
+    @serializable
     private _usage = VFXExecutionStage.UNKNOWN;
     private _owner: VFXEmitter | null = null;
 
@@ -237,12 +241,13 @@ export class VFXStage {
      * @zh 添加粒子模块
      */
     public addModule<T extends VFXModule> (ModuleType: Constructor<T>): T {
-        const id = VFXModule.getModuleIdentityByClass(ModuleType);
+        const id = VFXModule.getModuleMetadataByClass(ModuleType);
         assertIsTrue(id, 'Particle Module should be registered!');
         if (id.execStages & 1 << this._usage) {
             const newModule = new ModuleType();
             const index = VFXModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
+            this._moduleCount++;
             this.requireRecompile();
             return newModule;
         } else {
@@ -251,7 +256,7 @@ export class VFXStage {
     }
 
     public getModule<T extends VFXModule> (moduleType: Constructor<T> | AbstractedConstructor<T>): T | null {
-        for (let i = 0, l = this._modules.length; i < l; i++) {
+        for (let i = 0, l = this._moduleCount; i < l; i++) {
             const particleModule = this._modules[i];
             if (particleModule instanceof moduleType) {
                 return particleModule;
@@ -262,7 +267,7 @@ export class VFXStage {
 
     public getModules<T extends VFXModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<any>): Array<T> {
         out.length = 0;
-        for (let i = 0, l = this._modules.length; i < l; i++) {
+        for (let i = 0, l = this._moduleCount; i < l; i++) {
             const module = this._modules[i];
             if (module instanceof moduleType) {
                 out.push(module);
@@ -291,6 +296,7 @@ export class VFXStage {
         const index = this._modules.indexOf(module);
         if (index !== -1) {
             this._modules.splice(index, 1);
+            this._moduleCount--;
             this.requireRecompile();
         }
     }
@@ -319,7 +325,7 @@ export class VFXStage {
         }
         this._owner = owner;
         const modules = this._modules;
-        for (let i = 0, length = modules.length; i < length; i++) {
+        for (let i = 0, length = this._moduleCount; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
                 module.compile(parameterMap, parameterRegistry, this);
@@ -333,7 +339,7 @@ export class VFXStage {
      */
     public execute (parameterMap: VFXParameterMap) {
         const modules = this._modules;
-        for (let i = 0, length = modules.length; i < length; i++) {
+        for (let i = 0, length = this._moduleCount; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
                 module.execute(parameterMap);
@@ -342,7 +348,7 @@ export class VFXStage {
     }
 }
 
-class VFXModuleIdentity {
+class VFXModuleMetadata {
     public readonly ctor: Constructor<VFXModule> | null = null;
     public readonly name: string = '';
     public readonly execStages = VFXExecutionStageFlags.NONE;

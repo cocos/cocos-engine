@@ -68,7 +68,7 @@ export class BindingVec3Expression extends Vec3Expression {
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        const compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this._binding) {
             this._bindParameter = this._binding.getBindingParameter(parameterRegistry);
         }
@@ -83,6 +83,7 @@ export class BindingVec3Expression extends Vec3Expression {
             this._getVec3 = this._getConstant;
             Vec3.copy(this._constant, Vec3.ZERO);
         }
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

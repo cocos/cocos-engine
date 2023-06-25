@@ -34,7 +34,7 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 const tempPos = new Vec3();
 
 @ccclass('cc.SetPositionModule')
-@VFXModule.register('SetPosition', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_POSITION.name], [])
+@VFXModule.register('SetPosition', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER, [P_POSITION.name], [])
 export class SetPositionModule extends VFXModule {
     /**
       * @zh 设置粒子颜色。

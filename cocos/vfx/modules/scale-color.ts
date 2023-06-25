@@ -56,12 +56,13 @@ export class ScaleColorModule extends VFXModule {
     private _scalar: ColorExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_COLOR);
         }
         parameterMap.ensure(P_COLOR);
-        this.scalar.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.scalar.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -70,16 +71,9 @@ export class ScaleColorModule extends VFXModule {
         const color = parameterMap.getColorArrayValue(this.usage === VFXExecutionStage.UPDATE ? P_COLOR : P_BASE_COLOR);
         const scalarExp = this.scalar;
         scalarExp.bind(parameterMap);
-        if (scalarExp.isConstant) {
-            const colorVal = scalarExp.evaluate(0, tempColor);
-            for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(colorVal, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const colorVal = scalarExp.evaluate(i, tempColor);
-                color.multiplyColorAt(colorVal, i);
-            }
+        for (let i = fromIndex; i < toIndex; i++) {
+            const colorVal = scalarExp.evaluate(i, tempColor);
+            color.multiplyColorAt(colorVal, i);
         }
     }
 }

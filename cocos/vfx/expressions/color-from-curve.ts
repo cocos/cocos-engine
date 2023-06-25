@@ -69,8 +69,9 @@ export class ColorFromCurveExpression extends ColorExpression {
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.curveIndex.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.curveIndex.compile(parameterMap, parameterRegistry, owner);
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

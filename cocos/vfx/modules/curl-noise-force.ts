@@ -535,16 +535,17 @@ export class CurlNoiseForceModule extends VFXModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
         parameterMap.ensure(P_VELOCITY);
         parameterMap.ensure(P_PHYSICS_FORCE);
         if (this._separateAxes) {
-            this.strength.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.strength.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformStrength.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformStrength.compile(parameterMap, parameterRegistry, this);
         }
-        this.panSpeed.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.panSpeed.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

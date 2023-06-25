@@ -31,7 +31,7 @@ import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXParameterRegistry } from '../vfx-parameter';
 
 @ccclass('cc.SetRibbonWidthModule')
-@VFXModule.register('SetRibbonWidth', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetRibbonWidth', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER, [P_RIBBON_WIDTH.name], [])
 export class SetRibbonWidthModule extends VFXModule {
     @type(FloatExpression)
     public get width () {

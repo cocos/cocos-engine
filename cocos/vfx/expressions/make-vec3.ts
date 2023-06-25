@@ -84,10 +84,11 @@ export class MakeVec3Expression extends Vec3Expression {
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.x.compile(parameterMap, parameterRegistry, owner);
-        this.y.compile(parameterMap, parameterRegistry, owner);
-        this.z.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.x.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.y.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.z.compile(parameterMap, parameterRegistry, owner);
+        return compileResult;
     }
     public bind (parameterMap: VFXParameterMap) {
         this._x!.bind(parameterMap);

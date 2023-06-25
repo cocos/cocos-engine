@@ -54,8 +54,9 @@ export class Vec3FromFloatExpression extends Vec3Expression {
     private _value: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.value.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.value.compile(parameterMap, parameterRegistry, owner);
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

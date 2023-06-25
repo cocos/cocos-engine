@@ -88,14 +88,15 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
     private _vec3: Vec3Expression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.vec3.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.vec3.compile(parameterMap, parameterRegistry, owner);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
         case Vec3Channel.Y: this._getChannel = this._getY; break;
         case Vec3Channel.Z: this._getChannel = this._getZ; break;
         default: this._getChannel = this._getX; break;
         }
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

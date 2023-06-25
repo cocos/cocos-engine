@@ -68,7 +68,7 @@ export class BindingFloatExpression extends FloatExpression {
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        const compileResult = super.compile(parameterMap, parameterRegistry, owner);
 
         if (this._binding) {
             this._bindingParameter = this._binding.getBindingParameter(parameterRegistry);
@@ -84,6 +84,7 @@ export class BindingFloatExpression extends FloatExpression {
             this._getFloat = this._getConstant;
             this._constant = 0;
         }
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

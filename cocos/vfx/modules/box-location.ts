@@ -104,13 +104,14 @@ export class BoxLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_ID);
-        this.boxSize.compile(parameterMap, parameterRegistry, this);
-        this.boxCenter.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.boxSize.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.boxCenter.compile(parameterMap, parameterRegistry, this);
         if (this.surfaceOnly) {
-            this.surfaceThickness.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.surfaceThickness.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

@@ -153,17 +153,18 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     private _separateAxes = false;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.maxScalar.compile(parameterMap, parameterRegistry, this);
-            this.minScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.maxScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.minScalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformMaxScalar.compile(parameterMap, parameterRegistry, this);
-            this.uniformMinScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformMaxScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformMinScalar.compile(parameterMap, parameterRegistry, this);
         }
-        this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
-        this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.minSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.maxSpeedThreshold.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -182,48 +183,28 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
             const uniformMaxScalarExp = this._uniformMaxScalar as FloatExpression;
             uniformMinScalarExp.bind(parameterMap);
             uniformMaxScalarExp.bind(parameterMap);
-            if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
-                const min = minSpeedThresholdExp.evaluate(0);
-                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const min = minSpeedThresholdExp.evaluate(i);
+                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
                 const speedOffset = -min * speedScale;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.getVec3At(tempVelocity, i);
-                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyScalarAt(lerp(uniformMinScalarExp.evaluate(i), uniformMaxScalarExp.evaluate(i), ratio), i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const min = minSpeedThresholdExp.evaluate(i);
-                    const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
-                    const speedOffset = -min * speedScale;
-                    velocity.getVec3At(tempVelocity, i);
-                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyScalarAt(lerp(uniformMinScalarExp.evaluate(i), uniformMaxScalarExp.evaluate(i), ratio), i);
-                }
+                velocity.getVec3At(tempVelocity, i);
+                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                spriteSize.multiplyScalarAt(lerp(uniformMinScalarExp.evaluate(i), uniformMaxScalarExp.evaluate(i), ratio), i);
             }
         } else {
             const minScalarExp = this._minScalar as Vec2Expression;
             const maxScalarExp = this._maxScalar as Vec2Expression;
             minScalarExp.bind(parameterMap);
             maxScalarExp.bind(parameterMap);
-            if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
-                const min = minSpeedThresholdExp.evaluate(0);
-                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
+
+            for (let i = fromIndex; i < toIndex; i++) {
+                const min = minSpeedThresholdExp.evaluate(i);
+                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
                 const speedOffset = -min * speedScale;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.getVec3At(tempVelocity, i);
-                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalarExp.evaluate(i, tempScalar), maxScalarExp.evaluate(i, tempScalar2), ratio), i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const min = minSpeedThresholdExp.evaluate(i);
-                    const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
-                    const speedOffset = -min * speedScale;
-                    velocity.getVec3At(tempVelocity, i);
-                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalarExp.evaluate(i, tempScalar), maxScalarExp.evaluate(i, tempScalar2), ratio), i);
-                }
+                velocity.getVec3At(tempVelocity, i);
+                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalarExp.evaluate(i, tempScalar), maxScalarExp.evaluate(i, tempScalar2), ratio), i);
             }
         }
     }

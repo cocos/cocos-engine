@@ -37,7 +37,7 @@ const pos = new Vec3();
 const distribution = new Vec2();
 
 @ccclass('cc.SphereLocationModule')
-@VFXModule.register('SphereLocation', VFXExecutionStageFlags.SPAWN, [P_POSITION.name])
+@VFXModule.register('SphereLocation', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.EVENT_HANDLER, [P_POSITION.name])
 export class SphereLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     public get radius () {

@@ -34,7 +34,7 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 const tempColor = new Color();
 
 @ccclass('cc.SetColorModule')
-@VFXModule.register('SetColor', VFXExecutionStageFlags.SPAWN, [P_COLOR.name], [P_NORMALIZED_AGE.name])
+@VFXModule.register('SetColor', VFXExecutionStageFlags.SPAWN | VFXExecutionStageFlags.UPDATE | VFXExecutionStageFlags.EVENT_HANDLER, [P_COLOR.name], [])
 export class SetColorModule extends VFXModule {
     /**
        * @zh 设置粒子颜色。

@@ -122,9 +122,10 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     }
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXModule) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.curveIndex.compile(parameterMap, parameterRegistry, owner);
-        this.scale.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.curveIndex.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.scale.compile(parameterMap, parameterRegistry, owner);
+        return compileResult;
     }
 
     public bind (parameterMap: VFXParameterMap) {

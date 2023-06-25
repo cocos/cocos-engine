@@ -119,20 +119,21 @@ export class EmitterStateModule extends VFXModule {
     private _loopDelay: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_CURRENT_LOOP_DELAY);
         parameterMap.ensure(E_CURRENT_LOOP_DURATION);
         parameterMap.ensure(E_CURRENT_LOOP_COUNT);
         parameterMap.ensure(E_AGE);
         parameterMap.ensure(E_LOOPED_AGE);
         parameterMap.ensure(E_NORMALIZED_LOOP_AGE);
-        this.loopDuration.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.loopDuration.compile(parameterMap, parameterRegistry, this);
         if (this.loopMode === LoopMode.MULTIPLE) {
-            this.loopCount.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.loopCount.compile(parameterMap, parameterRegistry, this);
         }
         if (this.delayMode !== DelayMode.NONE) {
-            this.loopDelay.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.loopDelay.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
