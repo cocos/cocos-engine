@@ -23,7 +23,7 @@
 */
 
 import { VariableType, VariableTypeValueTypeMap, VarInstanceBase } from './basic';
-import { PlainVariable } from './primitive-variable';
+import { PlainVariable, PlainVariableType } from './primitive-variable';
 import { TriggerVariable } from './trigger-variable';
 import { Vec3Variable } from './vec3-variable';
 import { QuatVariable } from './quat-variable';
@@ -50,7 +50,7 @@ export function createVariable<TVariableType extends VariableType> (
     case VariableType.FLOAT:
     case VariableType.INTEGER:
     case VariableType.BOOLEAN:
-        variable = new PlainVariable(type);
+        variable = new PlainVariable(type as PlainVariableType);
         break;
     case VariableType.TRIGGER:
         variable = new TriggerVariable();
