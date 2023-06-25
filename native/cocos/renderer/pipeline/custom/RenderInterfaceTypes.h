@@ -105,7 +105,7 @@ public:
     virtual bool destroy() noexcept = 0;
     /**
      * @en Render contents of cameras
-     * @zh 渲染各相机需要绘制的内容
+     * @zh 根据相机进行绘制
      */
     virtual void render(const ccstd::vector<scene::Camera*> &cameras) = 0;
     /**
