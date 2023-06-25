@@ -85,12 +85,12 @@ type AttributeFormerlySerializedAs = `${AttributeName}${typeof POSTFIX_FORMERLY_
 type AttributeDefault = `${AttributeName}${typeof POSTFIX_DEFAULT}`;
 type AttributeType = `${AttributeName}${typeof POSTFIX_TYPE}`;
 type AttributeEditorOnly = `${AttributeName}${typeof POSTFIX_EDITOR_ONLY}`;
-type AttrResult = {
+interface AttrResult {
     [K: string]: typeof K extends AttributeFormerlySerializedAs ? string :
         typeof K extends AttributeDefault ? unknown :
         typeof K extends AttributeType ? AnyFunction :
         typeof K extends AttributeEditorOnly ? boolean : never;
-};
+}
 
 function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const attrs: AttrResult = CCClass.Attr.getClassAttrs(klass);
@@ -287,22 +287,22 @@ type TypedArrayViewConstructorName =
     | 'Uint32Array' | 'Int32Array'
     | 'Float32Array' | 'Float64Array';
 
-type SerializedTypedArray = {
+interface SerializedTypedArray {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArray';
     array: number[];
     ctor: TypedArrayViewConstructorName;
-};
+}
 
-type SerializedTypedArrayRef = {
+interface SerializedTypedArrayRef {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArrayRef';
     ctor: TypedArrayViewConstructorName;
     offset: number;
     length: number;
-};
+}
 
 type SerializedGeneralTypedObject = {
     __id__: never;
@@ -310,18 +310,18 @@ type SerializedGeneralTypedObject = {
     __type__?: NotKnownTypeTag;
 } & Record<NotTypeTag, SerializedFieldValue>;
 
-type SerializedObjectReference = {
+interface SerializedObjectReference {
     __type__: never;
     __uuid__: never;
     __id__: number;
 }
 
-type SerializedUUIDReference = {
+interface SerializedUUIDReference {
     __type__: never;
     __id__: never;
     __uuid__: string;
     __expectedType__: string;
-};
+}
 
 type SerializedObject = SerializedTypedArray | SerializedTypedArrayRef | SerializedGeneralTypedObject;
 
@@ -588,12 +588,10 @@ class _Deserializer {
             return;
         }
 
-        // cSpell:words Deserializable
-
-        type ClassicCustomizedDeserializable = { _deserialize: (content: unknown, deserializer: _Deserializer) => void; };
+        interface ClassicCustomizedDeserializable { _deserialize: (content: unknown, deserializer: _Deserializer) => void; }
         if ((object as Partial<ClassicCustomizedDeserializable>)._deserialize) {
             // TODO: content check?
-            (object as ClassicCustomizedDeserializable)._deserialize((value as unknown as { content: unknown }).content, this);
+            (object as Partial<ClassicCustomizedDeserializable>)._deserialize!((value as unknown as { content: unknown }).content, this);
             return;
         }
 
@@ -767,18 +765,18 @@ class _Deserializer {
         klass: SerializableClassConstructor,
     ): void {
         if (klass === cclegacy.Vec2) {
-            type SerializedVec2 = { x?: number; y?: number; };
+            interface SerializedVec2 { x?: number; y?: number; }
             instance.x = (serialized as SerializedVec2).x || 0;
             instance.y = (serialized as SerializedVec2).y || 0;
             return;
         } else if (klass === cclegacy.Vec3) {
-            type SerializedVec3 = { x?: number; y?: number; z?: number; };
+            interface SerializedVec3 { x?: number; y?: number; z?: number; }
             instance.x = (serialized as SerializedVec3).x || 0;
             instance.y = (serialized as SerializedVec3).y || 0;
             instance.z = (serialized as SerializedVec3).z || 0;
             return;
         } else if (klass === cclegacy.Color) {
-            type SerializedColor = { r?: number; g?: number; b?: number; a?: number; };
+            interface SerializedColor { r?: number; g?: number; b?: number; a?: number; }
             instance.r = (serialized as SerializedColor).r || 0;
             instance.g = (serialized as SerializedColor).g || 0;
             instance.b = (serialized as SerializedColor).b || 0;
@@ -786,7 +784,7 @@ class _Deserializer {
             instance.a = (a === undefined ? 255 : a);
             return;
         } else if (klass === cclegacy.Size) {
-            type SerializedSize = { width?: number; height?: number; };
+            interface SerializedSize { width?: number; height?: number; }
             instance.width = (serialized as SerializedSize).width || 0;
             instance.height = (serialized as SerializedSize).height || 0;
             return;
