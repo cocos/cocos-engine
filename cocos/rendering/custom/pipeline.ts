@@ -371,11 +371,6 @@ export interface Setter extends RenderNode {
 export interface RenderQueueBuilder extends Setter {
     /**
      * @deprecated Method will be removed in 3.9.0
-     * @en Render the scene the camera is looking at.
-     * @zh 渲染当前相机指向的场景。
-     * @param camera @en Required camera @zh 所需相机
-     * @param light @en Lighting information of the scene @zh 场景光照信息
-     * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     addSceneOfCamera (
         camera: Camera,
@@ -1010,21 +1005,10 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
      * @beta Feature is under development
-     * @en Add render subpass.
-     * @zh 添加渲染次通道
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Render subpass builder
      */
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     /**
      * @beta Feature is under development
-     * @en Add multisample render subpass.
-     * Sample count and quality should match those of the resources.
-     * @zh 添加多重采样渲染次通道，采样数与质量需要与资源一致。
-     * @param count @en Sample count @zh 采样数
-     * @param quality @en Sample quality @zh 采样质量
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Multisample render subpass builder
      */
     addMultisampleRenderSubpass (
         count: number,
@@ -1032,10 +1016,6 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         subpassName: string): MultisampleRenderSubpassBuilder;
     /**
      * @experimental
-     * @en Add compute subpass.
-     * @zh 添加计算次通道
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Compute subpass builder
      */
     addComputeSubpass (subpassName?: string): ComputeSubpassBuilder;
     /**

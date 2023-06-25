@@ -451,11 +451,6 @@ public:
 
     /**
      * @deprecated Method will be removed in 3.9.0
-     * @en Render the scene the camera is looking at.
-     * @zh 渲染当前相机指向的场景。
-     * @param camera @en Required camera @zh 所需相机
-     * @param light @en Lighting information of the scene @zh 场景光照信息
-     * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
     /**
@@ -1140,29 +1135,14 @@ public:
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     /**
      * @beta Feature is under development
-     * @en Add render subpass.
-     * @zh 添加渲染次通道
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Render subpass builder
      */
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
     /**
      * @beta Feature is under development
-     * @en Add multisample render subpass.
-     * Sample count and quality should match those of the resources.
-     * @zh 添加多重采样渲染次通道，采样数与质量需要与资源一致。
-     * @param count @en Sample count @zh 采样数
-     * @param quality @en Sample quality @zh 采样质量
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Multisample render subpass builder
      */
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
     /**
      * @experimental
-     * @en Add compute subpass.
-     * @zh 添加计算次通道
-     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
-     * @returns Compute subpass builder
      */
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) = 0;
     /**
