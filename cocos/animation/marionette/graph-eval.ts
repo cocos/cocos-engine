@@ -169,7 +169,7 @@ export class AnimationGraphEval {
         return this._rootPoseNode.getLayerTopLevelStateMachineEvaluation(layer).getCurrentStateStatus();
     }
 
-    public getCurrentClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
+    public getCurrentClipStatuses (layer: number): Readonly<Iterable<ClipStatus>> {
         return this._rootPoseNode.getLayerTopLevelStateMachineEvaluation(layer).getCurrentClipStatuses();
     }
 
@@ -185,7 +185,7 @@ export class AnimationGraphEval {
         return this._rootPoseNode.getLayerTopLevelStateMachineEvaluation(layer).getNextStateStatus();
     }
 
-    public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
+    public getNextClipStatuses (layer: number): Readonly<Iterable<ClipStatus>> {
         return this._rootPoseNode.getLayerTopLevelStateMachineEvaluation(layer).getNextClipStatuses();
     }
 

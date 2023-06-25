@@ -196,7 +196,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    public getCurrentClipStatuses (): Iterable<ClipStatus> {
+    public getCurrentClipStatuses (): Readonly<Iterable<ClipStatus>> {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getClipStatuses(currentNode.absoluteWeight);
@@ -237,7 +237,7 @@ class TopLevelStateMachineEvaluation {
         return null;
     }
 
-    public getNextClipStatuses (): Iterable<ClipStatus> {
+    public getNextClipStatuses (): Readonly<Iterable<ClipStatus>> {
         const { _activatedTransitions: activatedTransitions } = this;
         if (activatedTransitions.length === 0) {
             return emptyClipStatusesIterable;
@@ -995,7 +995,7 @@ const emptyClipStatusesIterator: Readonly<Iterator<ClipStatus>> = Object.freeze(
     },
 });
 
-const emptyClipStatusesIterable: Iterable<ClipStatus> = Object.freeze({
+const emptyClipStatusesIterable: Readonly<Iterable<ClipStatus>> = Object.freeze({
     [Symbol.iterator] () {
         return emptyClipStatusesIterator;
     },
@@ -1286,7 +1286,7 @@ class VMSMEval {
         this._privateState.addTransition(transition);
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Readonly<Iterable<ClipStatus>> {
         const { _source: source } = this;
         if (!source) {
             return emptyClipStatusesIterable;
@@ -1357,7 +1357,7 @@ class VMSMInternalState extends EventifiedStateEval {
         return stateStatus;
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Readonly<Iterable<ClipStatus>> {
         return this._container.getClipStatuses(baseWeight);
     }
 

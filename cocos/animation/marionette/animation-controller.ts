@@ -226,7 +226,7 @@ export class AnimationController extends Component {
      *              An empty iterable is returned if current state is not a motion state.
      *          @zh 到动画剪辑运作状态的迭代器。若当前状态不是动画状态，则返回一个空的迭代器。
      */
-    public getCurrentClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
+    public getCurrentClipStatuses (layer: number): Readonly<Iterable<ClipStatus>> {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getCurrentClipStatuses(layer);
@@ -266,7 +266,7 @@ export class AnimationController extends Component {
      *              An empty iterable is returned in case of no transition or next state is not a motion state.
      *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡或下一状态不是动画状态，则返回一个空的迭代器。
      */
-    public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
+    public getNextClipStatuses (layer: number): Readonly<Iterable<ClipStatus>> {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getNextClipStatuses(layer);
