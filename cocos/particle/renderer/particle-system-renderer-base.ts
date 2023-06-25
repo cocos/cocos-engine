@@ -31,9 +31,10 @@ import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
+import type { ParticleSystem } from '../particle-system';
 
 export abstract class ParticleSystemRendererBase {
-    protected _particleSystem: any = null;
+    protected _particleSystem: ParticleSystem | null = null;
     /**
      * @engineInternal
      */

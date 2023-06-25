@@ -136,6 +136,10 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
+// TODO: we should not use this type, should use a uniform array type instead.
+// Tracking issue:
+export type PVData = [Vec3, Vec3, Vec3, Vec3, number, Vec3 | null, null];
+
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
     private _defines: MacroRecord;
     private _trailDefines: MacroRecord;
@@ -143,13 +147,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
-    private _attrs: any[];
-    private _particles: RecyclePool | null = null;
+    private _attrs: PVData;
+    private _particles: RecyclePool<Particle> | null = null;
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
-    private _fillDataFunc: any = null;
+    private _fillDataFunc: ((p: Particle, idx: number, fi: number) => void) | null = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
@@ -166,7 +170,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
-        this._attrs = new Array(7);
+        this._attrs = new Array(7) as PVData;
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -293,25 +297,25 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private doUpdateRotation (pass): void {
+    private doUpdateRotation (pass: Pass): void {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
         }
 
         if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
+            this._particleSystem?.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
+            this._particleSystem?.node.getWorldRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            const cameraLst: Camera[] | undefined = this._particleSystem?.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem!.node.layer) === this._particleSystem!.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -333,10 +337,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private doUpdateScale (pass): void {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
+            this._particleSystem?.node.getScale(this._node_scale);
             break;
         case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
+            this._particleSystem?.node.getWorldScale(this._node_scale);
             break;
         default:
             break;
@@ -358,7 +362,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateRotation(pass);
 
         this._updateList.forEach((value: IParticleModule, key: string): void => {
-            value.update(ps._simulationSpace, _tempWorldTrans);
+            value.update(ps.simulationSpace, _tempWorldTrans);
         });
 
         const trailModule = ps._trailModule;
@@ -453,12 +457,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             let fi = 0;
-            const textureModule = this._particleSystem._textureAnimationModule;
+            const textureModule = this._particleSystem!._textureAnimationModule;
             if (textureModule && textureModule.enable) {
                 fi = p.frameIndex;
             }
             idx = i * 4;
-            this._fillDataFunc(p, idx, fi);
+            this._fillDataFunc!(p, idx, fi);
         }
     }
 
