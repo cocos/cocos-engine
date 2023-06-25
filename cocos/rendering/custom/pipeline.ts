@@ -40,6 +40,12 @@ import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, Reso
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
+/**
+ * @en PipelineRuntime is the runtime of both classical and custom pipelines.
+ * It is used internally and should not be called directly.
+ * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
+ * 属于内部实现，用户不应直接调用。
+ */
 export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
     destroy (): boolean;
