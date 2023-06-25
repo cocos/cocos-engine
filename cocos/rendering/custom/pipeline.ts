@@ -201,7 +201,7 @@ export class PipelineCapabilities {
 export interface RenderNode {
     name: string;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     setCustomBehavior (name: string): void;
 }
@@ -223,7 +223,7 @@ export interface Setter extends RenderNode {
 
 export interface RenderQueueBuilder extends Setter {
     /**
-     * @deprecated method will be removed in 3.9.0
+     * @deprecated Method will be removed in 3.9.0
      */
     addSceneOfCamera (
         camera: Camera,
@@ -241,7 +241,7 @@ export interface RenderQueueBuilder extends Setter {
     clearRenderTarget (name: string, color?: Color): void;
     setViewport (viewport: Viewport): void;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     addCustomCommand (customBehavior: string): void;
 }
@@ -358,7 +358,7 @@ export interface RenderSubpassBuilder extends Setter {
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     showStatistics: boolean;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -398,7 +398,7 @@ export interface ComputeSubpassBuilder extends Setter {
         slotName: string): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -413,17 +413,26 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         accessType: AccessType,
         slotName: string): void;
     /**
-     * @beta function signature might change
+     * @beta Feature is under development
      */
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
+    /**
+     * @beta Feature is under development
+     */
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
+    /**
+     * @beta Feature is under development
+     */
     addMultisampleRenderSubpass (
         count: number,
         quality: number,
         subpassName: string): MultisampleRenderSubpassBuilder;
+    /**
+     * @experimental
+     */
     addComputeSubpass (subpassName?: string): ComputeSubpassBuilder;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -445,7 +454,7 @@ export interface ComputePassBuilder extends Setter {
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -511,14 +520,14 @@ export interface Pipeline extends BasicPipeline {
     addUploadPass (uploadPairs: UploadPair[]): void;
     addMovePass (movePairs: MovePair[]): void;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     addCustomBuffer (
         name: string,
         info: BufferInfo,
         type: string): number;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     addCustomTexture (
         name: string,

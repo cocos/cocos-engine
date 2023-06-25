@@ -275,7 +275,7 @@ public:
     virtual ccstd::string getName() const = 0;
     virtual void setName(const ccstd::string &name) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void setCustomBehavior(const ccstd::string &name) = 0;
 };
@@ -303,7 +303,7 @@ public:
     RenderQueueBuilder() noexcept = default;
 
     /**
-     * @deprecated method will be removed in 3.9.0
+     * @deprecated Method will be removed in 3.9.0
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
@@ -311,7 +311,7 @@ public:
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
@@ -435,7 +435,7 @@ public:
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addRenderTarget(const ccstd::string &name, AccessType accessType) {
@@ -522,7 +522,7 @@ public:
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
@@ -543,14 +543,23 @@ public:
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
-     * @beta function signature might change
+     * @beta Feature is under development
      */
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
+    /**
+     * @beta Feature is under development
+     */
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
+    /**
+     * @beta Feature is under development
+     */
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
+    /**
+     * @experimental
+     */
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addMaterialTexture(const ccstd::string &resourceName) {
@@ -571,7 +580,7 @@ public:
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
@@ -649,11 +658,11 @@ public:
     virtual void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) = 0;
     virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) = 0;
     /**
-     * @beta function signature might change
+     * @experimental
      */
     virtual uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) = 0;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size) {
