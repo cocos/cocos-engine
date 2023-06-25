@@ -147,10 +147,6 @@ EMSCRIPTEN_BINDINGS(spine) {
         .value("Path", AttachmentType_Path)
         .value("Point", AttachmentType_Point)
         .value("Clipping", AttachmentType_Clipping);
-    
-    enum_<DEBUG_SHAPE_TYPE>("DEBUG_SHAPE_TYPE")
-        .value("DEBUG_REGION", DEBUG_REGION)
-        .value("DEBUG_MESH", DEBUG_MESH);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // class_<Vector>("Vector")

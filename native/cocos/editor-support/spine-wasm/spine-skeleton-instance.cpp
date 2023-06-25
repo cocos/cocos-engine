@@ -143,7 +143,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
@@ -154,7 +154,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
@@ -175,7 +175,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
@@ -186,7 +186,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
@@ -234,7 +234,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vbSize = vertCount * byteStrideOneColor;
                 uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
                 uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
-                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
                 
                 float *verts = _clipper->getClippedVertices().buffer();
@@ -287,7 +287,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
                 uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
-                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, slot->getData().getBlendMode());
+                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
                 
                 float *verts = _clipper->getClippedVertices().buffer();
@@ -339,7 +339,7 @@ void SpineSkeletonInstance::collectMeshData() {
         // record debug shape info        
         if (_userData.debugMode) {
             SpineDebugShape debugShape;
-            debugShape.type = debugShapeType;
+            debugShape.type = (uint32_t)debugShapeType;
             debugShape.vOffset = _model->vCount;
             debugShape.vCount = currMesh.vCount;
             debugShape.iOffset = _model->iCount;

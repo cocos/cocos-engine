@@ -54,6 +54,9 @@ let _useTint = false;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
+const DEBUG_TYPE_REGION = 0;
+const DEBUG_TYPE_MESH = 1;
+
 function _getSlotMaterial (blendMode: number, comp: Skeleton) {
     let src: BlendFactor;
     let dst: BlendFactor;
@@ -211,8 +214,7 @@ function realTimeTraverse (comp: Skeleton) {
         const shapeCount = debugShapes.size();
         for (let i = 0; i < shapeCount; i++) {
             const shape = debugShapes.get(i);
-            const type = shape.type;
-            if (type.value === 0 && comp.debugSlots) {
+            if (shape.type === DEBUG_TYPE_REGION && comp.debugSlots) {
                 graphics.strokeColor = _slotColor;
                 const vertexFloatOffset = shape.vOffset * floatStride;
                 const vertexFloatCount = shape.vCount * floatStride;
@@ -222,7 +224,7 @@ function realTimeTraverse (comp: Skeleton) {
                 }
                 graphics.close();
                 graphics.stroke();
-            } else if (type.value === 1 && comp.debugMesh) {
+            } else if (shape.type === DEBUG_TYPE_MESH && comp.debugMesh) {
                 // draw debug mesh if enabled graphics
                 graphics.strokeColor = _meshColor;
                 const iCount = shape.iCount as number;

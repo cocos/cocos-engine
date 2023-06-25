@@ -23,7 +23,7 @@ class SpineDebugShape {
 public:
     SpineDebugShape(){}
     ~SpineDebugShape(){}
-    DEBUG_SHAPE_TYPE type = DEBUG_REGION;
+    uint32_t        type = 0;
     uint32_t        vOffset = 0;
     uint32_t        vCount = 0;
     uint32_t        iOffset = 0;
