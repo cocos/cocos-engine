@@ -23,7 +23,6 @@
 */
 
 // fsUtils is defined in engine-adapter
-declare const fsUtils: any;
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
@@ -32,7 +31,7 @@ export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Impo
 
 export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     return new Promise<ArrayBuffer>((resolve, reject) => {
-        fsUtils.readArrayBuffer(`cocos-js/${binaryUrl}`, (err, arrayBuffer) => {
+        globalThis.fsUtils.readArrayBuffer(`cocos-js/${binaryUrl}`, (err, arrayBuffer) => {
             if (err) {
                 reject(err);
                 return;
