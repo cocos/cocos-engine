@@ -146,10 +146,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         }
     }
 
-    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = true;
-    _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)] = true;
-    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)] = [device supportsFamily: MTLGPUFamilyApple3];
-    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = [device supportsFamily: MTLGPUFamilyApple5];
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [device supportsFamily: MTLGPUFamilyApple3];
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;

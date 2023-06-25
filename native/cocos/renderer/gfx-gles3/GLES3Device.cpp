@@ -157,15 +157,12 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     if (checkExtension("multisampled_render_to_texture")) {
         if (checkExtension("multisampled_render_to_texture2")) {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
-            _features[toNumber(Feature::MULTI_SAMPLE_LEVEL2)]          = true;
-            _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH)]   = true;
-            _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_STENCIL)] = true;
         } else {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
-            _features[toNumber(Feature::MULTI_SAMPLE_LEVEL1)] = true;
         }
     }
 #endif
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = true;
 
     ccstd::string compressedFmts;
 

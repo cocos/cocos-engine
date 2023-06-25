@@ -1539,7 +1539,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *d
         GLES3GPUTextureView *gpuColorTextureView = attachments[colors[j]];
         GLES3GPUTextureView *gpuResolveTextureView = resolves ? attachments[resolves[j]] : nullptr;
         GLES3GPUTexture *gpuColorTexture = gpuColorTextureView->gpuTexture;
-        GLES3GPUTexture *gpuResolveTexture = resolves ? gpuResolveTextureView->gpuTexture : nullptr;
+        GLES3GPUTexture *gpuResolveTexture = resolves && gpuColorTexture->memoryless ? gpuResolveTextureView->gpuTexture : nullptr;
 
         drawBuffers.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j));
 
