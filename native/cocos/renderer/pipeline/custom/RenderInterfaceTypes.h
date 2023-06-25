@@ -77,6 +77,13 @@ namespace cc {
 
 namespace render {
 
+/**
+ * @internal
+ * @en PipelineRuntime is the runtime of both classical and custom pipelines.
+ * It is used internally and should not be called directly.
+ * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
+ * 属于内部实现，用户不应直接调用。
+ */
 class PipelineRuntime {
 public:
     PipelineRuntime() noexcept = default;
@@ -86,28 +93,123 @@ public:
     PipelineRuntime& operator=(PipelineRuntime const& rhs) = delete;
     virtual ~PipelineRuntime() noexcept = default;
 
+    /**
+     * @en Activate PipelineRuntime with default swapchain
+     * @zh 用默认交换链初始化PipelineRuntime
+     */
     virtual bool activate(gfx::Swapchain *swapchain) = 0;
+    /**
+     * @en Destroy resources of PipelineRuntime
+     * @zh 销毁PipelineRuntime所持资源
+     */
     virtual bool destroy() noexcept = 0;
+    /**
+     * @en Render contents of cameras
+     * @zh 渲染各相机需要绘制的内容
+     */
     virtual void render(const ccstd::vector<scene::Camera*> &cameras) = 0;
+    /**
+     * @en Get graphics device
+     * @zh 获得图形设备
+     */
     virtual gfx::Device *getDevice() const = 0;
+    /**
+     * @en Get user macros
+     * @zh 获得用户宏列表
+     */
     virtual const MacroRecord &getMacros() const = 0;
+    /**
+     * @en Get global descriptor set manager
+     * @zh 获得全局(Global)级别描述符集(DescriptorSet)管理器
+     */
     virtual pipeline::GlobalDSManager *getGlobalDSManager() const = 0;
+    /**
+     * @en Get global descriptor set layout
+     * @zh 获得全局(Global)级别描述符集的布局(DescriptorSet Layout)
+     */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout() const = 0;
+    /**
+     * @en Get global descriptor set
+     * @zh 获得全局(Global)级别描述符集(DescriptorSet)
+     */
     virtual gfx::DescriptorSet *getDescriptorSet() const = 0;
+    /**
+     * @en Get command buffers of render pipeline
+     * @zh 获得渲染管线的命令缓冲(CommandBuffer)列表
+     */
     virtual const ccstd::vector<gfx::CommandBuffer*> &getCommandBuffers() const = 0;
+    /**
+     * @en Get scene data of render pipeline.
+     * Scene data contains render configurations of the current scene.
+     * @zh 获得渲染管线相关的场景数据，此场景数据一般包含渲染所需配置信息
+     */
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
+    /**
+     * @en Get constant macros.
+     * Constant macro is platform-dependent and immutable.
+     * @zh 获得常量宏列表，常量宏平台相关且无法修改
+     */
     virtual const ccstd::string &getConstantMacros() const = 0;
+    /**
+     * @en Get profiler model.
+     * This model is used to render profile information in Debug mode.
+     * @zh 获得分析工具(Profiler)的渲染实例，用于Debug模式下显示调试与性能检测信息
+     */
     virtual scene::Model *getProfiler() const = 0;
     virtual void setProfiler(scene::Model *profiler) = 0;
+    /**
+     * @en Get geometry renderer.
+     * Geometry renderer is used to render procedural geometries.
+     * @zh 获得几何渲染器(GeometryRenderer)，几何渲染器用于程序化渲染基础几何图形
+     */
     virtual pipeline::GeometryRenderer *getGeometryRenderer() const = 0;
+    /**
+     * @en Get shading scale.
+     * Shading scale affects shading texels per pixel.
+     * @zh 获得渲染倍率(ShadingScale)，每像素(pixel)绘制的纹素(texel)会根据渲染倍率进行调整。
+     */
     virtual float getShadingScale() const = 0;
     virtual void setShadingScale(float scale) = 0;
+    /**
+     * @en Get macro as string.
+     * @zh 根据宏名获得字符串
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual const ccstd::string &getMacroString(const ccstd::string &name) const = 0;
+    /**
+     * @en Get macro as integer.
+     * @zh 根据宏名获得整型
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual int32_t getMacroInt(const ccstd::string &name) const = 0;
+    /**
+     * @en Get macro as boolean.
+     * @zh 根据宏名获得布尔值
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual bool getMacroBool(const ccstd::string &name) const = 0;
+    /**
+     * @en Assign string value to macro.
+     * @zh 给宏赋值字符串
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual void setMacroString(const ccstd::string &name, const ccstd::string &value) = 0;
+    /**
+     * @en Assign integer value to macro.
+     * @zh 给宏赋值整型
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual void setMacroInt(const ccstd::string &name, int32_t value) = 0;
+    /**
+     * @en Assign boolean value to macro.
+     * @zh 给宏赋值布尔值
+     * @param name @en Name of macro @zh 宏的名字
+     */
     virtual void setMacroBool(const ccstd::string &name, bool value) = 0;
+    /**
+     * @en trigger pipeline state change event
+     * @zh 触发管线状态更新事件
+     */
     virtual void onGlobalPipelineStateChanged() = 0;
     virtual void setValue(const ccstd::string &name, int32_t value) = 0;
     virtual void setValue(const ccstd::string &name, bool value) = 0;
