@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 
-// fsUtils is defined in engine-adapter
-
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
     return WebAssembly.instantiate(wasmUrl, importObject);
