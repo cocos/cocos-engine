@@ -1260,6 +1260,9 @@ module.exports = link(mixin({
     color_grading: {
         originalMap: '支持任意Nx1的长条图和8x8的方块图，系统自动适配。内置lut贴图路径internal/dependencies/textures/lut/',
     },
+    tone_mapping: {
+        toneMappingType: '色调映射方式，只在启用HDR时生效。',
+    },
 },
 
 require('./animation'),

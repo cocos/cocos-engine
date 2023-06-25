@@ -339,6 +339,11 @@ export const EnvironmentLightingType = Enum({
     DIFFUSEMAP_WITH_REFLECTION: 2,
 });
 
+export const ToneMappingType = Enum({
+    DEFAULT: 0,
+    LINEAR: 1,
+});
+
 export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = JsbShadowsInfo;
 export const Shadows: typeof JsbShadows = jsb.Shadows;

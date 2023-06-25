@@ -24,7 +24,7 @@ import { legacyCC } from '../core/global-exports';
 import { CCFloat, CCInteger } from '../core/data';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
-import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
+import { Ambient, EnvironmentLightingType, ToneMappingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
@@ -37,6 +37,7 @@ import type {
     SceneGlobals as JsbSceneGlobals,
     LightProbeInfo as JsbLightProbeInfo,
     SkinInfo as JsbSkinInfo,
+    ToneMappingInfo as JsbToneMappingInfo,
 } from './scene-globals';
 
 declare const jsb: any;
@@ -181,6 +182,12 @@ export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
 export type SkinInfo = JsbSkinInfo;
 legacyCC.SkinInfo = SkinInfo;
 
+export const ToneMappingInfo: typeof JsbToneMappingInfo = jsb.ToneMappingInfo;
+export type ToneMappingInfo = JsbToneMappingInfo;
+legacyCC.ToneMappingInfo = ToneMappingInfo;
+
+
+
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
 
@@ -192,6 +199,7 @@ legacyCC.SkinInfo = SkinInfo;
         this._octreeRef = this.getOctreeInfo();
         this._lightProbeRef = this.getLightProbeInfo();
         this._skinRef = this.getSkinInfo();
+        this._toneMappingRef = this.getToneMappingInfo();
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
@@ -290,13 +298,25 @@ legacyCC.SkinInfo = SkinInfo;
         },
     });
 
+    Object.defineProperty(sceneGlobalsProto, 'toneMapping', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            return this._toneMappingRef;
+        },
+        set(v) {
+            this._toneMappingRef = v;
+            this.setToneMappingInfo(v);
+        },
+    });
+
 })();
 
 
 
 // handle meta data, it is generated automatically
 
-decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo});
+decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo, ToneMappingInfo});
 
 decros.patch_cc_OctreeInfo({OctreeInfo, CCInteger, Vec3, DEFAULT_WORLD_MAX_POS, DEFAULT_WORLD_MIN_POS, DEFAULT_OCTREE_DEPTH});
 
@@ -311,3 +331,5 @@ decros.patch_cc_AmbientInfo({AmbientInfo, Vec4, Ambient, CCFloat, legacyCC});
 decros.patch_cc_LightProbeInfo({LightProbeInfo, CCFloat, CCInteger});
 
 decros.patch_cc_SkinInfo({SkinInfo, CCFloat});
+
+decros.patch_cc_ToneMappingInfo({ToneMappingInfo, ToneMappingType});

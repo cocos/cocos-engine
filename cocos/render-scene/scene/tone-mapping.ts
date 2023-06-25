@@ -16,7 +16,7 @@ export  class ToneMapping {
         return this._toneMappingType;
     }
     public initialize (toneMappingInfo: ToneMappingInfo) {
-        this._toneMappingType = toneMappingInfo.ToneMappingType;
+        this._toneMappingType = toneMappingInfo.toneMappingType;
     }
 
     public activate () {

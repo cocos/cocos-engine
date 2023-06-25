@@ -23,6 +23,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
+#include "scene/ToneMapping.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
@@ -578,6 +579,8 @@ using namespace cc;
 %attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
 
+%attribute(cc::scene::ToneMappingInfo, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
+
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
 %attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
@@ -678,6 +681,7 @@ using namespace cc;
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
 %include "scene/Skin.h"
+%include "scene/ToneMapping.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"

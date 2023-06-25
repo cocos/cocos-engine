@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+****************************************************************************/
 
-export * from './camera';
-export * from './model';
-export * from './submodel';
-export * from './ambient';
-export * from './skybox';
-export * from './shadows';
-export * from './fog';
-export * from './octree';
-export * from './skin';
-export * from './light';
-export * from './directional-light';
-export * from './sphere-light';
-export * from './spot-light';
-export * from './point-light';
-export * from './ranged-directional-light';
-export * from './reflection-probe';
-export * from './lod-group';
-export * from './tone-mapping';
+#include "scene/ToneMapping.h"
+
+namespace cc {
+	namespace scene {
+	
+		void ToneMappingInfo::activate(ToneMapping *resource) {
+			_resource = resource;
+			_resource->initialize(*this);
+		}
+
+		void ToneMapping::initialize(const ToneMappingInfo &toneMappingInfo) {
+            _toneMappingType = toneMappingInfo.getToneMappingType();
+		}
+
+	} // namespace scene
+} // namespace cc

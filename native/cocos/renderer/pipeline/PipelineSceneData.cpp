@@ -38,7 +38,7 @@
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
 #include "scene/Model.h"
-
+#include "scene/ToneMapping.h"
 namespace cc {
 namespace pipeline {
 
@@ -51,6 +51,7 @@ PipelineSceneData::PipelineSceneData() {
     _octree = ccnew scene::Octree();
     _lightProbes = ccnew gi::LightProbes();
     _skin = ccnew scene::Skin();
+    _toneMapping = ccnew scene ::ToneMapping();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -62,6 +63,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_csmLayers);
     CC_SAFE_DELETE(_lightProbes);
     CC_SAFE_DELETE(_skin);
+    CC_SAFE_DELETE(_toneMapping);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {

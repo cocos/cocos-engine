@@ -45,7 +45,7 @@ import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
 import { property } from '../core/data/class-decorator';
-import { ToneMapping, ToneMappingType } from '../render-scene/scene/tonemapping';
+import { ToneMapping, ToneMappingType } from '../render-scene/scene/tone-mapping';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1543,7 +1543,7 @@ export class LightProbeInfo {
     }
 }
 
-@ccclass('cc.ToneMapping')
+@ccclass('cc.ToneMappingInfo')
 export class ToneMappingInfo {
     /**
      * @zh 色调映射类型
@@ -1551,14 +1551,15 @@ export class ToneMappingInfo {
      */
     @editable
     @type(ToneMappingType)
-    set ToneMappingType (val) {
+    @tooltip('i18n:tone_mapping.toneMappingType')
+    set toneMappingType (val) {
         this._toneMappingType = val;
         if (this._resource) {
             this._resource.toneMappingType = val;
         }
     }
 
-    get ToneMappingType () {
+    get toneMappingType () {
         return this._toneMappingType;
     }
 
@@ -1573,6 +1574,8 @@ export class ToneMappingInfo {
 
     protected _resource: ToneMapping | null = null;
 }
+
+legacyCC.ToneMappingInfo = ToneMappingInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1644,9 +1647,13 @@ export class SceneGlobals {
     @serializable
     public lightProbeInfo = new LightProbeInfo();
 
+    /**
+     * @en Tone mapping related configuration
+     * @zh 色调映射相关配置
+     */
     @editable
     @serializable
-    public tonemapping = new ToneMappingInfo();
+    public toneMapping = new ToneMappingInfo();
 
     /**
      * @en bake with stationary main light
@@ -1683,7 +1690,7 @@ export class SceneGlobals {
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
         this.skin.activate(sceneData.skin);
-        this.tonemapping.activate(sceneData.tonemapping);
+        this.toneMapping.activate(sceneData.toneMapping);
         if (this.lightProbeInfo && sceneData.lightProbes) {
             this.lightProbeInfo.activate(scene, sceneData.lightProbes);
         }
