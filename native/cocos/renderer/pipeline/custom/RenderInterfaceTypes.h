@@ -207,7 +207,7 @@ public:
      */
     virtual void setMacroBool(const ccstd::string &name, bool value) = 0;
     /**
-     * @en trigger pipeline state change event
+     * @en Trigger pipeline state change event
      * @zh 触发管线状态更新事件
      */
     virtual void onGlobalPipelineStateChanged() = 0;
