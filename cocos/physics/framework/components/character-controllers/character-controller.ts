@@ -203,7 +203,7 @@ export class CharacterController extends Eventify(Component) {
         return this._center;
     }
 
-    public set center (value: Vec3) {
+    public set center (value: Readonly<Vec3>) {
         if (Vec3.equals(this._center, value)) return;
         Vec3.copy(this._center, value);
         // if (this._cct) { //update cct position
@@ -312,7 +312,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 设置中心的世界坐标。
      */
-    public set centerWorldPosition (value: Vec3) {
+    public set centerWorldPosition (value: Readonly<Vec3>) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 
