@@ -647,7 +647,10 @@ const Elements = {
                         }
                     }
                 }
-                const undoID = await beginRecording(recordings);
+                let undoID;
+                if (recordings.length) {
+                    undoID = await beginRecording(recordings);
+                }
 
                 for (const dump of panel.dumps) {
                     const prefab = dump.__prefab__;
