@@ -233,14 +233,14 @@ enum class PipelineType {
     BASIC,
     /**
      * @en Standard render pipeline.
-     * Standard render pipeline supports compute shader and subpass rendering
-     * and works well on Tile-based GPUs.
-     * It is available on all native platforms and supports Vulkan, GLES3 and Metal backends.
+     * Standard render pipeline supports compute shader and subpass rendering.
+     * It works well on Tile-based GPUs and is available on all native platforms.
+     * Vulkan, GLES3 and Metal backends are supported.
      * The corresponding interface is {@link Pipeline}
      * @zh 标准渲染管线.
      * 标准渲染管线支持计算着色器(Compute Shader)与次通道渲染(Subpass rendering)。
-     * 能充分利用Tile-based GPU，适合移动平台。
-     * 支持所有原生平台，以及Vulkan、GLES3、Metal图形后端。
+     * 能充分利用Tile-based GPU，支持所有原生平台并对移动平台特别优化。
+     * 支持Vulkan、GLES3、Metal图形后端。
      * 对应接口为{@link Pipeline}
      */
     STANDARD,
