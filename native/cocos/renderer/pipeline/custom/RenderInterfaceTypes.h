@@ -233,14 +233,14 @@ enum class PipelineType {
     BASIC,
     /**
      * @en Standard render pipeline.
-     * Standard render pipeline supports compute shader and subpass rendering.
-     * It works well on Tile-based GPUs and is available on all native platforms.
-     * Vulkan, GLES3 and Metal backends are supported.
+     * Standard render pipeline supports compute shader and subpass rendering
+     * and works well on Tile-based GPUs.
+     * It is available on all native platforms and supports Vulkan, GLES3 and Metal backends.
      * The corresponding interface is {@link Pipeline}
      * @zh 标准渲染管线.
      * 标准渲染管线支持计算着色器(Compute Shader)与次通道渲染(Subpass rendering)。
-     * 能充分利用Tile-based GPU，支持所有原生平台并对移动平台特别优化。
-     * 支持Vulkan、GLES3、Metal图形后端。
+     * 能充分利用Tile-based GPU，适合移动平台。
+     * 支持所有原生平台，以及Vulkan、GLES3、Metal图形后端。
      * 对应接口为{@link Pipeline}
      */
     STANDARD,
@@ -623,15 +623,7 @@ public:
 
 /**
  * @en BasicPipeline
- * Basic pipeline provides basic rendering features which are supported on all platforms.
- * User can register resources which will be used in the render graph.
- * Theses resources are generally read and write, and will be managed by the pipeline.
- * In each frame, user can create a render graph to be executed by the pipeline.
- * @zh 基础渲染管线。
- * 基础渲染管线提供基础的渲染能力，能在全平台使用。
- * 用户可以在渲染管线中注册资源，这些资源将由管线托管，用于render graph。
- * 这些资源一般是可读写的资源。
- * 用户可以每帧构建一个render graph，然后交由管线执行。
+ * @zh 基础渲染管线
  */
 class BasicPipeline : public PipelineRuntime {
 public:
