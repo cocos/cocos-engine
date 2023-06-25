@@ -865,8 +865,8 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     return res;
 }
 
-export function parseUuidDependenciesDynamic (serialized: unknown): never[] {
-    const depends = [];
+export function parseUuidDependenciesDynamic (serialized: unknown): string[] {
+    const depends: string[] = [];
     const parseDependRecursively = (data: any, out: string[]): void => {
         if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
         const uuid = data.__uuid__;
