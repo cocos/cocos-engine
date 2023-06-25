@@ -172,7 +172,25 @@ export interface PipelineRuntime {
  * @zh 管线类型，不同类型的管线具有不同的硬件能力与接口
  */
 export enum PipelineType {
+    /**
+     * @en Basic render pipeline.
+     * Basic render pipeline is available on all platforms.
+     * The corresponding interface is {@link BasicPipeline}
+     * @zh 基础渲染管线，全平台支持。对应接口为 {@link BasicPipeline}
+     */
     BASIC,
+    /**
+     * @en Standard render pipeline.
+     * Standard render pipeline supports compute shader and subpass rendering
+     * and works well on Tile-based GPUs.
+     * It is available on all native platforms and supports Vulkan, GLES3 and Metal backends.
+     * The corresponding interface is {@link Pipeline}
+     * @zh 标准渲染管线.
+     * 标准渲染管线支持计算着色器(Compute Shader)与次通道渲染(Subpass rendering)。
+     * 能充分利用Tile-based GPU，适合移动平台。
+     * 支持所有原生平台，以及Vulkan、GLES3、Metal图形后端。
+     * 对应接口为{@link Pipeline}
+     */
     STANDARD,
 }
 
@@ -216,7 +234,13 @@ export interface Setter extends RenderNode {
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void;
     setBuffer (name: string, buffer: Buffer): void;
     setTexture (name: string, texture: Texture): void;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     setReadWriteBuffer (name: string, buffer: Buffer): void;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     setReadWriteTexture (name: string, texture: Texture): void;
     setSampler (name: string, sampler: Sampler): void;
 }
@@ -270,6 +294,10 @@ export interface BasicRenderPassBuilder extends Setter {
     showStatistics: boolean;
 }
 
+/**
+ * @en BasicPipeline
+ * @zh 基础渲染管线
+ */
 export interface BasicPipeline extends PipelineRuntime {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;

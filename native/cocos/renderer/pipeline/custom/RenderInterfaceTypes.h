@@ -224,7 +224,25 @@ public:
  * @zh 管线类型，不同类型的管线具有不同的硬件能力与接口
  */
 enum class PipelineType {
+    /**
+     * @en Basic render pipeline.
+     * Basic render pipeline is available on all platforms.
+     * The corresponding interface is {@link BasicPipeline}
+     * @zh 基础渲染管线，全平台支持。对应接口为 {@link BasicPipeline}
+     */
     BASIC,
+    /**
+     * @en Standard render pipeline.
+     * Standard render pipeline supports compute shader and subpass rendering
+     * and works well on Tile-based GPUs.
+     * It is available on all native platforms and supports Vulkan, GLES3 and Metal backends.
+     * The corresponding interface is {@link Pipeline}
+     * @zh 标准渲染管线.
+     * 标准渲染管线支持计算着色器(Compute Shader)与次通道渲染(Subpass rendering)。
+     * 能充分利用Tile-based GPU，适合移动平台。
+     * 支持所有原生平台，以及Vulkan、GLES3、Metal图形后端。
+     * 对应接口为{@link Pipeline}
+     */
     STANDARD,
 };
 
@@ -293,7 +311,13 @@ public:
     virtual void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) = 0;
     virtual void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
 };
@@ -378,6 +402,10 @@ public:
     }
 };
 
+/**
+ * @en BasicPipeline
+ * @zh 基础渲染管线
+ */
 class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
