@@ -691,7 +691,16 @@ const Elements = {
             const prefab = panel.dump.__prefab__;
             const prefabStateInfo = prefab.prefabStateInfo;
 
-            if (prefabStateInfo.assetUuid) {
+            const canUnlink = panel.dumps.some(dump => {
+                if (dump.__prefab__ && dump.__prefab__.prefabStateInfo) {
+                    const state = dump.__prefab__.prefabStateInfo.state;
+                    if (state === 2 || state === 3) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            if (canUnlink) {
                 panel.$.prefabUnlink.removeAttribute('disabled');
             } else {
                 panel.$.prefabUnlink.setAttribute('disabled', '');
