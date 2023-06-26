@@ -23,7 +23,7 @@
 */
 
 import { equals, Vec3, IVec3Like } from '../../core';
-import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
+import { CharacterController, CharacterTriggerEventType, Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
 export { cylinder } from '../../primitive';
 
@@ -49,6 +49,13 @@ export const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
     selfCollider: null as Collider | null,
     otherCollider: null as Collider | null,
+    impl: null as any,
+};
+
+export const CharacterTriggerEventObject = {
+    type: 'onCharacterTriggerEnter' as CharacterTriggerEventType,
+    collider: null as Collider | null,
+    characterController: null as CharacterController | null,
     impl: null as any,
 };
 

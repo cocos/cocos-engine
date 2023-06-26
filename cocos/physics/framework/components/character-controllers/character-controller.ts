@@ -31,7 +31,7 @@ import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { VEC3_0 } from '../../../utils/util';
 import { ECharacterControllerType } from '../../physics-enum';
-import { CharacterCollisionEventType } from '../../physics-interface';
+import { CharacterCollisionEventType, CharacterTriggerEventType, TriggerEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
 import { Collider } from '../colliders/collider';
@@ -254,6 +254,7 @@ export class CharacterController extends Eventify(Component) {
     private _centerWorldPosition: Vec3 = new Vec3();
 
     protected _needCollisionEvent = false;
+    protected _needTriggerEvent = false;
 
     protected get _isInitialized (): boolean {
         if (this._cct === null || !this._initialized) {
@@ -288,6 +289,7 @@ export class CharacterController extends Eventify(Component) {
     protected onDestroy (): void {
         if (this._cct) {
             this._needCollisionEvent = false;
+            this._needTriggerEvent = false;
             this._cct.updateEventListener();
             this._cct.onDestroy!();
             this._cct = null;
@@ -366,7 +368,8 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -381,7 +384,7 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?): void {
+    public off (type: CharacterTriggerEventType | CharacterCollisionEventType, callback?: (...any) => void, target?) {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -395,7 +398,8 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?): any {
+    public once<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction, target?): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
@@ -498,14 +502,28 @@ export class CharacterController extends Eventify(Component) {
         return this._needCollisionEvent;
     }
 
+    public get needTriggerEvent () : boolean {
+        return this._needTriggerEvent;
+    }
+
     private _updateNeedEvent (type?: string): void {
         if (this.isValid) {
             if (type !== undefined) {
                 if (type === 'onControllerColliderHit') {
                     this._needCollisionEvent = true;
                 }
-            } else if (!this.hasEventListener('onControllerColliderHit')) {
-                this._needCollisionEvent = false;
+                if (type === 'onControllerTriggerEnter' || type === 'onControllerTriggerStay' || type === 'onControllerTriggerExit') {
+                    this._needTriggerEvent = true;
+                }
+            } else {
+                if (!this.hasEventListener('onControllerColliderHit')) {
+                    this._needCollisionEvent = false;
+                }
+                if (!(this.hasEventListener('onControllerTriggerEnter')
+                    || this.hasEventListener('onControllerTriggerStay')
+                    || this.hasEventListener('onControllerTriggerExit'))) {
+                    this._needTriggerEvent = false;
+                }
             }
             if (this._cct) this._cct.updateEventListener();
         }
