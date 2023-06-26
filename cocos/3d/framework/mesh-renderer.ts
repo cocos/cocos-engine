@@ -592,6 +592,7 @@ export class MeshRenderer extends ModelRenderer {
         if (!this._model) {
             this._updateModels();
         }
+        this._model!.onGlobalPipelineStateChanged();
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateShadowBias();
