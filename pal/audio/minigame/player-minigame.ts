@@ -56,13 +56,18 @@ export class OneShotAudioMinigame {
         nativeAudio.onPlay(() => {
             this._onPlayCb?.();
         });
-        nativeAudio.onEnded(() => {
-            this._onEndCb?.();
-            nativeAudio.destroy();
-            // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
-            this._innerAudioContext = null as any;
-        });
+        const endCallback = () => {
+            if (this._innerAudioContext) {
+                this._onEndCb?.();
+                nativeAudio.destroy();
+                // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
+                this._innerAudioContext = null as any;
+            }
+        };
+        nativeAudio.onEnded(endCallback);
+        nativeAudio.onStop(endCallback);//OneShotAudio can not be reused.
     }
+
     public play (): void {
         this._innerAudioContext.play();
     }
