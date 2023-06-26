@@ -47,6 +47,7 @@ SceneGlobals::SceneGlobals() {
     _bakedWithStationaryMainLight = false;
     _bakedWithHighpLightmap = false;
     _skinInfo = ccnew scene::SkinInfo();
+    _toneMappingInfo = ccnew scene::ToneMappingInfo();
 }
 
 void SceneGlobals::activate(Scene *scene) {

@@ -31,7 +31,14 @@ namespace cc {
 			_resource = resource;
 			_resource->initialize(*this);
 		}
+        void ToneMappingInfo::setToneMappingType(ToneMappingType toneMappingType)
+        {
+            _toneMappingType = toneMappingType;
 
+            if (_resource != nullptr) {
+                _resource->setToneMappingType(toneMappingType);
+            }
+        }
 		void ToneMapping::initialize(const ToneMappingInfo &toneMappingInfo) {
             _toneMappingType = toneMappingInfo.getToneMappingType();
 		}

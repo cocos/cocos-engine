@@ -8,6 +8,7 @@ export const ToneMappingType = Enum({
 export  class ToneMapping {
     protected _toneMappingType = ToneMappingType.DEFAULT;
     protected _activated = false;
+
     set toneMappingType (val) {
         this._toneMappingType = val;
         this._updatePipeline();

@@ -479,6 +479,8 @@ using namespace cc;
 %attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
 %attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
 
+%attribute(cc::scene::ToneMapping, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
+
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, subModels, getSubModels);

@@ -40,7 +40,7 @@ namespace cc {
             ~ToneMappingInfo() override = default;
 
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
-            inline void setToneMappingType(ToneMappingType toneMappingType) {_toneMappingType = toneMappingType;}
+            void setToneMappingType(ToneMappingType toneMappingType);
             void activate(ToneMapping *resource);
             ToneMapping *_resource{nullptr};
         private:
