@@ -245,6 +245,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             function fail (err): void {
                 clearEvent();
                 clearTimeout(timer);
+                // eslint-disable-next-line no-console
                 console.error('failed to load innerAudioContext');
                 reject(new Error(err));
             }
