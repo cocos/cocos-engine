@@ -50,7 +50,7 @@ exports.watch = {
     },
 };
 
-exports.data = function() {
+exports.data = function () {
     return {
         multiLen: 0,
         multiObjectSizeInvalid: false,
@@ -121,7 +121,7 @@ exports.methods = {
             let min = that.dump.value.LODs.values[0][index + 1] ? that.dump.value.LODs.values[0][index + 1].value.screenUsagePercentage.value : 0;
             for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
                 const multiLods = that.dump.value.LODs.values[i];
-                if (multiLods[index + 1] && multiLods[index + 1].value.screenUsagePercentage.value > min) {
+                if (multiLods[index + 1] && multiLods[index + 1].value.screenUsagePercentage.value < min) {
                     min = multiLods[index + 1].value.screenUsagePercentage.value;
                 }
             }
@@ -131,7 +131,7 @@ exports.methods = {
             if (max) {
                 for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
                     const multiLods = that.dump.value.LODs.values[i];
-                    if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value < max) {
+                    if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value > max) {
                         max = multiLods[index - 1].value.screenUsagePercentage.value;
                     }
                 }
