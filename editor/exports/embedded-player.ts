@@ -1,3 +1,8 @@
+import { EmbeddedAnimationClipPlayable } from '../../cocos/animation/embedded-player/embedded-animation-clip-player';
+import { EmbeddedParticleSystemPlayable } from '../../cocos/animation/embedded-player/embedded-particle-system-player';
+import { EmbeddedPlayable } from '../../cocos/animation/embedded-player/embedded-player';
+import { warn } from '../../exports/base';
+
 export {
     embeddedPlayerCountTag,
     getEmbeddedPlayersTag,
@@ -10,6 +15,16 @@ export { EmbeddedPlayer } from '../../cocos/animation/embedded-player/embedded-p
 
 export type { EmbeddedPlayable } from '../../cocos/animation/embedded-player/embedded-player';
 
-export { EmbeddedParticleSystemPlayable } from '../../cocos/animation/embedded-player/embedded-particle-system-player';
+export { EmbeddedParticleSystemPlayable };
 
-export { EmbeddedAnimationClipPlayable } from '../../cocos/animation/embedded-player/embedded-animation-clip-player';
+export { EmbeddedAnimationClipPlayable };
+
+export function isEmbeddedPlayableMountedUnderBone(playable: EmbeddedPlayable) {
+    if (playable instanceof EmbeddedAnimationClipPlayable ||
+        playable instanceof EmbeddedParticleSystemPlayable) {
+        return true;
+    } else {
+        warn(`Unrecognized playable`, playable);
+        return false;
+    }
+}
