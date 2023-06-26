@@ -673,6 +673,11 @@ class DeviceRenderPass {
                 const resFbo = resGraph._vertices[resId]._object;
                 if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
                     resTex.framebuffer = resFbo;
+                } else if (resTex.texture) {
+                    const desc = resGraph.getDesc(resId);
+                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                        resTex.texture.resize(desc.width, desc.height);
+                    }
                 }
             }
             if (!swapchain) swapchain = resTex.swapchain;
