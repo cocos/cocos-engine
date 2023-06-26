@@ -164,6 +164,9 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.sampleCount = gfx::SampleCount::ONE;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    if (name == "msaa" || name == "msaaDS") {
+        desc.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
+    }
 
     return addVertex(
         ManagedTextureTag{},
@@ -188,6 +191,9 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.sampleCount = gfx::SampleCount::ONE;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    if (name == "msaa" || name == "msaaDS") {
+        desc.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
+    }
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 

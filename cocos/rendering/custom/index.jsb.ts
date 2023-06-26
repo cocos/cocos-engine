@@ -92,11 +92,18 @@ export function getPassID (name: string | undefined): number {
     return _renderModule.getPassID(name);
 }
 
+export function getSubpassID (passID: number, name: string | undefined): number {
+    if (name === undefined) {
+        return _renderModule.getSubpassID(passID, 'default');
+    }
+    return _renderModule.getSubpassID(passID, name);
+}
+
 export function getPhaseID (passID: number, name: string | number | undefined): number {
     if (name === undefined) {
         return _renderModule.getPhaseID(passID, 'default');
     }
-    if (typeof(name) === 'number') {
+    if (typeof (name) === 'number') {
         return _renderModule.getPhaseID(passID, name.toString());
     }
     return _renderModule.getPhaseID(passID, name);

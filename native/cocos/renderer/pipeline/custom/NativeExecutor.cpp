@@ -177,24 +177,19 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     PmrFlatSet<ccstd::pmr::string> set(scratch);
-    auto fillFrameBufferInfo = [&](const auto& pass) {
-        auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
-
-        PmrFlatMap<uint32_t, ccstd::pmr::string> viewIndex(scratch);
-        for (const auto& [name, view] : pass.rasterViews) {
-            if (set.emplace(name).second) {
-                viewIndex.emplace(view.slotID, name);
-            }
-        }
+    auto fillFrameBufferInfo = [&](const ccstd::vector<ccstd::pmr::string>& passViews, bool hasResolve) {
+        const auto& uberPass = pass;
+        auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
 
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
-        for (const auto& [slotID, name] : viewIndex) {
+        for (const auto& name : passViews) {
             const auto& view = pass.rasterViews.at(name);
             const auto resID = vertex(name, ctx.resourceGraph);
             const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
 
-            if (view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE) { // RenderTarget
+            bool colorLikeView = hasResolve && desc.sampleCount == gfx::SampleCount::ONE;
+            if (view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE || colorLikeView) { // RenderTarget
                 data.clearColors.emplace_back(view.clearColor);
 
                 auto resID = findVertex(name, resg);
@@ -281,16 +276,16 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
         // persistent cache
         data.clearColors.reserve(numColors);
-        rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
-        fillFrameBufferInfo(pass);
+        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
+        rpInfo = fgdRpInfo.rpInfo;
+        fillFrameBufferInfo(fgdRpInfo.orderedViews, false);
 
     } else {
-        rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
-        for (const auto& subpass : pass.subpassGraph.subpasses) {
-            fillFrameBufferInfo(subpass);
-        }
+        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
+        rpInfo = fgdRpInfo.rpInfo;
+        fillFrameBufferInfo(fgdRpInfo.orderedViews, fgdRpInfo.needResolve);
     }
-    CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
+    // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
 
     data.renderPass = ctx.device->createRenderPass(rpInfo);

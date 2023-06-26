@@ -979,7 +979,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
 void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     auto *scratch = fgDispatcher.scratch;
-    const auto &renderGraph = fgDispatcher.graph;
+    auto &renderGraph = fgDispatcher.graph;
     const auto &layoutGraph = fgDispatcher.layoutGraph;
     auto &resourceGraph = fgDispatcher.resourceGraph;
     auto &relationGraph = fgDispatcher.relationGraph;
@@ -1035,7 +1035,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                     if (batchedBarriers.find(i) == batchedBarriers.end()) {
                         batchedBarriers.emplace(i, BarrierNode{});
                         auto &rpInfo = rag.rpInfos[i].rpInfo;
-                        if (rpInfo.subpasses.size() > 1) {
+                        if (rpInfo.subpasses.size() >= 1) {
                             batchedBarriers[i].subpassBarriers.resize(rpInfo.subpasses.size());
                         }
                     }
@@ -1645,7 +1645,7 @@ void applyRelation(RelationGraph &relationGraph, const TargetGraph &targetGraph)
 
 void passReorder(FrameGraphDispatcher &fgDispatcher) {
     auto *scratch = fgDispatcher.scratch;
-    const auto &renderGraph = fgDispatcher.graph;
+    auto &renderGraph = fgDispatcher.graph;
     const auto &layoutGraph = fgDispatcher.layoutGraph;
     auto &resourceGraph = fgDispatcher.resourceGraph;
     auto &relationGraph = fgDispatcher.relationGraph;
@@ -2094,25 +2094,61 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
     return dependent;
 }
 
-void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uint32_t index, const ResourceDesc &viewDesc) {
-    if (view.attachmentType != AttachmentType::DEPTH_STENCIL) {
+bool checkResolveResource(const Graphs &graphs, uint32_t vertID, uint32_t passID, ResourceAccessNode &node, const ccstd::pmr::vector<ResolvePair>& resolves) {
+    const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
+    bool dependent = false;
+    for (const auto &pair : resolves) {
+        const auto &resolveTargetName = pair.target;
+        ViewStatus viewStatus{resolveTargetName, PassType::RASTER, gfx::ShaderStageFlags::FRAGMENT, gfx::MemoryAccess::WRITE_ONLY,
+            gfx::AccessFlags::COLOR_ATTACHMENT_WRITE, gfx::TextureUsage::COLOR_ATTACHMENT};
+        addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
+        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
+        if (lastVertId != INVALID_ID) {
+            tryAddEdge(lastVertId, vertID, resourceAccessGraph);
+            tryAddEdge(lastVertId, vertID, relationGraph);
+            dependent = true;
+        }
+    }
+    // sort for vector intersection
+    std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [](const AccessStatus &lhs, const AccessStatus &rhs) { return lhs.vertID < rhs.vertID; });
+
+    return dependent;
+}
+
+void fillRenderPassInfo(gfx::LoadOp loadOp, gfx::StoreOp storeOp, AttachmentType attachmentType, gfx::RenderPassInfo &rpInfo, uint32_t index, const ResourceDesc &viewDesc, bool resolve) {
+    if (attachmentType != AttachmentType::DEPTH_STENCIL || resolve) {
         auto &colorAttachment = rpInfo.colorAttachments[index];
         colorAttachment.format = viewDesc.format;
-        colorAttachment.loadOp = view.loadOp;
-        colorAttachment.storeOp = view.storeOp;
+        colorAttachment.loadOp = loadOp;
+        colorAttachment.storeOp = storeOp;
         colorAttachment.sampleCount = viewDesc.sampleCount;
         // colorAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
     } else {
         auto &depthStencilAttachment = rpInfo.depthStencilAttachment;
         depthStencilAttachment.format = viewDesc.format;
-        depthStencilAttachment.depthLoadOp = view.loadOp;
-        depthStencilAttachment.depthStoreOp = view.storeOp;
-        depthStencilAttachment.stencilLoadOp = view.loadOp;
-        depthStencilAttachment.stencilStoreOp = view.storeOp;
+        depthStencilAttachment.depthLoadOp = loadOp;
+        depthStencilAttachment.depthStoreOp = storeOp;
+        depthStencilAttachment.stencilLoadOp = loadOp;
+        depthStencilAttachment.stencilStoreOp = storeOp;
         depthStencilAttachment.sampleCount = viewDesc.sampleCount;
         // depthStencilAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
     }
 }
+
+struct SubpassViewCollector : boost::dfs_visitor<> {
+    void discover_vertex(RenderGraph::vertex_descriptor u, const RenderGraph& g) {
+        visitObject(u, g,
+            [&](const RasterSubpass& subpass) {
+                for (const auto &[name, view] : subpass.rasterViews) {
+                    uberPass.rasterViews[name] = view;
+                }
+            },
+            [&](const auto&) {}
+            );
+    }
+
+    RasterPass &uberPass;
+};
 
 void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &pass) {
     const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
@@ -2184,10 +2220,14 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
                 fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
                 fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
             }
-            fillRenderPassInfo(view, rpInfo, slotID, viewDesc);
+            fillRenderPassInfo(view.loadOp, view.storeOp, view.attachmentType, rpInfo, slotID, viewDesc, false);
         }
     } else {
-        auto colorSize = pass.attachmentIndexMap.size();
+        auto colorSize = pass.rasterViews.size();
+        bool hasDS = std::any_of(pass.rasterViews.begin(), pass.rasterViews.end(), [](const auto &pair) {
+            return pair.second.attachmentType == AttachmentType::DEPTH_STENCIL;
+        });
+        colorSize -= hasDS;
         rpInfo.colorAttachments.resize(colorSize);
         fgRenderpassInfo.colorAccesses.resize(colorSize);
     }
@@ -2311,6 +2351,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     bool dependent{false};
     dependent |= checkRasterViews(graphs, parentRagVert, passID, PassType::RASTER, *head, pass.rasterViews);
     dependent |= checkComputeViews(graphs, parentRagVert, passID, PassType::RASTER, *head, pass.computeViews);
+    dependent |= checkResolveResource(graphs, parentRagVert, passID, *head, pass.resolvePairs);
 
     if (!dependent) {
         tryAddEdge(EXPECT_START_ID, parentRagVert, resourceAccessGraph);
@@ -2318,43 +2359,75 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     }
 
     uint32_t localSlot = 0;
+    bool dsAppeared{false};
     for (const auto &[sortKey, name, access] : viewIndex) {
         const auto *const resName = name.data();
         auto findByResID = [&](const AccessStatus &status) {
             return status.vertID == rag.resourceIndex.at(resName);
         };
         auto iter = std::find_if(node.attachmentStatus.begin(), node.attachmentStatus.end(), findByResID);
-        const auto &view = pass.rasterViews.at(resName);
+
+        // TODO(Zeqiang): remove find
+        const auto &targetName = name;
         auto resID = rag.resourceIndex.at(resName);
         const auto &viewDesc = get(ResourceGraph::DescTag{}, resg, rag.resourceIndex.at(resName));
 
-        uint32_t slot = uberPass.attachmentIndexMap.size();
-        if (view.attachmentType != AttachmentType::DEPTH_STENCIL) {
+        AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
+        AccessType accessType{AccessType::WRITE};
+        gfx::LoadOp loadOp{gfx::LoadOp::DISCARD};
+        gfx::StoreOp storeOp{gfx::StoreOp::STORE};
+
+        uint32_t slot = dsAppeared ? localSlot - 1 : localSlot;
+        //std::distance(uberPass.rasterViews.begin(), uberPass.rasterViews.find(resName));
+        //slot = dsAppeared ? slot - 1 : slot;
+        /*if (attachmentType != AttachmentType::DEPTH_STENCIL) {
             CC_ASSERT(uberPass.attachmentIndexMap.count(resName));
             slot = uberPass.attachmentIndexMap.at(resName);
-        }
-
-
-        // TD:remove find
-        auto nodeIter = std::find_if(head->attachmentStatus.begin(), head->attachmentStatus.end(), [resID](const AccessStatus &status) {
-            return status.vertID == resID;
+        }*/
+        auto resolveiter = std::find_if(pass.resolvePairs.begin(), pass.resolvePairs.end(), [&targetName](const ResolvePair &resolve) {
+            return strcmp(resolve.target.c_str(), targetName.data()) == 0;
         });
-        auto nextAccess = nodeIter->accessFlag;
-        if (view.attachmentType != AttachmentType::DEPTH_STENCIL) {
-            if (view.attachmentType == AttachmentType::SHADING_RATE) {
-                subpassInfo.shadingRate = slot;
+
+        bool resolveView = resolveiter != pass.resolvePairs.end();
+        if (resolveView) {
+            attachmentType = viewDesc.format == gfx::Format::DEPTH_STENCIL ? AttachmentType::DEPTH_STENCIL : AttachmentType::RENDER_TARGET;
+            if (attachmentType == AttachmentType::DEPTH_STENCIL) {
+                subpassInfo.depthStencilResolve = slot;
+                subpassInfo.depthResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode;
+                subpassInfo.stencilResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode1;
             } else {
-                if (view.accessType != AccessType::READ) {
-                    subpassInfo.colors.emplace_back(slot);
-                }
-                if (view.accessType != AccessType::WRITE) {
-                    subpassInfo.inputs.emplace_back(slot);
-                }
+                subpassInfo.resolves.emplace_back(slot);
             }
-            fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
+            accessType = AccessType::WRITE;
         } else {
-            fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
-            subpassInfo.depthStencil = rpInfo.colorAttachments.size();
+            const auto &view = pass.rasterViews.at(resName);
+            attachmentType = view.attachmentType;
+            accessType = view.accessType;
+            loadOp = view.loadOp;
+            storeOp = view.storeOp;
+
+                    // TD:remove find
+            auto nodeIter = std::find_if(head->attachmentStatus.begin(), head->attachmentStatus.end(), [resID](const AccessStatus &status) {
+                return status.vertID == resID;
+            });
+            auto nextAccess = nodeIter->accessFlag;
+            if (attachmentType != AttachmentType::DEPTH_STENCIL) {
+                if (attachmentType == AttachmentType::SHADING_RATE) {
+                    subpassInfo.shadingRate = slot;
+                } else {
+                    if (accessType != AccessType::READ) {
+                        subpassInfo.colors.emplace_back(slot);
+                    }
+                    if (accessType != AccessType::WRITE) {
+                        subpassInfo.inputs.emplace_back(slot);
+                    }
+                }
+                fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
+            } else {
+                fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
+                subpassInfo.depthStencil = rpInfo.colorAttachments.size();
+                dsAppeared = true;
+            }
         }
 
         if (iter == node.attachmentStatus.end()) {
@@ -2364,13 +2437,15 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             CC_ASSERT(head->attachmentStatus.size() > localSlot);
             auto nextAccess = head->attachmentStatus[localSlot].accessFlag;
 
-            if (view.attachmentType == AttachmentType::DEPTH_STENCIL) {
+            if (attachmentType == AttachmentType::DEPTH_STENCIL) {
                 fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
             } else {
                 fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
             }
-            fillRenderPassInfo(view, rpInfo, slot, viewDesc);
+            fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
+            fgRenderpassInfo.orderedViews.emplace_back(resName);
         }
+        fgRenderpassInfo.needResolve |= resolveView;
         ++localSlot;
     }
 

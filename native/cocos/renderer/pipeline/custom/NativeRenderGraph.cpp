@@ -285,7 +285,7 @@ void addRasterViewImpl(
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
-    const auto slotID = getSlotID(pass, name, attachmentType);
+    const auto slotID = pass.rasterViews.size();//getSlotID(pass, name, attachmentType);
     CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
     {
         auto res = subpassData.rasterViews.emplace(
@@ -319,6 +319,7 @@ void addRasterViewImpl(
                 gfx::ShaderStageFlagBit::NONE));
         CC_ENSURES(res.second);
         res.first->second.slotID = slotID;
+        pass.rasterViews[name.data()] = subpass.rasterViews[name.data()];
     }
     CC_ENSURES(subpass.rasterViews.size() == subpassData.rasterViews.size());
 }
@@ -520,6 +521,8 @@ void NativeRenderSubpassBuilderImpl::setShowStatistics(bool enable) {
 void NativeMultisampleRenderSubpassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+
+    addRenderTarget(target, AccessType::WRITE, "_", gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, gfx::Color{});
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
@@ -539,6 +542,8 @@ void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
     if (stencilMode != gfx::ResolveMode::NONE) {
         flags |= ResolveFlags::STENCIL;
     }
+
+    addDepthStencil(target, AccessType::WRITE, "_", "_", gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, 1.0, 0, gfx::ClearFlagBit::NONE);
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
