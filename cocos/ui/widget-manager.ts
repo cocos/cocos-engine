@@ -124,6 +124,7 @@ function align (node: Node, widget: Widget) {
             } else {
                 x = localRight + (anchorX - 1) * width;
             }
+            width /= scaleX;
         }
 
         widget._lastSize.width = width;
@@ -182,6 +183,7 @@ function align (node: Node, widget: Widget) {
             } else {
                 y = localTop + (anchorY - 1) * height;
             }
+            height /= scaleY;
         }
 
         widget._lastSize.height = height;
