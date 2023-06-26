@@ -56,7 +56,7 @@ export class OneShotAudioMinigame {
         nativeAudio.onPlay(() => {
             this._onPlayCb?.();
         });
-        const endCallback = () => {
+        const endCallback = (): void => {
             if (this._innerAudioContext) {
                 this._onEndCb?.();
                 nativeAudio.destroy();
