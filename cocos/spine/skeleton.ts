@@ -299,6 +299,8 @@ export class Skeleton extends UIRenderer {
             this._skeletonData = value as any;
             this.defaultSkin = '';
             this.defaultAnimation = '';
+            this._animationName = '';
+            this._skinName = '';
             this._updateSkeletonData();
             this._updateUITransform();
         }
@@ -586,6 +588,8 @@ export class Skeleton extends UIRenderer {
 
     public __preload () {
         super.__preload();
+        this._updateSkeletonData();
+        this._updateDebugDraw();
     }
 
     public onRestore () {
@@ -597,7 +601,6 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable () {
         super.onEnable();
-        this._updateSkeletonData();
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }
