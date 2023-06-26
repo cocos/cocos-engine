@@ -58,8 +58,8 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
 // On OPPO platform, we put binary assets in cocos-library directory when using separate engine.
 function getBinaryUrlOnOPPO (binaryUrl: string): Promise<string> {
     return new Promise((resolve) => {
-        // fsUtils is defined in engine-adapter
         const urlInCocosJS = `cocos-js/${binaryUrl}`;
+        // fsUtils is defined in engine-adapter
         globalThis.fsUtils.exists(urlInCocosJS, (isExists: boolean) => {
             if (isExists) {
                 resolve(urlInCocosJS);
