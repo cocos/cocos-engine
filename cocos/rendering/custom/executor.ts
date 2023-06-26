@@ -500,13 +500,30 @@ class SubmitInfo {
     public shadowMap: Map<number, RenderShadowMapBatchedQueue> = new Map<number, RenderShadowMapBatchedQueue>();
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
-    reset () {
+
+    private _clearInstances () {
+        const it = this.instances.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
         this.instances.clear();
+    }
+
+    private _clearShadowMap () {
+        for (const shadowMap of this.shadowMap) {
+            shadowMap[1].clear();
+        }
+        this.shadowMap.clear();
+    }
+
+    reset () {
+        this._clearInstances();
         this.renderInstanceQueue.length = 0;
         this.opaqueList.length = 0;
         this.transparentList.length = 0;
         this.planarQueue = null;
-        this.shadowMap.clear();
+        this._clearShadowMap();
         this.additiveLight = null;
         this.reflectionProbe = null;
     }
