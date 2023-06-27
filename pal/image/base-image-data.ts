@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { PixelFormat } from '../../cocos/asset/assets/asset-enum';
 import { IMemoryImageSource, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
 import { ccwindow } from '../../cocos/core/global-exports';
@@ -37,13 +38,8 @@ export class BaseImageData {
             _compressed: false,
             mipmapLevelDataSize: [],
         };
-        //this._nativeData = data;
         if (typeof imageAsset !== 'undefined') {
-            if (!ArrayBuffer.isView(imageAsset)) {
-                this.reset(imageAsset);
-            } else {
-                this._imageSource._data = imageAsset;
-            }
+            this.data = imageAsset;
         } else if (typeof imageAsset === 'undefined') {
             this._imageSource = new ccwindow.Image();
         }
@@ -58,8 +54,12 @@ export class BaseImageData {
         }
     }
 
-    set data (value: any) {
-        this.reset(value);
+    set data (imageAsset: ImageSource | ArrayBufferView | null) {
+        if (imageAsset != null && !ArrayBuffer.isView(imageAsset)) {
+            this.reset(imageAsset);
+        } else {
+            (this._imageSource as IMemoryImageSource)._data = imageAsset;
+        }
     }
 
     get data (): ImageSource | ArrayBufferView | null {
@@ -74,15 +74,15 @@ export class BaseImageData {
         return this.data as any;
     }
 
-    set crossOrigin (string) {
-        (this._imageSource as HTMLImageElement).crossOrigin = 'anonymous';
+    set crossOrigin (cors: string) {
+        (this._imageSource as HTMLImageElement).crossOrigin = cors;
     }
 
-    set onload (cb) {
+    set onload (cb: (ev: Event) => void) {
         (this._imageSource as HTMLImageElement).onload = cb;
     }
 
-    set onerror (cb) {
+    set onerror (cb: (ev: Event | string) => void) {
         (this._imageSource as HTMLImageElement).onerror = cb;
     }
 
@@ -98,9 +98,8 @@ export class BaseImageData {
         return this._imageSource.width;
     }
 
-    set width (value) {
-        // @ts-ignore
-        this._imageSource.width = value;
+    set width (value: number) {
+        (this._imageSource as IMemoryImageSource).width = value;
     }
 
     get height (): number {
@@ -110,40 +109,41 @@ export class BaseImageData {
         return 0;
     }
 
-    set height (value) {
-        // @ts-ignore
-        this._imageSource.height = value;
+    set height (value: number) {
+        (this._imageSource as IMemoryImageSource).height = value;
     }
 
-    get format (): number | null {
+    get format (): PixelFormat | null {
         if (!(this._imageSource instanceof HTMLElement) && !this.isImageBitmap(this._imageSource) && !this.isArrayBuffer()) {
             return this._imageSource.format;
         }
         return null;
     }
 
-    get compressed () {
+    get compressed (): boolean {
         return false;
     }
 
-    get mipmapLevelDataSize () {
+    get mipmapLevelDataSize (): number[] | undefined {
         return (this._imageSource as IMemoryImageSource).mipmapLevelDataSize;
     }
 
-    public reset (data: ImageSource) {
+    public reset (data: ImageSource): void {
         this._imageSource = data;
     }
-    public isArrayBuffer () {
+
+    public isArrayBuffer (): boolean {
         return ArrayBuffer.isView((this._imageSource as IMemoryImageSource)._data);
     }
-    public isHtmlElement () {
+
+    public isHtmlElement (): boolean {
         return this._imageSource instanceof HTMLElement;
     }
+
     public isImageBitmap (imageSource: any): imageSource is ImageBitmap {
         return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
     }
 
-    // 返回该图像源是否是平台提供的图像对象。
     protected isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
         return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || this.isImageBitmap(imageSource);
     }
@@ -152,13 +152,13 @@ export class BaseImageData {
         return '_data' in imageSource ? imageSource._data : imageSource;
     }
 
-    public addEventListener (name, cb) {
+    protected addEventListener (name: string, cb: (ev: Event) => void): void {
         if (this.isHtmlElement()) {
             (this.data as HTMLImageElement).addEventListener(name, cb);
         }
     }
 
-    public removeEventListener (name, cb) {
+    protected removeEventListener (name: string, cb: (ev: Event) => void): void {
         if (this.isHtmlElement()) {
             (this.data as HTMLImageElement).removeEventListener(name, cb);
         }

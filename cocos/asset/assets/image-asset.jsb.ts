@@ -56,7 +56,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     get () {
         return this._imageData;
     },
-    set (value: any) {
+    set (value: ImageSource) {
         this.reset(value);
     },
 });

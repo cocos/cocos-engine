@@ -493,9 +493,17 @@ export class ImageAsset extends Asset {
         this.reset(value);
     }
 
-    /**
+    /*
      * @en Image data.
      * @zh 此图像资源的图像数据。
+     */
+    get nativeData () {
+        return this._imageData.nativeData();
+    }
+
+    /**
+     * @en Image data source(include: HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView).
+     * @zh 图像的来源（包括：HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView）。
      */
     get data () {
         return this._imageData.data;
@@ -564,7 +572,7 @@ export class ImageAsset extends Asset {
 
     private _height = 0;
 
-    constructor (nativeAsset?: ImageSource) {
+    constructor (nativeAsset?: ImageSource | ArrayBufferView) {
         super();
 
         if (EDITOR) {

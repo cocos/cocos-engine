@@ -21,19 +21,53 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { ImageSource } from 'pal/image';
 import { BaseImageData } from '../base-image-data';
 import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
 export class ImageData extends BaseImageData {
     public nativeData (): unknown {
-        // TODO:Get raw image data
-        return null;
+        let data;
+        if ('getContext' in this._imageSource) {
+            const canvasElem = this._imageSource;
+            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, this._imageSource.width, this._imageSource.height);
+            const buff = imageData!.data.buffer;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+            //buffers[i] = data;
+        } else if (this._imageSource instanceof HTMLImageElement || this._imageSource instanceof ImageBitmap) {
+            const img = this._imageSource;
+            const canvas = ccwindow.document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img as any, 0, 0);
+            const imageData = ctx?.getImageData(0, 0, img.width, img.height);
+            const buff = imageData!.data.buffer;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+        } else {
+            console.log('imageBmp copy not impled!');
+        }
+        return this.data;
     }
 
     static downloadImage (url: string,
         options: Record<string, any>,
-        onComplete: ((err: Error | null, data?: HTMLImageElement | null) => void)): HTMLImageElement {
+        onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
         const image = new ImageData();
 
         // NOTE: on xiaomi platform, we need to force setting img.crossOrigin as 'anonymous'
@@ -41,21 +75,14 @@ export class ImageData extends BaseImageData {
             image.crossOrigin = 'anonymous';
         }
 
-        function loadCallback () {
-            image.removeEventListener('load', loadCallback);
-            if (onComplete) { onComplete(null, image.data as HTMLImageElement); }
-            image.removeEventListener('error', errorCallback);
-        }
-
-        function errorCallback () {
-            image.removeEventListener('load', loadCallback);
-            image.removeEventListener('error', errorCallback);
+        image.onload = () => {
+            if (onComplete) { onComplete(null, image.data); }
+        };
+        image.onerror = () => {
             if (onComplete) { onComplete(new Error(getError(4930, url))); }
-        }
+        };
 
-        image.addEventListener('load', loadCallback);
-        image.addEventListener('error', errorCallback);
         image.src = url;
-        return (image.data as HTMLImageElement);
+        return image;
     }
 }

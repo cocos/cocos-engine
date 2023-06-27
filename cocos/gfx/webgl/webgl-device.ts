@@ -65,6 +65,7 @@ import { debug } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping } from './webgl-gpu-objects';
+import { ImageAsset } from '../../asset/assets';
 
 export class WebGLDevice extends Device {
     get gl () {
@@ -556,6 +557,23 @@ export class WebGLDevice extends Device {
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
     ) {
+        WebGLCmdFuncCopyTexImagesToTexture(
+            this,
+            texImages,
+            (texture as WebGLTexture).gpuTexture,
+            regions,
+        );
+    }
+
+    public copyImagesToTexture (
+        imageAssets: Readonly<ImageAsset[]>,
+        texture: Texture,
+        regions: Readonly<BufferTextureCopy[]>,
+    ) {
+        const texImages: TexImageSource[] = [];
+        imageAssets.forEach((item) => {
+            texImages.push(item.data as TexImageSource);
+        });
         WebGLCmdFuncCopyTexImagesToTexture(
             this,
             texImages,

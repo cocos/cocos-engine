@@ -67,6 +67,7 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping } from './webgl2-gpu-objects';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { ImageAsset } from '../../asset/assets';
 
 export class WebGL2Device extends Device {
     get gl () {
@@ -623,6 +624,23 @@ export class WebGL2Device extends Device {
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
     ) {
+        WebGL2CmdFuncCopyTexImagesToTexture(
+            this,
+            texImages,
+            (texture as WebGL2Texture).gpuTexture,
+            regions,
+        );
+    }
+
+    public copyImagesToTexture (
+        imageAssets: Readonly<ImageAsset[]>,
+        texture: Texture,
+        regions: Readonly<BufferTextureCopy[]>,
+    ) {
+        const texImages: TexImageSource[] = [];
+        imageAssets.forEach((item) => {
+            texImages.push(item.data as TexImageSource);
+        });
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,

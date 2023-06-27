@@ -59,29 +59,21 @@ export class ImageData extends BaseImageData {
 
     static downloadImage (url: string,
         options: Record<string, any>,
-        onComplete: ((err: Error | null, data?: HTMLImageElement | null) => void)): HTMLImageElement {
+        onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
         const image = new ImageData();
 
-        // NOTE: on xiaomi platform, we need to force setting img.crossOrigin as 'anonymous'
         if (ccwindow.location.protocol !== 'file:') {
             image.crossOrigin = 'anonymous';
         }
 
-        function loadCallback () {
-            image.removeEventListener('load', loadCallback);
-            if (onComplete) { onComplete(null, image.data as HTMLImageElement); }
-            image.removeEventListener('error', errorCallback);
-        }
-
-        function errorCallback () {
-            image.removeEventListener('load', loadCallback);
-            image.removeEventListener('error', errorCallback);
+        image.onload = () => {
+            if (onComplete) { onComplete(null, image.data); }
+        };
+        image.onerror = () => {
             if (onComplete) { onComplete(new Error(getError(4930, url))); }
-        }
+        };
 
-        image.addEventListener('load', loadCallback);
-        image.addEventListener('error', errorCallback);
         image.src = url;
-        return (image.data as HTMLImageElement);
+        return image;
     }
 }

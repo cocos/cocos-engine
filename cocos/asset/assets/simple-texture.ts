@@ -145,7 +145,7 @@ export class SimpleTexture extends TextureBase {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
-        const imageData = new ImageData(source);
+        const imageAsset = new ImageAsset(source);
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
             return;
@@ -157,19 +157,10 @@ export class SimpleTexture extends TextureBase {
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
-        if (DEV) {
-            if (imageData.isHtmlElement()) {
-                if (imageData.height > region.texExtent.height
-                    || imageData.width > region.texExtent.width) {
-                    error(`Image source(${this.name}) bounds override.`);
-                }
-            }
-        }
-
-        if (ArrayBuffer.isView(imageData.data)) {
-            gfxDevice.copyBuffersToTexture([imageData.data], this._gfxTexture, _regions);
+        if (ArrayBuffer.isView(imageAsset.data)) {
+            gfxDevice.copyBuffersToTexture([imageAsset.data], this._gfxTexture, _regions);
         } else {
-            gfxDevice.copyTexImagesToTexture([imageData.data as TexImageSource], this._gfxTexture, _regions);
+            gfxDevice.copyImagesToTexture([imageAsset], this._gfxTexture, _regions);
         }
     }
 

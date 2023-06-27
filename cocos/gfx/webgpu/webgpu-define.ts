@@ -36,6 +36,7 @@ import {
 } from '../base/define';
 
 import { ccwindow } from '../../core/global-exports';
+import { ImageAsset } from '../../asset/assets';
 
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
@@ -196,6 +197,14 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
     };
+
+    Device.prototype.copyImagesToTexture = function (imageAssets: ImageAsset[], texture: typeof Texture, regions: BufferTextureCopy[]) {
+        const buffers: Uint8Array[] = [];
+        for (let i = 0; i < regions.length; i++)  {
+            buffers.push(imageAssets[i].nativeData);
+        }
+        oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
+    }
 
     function seperateCombinedSamplerTexture (shaderSource: string) {
         // sampler and texture

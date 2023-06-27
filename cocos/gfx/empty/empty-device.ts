@@ -60,6 +60,7 @@ import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
 import { debug, cclegacy } from '../../core';
+import { ImageAsset } from '../../asset/assets';
 
 export class EmptyDevice extends Device {
     private _swapchain: EmptySwapchain | null = null;
@@ -213,6 +214,7 @@ export class EmptyDevice extends Device {
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
     public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {}
     public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
+    public copyImagesToTexture (imageAssets: Readonly<ImageAsset[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
 }
 
 cclegacy.EmptyDevice = EmptyDevice;

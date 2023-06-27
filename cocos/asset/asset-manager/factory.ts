@@ -39,13 +39,13 @@ import { js } from '../../core';
 
 export type CreateHandler = (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | Bundle | null) => void)) => void;
 
-function createImageAsset (id: string, data: HTMLImageElement, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageAsset | null) => void)) {
+function createImageAsset (id: string, imageData: ImageData, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageAsset | null) => void)) {
     let out: ImageAsset | null = null;
     let err: Error | null = null;
     try {
         out = new ImageAsset();
         out._nativeUrl = id;
-        out._nativeAsset = data;
+        out._nativeAsset = imageData.data;
     } catch (e) {
         err = e as Error;
     }

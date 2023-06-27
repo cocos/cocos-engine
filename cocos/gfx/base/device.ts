@@ -47,6 +47,7 @@ import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { BufferBarrier } from './states/buffer-barrier';
 import { Swapchain } from './swapchain';
+import { ImageAsset } from '../../asset/assets';
 
 /**
  * @en GFX Device.
@@ -334,6 +335,15 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
+
+    /**
+     * @en Copy image assets to texture.
+     * @zh 拷贝图像资产到纹理。
+     * @param imageAssets The image assets to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
+     */
+    public abstract copyImagesToTexture (imageAssets: Readonly<ImageAsset[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Whether the device has specific feature.
