@@ -186,8 +186,6 @@ export const ToneMappingInfo: typeof JsbToneMappingInfo = jsb.ToneMappingInfo;
 export type ToneMappingInfo = JsbToneMappingInfo;
 legacyCC.ToneMappingInfo = ToneMappingInfo;
 
-
-
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
 
