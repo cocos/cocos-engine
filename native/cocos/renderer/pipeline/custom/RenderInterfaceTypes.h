@@ -306,12 +306,17 @@ constexpr bool any(SubpassCapabilities e) noexcept {
     return !!e;
 }
 
+/**
+ * @en Pipeline capabilities.
+ * The following capabilities are partially supported on different hardware and graphics backends.
+ * @zh 管线能力。根据硬件与后端，支持的特性会有所不同
+ */
 struct PipelineCapabilities {
     SubpassCapabilities subpass{SubpassCapabilities::NONE};
 };
 
 /**
- * @en base class of render graph node.
+ * @en Base class of render graph node.
  * A node of render graph represents a specific type of rendering operation.
  * A render graph consists of these nodes and form a forest(which is a set of trees).
  * @zh RenderGraph中节点的基类，每个RenderGraph节点代表一种渲染操作，并构成一个森林(一组树)
@@ -432,17 +437,56 @@ public:
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
 };
 
+/**
+ * @en Render queue
+ * A render queue is an abstraction of graphics commands submission.
+ * Only when the graphics commands in a render queue are all submitted,
+ * the next render queue will start submitting.
+ * @zh 渲染队列。渲染队列是图形命令提交的抽象。
+ * 只有一个渲染队列中的渲染命令全部提交完，才会开始提交下一个渲染队列中的命令。
+ */
 class RenderQueueBuilder : public Setter {
 public:
     RenderQueueBuilder() noexcept = default;
 
     /**
      * @deprecated Method will be removed in 3.9.0
+     * @en Render the scene the camera is looking at.
+     * @zh 渲染当前相机指向的场景。
+     * @param camera @en Required camera @zh 所需相机
+     * @param light @en Lighting information of the scene @zh 场景光照信息
+     * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
+    /**
+     * @en Render a full-screen quad.
+     * @zh 渲染全屏四边形
+     * @param material @en The material used for shading @zh 着色所需材质
+     * @param passID @en Material pass ID @zh 材质通道ID
+     * @param sceneFlags @en Rendering flags of the quad @zh Quad所需场景渲染标志位
+     */
     virtual void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
+    /**
+     * @en Render a full-screen quad from the camera view.
+     * @zh 从相机视角渲染全屏四边形
+     * @param camera @en The required camera @zh 所需相机
+     * @param material @en The material used for shading @zh 着色所需材质
+     * @param passID @en Material pass ID @zh 材质通道ID
+     * @param sceneFlags @en Rendering flags of the quad @zh Quad所需场景渲染标志位
+     */
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
+    /**
+     * @en Clear current render target.
+     * @zh 清除当前渲染目标
+     * @param name @en The name of the render target @zh 渲染目标的名字
+     * @param color @en The clearing color @zh 用来清除与填充的颜色
+     */
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
+    /**
+     * @en Set rendering viewport.
+     * @zh 设置渲染视口
+     * @param viewport @en The required viewport @zh 所需视口
+     */
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     /**
      * @experimental
@@ -462,16 +506,85 @@ public:
     }
 };
 
+/**
+ * @en Basic render pass.
+ * @zh 基础光栅通道
+ */
 class BasicRenderPassBuilder : public Setter {
 public:
     BasicRenderPassBuilder() noexcept = default;
 
+    /**
+     * @en Add render target for rasterization
+     * The render target must have registered in pipeline.
+     * @zh 添加光栅化渲染目标，渲染目标必须已注册。
+     * @param name @en name of the render target @zh 渲染目标的名字
+     * @param loadOp @en Type of load operation @zh 读取操作的类型
+     * @param storeOp @en Type of store operation @zh 写入操作的类型
+     * @param color @en The clear color to use when loadOp is Clear @zh 读取操作为清除时，所用颜色
+     */
     virtual void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    /**
+     * @en Add depth stencil for rasterization
+     * The depth stencil must have registered in pipeline.
+     * @zh 添加光栅化深度模板缓冲，深度模板缓冲必须已注册。
+     * @param name @en name of the depth stencil @zh 渲染目标的名字
+     * @param loadOp @en Type of load operation @zh 读取操作的类型
+     * @param storeOp @en Type of store operation @zh 写入操作的类型
+     * @param depth @en Depth value used to clear @zh 用于清除的深度值
+     * @param stencil @en Stencil value used to clear @zh 用于清除的模板值
+     * @param clearFlags @en To clear depth, stencil or both @zh 清除分量：深度、模板、两者。
+     */
     virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    /**
+     * @en Add texture for sampling
+     * The texture must have registered in pipeline.
+     * @zh 添加采样用的贴图，贴图必须已注册。
+     * @param name @en name of the texture @zh 贴图的注册名
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     * @param sampler @en the sampler to use @zh 采样器名字
+     * @param plane @en the image plane ID to sample (color|depth|stencil|video) @zh 需要采样的贴图平面(颜色|深度|模板|视频)
+     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
+    /**
+     * @en Add render queue.
+     * Every render queue has a hint type, such as NONE, OPAQUE, MASK or BLEND.
+     * User should only add objects of this hint type to the render queue.
+     * Objects of mixed types might cause downgrading of performance.
+     * The order of render queues should be adjusted according to the hardward and algorithms,
+     * in order to reach peak performance.
+     * For example, [1.opaque, 2.mask, 3.blend] might result in best performance on mobile platforms.
+     * This hint is for validation only and has no effect on rendering.
+     *
+     * Every render queue has a phase name. Only objects of the same phase name will be rendered.
+     *
+     * @zh 添加渲染队列
+     * 每个渲染队列有一个用途提示，例如无提示(NONE)、不透明(OPAQUE)、遮罩(MASK)和混合(BLEND)。
+     * 每个队列最好只渲染相匹配的对象，混合不同类型的对象，会造成性能下降。
+     * 不同类型队列的渲染顺序，需要根据硬件类型与渲染算法进行调整，以到达最高性能。
+     * 比如在移动平台上，先渲染OPAQUE，再渲染MASK、最后渲染BLEND可能会有最好的性能。
+     * 用途提示只用于问题检测，对渲染流程没有任何影响。
+     *
+     * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
+     *
+     * @param hint @en Usage hint of the queue @zh 用途的提示
+     * @param phaseName @en The name of the phase declared in effect. Default value is 'default' @zh effect中相位(phase)的名字，不填为'default'。
+     */
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
+    /**
+     * @en Set rendering viewport.
+     * @zh 设置渲染视口
+     * @param viewport @en The required viewport @zh 所需视口
+     */
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
+    /**
+     * @en show statistics on screen
+     * @zh 在屏幕上渲染统计数据
+     */
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
     void addRenderTarget(const ccstd::string &name) {
@@ -536,6 +649,9 @@ public:
     virtual void endFrame() = 0;
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) = 0;
     virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     virtual void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) = 0;
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;

@@ -76,9 +76,12 @@ enum class ResourceResidency {
 
 enum class QueueHint {
     NONE,
-    RENDER_OPAQUE,
-    RENDER_CUTOUT,
-    RENDER_TRANSPARENT,
+    OPAQUE,
+    MASK,
+    BLEND,
+    RENDER_OPAQUE = OPAQUE,
+    RENDER_CUTOUT = MASK,
+    RENDER_TRANSPARENT = BLEND,
 };
 
 enum class ResourceDimension {
