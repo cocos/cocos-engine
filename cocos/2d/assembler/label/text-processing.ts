@@ -43,6 +43,7 @@ const Alignment = [
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
 const _invisibleAlpha = (1 / 255).toFixed(3);
+const MAX_RECURSION_NUM = 3;
 
 export interface IRenderData {
     x: number;
@@ -79,6 +80,7 @@ export class TextProcessing {
     public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]) {
         if (!isBmFont) {
+            this._recursionTime = 0;
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
@@ -127,6 +129,7 @@ export class TextProcessing {
     private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
 
+    private _recursionTime = 0;
     private _maxFontSize = 100;
     private _fontScale = 1;
 
@@ -208,9 +211,10 @@ export class TextProcessing {
         // check & limit canvas size
         if ((outputLayoutData.nodeContentSize.width < MAX_SIZE && outputLayoutData.nodeContentSize.height < MAX_SIZE)
             && (outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)) {
-            const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+            this._recursionTime++;
+            const maxValue = Math.max(outputLayoutData.nodeContentSize.width, outputLayoutData.nodeContentSize.height);
             let scale = MAX_SIZE / maxValue;
-            if (scale < 1) { scale = 1; }
+            if (scale < 1 || this._recursionTime > MAX_RECURSION_NUM) { scale = 1; }
             this._fontScale = scale;
             outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width;
             outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height;
