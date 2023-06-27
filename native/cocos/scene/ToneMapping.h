@@ -51,11 +51,15 @@ namespace cc {
 		public:
 			ToneMapping() = default;
 			~ToneMapping() = default;
+            void activate();
 
 			void initialize(const ToneMappingInfo &toneMappingInfo);
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
-            inline void setToneMappingType(ToneMappingType toneMappingType) {_toneMappingType = toneMappingType;}
+            void setToneMappingType(ToneMappingType toneMappingType);
         private:
+            void updatePipeline() const;
+        private:
+            bool _activated{ false };
             ToneMappingType _toneMappingType{ ToneMappingType::DEFAULT };
 		};
 

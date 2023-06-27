@@ -23,25 +23,53 @@
 ****************************************************************************/
 
 #include "scene/ToneMapping.h"
-
+#include "core/Root.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 namespace cc {
-	namespace scene {
-	
-		void ToneMappingInfo::activate(ToneMapping *resource) {
-			_resource = resource;
-			_resource->initialize(*this);
-		}
-        void ToneMappingInfo::setToneMappingType(ToneMappingType toneMappingType)
-        {
-            _toneMappingType = toneMappingType;
+namespace scene {
 
-            if (_resource != nullptr) {
-                _resource->setToneMappingType(toneMappingType);
-            }
-        }
-		void ToneMapping::initialize(const ToneMappingInfo &toneMappingInfo) {
-            _toneMappingType = toneMappingInfo.getToneMappingType();
-		}
+void ToneMappingInfo::activate(ToneMapping *resource) {
+    _resource = resource;
+    if (_resource != nullptr) {
+        _resource->initialize(*this);
+        _resource->activate();
+    }
+}
+void ToneMappingInfo::setToneMappingType(ToneMappingType toneMappingType) {
+    _toneMappingType = toneMappingType;
 
-	} // namespace scene
+    if (_resource != nullptr) {
+        _resource->setToneMappingType(toneMappingType);
+    }
+}
+
+void ToneMapping::activate() {
+    _activated = true;
+    updatePipeline();
+}
+
+void ToneMapping::initialize(const ToneMappingInfo &toneMappingInfo) {
+    _activated = false;
+    _toneMappingType = toneMappingInfo.getToneMappingType();
+}
+
+void ToneMapping::setToneMappingType(ToneMappingType toneMappingType) {
+    _toneMappingType = toneMappingType;
+    updatePipeline();
+}
+
+void ToneMapping::updatePipeline() const {
+    
+    Root *root = Root::getInstance();
+    auto *pipeline = root->getPipeline();
+
+    pipeline->setValue("CC_TONE_MAPPING_TYPE", static_cast<int32_t>(_toneMappingType));
+
+    if (_activated)
+    {
+        root->onGlobalPipelineStateChanged();
+    }
+}
+
+} // namespace scene
 } // namespace cc
