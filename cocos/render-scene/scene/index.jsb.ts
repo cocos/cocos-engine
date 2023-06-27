@@ -40,6 +40,7 @@ import type {
     Fog as JsbFog,
     Shadows as JsbShadows,
     Skybox as JsbSkybox,
+    ToneMapping as JsbToneMapping
 } from './index';
 
 // NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
@@ -381,6 +382,10 @@ Object.defineProperty(Shadows, 'COEFFICIENT_OF_EXPANSION', {
 export const Skybox: typeof JsbSkybox = jsb.Skybox;
 export type Skybox = JsbSkybox;
 cclegacy.Skybox = Skybox;
+
+export const ToneMapping: typeof JsbToneMapping = jsb.ToneMapping;
+export type ToneMapping = JsbToneMapping;
+cclegacy.ToneMapping = ToneMapping;
 
 export * from './model';
 export * from './submodel';
