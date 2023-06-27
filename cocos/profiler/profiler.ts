@@ -143,7 +143,7 @@ export class Profiler extends System {
     /**
      * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
-    public get _stats () {
+    public get _stats (): IProfilerState | null {
         warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
         return this._profilerStats;
     }
@@ -152,7 +152,7 @@ export class Profiler extends System {
      * @zh 获取引擎运行性能状态
      * @en Get engine performance status
      */
-    public get stats () {
+    public get stats (): IProfilerState | null {
         return this._profilerStats;
     }
 

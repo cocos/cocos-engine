@@ -73,7 +73,7 @@ export class PipelineSceneData {
      * @zh 获取全局的4s标准模型
      * @returns The model id
      */
-    get standardSkinModel (): MeshRenderer | null { return this._standardSkinModel; }
+    get standardSkinModel (): Model | null { return this._standardSkinModel; }
     set standardSkinModel (val: Model | null) {
         this._standardSkinModel = val;
     }
@@ -84,7 +84,7 @@ export class PipelineSceneData {
      * @zh 设置一个全局的4s标准模型组件
      * @returns The model id
      */
-    get standardSkinMeshRenderer () { return this._standardSkinMeshRenderer; }
+    get standardSkinMeshRenderer (): MeshRenderer | null { return this._standardSkinMeshRenderer; }
     set standardSkinMeshRenderer (val: MeshRenderer | null) {
         if (this._standardSkinMeshRenderer && this._standardSkinMeshRenderer !== val) {
             this._standardSkinMeshRenderer.clearGlobalStandardSkinObjectFlag();

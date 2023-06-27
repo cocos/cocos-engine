@@ -1201,7 +1201,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
     }
-    addQueue (layoutName = 'default') {
+    addQueue (layoutName = 'default'): WebComputeQueueBuilder {
         if (DEBUG) {
             const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
             assert(layoutId !== 0xFFFFFFFF);

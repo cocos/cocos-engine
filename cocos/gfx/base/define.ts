@@ -992,7 +992,7 @@ export class Color {
         return this;
     }
 
-    public set (x: number, y: number, z: number, w: number) {
+    public set (x: number, y: number, z: number, w: number): Color {
         this.x = x;
         this.y = y;
         this.z = z;

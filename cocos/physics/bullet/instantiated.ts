@@ -77,7 +77,7 @@ function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<
     });
 }
 
-function initAsm (resolve): void {
+function initAsm (resolve, reject): void {
     if (CULL_ASM_JS_MODULE) {
         reject(getError(4601));
         return;
@@ -93,7 +93,7 @@ function initAsm (resolve): void {
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any) => { console.info(msg); };
+    const infoReport = (msg: any): void => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,

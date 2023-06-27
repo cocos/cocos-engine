@@ -1347,7 +1347,7 @@ export class Camera {
         this._matProj.m14 = m3.w;
     }
 
-    public getClipSpaceMinz () {
+    public getClipSpaceMinz (): number {
         return this._device.capabilities.clipSpaceMinZ;
     }
 

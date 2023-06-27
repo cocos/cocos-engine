@@ -93,7 +93,7 @@ function initAsm (): Promise<void> {
 }
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
-    const errorReport = (msg: any): void => { console.error(msg); };
+    const errorReport = (msg: any): void => { error(msg); };
     if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
         if (sys.hasFeature(sys.Feature.WASM)) {
             return initWasm(spineWasmUrl).catch(errorReport);

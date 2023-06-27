@@ -41,7 +41,7 @@ export function disablePostProcessForDebugView (): boolean {
     return debugView.singleMode as number > 0;
 }
 
-export function getShadowMapSampler () {
+export function getShadowMapSampler (): Sampler | null {
     if (!_pointSampler) {
         const director = cclegacy.director;
         const pipeline = director.root.pipeline;
