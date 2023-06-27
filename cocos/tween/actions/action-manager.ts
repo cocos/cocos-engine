@@ -30,6 +30,7 @@ import { Action } from './action';
 import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
+import type { ActionInterval } from './action-interval';
 
 let ID_COUNTER = 0;
 
@@ -458,7 +459,7 @@ export class ActionManager {
 
             const target = locCurrTarget.target;
             if (isCCObject(target) && !target.isValid) {
-                this.removeAllActionsFromTarget(target);
+                this.removeAllActionsFromTarget(target as unknown as Node);
                 elt--;
                 continue;
             }
@@ -471,7 +472,7 @@ export class ActionManager {
                     if (!locCurrTarget.currentAction) continue;
 
                     // use for speed
-                    locCurrTarget.currentAction.step(dt * (locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1));
+                    locCurrTarget.currentAction.step(dt * (this._isActionInternal(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1));
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -492,5 +493,9 @@ export class ActionManager {
                 }
             }
         }
+    }
+
+    private _isActionInternal (action: any): action is ActionInterval {
+        return typeof action._speedMethod !== 'undefined';
     }
 }

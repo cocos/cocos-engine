@@ -42,6 +42,10 @@ const objsToClearTmpVar: any[] = [];   // used to reset _iN$t variable
  */
 type CustomInstantiation = <T>(this: T, instantiated?: T) => T;
 
+function hasImplementedInstantiate (original: any): original is { _instantiate (...args: unknown[]): unknown } {
+    return typeof original._instantiate === 'function';
+}
+
 /**
  * @zh 从 Prefab 实例化出新节点。
  * @en Instantiate a node from the Prefab.
@@ -97,7 +101,7 @@ export function instantiate (original: any, internalForce?: boolean): any {
     let clone;
 
     if (isCCObject(original)) {
-        if (original._instantiate) {
+        if (hasImplementedInstantiate(original)) {
             cclegacy.game._isCloning = true;
             clone = original._instantiate(null, true);
             cclegacy.game._isCloning = false;
@@ -236,7 +240,7 @@ function instantiateObj (obj: TypedArray | any[] | CCObject, parent: any): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
     }
-    let clone: TypedArray | any[] | unknown;
+    let clone: any;
     if (ArrayBuffer.isView(obj)) {
         const len = obj.length;
         clone = new (obj.constructor as TypedArrayConstructor)(len);

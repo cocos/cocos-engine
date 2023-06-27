@@ -63,7 +63,7 @@ export abstract class ParticleSystemRendererBase {
         return this._renderInfo!;
     }
 
-    public onInit (ps: Component): void {
+    public onInit (ps: ParticleSystem): void {
         this._particleSystem = ps;
     }
 
@@ -94,7 +94,7 @@ export abstract class ParticleSystemRendererBase {
             if (this._model.scene) {
                 this.detachFromScene();
             }
-            this._particleSystem._getRenderScene().addModel(this._model);
+            this._particleSystem?._getRenderScene().addModel(this._model);
         }
     }
 
@@ -120,7 +120,7 @@ export abstract class ParticleSystemRendererBase {
     }
 
     protected _initModel (): void {
-        if (!this._model) {
+        if (!this._model && this._particleSystem) {
             this._model = cclegacy.director.root.createModel(ParticleBatchModel);
             this._model!.setCapacity(this._particleSystem.capacity);
             this._model!.visFlags = this._particleSystem.visibility;

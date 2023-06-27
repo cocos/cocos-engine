@@ -620,7 +620,7 @@ declare namespace CCObject {
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
  * @engineInternal
  */
-export function isCCObject (object: any): boolean {
+export function isCCObject (object: any): object is CCObject {
     return object instanceof CCObject;
 }
 

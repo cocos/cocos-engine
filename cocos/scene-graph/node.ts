@@ -1140,7 +1140,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         default:
             break;
         }
-        this._eventProcessor.on(type, callback, target, useCapture);
+        this._eventProcessor.on(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
@@ -1160,7 +1160,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * ```
      */
     public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
-        this._eventProcessor.off(type, callback, target, useCapture);
+        this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
         // All listener removed
@@ -1188,7 +1188,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param target - The target (this object) to invoke the callback, can be null
      */
     public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
-        this._eventProcessor.once(type, callback, target, useCapture);
+        this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
