@@ -379,6 +379,7 @@ exports.template = /* html*/`
         <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
         <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
         <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="toneMapping" type="dump" ui-section-config></ui-prop>
     </section>
 
     <ui-section class="component node config" expand>
@@ -449,6 +450,7 @@ exports.$ = {
     sceneSkyboxAfter: '.scene > .skybox > .after',
     sceneOctree: '.scene > .octree',
     sceneSkin: '.scene > .skin',
+    sceneToneMapping: '.scene > .toneMapping',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -929,6 +931,9 @@ const Elements = {
             panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
+            panel.dump._globals.toneMapping.displayName = 'ToneMapping';
+            panel.$.sceneToneMapping.render(panel.dump._globals.toneMapping);
+
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType') {
@@ -1065,6 +1070,8 @@ const Elements = {
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
+
+            panel.$.sceneToneMapping.style.display = useHDR ? 'inline-flex' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;

@@ -36,6 +36,7 @@ class SkyboxInfo;
 class FogInfo;
 class OctreeInfo;
 class SkinInfo;
+class ToneMappingInfo;
 } // namespace scene
 
 namespace gi {
@@ -58,6 +59,7 @@ public:
     inline bool getBakedWithStationaryMainLight() const { return _bakedWithStationaryMainLight; }
     inline bool getBakedWithHighpLightmap() const { return _bakedWithHighpLightmap; }
     inline scene::SkinInfo *getSkinInfo() const { return _skinInfo.get(); }
+    inline scene::ToneMappingInfo *getToneMappingInfo() const { return _toneMappingInfo.get(); }
 
     void setAmbientInfo(scene::AmbientInfo *info);
     void setShadowsInfo(scene::ShadowsInfo *info);
@@ -68,6 +70,7 @@ public:
     void setBakedWithStationaryMainLight(bool value);
     void setBakedWithHighpLightmap(bool value);
     void setSkinInfo(scene::SkinInfo *info);
+    void setToneMappingInfo(scene::ToneMappingInfo *info);
 
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;
@@ -77,6 +80,7 @@ private:
     IntrusivePtr<scene::OctreeInfo> _octreeInfo;
     IntrusivePtr<gi::LightProbeInfo> _lightProbeInfo;
     IntrusivePtr<scene::SkinInfo> _skinInfo;
+    IntrusivePtr<scene::ToneMappingInfo> _toneMappingInfo;
     bool _bakedWithStationaryMainLight;
     bool _bakedWithHighpLightmap;
 };

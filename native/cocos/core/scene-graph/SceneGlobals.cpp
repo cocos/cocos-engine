@@ -33,6 +33,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skin.h"
 #include "scene/Skybox.h"
+#include "scene/ToneMapping.h"
 
 namespace cc {
 
@@ -46,6 +47,7 @@ SceneGlobals::SceneGlobals() {
     _bakedWithStationaryMainLight = false;
     _bakedWithHighpLightmap = false;
     _skinInfo = ccnew scene::SkinInfo();
+    _toneMappingInfo = ccnew scene::ToneMappingInfo();
 }
 
 void SceneGlobals::activate(Scene *scene) {
@@ -76,6 +78,10 @@ void SceneGlobals::activate(Scene *scene) {
 
     if (_skinInfo != nullptr && sceneData->getSkin()) {
         _skinInfo->activate(sceneData->getSkin());
+    }
+
+    if (_toneMappingInfo != nullptr && sceneData->getToneMapping()) {
+        _toneMappingInfo->activate(sceneData->getToneMapping());
     }
 
     Root::getInstance()->onGlobalPipelineStateChanged();
@@ -115,6 +121,10 @@ void SceneGlobals::setBakedWithHighpLightmap(bool value) {
 
 void SceneGlobals::setSkinInfo(scene::SkinInfo *info) {
     _skinInfo = info;
+}
+
+void SceneGlobals::setToneMappingInfo(scene::ToneMappingInfo *info) {
+    _toneMappingInfo = info;
 }
 
 } // namespace cc

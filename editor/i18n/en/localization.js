@@ -1279,6 +1279,9 @@ module.exports = link(mixin({
     color_grading: {
         originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
+    tone_mapping: {
+        toneMappingType: 'Tone mapping type,valid only when HDR is enabled.',
+    },
 },
 
 require('./animation'),
