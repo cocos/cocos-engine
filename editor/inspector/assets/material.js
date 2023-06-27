@@ -73,7 +73,7 @@ function renderGroupEffectOptions(effects) {
 }
 
 exports.style = `
-.invalid { display: none; }
+.invalid { display: none; text-align: center; margin-top: 8px; }
 .invalid[active] { display: block; }
 .invalid[active] ~ * { display: none; }
 
