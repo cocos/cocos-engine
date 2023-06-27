@@ -88,11 +88,12 @@ export class TextProcessing {
             while ((outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)
                 && (recursionTime <= MAX_RECURSION_NUM)) {
                 recursionTime++;
-                let maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
-                maxValue /= this._fontScale;
-                let scale = MAX_SIZE / maxValue;
-                if (scale < 1 || recursionTime > MAX_RECURSION_NUM) { scale = 1; }
-                this._fontScale = scale;
+                if (recursionTime > MAX_RECURSION_NUM) {
+                    this._fontScale = 1;
+                } else {
+                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height) / this._fontScale;
+                    this._fontScale = Math.max(1, MAX_SIZE / maxValue);
+                }
 
                 this._updatePaddingRect(style, outputLayoutData);
                 this._calculateLabelFont(style, layout, outputLayoutData, inputString);
