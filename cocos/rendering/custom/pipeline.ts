@@ -205,10 +205,39 @@ export function getPipelineTypeName (e: PipelineType): string {
     }
 }
 
+/**
+ * @en Render subpass capabilities.
+ * Tile-based GPUs support reading color or depth_stencil attachment in pixel shader.
+ * Our implementation is based-on Vulkan abstraction (aka input attachment),
+ * and it is emulated on other graphics backends.
+ * For example, in GLES3 we have used various framebuffer fetch (FBF) extensions.
+ * As a result, different backends and hardwares support different input attachment features.
+ * User should inspect pipeline capabilities when implementing tile-based rendering algorithms.
+ * Using unsupported feature is undefined behaviour.
+ * @zh 次通道渲染能力
+ * Tile-based GPU可以在像素着色器读取当前像素的值。
+ * 我们的抽象方式基于Vulkan的input attachment，并在其他图形后端模拟了这个功能。
+ * 比如在GLES3上，我们使用了多种framebuffer fetch (FBF) 扩展来实现这个功能。
+ * 所以对于不同的硬件以及图形API，支持的能力是略有不同的。
+ * 在编写渲染算法时，应该查询当前设备的能力，来选择合适的tile-based算法。
+ * 使用硬件不支持的特性，会导致未定义行为。
+ */
 export enum SubpassCapabilities {
     NONE = 0,
+    /**
+     * @en Supports read depth/stencil value at current pixel.
+     * @zh 支持读取当前像素的depth/stencil值
+     */
     INPUT_DEPTH_STENCIL = 1 << 0,
+    /**
+     * @en Supports read color value 0 at current pixel.
+     * @zh 支持读取当前像素第0个颜色值
+     */
     INPUT_COLOR = 1 << 1,
+    /**
+     * @en Supports read color values at current pixel.
+     * @zh 支持读取当前像素任意颜色值
+     */
     INPUT_COLOR_MRT = 1 << 2,
 }
 
@@ -216,7 +245,17 @@ export class PipelineCapabilities {
     subpass: SubpassCapabilities = SubpassCapabilities.NONE;
 }
 
+/**
+ * @en base class of render graph node.
+ * A node of render graph represents a specific type of rendering operation.
+ * A render graph consists of these nodes and form a forest(which is a set of trees).
+ * @zh RenderGraph中节点的基类，每个RenderGraph节点代表一种渲染操作，并构成一个森林(一组树)
+ */
 export interface RenderNode {
+    /**
+     * @en Get debug name of current node.
+     * @zh 获得当前节点调试用的名字
+     */
     name: string;
     /**
      * @experimental
@@ -224,15 +263,79 @@ export interface RenderNode {
     setCustomBehavior (name: string): void;
 }
 
+/**
+ * @en Render node which supports setting uniforms and descriptors.
+ * @zh 节点支持设置常量值(uniform/constant)与描述符
+ */
 export interface Setter extends RenderNode {
+    /**
+     * @en Set matrix4x4 常量(uniform) which consists of 16 floats (64 bytes).
+     * @zh 设置4x4矩阵，常量(uniform)有16个float (64 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setMat4 (name: string, mat: Mat4): void;
+    /**
+     * @en Set quaternion uniform which consists of 4 floats (16 bytes).
+     * @zh 设置四元数向量，常量(uniform)有4个float (16 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setQuaternion (name: string, quat: Quat): void;
+    /**
+     * @en Set color uniform which consists of 4 floats (16 bytes).
+     * @zh 设置颜色值，常量(uniform)有4个float (16 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setColor (name: string, color: Color): void;
+    /**
+     * @en Set vector4 uniform which consists of 4 floats (16 bytes).
+     * @zh 设置vector4向量，常量(uniform)有4个float (16 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setVec4 (name: string, vec: Vec4): void;
+    /**
+     * @en Set vector2 uniform which consists of 2 floats (8 bytes).
+     * @zh 设置vector2向量，常量(uniform)有2个float (8 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setVec2 (name: string, vec: Vec2): void;
+    /**
+     * @en Set float uniform (4 bytes).
+     * @zh 设置浮点值 (4 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
     setFloat (name: string, v: number): void;
+    /**
+     * @en Set uniform array.
+     * Size and type of the data should match the corresponding uniforms in the shader.
+     * Mismatches will cause undefined behaviour.
+     * Memory alignment is not required.
+     * @zh 设置数组。类型与大小需要与着色器中的常量(uniform)相匹配，不匹配会引起未定义行为。
+     * 内存地址不需要对齐。
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     * @param arrayBuffer @en array of bytes @zh byte数组
+     */
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void;
+    /**
+     * @en Set buffer descriptor.
+     * Size and type of the buffer should match the one in shader.
+     * Buffer should be in read states and satisfy shader stage visibilities.
+     * Mismatches will cause undefined behaviour.
+     * @zh 设置缓冲(buffer)描述符。大小与类型需要与着色器中的一致，处于只读状态且着色阶段可见。
+     * 不匹配会引起未定义行为。
+     * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
+     * @param buffer @en readonly buffer @zh 只读的缓冲
+     */
     setBuffer (name: string, buffer: Buffer): void;
+    /**
+     * @en Set texture descriptor.
+     * Type of the texture should match the one in shader.
+     * Texture should be in read states and satisfy shader stage visibilities.
+     * Mismatches will cause undefined behaviour.
+     * @zh 设置贴图描述符。类型需要与着色器中的一致，处于只读状态且着色阶段可见。
+     * 不匹配会引起未定义行为。
+     * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
+     * @param texture @en readonly texture @zh 只读的贴图
+     */
     setTexture (name: string, texture: Texture): void;
     /**
      * @deprecated Method will be removed in 3.9.0
@@ -242,6 +345,13 @@ export interface Setter extends RenderNode {
      * @deprecated Method will be removed in 3.9.0
      */
     setReadWriteTexture (name: string, texture: Texture): void;
+    /**
+     * @en Set sampler descriptor.
+     * Type of the sampler should match the one in shader.
+     * @zh 设置采样器描述符。类型需要与着色器中的一致。
+     * 不匹配会引起未定义行为。
+     * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
+     */
     setSampler (name: string, sampler: Sampler): void;
 }
 
