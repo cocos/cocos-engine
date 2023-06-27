@@ -55,12 +55,13 @@ export class SpawnPerUnitModule extends VFXModule {
     private _spawnSpacing: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_REMAINDER_PER_UNIT);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.spawnSpacing.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.spawnSpacing.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

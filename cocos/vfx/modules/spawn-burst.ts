@@ -74,13 +74,14 @@ export class SpawnBurstModule extends VFXModule {
     @serializable
     private _count: FloatExpression | null = null;
 
-    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage): void {
-        super.compile(parameterMap, parameterRegistry, owner);
+    public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.count.compile(parameterMap, parameterRegistry, this);
-        this.time.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.count.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.time.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

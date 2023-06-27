@@ -325,12 +325,14 @@ export class VFXStage {
         }
         this._owner = owner;
         const modules = this._modules;
+        let compileResult = true;
         for (let i = 0, length = this._moduleCount; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                module.compile(parameterMap, parameterRegistry, this);
+                compileResult &&= module.compile(parameterMap, parameterRegistry, this);
             }
         }
+        return compileResult;
     }
 
     /**

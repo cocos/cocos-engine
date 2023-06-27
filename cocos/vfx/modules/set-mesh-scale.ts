@@ -81,17 +81,18 @@ export class SetMeshScaleModule extends VFXModule {
     private _separateAxes = false;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SCALE);
         }
 
         parameterMap.ensure(P_SCALE);
         if (this.separateAxes) {
-            this.scale.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.scale.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformScale.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformScale.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -101,27 +102,18 @@ export class SetMeshScaleModule extends VFXModule {
         if (this.separateAxes) {
             const scaleExp = this._scale as Vec3Expression;
             scaleExp.bind(parameterMap);
-            if (scaleExp.isConstant) {
-                const srcScale = scaleExp.evaluate(0, tempScale);
-                scale.fill(srcScale, fromIndex, toIndex);
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    scaleExp.evaluate(i, tempScale);
-                    scale.setVec3At(tempScale, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; ++i) {
+                scaleExp.evaluate(i, tempScale);
+                scale.setVec3At(tempScale, i);
             }
         } else {
             const uniformScaleExp = this._uniformScale as FloatExpression;
             uniformScaleExp.bind(parameterMap);
-            if (uniformScaleExp.isConstant) {
-                const srcScale = uniformScaleExp.evaluate(0);
-                Vec3.set(tempScale, srcScale, srcScale, srcScale);
-                scale.fill(tempScale, fromIndex, toIndex);
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const srcScale = uniformScaleExp.evaluate(i);
-                    scale.setUniformFloatAt(srcScale, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const srcScale = uniformScaleExp.evaluate(i);
+                scale.setUniformFloatAt(srcScale, i);
             }
         }
     }

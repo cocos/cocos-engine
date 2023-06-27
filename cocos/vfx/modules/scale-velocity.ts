@@ -101,13 +101,14 @@ export class ScaleVelocityModule extends VFXModule {
     private _coordinateSpace = CoordinateSpace.SIMULATION;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_VELOCITY);
         if (this.separateAxes) {
-            this.scalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.scalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformScalar.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -121,29 +122,14 @@ export class ScaleVelocityModule extends VFXModule {
             if (needTransform) {
                 const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 const invTransform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
-                if (scalarExp.isConstant) {
-                    const scalar = scalarExp.evaluate(0, tempScalar);
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
-                        Vec3.multiply(tempVelocity, tempVelocity, scalar);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
-                        velocity.setVec3At(tempVelocity, i);
-                    }
-                } else {
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const scalar = scalarExp.evaluate(i, tempScalar);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
-                        Vec3.multiply(tempVelocity, tempVelocity, scalar);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
-                        velocity.setVec3At(tempVelocity, i);
-                    }
-                }
-            } else if (scalarExp.isConstant) {
-                const scalar = scalarExp.evaluate(0, tempScalar);
+
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.multiplyVec3At(scalar, i);
+                    const scalar = scalarExp.evaluate(i, tempScalar);
+                    velocity.getVec3At(tempVelocity, i);
+                    Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                    Vec3.multiply(tempVelocity, tempVelocity, scalar);
+                    Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                    velocity.setVec3At(tempVelocity, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -157,29 +143,14 @@ export class ScaleVelocityModule extends VFXModule {
             if (needTransform) {
                 const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 const invTransform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
-                if (uniformExp.isConstant) {
-                    const scalar = uniformExp.evaluate(0);
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
-                        Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
-                        velocity.setVec3At(tempVelocity, i);
-                    }
-                } else {
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const scalar = uniformExp.evaluate(i);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
-                        Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
-                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
-                        velocity.setVec3At(tempVelocity, i);
-                    }
-                }
-            } else if (uniformExp.isConstant) {
-                const scalar = uniformExp.evaluate(0);
+
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.multiplyScalarAt(scalar, i);
+                    const scalar = uniformExp.evaluate(i);
+                    velocity.getVec3At(tempVelocity, i);
+                    Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                    Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
+                    Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                    velocity.setVec3At(tempVelocity, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {

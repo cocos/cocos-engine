@@ -182,20 +182,21 @@ export class SphereLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.radius.compile(parameterMap, parameterRegistry, this);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.radius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === DistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
-            this.hemisphereDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.hemisphereDistribution.compile(parameterMap, parameterRegistry, this);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.compile(parameterMap, parameterRegistry, this);
-            this.vPosition.compile(parameterMap, parameterRegistry, this);
-            this.radiusPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.vPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.radiusPosition.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformDistribution.compile(parameterMap, parameterRegistry, this);
-            this.uniformSpiralAmount.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformSpiralAmount.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

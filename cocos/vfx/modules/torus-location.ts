@@ -179,18 +179,19 @@ export class TorusLocationModule extends ShapeLocationModule {
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
-        this.largeRadius.compile(parameterMap, parameterRegistry, this);
-        this.handleRadius.compile(parameterMap, parameterRegistry, this);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
+        compileResult &&= this.largeRadius.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.handleRadius.compile(parameterMap, parameterRegistry, this);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
             parameterMap.ensure(P_ID);
-            this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
-            this.uDistribution.compile(parameterMap, parameterRegistry, this);
-            this.vDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.surfaceDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uDistribution.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.vDistribution.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uPosition.compile(parameterMap, parameterRegistry, this);
-            this.vPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uPosition.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.vPosition.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap): void {

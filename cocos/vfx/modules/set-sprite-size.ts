@@ -82,17 +82,18 @@ export class SetSpriteSizeModule extends VFXModule {
     private _separateAxes = false;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SPRITE_SIZE);
         }
 
         parameterMap.ensure(P_SPRITE_SIZE);
         if (this.separateAxes) {
-            this.size.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.size.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.uniformSize.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformSize.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -102,27 +103,18 @@ export class SetSpriteSizeModule extends VFXModule {
         if (this.separateAxes) {
             const sizeExp = this._size as Vec2Expression;
             sizeExp.bind(parameterMap);
-            if (sizeExp.isConstant) {
-                const srcScale = sizeExp.evaluate(0, tempSize);
-                scale.fill(srcScale, fromIndex, toIndex);
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    sizeExp.evaluate(i, tempSize);
-                    scale.setVec2At(tempSize, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; ++i) {
+                sizeExp.evaluate(i, tempSize);
+                scale.setVec2At(tempSize, i);
             }
         } else {
             const uniformSizeExp = this._uniformSize as FloatExpression;
             uniformSizeExp.bind(parameterMap);
-            if (uniformSizeExp.isConstant) {
-                const srcScale = uniformSizeExp.evaluate(0);
-                Vec2.set(tempSize, srcScale, srcScale);
-                scale.fill(tempSize, fromIndex, toIndex);
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const srcScale = uniformSizeExp.evaluate(i);
-                    scale.setUniformFloatAt(srcScale, i);
-                }
+
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const srcScale = uniformSizeExp.evaluate(i);
+                scale.setUniformFloatAt(srcScale, i);
             }
         }
     }

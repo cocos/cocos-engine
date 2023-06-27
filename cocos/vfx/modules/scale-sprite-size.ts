@@ -89,16 +89,17 @@ export class ScaleSpriteSizeModule extends VFXModule {
     private _separateAxes = false;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SPRITE_SIZE);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
-            this.uniformScalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.uniformScalar.compile(parameterMap, parameterRegistry, this);
         } else {
-            this.scalar.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.scalar.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

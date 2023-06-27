@@ -50,9 +50,10 @@ export class SetSpriteRotationModule extends VFXModule {
     private _rotation: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SPRITE_ROTATION);
-        this.rotation.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.rotation.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -62,13 +63,8 @@ export class SetSpriteRotationModule extends VFXModule {
         const rotationExp = this._rotation as FloatExpression;
         rotationExp.bind(parameterMap);
 
-        if (rotationExp.isConstant) {
-            const rotation = rotationExp.evaluate(0);
-            spriteRotation.fill(rotation, fromIndex, toIndex);
-        } else {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                spriteRotation.setFloatAt(rotationExp.evaluate(i), i);
-            }
+        for (let i = fromIndex; i < toIndex; ++i) {
+            spriteRotation.setFloatAt(rotationExp.evaluate(i), i);
         }
     }
 }

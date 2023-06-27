@@ -54,9 +54,10 @@ export class SetLifeTimeModule extends VFXModule {
     private _lifetime: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_INV_LIFETIME);
-        this.lifetime.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.lifetime.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -65,13 +66,10 @@ export class SetLifeTimeModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const lifetimeExp = this._lifetime as FloatExpression;
         lifetimeExp.bind(parameterMap);
-        if (lifetimeExp.isConstant) {
-            invLifeTime.fill(1 / lifetimeExp.evaluate(0), fromIndex, toIndex);
-        } else {
-            const dest = invLifeTime.data;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                dest[i] = 1 / lifetimeExp.evaluate(i);
-            }
+
+        const dest = invLifeTime.data;
+        for (let i = fromIndex; i < toIndex; ++i) {
+            dest[i] = 1 / lifetimeExp.evaluate(i);
         }
     }
 }

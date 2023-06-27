@@ -50,9 +50,10 @@ export class SpriteRotationRateModule extends VFXModule {
     private _rate: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_SPRITE_ROTATION);
-        this.rate.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.rate.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -62,16 +63,10 @@ export class SpriteRotationRateModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(parameterMap);
-        if (rateExp.isConstant) {
-            const rate = rateExp.evaluate(0);
-            for (let i = fromIndex; i < toIndex; i++) {
-                spriteRotation.addFloatAt(rate * deltaTime, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const rate = rateExp.evaluate(i);
-                spriteRotation.addFloatAt(rate * deltaTime, i);
-            }
+
+        for (let i = fromIndex; i < toIndex; i++) {
+            const rate = rateExp.evaluate(i);
+            spriteRotation.addFloatAt(rate * deltaTime, i);
         }
     }
 }

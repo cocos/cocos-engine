@@ -56,9 +56,10 @@ export class SetPositionModule extends VFXModule {
     private _position: Vec3Expression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_POSITION);
-        this.position.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.position.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -67,12 +68,8 @@ export class SetPositionModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const positionExp = this._position as Vec3Expression;
         positionExp.bind(parameterMap);
-        if (positionExp.isConstant) {
-            position.fill(positionExp.evaluate(0, tempPos), fromIndex, toIndex);
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                position.setVec3At(positionExp.evaluate(i, tempPos), i);
-            }
+        for (let i = fromIndex; i < toIndex; i++) {
+            position.setVec3At(positionExp.evaluate(i, tempPos), i);
         }
     }
 }

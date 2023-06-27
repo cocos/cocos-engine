@@ -56,12 +56,13 @@ export class SetColorModule extends VFXModule {
     private _color: ColorExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_COLOR);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_COLOR);
         }
-        this.color.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.color.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -70,13 +71,10 @@ export class SetColorModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const colorExp = this._color as ColorExpression;
         colorExp.bind(parameterMap);
-        if (colorExp.isConstant) {
-            color.fill(colorExp.evaluate(0, tempColor), fromIndex, toIndex);
-        } else {
-            const dest = color.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                dest[i] = Color.toUint32(colorExp.evaluate(i, tempColor));
-            }
+
+        const dest = color.data;
+        for (let i = fromIndex; i < toIndex; i++) {
+            dest[i] = Color.toUint32(colorExp.evaluate(i, tempColor));
         }
     }
 }

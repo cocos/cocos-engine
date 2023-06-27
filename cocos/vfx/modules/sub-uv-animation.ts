@@ -150,7 +150,7 @@ export class SubUVAnimationModule extends VFXModule {
     private _subUVAnimationMode = SubUVAnimationMode.LINEAR;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
             parameterMap.ensure(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
@@ -160,13 +160,14 @@ export class SubUVAnimationModule extends VFXModule {
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
             parameterMap.ensure(P_SUB_UV_INDEX4);
         }
-        this.subImageSize.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.subImageSize.compile(parameterMap, parameterRegistry, this);
         if (this.useStartFrameRangeOverride) {
-            this.startFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.startFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
         }
         if (this.useEndFrameRangeOverride) {
-            this.endFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this.endFrameRangeOverride.compile(parameterMap, parameterRegistry, this);
         }
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {

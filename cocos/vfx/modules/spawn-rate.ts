@@ -57,12 +57,13 @@ export class SpawnRateModule extends VFXModule {
     private _rate: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(E_SPAWN_REMAINDER);
         parameterMap.ensure(E_SPAWN_INFOS);
         parameterMap.ensure(E_SPAWN_INFO_COUNT);
         parameterMap.ensure(E_LOOPED_AGE);
-        this.rate.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.rate.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap)  {

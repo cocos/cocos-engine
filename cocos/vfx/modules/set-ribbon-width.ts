@@ -50,13 +50,14 @@ export class SetRibbonWidthModule extends VFXModule {
     private _width: FloatExpression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         if (this.usage === VFXExecutionStage.SPAWN) {
             parameterMap.ensure(P_BASE_RIBBON_WIDTH);
         }
 
         parameterMap.ensure(P_RIBBON_WIDTH);
-        this.width.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.width.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -65,14 +66,10 @@ export class SetRibbonWidthModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const widthExp = this._width as FloatExpression;
         widthExp.bind(parameterMap);
-        if (widthExp.isConstant) {
-            const width = widthExp.evaluate(0);
-            ribbonWidth.fill(width, fromIndex, toIndex);
-        } else {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const width = widthExp.evaluate(i);
-                ribbonWidth.setFloatAt(width, i);
-            }
+
+        for (let i = fromIndex; i < toIndex; ++i) {
+            const width = widthExp.evaluate(i);
+            ribbonWidth.setFloatAt(width, i);
         }
     }
 }

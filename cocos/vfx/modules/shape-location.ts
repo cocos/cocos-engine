@@ -126,7 +126,6 @@ export abstract class ShapeLocationModule extends VFXModule {
     @serializable
     private _origin: Vec3Expression | null = null;
     private _mat = new Mat4();
-    protected storePosition = this.storePositionFast;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
         let compileResult = super.compile(parameterMap, parameterRegistry, owner);
@@ -147,22 +146,9 @@ export abstract class ShapeLocationModule extends VFXModule {
         rotationExp.bind(parameterMap);
         scaleExp.bind(parameterMap);
         originExp.bind(parameterMap);
-        if (positionExp.isConstant && rotationExp.isConstant && scaleExp.isConstant) {
-            rotationExp.evaluate(0, tempVec1);
-            Mat4.fromSRT(this._mat, Quat.fromEuler(tempQuat, tempVec1.x, tempVec1.y, tempVec1.z), positionExp.evaluate(0, tempVec2), scaleExp.evaluate(0, tempVec3));
-            this.storePosition = this.storePositionFast;
-        } else {
-            this.storePosition = this.storePositionSlow;
-        }
     }
 
-    protected storePositionFast (index: number, pos: Vec3, position: VFXVec3Array) {
-        Vec3.transformMat4(pos, pos, this._mat);
-        Vec3.add(pos, pos, (this._origin as Vec3Expression).evaluate(index, originVec));
-        position.setVec3At(pos, index);
-    }
-
-    protected storePositionSlow (index: number, pos: Vec3, position: VFXVec3Array) {
+    protected storePosition (index: number, pos: Vec3, position: VFXVec3Array) {
         (this._rotation as Vec3Expression).evaluate(index, tempVec1);
         Mat4.fromSRT(this._mat, Quat.fromEuler(tempQuat, tempVec1.x, tempVec1.y, tempVec1.z),
             (this._position as Vec3Expression).evaluate(index, tempVec2), (this._scale as Vec3Expression).evaluate(index, tempVec3));

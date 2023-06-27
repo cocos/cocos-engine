@@ -30,7 +30,7 @@ import { approx, Color, Mat4, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/m
 import { INT_MAX } from '../core/math/bits';
 import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode, VFXBuiltinNamespace, E_RANDOM_SEED, C_TICK_COUNT, E_PARTICLE_NUM, E_AGE, E_SIMULATION_VELOCITY } from './define';
 import { legacyCC } from '../core/global-exports';
-import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum, geometry } from '../core';
+import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum, geometry, warn } from '../core';
 import { Component } from '../scene-graph';
 import { VFXStage, VFXExecutionStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
@@ -364,6 +364,7 @@ export class VFXEmitter extends Component {
     private _parameterMap = new VFXParameterMap();
     private _particleCapacity = 16;
     private _needToRecompile = true;
+    private _compileResult = false;
     private _playingState = PlayingState.STOPPED;
     private _needRestart = false;
     private _isEmitting = true;
@@ -378,6 +379,7 @@ export class VFXEmitter extends Component {
      */
     public requireRecompile () {
         this._needToRecompile = true;
+        this._compileResult = false;
     }
 
     /**
@@ -522,6 +524,10 @@ export class VFXEmitter extends Component {
         }
         const parameterMap = this._parameterMap;
         this.compile(parameterMap, this._parameterRegistry);
+        if (!this._compileResult) {
+            warn(`Failed to compile particle emitter of node ${this.node.name} , please check the log for detail.`);
+            return;
+        }
         this.updatePrerequisite(parameterMap, deltaTime);
         this._emitterStage.execute(parameterMap);
         const particleNum = parameterMap.getUint32Value(E_PARTICLE_NUM);
@@ -571,15 +577,16 @@ export class VFXEmitter extends Component {
             parameterMap.ensure(E_SIMULATION_POSITION);
             parameterMap.ensure(E_POSITION);
             parameterMap.ensure(E_SPAWN_INFO_COUNT);
-            this._emitterStage.compile(parameterMap, parameterRegistry, this);
-            this._spawnStage.compile(parameterMap, parameterRegistry, this);
-            this._updateStage.compile(parameterMap, parameterRegistry, this);
+            let compileResult = this._emitterStage.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this._spawnStage.compile(parameterMap, parameterRegistry, this);
+            compileResult &&= this._updateStage.compile(parameterMap, parameterRegistry, this);
             if (this._eventHandlerCount > 0) {
                 for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
-                    this._eventHandlers[i].compile(parameterMap, parameterRegistry, this);
+                    compileResult &&= this._eventHandlers[i].compile(parameterMap, parameterRegistry, this);
                 }
             }
             this.reserveParticleParameter(this._particleCapacity);
+            this._compileResult = compileResult;
             this._needToRecompile = false;
         }
     }

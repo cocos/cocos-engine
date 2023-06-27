@@ -57,9 +57,10 @@ export class UpdateMeshOrientationModule extends VFXModule {
     private _rotationRate: Vec3Expression | null = null;
 
     public compile (parameterMap: VFXParameterMap, parameterRegistry: VFXParameterRegistry, owner: VFXStage) {
-        super.compile(parameterMap, parameterRegistry, owner);
+        let compileResult = super.compile(parameterMap, parameterRegistry, owner);
         parameterMap.ensure(P_MESH_ORIENTATION);
-        this.rotationRate.compile(parameterMap, parameterRegistry, this);
+        compileResult &&= this.rotationRate.compile(parameterMap, parameterRegistry, this);
+        return compileResult;
     }
 
     public execute (parameterMap: VFXParameterMap) {
@@ -71,18 +72,10 @@ export class UpdateMeshOrientationModule extends VFXModule {
         const rotationRateExp = this._rotationRate as Vec3Expression;
         rotationRateExp.bind(parameterMap);
 
-        if (rotationRateExp.isConstant) {
-            rotationRateExp.evaluate(0, eulerAngle);
+        for (let i = fromIndex; i < toIndex; i++) {
+            rotationRateExp.evaluate(i, eulerAngle);
             Vec3.multiplyScalar(eulerAngle, eulerAngle, deltaTime);
-            for (let i = fromIndex; i < toIndex; i++) {
-                meshOrientation.addVec3At(eulerAngle, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                rotationRateExp.evaluate(i, eulerAngle);
-                Vec3.multiplyScalar(eulerAngle, eulerAngle, deltaTime);
-                meshOrientation.addVec3At(eulerAngle, i);
-            }
+            meshOrientation.addVec3At(eulerAngle, i);
         }
     }
 }
