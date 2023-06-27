@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { OPPO } from 'internal:constants';
+import { OPPO, XIAOMI } from 'internal:constants';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
@@ -31,41 +31,41 @@ export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Impo
 
 export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     return new Promise<ArrayBuffer>((resolve, reject) => {
-        // fsUtils is defined in engine-adapter
-        const fsUtils = globalThis.fsUtils;
-        if (OPPO) {
-            getBinaryUrlOnOPPO(binaryUrl).then((url) => {
-                fsUtils.readArrayBuffer(url, (err, arrayBuffer) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(arrayBuffer);
-                });
-            }).catch((e) => {});
-            return;
-        }
-        fsUtils.readArrayBuffer(`cocos-js/${binaryUrl}`, (err, arrayBuffer) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(arrayBuffer);
-        });
+        getPlatformBinaryUrl(binaryUrl).then((url) => {
+            // NOTE: fsUtils is defined in engine-adapter, we need to access globalThis explicitly for Taobao platform
+            globalThis.fsUtils.readArrayBuffer(url, (err, arrayBuffer) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(arrayBuffer);
+            });
+        }).catch((e) => {});
     });
 }
 
-// On OPPO platform, we put binary assets in cocos-library directory when using separate engine.
-function getBinaryUrlOnOPPO (binaryUrl: string): Promise<string> {
+/**
+ * The binary url can be different on different platforms.
+ * @param binaryUrl the basic build output binary url
+ * @returns the real binary url on the exact platform
+ */
+function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
     return new Promise((resolve) => {
-        const urlInCocosJS = `cocos-js/${binaryUrl}`;
-        // fsUtils is defined in engine-adapter
-        globalThis.fsUtils.exists(urlInCocosJS, (isExists: boolean) => {
-            if (isExists) {
-                resolve(urlInCocosJS);
-            } else {
-                resolve(`cocos-library/${binaryUrl}`);
-            }
-        });
+        if (OPPO) {
+            const urlInCocosJS = `cocos-js/${binaryUrl}`;
+            // NOTE: fsUtils is defined in engine-adapter
+            globalThis.fsUtils.exists(urlInCocosJS, (isExists: boolean) => {
+                if (isExists) {
+                    resolve(urlInCocosJS);
+                } else {
+                    // On OPPO platform, we put binary assets in cocos-library directory when using separate engine.
+                    resolve(`cocos-library/${binaryUrl}`);
+                }
+            });
+        } else if (XIAOMI) {
+            resolve(`src/cocos-js/${binaryUrl}`);
+        } else {
+            resolve(`cocos-js/${binaryUrl}`);
+        }
     });
 }
