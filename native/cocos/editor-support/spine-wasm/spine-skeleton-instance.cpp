@@ -113,6 +113,7 @@ void SpineSkeletonInstance::collectMeshData() {
     if (_effect) {
         _effect->begin(*_skeleton);
     }
+
     for (uint32_t drawIdx = 0; drawIdx < slotCount; ++drawIdx) {
         auto slot = slotArray[drawIdx];
         if (slot->getBone().isActive() == false) {
@@ -143,7 +144,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
@@ -154,7 +155,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
@@ -175,7 +176,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
@@ -186,7 +187,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
@@ -234,7 +235,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vbSize = vertCount * byteStrideOneColor;
                 uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
                 uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
-                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount);
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
                 
                 float *verts = _clipper->getClippedVertices().buffer();
@@ -287,7 +288,7 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
                 uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
-                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount, (uint32_t)slot->getData().getBlendMode());
+                currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount);
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
                 
                 float *verts = _clipper->getClippedVertices().buffer();
@@ -347,6 +348,12 @@ void SpineSkeletonInstance::collectMeshData() {
             _debugShapes.push_back(debugShape);
         }
 
+        currMesh.blendMode = (uint32_t)slot->getData().getBlendMode();
+        if (_userData.useSlotTexture) {
+            currMesh.textureID = findSlotTextureID(slot);
+        } else {
+            currMesh.textureID = 0;
+        }
         _model->addSlotMesh(currMesh);
 
         _clipper->clipEnd(*slot);
@@ -463,4 +470,84 @@ void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType t
 
 std::vector<SpineDebugShape>& SpineSkeletonInstance::getDebugShapes() {
     return this->_debugShapes;
+}
+
+void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32_t width, uint32_t height, bool createNew) {
+    if (!_skeleton) return;
+    auto slot = _skeleton->findSlot(slotName.c_str());
+    if (!slot) return;
+    auto attachment = slot->getAttachment();
+    if (!attachment) return;
+    if (createNew) {
+        attachment = attachment->copy();
+        slot->setAttachment(attachment);
+    }
+    if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
+        auto region = (RegionAttachment *)attachment;
+        region->setRegionWidth(width);
+        region->setRegionHeight(height);
+        region->setRegionOriginalWidth(width);
+        region->setRegionOriginalHeight(height);
+        region->setWidth(width);
+        region->setHeight(height);
+        region->setUVs(0, 0, 1.0f, 1.0f, false);
+        region->updateOffset();
+        auto attachmentVertices = (AttachmentVertices*)region->getRendererObject();
+        if (createNew) {
+            attachmentVertices = attachmentVertices->copy();
+            region->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
+            vertices[i].texCoord.u = region->getUVs()[ii];
+            vertices[i].texCoord.v = region->getUVs()[ii + 1];
+        }
+    } else if (attachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
+        auto mesh = (MeshAttachment *)attachment;
+        mesh->setRegionWidth(width);
+        mesh->setRegionHeight(height);
+        mesh->setRegionOriginalWidth(width);
+        mesh->setRegionOriginalHeight(height);
+        mesh->setWidth(width);
+        mesh->setHeight(height);
+        mesh->setRegionU(0);
+        mesh->setRegionV(0);
+        mesh->setRegionU2(1.0f);
+        mesh->setRegionV2(1.0f);
+        mesh->setRegionRotate(true);
+        mesh->setRegionDegrees(0);
+        mesh->updateUVs();
+        auto attachmentVertices = (AttachmentVertices *)mesh->getRendererObject();
+        if (createNew) {
+            attachmentVertices = attachmentVertices->copy();
+            mesh->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        for (size_t i = 0, ii = 0, nn = mesh->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
+            vertices[i].texCoord.u = mesh->getUVs()[ii];
+            vertices[i].texCoord.v = mesh->getUVs()[ii + 1];
+        }
+    }
+}
+
+uint32_t SpineSkeletonInstance::findSlotTextureID(Slot* slot) {
+    auto iter = slotTextureSet.find(slot);
+    if (iter != slotTextureSet.end()) {
+        return iter->second;
+    } else {
+        return 0;
+    }
+}
+
+void SpineSkeletonInstance::setSlotTexture(const std::string& slotName, uint32_t textureID) {
+    if (!_skeleton) return;
+    auto slot = _skeleton->findSlot(slotName.c_str());
+    if (!slot) return;
+    _userData.useSlotTexture = true;
+    auto iter = slotTextureSet.find(slot);
+    if (iter != slotTextureSet.end()) {
+        iter->second = textureID;
+    } else {
+        slotTextureSet[slot] = textureID;
+    }
 }

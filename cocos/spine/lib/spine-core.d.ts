@@ -1291,6 +1291,8 @@ declare namespace spine {
         setListener(id: number, type: number);
         setDebugMode(debug: boolean);
         getDebugShapes();
+        resizeSlotRegion(slotName: string, width: number, height: number, createNew: boolean);
+        setSlotTexture(slotName: string, index: number);
     }
 
     class wasmUtil {

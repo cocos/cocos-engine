@@ -267,10 +267,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getBalance", &EventData::getBalance);
     
 
-    // class_<Attachment>("Attachment")
-    //     .constructor<const String& >()
-    //     .function("getProp_name", &Attachment::getName)
-    //     .function("copy", &Attachment::copy, allow_raw_pointer<Attachment>());
+    class_<Attachment>("Attachment")
+        .function("getName", optional_override([](Attachment &obj) { return STRING_SP2STD(obj.getName());}));
 
     // pure_virtual and raw pointer 
     // class_<VertexAttachment>("VertexAttachment")
@@ -593,12 +591,10 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getBone", &Slot::getBone)
         .function("getColor", &Slot::getColor)
         .function("getDarkColor", &Slot::getDarkColor)
-        //.function("getProp_attachment", &Slot::getAttachment, allow_raw_pointer<Attachment>())
-        //.function("getProp_attachmentState", &Slot::getAttachmentState, allow_raw_pointer<Attachment>())
         .function("getDeform", &Slot::getDeform)
         .function("getSkeleton", &Slot::getSkeleton)
-        //.function("getAttachment", &Slot::getAttachment)
-        //.function("setAttachment", &Slot::setAttachment)
+        .function("getAttachment", &Slot::getAttachment, allow_raw_pointers())
+        .function("setAttachment", &Slot::setAttachment, allow_raw_pointers())
         .function("setAttachmentTime", &Slot::setAttachmentTime)
         .function("getAttachmentTime", &Slot::getAttachmentTime)
         .function("setToSetupPose", &Slot::setToSetupPose);
@@ -1044,7 +1040,9 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<SlotMesh>("SlotMesh")
         .property("vCount", &SlotMesh::vCount)
         .property("iCount", &SlotMesh::iCount)
-        .property("blendMode", &SlotMesh::blendMode);
+        .property("blendMode", &SlotMesh::blendMode)
+        .property("textureID", &SlotMesh::textureID)
+        ;
 
     register_vector<SlotMesh>("VectorSlotMesh");
     class_<SpineModel>("SpineModel")
@@ -1079,7 +1077,9 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setMix", &SpineSkeletonInstance::setMix)
         .function("setListener", &SpineSkeletonInstance::setListener)
         .function("setDebugMode", &SpineSkeletonInstance::setDebugMode)
-        .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes);
+        .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
+        .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)
+        .function("setSlotTexture", &SpineSkeletonInstance::setSlotTexture);
 }
 
 EMSCRIPTEN_BINDINGS(cocos_spine) {

@@ -5,6 +5,7 @@
 #include "spine-model.h"
 #include <string>
 #include <memory>
+#include <map>
 #include <functional>
 using namespace spine;
 
@@ -35,6 +36,7 @@ class SpineSkeletonInstance {
         bool useTint = false;
         bool premultipliedAlpha = false;
         bool debugMode = false;
+        bool useSlotTexture = false;
         Color4F color = Color4F(1.0F, 1.0F, 1.0F, 1.0F);
     };
 
@@ -58,9 +60,12 @@ public:
     void setListener(uint32_t listenerID, uint32_t type);
     void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event);
     std::vector<SpineDebugShape>& getDebugShapes();
+    void resizeSlotRegion(const std::string& slotName, uint32_t width, uint32_t height, bool createNew = false);
+    void setSlotTexture(const std::string& slotName, uint32_t index);
 
 private:
     void collectMeshData();
+    uint32_t findSlotTextureID(Slot* slot);
 private:
     Skeleton *_skeleton = nullptr;
     SkeletonData *_skeletonData = nullptr;
@@ -77,6 +82,7 @@ private:
     uint32_t _eventListenerID = 0;
     UserData _userData;
     std::vector<SpineDebugShape> _debugShapes{};
+    std::map<Slot*, uint32_t> slotTextureSet{};
 };
 
 #endif

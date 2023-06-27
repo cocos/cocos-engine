@@ -182,8 +182,9 @@ function realTimeTraverse (comp: Skeleton) {
     for (let i = 0; i < count; i++) {
         const mesh = meshes.get(i);
         const material = _getSlotMaterial(mesh.blendMode, comp);
+        const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
     // if enableBatch apply worldMatrix
@@ -323,8 +324,9 @@ function cacheTraverse (comp: Skeleton) {
     for (let i = 0; i < count; i++) {
         const mesh = meshes[i];
         const material = _getSlotMaterial(mesh.blendMode, comp);
+        const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 

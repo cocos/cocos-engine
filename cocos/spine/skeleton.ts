@@ -47,6 +47,7 @@ import { TrackEntryListeners } from './track-entry-listeners';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
+let _slotTextureID = 100;
 
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
@@ -116,6 +117,7 @@ interface AnimationItem {
  */
 export interface SkeletonDrawData {
     material: Material | null;
+    texture: Texture2D | null;
     indexOffset: number;
     indexCount: number;
 }
@@ -223,12 +225,13 @@ export class Skeleton extends UIRenderer {
     public _skeleton: spine.Skeleton = null!;
     protected _instance: spine.SkeletonInstance = null!;
     protected _state: spine.AnimationState = null!;
-    protected _texture: Texture2D | null = null;
+    protected _textures: Texture2D[] = [];
     // Animation name
     protected _animationName = '';
     protected _skinName = '';
     protected _drawList = new RecyclePool<SkeletonDrawData>(() => ({
         material: null,
+        texture: null,
         indexOffset: 0,
         indexCount: 0,
     }), 1);
@@ -260,6 +263,8 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _debugRenderer: Graphics | null = null;
+
+    private _slotTextures: Map<number, Texture2D> | null = null;
 
     constructor () {
         super();
@@ -635,10 +640,10 @@ export class Skeleton extends UIRenderer {
     protected _updateSkeletonData () {
         const skeletonData = this._skeletonData;
         if (!skeletonData) {
-            this._texture = null;
+            this._textures = [];
             return;
         }
-        this._texture = skeletonData.textures[0];
+        this._textures = skeletonData.textures;
 
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
@@ -804,9 +809,9 @@ export class Skeleton extends UIRenderer {
             // Fill index buffer
             for (let i = 0; i < this._drawList.length; i++) {
                 const dc = this._drawList.data[i];
-                if (this._texture) {
+                if (dc.texture) {
                     batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, this._texture, dc.material!, this._enableBatch);
+                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -818,9 +823,16 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    public requestDrawData (material: Material, indexOffset: number, indexCount: number) {
+    public requestDrawData (material: Material, texureID: number, indexOffset: number, indexCount: number) {
         const draw = this._drawList.add();
         draw.material = material;
+        if (texureID === 0) {
+            draw.texture = this._textures[0];
+        } else {
+            const texture = this._slotTextures?.get(texureID);
+            if (texture) draw.texture = texture;
+            else draw.texture = this._textures[0];
+        }
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
         return draw;
@@ -1455,6 +1467,40 @@ export class Skeleton extends UIRenderer {
     */
     public getDebugShapes (): any {
         return this._instance.getDebugShapes();
+    }
+
+    /**
+     * @en Set texture for slot, this function can be use to changing local skin.
+     * @zh 为 slot 设置贴图纹理，可使用该该方法实现局部换装功能。
+     * @param slotName @en The name of slot. @zh Slot 名字。
+     * @param tex2d @en The texture will show on the slot. @zh 在该 Slot 上显示的 2D 纹理。
+     * @param createNew @en Whether to create new Attachment. If value is false, all sp.Skeleton share the
+     * same attachment will be changed. @zh 是否需要创建新的 attachment，如果值为 false, 所有共享相同 attachment
+     * 的组件都将被一同更改。
+     */
+    public setSlotTexture (slotName: string, tex2d: Texture2D, createNew?: boolean) {
+        if (this.isAnimationCached()) {
+            error(`Cached mode can't change texture of slot`);
+            return;
+        }
+        const slot = this.findSlot(slotName);
+        if (!slot) {
+            error(`No slot named:${slotName}`);
+        }
+        const width = tex2d.width;
+        const height = tex2d.height;
+        const createNewAttachment = createNew || false;
+        this._instance.resizeSlotRegion(slotName, width, height, createNewAttachment);
+        if (!this._slotTextures) this._slotTextures = new Map<number, Texture2D>();
+        let textureID = 0;
+        this._slotTextures.forEach((value, key) => {
+            if (value === tex2d) textureID = key;
+        });
+        if (textureID === 0) {
+            textureID = _slotTextureID++;
+            this._slotTextures.set(textureID, tex2d);
+        }
+        this._instance.setSlotTexture(slotName, textureID);
     }
 }
 

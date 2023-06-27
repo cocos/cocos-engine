@@ -819,6 +819,21 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    skeleton.changeSlotSkin = function (slotName, tex2d, createNew) {
+        const spineSkeletonData = cc.internal.SpineSkeletonData.prototype;
+        const textureIdx = spineSkeletonData.recordTexture(tex2d);
+        const spTex = new middleware.Texture2D();
+        spTex.setRealTexture(tex2d);
+        spTex.setRealTextureIndex(textureIdx);
+        spTex.setPixelsWide(tex2d.width);
+        spTex.setPixelsHigh(tex2d.height);
+
+        const createNewAttachment = createNew || false;
+        if (this._nativeSkeleton) {
+            this._nativeSkeleton.updateRegion(slotName, spTex, createNewAttachment);
+        }
+    };
+
     //////////////////////////////////////////
     // assembler
     const assembler = cc.internal.SpineAssembler;
