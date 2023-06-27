@@ -316,7 +316,7 @@ struct PipelineCapabilities {
 };
 
 /**
- * @en Base class of render graph node.
+ * @en base class of render graph node.
  * A node of render graph represents a specific type of rendering operation.
  * A render graph consists of these nodes and form a forest(which is a set of trees).
  * @zh RenderGraph中节点的基类，每个RenderGraph节点代表一种渲染操作，并构成一个森林(一组树)
