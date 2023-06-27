@@ -986,20 +986,21 @@ function createStateStatusCache (): MotionStateStatus {
     };
 }
 
-const emptyClipStatusesIterator: Readonly<Iterator<ClipStatus>> = Object.freeze({
-    next (..._args: [] | [undefined]): IteratorResult<ClipStatus> {
+type ReadonlyClipStatus = Readonly<ClipStatus>;
+const emptyClipStatusesIterator: Iterator<ReadonlyClipStatus> = {
+    next (..._args: [] | [undefined]): IteratorResult<ReadonlyClipStatus> {
         return {
             done: true,
             value: undefined,
         };
     },
-});
+};
 
-const emptyClipStatusesIterable: Iterable<Readonly<ClipStatus>> = Object.freeze({
+const emptyClipStatusesIterable: Iterable<ReadonlyClipStatus> = {
     [Symbol.iterator] () {
         return emptyClipStatusesIterator;
     },
-});
+};
 
 enum NodeKind {
     entry, exit, any, animation,
