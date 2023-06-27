@@ -182,14 +182,14 @@ export class TextProcessing {
         case Overflow.SHRINK: {
             this._calculateShrinkFont(paragraphedStrings, style, layout, outputLayoutData);
             this._calculateWrapText(paragraphedStrings, style, layout, outputLayoutData);
-            outputLayoutData.canvasSize.width  *= this._fontScale;
-            outputLayoutData.canvasSize.height *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
+            outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height * this._fontScale;
             break;
         }
         case Overflow.CLAMP: {
             this._calculateWrapText(paragraphedStrings, style, layout, outputLayoutData);
-            outputLayoutData.canvasSize.width  *= this._fontScale;
-            outputLayoutData.canvasSize.height *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
+            outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height * this._fontScale;
             break;
         }
         case Overflow.RESIZE_HEIGHT: {
@@ -197,7 +197,7 @@ export class TextProcessing {
             const rawHeight = (outputLayoutData.parsedString.length + BASELINE_RATIO)
             * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
 
-            outputLayoutData.canvasSize.width  *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
             outputLayoutData.canvasSize.height = (rawHeight + outputLayoutData.canvasPadding.height * this._fontScale);
             // set node height
             outputLayoutData.nodeContentSize.height = (rawHeight + outputLayoutData.contentSizeExtend.height * this._fontScale) / this._fontScale;
@@ -216,8 +216,6 @@ export class TextProcessing {
             let scale = MAX_SIZE / maxValue;
             if (scale < 1 || this._recursionTime > MAX_RECURSION_NUM) { scale = 1; }
             this._fontScale = scale;
-            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width;
-            outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height;
 
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
