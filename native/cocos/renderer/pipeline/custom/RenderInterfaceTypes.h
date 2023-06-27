@@ -316,7 +316,7 @@ struct PipelineCapabilities {
 };
 
 /**
- * @en base class of render graph node.
+ * @en Base class of render graph node.
  * A node of render graph represents a specific type of rendering operation.
  * A render graph consists of these nodes and form a forest(which is a set of trees).
  * @zh RenderGraph中节点的基类，每个RenderGraph节点代表一种渲染操作，并构成一个森林(一组树)
@@ -451,6 +451,11 @@ public:
 
     /**
      * @deprecated Method will be removed in 3.9.0
+     * @en Render the scene the camera is looking at.
+     * @zh 渲染当前相机指向的场景。
+     * @param camera @en Required camera @zh 所需相机
+     * @param light @en Lighting information of the scene @zh 场景光照信息
+     * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
     /**
@@ -563,8 +568,7 @@ public:
      * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
-     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
-     * @returns @en render queue builder @zh 渲染队列
+     * @param phaseName @en The name of the phase declared in effect. Default value is 'default' @zh effect中相位(phase)的名字，不填为'default'。
      */
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
     /**
@@ -578,7 +582,7 @@ public:
      */
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     /**
-     * @en Show statistics on screen
+     * @en show statistics on screen
      * @zh 在屏幕上渲染统计数据
      */
     virtual bool getShowStatistics() const = 0;
