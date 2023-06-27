@@ -496,7 +496,7 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
-export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
+export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     ar.writeNumber(v.level);
 }

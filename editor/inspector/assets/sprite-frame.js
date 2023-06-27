@@ -105,7 +105,7 @@ exports.style = /* css */`
     .asset-sprite-frame > .content > .edit-row {
         text-align: center;
         margin-top: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
     }
     .asset-sprite-frame > .content > .edit-row > .edit-button {
         padding: 0 24px;
@@ -524,7 +524,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.editButton.style.display = 'none';
             } else {
-                panel.$.editButton.style.display = undefined; // depends on component itself
+                panel.$.editButton.style.display = ''; // depends on component itself
             }
 
             if (panel.uuidInSpriteEditor !== panel.meta.uuid) {

@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum } from '../core';
+import { CCString, Enum, error } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
@@ -203,7 +203,7 @@ export class SkeletonData extends Asset {
 
         if (!(this.textures && this.textures.length > 0) && this.textureNames && this.textureNames.length > 0) {
             if (!quiet) {
-                console.error(`${this.name} no textures found!`);
+                error(`${this.name} no textures found!`);
             }
             return null;
         }
@@ -217,7 +217,7 @@ export class SkeletonData extends Asset {
             const rawData = new Uint8Array(this._nativeAsset);
             const byteSize = rawData.length;
             const ptr = spine.wasmUtil.queryStoreMemory(byteSize);
-            const wasmMem = spine.wasmUtil.HEAPU8.subarray(ptr, ptr + byteSize);
+            const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
             wasmMem.set(rawData);
             this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText);
             spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);

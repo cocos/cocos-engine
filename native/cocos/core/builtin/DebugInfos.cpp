@@ -231,6 +231,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
+{ 4601, "Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake." },
 { 4700, "The dom control is not created!" },
 { 4800, "unknown asset type" },
 { 4901, "loadRes: should not specify the extname in %s %s" },

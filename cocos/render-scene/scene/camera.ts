@@ -1347,6 +1347,10 @@ export class Camera {
         this._matProj.m14 = m3.w;
     }
 
+    public getClipSpaceMinz () {
+        return this._device.capabilities.clipSpaceMinZ;
+    }
+
     /**
      * @en Set exposure with actual value.
      * @zh 设置相机的曝光值

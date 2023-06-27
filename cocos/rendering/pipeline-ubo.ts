@@ -185,6 +185,7 @@ export class PipelineUBO {
 
         cv[UBOCamera.NEAR_FAR_OFFSET] = camera.nearClip;
         cv[UBOCamera.NEAR_FAR_OFFSET + 1] = camera.farClip;
+        cv[UBOCamera.NEAR_FAR_OFFSET + 2] = camera.getClipSpaceMinz();
 
         cv[UBOCamera.VIEW_PORT_OFFSET] = sceneData.shadingScale * camera.window.width * camera.viewport.x;
         cv[UBOCamera.VIEW_PORT_OFFSET + 1] = sceneData.shadingScale * camera.window.height * camera.viewport.y;

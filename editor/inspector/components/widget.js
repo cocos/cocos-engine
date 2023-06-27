@@ -1188,13 +1188,20 @@ const computed = {
     },
 };
 exports.ready = function() {
-    this.resizeObserver = new window.ResizeObserver(() => {
-        const rect = this.$this.getBoundingClientRect();
-        if (rect.width > cssMediaWidth) {
-            this.layout = 'horizontal';
-        } else {
-            this.layout = 'vertical';
-        }
+    this.resizeObserver = new window.ResizeObserver((entries) => {
+        window.requestAnimationFrame(() => {
+            // avoid error: ResizeObserver loop limit exceeded
+            if (!Array.isArray(entries) || !entries.length) {
+                return;
+            }
+
+            const rect = this.$this.getBoundingClientRect();
+            if (rect.width > cssMediaWidth) {
+                this.layout = 'horizontal';
+            } else {
+                this.layout = 'vertical';
+            }
+        });
     });
 
     this.resizeObserver.observe(this.$this);

@@ -17,7 +17,6 @@ import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
-import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
@@ -44,9 +43,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // forward pipeline
         this.addPass(forward);
 
-        // TODO: The skin material currently conflicts with the TransparencyPass queue and is temporarily pre-rendered by TransparencyPass.
-        this.addPass(new ForwardTransparencyPass());
         this.addPass(new SkinPass());
+        this.addPass(new ForwardTransparencyPass());
 
         // pipeline related
         this.addPass(new HBAOPass());
@@ -223,5 +221,3 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 }
-
-setCustomPipeline('Custom', new PostProcessBuilder());

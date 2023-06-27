@@ -65,11 +65,12 @@ void PhysXSpherical::updatePose() {
         pose1.p = _mPivotB * node1->getWorldScale();
     } else {
         const auto &wr = node0->getWorldRotation();
-        auto rot = physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
-        pose1.p = _mPivotA * node0->getWorldScale();
-        rot.rotate(pose1.p);
-        pose1.p = pose1.p + node0->getWorldPosition();
-        pose1.q = rot;
+        auto pos = Vec3(_mPivotA.x, _mPivotA.y, _mPivotA.z);
+        pos.multiply(node0->getWorldScale());
+        pos.transformQuat(node0->getWorldRotation());
+        pos.add(node0->getWorldPosition());
+        pose1.p = physx::PxVec3(pos.x, pos.y, pos.z);
+        pose1.q = physx::PxQuat{wr.x, wr.y, wr.z, wr.w} * pose0.q;
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, pose1);
 }

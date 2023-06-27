@@ -117,31 +117,6 @@ nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shade
 };
 
 
-
-const pipelineSceneDataProto: any = nr.PipelineSceneData.prototype;
-pipelineSceneDataProto._ctor = function () {
-    this.skin = new Skin();
-};
-
-Object.defineProperty(pipelineSceneDataProto, 'standardSkinModel', {
-    get (): any {
-        return this._standardSkinModel;
-    },
-    set (obj: any | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== obj) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
-        this._standardSkinModel = obj;
-    }
-});
-
-Object.defineProperty(pipelineSceneDataProto, 'skinMaterialModel', {
-    get (): any {
-        return this._skinMaterialModel;
-    },
-    set (obj: any) {
-        this._skinMaterialModel = obj;
-    }
-});
-
 // ForwardPipeline
 // TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
 const forwardPipelineProto: any = ForwardPipeline.prototype;
