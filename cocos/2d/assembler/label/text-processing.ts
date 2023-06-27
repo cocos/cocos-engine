@@ -212,7 +212,8 @@ export class TextProcessing {
         if ((outputLayoutData.nodeContentSize.width < MAX_SIZE && outputLayoutData.nodeContentSize.height < MAX_SIZE)
             && (outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)) {
             this._recursionTime++;
-            const maxValue = Math.max(outputLayoutData.nodeContentSize.width, outputLayoutData.nodeContentSize.height);
+            let maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+            maxValue /= this._fontScale;
             let scale = MAX_SIZE / maxValue;
             if (scale < 1 || this._recursionTime > MAX_RECURSION_NUM) { scale = 1; }
             this._fontScale = scale;
