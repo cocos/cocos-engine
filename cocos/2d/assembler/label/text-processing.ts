@@ -43,7 +43,7 @@ const Alignment = [
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
 const _invisibleAlpha = (1 / 255).toFixed(3);
-const MAX_RECURSION_NUM = 3;
+const MAX_CALCULATION_NUM = 3;
 
 export interface IRenderData {
     x: number;
@@ -80,15 +80,15 @@ export class TextProcessing {
     public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]) {
         if (!isBmFont) {
-            let recursionTime = 0;
+            let loopTime = 0;
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
             // check & limit canvas size
             while ((outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)
-                && (recursionTime <= MAX_RECURSION_NUM)) {
-                recursionTime++;
-                if (recursionTime > MAX_RECURSION_NUM) {
+                && (loopTime <= MAX_CALCULATION_NUM)) {
+                loopTime++;
+                if (loopTime > MAX_CALCULATION_NUM) {
                     this._fontScale = 1;
                 } else {
                     const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
