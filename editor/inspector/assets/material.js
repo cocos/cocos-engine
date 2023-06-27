@@ -319,7 +319,7 @@ exports.methods = {
                 $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {
                     const dump = $prop.dump;
                     if (dump && dump.childMap && dump.children.length) {
-                        if (!$prop.$section) {
+                        if (!$prop.$childMap) {
                             $prop.$childMap = document.createElement('section');
                             $prop.$childMap.setAttribute(
                                 'style',
