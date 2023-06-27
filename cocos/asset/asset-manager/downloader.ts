@@ -245,7 +245,7 @@ export class Downloader {
     /**
      * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLImageElement.
      */
-    public downloadDomImage = ImageData.downloadImage;
+    public downloadDomImage = ImageData.loadImage;
 
     /**
      * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLAudioElement.

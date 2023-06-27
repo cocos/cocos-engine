@@ -24,13 +24,12 @@
 
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
-import { ImageData } from 'pal/image';
+import { ImageData,ImageSource } from 'pal/image';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
 import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
 import type { ImageAsset as JsbImageAsset } from './image-asset';
-import { ImageSource } from '../../../pal/image/types';
 
 declare const jsb: any;
 
