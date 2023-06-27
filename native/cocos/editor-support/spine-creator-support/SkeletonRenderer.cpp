@@ -1041,3 +1041,69 @@ cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blen
     }
     return _materialCaches[key];
 }
+
+void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D* tex2d, bool createAttachment) {
+    if (!_skeleton) return;
+    auto slot = _skeleton->findSlot(slotName.c_str());
+    if (!slot) return;
+    auto attachment = slot->getAttachment();
+    if (!attachment) return;
+    auto width = tex2d->getWidth();
+    auto height = tex2d->getHeight();
+
+    if (createAttachment) {
+        attachment = attachment->copy();
+        slot->setAttachment(attachment);
+    }
+    AttachmentVertices *attachmentVertices = nullptr;
+    if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
+        auto region = (RegionAttachment *)attachment;
+        region->setRegionWidth(width);
+        region->setRegionHeight(height);
+        region->setRegionOriginalWidth(width);
+        region->setRegionOriginalHeight(height);
+        region->setWidth(width);
+        region->setHeight(height);
+        region->setUVs(0, 0, 1.0f, 1.0f, false);
+        region->updateOffset();
+        attachmentVertices = (AttachmentVertices *)region->getRendererObject();
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            region->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
+            vertices[i].texCoord.u = region->getUVs()[ii];
+            vertices[i].texCoord.v = region->getUVs()[ii + 1];
+        }
+    } else if (attachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
+        auto mesh = (MeshAttachment *)attachment;
+        mesh->setRegionWidth(width);
+        mesh->setRegionHeight(height);
+        mesh->setRegionOriginalWidth(width);
+        mesh->setRegionOriginalHeight(height);
+        mesh->setWidth(width);
+        mesh->setHeight(height);
+        mesh->setRegionU(0);
+        mesh->setRegionV(0);
+        mesh->setRegionU2(1.0f);
+        mesh->setRegionV2(1.0f);
+        mesh->setRegionRotate(true);
+        mesh->setRegionDegrees(0);
+        mesh->updateUVs();
+        attachmentVertices = (AttachmentVertices *)mesh->getRendererObject();
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            mesh->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        for (size_t i = 0, ii = 0, nn = mesh->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
+            vertices[i].texCoord.u = mesh->getUVs()[ii];
+            vertices[i].texCoord.v = mesh->getUVs()[ii + 1];
+        }
+    }
+    if (!attachmentVertices) return;
+    attachmentVertices->_texture = new middleware::Texture2D();
+    attachmentVertices->_texture->addRef();
+    attachmentVertices->_texture->setRealTexture(tex2d);
+}

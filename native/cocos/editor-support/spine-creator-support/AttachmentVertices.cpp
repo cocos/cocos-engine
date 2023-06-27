@@ -50,4 +50,9 @@ AttachmentVertices::~AttachmentVertices() {
     if (_texture) _texture->release();
 }
 
+AttachmentVertices *AttachmentVertices::copy() {
+    AttachmentVertices *atv = new AttachmentVertices(nullptr, _triangles->vertCount, _triangles->indices, _triangles->indexCount);
+    return atv;
+}
+
 } // namespace spine

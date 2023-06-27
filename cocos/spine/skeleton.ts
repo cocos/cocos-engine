@@ -1476,7 +1476,7 @@ export class Skeleton extends UIRenderer {
      * @param tex2d @en The texture will show on the slot. @zh 在该 Slot 上显示的 2D 纹理。
      * @param createNew @en Whether to create new Attachment. If value is false, all sp.Skeleton share the
      * same attachment will be changed. @zh 是否需要创建新的 attachment，如果值为 false, 所有共享相同 attachment
-     * 的组件都将被一同更改。
+     * 的组件都将受影响。
      */
     public setSlotTexture (slotName: string, tex2d: Texture2D, createNew?: boolean) {
         if (this.isAnimationCached()) {
@@ -1486,6 +1486,7 @@ export class Skeleton extends UIRenderer {
         const slot = this.findSlot(slotName);
         if (!slot) {
             error(`No slot named:${slotName}`);
+            return;
         }
         const width = tex2d.width;
         const height = tex2d.height;
