@@ -1,9 +1,8 @@
 import { EDITOR } from 'internal:constants';
 
-import { Vec4 } from '../../../core';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { getSetting, SettingPass } from './setting-pass';

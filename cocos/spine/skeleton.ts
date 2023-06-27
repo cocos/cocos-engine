@@ -24,12 +24,12 @@
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { errorID, warn } from '../core/platform/debug';
+import { error, warn } from '../core/platform/debug';
 import { Enum, ccenum } from '../core/value-types/enum';
-import { Component, Node } from '../scene-graph';
-import { CCBoolean, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
+import { Node } from '../scene-graph';
+import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { UIRenderer, UITransform } from '../2d';
+import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
@@ -38,7 +38,6 @@ import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { AttachUtil } from './attach-util';
-import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -245,12 +244,17 @@ export class Skeleton extends UIRenderer {
     protected _skeletonCache: SkeletonCache | null = null;
     protected _animCache: AnimationCache | null = null;
     /**
-     * @internal
+     * @engineInternal
      */
     public _curFrame: AnimationFrame | null = null;
     // Is need update skeltonData
     protected _needUpdateSkeltonData = true;
     protected _listener: TrackEntryListeners | null = null;
+
+    /**
+     * @engineInternal
+     */
+    public _debugRenderer: Graphics | null = null;
 
     constructor () {
         super();
@@ -330,7 +334,7 @@ export class Skeleton extends UIRenderer {
             skinsEnum = this.skeletonData.getSkinsEnum();
         }
         if (!skinsEnum) {
-            console.error(`${this.name} skin enums are invalid`);
+            error(`${this.name} skin enums are invalid`);
             return;
         }
 
@@ -341,7 +345,7 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             this.markForUpdateRenderData();
         } else {
-            console.error(`${this.name} skin enums are invalid`);
+            error(`${this.name} skin enums are invalid`);
         }
     }
 
@@ -378,7 +382,7 @@ export class Skeleton extends UIRenderer {
             animsEnum = this.skeletonData.getAnimsEnum();
         }
         if (!animsEnum) {
-            console.error(`${this.name} animation enums are invalid`);
+            error(`${this.name} animation enums are invalid`);
             return;
         }
         const animName = animsEnum[value];
@@ -391,7 +395,7 @@ export class Skeleton extends UIRenderer {
                 this.animation = animName;
             }
         } else {
-            console.error(`${this.name} animation enums are invalid`);
+            error(`${this.name} animation enums are invalid`);
         }
     }
 
@@ -793,7 +797,7 @@ export class Skeleton extends UIRenderer {
                 const dc = this._drawList.data[i];
                 if (this._texture) {
                     batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, this._texture, dc.material!, false);
+                        dc.indexCount, this._texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -803,7 +807,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal
+     * @engineInternal
      */
     public requestDrawData (material: Material, indexOffset: number, indexCount: number): SkeletonDrawData {
         const draw = this._drawList.add();
@@ -941,9 +945,9 @@ export class Skeleton extends UIRenderer {
      */
     public markForUpdateRenderData (enable = true): void {
         super.markForUpdateRenderData(enable);
-        // if (this._debugRenderer) {
-        //     this._debugRenderer.markForUpdateRenderData(enable);
-        // }
+        if (this._debugRenderer) {
+            this._debugRenderer.markForUpdateRenderData(enable);
+        }
     }
 
     /**
@@ -1069,7 +1073,7 @@ export class Skeleton extends UIRenderer {
      */
     public setMix (fromAnimation: string, toAnimation: string, duration: number): void {
         if (this.isAnimationCached()) {
-            console.warn('cached mode not support setMix!!!');
+            warn('cached mode not support setMix!!!');
             return;
         }
         if (this._state) {
@@ -1131,7 +1135,7 @@ export class Skeleton extends UIRenderer {
             const target = sockets[i].target;
             if (target) {
                 if (!target.parent || (target.parent !== this.node)) {
-                    console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
+                    error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
                     continue;
                 }
             }
@@ -1140,7 +1144,7 @@ export class Skeleton extends UIRenderer {
         sockets.forEach((x: SpineSocket): void => {
             if (x.target) {
                 if (uniqueSocketNode.get(x.target)) {
-                    console.error(`Target node ${x.target.name} has existed.`);
+                    error(`Target node ${x.target.name} has existed.`);
                 } else {
                     uniqueSocketNode.set(x.target, true);
                 }
@@ -1156,7 +1160,7 @@ export class Skeleton extends UIRenderer {
             if (socket.path && socket.target) {
                 const boneIdx = this._cachedSockets.get(socket.path);
                 if (!boneIdx) {
-                    console.error(`Skeleton data does not contain path ${socket.path}`);
+                    error(`Skeleton data does not contain path ${socket.path}`);
                     continue;
                 }
                 this._socketNodes.set(boneIdx, socket.target);
@@ -1222,7 +1226,30 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _updateDebugDraw (): void {
-        // TODO next
+        if (this.debugBones || this.debugSlots || this.debugMesh) {
+            if (!this._debugRenderer) {
+                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+                const debugDraw = debugDrawNode.addComponent(Graphics);
+                debugDraw.lineWidth = 1;
+                debugDraw.strokeColor = new Color(255, 0, 0, 255);
+
+                this._debugRenderer = debugDraw;
+                debugDrawNode.parent = this.node;
+            }
+
+            if (this.isAnimationCached()) {
+                warn('Debug bones or slots is invalid in cached mode');
+            } else {
+                this._instance.setDebugMode(true);
+            }
+        } else if (this._debugRenderer) {
+            this._debugRenderer.node.destroy();
+            this._debugRenderer = null;
+            if (!this.isAnimationCached()) {
+                this._instance.setDebugMode(false);
+            }
+        }
     }
 
     private _updateUITransform (): void {
@@ -1412,6 +1439,13 @@ export class Skeleton extends UIRenderer {
      */
     public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2): void {
         TrackEntryListeners.getListeners(entry).event = listener;
+    }
+
+    /**
+     * @engineInternal
+    */
+    public getDebugShapes (): any {
+        return this._instance.getDebugShapes();
     }
 }
 

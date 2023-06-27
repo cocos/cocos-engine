@@ -373,43 +373,69 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
     CC_ASSERT(out);
     float m00 = m.m[0];
-    float m10 = m.m[1];
-    float m20 = m.m[2];
-    float m01 = m.m[3];
+    float m01 = m.m[1];
+    float m02 = m.m[2];
+    float m10 = m.m[3];
     float m11 = m.m[4];
-    float m21 = m.m[5];
-    float m02 = m.m[6];
-    float m12 = m.m[7];
+    float m12 = m.m[5];
+    float m20 = m.m[6];
+    float m21 = m.m[7];
     float m22 = m.m[8];
-    float trace = m00 + m11 + m22;
 
-    if (trace > 0.F) {
-        const float s = 0.5F / sqrtf(trace + 1.F);
-        out->w = 0.25F / s;
-        out->x = (m21 - m12) * s;
-        out->y = (m02 - m20) * s;
-        out->z = (m10 - m01) * s;
-    } else if ((m00 > m11) && (m00 > m22)) {
-        const float s = 0.5F / sqrtf(1.F + m00 - m11 - m22);
+    float fourXSquaredMinus1 = m00 - m11 - m22;
+    float fourYSquaredMinus1 = m11 - m00 - m22;
+    float fourZSquaredMinus1 = m22 - m00 - m11;
+    float fourWSquaredMinus1 = m00 + m11 + m22;
 
-        out->w = (m21 - m12) * s;
-        out->x = 0.25F / s;
-        out->y = (m01 + m10) * s;
-        out->z = (m02 + m20) * s;
-    } else if (m11 > m22) {
-        const float s = 0.5F / sqrtf(1.F + m11 - m00 - m22);
+    int biggestIndex = 0;
+    float fourBiggestSquaredMinus1 = fourWSquaredMinus1;
+    if (fourXSquaredMinus1 > fourBiggestSquaredMinus1) {
+        fourBiggestSquaredMinus1 = fourXSquaredMinus1;
+        biggestIndex = 1;
+    }
+    if (fourYSquaredMinus1 > fourBiggestSquaredMinus1) {
+        fourBiggestSquaredMinus1 = fourYSquaredMinus1;
+        biggestIndex = 2;
+    }
+    if (fourZSquaredMinus1 > fourBiggestSquaredMinus1) {
+        fourBiggestSquaredMinus1 = fourZSquaredMinus1;
+        biggestIndex = 3;
+    }
 
-        out->w = (m02 - m20) * s;
-        out->x = (m02 + m10) * s;
-        out->y = 0.25F / s;
-        out->z = (m12 + m21) * s;
-    } else {
-        const float s = 0.5F / sqrtf(1.F + m22 - m00 - m11);
-
-        out->w = (m10 - m01) * s;
-        out->x = (m02 + m20) * s;
-        out->y = (m12 + m21) * s;
-        out->z = 0.25F / s;
+    float biggestVal = std::sqrt(fourBiggestSquaredMinus1 + 1) * 0.5F;
+    float mult = 0.25F / biggestVal;
+    switch (biggestIndex) {
+        case 0:
+            out->w = biggestVal;
+            out->x = (m12 - m21) * mult;
+            out->y = (m20 - m02) * mult;
+            out->z = (m01 - m10) * mult;
+            break;
+        case 1:
+            out->w = (m12 - m21) * mult;
+            out->x = biggestVal;
+            out->y = (m01 + m10) * mult;
+            out->z = (m20 + m02) * mult;
+            break;
+        case 2:
+            out->w = (m20 - m02) * mult;
+            out->x = (m01 + m10) * mult;
+            out->y = biggestVal;
+            out->z = (m12 + m21) * mult;
+            break;
+        case 3:
+            out->w = (m01 - m10) * mult;
+            out->x = (m20 + m02) * mult;
+            out->y = (m12 + m21) * mult;
+            out->z = biggestVal;
+            break;
+        default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
+            CC_ASSERT(false);
+            out->w = 1.F;
+            out->x = 0.F;
+            out->y = 0.F;
+            out->z = 0.F;
+            break;
     }
 }
 

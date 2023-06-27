@@ -1,8 +1,10 @@
 'use strict';
 
-const { materialTechniquePolyfill } = require('../utils/material');
-const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+module.paths.push(join(Editor.App.path, 'node_modules'));
+
+const { materialTechniquePolyfill } = require('../utils/material');
+const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
 const { escape } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
@@ -219,6 +221,7 @@ exports.methods = {
 
                 const filePath = join(packagePath, relatePath.split(name)[1]);
                 if (this.$.custom.getAttribute('src') !== filePath) {
+                    this.$.custom.injectionStyle(injectionStyle);
                     this.$.custom.setAttribute('src', filePath);
                 }
 

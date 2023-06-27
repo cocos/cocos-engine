@@ -151,8 +151,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!debugDrawer) {
             return;
         }
-
         debugDrawer.clear();
+        debugDrawer.lineWidth = 3;
 
         const shapes = this._shapes;
 

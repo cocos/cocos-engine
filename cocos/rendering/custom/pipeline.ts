@@ -169,15 +169,6 @@ export interface BasicPipeline extends PipelineRuntime {
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addRenderTexture (
-        name: string,
-        format: Format,
-        width: number,
-        height: number,
-        renderWindow: RenderWindow): number;
     addRenderWindow (
         name: string,
         format: Format,

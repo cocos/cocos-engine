@@ -66,7 +66,6 @@ void BakedSkinningModel::destroy() {
         CC_SAFE_DELETE(_jointMedium.texture.value());
     }
     applyJointTexture(ccstd::nullopt);
-    emit<Destroy>();
     Super::destroy();
 }
 

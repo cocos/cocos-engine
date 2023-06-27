@@ -398,7 +398,8 @@ CCProgram surface-vertex-silhouette-edge %{
   vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
   {
     vec4 clipPos = In.clipPos;
-    clipPos.z -= outlineParams.y * 0.002;
+    float scaleZ = cc_nearFar.z == 0.0 ? 0.5 : 1.0;
+    clipPos.z -= outlineParams.y * 0.002 * scaleZ;
     return clipPos;
   }
 }%

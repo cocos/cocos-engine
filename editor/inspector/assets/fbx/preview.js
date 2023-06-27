@@ -129,7 +129,8 @@ ui-icon {
 
 .time-line .events {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
+    z-index: 1;
     box-sizing: border-box;
     padding: 0 8px;
     width: 100%;
@@ -140,7 +141,7 @@ ui-icon {
 
 .events ui-icon {
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
 }
 
 .events ui-icon:hover {
@@ -207,12 +208,14 @@ ui-icon {
     justify-content: space-between;
     flex: 1;
     background: unset;
-  }
-  #event-editor > .functions .line {
-    margin-bottom: 4px;
+    margin: 4px 0;
   }
   #event-editor > .functions .line .name {
-    min-width: 8px;
+    width: 40px;
+    text-align: center;
+  }
+  #event-editor > .functions .line ui-select {
+    margin-right: 8px;
   }
   #event-editor > .functions .line .operate {
     visibility: hidden;
@@ -230,7 +233,7 @@ ui-icon {
   #event-editor ui-input,
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
-    width: 100%;
+    flex: 1;
   }
   #event-editor ui-section {
     width: 100%;
@@ -247,8 +250,6 @@ ui-icon {
     margin: 0 4px;
   }
   #event-editor .params {
-    border: 1px rgba(136, 136, 136, 0.35) dashed;
-    border-radius: calc(var(--size-normal-radius) * 1px);
   }
   #event-editor .header ui-icon,
   #event-editor .params ui-icon {
@@ -689,7 +690,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -731,7 +732,7 @@ exports.ready = function () {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -762,7 +763,7 @@ exports.update = async function (assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
