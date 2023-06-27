@@ -65,7 +65,7 @@ export class ImageData extends BaseImageData {
         return this.data;
     }
 
-    static downloadImage (url: string,
+    static loadImage (url: string,
         options: Record<string, any>,
         onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
         const image = new ImageData();

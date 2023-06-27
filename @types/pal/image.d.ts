@@ -36,7 +36,7 @@ declare module 'pal/image' {
          */
         get width(): number;
         /**
-         * Set image width(when source is IMemoryImageSource).
+         * Set image height(when source is IMemoryImageSource).
          */
         set height(value: number);
         /**
@@ -55,7 +55,7 @@ declare module 'pal/image' {
         /**
          * Download images from the server.
          */
-        static downloadImage (
+        static loadImage (
             url: string,
             options: Record<string, any>,
             onComplete: ((err: Error | null, data?: ImageSource | null) => void),

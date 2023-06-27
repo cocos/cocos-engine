@@ -57,7 +57,7 @@ export class ImageData extends BaseImageData {
         return super.isNativeImage(imageSource);
     }
 
-    static downloadImage (url: string,
+    static loadImage (url: string,
         options: Record<string, any>,
         onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
         const image = new ImageData();
