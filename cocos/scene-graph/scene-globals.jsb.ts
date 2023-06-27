@@ -24,7 +24,7 @@ import { legacyCC } from '../core/global-exports';
 import { CCFloat, CCInteger } from '../core/data';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
-import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
+import { Ambient, EnvironmentLightingType, ToneMappingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
@@ -146,11 +146,6 @@ export const ShadowType = Enum({
      * @readonly
      */
     ShadowMap: 1,
-});
-
-export const ToneMappingType = Enum({
-    DEFAULT: 0,
-    LINEAR: 1,
 });
 
 export const AmbientInfo: typeof JsbAmbientInfo = jsb.AmbientInfo;
