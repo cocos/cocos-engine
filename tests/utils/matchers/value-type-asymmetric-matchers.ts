@@ -1,3 +1,6 @@
+import { Vec3 } from "../../../exports/base";
+import matchers from 'expect/build/matchers';
+
 export { };
 
 // https://stackoverflow.com/a/53464807
@@ -18,10 +21,29 @@ expect.extend({
     },
 });
 
+expect.extend({
+    toBeCloseToVec3(actual: unknown, expected: Readonly<Vec3>, numDigits = 5) {
+        return matchers.toStrictEqual.call(
+            this,
+            actual,
+            expect.objectContaining({
+                x: expect.toBeAround(expected.x, numDigits),
+                y: expect.toBeAround(expected.y, numDigits),
+                z: expect.toBeAround(expected.z, numDigits),
+            }),
+        );
+    },
+});
+
 declare global {
     namespace jest {
         interface Expect {
             toBeAround(expected: number, numDigits?: number): any;
+            toBeCloseToVec3(expected: Readonly<Vec3>, numDigits?: number): any;
+        }
+
+        interface Matchers<R> {
+            toBeCloseToVec3: (expected: Readonly<Vec3>, numDigits?: number) => CustomMatcherResult;
         }
     }
 }
