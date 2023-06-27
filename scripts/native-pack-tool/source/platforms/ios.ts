@@ -225,7 +225,7 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     readBundleId(): string | null {
-        const prjName = this.params.projectName!;
+        const prjName = this.getExcutableNameOrDefault();
         const cmakeTmpDir =
             fs.readdirSync(ps.join(this.paths.nativePrjDir, 'CMakeFiles'))
                 .filter((x) => x.startsWith(prjName))[0];
