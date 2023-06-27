@@ -25,7 +25,7 @@
 
 # Engine for Cocos Creator
 
-**Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D and 2D features while providing an intuitive, low cost and collaboration friendly workflow to game developers.** Cocos Engine is the runtime framework for Cocos Creator editor.
+**[Cocos Creator](https://www.cocos.com/en/creator) is the new generation of game development tool in Cocos family, it brings a complete set of 3D and 2D features while providing an intuitive, low cost and collaboration friendly workflow to game developers.** Cocos Engine is the runtime framework for Cocos Creator editor. To run this engine, please [download](https://www.cocos.com/en/creator-download) Cocos Creator.
 
 ![image](./ui.png)
 
