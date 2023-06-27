@@ -77,7 +77,8 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
         });
     });
     if (exitCode) {
-        throw new Error(`Build process exit with ${exitCode}`);
+        console.error(`Build process exit with ${exitCode}`);
+        process.exit(exitCode);
     }
 }));
 
