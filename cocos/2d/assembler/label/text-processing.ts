@@ -91,8 +91,10 @@ export class TextProcessing {
                 if (recursionTime > MAX_RECURSION_NUM) {
                     this._fontScale = 1;
                 } else {
-                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height) / this._fontScale;
-                    this._fontScale = Math.max(1, MAX_SIZE / maxValue);
+                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
+                    const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
+                    this._fontScale *=  canvasScaleToMaxSizeRatio;
+                    this._fontScale = Math.max(1, this._fontScale);
                 }
 
                 this._updatePaddingRect(style, outputLayoutData);
