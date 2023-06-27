@@ -39,6 +39,7 @@
 #include "scene/Skin.h"
 #include "scene/Model.h"
 #include "scene/ToneMapping.h"
+
 namespace cc {
 namespace pipeline {
 
