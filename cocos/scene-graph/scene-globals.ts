@@ -1559,11 +1559,11 @@ export class ToneMappingInfo {
         }
     }
 
-    get toneMappingType () {
+    get toneMappingType (): number {
         return this._toneMappingType;
     }
 
-    public activate (resource: ToneMapping) {
+    public activate (resource: ToneMapping): void {
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.activate();

@@ -13,19 +13,19 @@ export  class ToneMapping {
         this._toneMappingType = val;
         this._updatePipeline();
     }
-    get toneMappingType () {
+    get toneMappingType (): number {
         return this._toneMappingType;
     }
-    public initialize (toneMappingInfo: ToneMappingInfo) {
+    public initialize (toneMappingInfo: ToneMappingInfo): void {
         this._toneMappingType = toneMappingInfo.toneMappingType;
     }
 
-    public activate () {
+    public activate (): void {
         this._updatePipeline();
         this._activated = true;
     }
 
-    protected _updatePipeline () {
+    protected _updatePipeline (): void {
         const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         pipeline.macros.CC_TONE_MAPPING_TYPE = this._toneMappingType;

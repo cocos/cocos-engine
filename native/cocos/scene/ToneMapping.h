@@ -58,7 +58,6 @@ namespace cc {
             void setToneMappingType(ToneMappingType toneMappingType);
         private:
             void updatePipeline() const;
-        private:
             bool _activated{ false };
             ToneMappingType _toneMappingType{ ToneMappingType::DEFAULT };
 		};
