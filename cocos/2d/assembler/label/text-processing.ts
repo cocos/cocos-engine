@@ -80,10 +80,23 @@ export class TextProcessing {
     public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]) {
         if (!isBmFont) {
-            this._recursionTime = 0;
+            let recursionTime = 0;
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+            // check & limit canvas size
+            while ((outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)
+                && (recursionTime <= MAX_RECURSION_NUM)) {
+                recursionTime++;
+                let maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+                maxValue /= this._fontScale;
+                let scale = MAX_SIZE / maxValue;
+                if (scale < 1 || recursionTime > MAX_RECURSION_NUM) { scale = 1; }
+                this._fontScale = scale;
+
+                this._updatePaddingRect(style, outputLayoutData);
+                this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+            }
         } else {
             if (!style.fntConfig) { // for char
                 this._fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
@@ -129,7 +142,6 @@ export class TextProcessing {
     private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
 
-    private _recursionTime = 0;
     private _maxFontSize = 100;
     private _fontScale = 1;
 
@@ -206,20 +218,6 @@ export class TextProcessing {
         default: {
             // nop
         }
-        }
-
-        // check & limit canvas size
-        if ((outputLayoutData.nodeContentSize.width < MAX_SIZE && outputLayoutData.nodeContentSize.height < MAX_SIZE)
-            && (outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)) {
-            this._recursionTime++;
-            let maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
-            maxValue /= this._fontScale;
-            let scale = MAX_SIZE / maxValue;
-            if (scale < 1 || this._recursionTime > MAX_RECURSION_NUM) { scale = 1; }
-            this._fontScale = scale;
-
-            this._updatePaddingRect(style, outputLayoutData);
-            this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
         }
     }
 
