@@ -992,6 +992,14 @@ export class Color {
         this.w = info.w;
         return this;
     }
+
+    public set (x: number, y: number, z: number, w: number): Color {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+        return this;
+    }
 }
 
 export class BindingMappingInfo {

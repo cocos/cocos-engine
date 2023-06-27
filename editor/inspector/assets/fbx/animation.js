@@ -137,6 +137,7 @@ exports.style = /* css */`
     padding: 0 4px;
     margin-bottom: 4px;
     border-bottom: 1px solid var(--color-default-border);
+    color: var(--color-default-fill-weakest);
 }
 .container > .clips > .clip > .table > .line {
     display: flex;
@@ -514,7 +515,7 @@ const Elements = {
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
                 updateElementReadonly.call(panel, miniIcon);
-                button.appendChild(miniIcon);
+                button.prepend(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
 

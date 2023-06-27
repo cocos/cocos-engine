@@ -15,13 +15,13 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-button class="save tiny green transparent" size='small' tooltip="i18n:ENGINE.assets.save">
+        <ui-button class="save tiny green" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny red transparent" size='small' tooltip="i18n:ENGINE.assets.reset">
-            <ui-icon value="reset"></ui-icon>
+        <ui-button class="reset tiny" tooltip="i18n:ENGINE.assets.reset">
+            <ui-icon value="reset" color></ui-icon>
         </ui-button>
-        <ui-button class="copy transparent" size='small' tooltip="i18n:ENGINE.inspector.cloneToEdit">
+        <ui-button class="copy transparent" icon tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
         <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
@@ -332,7 +332,6 @@ const Elements = {
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
-                            $panel.injectionStyle(injectionStyle);
                             return $panel.update(panel.assetList, panel.metaList);
                         }),
                     );
@@ -367,11 +366,16 @@ exports.methods = {
             renderData[renderName] = [];
 
             for (let i = 0; i < contentRender.__panels__.length; i++) {
-                if (contentRender.__panels__[i].panelObject.record) {
-                    const data = await contentRender.__panels__[i].callMethod('record');
-                    renderData[renderName].push(data);
-                } else {
+                try {
+                    if (contentRender.__panels__[i].panelObject.record) {
+                        const data = await contentRender.__panels__[i].callMethod('record');
+                        renderData[renderName].push(data);
+                    } else {
+                        renderData[renderName].push(null);
+                    }
+                } catch (error) {
                     renderData[renderName].push(null);
+                    console.debug(error);
                 }
             }
         }

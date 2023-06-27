@@ -46,6 +46,7 @@ const scaledCenter = new Vec3(0, 0, 0);
  * 角色控制器组件基类。
  */
 @ccclass('cc.CharacterController')
+@disallowMultiple
 export class CharacterController extends Eventify(Component) {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -332,7 +333,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取是否在地面上。
      */
-    public get onGround (): boolean {
+    public get isGrounded (): boolean {
         return this._cct!.onGround();
     }
 

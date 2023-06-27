@@ -504,8 +504,8 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
-     * @en local shadow normal bias for real time lighting.
-     * @zh 实时光照下模型局部的阴影法线偏移。
+     * @en Set the Separable-SSS skin standard model component.
+     * @zh 设置是否是全局的4s标准模型组件
      */
     @type(CCBoolean)
     @tooltip('i18n:model.standard_skin_model')
@@ -515,7 +515,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     set isGlobalStandardSkinObject (val) {
-        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
+        (cclegacy.director.root as Root).pipeline.pipelineSceneData.standardSkinMeshRenderer = val ? this : null;
         this._enabledGlobalStandardSkinObject = val;
     }
 
@@ -1301,18 +1301,17 @@ export class MeshRenderer extends ModelRenderer {
     private _updateStandardSkin (): void {
         const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
         if (this._enabledGlobalStandardSkinObject) {
-            pipelineSceneData.standardSkinModel = this;
+            pipelineSceneData.standardSkinMeshRenderer = this;
+            pipelineSceneData.standardSkinModel = this.model;
         }
-        if (!pipelineSceneData.skinMaterialModel) {
-            for (let i = 0; i < this._models.length; i++) {
-                const subModels = this._models[i].subModels;
-                for (let j = 0; j < subModels.length; j++) {
-                    const subModel = subModels[j];
-                    const skinPassIdx = getSkinPassIndex(subModel);
-                    if (skinPassIdx < 0) { continue; }
-                    pipelineSceneData.skinMaterialModel = this._models[i];
-                    return;
-                }
+        if (!pipelineSceneData.skinMaterialModel && this._model) {
+            const subModels = this._model.subModels;
+            for (let j = 0; j < subModels.length; j++) {
+                const subModel = subModels[j];
+                const skinPassIdx = getSkinPassIndex(subModel);
+                if (skinPassIdx < 0) { continue; }
+                pipelineSceneData.skinMaterialModel = this._model;
+                return;
             }
         }
     }

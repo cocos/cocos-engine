@@ -183,7 +183,7 @@ void setCameraUBOValues(
     setVec4Impl(data, layoutGraph, "cc_surfaceTransform",
                 Vec4(
                     static_cast<float>(camera.getSurfaceTransform()),
-                    0.0F,
+                    static_cast<float>(camera.getCameraUsage()),
                     cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),
                     sinf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle())))));
     setVec4Impl(data, layoutGraph, "cc_screenScale",
@@ -255,7 +255,7 @@ void setCameraUBOValues(
     setVec4Impl(data, layoutGraph, "cc_fogAdd",
                 Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
     setVec4Impl(data, layoutGraph, "cc_nearFar",
-                Vec4(camera.getNearClip(), camera.getFarClip(), 0.0F, 0.0F));
+                Vec4(camera.getNearClip(), camera.getFarClip(), camera.getClipSpaceMinz(), 0.0F));
     setVec4Impl(data, layoutGraph, "cc_viewPort",
                 Vec4(
                     camera.getViewport().x,
@@ -1165,8 +1165,8 @@ float getPCFRadius(
             return 1.0F / (shadowMapSize * 0.5F);
         case scene::PCFType::SOFT_2X:
             return 2.0F / (shadowMapSize * 0.5F);
-        // case PCFType.SOFT_4X:
-        //     return 3.0F  / (shadowMapSize * 0.5F);
+        case scene::PCFType::SOFT_4X:
+            return 3.0F / (shadowMapSize * 0.5F);
         default:
             break;
     }

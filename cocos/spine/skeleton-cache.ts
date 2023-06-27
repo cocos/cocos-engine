@@ -27,6 +27,7 @@ import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
+import { warn } from '../core/platform/debug';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -97,7 +98,7 @@ export class AnimationCache {
         });
         //const animation = this._skeletonData.findAnimation(animationName);
         if (!animation) {
-            console.warn(`find no animation named ${animationName} !!!`);
+            warn(`find no animation named ${animationName} !!!`);
             return;
         }
         this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);
@@ -138,14 +139,14 @@ export class AnimationCache {
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        const vData = spine.wasmUtil.HEAPU8.subarray(vPtr, vPtr + vLength);
+        const vData = spine.wasmUtil.wasm.HEAPU8.subarray(vPtr, vPtr + vLength);
 
         vUint8Buf.set(vData);
 
         const iPtr = model.iPtr;
         const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        const iData = spine.wasmUtil.HEAPU8.subarray(iPtr, iPtr + iLength);
+        const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
         const iUint8Buf = new Uint8Array(iUint16Buf.buffer);
         iUint8Buf.set(iData);
 

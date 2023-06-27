@@ -25,6 +25,7 @@
 #include "physics/physx/joints/PhysXRevolute.h"
 #include "math/Quaternion.h"
 #include "math/Utils.h"
+#include "math/Vec3.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
@@ -164,11 +165,12 @@ void PhysXRevolute::updatePose() {
         pose1.q = physx::PxQuat(rot_1_i.x, rot_1_i.y, rot_1_i.z, rot_1_i.w) * physx::PxQuat(rot_0.x, rot_0.y, rot_0.z, rot_0.w) * pose0.q;
     } else {
         const auto &wr = node0->getWorldRotation();
-        auto rot = physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
-        pose1.p = _mPivotA * node0->getWorldScale();
-        rot.rotate(pose1.p);
-        pose1.p = pose1.p + node0->getWorldPosition();
-        pose1.q = rot * pose0.q;
+        auto pos = Vec3(_mPivotA.x, _mPivotA.y, _mPivotA.z);
+        pos.multiply(node0->getWorldScale());
+        pos.transformQuat(node0->getWorldRotation());
+        pos.add(node0->getWorldPosition());
+        pose1.p = physx::PxVec3(pos.x, pos.y, pos.z);
+        pose1.q = physx::PxQuat{wr.x, wr.y, wr.z, wr.w} * pose0.q;
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, pose1);
 }
