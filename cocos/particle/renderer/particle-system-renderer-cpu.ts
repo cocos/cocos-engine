@@ -138,7 +138,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 // TODO: we should not use this type, should use a uniform array type instead.
-// Tracking issue:
+// Tracking issue: https://github.com/cocos/cocos-engine/issues/15553
 export type PVData = [Vec3, Vec3, Vec3, Vec3, number, Vec3 | null, null];
 
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
