@@ -125,9 +125,9 @@ export interface PoseNodeDependencyEvaluation {
     evaluate(): void;
 }
 
-function instantiateNode<TNode extends EvaluatableNode> (
+function instantiateNode (
     graph: PoseGraph,
-    node: TNode,
+    node: EvaluatableNode,
     instantiationMap: Map<PoseGraphNode, RuntimeNodeEvaluation>,
     linkContext: PureValueNodeLinkContext,
 ): RuntimeNodeEvaluation {
