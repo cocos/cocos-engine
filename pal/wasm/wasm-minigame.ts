@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { OPPO, XIAOMI } from 'internal:constants';
+import { XIAOMI } from 'internal:constants';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
@@ -51,18 +51,7 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
  */
 function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
     return new Promise((resolve) => {
-        if (OPPO) {
-            const urlInCocosJS = `cocos-js/${binaryUrl}`;
-            // NOTE: fsUtils is defined in engine-adapter
-            globalThis.fsUtils.exists(urlInCocosJS, (isExists: boolean) => {
-                if (isExists) {
-                    resolve(urlInCocosJS);
-                } else {
-                    // On OPPO platform, we put binary assets in cocos-library directory when using separate engine.
-                    resolve(`cocos-library/${binaryUrl}`);
-                }
-            });
-        } else if (XIAOMI) {
+        if (XIAOMI) {
             resolve(`src/cocos-js/${binaryUrl}`);
         } else {
             resolve(`cocos-js/${binaryUrl}`);
