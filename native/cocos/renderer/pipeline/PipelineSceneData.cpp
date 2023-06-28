@@ -175,9 +175,14 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     return _device->createInputAssembler(info);
 }
 
-return false;
-return _gpuDrivenEnabled && _device->getCapabilities().supportMultiDrawIndirect;
+bool PipelineSceneData::isGPUDrivenEnabled() const {
+#if CC_EDITOR
+    return false;
+#else
+    return _gpuDrivenEnabled && _device->getCapabilities().supportMultiDrawIndirect;
 #endif
+}
+
 void PipelineSceneData::setSkinMaterialModel(scene::Model *val) {
     _skinMaterialModel = val;
 }
