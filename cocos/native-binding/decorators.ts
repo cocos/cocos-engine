@@ -875,9 +875,10 @@ interface cc_SceneGlobals_Context_Args {
    OctreeInfo: any;
    SkinInfo: any;
    LightProbeInfo: any;
+   ToneMappingInfo: any;
 }
 export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply = defaultExec) {
-  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo } = { ...ctx };
+  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo, ToneMappingInfo } = { ...ctx };
   const skyboxDescriptor = Object.getOwnPropertyDescriptor(SceneGlobals.prototype, 'skybox');
   apply(() => { $.editable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'editable', 'ambient');
   apply(() => { $.serializable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'serializable', 'ambient');
@@ -894,6 +895,8 @@ export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply =
   apply(() => { $.editable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'editable', 'skin');
   apply(() => { $.serializable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'serializable', 'lightProbeInfo');
   apply(() => { $.editable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'editable', 'lightProbeInfo');
+  apply(() => { $.serializable(SceneGlobals.prototype, 'toneMapping',  () => { return new ToneMappingInfo(); }); }, 'serializable', 'toneMapping');
+  apply(() => { $.editable(SceneGlobals.prototype, 'toneMapping',  () => { return new ToneMappingInfo(); }); }, 'editable', 'toneMapping');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'serializable', 'bakedWithStationaryMainLight');
   apply(() => { $.editable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'editable', 'bakedWithStationaryMainLight');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithHighpLightmap',  () => { return false; }); }, 'serializable', 'bakedWithHighpLightmap');
@@ -1330,6 +1333,21 @@ export function patch_cc_TextureCube(ctx: cc_TextureCube_Context_Args, apply = d
   apply(() => { $.serializable(TextureCube.prototype, '_mipmaps',  () => { return []; }); }, 'serializable', '_mipmaps');
   apply(() => { $.ccclass('cc.TextureCube')(TextureCube); }, 'ccclass', null);
 } // end of patch_cc_TextureCube
+
+//---- class cc_ToneMappingInfo
+interface cc_ToneMappingInfo_Context_Args {
+   ToneMappingInfo: any;
+   ToneMappingType: any;
+}
+export function patch_cc_ToneMappingInfo(ctx: cc_ToneMappingInfo_Context_Args, apply = defaultExec) {
+  const { ToneMappingInfo, ToneMappingType } = { ...ctx };
+  const toneMappingTypeDescriptor = Object.getOwnPropertyDescriptor(ToneMappingInfo.prototype, 'toneMappingType');
+  apply(() => { $.tooltip('i18n:tone_mapping.toneMappingType')(ToneMappingInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'tooltip', 'toneMappingType');
+  apply(() => { $.type(ToneMappingType)(ToneMappingInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'type', 'toneMappingType');
+  apply(() => { $.editable(ToneMappingInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'editable', 'toneMappingType');
+  apply(() => { $.serializable(ToneMappingInfo.prototype, '_toneMappingType',  () => { return ToneMappingType.DEFAULT; }); }, 'serializable', '_toneMappingType');
+  apply(() => { $.ccclass('cc.ToneMappingInfo')(ToneMappingInfo); }, 'ccclass', null);
+} // end of patch_cc_ToneMappingInfo
 
 //---- class cc_Vertex
 interface cc_Vertex_Context_Args {
