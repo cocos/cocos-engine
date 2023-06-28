@@ -265,8 +265,6 @@ export class UIRenderer extends Renderer {
     protected _renderEntity: RenderEntity;
 
     protected _instanceMaterialType = -1;
-    protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
-    protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
@@ -531,9 +529,7 @@ export class UIRenderer extends Renderer {
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]
         let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
-        this._dstBlendFactorCache = target.blendDst;
-        this._srcBlendFactorCache = target.blendSrc;
-        if (this._dstBlendFactorCache !== this._dstBlendFactor || this._srcBlendFactorCache !== this._srcBlendFactor) {
+        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
             target = this.getMaterialInstance(0)!.passes[0].blendState.targets[0];
             target.blend = true;
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
@@ -542,8 +538,6 @@ export class UIRenderer extends Renderer {
             const targetPass = this.getMaterialInstance(0)!.passes[0];
             targetPass.blendState.setTarget(0, target);
             targetPass._updatePassHash();
-            this._dstBlendFactorCache = this._dstBlendFactor;
-            this._srcBlendFactorCache = this._srcBlendFactor;
         }
     }
 

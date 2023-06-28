@@ -303,16 +303,9 @@ export class RenderData extends BaseRenderData {
     public hashDirty = true;
 
     private _data: IRenderData[] = [];
-    private _pivotX = 0;
-    private _pivotY = 0;
-    private _width = 0;
-    private _height = 0;
     private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
     get accessor () { return this._accessor; }
-
-    public vertexRow = 1;
-    public vertexCol = 1;
 
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
@@ -494,26 +487,9 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
-        if (width !== this._width
-            || height !== this._height
-            || pivotX !== this._pivotX
-            || pivotY !== this._pivotY) {
-            this._width = width;
-            this._height = height;
-            this._pivotX = pivotX;
-            this._pivotY = pivotY;
-            this.vertDirty = true;
-        }
-    }
-
     public clear () {
         this.resize(0, 0);
         this._data.length = 0;
-        this._pivotX = 0;
-        this._pivotY = 0;
-        this._width = 0;
-        this._height = 0;
         this.indices = null;
         this.vertDirty = true;
         this.material = null;

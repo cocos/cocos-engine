@@ -186,11 +186,6 @@ class Component extends CCObject {
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @internal
-     */
-    public _sceneGetter: null | (() => RenderScene) = null;
-
-    /**
      * For internal usage.
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -202,9 +197,6 @@ class Component extends CCObject {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getRenderScene (): RenderScene {
-        if (this._sceneGetter) {
-            return this._sceneGetter();
-        }
         return this.node.scene.renderScene!;
     }
 

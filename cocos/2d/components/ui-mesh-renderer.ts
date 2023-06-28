@@ -113,12 +113,6 @@ export class UIMeshRenderer extends Component {
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
-        this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
-        if (!this._modelComponent) {
-            return;
-        }
-
-        this._modelComponent._sceneGetter = null;
     }
 
     /**

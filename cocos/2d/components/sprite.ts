@@ -577,7 +577,7 @@ export class Sprite extends UIRenderer {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
+        render.commitComp(this, this._renderData, this._spriteFrame, this._assembler, null);
     }
 
     protected _canRender () {
