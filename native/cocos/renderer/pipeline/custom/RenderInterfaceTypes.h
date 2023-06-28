@@ -1449,7 +1449,7 @@ public:
 /**
  * @en Pipeline builder.
  * User can implement this interface and setup render graph.
- * Call setCustomPipeline to register the pipeline
+ * Call setCustomPipeline to register the pipeline builder
  * @zh 管线构造器
  * 用户可以实现这个接口，来构建自己想要的render graph。
  * 调用setCustomPipeline注册管线
