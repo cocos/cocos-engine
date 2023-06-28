@@ -180,7 +180,7 @@ export class b2Shape2D implements IBaseShape {
             const fixture = this._body.CreateFixture(fixDef);
             fixture.m_userData = this;
 
-            if (body.enabledContactListener) {
+            if (body?.enabledContactListener) {
                 (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).registerContactFixture(fixture);
             }
 
