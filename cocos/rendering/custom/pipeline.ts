@@ -497,7 +497,7 @@ export interface BasicRenderPassBuilder extends Setter {
      * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
-     * @param phaseName @en The name of the phase declared in effect. Default value is 'default' @zh effect中相位(phase)的名字，不填为'default'。
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      */
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     /**
@@ -511,7 +511,7 @@ export interface BasicRenderPassBuilder extends Setter {
      */
     setVersion (name: string, version: number): void;
     /**
-     * @en show statistics on screen
+     * @en Show statistics on screen
      * @zh 在屏幕上渲染统计数据
      */
     showStatistics: boolean;
@@ -519,19 +519,27 @@ export interface BasicRenderPassBuilder extends Setter {
 
 /**
  * @en BasicPipeline
- * @zh 基础渲染管线
+ * Basic pipeline provides basic rendering features which are supported on all platforms.
+ * User can register resources which will be used in the render graph.
+ * Theses resources are generally read and write, and will be managed by the pipeline.
+ * In each frame, user can create a render graph to be executed by the pipeline.
+ * @zh 基础渲染管线。
+ * 基础渲染管线提供基础的渲染能力，能在全平台使用。
+ * 用户可以在渲染管线中注册资源，这些资源将由管线托管，用于render graph。
+ * 这些资源一般是可读写的资源。
+ * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
 export interface BasicPipeline extends PipelineRuntime {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;
     /**
-     * @engineInternal
+     * @internal
      * @en Begin render pipeline setup
      * @zh 开始管线构建
      */
     beginSetup (): void;
     /**
-     * @engineInternal
+     * @internal
      * @en End render pipeline setup
      * @zh 结束管线构建
      */
@@ -540,7 +548,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册
      * @param name @en Resource name @zh 资源名字
-     * @returns Exist or not
      */
     containsResource (name: string): boolean;
     /**
@@ -551,7 +558,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
-     * @returns Resource ID
      */
     addRenderWindow (
         name: string,
@@ -574,7 +580,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
-     * @returns Resource ID
      */
     addRenderTarget (
         name: string,
@@ -590,7 +595,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
-     * @returns Resource ID
      */
     addDepthStencil (
         name: string,
@@ -625,20 +629,19 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     /**
-     * @engineInternal
+     * @internal
      * @en Begin rendering one frame
      * @zh 开始一帧的渲染
      */
     beginFrame (): void;
     /**
-     * @engineInternal
+     * @internal
      * @en Update camera
      * @zh 更新相机
-     * @param camera @en Camera @zh 相机
      */
     update (camera: Camera): void;
     /**
-     * @engineInternal
+     * @internal
      * @en End rendering one frame
      * @zh 结束一帧的渲染
      */
@@ -649,7 +652,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the render pass @zh 渲染通道的宽度
      * @param height @en Height of the render pass @zh 渲染通道的高度
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
-     * @returns Basic render pass builder
      */
     addRenderPass (
         width: number,
@@ -664,7 +666,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param count @en Sample count @zh 采样数
      * @param quality @en Sample quality. Default value is 0 @zh 采样质量，默认值是0
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
-     * @returns Multisample basic render pass builder
      */
     addMultisampleRenderPass (
         width: number,
@@ -694,11 +695,11 @@ export interface BasicPipeline extends PipelineRuntime {
      *
      * 暂不支持转义拷贝。
      *
-     * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
+     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
     /**
-     * @engineInternal
+     * @internal
      */
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }

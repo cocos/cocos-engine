@@ -568,7 +568,7 @@ public:
      * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
-     * @param phaseName @en The name of the phase declared in effect. Default value is 'default' @zh effect中相位(phase)的名字，不填为'default'。
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      */
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
     /**
@@ -582,7 +582,7 @@ public:
      */
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     /**
-     * @en show statistics on screen
+     * @en Show statistics on screen
      * @zh 在屏幕上渲染统计数据
      */
     virtual bool getShowStatistics() const = 0;
@@ -627,7 +627,15 @@ public:
 
 /**
  * @en BasicPipeline
- * @zh 基础渲染管线
+ * Basic pipeline provides basic rendering features which are supported on all platforms.
+ * User can register resources which will be used in the render graph.
+ * Theses resources are generally read and write, and will be managed by the pipeline.
+ * In each frame, user can create a render graph to be executed by the pipeline.
+ * @zh 基础渲染管线。
+ * 基础渲染管线提供基础的渲染能力，能在全平台使用。
+ * 用户可以在渲染管线中注册资源，这些资源将由管线托管，用于render graph。
+ * 这些资源一般是可读写的资源。
+ * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
 class BasicPipeline : public PipelineRuntime {
 public:
@@ -636,13 +644,13 @@ public:
     virtual PipelineType getType() const = 0;
     virtual PipelineCapabilities getCapabilities() const = 0;
     /**
-     * @engineInternal
+     * @internal
      * @en Begin render pipeline setup
      * @zh 开始管线构建
      */
     virtual void beginSetup() = 0;
     /**
-     * @engineInternal
+     * @internal
      * @en End render pipeline setup
      * @zh 结束管线构建
      */
@@ -651,7 +659,6 @@ public:
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册
      * @param name @en Resource name @zh 资源名字
-     * @returns Exist or not
      */
     virtual bool containsResource(const ccstd::string &name) const = 0;
     /**
@@ -662,7 +669,6 @@ public:
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
-     * @returns Resource ID
      */
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     /**
@@ -680,7 +686,6 @@ public:
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
-     * @returns Resource ID
      */
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
@@ -691,7 +696,6 @@ public:
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
-     * @returns Resource ID
      */
     virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
@@ -713,20 +717,19 @@ public:
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     /**
-     * @engineInternal
+     * @internal
      * @en Begin rendering one frame
      * @zh 开始一帧的渲染
      */
     virtual void beginFrame() = 0;
     /**
-     * @engineInternal
+     * @internal
      * @en Update camera
      * @zh 更新相机
-     * @param camera @en Camera @zh 相机
      */
     virtual void update(const scene::Camera *camera) = 0;
     /**
-     * @engineInternal
+     * @internal
      * @en End rendering one frame
      * @zh 结束一帧的渲染
      */
@@ -737,7 +740,6 @@ public:
      * @param width @en Width of the render pass @zh 渲染通道的宽度
      * @param height @en Height of the render pass @zh 渲染通道的高度
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
-     * @returns Basic render pass builder
      */
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) = 0;
     /**
@@ -749,7 +751,6 @@ public:
      * @param count @en Sample count @zh 采样数
      * @param quality @en Sample quality. Default value is 0 @zh 采样质量，默认值是0
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
-     * @returns Multisample basic render pass builder
      */
     virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
@@ -774,11 +775,11 @@ public:
      *
      * 暂不支持转义拷贝。
      *
-     * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
+     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     /**
-     * @engineInternal
+     * @internal
      */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
