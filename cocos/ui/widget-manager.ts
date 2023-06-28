@@ -124,7 +124,11 @@ function align (node: Node, widget: Widget) {
             } else {
                 x = localRight + (anchorX - 1) * width;
             }
-            width /= scaleX;
+            if (scaleX !== 0) {
+                width /= scaleX;
+            } else {
+                width = uiTrans.width;
+            }
         }
 
         widget._lastSize.width = width;
@@ -183,7 +187,11 @@ function align (node: Node, widget: Widget) {
             } else {
                 y = localTop + (anchorY - 1) * height;
             }
-            height /= scaleY;
+            if (scaleY !== 0) {
+                height /= scaleY;
+            } else {
+                height = uiTrans.height;
+            }
         }
 
         widget._lastSize.height = height;
