@@ -1258,10 +1258,9 @@ export class Skeleton extends UIRenderer {
                 this._debugRenderer = debugDraw;
                 debugDrawNode.parent = this.node;
             }
-
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');
-            } else {
+            } else if (!JSB) {
                 this._instance.setDebugMode(true);
             }
         } else if (this._debugRenderer) {
