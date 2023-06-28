@@ -498,6 +498,7 @@ export interface BasicRenderPassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en render queue builder @zh 渲染队列
      */
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     /**
@@ -695,7 +696,7 @@ export interface BasicPipeline extends PipelineRuntime {
      *
      * 暂不支持转义拷贝。
      *
-     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
+     * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
     /**
@@ -704,7 +705,23 @@ export interface BasicPipeline extends PipelineRuntime {
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
+/**
+ * @beta Feature is under development
+ * @en Render subpass
+ * @zh 渲染次通道
+ */
 export interface RenderSubpassBuilder extends Setter {
+    /**
+     * @en Add render target for rasterization
+     * The render target must have registered in pipeline.
+     * @zh 添加光栅化渲染目标，渲染目标必须已注册。
+     * @param name @en name of the render target @zh 渲染目标的名字
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of the descriptor in shader @zh 着色器中描述符的名字
+     * @param loadOp @en Type of load operation @zh 读取操作的类型
+     * @param storeOp @en Type of store operation @zh 写入操作的类型
+     * @param color @en The clear color to use when loadOp is Clear @zh 读取操作为清除时，所用颜色
+     */
     addRenderTarget (
         name: string,
         accessType: AccessType,
@@ -712,6 +729,20 @@ export interface RenderSubpassBuilder extends Setter {
         loadOp?: LoadOp,
         storeOp?: StoreOp,
         color?: Color): void;
+    /**
+     * @en Add depth stencil for rasterization
+     * The depth stencil must have registered in pipeline.
+     * @zh 添加光栅化深度模板缓冲，深度模板缓冲必须已注册。
+     * @param name @en name of the depth stencil @zh 渲染目标的名字
+     * @param accessType @en Access type @zh 读写状态
+     * @param depthSlotName @en name of the depth descriptor in shader @zh 着色器中深度描述符的名字
+     * @param stencilSlotName @en name of the stencil descriptor in shader @zh 着色器中模板描述符的名字
+     * @param loadOp @en Type of load operation @zh 读取操作的类型
+     * @param storeOp @en Type of store operation @zh 写入操作的类型
+     * @param depth @en Depth value used to clear @zh 用于清除的深度值
+     * @param stencil @en Stencil value used to clear @zh 用于清除的模板值
+     * @param clearFlags @en To clear depth, stencil or both @zh 清除分量：深度、模板、两者。
+     */
     addDepthStencil (
         name: string,
         accessType: AccessType,
@@ -722,21 +753,80 @@ export interface RenderSubpassBuilder extends Setter {
         depth?: number,
         stencil?: number,
         clearFlags?: ClearFlagBit): void;
+    /**
+     * @en Add texture for sampling
+     * The texture must have registered in pipeline.
+     * @zh 添加采样用的贴图，贴图必须已注册。
+     * @param name @en name of the texture @zh 贴图的注册名
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     * @param sampler @en the sampler to use @zh 采样器名字
+     * @param plane @en the image plane ID to sample (color|depth|stencil|video) @zh 需要采样的贴图平面(颜色|深度|模板|视频)
+     */
     addTexture (
         name: string,
         slotName: string,
         sampler?: Sampler | null,
         plane?: number): void;
+    /**
+     * @en Add storage buffer.
+     * The buffer must have registered in pipeline.
+     * @zh 添加存储缓冲，缓冲必须已注册。
+     * @param name @en Name of the buffer @zh 缓冲的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageBuffer (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add storage texture.
+     * The texture must have registered in pipeline.
+     * @zh 添加存储贴图，贴图必须已注册。
+     * @param name @en Name of the buffer @zh 贴图的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageImage (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Set rendering viewport.
+     * @zh 设置渲染视口
+     * @param viewport @en The required viewport @zh 所需视口
+     */
     setViewport (viewport: Viewport): void;
+    /**
+     * @en Add render queue.
+     * Every render queue has a hint type, such as NONE, OPAQUE, MASK or BLEND.
+     * User should only add objects of this hint type to the render queue.
+     * Objects of mixed types might cause downgrading of performance.
+     * The order of render queues should be adjusted according to the hardward and algorithms,
+     * in order to reach peak performance.
+     * For example, [1.opaque, 2.mask, 3.blend] might result in best performance on mobile platforms.
+     * This hint is for validation only and has no effect on rendering.
+     *
+     * Every render queue has a phase name. Only objects of the same phase name will be rendered.
+     *
+     * @zh 添加渲染队列
+     * 每个渲染队列有一个用途提示，例如无提示(NONE)、不透明(OPAQUE)、遮罩(MASK)和混合(BLEND)。
+     * 每个队列最好只渲染相匹配的对象，混合不同类型的对象，会造成性能下降。
+     * 不同类型队列的渲染顺序，需要根据硬件类型与渲染算法进行调整，以到达最高性能。
+     * 比如在移动平台上，先渲染OPAQUE，再渲染MASK、最后渲染BLEND可能会有最好的性能。
+     * 用途提示只用于问题检测，对渲染流程没有任何影响。
+     *
+     * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
+     *
+     * @param hint @en Usage hint of the queue @zh 用途的提示
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en render queue builder @zh 渲染队列
+     */
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
+    /**
+     * @en Show statistics on screen
+     * @zh 在屏幕上渲染统计数据
+     */
     showStatistics: boolean;
     /**
      * @experimental
@@ -744,8 +834,27 @@ export interface RenderSubpassBuilder extends Setter {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+/**
+ * @beta Feature is under development
+ * @en Multisample render subpass
+ * @zh 多重采样渲染次通道
+ */
 export interface MultisampleRenderSubpassBuilder extends RenderSubpassBuilder {
+    /**
+     * @en Resolve render target
+     * @zh 汇总渲染目标
+     * @param source @en Multisample source @zh 多重采样来源
+     * @param target @en Resolve target @zh 汇总目标
+     */
     resolveRenderTarget (source: string, target: string): void;
+    /**
+     * @en Resolve depth stencil
+     * @zh 汇总深度模板缓冲
+     * @param source @en Multisample source @zh 多重采样来源
+     * @param target @en Resolve target @zh 汇总目标
+     * @param depthMode @en Resolve mode of depth component @zh 深度分量汇总模式
+     * @param stencilMode @en Resolve mode of stencil component @zh 模板分量汇总模式
+     */
     resolveDepthStencil (
         source: string,
         target: string,
@@ -753,7 +862,20 @@ export interface MultisampleRenderSubpassBuilder extends RenderSubpassBuilder {
         stencilMode?: ResolveMode): void;
 }
 
+/**
+ * @en Compute queue
+ * @zh 计算队列
+ */
 export interface ComputeQueueBuilder extends Setter {
+    /**
+     * @en Dispatch compute task
+     * @zh 发送计算任务
+     * @param threadGroupCountX @en Thread group count X  @zh 线程组的X分量的数目
+     * @param threadGroupCountY @en Thread group count Y  @zh 线程组的Y分量的数目
+     * @param threadGroupCountZ @en Thread group count Z  @zh 线程组的Z分量的数目
+     * @param material @en The material to use @zh 计算任务用的材质
+     * @param passID @en The name of the pass declared in the effect. @zh effect中的通道名字
+     */
     addDispatch (
         threadGroupCountX: number,
         threadGroupCountY: number,
@@ -762,21 +884,82 @@ export interface ComputeQueueBuilder extends Setter {
         passID?: number): void;
 }
 
+/**
+ * @beta Feature is under development
+ * @en Compute subpass
+ * @zh 计算次通道
+ */
 export interface ComputeSubpassBuilder extends Setter {
+    /**
+     * @en Add input render target.
+     * @zh 添加输入渲染目标
+     * @param name @en name of the render target @zh 渲染目标的名字
+     * @param slotName @en name of the descriptor in shader @zh 着色器中描述符的名字
+     */
     addRenderTarget (name: string, slotName: string): void;
+    /**
+     * @en Add texture for sampling
+     * The texture must have registered in pipeline.
+     * @zh 添加采样用的贴图，贴图必须已注册。
+     * @param name @en name of the texture @zh 贴图的注册名
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     * @param sampler @en the sampler to use @zh 采样器名字
+     * @param plane @en the image plane ID to sample (color|depth|stencil|video) @zh 需要采样的贴图平面(颜色|深度|模板|视频)
+     */
     addTexture (
         name: string,
         slotName: string,
         sampler?: Sampler | null,
         plane?: number): void;
+    /**
+     * @en Add storage buffer.
+     * The buffer must have registered in pipeline.
+     * @zh 添加存储缓冲，缓冲必须已注册。
+     * @param name @en Name of the buffer @zh 缓冲的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageBuffer (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add storage texture.
+     * The texture must have registered in pipeline.
+     * @zh 添加存储贴图，贴图必须已注册。
+     * @param name @en Name of the buffer @zh 贴图的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageImage (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add render queue.
+     * Every render queue has a hint type, such as NONE, OPAQUE, MASK or BLEND.
+     * User should only add objects of this hint type to the render queue.
+     * Objects of mixed types might cause downgrading of performance.
+     * The order of render queues should be adjusted according to the hardward and algorithms,
+     * in order to reach peak performance.
+     * For example, [1.opaque, 2.mask, 3.blend] might result in best performance on mobile platforms.
+     * This hint is for validation only and has no effect on rendering.
+     *
+     * Every render queue has a phase name. Only objects of the same phase name will be rendered.
+     *
+     * @zh 添加渲染队列
+     * 每个渲染队列有一个用途提示，例如无提示(NONE)、不透明(OPAQUE)、遮罩(MASK)和混合(BLEND)。
+     * 每个队列最好只渲染相匹配的对象，混合不同类型的对象，会造成性能下降。
+     * 不同类型队列的渲染顺序，需要根据硬件类型与渲染算法进行调整，以到达最高性能。
+     * 比如在移动平台上，先渲染OPAQUE，再渲染MASK、最后渲染BLEND可能会有最好的性能。
+     * 用途提示只用于问题检测，对渲染流程没有任何影响。
+     *
+     * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
+     *
+     * @param hint @en Usage hint of the queue @zh 用途的提示
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en compute queue builder @zh 计算队列
+     */
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @experimental
@@ -784,11 +967,32 @@ export interface ComputeSubpassBuilder extends Setter {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+/**
+ * @beta Feature is under development
+ * @en Render pass
+ * @zh 渲染通道
+ */
 export interface RenderPassBuilder extends BasicRenderPassBuilder {
+    /**
+     * @en Add storage buffer.
+     * The buffer must have registered in pipeline.
+     * @zh 添加存储缓冲，缓冲必须已注册。
+     * @param name @en Name of the buffer @zh 缓冲的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageBuffer (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add storage texture.
+     * The texture must have registered in pipeline.
+     * @zh 添加存储贴图，贴图必须已注册。
+     * @param name @en Name of the buffer @zh 贴图的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageImage (
         name: string,
         accessType: AccessType,
@@ -799,10 +1003,21 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
      * @beta Feature is under development
+     * @en Add render subpass.
+     * @zh 添加渲染次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Render subpass builder
      */
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     /**
      * @beta Feature is under development
+     * @en Add multisample render subpass.
+     * Sample count and quality should match those of the resources.
+     * @zh 添加多重采样渲染次通道，采样数与质量需要与资源一致。
+     * @param count @en Sample count @zh 采样数
+     * @param quality @en Sample quality @zh 采样质量
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Multisample render subpass builder
      */
     addMultisampleRenderSubpass (
         count: number,
@@ -810,6 +1025,10 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         subpassName: string): MultisampleRenderSubpassBuilder;
     /**
      * @experimental
+     * @en Add compute subpass.
+     * @zh 添加计算次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Compute subpass builder
      */
     addComputeSubpass (subpassName?: string): ComputeSubpassBuilder;
     /**
@@ -818,21 +1037,78 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+/**
+ * @en Compute pass
+ * @zh 计算通道
+ */
 export interface ComputePassBuilder extends Setter {
+    /**
+     * @en Add texture for sampling
+     * The texture must have registered in pipeline.
+     * @zh 添加采样用的贴图，贴图必须已注册。
+     * @param name @en name of the texture @zh 贴图的注册名
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     * @param sampler @en the sampler to use @zh 采样器名字
+     * @param plane @en the image plane ID to sample (color|depth|stencil|video) @zh 需要采样的贴图平面(颜色|深度|模板|视频)
+     */
     addTexture (
         name: string,
         slotName: string,
         sampler?: Sampler | null,
         plane?: number): void;
+    /**
+     * @en Add storage buffer.
+     * The buffer must have registered in pipeline.
+     * @zh 添加存储缓冲，缓冲必须已注册。
+     * @param name @en Name of the buffer @zh 缓冲的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageBuffer (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add storage texture.
+     * The texture must have registered in pipeline.
+     * @zh 添加存储贴图，贴图必须已注册。
+     * @param name @en Name of the buffer @zh 贴图的注册名
+     * @param accessType @en Access type @zh 读写状态
+     * @param slotName @en name of descriptor in the shader @zh 着色器中描述符的名字
+     */
     addStorageImage (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @beta Feature is under development
+     */
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
+    /**
+     * @en Add render queue.
+     * Every render queue has a hint type, such as NONE, OPAQUE, MASK or BLEND.
+     * User should only add objects of this hint type to the render queue.
+     * Objects of mixed types might cause downgrading of performance.
+     * The order of render queues should be adjusted according to the hardward and algorithms,
+     * in order to reach peak performance.
+     * For example, [1.opaque, 2.mask, 3.blend] might result in best performance on mobile platforms.
+     * This hint is for validation only and has no effect on rendering.
+     *
+     * Every render queue has a phase name. Only objects of the same phase name will be rendered.
+     *
+     * @zh 添加渲染队列
+     * 每个渲染队列有一个用途提示，例如无提示(NONE)、不透明(OPAQUE)、遮罩(MASK)和混合(BLEND)。
+     * 每个队列最好只渲染相匹配的对象，混合不同类型的对象，会造成性能下降。
+     * 不同类型队列的渲染顺序，需要根据硬件类型与渲染算法进行调整，以到达最高性能。
+     * 比如在移动平台上，先渲染OPAQUE，再渲染MASK、最后渲染BLEND可能会有最好的性能。
+     * 用途提示只用于问题检测，对渲染流程没有任何影响。
+     *
+     * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
+     *
+     * @param hint @en Usage hint of the queue @zh 用途的提示
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en compute queue builder @zh 计算队列
+     */
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @experimental
@@ -840,6 +1116,9 @@ export interface ComputePassBuilder extends Setter {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+/**
+ * @deprecated @en Not used @zh 未使用
+ */
 export interface SceneVisitor {
     readonly pipelineSceneData: PipelineSceneData;
     setViewport (vp: Viewport): void;
@@ -852,6 +1131,9 @@ export interface SceneVisitor {
     updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
+/**
+ * @deprecated @en Not used @zh 未使用
+ */
 export interface SceneTask {
     readonly taskType: TaskType;
     start (): void;
@@ -859,46 +1141,155 @@ export interface SceneTask {
     submit (): void;
 }
 
+/**
+ * @deprecated @en Not used @zh 未使用
+ */
 export interface SceneTransversal {
     transverse (visitor: SceneVisitor): SceneTask;
 }
 
+/**
+ * @en Render pipeline.
+ * @zh 渲染管线
+ */
 export interface Pipeline extends BasicPipeline {
+    /**
+     * @en Add storage buffer.
+     * @zh 添加存储缓冲
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the resource @zh 资源的格式
+     * @param size @en Size of the resource @zh 资源的大小
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     */
     addStorageBuffer (
         name: string,
         format: Format,
         size: number,
         residency?: ResourceResidency): number;
+    /**
+     * @en Add 2D storage texture
+     * @zh 添加2D存储贴图
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the resource @zh 资源的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     */
     addStorageTexture (
         name: string,
         format: Format,
         width: number,
         height: number,
         residency?: ResourceResidency): number;
+    /**
+     * @experimental
+     * @en Add 2D shading rate texture
+     * @zh 添加2D着色率贴图
+     * @param name @en Resource name @zh 资源名字
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     */
     addShadingRateTexture (
         name: string,
         width: number,
         height: number,
         residency?: ResourceResidency): number;
+    /**
+     * @en Update storage buffer information.
+     * @zh 更新存储缓冲的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param size @en Size of the resource @zh 资源的大小
+     * @param format @en Format of the resource @zh 资源的格式
+     */
     updateStorageBuffer (
         name: string,
         size: number,
         format?: Format): void;
+    /**
+     * @en Update storage texture information.
+     * @zh 更新2D存储贴图的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param format @en Format of the resource @zh 资源的格式
+     */
     updateStorageTexture (
         name: string,
         width: number,
         height: number,
         format?: Format): void;
+    /**
+     * @en Update shading rate texture information.
+     * @zh 更新2D着色率贴图的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     */
     updateShadingRateTexture (
         name: string,
         width: number,
         height: number): void;
+    /**
+     * @en Add render pass
+     * @zh 添加渲染通道
+     * @param width @en Width of the render pass @zh 渲染通道的宽度
+     * @param height @en Height of the render pass @zh 渲染通道的高度
+     * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Render pass builder
+     */
     addRenderPass (
         width: number,
         height: number,
         passName: string): RenderPassBuilder;
+    /**
+     * @en Add compute pass
+     * @zh 添加计算通道
+     * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Compute pass builder
+     */
     addComputePass (passName: string): ComputePassBuilder;
+    /**
+     * @beta Feature is under development
+     * @en Add upload pass.
+     * The source and target resources:
+     * Must be different resources(have different resource names).
+     * Must have compatible formats.
+     * Must have identical dimensions(width, height, depth), sample count and sample quality.
+     * Can't be currently mapped.
+     *
+     * @zh 添加上传通道，来源与目标必须满足：
+     * 是不同的注册资源。
+     * 资源格式兼容。
+     * 具有相同的尺寸、采样数、采样质量。
+     * 不能被Map。
+     *
+     * @param uploadPairs @en Array of upload source and target @zh 上传来源与目标的数组
+     */
     addUploadPass (uploadPairs: UploadPair[]): void;
+    /**
+     * @en Add move pass.
+     * Move-construct target resource, by moving source resources into subresources of target.
+     * After the move, the target resource must be completely initialized.
+     * Target write conflicts will result in undefined behaviour.
+     * The source and target resources:
+     * Must be different resources(have different resource names).
+     * Must have compatible formats.
+     * Must have identical dimensions(width, height, depth), sample count and sample quality.
+     * Can't be currently mapped.
+     *
+     * @zh 添加移动通道。
+     * 移动构造目标资源，将来源移入目标的次级资源。
+     * 移动后，目标资源必须完全初始化。
+     * 目标写入冲突是未定义行为。
+     * 来源与目标必须满足：
+     * 是不同的注册资源。
+     * 资源格式兼容。
+     * 具有相同的尺寸、采样数、采样质量。
+     * 不能被Map。
+     *
+     * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
+     */
     addMovePass (movePairs: MovePair[]): void;
     /**
      * @experimental
@@ -916,10 +1307,27 @@ export interface Pipeline extends BasicPipeline {
         type: string): number;
 }
 
+/**
+ * @en Pipeline builder.
+ * User can implement this interface and setup render graph.
+ * Call setCustomPipeline to register the pipeline
+ * @zh 管线构造器
+ * 用户可以实现这个接口，来构建自己想要的render graph。
+ * 调用setCustomPipeline注册管线
+ */
 export interface PipelineBuilder {
+    /**
+     * @en Setup render graph
+     * @zh 构建渲染管线
+     * @param cameras @en Camera list to render @zh 需要渲染的相机列表
+     * @param pipeline @en Current render pipeline @zh 当前管线
+     */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
 }
 
+/**
+ * @internal
+ */
 export interface RenderingModule {
     getPassID (name: string): number;
     getSubpassID (passID: number, name: string): number;
