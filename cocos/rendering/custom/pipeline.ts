@@ -497,7 +497,7 @@ export interface BasicRenderPassBuilder extends Setter {
      * 每个队列有一个相位(phase)名字，具有相同相位名字的物件才会被渲染。
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
-     * @param phaseName @en The name of the phase declared in effect. Default value is 'default' @zh effect中相位(phase)的名字，不填为'default'。
+     * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      */
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     /**
@@ -511,7 +511,7 @@ export interface BasicRenderPassBuilder extends Setter {
      */
     setVersion (name: string, version: number): void;
     /**
-     * @en show statistics on screen
+     * @en Show statistics on screen
      * @zh 在屏幕上渲染统计数据
      */
     showStatistics: boolean;
@@ -519,50 +519,154 @@ export interface BasicRenderPassBuilder extends Setter {
 
 /**
  * @en BasicPipeline
- * @zh 基础渲染管线
+ * Basic pipeline provides basic rendering features which are supported on all platforms.
+ * User can register resources which will be used in the render graph.
+ * Theses resources are generally read and write, and will be managed by the pipeline.
+ * In each frame, user can create a render graph to be executed by the pipeline.
+ * @zh 基础渲染管线。
+ * 基础渲染管线提供基础的渲染能力，能在全平台使用。
+ * 用户可以在渲染管线中注册资源，这些资源将由管线托管，用于render graph。
+ * 这些资源一般是可读写的资源。
+ * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
 export interface BasicPipeline extends PipelineRuntime {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;
+    /**
+     * @internal
+     * @en Begin render pipeline setup
+     * @zh 开始管线构建
+     */
     beginSetup (): void;
+    /**
+     * @internal
+     * @en End render pipeline setup
+     * @zh 结束管线构建
+     */
     endSetup (): void;
+    /**
+     * @en Check whether the resource has been registered in the pipeline.
+     * @zh 检查资源是否在管线中已注册
+     * @param name @en Resource name @zh 资源名字
+     */
     containsResource (name: string): boolean;
+    /**
+     * @en Add render window to the pipeline.
+     * @zh 注册渲染窗口(RenderWindow)
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Expected format of the render window @zh 期望的渲染窗口格式
+     * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
+     * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
+     * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
+     */
     addRenderWindow (
         name: string,
         format: Format,
         width: number,
         height: number,
         renderWindow: RenderWindow): number;
+    /**
+     * @en Update render window information.
+     * When render window information is updated, such as resized, user should notify the pipeline.
+     * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
+     * @param renderWindow @en The render window to update. @zh 渲染窗口
+     */
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    /**
+     * @en Add 2D render target.
+     * @zh 添加2D渲染目标
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the resource @zh 资源的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     */
     addRenderTarget (
         name: string,
         format: Format,
         width: number,
         height: number,
         residency?: ResourceResidency): number;
+    /**
+     * @en Add 2D depth stencil.
+     * @zh 添加2D深度模板缓冲
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the resource @zh 资源的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     */
     addDepthStencil (
         name: string,
         format: Format,
         width: number,
         height: number,
         residency?: ResourceResidency): number;
+    /**
+     * @en Update render target information.
+     * @zh 更新渲染目标的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param format @en Format of the resource @zh 资源的格式
+     */
     updateRenderTarget (
         name: string,
         width: number,
         height: number,
         format?: Format): void;
+    /**
+     * @en Update depth stencil information.
+     * @zh 更新深度模板缓冲的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param format @en Format of the resource @zh 资源的格式
+     */
     updateDepthStencil (
         name: string,
         width: number,
         height: number,
         format?: Format): void;
+    /**
+     * @internal
+     * @en Begin rendering one frame
+     * @zh 开始一帧的渲染
+     */
     beginFrame (): void;
+    /**
+     * @internal
+     * @en Update camera
+     * @zh 更新相机
+     */
     update (camera: Camera): void;
+    /**
+     * @internal
+     * @en End rendering one frame
+     * @zh 结束一帧的渲染
+     */
     endFrame (): void;
+    /**
+     * @en Add render pass
+     * @zh 添加渲染通道
+     * @param width @en Width of the render pass @zh 渲染通道的宽度
+     * @param height @en Height of the render pass @zh 渲染通道的高度
+     * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     */
     addRenderPass (
         width: number,
         height: number,
         passName?: string): BasicRenderPassBuilder;
+    /**
+     * @beta Feature is under development
+     * @en Add multisample render pass
+     * @zh 添加多重采样渲染通道
+     * @param width @en Width of the render pass @zh 渲染通道的宽度
+     * @param height @en Height of the render pass @zh 渲染通道的高度
+     * @param count @en Sample count @zh 采样数
+     * @param quality @en Sample quality. Default value is 0 @zh 采样质量，默认值是0
+     * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     */
     addMultisampleRenderPass (
         width: number,
         height: number,
@@ -573,7 +677,30 @@ export interface BasicPipeline extends PipelineRuntime {
      * @deprecated Method will be removed in 3.9.0
      */
     addResolvePass (resolvePairs: ResolvePair[]): void;
+    /**
+     * @en Add copy pass.
+     * The source and target resources:
+     * Must be different resources(have different resource names).
+     * Must have compatible formats.
+     * Must have identical dimensions(width, height, depth), sample count and sample quality.
+     * Can't be currently mapped.
+     *
+     * Reinterpret copy is not supported.
+     *
+     * @zh 添加拷贝通道，来源与目标必须满足：
+     * 是不同的注册资源。
+     * 资源格式兼容。
+     * 具有相同的尺寸、采样数、采样质量。
+     * 不能被Map。
+     *
+     * 暂不支持转义拷贝。
+     *
+     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
+     */
     addCopyPass (copyPairs: CopyPair[]): void;
+    /**
+     * @internal
+     */
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
