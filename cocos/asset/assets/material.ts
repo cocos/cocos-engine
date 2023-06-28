@@ -505,7 +505,7 @@ export class Material extends Asset {
         } else if (val instanceof TextureBase) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
-                // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
+                // warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                 return;
             }
             pass.bindTexture(binding, texture, index);

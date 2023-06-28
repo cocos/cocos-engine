@@ -253,7 +253,7 @@ export class AudioSource extends Component {
      * audioSource.getPCMData(0).then(dataView => {
      *   if (!dataView)  return;
      *   for (let i = 0; i < dataView.length; ++i) {
-     *     console.log('data: ' + dataView.getData(i));
+     *     log('data: ' + dataView.getData(i));
      *   }
      * });
      * ```

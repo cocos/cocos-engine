@@ -381,7 +381,7 @@ let _cachedProxy;
  * @example
  * ```ts
  * import * as cc from 'cc';
- * console.log(cc.ButtonComponent);  // print deprecate info of ButtonComponent
+ * log(cc.ButtonComponent);  // print deprecate info of ButtonComponent
  * ```
  * @engineInternal
  */

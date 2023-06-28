@@ -612,9 +612,9 @@ export class AssetManager {
      * @zh 加载好的资源，如果加载过程出现了错误，资源将会 null。
      *
      * @example
-     * assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
-     * assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
-     * assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => log(err));
      *
      */
     public loadRemote<T extends Asset> (url: string, options: { [k: string]: any, ext?: string } | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
@@ -671,8 +671,8 @@ export class AssetManager {
      * @zh 加载完成的 bundle。如果加载过程中出现了错误，则为 null。
      *
      * @example
-     * loadBundle('myBundle', (err, bundle) => console.log(bundle));
-     * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
+     * loadBundle('myBundle', (err, bundle) => log(bundle));
+     * loadBundle('http://localhost:8080/test', null, (err, bundle) => log(err));
      *
      */
     public loadBundle (nameOrUrl: string, options: { [k: string]: any, version?: string } | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void;

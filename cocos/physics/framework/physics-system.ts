@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like, error } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -224,7 +224,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
         const builtinMaterial = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
         if (!builtinMaterial) {
-            console.error('PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial');
+            error('PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial');
             return Promise.resolve();
         }
 

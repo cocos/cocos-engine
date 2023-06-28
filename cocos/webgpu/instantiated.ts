@@ -34,6 +34,7 @@ import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
 import glslangLoader from 'external:emscripten/webgpu/glslang.js';
 import { legacyCC } from '../core/global-exports';
 import { WebAssemblySupportMode } from '../misc/webassembly-support';
+import { log } from 'console';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -72,7 +73,7 @@ export const promiseForWebGPUInstantiation = (() => {
                     adapter.requestDevice().then((device) => {
                         webgpuAdapter.adapter = adapter;
                         webgpuAdapter.device = device;
-                        console.log(gfx);
+                        log(gfx);
                         resolve();
                     });
                 });

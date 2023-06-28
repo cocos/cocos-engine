@@ -394,8 +394,8 @@ export class Downloader {
      * @param onComplete.content @en The downloaded file. @zh 下载下来的文件内容。
      *
      * @example
-     * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => console.log(loaded/total) },
-     *      onComplete: (err) => console.log(err));
+     * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => log(loaded/total) },
+     *      onComplete: (err) => log(err));
      */
     public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         // if it is downloaded, don't download again

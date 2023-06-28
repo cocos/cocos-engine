@@ -33,7 +33,7 @@ import { Swapchain, RenderPass } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { Camera } from '../../render-scene/scene';
-import { errorID } from '../../core/platform/debug';
+import { errorID, log } from '../../core/platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
@@ -77,7 +77,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (swapchain: Swapchain): boolean {
-        if (EDITOR) { console.info('Forward render pipeline initialized.'); }
+        if (EDITOR) { log('Forward render pipeline initialized.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new PipelineSceneData();

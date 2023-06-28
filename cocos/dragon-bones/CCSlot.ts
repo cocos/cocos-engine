@@ -24,7 +24,7 @@
 
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
 import { Texture2D } from '../asset/assets';
-import { Color, Mat4, _decorator } from '../core';
+import { Color, Mat4, _decorator, error } from '../core';
 import { CCTextureData } from './CCTextureData';
 
 const { ccclass } = _decorator;
@@ -235,7 +235,7 @@ export class CCSlot extends Slot {
         const region = currentTextureData.region;
 
         if (textureAtlasWidth === 0 || textureAtlasHeight === 0) {
-            console.error(`SpriteFrame ${currentTextureData.spriteFrame.name} incorrect size ${textureAtlasWidth} x ${textureAtlasHeight}`);
+            error(`SpriteFrame ${currentTextureData.spriteFrame.name} incorrect size ${textureAtlasWidth} x ${textureAtlasHeight}`);
             return;
         }
 

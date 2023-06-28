@@ -30,6 +30,7 @@ import { Sphere } from './sphere';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
+import { assert, error } from '../platform';
 
 /**
  * cache jsb attributes in js, reduce cross language invokations.
@@ -88,8 +89,8 @@ const defineAttrFloat = (kls: Constructor, attr: string): void => {
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
     if (!window.oh) {
-        // openharmony does not support the console.assert interface at this time.
-        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+        // openharmony does not support the assert interface at this time.
+        assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
     }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
@@ -117,12 +118,12 @@ const defineAttrInt = (kls: Constructor, attr: string): void => {
     // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     if (!desc) {
-        console.error(`attr ${attr} not defined in class ${kls.toString()}`);
+        error(`attr ${attr} not defined in class ${kls.toString()}`);
     }
     const cacheKey = `_$_${attr}`;
     if (!window.oh) {
-        // openharmony does not support the console.assert interface at this time.
-        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+        // openharmony does not support the assert interface at this time.
+        assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
     }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,

@@ -50,7 +50,7 @@ type ConstructorType<T> = OmitType<T, Function>;
  * @example
  * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
- *   .call(() => { console.log('This is a callback'); })
+ *   .call(() => { log('This is a callback'); })
  *   .by(1, {scale: new Vec3(-1, -1, -1), position: new Vec3(-5, -5, -5)}, {easing: 'sineOutIn'})
  *   .start()
  */
@@ -487,7 +487,7 @@ legacyCC.Tween = Tween;
  * @example
  * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
- *   .call(() => { console.log('This is a callback'); })
+ *   .call(() => { log('This is a callback'); })
  *   .by(1, {scale: new Vec3(-1, -1, -1)}, {easing: 'sineOutIn'})
  *   .start()
  */

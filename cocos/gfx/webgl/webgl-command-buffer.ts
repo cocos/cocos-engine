@@ -47,6 +47,7 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGLDeviceManager } from './webgl-define';
+import { error } from '../../core';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
@@ -295,7 +296,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            error('Command \'draw\' must be recorded inside a render pass.');
         }
     }
 
@@ -331,7 +332,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            error('Command \'updateBuffer\' must be recorded outside a render pass.');
         }
     }
 
@@ -353,7 +354,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
         }
     }
 

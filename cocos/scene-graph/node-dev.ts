@@ -26,7 +26,7 @@ import { EDITOR, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../core/data/object';
 import * as js from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
-import { error, errorID, getError } from '../core/platform/debug';
+import { error, errorID, getError, warn } from '../core/platform/debug';
 import { Component } from './component';
 
 const Destroying = CCObject.Flags.Destroying;
@@ -147,7 +147,7 @@ export function nodePolyfill (Node): void {
 
         Node.prototype._registerIfAttached = function (register): void {
             if (!this._id) {
-                console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
+                warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
                 return;
             }
             if (EditorExtends.Node && EditorExtends.Component) {
@@ -157,7 +157,7 @@ export function nodePolyfill (Node): void {
                     for (let i = 0; i < this._components.length; i++) {
                         const comp = this._components[i];
                         if (!comp || !comp._id) {
-                            console.warn(`Component attached to node:${this.name} is corrupted`);
+                            warn(`Component attached to node:${this.name} is corrupted`);
                         } else {
                             EditorExtends.Component.add(comp._id, comp);
                         }
@@ -166,7 +166,7 @@ export function nodePolyfill (Node): void {
                     for (let i = 0; i < this._components.length; i++) {
                         const comp = this._components[i];
                         if (!comp || !comp._id) {
-                            console.warn(`Component attached to node:${this.name} is corrupted`);
+                            warn(`Component attached to node:${this.name} is corrupted`);
                         } else {
                             EditorExtends.Component.remove(comp._id);
                         }

@@ -26,6 +26,7 @@ import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
 import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
 import { MathType } from '../../core/math/math-native-ext';
+import { error } from "console";
 
 declare const jsb: any;
 
@@ -83,16 +84,16 @@ proto.getUniform = function getUniform<T extends MaterialProperty>(handle: numbe
                     Quat.copy(out as Quat, val);
                     break;
                 default:
-                    console.error(`getUniform, unknown object type: ${val.type}`);
+                    error(`getUniform, unknown object type: ${val.type}`);
                     break;
             }
         } else {
-            console.error(`getUniform, unknown object: ${val}`);
+            error(`getUniform, unknown object: ${val}`);
         }
     } else if (typeof val === 'number') {
         (out as number) = val;
     } else {
-        console.error(`getUniform, not supported: ${val}`);
+        error(`getUniform, not supported: ${val}`);
     }
 
     return out;

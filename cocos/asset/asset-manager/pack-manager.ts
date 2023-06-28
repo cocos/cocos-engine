@@ -69,7 +69,7 @@ export class PackManager {
      *
      * @example
      * downloader.downloadFile('pack.json', { xhrResponseType: 'json'}, null, (err, file) => {
-     *      packManager.unpackJson(['a', 'b'], file, null, (err, data) => console.log(err));
+     *      packManager.unpackJson(['a', 'b'], file, null, (err, data) => log(err));
      * });
      *
      */
@@ -166,7 +166,7 @@ export class PackManager {
      *
      * @example
      * downloader.downloadFile('pack.json', {xhrResponseType: 'json'}, null, (err, file) => {
-     *      packManager.unpack(['2fawq123d', '1zsweq23f'], file, '.json', null, (err, data) => console.log(err));
+     *      packManager.unpack(['2fawq123d', '1zsweq23f'], file, '.json', null, (err, data) => log(err));
      * });
      *
      */
@@ -197,7 +197,7 @@ export class PackManager {
      * var requestItem = AssetManager.RequestItem.create();
      * requestItem.uuid = 'fcmR3XADNLgJ1ByKhqcC5Z';
      * requestItem.info = config.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
-     * packManager.load(requestItem, null, (err, data) => console.log(err));
+     * packManager.load(requestItem, null, (err, data) => log(err));
      *
      */
     public load (item: RequestItem, options: Record<string, any> | null, onComplete: ((err: Error | null, data?: any | null) => void)): void {

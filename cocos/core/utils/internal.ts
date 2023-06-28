@@ -32,38 +32,38 @@
  * // 成功重命名，属性顺序保留
  * const original = { a: 1, b: 2, c: 3 };
  * Object.defineProperty(original, 'x', { value: '', enumerable: false });
- * console.log(original); // {a: 1, b: 2, c: 3, x: ''}
+ * log(original); // {a: 1, b: 2, c: 3, x: ''}
  *
  * const renamed = renameObjectProperty(original, 'b', 'd');
- * console.log(original === renamed) // false
- * console.log(original); // {a: 1, d: 2, c: 3}
- * console.log(Object.entries(renamed)) // [['a', 1], ['d', 2], ['c', 3]]
+ * log(original === renamed) // false
+ * log(original); // {a: 1, d: 2, c: 3}
+ * log(Object.entries(renamed)) // [['a', 1], ['d', 2], ['c', 3]]
  *
  * // 重命名失败：原始键不存在
- * console.log(renameObjectProperty(original, 'e', 'f') === original); // true
+ * log(renameObjectProperty(original, 'e', 'f') === original); // true
  * // 重命名失败：新键已存在
- * console.log(renameObjectProperty(original, 'e', 'a') === original); // true
+ * log(renameObjectProperty(original, 'e', 'a') === original); // true
  * // 重命名失败：原始键对应的属性不是自身可枚举的
- * console.log(renameObjectProperty(original, 'x', 'x1') === original); // true
+ * log(renameObjectProperty(original, 'x', 'x1') === original); // true
  * ```
  * @en
  * ```ts
  * // Rename succeed, key order is retained.
  * const original = { a: 1, b: 2, c: 3 };
  * Object.defineProperty(original, 'x', { value: '', enumerable: false });
- * console.log(original); // {a: 1, b: 2, c: 3, x: ''}
+ * log(original); // {a: 1, b: 2, c: 3, x: ''}
  *
  * const renamed = renameObjectProperty(original, 'b', 'd');
- * console.log(original === renamed) // false
- * console.log(original); // {a: 1, d: 2, c: 3}
- * console.log(Object.entries(renamed)) // [['a', 1], ['d', 2], ['c', 3]]
+ * log(original === renamed) // false
+ * log(original); // {a: 1, d: 2, c: 3}
+ * log(Object.entries(renamed)) // [['a', 1], ['d', 2], ['c', 3]]
  *
  * // Rename failed: the original key does not exist.
- * console.log(renameObjectProperty(original, 'e', 'f') === original); // true
+ * log(renameObjectProperty(original, 'e', 'f') === original); // true
  * // Rename failed: the new key has already existed.
- * console.log(renameObjectProperty(original, 'e', 'a') === original); // true
+ * log(renameObjectProperty(original, 'e', 'a') === original); // true
  * // Rename failed: the corresponding original property is not enumerable own property.
- * console.log(renameObjectProperty(original, 'x', 'x1') === original); // true
+ * log(renameObjectProperty(original, 'x', 'x1') === original); // true
  * ```
  */
 export function renameObjectProperty<T extends Record<PropertyKey, any>> (
@@ -141,7 +141,7 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
  *
  * new FooProxy(); // 这句会抛出异常
  *                 // 达到了我们的目的：不允许直接 `new Foo`
- * console.log(createFoo() instanceof FooProxy); // 输出 "true"
+ * log(createFoo() instanceof FooProxy); // 输出 "true"
  *                                               // 达到了我们的目的：可以使用 `instanceof`
  * ```
  * @en
@@ -162,7 +162,7 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
  *
  * new FooProxy(); // This will throw
  *                 // This is what we want to achieve: `new Foo` is not allowed
- * console.log(createFoo() instanceof FooProxy); // Print "true"
+ * log(createFoo() instanceof FooProxy); // Print "true"
  *                                               // This is what we want to achieve: `instanceof` is available
  * ```
  */

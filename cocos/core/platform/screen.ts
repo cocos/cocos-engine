@@ -29,7 +29,7 @@ import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
-import { warnID } from './debug';
+import { error, warnID } from './debug';
 import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
@@ -157,7 +157,7 @@ class Screen {
         return screenAdapter.requestFullScreen().then((): void => {
             onFullScreenChange?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         }).catch((err): void => {
-            console.error(err);
+            error(err);
             onFullScreenError?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         });
     }

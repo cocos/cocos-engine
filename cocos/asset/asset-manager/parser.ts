@@ -223,7 +223,7 @@ export class Parser {
      *
      * @example
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {
-     *      parser.parse('test.jpg', file, '.jpg', null, (err, img) => console.log(err));
+     *      parser.parse('test.jpg', file, '.jpg', null, (err, img) => log(err));
      * });
      *
      */

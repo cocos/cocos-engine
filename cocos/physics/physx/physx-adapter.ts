@@ -35,7 +35,7 @@ import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, debug, error } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -59,7 +59,7 @@ game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
 export function InitPhysXLibs (): any {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+        if (!EDITOR && !TEST) debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
         Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
@@ -84,13 +84,13 @@ function initASM (): any {
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any): void => {
-            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
+            if (!EDITOR && !TEST) debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
+        }, (reason: any): void => { error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
     } else {
-        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
+        if (!EDITOR && !TEST) error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
         return new Promise<void>((resolve, reject): void => {
             resolve();
         });
@@ -108,13 +108,13 @@ function initWASM (): any {
                 });
             },
         }).then((Instance: any): void => {
-            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
+            if (!EDITOR && !TEST) debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
+        }, (reason: any): void => { error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
     } else {
-        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
+        if (!EDITOR && !TEST) error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
         return new Promise<void>((resolve, reject): void => {
             resolve();
         });
@@ -444,7 +444,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.info(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    debug(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -464,7 +464,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.info(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    debug(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -561,7 +561,7 @@ export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: 
             return true;
         } if (r === -1) {
             // eslint-disable-next-line no-console
-            console.error('not enough memory.');
+            error('not enough memory.');
         }
     }
     return false;
@@ -631,7 +631,7 @@ export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: a
         return true;
     } if (r === -1) {
         // eslint-disable-next-line no-console
-        console.error('not enough memory.');
+        error('not enough memory.');
     }
 
     return false;
@@ -681,9 +681,9 @@ export function initializeWorld (world: any): void {
             const mstc = sceneDesc.getMaxSubThreadCount();
             const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
             sceneDesc.setSubThreadCount(count);
-            console.info('[PHYSICS][PhysX]:', `use muti-thread mode, sub thread count: ${count}, max count: ${mstc}`);
+            debug('[PHYSICS][PhysX]:', `use muti-thread mode, sub thread count: ${count}, max count: ${mstc}`);
         } else {
-            console.info('[PHYSICS][PhysX]:', 'use single-thread mode');
+            debug('[PHYSICS][PhysX]:', 'use single-thread mode');
         }
         sceneDesc.setFlag(PX.SceneFlag.eENABLE_PCM, true);
         sceneDesc.setFlag(PX.SceneFlag.eENABLE_CCD, true);
