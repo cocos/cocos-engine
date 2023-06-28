@@ -392,7 +392,7 @@ export class CurlNoiseForceModule extends VFXModule {
     @visible(function (this: CurlNoiseForceModule) { return this.separateAxes; })
     public get strength () {
         if (!this._strength) {
-            this._strength = new ConstantVec3Expression(1, 1, 1);
+            this._strength = new ConstantVec3Expression(10, 10, 10);
         }
         return this._strength;
     }
@@ -406,7 +406,7 @@ export class CurlNoiseForceModule extends VFXModule {
     @visible(function (this: CurlNoiseForceModule) { return !this.separateAxes; })
     public get uniformStrength () {
         if (!this._uniformStrength) {
-            this._uniformStrength = new ConstantFloatExpression(1);
+            this._uniformStrength = new ConstantFloatExpression(10);
         }
         return this._uniformStrength;
     }
@@ -420,7 +420,7 @@ export class CurlNoiseForceModule extends VFXModule {
     @rangeMin(0.0001)
     public get frequency () {
         if (!this._frequency) {
-            this._frequency = new ConstantFloatExpression(0.5);
+            this._frequency = new ConstantFloatExpression(50);
         }
         return this._frequency;
     }
@@ -453,64 +453,6 @@ export class CurlNoiseForceModule extends VFXModule {
         this.requireRecompile();
     }
 
-    @visible(true)
-    public get enableRemap () {
-        return this._enableRemap;
-    }
-
-    public set enableRemap (val) {
-        this._enableRemap = val;
-        this.requireRecompile();
-    }
-
-    @type(RealCurve)
-    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
-    public get remapX () {
-        if (!this._remapX) {
-            this._remapX = new RealCurve();
-        }
-        return this._remapX;
-    }
-    public set remapX (value) {
-        this._remapX = value;
-        this.requireRecompile();
-    }
-
-    @type(RealCurve)
-    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
-    public get remapY () {
-        if (!this._remapY) {
-            this._remapY = new RealCurve();
-        }
-        return this._remapY;
-    }
-    public set remapY (value) {
-        this._remapY = value;
-        this.requireRecompile();
-    }
-
-    @type(RealCurve)
-    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
-    public get remapZ () {
-        if (!this._remapZ) {
-            this._remapZ = new RealCurve();
-        }
-        return this._remapZ;
-    }
-    public set remapZ (value) {
-        this._remapZ = value;
-        this.requireRecompile();
-    }
-
-    @type(RealCurve)
-    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && !this.separateAxes; })
-    public get remapCurve () {
-        return this.remapX;
-    }
-    public set remapCurve (value) {
-        this.remapX = value;
-    }
-
     @serializable
     private _strength: Vec3Expression | null = null;
     @serializable
@@ -520,17 +462,9 @@ export class CurlNoiseForceModule extends VFXModule {
     @serializable
     private _frequency: FloatExpression | null = null;
     @serializable
-    private _remapX: RealCurve | null = null;
-    @serializable
-    private _remapY: RealCurve | null = null;
-    @serializable
-    private _remapZ: RealCurve | null = null;
-    @serializable
     private _separateAxes = false;
     @serializable
     private _quality = Quality.HIGH;
-    @serializable
-    private _enableRemap = false;
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
 
@@ -561,7 +495,6 @@ export class CurlNoiseForceModule extends VFXModule {
         randFloat3(randVec3, randomSeed, 0, this._randomOffset);
         const offset = Vec3.multiplyScalar(randVec3, randVec3, 100);
         const separateAxes = this._separateAxes;
-        const remap = this._enableRemap;
         if (separateAxes) {
             strengthExp.bind(parameterMap);
         } else {
@@ -572,69 +505,90 @@ export class CurlNoiseForceModule extends VFXModule {
 
         // eslint-disable-next-line no-lonely-if
         if (this._quality === Quality.HIGH) {
-            for (let i = fromIndex; i < toIndex; i++) {
-                panSpeedExp.evaluate(i, tempPanOffset);
-                samplePosition.getVec3At(pos, i);
-                const frequency = frequencyExp.evaluate(i);
-                pos.add(offset);
-                perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + tempPanOffset.x), frequency, noiseXCache3D);
-                perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + tempPanOffset.y), frequency, noiseYCache3D);
-                perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + tempPanOffset.z), frequency, noiseZCache3D);
-                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
-                this.remapAndScale(separateAxes, remap, i, temp1);
-                physicsForce.addVec3At(temp1, i);
+            if (separateAxes) {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + tempPanOffset.x), frequency, noiseXCache3D);
+                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + tempPanOffset.y), frequency, noiseYCache3D);
+                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + tempPanOffset.z), frequency, noiseZCache3D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiply(temp1, temp1, strengthExp.evaluate(i, temp1));
+                    physicsForce.addVec3At(temp1, i);
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + tempPanOffset.x), frequency, noiseXCache3D);
+                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + tempPanOffset.y), frequency, noiseYCache3D);
+                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + tempPanOffset.z), frequency, noiseZCache3D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiplyScalar(temp1, temp1, uniformStrengthExp.evaluate(i));
+                    physicsForce.addVec3At(temp1, i);
+                }
             }
         } else if (this._quality === Quality.MIDDLE) {
-            for (let i = fromIndex; i < toIndex; i++) {
-                panSpeedExp.evaluate(i, tempPanOffset);
-                samplePosition.getVec3At(pos, i);
-                const frequency = frequencyExp.evaluate(i);
-                pos.add(offset);
-                perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + tempPanOffset.x), frequency, noiseXCache2D);
-                perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + tempPanOffset.y), frequency, noiseYCache2D);
-                perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + tempPanOffset.z), frequency, noiseZCache2D);
-                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
-                this.remapAndScale(separateAxes, remap, i, temp1);
-                physicsForce.addVec3At(temp1, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                panSpeedExp.evaluate(i, tempPanOffset);
-                samplePosition.getVec3At(pos, i);
-                const frequency = frequencyExp.evaluate(i);
-                pos.add(offset);
-                perlin1D(sampleX, pos.z + tempPanOffset.x, frequency, noiseXCache1D);
-                perlin1D(sampleY, pos.x + 100 + tempPanOffset.y, frequency, noiseYCache1D);
-                perlin1D(sampleZ, pos.y + tempPanOffset.z, frequency, noiseZCache1D);
-                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
-                this.remapAndScale(separateAxes, remap, i, temp1);
-                physicsForce.addVec3At(temp1, i);
-            }
-        }
-    }
-
-    private remapAndScale (separateAxes: boolean, remap: boolean, index: number, noise: Vec3) {
-        // remap
-        if (remap) {
             if (separateAxes) {
-                const remapX = this.remapX;
-                const remapY = this.remapY;
-                const remapZ = this.remapZ;
-                noise.x = remapX.evaluate(clamp(noise.x * 0.5 + 0.5, 0, 1));
-                noise.y = remapY.evaluate(clamp(noise.y * 0.5 + 0.5, 0, 1));
-                noise.z = remapZ.evaluate(clamp(noise.z * 0.5 + 0.5, 0, 1));
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + tempPanOffset.x), frequency, noiseXCache2D);
+                    perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + tempPanOffset.y), frequency, noiseYCache2D);
+                    perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + tempPanOffset.z), frequency, noiseZCache2D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiply(temp1, temp1, strengthExp.evaluate(i, temp1));
+                    physicsForce.addVec3At(temp1, i);
+                }
             } else {
-                const remapCurve = this.remapCurve;
-                noise.x = remapCurve.evaluate(clamp(noise.x * 0.5 + 0.5, 0, 1));
-                noise.y = remapCurve.evaluate(clamp(noise.y * 0.5 + 0.5, 0, 1));
-                noise.z = remapCurve.evaluate(clamp(noise.z * 0.5 + 0.5, 0, 1));
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + tempPanOffset.x), frequency, noiseXCache2D);
+                    perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + tempPanOffset.y), frequency, noiseYCache2D);
+                    perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + tempPanOffset.z), frequency, noiseZCache2D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiplyScalar(temp1, temp1, uniformStrengthExp.evaluate(i));
+                    physicsForce.addVec3At(temp1, i);
+                }
             }
-        }
-        // eslint-disable-next-line no-lonely-if
-        if (separateAxes) {
-            Vec3.multiply(noise, noise, (this._strength as Vec3Expression).evaluate(index, temp1));
         } else {
-            Vec3.multiplyScalar(noise, noise, (this._uniformStrength as FloatExpression).evaluate(index));
+            // eslint-disable-next-line no-lonely-if
+            if (separateAxes) {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin1D(sampleX, pos.z + tempPanOffset.x, frequency, noiseXCache1D);
+                    perlin1D(sampleY, pos.x + 100 + tempPanOffset.y, frequency, noiseYCache1D);
+                    perlin1D(sampleZ, pos.y + tempPanOffset.z, frequency, noiseZCache1D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiply(temp1, temp1, strengthExp.evaluate(i, temp1));
+                    physicsForce.addVec3At(temp1, i);
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    panSpeedExp.evaluate(i, tempPanOffset);
+                    samplePosition.getVec3At(pos, i);
+                    const frequency = frequencyExp.evaluate(i);
+                    pos.add(offset);
+                    perlin1D(sampleX, pos.z + tempPanOffset.x, frequency, noiseXCache1D);
+                    perlin1D(sampleY, pos.x + 100 + tempPanOffset.y, frequency, noiseYCache1D);
+                    perlin1D(sampleZ, pos.y + tempPanOffset.z, frequency, noiseZCache1D);
+                    Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                    Vec3.multiplyScalar(temp1, temp1, uniformStrengthExp.evaluate(i));
+                    physicsForce.addVec3At(temp1, i);
+                }
+            }
         }
     }
 }
