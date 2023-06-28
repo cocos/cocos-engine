@@ -569,6 +569,7 @@ public:
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en render queue builder @zh 渲染队列
      */
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
     /**
@@ -775,7 +776,7 @@ public:
      *
      * 暂不支持转义拷贝。
      *
-     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
+     * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     /**
@@ -1132,14 +1133,29 @@ public:
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     /**
      * @beta Feature is under development
+     * @en Add render subpass.
+     * @zh 添加渲染次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Render subpass builder
      */
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
     /**
      * @beta Feature is under development
+     * @en Add multisample render subpass.
+     * Sample count and quality should match those of the resources.
+     * @zh 添加多重采样渲染次通道，采样数与质量需要与资源一致。
+     * @param count @en Sample count @zh 采样数
+     * @param quality @en Sample quality @zh 采样质量
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Multisample render subpass builder
      */
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
     /**
      * @experimental
+     * @en Add compute subpass.
+     * @zh 添加计算次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Compute subpass builder
      */
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) = 0;
     /**
@@ -1433,7 +1449,7 @@ public:
 /**
  * @en Pipeline builder.
  * User can implement this interface and setup render graph.
- * Call setCustomPipeline to register the pipeline builder
+ * Call setCustomPipeline to register the pipeline
  * @zh 管线构造器
  * 用户可以实现这个接口，来构建自己想要的render graph。
  * 调用setCustomPipeline注册管线
@@ -1457,7 +1473,7 @@ public:
 };
 
 /**
- * @engineInternal
+ * @internal
  */
 class RenderingModule {
 public:

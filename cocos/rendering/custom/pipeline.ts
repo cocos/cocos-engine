@@ -498,6 +498,7 @@ export interface BasicRenderPassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @returns @en render queue builder @zh 渲染队列
      */
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     /**
@@ -695,7 +696,7 @@ export interface BasicPipeline extends PipelineRuntime {
      *
      * 暂不支持转义拷贝。
      *
-     * @param copyPairs @en Array of copy source and target pair @zh 拷贝来源与目标的数组
+     * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
     /**
@@ -1002,10 +1003,21 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
      * @beta Feature is under development
+     * @en Add render subpass.
+     * @zh 添加渲染次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Render subpass builder
      */
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     /**
      * @beta Feature is under development
+     * @en Add multisample render subpass.
+     * Sample count and quality should match those of the resources.
+     * @zh 添加多重采样渲染次通道，采样数与质量需要与资源一致。
+     * @param count @en Sample count @zh 采样数
+     * @param quality @en Sample quality @zh 采样质量
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Multisample render subpass builder
      */
     addMultisampleRenderSubpass (
         count: number,
@@ -1013,6 +1025,10 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         subpassName: string): MultisampleRenderSubpassBuilder;
     /**
      * @experimental
+     * @en Add compute subpass.
+     * @zh 添加计算次通道
+     * @param subpassName @en Subpass name declared in the effect @zh effect中的subpass name
+     * @returns Compute subpass builder
      */
     addComputeSubpass (subpassName?: string): ComputeSubpassBuilder;
     /**
@@ -1294,7 +1310,7 @@ export interface Pipeline extends BasicPipeline {
 /**
  * @en Pipeline builder.
  * User can implement this interface and setup render graph.
- * Call setCustomPipeline to register the pipeline builder
+ * Call setCustomPipeline to register the pipeline
  * @zh 管线构造器
  * 用户可以实现这个接口，来构建自己想要的render graph。
  * 调用setCustomPipeline注册管线
@@ -1310,7 +1326,7 @@ export interface PipelineBuilder {
 }
 
 /**
- * @engineInternal
+ * @internal
  */
 export interface RenderingModule {
     getPassID (name: string): number;
