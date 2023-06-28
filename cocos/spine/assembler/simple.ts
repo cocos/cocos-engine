@@ -139,7 +139,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     }
     const rd = comp.renderData!;
     const accessor = _useTint ? _tintAccessor : _accessor;
-    accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
+    if (rd.vertexCount > 0 || rd.indexCount > 0) accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 
 function realTimeTraverse (comp: Skeleton) {
@@ -154,6 +154,8 @@ function realTimeTraverse (comp: Skeleton) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
     }
+    if (vc < 1 || ic < 1) return;
+
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
 
@@ -280,6 +282,8 @@ function cacheTraverse (comp: Skeleton) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
     }
+    if (vc < 1 || ic < 1) return;
+
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);

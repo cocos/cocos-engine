@@ -800,7 +800,7 @@ export class Skeleton extends UIRenderer {
 
     protected _render (batcher: Batcher2D) {
         let indicesCount = 0;
-        if (this.renderData && this._drawList) {
+        if (this.renderData && this._drawList.length > 0) {
             const rd = this.renderData;
             const chunk = rd.chunk;
             const accessor = chunk.vertexAccessor;
