@@ -31,6 +31,8 @@ import { b2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
 const tempFilter = new b2.Filter();
+const lowerBound = new b2.Vec2();
+const upperBound = new b2.Vec2();
 
 function getFilter (shape: b2Shape2D) {
     const comp = shape.collider;
@@ -107,15 +109,17 @@ export class b2Shape2D implements IBaseShape {
 
             const count = fixture.GetShape().GetChildCount();
             for (let j = 0; j < count; j++) {
-                const aabb = fixture.GetAABB(j);
+                lowerBound.Copy(fixture.GetAABB(j).lowerBound);
+                upperBound.Copy(fixture.GetAABB(j).upperBound);
                 if (fixture.GetShape().m_type === 2) { //b2ShapeType.e_polygonShape
-                    aabb.lowerBound.SelfAddXY(fixture.GetShape().m_radius, fixture.GetShape().m_radius);
-                    aabb.upperBound.SelfSubXY(fixture.GetShape().m_radius, fixture.GetShape().m_radius);
+                    const skinWidth = fixture.GetShape().m_radius;
+                    lowerBound.SelfAddXY(skinWidth, skinWidth);
+                    upperBound.SelfSubXY(skinWidth, skinWidth);
                 }
-                if (aabb.lowerBound.x < minX) minX = aabb.lowerBound.x;
-                if (aabb.lowerBound.y < minY) minY = aabb.lowerBound.y;
-                if (aabb.upperBound.x > maxX) maxX = aabb.upperBound.x;
-                if (aabb.upperBound.y > maxY) maxY = aabb.upperBound.y;
+                if (lowerBound.x < minX) minX = lowerBound.x;
+                if (lowerBound.y < minY) minY = lowerBound.y;
+                if (upperBound.x > maxX) maxX = upperBound.x;
+                if (upperBound.y > maxY) maxY = upperBound.y;
             }
         }
 
