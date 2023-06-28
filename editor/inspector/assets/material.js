@@ -160,6 +160,8 @@ exports.methods = {
 
     async abort() {
         this.reset();
+        const material = await Editor.Message.request('asset-db', 'query-asset-info', this.asset.uuid);
+        if (!material) return;
         await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
     },
 
