@@ -1183,6 +1183,40 @@ export class SkinInfo {
 }
 legacyCC.SkinInfo = SkinInfo;
 
+@ccclass('cc.ToneMappingInfo')
+export class ToneMappingInfo {
+    /**
+     * @zh 色调映射类型
+     * @en Tone mapping type
+     */
+    @editable
+    @type(ToneMappingType)
+    @tooltip('i18n:tone_mapping.toneMappingType')
+    set toneMappingType (val) {
+        this._toneMappingType = val;
+        if (this._resource) {
+            this._resource.toneMappingType = val;
+        }
+    }
+
+    get toneMappingType (): number {
+        return this._toneMappingType;
+    }
+
+    @serializable
+    protected _toneMappingType = ToneMappingType.DEFAULT;
+
+    protected _resource: ToneMapping | null = null;
+
+    public activate (resource: ToneMapping): void {
+        this._resource = resource;
+        this._resource.initialize(this);
+        this._resource.activate();
+    }
+}
+
+legacyCC.ToneMappingInfo = ToneMappingInfo;
+
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
@@ -1542,40 +1576,6 @@ export class LightProbeInfo {
         }
     }
 }
-
-@ccclass('cc.ToneMappingInfo')
-export class ToneMappingInfo {
-    /**
-     * @zh 色调映射类型
-     * @en Tone mapping type
-     */
-    @editable
-    @type(ToneMappingType)
-    @tooltip('i18n:tone_mapping.toneMappingType')
-    set toneMappingType (val) {
-        this._toneMappingType = val;
-        if (this._resource) {
-            this._resource.toneMappingType = val;
-        }
-    }
-
-    get toneMappingType (): number {
-        return this._toneMappingType;
-    }
-
-    public activate (resource: ToneMapping): void {
-        this._resource = resource;
-        this._resource.initialize(this);
-        this._resource.activate();
-    }
-
-    @serializable
-    protected _toneMappingType = ToneMappingType.DEFAULT;
-
-    protected _resource: ToneMapping | null = null;
-}
-
-legacyCC.ToneMappingInfo = ToneMappingInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene

@@ -5,6 +5,7 @@ export const ToneMappingType = Enum({
     DEFAULT: 0,
     LINEAR: 1,
 });
+
 export  class ToneMapping {
     protected _toneMappingType = ToneMappingType.DEFAULT;
     protected _activated = false;

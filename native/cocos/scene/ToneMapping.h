@@ -41,9 +41,9 @@ namespace cc {
 
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
             void setToneMappingType(ToneMappingType toneMappingType);
+
             void activate(ToneMapping *resource);
             ToneMapping *_resource{nullptr};
-        private:
             ToneMappingType _toneMappingType{ ToneMappingType::DEFAULT };
 		};
 
