@@ -100,7 +100,7 @@ CCEffect %{
     - switch: USE_TRANSPARENCY_PASS_BACK
       vert: standard-vs
       frag: standard-fs
-      properties: *props
+      propertyIndex: 0
       rasterizerState:
         cullMode: Front
       depthStencilState:
@@ -118,7 +118,7 @@ CCEffect %{
     - switch: USE_TRANSPARENCY_PASS_FRONT
       vert: standard-vs
       frag: standard-fs
-      properties: *props
+      propertyIndex: 0
       rasterizerState:
         cullMode: Back
       depthStencilState:

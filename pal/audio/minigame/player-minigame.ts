@@ -35,7 +35,7 @@ import { Game, game } from '../../../cocos/game';
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
     private _onPlayCb?: () => void;
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -43,7 +43,7 @@ export class OneShotAudioMinigame {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -56,13 +56,18 @@ export class OneShotAudioMinigame {
         nativeAudio.onPlay(() => {
             this._onPlayCb?.();
         });
-        nativeAudio.onEnded(() => {
-            this._onEndCb?.();
-            nativeAudio.destroy();
-            // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
-            this._innerAudioContext = null as any;
-        });
+        const endCallback = (): void => {
+            if (this._innerAudioContext) {
+                this._onEndCb?.();
+                nativeAudio.destroy();
+                // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
+                this._innerAudioContext = null as any;
+            }
+        };
+        nativeAudio.onEnded(endCallback);
+        nativeAudio.onStop(endCallback);//OneShotAudio can not be reused.
     }
+
     public play (): void {
         this._innerAudioContext.play();
     }
@@ -85,7 +90,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onEnded: () => void;
     private _readyToHandleOnShow = false;
 
-    private _resetSeekCache () {
+    private _resetSeekCache (): void {
         this._cacheTime = 0;
         this._needSeek = false;
         this._seeking = false;
@@ -107,7 +112,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         const eventTarget = this._eventTarget;
-        this._onPlay = () => {
+        this._onPlay = (): void => {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
             if (this._needSeek) {
@@ -115,7 +120,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
         };
         innerAudioContext.onPlay(this._onPlay);
-        this._onPause = () => {
+        this._onPause = (): void => {
             this._state = AudioState.PAUSED;
             try {
                 const currentTime = this._innerAudioContext.currentTime;
@@ -128,7 +133,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             eventTarget.emit(AudioEvent.PAUSED);
         };
         innerAudioContext.onPause(this._onPause);
-        this._onStop = () => {
+        this._onStop = (): void => {
             this._state = AudioState.STOPPED;
             // Reset all properties
             this._resetSeekCache();
@@ -139,7 +144,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
         };
         innerAudioContext.onStop(this._onStop);
-        this._onSeeked = () => {
+        this._onSeeked = (): void => {
             eventTarget.emit(AudioEvent.SEEKED);
             this._seeking = false;
             if (this._needSeek) {
@@ -158,14 +163,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
         };
         innerAudioContext.onSeeked(this._onSeeked);
-        this._onEnded = () => {
+        this._onEnded = (): void => {
             this._state = AudioState.INIT;
             this._resetSeekCache();
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
     }
-    destroy () {
+    destroy (): void {
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         if (this._innerAudioContext) {
@@ -179,7 +184,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._innerAudioContext = null as any;
         }
     }
-    private _onInterruptedBegin () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -188,7 +193,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onInterruptedEnd () {
+    private _onInterruptedEnd (): void {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
             this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
@@ -201,14 +206,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
         }
         this._readyToHandleOnShow = false;
     }
-    private _offEvent (eventName: string) {
+    private _offEvent (eventName: string): void {
         if (this[`_on${eventName}`]) {
             this._innerAudioContext[`off${eventName}`](this[`_on${eventName}`]);
             this[`_on${eventName}`] = null;
         }
     }
 
-    get src () {
+    get src (): string {
         return this._innerAudioContext ? this._innerAudioContext.src : '';
     }
     get type (): AudioType {
@@ -228,18 +233,19 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 clearEvent();
                 resolve(innerAudioContext);
             }, 8000);
-            function clearEvent () {
+            function clearEvent (): void {
                 innerAudioContext.offCanplay(success);
                 innerAudioContext.offError(fail);
             }
-            function success () {
+            function success (): void {
                 clearEvent();
                 clearTimeout(timer);
                 resolve(innerAudioContext);
             }
-            function fail (err) {
+            function fail (err): void {
                 clearEvent();
                 clearTimeout(timer);
+                // eslint-disable-next-line no-console
                 console.error('failed to load innerAudioContext');
                 reject(new Error(err));
             }
@@ -345,10 +351,10 @@ export class AudioPlayerMinigame implements OperationQueueable {
         });
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

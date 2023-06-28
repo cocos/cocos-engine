@@ -34,11 +34,11 @@ import { BulletBvhTriangleMeshShape } from '../bullet-bvh-triangle-mesh-shape';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     private btBVHMeshShape;
-    public get collider () {
+    public get collider (): MeshCollider {
         return this._collider as MeshCollider;
     }
 
-    setMesh (v: Mesh | null) {
+    setMesh (v: Mesh | null): void {
         if (!this._isInitialized) return;
 
         if (this._impl && BulletCache.isNotEmptyShape(this._impl)) {
@@ -69,11 +69,11 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
 
     private refBtTriangleMesh: Bullet.ptr = 0;
 
-    onComponentSet () {
+    onComponentSet (): void {
         this.setMesh(this.collider.mesh);
     }
 
-    onDestroy () {
+    onDestroy (): void {
         if (this.collider.convex) {
             if (this.refBtTriangleMesh) {
                 bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh);
@@ -84,7 +84,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
         super.onDestroy();
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         const bt_v3 = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(bt_v3, this._collider.node.worldScale);

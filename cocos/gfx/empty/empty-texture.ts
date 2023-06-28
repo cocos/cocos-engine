@@ -26,7 +26,7 @@ import { TextureInfo, TextureViewInfo, ISwapchainTextureInfo, FormatSurfaceSize,
 import { Texture } from '../base/texture';
 
 export class EmptyTexture extends Texture {
-    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean): void {
         let texInfo = info as Readonly<TextureInfo>;
 
         if ('texture' in info) {
@@ -49,18 +49,18 @@ export class EmptyTexture extends Texture {
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
     }
-    public destroy () {}
+    public destroy (): void {}
 
     public getGLTextureHandle (): number {
         return 0;
     }
 
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number): void {
         this._info.width = width;
         this._info.height = height;
     }
     /**
      * @engineInternal
      */
-    public initAsSwapchainTexture (info: ISwapchainTextureInfo) {}
+    public initAsSwapchainTexture (info: ISwapchainTextureInfo): void {}
 }

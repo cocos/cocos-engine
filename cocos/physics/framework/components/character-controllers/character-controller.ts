@@ -46,6 +46,7 @@ const scaledCenter = new Vec3(0, 0, 0);
  * 角色控制器组件基类。
  */
 @ccclass('cc.CharacterController')
+@disallowMultiple
 export class CharacterController extends Eventify(Component) {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -81,7 +82,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.minMoveDistance')
     @type(CCFloat)
-    public get minMoveDistance () {
+    public get minMoveDistance (): number {
         return this._minMoveDistance;
     }
 
@@ -98,7 +99,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
-    public get stepOffset () {
+    public get stepOffset (): number {
         return this._stepOffset;
     }
 
@@ -118,7 +119,7 @@ export class CharacterController extends Eventify(Component) {
     */
     @tooltip('i18n:physics3d.character_controller.slopeLimit')
     @type(CCFloat)
-    public get slopeLimit () {
+    public get slopeLimit (): number {
         return this._slopeLimit;
     }
 
@@ -139,7 +140,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.contactOffset')
     @type(CCFloat)
-    public get contactOffset () {
+    public get contactOffset (): number {
         return this._contactOffset;
     }
 
@@ -265,26 +266,26 @@ export class CharacterController extends Eventify(Component) {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!selector.runInEditor) return;
         this._cct = createCharacterController(this.type);
         this._initialized = this._cct.initialize(this);
         this._cct.onLoad!();
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._cct) {
             this._cct.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._cct) {
             this._cct.onDisable!();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._cct) {
             this._needCollisionEvent = false;
             this._cct.updateEventListener();
@@ -332,7 +333,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取是否在地面上。
      */
-    public get onGround (): boolean {
+    public get isGrounded (): boolean {
         return this._cct!.onGround();
     }
 
@@ -380,7 +381,7 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?) {
+    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -433,7 +434,7 @@ export class CharacterController extends Eventify(Component) {
      * 添加分组值，可填要加入的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addGroup (v: number) {
+    public addGroup (v: number): void {
         if (this._isInitialized) this._cct!.addGroup(v);
     }
 
@@ -444,7 +445,7 @@ export class CharacterController extends Eventify(Component) {
      * 减去分组值，可填要移除的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeGroup (v: number) {
+    public removeGroup (v: number): void {
         if (this._isInitialized) this._cct!.removeGroup(v);
     }
 
@@ -467,7 +468,7 @@ export class CharacterController extends Eventify(Component) {
      * 设置掩码值。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public setMask (v: number) {
+    public setMask (v: number): void {
         if (this._isInitialized) this._cct!.setMask(v);
     }
 
@@ -478,7 +479,7 @@ export class CharacterController extends Eventify(Component) {
      * 添加掩码值，可填入需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addMask (v: number) {
+    public addMask (v: number): void {
         if (this._isInitialized) this._cct!.addMask(v);
     }
 
@@ -489,15 +490,15 @@ export class CharacterController extends Eventify(Component) {
      * 减去掩码值，可填入不需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeMask (v: number) {
+    public removeMask (v: number): void {
         if (this._isInitialized) this._cct!.removeMask(v);
     }
 
-    public get needCollisionEvent () {
+    public get needCollisionEvent (): boolean {
         return this._needCollisionEvent;
     }
 
-    private _updateNeedEvent (type?: string) {
+    private _updateNeedEvent (type?: string): void {
         if (this.isValid) {
             if (type !== undefined) {
                 if (type === 'onControllerColliderHit') {

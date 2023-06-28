@@ -57,7 +57,7 @@ export class PointLight extends Light {
     @editable
     @rangeMin(0)
     @type(CCInteger)
-    get luminousFlux () {
+    get luminousFlux (): number {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(1.0);
@@ -88,7 +88,7 @@ export class PointLight extends Light {
     @editable
     @rangeMin(0)
     @type(CCInteger)
-    get luminance () {
+    get luminance (): number {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
@@ -134,7 +134,7 @@ export class PointLight extends Light {
     @editable
     @rangeMin(0)
     @type(CCFloat)
-    get range () {
+    get range (): number {
         return this._range;
     }
     set range (val) {
@@ -147,7 +147,7 @@ export class PointLight extends Light {
         this._lightType = scene.PointLight;
     }
 
-    protected _createLight () {
+    protected _createLight (): void {
         super._createLight();
         this._type = LightType.POINT;
         this.range = this._range;

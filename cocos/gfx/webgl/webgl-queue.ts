@@ -31,14 +31,14 @@ export class WebGLQueue extends Queue {
     public numInstances = 0;
     public numTris = 0;
 
-    public initialize (info: Readonly<QueueInfo>) {
+    public initialize (info: Readonly<QueueInfo>): void {
         this._type = info.type;
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>): void {
         const len = cmdBuffs.length;
         for (let i = 0; i < len; i++) {
             const cmdBuff = cmdBuffs[i];
@@ -49,7 +49,7 @@ export class WebGLQueue extends Queue {
         }
     }
 
-    public clear () {
+    public clear (): void {
         this.numDrawCalls = 0;
         this.numInstances = 0;
         this.numTris = 0;

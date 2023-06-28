@@ -28,7 +28,7 @@ import { AudioClip, AudioMeta } from './audio-clip';
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 
-export function loadAudioPlayer (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
+export function loadAudioPlayer (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
     AudioPlayer.load(url, {
         audioLoadMode: options.audioLoadMode,
     }).then((player) => {
@@ -47,7 +47,7 @@ export function loadAudioPlayer (url: string, options: Record<string, any>, onCo
 function createAudioClip (id: string,
     data: AudioMeta,
     options: Record<string, any>,
-    onComplete: ((err: Error | null, data?: AudioClip | null) => void)) {
+    onComplete: ((err: Error | null, data?: AudioClip | null) => void)): void {
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;

@@ -27,25 +27,36 @@ import { EDITOR, PREVIEW } from 'internal:constants';
 declare const require: any;
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    // NOTE: when it's in EDITOR or PREVIEW, wasmUrl is a url with `external:` protocol.
-    if (EDITOR) {
-        return Editor.Message.request('engine', 'query-engine-info').then((info) => {
-            const externalRoot = `${info.native.path}/external/`;
-            wasmUrl = wasmUrl.replace('external:', externalRoot);
-            // IDEA: it's better we implement another PAL for nodejs platform.
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const fs = require('fs');
-            const arrayBuffer = fs.readFileSync(wasmUrl);
-            return WebAssembly.instantiate(arrayBuffer, importObject);
-        }) as Promise<any>;
-    } else if (PREVIEW) {
-        // NOTE: we resolve '/engine_external/' in in editor preview server.
-        return fetch(`/engine_external/?url=${wasmUrl}`)
-            .then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
-    }
-    // here is in the BUILD mode
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
-    wasmUrl = new URL(wasmUrl, import.meta.url).href;
-    return fetch(wasmUrl).then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
+    return fetchBuffer(wasmUrl).then((arrayBuffer) => WebAssembly.instantiate(arrayBuffer, importObject));
+}
+
+export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        try {
+            // NOTE: when it's in EDITOR or PREVIEW, binaryUrl is a url with `external:` protocol.
+            if (EDITOR) {
+                Editor.Message.request('engine', 'query-engine-info').then((info) => {
+                    const externalRoot = `${info.native.path}/external/`;
+                    binaryUrl = binaryUrl.replace('external:', externalRoot);
+                    // IDEA: it's better we implement another PAL for nodejs platform.
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const fs = require('fs');
+                    const arrayBuffer = fs.readFileSync(binaryUrl);
+                    resolve(arrayBuffer);
+                });
+                return;
+            } else if (PREVIEW) {
+                // NOTE: we resolve '/engine_external/' in in editor preview server.
+                fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+                return;
+            }
+            // here is in the BUILD mode
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
+            binaryUrl = new URL(binaryUrl, import.meta.url).href;
+            fetch(binaryUrl).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+        } catch (e) {
+            reject(e);
+        }
+    });
 }

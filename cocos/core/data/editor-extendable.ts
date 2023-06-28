@@ -39,7 +39,7 @@ import { assertIsTrue } from './utils/asserts';
  * @param className Assign an optional cc class name. If the base class is not cc class, this param is required.
  * @returns The mixin class.
  */
-export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string) {
+export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string): new (...args: any[]) => EditorExtendableObject {
     return editorExtendableInternal(Base);
 }
 
@@ -57,12 +57,12 @@ export type EditorExtendable = InstanceType<typeof EditorExtendable>;
 // So we have to use its literal value below.
 assertIsTrue(editorExtrasTag === '__editorExtras__', 'editorExtrasTag needs to be updated.');
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string) {
-    type ResultType = new (...args: any[]) => (T & EditorExtendableObject);
+type ResultType<T> = new (...args: any[]) => (T & EditorExtendableObject);
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string): new (...args: any[]) => EditorExtendableObject {
     if (!EDITOR) {
-        return (Base ?? Empty) as unknown as ResultType;
+        return (Base ?? Empty) as unknown as ResultType<T>;
     }
 
     let name: string;
@@ -98,5 +98,5 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
         EditorExtendable = C;
     }
 
-    return EditorExtendable as unknown as ResultType;
+    return EditorExtendable as unknown as ResultType<T>;
 }

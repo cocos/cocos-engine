@@ -29,21 +29,21 @@ import { maxComponent } from '../../utils/util';
 import { SphereCollider } from '../../../../exports/physics-framework';
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
-    updateRadius () {
+    updateRadius (): void {
         this.localSphere.radius = this.collider.radius;
         const s = maxComponent(this.collider.node.worldScale);
         this.worldSphere.radius = this.localSphere.radius * s;
     }
 
-    get localSphere () {
+    get localSphere (): geometry.Sphere {
         return this._localShape as geometry.Sphere;
     }
 
-    get worldSphere () {
+    get worldSphere (): geometry.Sphere {
         return this._worldShape as geometry.Sphere;
     }
 
-    get collider () {
+    get collider (): SphereCollider {
         return this._collider as SphereCollider;
     }
 
@@ -53,7 +53,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
         this._worldShape = new geometry.Sphere(0, 0, 0, radius);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.updateRadius();
     }

@@ -128,7 +128,12 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#ifndef ENABLE_GLES2_SUBPASS
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = false;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
+    _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = false;
+#elif CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -158,7 +163,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
-        fbfLevelStr                += "_DEPTH_STENCIL";
+        fbfLevelStr += "_DEPTH_STENCIL";
     }
 #endif
 

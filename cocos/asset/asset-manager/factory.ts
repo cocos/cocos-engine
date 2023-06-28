@@ -39,7 +39,7 @@ import { js } from '../../core';
 
 export type CreateHandler = (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | Bundle | null) => void)) => void;
 
-function createImageAsset (id: string, data: HTMLImageElement, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageAsset | null) => void)) {
+function createImageAsset (id: string, data: HTMLImageElement, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageAsset | null) => void)): void {
     let out: ImageAsset | null = null;
     let err: Error | null = null;
     try {
@@ -52,33 +52,33 @@ function createImageAsset (id: string, data: HTMLImageElement, options: Record<s
     onComplete(err, out);
 }
 
-function createJsonAsset (id: string, data: Record<string, any>, options: Record<string, any>, onComplete: ((err: Error | null, data?: JsonAsset | null) => void)) {
+function createJsonAsset (id: string, data: Record<string, any>, options: Record<string, any>, onComplete: ((err: Error | null, data?: JsonAsset | null) => void)): void {
     const out = new JsonAsset();
     out.json = data;
     onComplete(null, out);
 }
 
-function createTextAsset (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TextAsset | null) => void)) {
+function createTextAsset (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TextAsset | null) => void)): void {
     const out = new TextAsset();
     out.text = data;
     onComplete(null, out);
 }
 
-function createBufferAsset (id: string, data: ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: BufferAsset | null) => void)) {
+function createBufferAsset (id: string, data: ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: BufferAsset | null) => void)): void {
     const out = new BufferAsset();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createAsset (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)) {
+function createAsset (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)): void {
     const out = new Asset();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createBundle (id: string, data: IConfigOption, options: Record<string, any>, onComplete: ((err: Error | null, data?: Bundle | null) => void)) {
+function createBundle (id: string, data: IConfigOption, options: Record<string, any>, onComplete: ((err: Error | null, data?: Bundle | null) => void)): void {
     let bundle = bundles.get(data.name);
     if (!bundle) {
         bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
@@ -87,7 +87,7 @@ function createBundle (id: string, data: IConfigOption, options: Record<string, 
     }
     //HACK: Can not import scripts in GameView due to the difference of Scripting System between the GameView and Preview
     if (!EDITOR) {
-        import(`virtual:///prerequisite-imports/${bundle.name}`).then(() => {
+        import(`virtual:///prerequisite-imports/${bundle.name}`).then((): void => {
             onComplete(null, bundle);
         }).catch(onComplete);
     } else {
@@ -160,7 +160,7 @@ export class Factory {
         }
 
         this._creating.add(id, [onComplete]);
-        handler(id, data, options, (err, result) => {
+        handler(id, data, options, (err, result): void => {
             if (!err && result instanceof Asset) {
                 result._uuid = id;
                 cache(id, result, options.cacheAsset);

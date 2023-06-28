@@ -33,7 +33,7 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 export function loadJsFile (path: string): Promise<void> {
     return new Promise((resolve, reject) => {
         let err;
-        function windowErrorListener (evt) {
+        function windowErrorListener (evt): void {
             if (evt.filename === path) {
                 err = evt.error;
             }

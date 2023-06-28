@@ -6,9 +6,9 @@ CCEffect %{
     - switch: USE_OUTLINE_PASS
       vert: silhouette-edge-vs
       frag: silhouette-edge-fs
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: front
-      depthStencilState:
+      depthStencilState: &d1
         depthFunc: less_equal
         depthTest: true
         depthWrite: true
@@ -100,6 +100,17 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+    - switch: USE_OUTLINE_PASS
+      vert: silhouette-edge-vs
+      frag: silhouette-edge-fs
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      propertyIndex: 0
+    - vert: toon-vs
+      frag: toon-fs
+      phase: deferred-forward
+      propertyIndex: 1
 }%
 
 CCProgram shared-ubos %{
@@ -203,7 +214,7 @@ CCProgram surface-fragment %{
       #if USE_BASE_COLOR_MAP
         alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
       #endif
-  
+
       if (alpha < colorScaleAndCutoff.w) discard;
     #endif
   }
@@ -241,7 +252,7 @@ CCProgram surface-fragment %{
   {
       return miscParams.x;
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
   vec4 SurfacesFragmentModifyToonSpecular()
   {
@@ -387,7 +398,8 @@ CCProgram surface-vertex-silhouette-edge %{
   vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
   {
     vec4 clipPos = In.clipPos;
-    clipPos.z -= outlineParams.y * 0.002;
+    float scaleZ = cc_nearFar.z == 0.0 ? 0.5 : 1.0;
+    clipPos.z -= outlineParams.y * 0.002 * scaleZ;
     return clipPos;
   }
 }%

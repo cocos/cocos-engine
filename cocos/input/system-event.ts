@@ -74,21 +74,21 @@ export class SystemEvent extends EventTarget {
     constructor () {
         super();
 
-        input.on(InputEventType.MOUSE_DOWN, (e) => { this.emit(SystemEventType.MOUSE_DOWN, e);  });
-        input.on(InputEventType.MOUSE_MOVE, (e) => { this.emit(SystemEventType.MOUSE_MOVE, e);  });
-        input.on(InputEventType.MOUSE_UP, (e) => { this.emit(SystemEventType.MOUSE_UP, e);  });
-        input.on(InputEventType.MOUSE_WHEEL, (e) => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
+        input.on(InputEventType.MOUSE_DOWN, (e): void => { this.emit(SystemEventType.MOUSE_DOWN, e);  });
+        input.on(InputEventType.MOUSE_MOVE, (e): void => { this.emit(SystemEventType.MOUSE_MOVE, e);  });
+        input.on(InputEventType.MOUSE_UP, (e): void => { this.emit(SystemEventType.MOUSE_UP, e);  });
+        input.on(InputEventType.MOUSE_WHEEL, (e): void => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
 
-        input.on(InputEventType.TOUCH_START, (e) => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
-        input.on(InputEventType.TOUCH_MOVE, (e) => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
-        input.on(InputEventType.TOUCH_END, (e) => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
-        input.on(InputEventType.TOUCH_CANCEL, (e) => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
+        input.on(InputEventType.TOUCH_START, (e): void => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
+        input.on(InputEventType.TOUCH_MOVE, (e): void => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
+        input.on(InputEventType.TOUCH_END, (e): void => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
+        input.on(InputEventType.TOUCH_CANCEL, (e): void => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
 
-        input.on(InputEventType.KEY_DOWN, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
-        input.on(InputEventType.KEY_PRESSING, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
-        input.on(InputEventType.KEY_UP, (e) => { this.emit(SystemEventType.KEY_UP, e);  });
+        input.on(InputEventType.KEY_DOWN, (e): void => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_PRESSING, (e): void => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_UP, (e): void => { this.emit(SystemEventType.KEY_UP, e);  });
 
-        input.on(InputEventType.DEVICEMOTION, (e) => { this.emit(SystemEventType.DEVICEMOTION, e);  });
+        input.on(InputEventType.DEVICEMOTION, (e): void => { this.emit(SystemEventType.DEVICEMOTION, e);  });
     }
     /**
      * @en
@@ -97,7 +97,7 @@ export class SystemEvent extends EventTarget {
      * @zh
      * 是否启用加速度计事件。
      */
-    public setAccelerometerEnabled (isEnabled: boolean) {
+    public setAccelerometerEnabled (isEnabled: boolean): void {
         input.setAccelerometerEnabled(isEnabled);
     }
 
@@ -108,7 +108,7 @@ export class SystemEvent extends EventTarget {
      * @zh
      * 设置加速度计间隔值。
      */
-    public setAccelerometerInterval (interval: number) {
+    public setAccelerometerInterval (interval: number): void {
         input.setAccelerometerInterval(interval);
     }
 
@@ -123,7 +123,7 @@ export class SystemEvent extends EventTarget {
      * @param target - The event listener's target and callee
      * @param once - Register the event listener once
      */
-    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, target?: unknown, once?: boolean) {
+    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, target?: unknown, once?: boolean): TFunction {
         super.on(type, callback, target, once);
         return callback;
     }
@@ -139,7 +139,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any): void {
         super.off(type, callback, target);
     }
 }

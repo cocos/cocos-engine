@@ -31,19 +31,19 @@ import { bt } from '../instantiated';
 import { BulletCache } from '../bullet-cache';
 
 export class BulletSimplexShape extends BulletShape implements ISimplexShape {
-    setShapeType (v: SimplexCollider.ESimplexType) {
+    setShapeType (v: SimplexCollider.ESimplexType): void {
         // TODO:
     }
 
-    setVertices (v: IVec3Like[]) {
+    setVertices (v: IVec3Like[]): void {
         // TODO:
     }
 
-    get collider () {
+    get collider (): SimplexCollider {
         return this._collider as SimplexCollider;
     }
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         this._impl = bt.SimplexShape_new();
         const length = this.collider.shapeType;
         const vertices = this.collider.vertices;
@@ -54,12 +54,12 @@ export class BulletSimplexShape extends BulletShape implements ISimplexShape {
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this._collider.node.worldScale));
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.collider.updateVertices();
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         const bt_v3 = BulletCache.instance.BT_V3_0;
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this._collider.node.worldScale));

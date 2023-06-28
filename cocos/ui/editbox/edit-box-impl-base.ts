@@ -37,27 +37,27 @@ export class EditBoxImplBase {
      */
     public _delegate: EditBox | null = null;
 
-    public init (delegate: EditBox) {}
+    public init (delegate: EditBox): void {}
 
-    public onEnable () {}
+    public onEnable (): void {}
 
-    public update () { }
+    public update (): void { }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this._editing) {
             this.endEditing();
         }
     }
 
-    public clear () {
+    public clear (): void {
         this._delegate = null;
     }
 
-    public setTabIndex (index: number) {}
+    public setTabIndex (index: number): void {}
 
-    public setSize (width: number, height: number) {}
+    public setSize (width: number, height: number): void {}
 
-    public setFocus (value) {
+    public setFocus (value): void {
         if (value) {
             this.beginEditing();
         } else {
@@ -65,11 +65,11 @@ export class EditBoxImplBase {
         }
     }
 
-    public isFocused () {
+    public isFocused (): boolean {
         return this._editing;
     }
 
-    public beginEditing () {}
+    public beginEditing (): void {}
 
-    public endEditing () {}
+    public endEditing (): void {}
 }

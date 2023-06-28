@@ -73,7 +73,7 @@ export class Collider2D extends Eventify(Component) {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.collider.density')
-    get density () {
+    get density (): number {
         return this._density;
     }
     set density (v) {
@@ -88,7 +88,7 @@ export class Collider2D extends Eventify(Component) {
      */
     @type(CCBoolean)
     @tooltip('i18n:physics2d.collider.sensor')
-    get sensor () {
+    get sensor (): boolean {
         return this._sensor;
     }
     set sensor (v) {
@@ -103,7 +103,7 @@ export class Collider2D extends Eventify(Component) {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.collider.friction')
-    get friction () {
+    get friction (): number {
         return this._friction;
     }
     set friction (v) {
@@ -118,7 +118,7 @@ export class Collider2D extends Eventify(Component) {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.collider.restitution')
-    get restitution () {
+    get restitution (): number {
         return this._restitution;
     }
     set restitution (v) {
@@ -130,7 +130,7 @@ export class Collider2D extends Eventify(Component) {
      */
     @type(Vec2)
     @tooltip('i18n:physics2d.collider.offset')
-    get offset () {
+    get offset (): Vec2 {
         return this._offset;
     }
     set offset (v) {
@@ -143,11 +143,11 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 碰撞体会在初始化时查找节点上是否存在刚体，如果查找成功则赋值到这个属性上。
      */
-    get body () {
+    get body (): RigidBody2D | null {
         return this._body;
     }
 
-    get impl () {
+    get impl (): IBaseShape | null {
         return this._shape;
     }
 
@@ -155,7 +155,7 @@ export class Collider2D extends Eventify(Component) {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
             this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
@@ -168,19 +168,19 @@ export class Collider2D extends Eventify(Component) {
         }
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._shape) {
             this._shape.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._shape && this._shape.onDisable) {
             this._shape.onDisable();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._shape && this._shape.onDestroy) {
             this._shape.onDestroy();
         }
@@ -192,7 +192,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 如果物理引擎是 box2d, 需要调用此函数来应用当前 collider 中的修改，调用此函数会重新生成 box2d 的夹具。
      */
-    apply () {
+    apply (): void {
         if (this._shape && this._shape.apply) {
             this._shape.apply();
         }

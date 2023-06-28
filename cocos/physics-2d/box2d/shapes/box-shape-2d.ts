@@ -54,7 +54,7 @@ export class b2BoxShape extends b2Shape2D implements IBoxShape {
         return wps;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number) {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): any[] {
         scaleX = Math.abs(scaleX);
         scaleY = Math.abs(scaleY);
 

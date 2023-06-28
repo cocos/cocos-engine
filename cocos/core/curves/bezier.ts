@@ -26,7 +26,7 @@ import { legacyCC } from '../global-exports';
 
 export type BezierControlPoints = [ number, number, number, number ];
 
-export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {
+export function bezier (C1: number, C2: number, C3: number, C4: number, t: number): number {
     const t1 = 1 - t;
     return t1 * (t1 * (C1 + (C2 * 3 - C1) * t) + C3 * 3 * t * t) + C4 * t * t * t;
 }
@@ -41,7 +41,7 @@ const pi = Math.PI;
 const tau = 2 * pi;
 const sqrt = Math.sqrt;
 
-function crt (v: number) {
+function crt (v: number): number {
     if (v < 0) {
         return -Math.pow(-v, 1 / 3);
     } else {
@@ -51,7 +51,7 @@ function crt (v: number) {
 
 // Modified from http://jsbin.com/yibipofeqi/1/edit, optimized for animations.
 // The origin Cardano's algorithm is based on http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
-function cardano (curve: BezierControlPoints, x: number) {
+function cardano (curve: BezierControlPoints, x: number): any {
     // align curve with the intersecting line:
     // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
     // var aligned = align(curve, line);
@@ -155,7 +155,7 @@ function cardano (curve: BezierControlPoints, x: number) {
     }
 }
 
-export function bezierByTime (controlPoints: BezierControlPoints, x: number) {
+export function bezierByTime (controlPoints: BezierControlPoints, x: number): number {
     const percent = cardano(controlPoints, x);    // t
     const p1y = controlPoints[1]; // b
     const p2y = controlPoints[3]; // c

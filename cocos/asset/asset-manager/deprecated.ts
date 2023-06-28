@@ -29,9 +29,9 @@ import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
 import { resources } from './bundle';
 import dependUtil from './depend-util';
-import downloader from './downloader';
+import downloader, { Downloader } from './downloader';
 import { getUuidFromURL, transform } from './helper';
-import parser from './parser';
+import parser, { Parser } from './parser';
 import { releaseManager } from './release-manager';
 import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
@@ -41,13 +41,13 @@ import RequestItem from './request-item';
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
 
-function GetTrue () { return true; }
+function GetTrue (): boolean { return true; }
 
 const md5Pipe = {
     transformURL (url: string): string {
         const uuid = getUuidFromURL(url);
         if (!uuid) { return url; }
-        const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
+        const bundle = bundles.find((b): boolean => !!b.getAssetInfo(uuid));
         if (!bundle) { return url; }
         let hashValue = '';
         const info = bundle.getAssetInfo(uuid);
@@ -66,7 +66,7 @@ const md5Pipe = {
             const basename = path.basename(url);
             url = `${dirname}.${hashValue}/${basename}`;
         } else {
-            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,})/, (match, uuid) => `${match}.${hashValue}`);
+            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,})/, (match, uuid): string => `${match}.${hashValue}`);
         }
 
         return url;
@@ -111,7 +111,7 @@ export class CCLoader {
             return assets.map!;
         } else {
             const map = {};
-            assets.forEach((val, key) => {
+            assets.forEach((val, key): void => {
                 map[key] = val;
             });
             return map;
@@ -148,7 +148,7 @@ export class CCLoader {
      * @param completeCallback - Callback invoked when all resources loaded
      * @deprecated since v3.0, loader.load is deprecated, please use assetManager.loadRemote instead
      */
-    public load (res: string|string[]|Record<string, any>, progressCallback?: ((...args) => void)|null, completeCallback?: ((...args) => void)|null) {
+    public load (res: string|string[]|Record<string, any>, progressCallback?: ((...args) => void)|null, completeCallback?: ((...args) => void)|null): void {
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -173,7 +173,7 @@ export class CCLoader {
         }
         const images: any[] = [];
         const audios: any[] = [];
-        assetManager.loadAny(requests, null, (finish, total, item) => {
+        assetManager.loadAny(requests, null, (finish, total, item): void => {
             if (item.content) {
                 if (ImageFmts.includes(item.ext)) {
                     images.push(item.content);
@@ -182,7 +182,7 @@ export class CCLoader {
                 }
             }
             if (progressCallback) { progressCallback(finish, total, item); }
-        }, (err, native) => {
+        }, (err, native): void => {
             let out: any = null;
             if (!err) {
                 native = Array.isArray(native) ? native : [native];
@@ -192,11 +192,11 @@ export class CCLoader {
                         let asset = item;
                         const url = (requests[i] as Record<string, any>).url;
                         if (images.includes(asset)) {
-                            factory.create(url, item, '.png', {}, (err, image) => {
+                            factory.create(url, item, '.png', {}, (err, image): void => {
                                 asset = native[i] = image;
                             });
                         } else if (audios.includes(asset)) {
-                            factory.create(url, item, '.mp3', {}, (err, audio) => {
+                            factory.create(url, item, '.mp3', {}, (err, audio): void => {
                                 asset = native[i] = audio;
                             });
                         }
@@ -205,7 +205,7 @@ export class CCLoader {
                 }
                 if (native.length > 1) {
                     const map = Object.create(null);
-                    native.forEach((asset) => {
+                    native.forEach((asset): void => {
                         map[asset._uuid] = asset;
                     });
                     out = { isCompleted: GetTrue, _map: map };
@@ -235,7 +235,7 @@ export class CCLoader {
      * @return {Object}
      * @deprecated since v3.0 loader.getItem is deprecated, please use assetManager.assets.get instead
      */
-    public getItem (id) {
+    public getItem (id): { content: Asset | null | undefined; } | null {
         return assetManager.assets.has(id) ? { content: assetManager.assets.get(id) } : null;
     }
 
@@ -286,26 +286,26 @@ export class CCLoader {
         type: Constructor<T>,
         progressCallback: LoadProgressCallback,
         completeCallback: LoadCompleteCallback<T>,
-    );
+    ): any;
     public loadRes<T extends Asset> (
         url: string,
         type: Constructor<T>,
         completeCallback: LoadCompleteCallback<T>,
-    );
+    ): any;
     public loadRes<T extends Asset> (
         url: string,
         progressCallback: LoadProgressCallback,
         completeCallback: LoadCompleteCallback<T>,
-    );
+    ): any;
     public loadRes<T extends Asset> (
         url: string,
         completeCallback: LoadCompleteCallback<T>,
-    );
+    ): any;
     public loadRes<T extends Asset> (
         url: string, type?: Constructor<T> | LoadCompleteCallback<T> | LoadProgressCallback,
         progressCallback?: LoadProgressCallback | LoadCompleteCallback<T>,
         completeCallback?: LoadCompleteCallback<T>,
-    ) {
+    ): any {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(type as any,
             progressCallback as LoadProgressCallback,
             completeCallback as LoadCompleteCallback<T>);
@@ -354,11 +354,11 @@ export class CCLoader {
         type?: Constructor<T>,
         progressCallback?: LoadProgressCallback,
         completeCallback?: LoadCompleteCallback<T[]>,
-    ) {
+    ): void {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(type as any,
             progressCallback as LoadProgressCallback,
             completeCallback as LoadCompleteCallback<Asset[]>);
-        urls.forEach((url, i) => {
+        urls.forEach((url, i): void => {
             const extname = path.extname(url);
             if (extname && !resources.getInfoWithPath(url, _type)) {
                 // strip extname
@@ -421,35 +421,35 @@ export class CCLoader {
         type: Constructor<T>,
         progressCallback: LoadProgressCallback,
         completeCallback: LoadDirCompleteCallback<T>,
-    );
+    ): any;
     public loadResDir<T extends Asset> (
         url: string,
         type: Constructor<T>,
         completeCallback: LoadDirCompleteCallback<T>,
-    );
+    ): any;
     public loadResDir<T extends Asset> (
         url: string,
         progressCallback: LoadProgressCallback,
         completeCallback: LoadDirCompleteCallback<T>,
-    );
+    ): any;
     public loadResDir<T extends Asset> (
         url: string,
         completeCallback: LoadDirCompleteCallback<T>,
-    );
+    ): any;
     public loadResDir<T extends Asset> (
         url: string,
         type?: Constructor<T> | LoadProgressCallback | LoadDirCompleteCallback<T>,
         progressCallback?: LoadProgressCallback | LoadDirCompleteCallback<T>,
         completeCallback?: LoadDirCompleteCallback<T>,
-    ) {
+    ): any {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,
             progressCallback as LoadProgressCallback,
             completeCallback as LoadDirCompleteCallback<Asset>);
-        resources.loadDir(url, _type, onProgress, (err, out) => {
+        resources.loadDir(url, _type, onProgress, (err, out): void => {
             let urls: string[] = [];
             if (!err) {
                 const infos = resources.getDirWithPath(url, _type);
-                urls = infos.map((info) => info.path);
+                urls = infos.map((info): string => info.path);
             }
             if (onComplete) { onComplete(err, out, urls); }
         });
@@ -532,7 +532,9 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.md5Pipe is deprecated, assetLoader and md5Pipe were merged into assetManager.transformPipeline
      */
-    public get md5Pipe () {
+    public get md5Pipe (): {
+        transformURL(url: string): string;
+    } {
         return md5Pipe;
     }
 
@@ -548,7 +550,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.downloader is deprecated, please use assetManager.downloader instead
      */
-    get downloader () {
+    get downloader (): Downloader {
         return downloader;
     }
 
@@ -564,7 +566,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.loader is deprecated, please use assetManager.parser instead
      */
-    get loader () {
+    get loader (): Parser {
         return assetManager.parser;
     }
 
@@ -581,11 +583,11 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
-    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
+    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: ((err: Error | null, data?: any | null) => void)) => void>): void {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler[`.${type}`] = (url, options, onComplete) => {
+            handler[`.${type}`] = (url, options, onComplete): void => {
                 func({ url }, onComplete);
             };
         }
@@ -605,11 +607,11 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
-    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
+    public addLoadHandlers (extMap: Record<string, (config: { content: any }, cb: ((err: Error | null, data?: any | null) => void)) => void>): void {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler[`.${type}`] = (file, options, onComplete) => {
+            handler[`.${type}`] = (file, options, onComplete): void => {
                 func({ content: file }, onComplete);
             };
         }
@@ -652,7 +654,7 @@ export class CCLoader {
      * @param asset Asset or assets to be released
      * @deprecated since v3.0 loader.release is deprecated, please use assetManager.releaseAsset instead
      */
-    public release (asset: Asset|string|Array<Asset|string>) {
+    public release (asset: Asset|string|Array<Asset|string>): void {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 let key = asset[i];
@@ -672,7 +674,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.releaseAsset is deprecated, please use assetManager.releaseAsset instead
      */
-    public releaseAsset (asset: Asset) {
+    public releaseAsset (asset: Asset): void {
         assetManager.releaseAsset(asset);
     }
 
@@ -684,7 +686,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.releaseRes is deprecated, please use assetManager.releaseRes instead
      */
-    public releaseRes (res: string, type?: Constructor<Asset>) {
+    public releaseRes (res: string, type?: Constructor<Asset>): void {
         resources.release(res, type);
     }
 
@@ -695,7 +697,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.releaseAll is deprecated, please use assetManager.releaseAll instead
      */
-    public releaseAll () {
+    public releaseAll (): void {
         assetManager.releaseAll();
         assets.clear();
     }
@@ -749,7 +751,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0 loader.setAutoRelease is deprecated, if you want to prevent some asset from auto releasing, please use Asset.addRef instead
      */
-    public setAutoRelease (asset: Asset|string, autoRelease: boolean) {
+    public setAutoRelease (asset: Asset|string, autoRelease: boolean): void {
         if (typeof asset === 'object') { asset = asset._uuid; }
         this._autoReleaseSetting[asset] = !!autoRelease;
     }
@@ -786,7 +788,7 @@ export class CCLoader {
      * @param autoRelease - Whether to release automatically during scene switch
      * @deprecated loader.setAutoReleaseRecursively is deprecated, if you want to prevent some asset from auto releasing, please use Asset.addRef instead
      */
-    public setAutoReleaseRecursively (asset: Asset|string, autoRelease: boolean) {
+    public setAutoReleaseRecursively (asset: Asset|string, autoRelease: boolean): void {
         if (typeof asset === 'object') { asset = asset._uuid; }
         autoRelease = !!autoRelease;
         this._autoReleaseSetting[asset] = autoRelease;
@@ -844,7 +846,7 @@ export const AssetLibrary = {
      * @param {String} [options.packedAssets] - packed assets (only used in runtime)
      * @deprecated AssetLibrary.init is deprecated, please use assetManager.init instead
      */
-    init (options: Record<string, any>) {
+    init (options: Record<string, any>): void {
         options.importBase = options.libraryPath;
         options.nativeBase = BUILD ? options.rawAssetsBase : options.libraryPath;
         assetManager.init(options);
@@ -879,7 +881,7 @@ export const AssetLibrary = {
      * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用。
      * @deprecated since v3.0 AssetLibrary.loadAsset is deprecated, please use assetManager.loadAny instead
      */
-    loadAsset (uuid: string, callback: ((err: Error | null, data?: any | null) => void), options?) {
+    loadAsset (uuid: string, callback: ((err: Error | null, data?: any | null) => void), options?): void {
         assetManager.loadAny(uuid, callback);
     },
 };
@@ -904,7 +906,7 @@ replaceProperty(url, 'url', [
         name: 'raw',
         targetName: 'Asset.prototype',
         newName: 'nativeUrl',
-        customFunction: (url: string) => {
+        customFunction: (url: string): string => {
             if (url.startsWith('resources/')) {
                 return transform({
                     path: path.changeExtname(url.substr(10)),
@@ -949,12 +951,12 @@ replaceProperty(cclegacy, 'cc', [
         name: 'loader',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => loader,
+        customGetter: (): CCLoader => loader,
     }, {
         name: 'AssetLibrary',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => AssetLibrary,
+        customGetter: (): typeof AssetLibrary => AssetLibrary,
     }, {
         name: 'Pipeline',
         target: AssetManager,
@@ -966,7 +968,7 @@ replaceProperty(cclegacy, 'cc', [
         targetName: 'assetManager',
         newName: 'utils',
         logTimes: 1,
-        customGetter: () => url,
+        customGetter: (): Record<string, any> => url,
     },
 ]);
 
@@ -985,7 +987,7 @@ replaceProperty(macro, 'macro', [
 ]);
 
 const _autoRelease = releaseManager._autoRelease;
-releaseManager._autoRelease = function (oldScene, newScene, persistNodes) {
+releaseManager._autoRelease = function (oldScene, newScene, persistNodes): void {
     _autoRelease.call(releaseManager, oldScene, newScene, persistNodes);
     const releaseSettings = loader._autoReleaseSetting;
     const keys = Object.keys(releaseSettings);

@@ -43,11 +43,11 @@ import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event
 
 const LEFT_PADDING = 2;
 
-function capitalize (str: string) {
+function capitalize (str: string): string {
     return str.replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 }
 
-function capitalizeFirstLetter (str: string) {
+function capitalizeFirstLetter (str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -83,7 +83,7 @@ export class EditBox extends Component {
      */
     @displayOrder(1)
     @tooltip('i18n:editbox.string')
-    get string () {
+    get string (): string {
         return this._string;
     }
 
@@ -109,7 +109,7 @@ export class EditBox extends Component {
      */
     @displayOrder(2)
     @tooltip('i18n:editbox.placeholder')
-    get placeholder () {
+    get placeholder (): string {
         if (!this._placeholderLabel) {
             return '';
         }
@@ -132,7 +132,7 @@ export class EditBox extends Component {
     @type(Label)
     @displayOrder(3)
     @tooltip('i18n:editbox.text_lable')
-    get textLabel () {
+    get textLabel (): Label | null {
         return this._textLabel;
     }
 
@@ -156,7 +156,7 @@ export class EditBox extends Component {
     @type(Label)
     @displayOrder(4)
     @tooltip('i18n:editbox.placeholder_label')
-    get placeholderLabel () {
+    get placeholderLabel (): Label | null {
         return this._placeholderLabel;
     }
 
@@ -180,7 +180,7 @@ export class EditBox extends Component {
     @type(SpriteFrame)
     @displayOrder(5)
     @tooltip('i18n:editbox.backgroundImage')
-    get backgroundImage () {
+    get backgroundImage (): SpriteFrame | null {
         return this._backgroundImage;
     }
 
@@ -204,7 +204,7 @@ export class EditBox extends Component {
     @type(InputFlag)
     @displayOrder(6)
     @tooltip('i18n:editbox.input_flag')
-    get inputFlag () {
+    get inputFlag (): InputFlag {
         return this._inputFlag;
     }
 
@@ -228,7 +228,7 @@ export class EditBox extends Component {
     @type(InputMode)
     @displayOrder(7)
     @tooltip('i18n:editbox.input_mode')
-    get inputMode () {
+    get inputMode (): InputMode {
         return this._inputMode;
     }
 
@@ -252,7 +252,7 @@ export class EditBox extends Component {
     @type(KeyboardReturnType)
     @displayOrder(8)
     @tooltip('i18n:editbox.returnType')
-    get returnType () {
+    get returnType (): KeyboardReturnType {
         return this._returnType;
     }
 
@@ -273,7 +273,7 @@ export class EditBox extends Component {
      */
     @displayOrder(9)
     @tooltip('i18n:editbox.max_length')
-    get maxLength () {
+    get maxLength (): number {
         return this._maxLength;
     }
     set maxLength (value: number) {
@@ -289,7 +289,7 @@ export class EditBox extends Component {
      */
     @displayOrder(10)
     @tooltip('i18n:editbox.tab_index')
-    get tabIndex () {
+    get tabIndex (): number {
         return this._tabIndex;
     }
 
@@ -408,11 +408,11 @@ export class EditBox extends Component {
 
     private _isLabelVisible = false;
 
-    public __preload () {
+    public __preload (): void {
         this._init();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
             this._registerEvent();
         }
@@ -422,13 +422,13 @@ export class EditBox extends Component {
         }
     }
 
-    public update () {
+    public update (): void {
         if (this._impl) {
             this._impl.update();
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
             this._unregisterEvent();
         }
@@ -438,7 +438,7 @@ export class EditBox extends Component {
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._impl) {
             this._impl.clear();
         }
@@ -448,7 +448,7 @@ export class EditBox extends Component {
      * @en Let the EditBox get focus.
      * @zh 让当前 EditBox 获得焦点。
      */
-    public setFocus () {
+    public setFocus (): void {
         if (this._impl) {
             this._impl.setFocus(true);
         }
@@ -458,7 +458,7 @@ export class EditBox extends Component {
      * @en Let the EditBox get focus.
      * @zh 让当前 EditBox 获得焦点。
      */
-    public focus () {
+    public focus (): void {
         if (this._impl) {
             this._impl.setFocus(true);
         }
@@ -468,7 +468,7 @@ export class EditBox extends Component {
      * @en Let the EditBox lose focus.
      * @zh 让当前 EditBox 失去焦点。
      */
-    public blur () {
+    public blur (): void {
         if (this._impl) {
             this._impl.setFocus(false);
         }
@@ -479,7 +479,7 @@ export class EditBox extends Component {
      * @zh 判断 EditBox 是否获得了焦点。
      * Note: only available on Web at the moment.
      */
-    public isFocused () {
+    public isFocused (): boolean {
         if (this._impl) {
             return this._impl.isFocused();
         }
@@ -489,7 +489,7 @@ export class EditBox extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _editBoxEditingDidBegan () {
+    public _editBoxEditingDidBegan (): void {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
@@ -500,7 +500,7 @@ export class EditBox extends Component {
      * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_DID_ENDED.
      * Now only ByteDance minigame platform
      */
-    public _editBoxEditingDidEnded (text?: string) {
+    public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this, text);
     }
@@ -508,7 +508,7 @@ export class EditBox extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _editBoxTextChanged (text: string) {
+    public _editBoxTextChanged (text: string): void {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
@@ -521,7 +521,7 @@ export class EditBox extends Component {
      * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_RETURN.
      * Now only ByteDance minigame platform
      */
-    public _editBoxEditingReturn (text?: string) {
+    public _editBoxEditingReturn (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
         this.node.emit(EventType.EDITING_RETURN, this, text);
     }
@@ -529,7 +529,7 @@ export class EditBox extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _showLabels () {
+    public _showLabels (): void {
         this._isLabelVisible = true;
         this._updateLabels();
     }
@@ -537,7 +537,7 @@ export class EditBox extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _hideLabels () {
+    public _hideLabels (): void {
         this._isLabelVisible = false;
         if (this._textLabel) {
             this._textLabel.node.active = false;
@@ -547,22 +547,22 @@ export class EditBox extends Component {
         }
     }
 
-    protected _onTouchBegan (event: EventTouch) {
+    protected _onTouchBegan (event: EventTouch): void {
         event.propagationStopped = true;
     }
 
-    protected _onTouchCancel (event: EventTouch) {
+    protected _onTouchCancel (event: EventTouch): void {
         event.propagationStopped = true;
     }
 
-    protected _onTouchEnded (event: EventTouch) {
+    protected _onTouchEnded (event: EventTouch): void {
         if (this._impl) {
             this._impl.beginEditing();
         }
         event.propagationStopped = true;
     }
 
-    protected _init () {
+    protected _init (): void {
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -574,7 +574,7 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _ensureBackgroundSprite () {
+    protected _ensureBackgroundSprite (): void {
         if (!this._background) {
             let background = this.node.getComponent(Sprite);
             if (!background) {
@@ -590,7 +590,7 @@ export class EditBox extends Component {
         }
     }
 
-    protected _updateTextLabel () {
+    protected _updateTextLabel (): void {
         let textLabel = this._textLabel;
 
         // If textLabel doesn't exist, create one.
@@ -617,7 +617,7 @@ export class EditBox extends Component {
         textLabel.string = this._updateLabelStringStyle(this._string);
     }
 
-    protected _updatePlaceholderLabel () {
+    protected _updatePlaceholderLabel (): void {
         let placeholderLabel = this._placeholderLabel;
 
         // If placeholderLabel doesn't exist, create one.
@@ -643,7 +643,7 @@ export class EditBox extends Component {
         placeholderLabel.string = this.placeholder;
     }
 
-    protected _syncSize () {
+    protected _syncSize (): void {
         const trans = this.node._uiProps.uiTransformComp!;
         const size = trans.contentSize;
 
@@ -659,7 +659,7 @@ export class EditBox extends Component {
         }
     }
 
-    protected _updateLabels () {
+    protected _updateLabels (): void {
         if (this._isLabelVisible) {
             const content = this._string;
             if (this._textLabel) {
@@ -671,7 +671,7 @@ export class EditBox extends Component {
         }
     }
 
-    protected _updateString (text: string) {
+    protected _updateString (text: string): void {
         const textLabel = this._textLabel;
         // Not inited yet
         if (!textLabel) {
@@ -688,7 +688,7 @@ export class EditBox extends Component {
         this._updateLabels();
     }
 
-    protected _updateLabelStringStyle (text: string, ignorePassword = false) {
+    protected _updateLabelStringStyle (text: string, ignorePassword = false): string {
         const inputFlag = this._inputFlag;
         if (!ignorePassword && inputFlag === InputFlag.PASSWORD) {
             let passwordString = '';
@@ -708,7 +708,7 @@ export class EditBox extends Component {
         return text;
     }
 
-    protected _registerEvent () {
+    protected _registerEvent (): void {
         this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
 
@@ -716,7 +716,7 @@ export class EditBox extends Component {
         this.node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
-    protected _unregisterEvent () {
+    protected _unregisterEvent (): void {
         this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
 
@@ -724,24 +724,24 @@ export class EditBox extends Component {
         this.node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
-    private _onBackgroundSpriteFrameChanged () {
+    private _onBackgroundSpriteFrameChanged (): void {
         if (!this._background) {
             return;
         }
         this.backgroundImage = this._background.spriteFrame;
     }
 
-    private _registerBackgroundEvent () {
+    private _registerBackgroundEvent (): void {
         const node = this._background && this._background.node;
         node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
-    private _unregisterBackgroundEvent () {
+    private _unregisterBackgroundEvent (): void {
         const node = this._background && this._background.node;
         node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
-    protected _updateLabelPosition (size: Size) {
+    protected _updateLabelPosition (size: Size): void {
         const trans = this.node._uiProps.uiTransformComp!;
         const offX = -trans.anchorX * trans.width;
         const offY = -trans.anchorY * trans.height;
@@ -765,7 +765,7 @@ export class EditBox extends Component {
         }
     }
 
-    protected _resizeChildNodes () {
+    protected _resizeChildNodes (): void {
         const trans = this.node._uiProps.uiTransformComp!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
@@ -785,11 +785,11 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _xrUnClick () {
+    protected _xrUnClick (): void {
         this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
-    protected _xrKeyBoardInput (str: string) {
+    protected _xrKeyBoardInput (str: string): void {
         this.string = str;
     }
 }

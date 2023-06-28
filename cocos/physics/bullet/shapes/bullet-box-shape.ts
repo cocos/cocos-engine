@@ -33,32 +33,32 @@ import { BulletCache } from '../bullet-cache';
 import { bt } from '../instantiated';
 
 export class BulletBoxShape extends BulletShape implements IBoxShape {
-    updateSize () {
+    updateSize (): void {
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
         bt.BoxShape_setUnscaledHalfExtents(this.impl, hf);
         this.updateCompoundTransform();
     }
 
-    get collider () {
+    get collider (): BoxCollider {
         return this._collider as BoxCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
         this._impl = bt.BoxShape_new(hf);
         this.updateScale();
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         const bt_v3 = BulletCache.instance.BT_V3_0;
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this.getMinScale(VEC3_0)));
         this.updateCompoundTransform();
     }
 
-    getMinUnscaledHalfExtents (out: Vec3) {
+    getMinUnscaledHalfExtents (out: Vec3): Vec3 {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
@@ -70,7 +70,7 @@ export class BulletBoxShape extends BulletShape implements IBoxShape {
         return out;
     }
 
-    getMinScale (out: Vec3) {
+    getMinScale (out: Vec3): Vec3 {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;

@@ -51,7 +51,7 @@ export class MouseInputSource {
         return new Vec2(x, y);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         minigame.wx?.onMouseDown?.(this._createCallback(InputEventType.MOUSE_DOWN));
         minigame.wx?.onMouseMove?.(this._createCallback(InputEventType.MOUSE_MOVE));
         minigame.wx?.onMouseUp?.(this._createCallback(InputEventType.MOUSE_UP));
@@ -59,7 +59,7 @@ export class MouseInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: MouseEventData) => {
+        return (event: MouseEventData): void => {
             const location = this._getLocation(event);
             let button = event.button;
             switch (eventType) {
@@ -90,7 +90,7 @@ export class MouseInputSource {
         };
     }
 
-    private _handleMouseWheel (event: MouseWheelEventData) {
+    private _handleMouseWheel (event: MouseWheelEventData): void {
         const eventType = InputEventType.MOUSE_WHEEL;
         const location = this._getLocation(event);
         const button = event.button;
@@ -107,7 +107,7 @@ export class MouseInputSource {
         this._eventTarget.emit(InputEventType.MOUSE_WHEEL, eventMouse);
     }
 
-    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
+    public on (eventType: InputEventType, callback: MouseCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

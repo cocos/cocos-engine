@@ -154,7 +154,7 @@ export class AnimationClipLegacyData {
         this._duration = duration;
     }
 
-    get keys () {
+    get keys (): number[][] {
         return this._keys;
     }
 
@@ -162,7 +162,7 @@ export class AnimationClipLegacyData {
         this._keys = value;
     }
 
-    get curves () {
+    get curves (): LegacyClipCurve[] {
         return this._curves;
     }
 
@@ -171,7 +171,7 @@ export class AnimationClipLegacyData {
         delete this._runtimeCurves;
     }
 
-    get commonTargets () {
+    get commonTargets (): LegacyCommonTarget[] {
         return this._commonTargets;
     }
 
@@ -182,7 +182,7 @@ export class AnimationClipLegacyData {
     /**
      * 此动画的数据。
      */
-    get data () {
+    get data (): Uint8Array | null {
         return this._data;
     }
 
@@ -193,7 +193,7 @@ export class AnimationClipLegacyData {
         return this._runtimeCurves!;
     }
 
-    public toTracks () {
+    public toTracks (): Track[] {
         const newTracks: Track[] = [];
 
         const {
@@ -202,7 +202,7 @@ export class AnimationClipLegacyData {
             commonTargets: legacyCommonTargets,
         } = this;
 
-        const convertTrackPath = (track: Track, modifiers: TargetPath[], valueAdapter: IValueProxyFactory | undefined) => {
+        const convertTrackPath = (track: Track, modifiers: TargetPath[], valueAdapter: IValueProxyFactory | undefined): void => {
             const trackPath = new TrackPath();
             for (const modifier of modifiers) {
                 if (typeof modifier === 'string') {
@@ -245,7 +245,7 @@ export class AnimationClipLegacyData {
             assertIsTrue(typeof legacyCurveData._arrayLength !== 'number' || typeof firstValue === 'number');
             const legacyEasingMethodConverter = new LegacyEasingMethodConverter(legacyCurveData, times.length);
 
-            const installPathAndSetter = (track: Track) => {
+            const installPathAndSetter = (track: Track): void => {
                 convertTrackPath(track, legacyCurve.modifiers, legacyCurve.valueAdapter);
             };
 
@@ -267,7 +267,7 @@ export class AnimationClipLegacyData {
                 legacyCommonTargetCurve = curve;
             }
 
-            const convertCurve = () => {
+            const convertCurve = (): void => {
                 if (typeof firstValue === 'number') {
                     if (!legacyValues.every((value) => typeof value === 'number')) {
                         warnID(3934);
@@ -455,7 +455,7 @@ export class AnimationClipLegacyData {
 
     private _duration: number;
 
-    protected _createPropertyCurves () {
+    protected _createPropertyCurves (): void {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
@@ -518,11 +518,11 @@ class LegacyEasingMethodConverter {
         }
     }
 
-    get nil () {
+    get nil (): boolean {
         return !this._easingMethods || this._easingMethods.every((easingMethod) => easingMethod === null || easingMethod === undefined);
     }
 
-    public convert (curve: RealCurve) {
+    public convert (curve: RealCurve): void {
         const { _easingMethods: easingMethods } = this;
         if (!easingMethods) {
             return;
@@ -562,7 +562,7 @@ class LegacyEasingMethodConverter {
         }
     }
 
-    public convertQuatCurve (curve: QuatCurve) {
+    public convertQuatCurve (curve: QuatCurve): void {
         const { _easingMethods: easingMethods } = this;
         if (!easingMethods) {
             return;
@@ -605,7 +605,7 @@ function applyLegacyEasingMethodName (
     easingMethodName: LegacyEasingMethodName,
     curve: RealCurve,
     keyframeIndex: number,
-) {
+): void {
     assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
     assertIsTrue(easingMethodName in easingMethodNameMap);
     const keyframeValue = curve.getKeyframeValue(keyframeIndex);
@@ -622,7 +622,7 @@ function applyLegacyEasingMethodNameIntoQuatCurve (
     easingMethodName: LegacyEasingMethodName,
     curve: QuatCurve,
     keyframeIndex: number,
-) {
+): void {
     assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
     assertIsTrue(easingMethodName in easingMethodNameMap);
     const keyframeValue = curve.getKeyframeValue(keyframeIndex);
@@ -694,7 +694,7 @@ export function timeBezierToTangents (
     previousKeyframe: RealKeyframeValue,
     nextTime: number,
     nextKeyframe: RealKeyframeValue,
-) {
+): void {
     const [p1X, p1Y, p2X, p2Y] = timeBezierPoints;
     const { value: previousValue } = previousKeyframe;
     const { value: nextValue } = nextKeyframe;
@@ -720,7 +720,7 @@ export function timeBezierToTangents (
     nextKeyframe.leftTangentWeight = nextTangentWeight;
 }
 
-function ensureLeftTangentWeightMode (tangentWeightMode: TangentWeightMode) {
+function ensureLeftTangentWeightMode (tangentWeightMode: TangentWeightMode): TangentWeightMode {
     if (tangentWeightMode === TangentWeightMode.NONE) {
         return TangentWeightMode.LEFT;
     } else if (tangentWeightMode === TangentWeightMode.RIGHT) {
@@ -730,7 +730,7 @@ function ensureLeftTangentWeightMode (tangentWeightMode: TangentWeightMode) {
     }
 }
 
-function ensureRightTangentWeightMode (tangentWeightMode: TangentWeightMode) {
+function ensureRightTangentWeightMode (tangentWeightMode: TangentWeightMode): TangentWeightMode {
     if (tangentWeightMode === TangentWeightMode.NONE) {
         return TangentWeightMode.RIGHT;
     } else if (tangentWeightMode === TangentWeightMode.LEFT) {

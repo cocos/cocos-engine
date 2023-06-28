@@ -30,15 +30,15 @@ import { ISphereShape } from '../../spec/i-physics-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
-    get collider () {
+    get collider (): SphereCollider {
         return this._collider as SphereCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Sphere {
         return this._shape as CANNON.Sphere;
     }
 
-    updateRadius () {
+    updateRadius (): void {
         const max = Math.abs(absMaxComponent(this.collider.node.worldScale));
         this.impl.radius = clamp(this.collider.radius * Math.abs(max), PhysicsSystem.instance.minVolumeSize, Number.MAX_VALUE);
         this.impl.updateBoundingSphereRadius();
@@ -52,7 +52,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         this._shape = new CANNON.Sphere(radius);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.updateRadius();
     }

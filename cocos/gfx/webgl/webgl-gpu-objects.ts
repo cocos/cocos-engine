@@ -58,13 +58,13 @@ export class WebGLIndirectDrawInfos {
         this.byteOffsets = new Int32Array(this._capacity);
     }
 
-    public clearDraws () {
+    public clearDraws (): void {
         this.drawCount = 0;
         this.drawByIndex = false;
         this.instancedDraw = false;
     }
 
-    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>): void {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
         this.instancedDraw = !!info.instanceCount;
@@ -80,7 +80,7 @@ export class WebGLIndirectDrawInfos {
         this.instances[idx] = Math.max(1, info.instanceCount);
     }
 
-    private _ensureCapacity (target: number) {
+    private _ensureCapacity (target: number): void {
         if (this._capacity > target) return;
         this._capacity = nextPow2(target);
 
@@ -493,7 +493,7 @@ export class IWebGLBlitManager {
         this._glFramebuffer = WebGLDeviceManager.instance.gl.createFramebuffer();
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._glFramebuffer) {
             WebGLDeviceManager.instance.gl.deleteFramebuffer(this._glFramebuffer);
             this._glFramebuffer = null;
@@ -514,7 +514,7 @@ export class IWebGLBlitManager {
         }
     }
 
-    public draw (gpuTextureSrc: IWebGLGPUTexture, gpuTextureDst: IWebGLGPUTexture, regions: TextureBlit[], filter: Filter) {
+    public draw (gpuTextureSrc: IWebGLGPUTexture, gpuTextureDst: IWebGLGPUTexture, regions: TextureBlit[], filter: Filter): void {
         const device = WebGLDeviceManager.instance;
         const { gl } = device;
         const stateCache = device.stateCache;
@@ -540,8 +540,8 @@ export class IWebGLBlitManager {
             attachment = gl.DEPTH_ATTACHMENT;
         }
 
-        const regionIndices = regions.map((_, i) => i);
-        regionIndices.sort((a, b) => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
+        const regionIndices = regions.map((_, i): number => i);
+        regionIndices.sort((a, b): number => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
 
         if (stateCache.glFramebuffer !== this._glFramebuffer) {
             device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, this._glFramebuffer);

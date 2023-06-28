@@ -58,7 +58,7 @@ export interface ITextureBufferPoolInfo {
     roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
 }
 
-function roundUp (n: number, alignment: number) {
+function roundUp (n: number, alignment: number): number {
     return Math.ceil(n / alignment) * alignment;
 }
 
@@ -81,7 +81,7 @@ export class TextureBufferPool {
         this._device = device;
     }
 
-    public initialize (info: ITextureBufferPoolInfo) {
+    public initialize (info: ITextureBufferPoolInfo): void {
         const formatInfo = FormatInfos[info.format];
         this._format = info.format;
         this._formatSize = formatInfo.size;
@@ -92,7 +92,7 @@ export class TextureBufferPool {
         if (info.inOrderFree) { this.alloc = this._McDonaldAlloc; }
     }
 
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this._chunkCount; ++i) {
             const chunk = this._chunks[i];
             chunk.texture.destroy();
@@ -101,7 +101,7 @@ export class TextureBufferPool {
         this._handles.length = 0;
     }
 
-    public alloc (size: number, chunkIdx?: number) {
+    public alloc (size: number, chunkIdx?: number): ITextureBufferHandle {
         size = roundUp(size, this._alignment);
 
         let index = -1;
@@ -148,7 +148,7 @@ export class TextureBufferPool {
         return texHandle;
     }
 
-    public free (handle: ITextureBufferHandle) {
+    public free (handle: ITextureBufferHandle): void {
         for (let i = 0; i < this._handles.length; ++i) {
             if (this._handles[i] === handle) {
                 this._chunks[handle.chunkIdx].end = handle.end;
@@ -158,7 +158,7 @@ export class TextureBufferPool {
         }
     }
 
-    public createChunk (length: number) {
+    public createChunk (length: number): number {
         const texSize = length * length * this._formatSize;
 
         debug(`TextureBufferPool: Allocate chunk ${this._chunkCount}, size: ${texSize}, format: ${this._format}`);
@@ -181,7 +181,7 @@ export class TextureBufferPool {
         return this._chunkCount++;
     }
 
-    public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
+    public update (handle: ITextureBufferHandle, buffer: ArrayBuffer): void {
         const buffers: ArrayBufferView[] = [];
         const regions: BufferTextureCopy[] = [];
         const start = handle.start / this._formatSize;
@@ -243,7 +243,7 @@ export class TextureBufferPool {
         this._device.copyBuffersToTexture(buffers, handle.texture, regions);
     }
 
-    private _findAvailableSpace (size: number, chunkIdx: number) {
+    private _findAvailableSpace (size: number, chunkIdx: number): number {
         const chunk = this._chunks[chunkIdx];
         let isFound = false;
         let start = chunk.start;
@@ -251,7 +251,7 @@ export class TextureBufferPool {
             isFound = true;
         } else {
             start = 0; // try to find from head again
-            const handles = this._handles.filter((h) => h.chunkIdx === chunkIdx).sort((a, b) => a.start - b.start);
+            const handles = this._handles.filter((h): boolean => h.chunkIdx === chunkIdx).sort((a, b): number => a.start - b.start);
             for (let i = 0; i < handles.length; i++) {
                 const handle = handles[i];
                 if ((start + size) <= handle.start) {
@@ -268,7 +268,7 @@ export class TextureBufferPool {
     }
 
     // [McDonald 12] Efficient Buffer Management
-    private _McDonaldAlloc (size: number) {
+    private _McDonaldAlloc (size: number): ITextureBufferHandle {
         size = roundUp(size, this._alignment);
 
         for (let i = 0; i < this._chunkCount; ++i) {

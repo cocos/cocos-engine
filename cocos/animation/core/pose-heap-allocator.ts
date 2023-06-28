@@ -23,7 +23,7 @@ export class PoseHeapAllocator {
         this._metaValueCount = metaValueCount;
     }
 
-    public get allocatedCount () {
+    public get allocatedCount (): number {
         return this._allocatedCount;
     }
 
@@ -59,7 +59,7 @@ export class PoseHeapAllocator {
         return pose;
     }
 
-    public destroyPose (pose: Pose) {
+    public destroyPose (pose: Pose): void {
         assertIsTrue(isPagedPose(pose));
         const { _pages: pages } = this;
         const nPages = pages.length;
@@ -104,7 +104,7 @@ export class PoseHeapAllocator {
 }
 
 class AllocationInfo {
-    get pageIndex () {
+    get pageIndex (): number {
         return this._id >> POSE_INDEX_BITS;
     }
 
@@ -113,7 +113,7 @@ class AllocationInfo {
         this._id |= (value << POSE_INDEX_BITS);
     }
 
-    get poseIndex () {
+    get poseIndex (): number {
         return this._id & POSE_INDEX_MASK;
     }
 
@@ -141,11 +141,11 @@ class PosePage {
         this._freeCount = _capacity;
     }
 
-    get capacity () {
+    get capacity (): number {
         return this._capacity;
     }
 
-    get freeCount () {
+    get freeCount (): number {
         return this._freeCount;
     }
 
@@ -164,7 +164,7 @@ class PosePage {
         return pose;
     }
 
-    public deallocate (pose: PagedPose) {
+    public deallocate (pose: PagedPose): void {
         const { _poses: poses } = this;
         const poseIndex = pose[allocationInfoTag].poseIndex;
         assertIsTrue(poseIndex >= 0 && poseIndex < poses.length);
@@ -183,7 +183,7 @@ class PosePage {
 
     private _freeCount = 0;
 
-    private _createPose (index: number) {
+    private _createPose (index: number): PagedPose {
         const transformsByteLength = TransformArray.BYTES_PER_ELEMENT * this._transformCount;
         const baseOffset = (transformsByteLength
             + Float64Array.BYTES_PER_ELEMENT * this._metaValueCount) * index;
@@ -195,7 +195,7 @@ class PosePage {
     }
 }
 
-function findRightmostSetBit (bits: number) {
+function findRightmostSetBit (bits: number): number {
     // Math.log(2) === -Infinity
     return bits === 0 ? Infinity : Math.log2(bits & -bits);
 }

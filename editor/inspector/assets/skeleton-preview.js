@@ -16,7 +16,7 @@ exports.style = /* css */`
     border-top: 1px solid var(--color-normal-border);
 }
 .preview > .info {
-    padding-top: 4px;
+    padding: 4px 4px 0 4px;
 }
 .preview > .info > ui-label {
     margin-right: 6px;

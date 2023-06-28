@@ -46,7 +46,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -73,7 +73,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
      * @param particle @en Particle to animate. @zh 模块需要更新的粒子。
      * @internal
      */
-    public animate (particle: Particle) {
+    public animate (particle: Particle): void {
         particle.color.set(particle.startColor);
         const rand = isGradientTwoValues(this.color) ? pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET) : 0;
         particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, rand));

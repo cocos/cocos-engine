@@ -44,7 +44,9 @@ ccenum(TargetSpecificationType);
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeTwoBoneIKSolver.TargetSpecification`)
 class TargetSpecification {
     constructor (type?: TargetSpecificationType) {
-        this.type = type ?? TargetSpecificationType.NONE;
+        if (typeof type !== 'undefined') {
+            this.type = type;
+        }
     }
 
     @serializable
@@ -68,14 +70,14 @@ class TargetSpecification {
     @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.BONE; })
     public targetBone = '';
 
-    public bind (context: AnimationGraphBindingContext, sourceBoneHandle: TransformHandle) {
+    public bind (context: AnimationGraphBindingContext, sourceBoneHandle: TransformHandle): void {
         this._sourceBoneHandle = sourceBoneHandle;
         if (this.type === TargetSpecificationType.BONE && this.targetBone) {
             this._targetBoneHandle = context.bindTransformByName(this.targetBone) ?? undefined;
         }
     }
 
-    public evaluate (outTargetPosition: Vec3, pose: Pose, context: AnimationGraphEvaluationContext) {
+    public evaluate (outTargetPosition: Vec3, pose: Pose, context: AnimationGraphEvaluationContext): Vec3 {
         assertIsTrue(this._sourceBoneHandle);
         if (this._targetBoneHandle) {
             pose.transforms.getPosition(this._targetBoneHandle.index, outTargetPosition);
@@ -115,7 +117,7 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
     public readonly endEffectorTarget = new TargetSpecification(TargetSpecificationType.VALUE);
 
     @input({ type: PoseGraphType.VEC3 })
-    get endEffectorTargetPosition () {
+    get endEffectorTargetPosition (): Vec3 {
         return this.endEffectorTarget.targetPosition;
     }
 
@@ -128,7 +130,7 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
     public readonly poleTarget = new TargetSpecification(TargetSpecificationType.NONE);
 
     @input({ type: PoseGraphType.VEC3 })
-    get poleTargetPosition () {
+    get poleTargetPosition (): Vec3 {
         return this.poleTarget.targetPosition;
     }
 
@@ -164,11 +166,11 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
         }
     }
 
-    protected getPoseTransformSpaceRequirement () {
+    protected getPoseTransformSpaceRequirement (): PoseTransformSpaceRequirement {
         return PoseTransformSpaceRequirement.COMPONENT;
     }
 
-    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose, modificationQueue: TransformModificationQueue) {
+    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose, modificationQueue: TransformModificationQueue): void {
         const {
             _workspace: workspace,
         } = this;
@@ -210,7 +212,7 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
 }
 
 if (EDITOR) {
-    PoseNodeTwoBoneIKSolver.prototype.getTitle = function getTitle (this: PoseNodeTwoBoneIKSolver) {
+    PoseNodeTwoBoneIKSolver.prototype.getTitle = function getTitle (this: PoseNodeTwoBoneIKSolver): string | [string, Record<string, string>] | undefined {
         if (this.endEffectorBoneName) {
             return [`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeTwoBoneIKSolver.title`, {
                 endEffectorBoneName: this.endEffectorBoneName,

@@ -36,15 +36,15 @@ import { Renderer } from '../../misc/renderer';
  * @extends FiniteTimeAction
  */
 export class ActionInstant extends FiniteTimeAction {
-    isDone () {
+    isDone (): boolean {
         return true;
     }
 
-    step (dt: any) {
+    step (dt: any): void {
         this.update(1);
     }
 
-    update (dt: number) {
+    update (dt: number): void {
         // nothing
     }
 
@@ -59,7 +59,7 @@ export class ActionInstant extends FiniteTimeAction {
         return this.clone();
     }
 
-    clone () {
+    clone (): ActionInstant {
         return new ActionInstant();
     }
 }
@@ -70,7 +70,7 @@ export class ActionInstant extends FiniteTimeAction {
  * @extends ActionInstant
  */
 export class Show extends ActionInstant {
-    update (dt: any) {
+    update (dt: any): void {
         const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
@@ -78,11 +78,11 @@ export class Show extends ActionInstant {
         }
     }
 
-    reverse () {
+    reverse (): Hide {
         return new Hide();
     }
 
-    clone () {
+    clone (): Show {
         return new Show();
     }
 }
@@ -106,7 +106,7 @@ export function show (): ActionInstant {
  * @extends ActionInstant
  */
 export class Hide extends ActionInstant {
-    update (dt: any) {
+    update (dt: any): void {
         const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
@@ -114,11 +114,11 @@ export class Hide extends ActionInstant {
         }
     }
 
-    reverse () {
+    reverse (): Show {
         return new Show();
     }
 
-    clone () {
+    clone (): Hide {
         return new Hide();
     }
 }
@@ -142,7 +142,7 @@ export function hide (): ActionInstant {
  * @extends ActionInstant
  */
 export class ToggleVisibility extends ActionInstant {
-    update (dt: any) {
+    update (dt: any): void {
         const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
@@ -150,11 +150,11 @@ export class ToggleVisibility extends ActionInstant {
         }
     }
 
-    reverse () {
+    reverse (): ToggleVisibility {
         return new ToggleVisibility();
     }
 
-    clone () {
+    clone (): ToggleVisibility {
         return new ToggleVisibility();
     }
 }
@@ -190,23 +190,23 @@ export class RemoveSelf extends ActionInstant {
         isNeedCleanUp !== undefined && this.init(isNeedCleanUp);
     }
 
-    update (dt: any) {
+    update (dt: any): void {
         this.target!.removeFromParent();
         if (this._isNeedCleanUp) {
             this.target!.destroy();
         }
     }
 
-    init (isNeedCleanUp: any) {
+    init (isNeedCleanUp: any): boolean {
         this._isNeedCleanUp = isNeedCleanUp;
         return true;
     }
 
-    reverse () {
+    reverse (): RemoveSelf {
         return new RemoveSelf(this._isNeedCleanUp);
     }
 
-    clone () {
+    clone (): RemoveSelf {
         return new RemoveSelf(this._isNeedCleanUp);
     }
 }
@@ -265,7 +265,7 @@ export class CallFunc extends ActionInstant {
      * @param {*|Null} [data] data for function, it accepts all data types.
      * @return {Boolean}
      */
-    initWithFunction (selector: any, selectorTarget?: any, data?: any) {
+    initWithFunction (selector: any, selectorTarget?: any, data?: any): boolean {
         if (selector) {
             this._function = selector;
         }
@@ -281,13 +281,13 @@ export class CallFunc extends ActionInstant {
     /*
      * execute the function.
      */
-    execute () {
+    execute (): void {
         if (this._function) {
             this._function.call(this._selectorTarget, this.target, this._data);
         }
     }
 
-    update (dt: any) {
+    update (dt: any): void {
         this.execute();
     }
 
@@ -295,7 +295,7 @@ export class CallFunc extends ActionInstant {
      * Get selectorTarget.
      * @return {object}
      */
-    getTargetCallback () {
+    getTargetCallback (): null {
         return this._selectorTarget;
     }
 
@@ -303,14 +303,14 @@ export class CallFunc extends ActionInstant {
      * Set selectorTarget.
      * @param {object} sel
      */
-    setTargetCallback (sel: any) {
+    setTargetCallback (sel: any): void {
         if (sel !== this._selectorTarget) {
             if (this._selectorTarget) { this._selectorTarget = null; }
             this._selectorTarget = sel;
         }
     }
 
-    clone () {
+    clone (): CallFunc {
         const action = new CallFunc();
         action.initWithFunction(this._function, this._selectorTarget, this._data);
         return action;

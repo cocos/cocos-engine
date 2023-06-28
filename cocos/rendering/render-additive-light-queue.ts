@@ -63,20 +63,20 @@ const _matShadowViewProj = new Mat4();
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
 
-function cullSphereLight (light: SphereLight, model: Model) {
+function cullSphereLight (light: SphereLight, model: Model): boolean {
     return !!(model.worldBounds && !geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
-function cullSpotLight (light: SpotLight, model: Model) {
+function cullSpotLight (light: SpotLight, model: Model): boolean {
     return !!(model.worldBounds
         && (!geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb) || !geometry.intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
-function cullPointLight (light: PointLight, model: Model) {
+function cullPointLight (light: PointLight, model: Model): boolean {
     return !!(model.worldBounds && !geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
-function cullRangedDirLight (light: RangedDirectionalLight, model: Model) {
+function cullRangedDirLight (light: RangedDirectionalLight, model: Model): boolean {
     AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
     return !!(model.worldBounds
         && (!geometry.intersect.aabbWithAABB(model.worldBounds, _tmpBoundingBox)));
@@ -85,7 +85,7 @@ function cullRangedDirLight (light: RangedDirectionalLight, model: Model) {
 const phaseName = 'forward-add';
 let _phaseID = getPhaseID(phaseName);
 const _lightPassIndices: number[] = [];
-function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[], passLayout = 'default') {
+function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[], passLayout = 'default'): boolean {
     const r = cclegacy.rendering;
     if (isEnableEffect()) {
         _phaseID = r.getPhaseID(r.getPassID(passLayout), phaseName);
@@ -146,7 +146,7 @@ export class RenderAdditiveLightQueue {
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
 
-    public clear () {
+    public clear (): void {
         this._instancedQueues.forEach((instancedQueue) => {
             instancedQueue.clear();
         });
@@ -164,7 +164,7 @@ export class RenderAdditiveLightQueue {
         this._instancedLightPassPool.lights.length = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
         const descriptorSetMap = this._pipeline.globalDSManager.descriptorSetMap;
         const keys = descriptorSetMap.keys;
 
@@ -182,7 +182,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private _bindForwardAddLight (validPunctualLights, passLayout = 'default') {
+    private _bindForwardAddLight (validPunctualLights, passLayout = 'default'): void {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
@@ -215,7 +215,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer, passLayout = 'default') {
+    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer, passLayout = 'default'): void {
         this.clear();
 
         const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
@@ -239,7 +239,7 @@ export class RenderAdditiveLightQueue {
         });
     }
 
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let j = 0; j < this._instancedQueues.length; ++j) {
             const light = this._instancedLightPassPool.lights[j];
@@ -273,7 +273,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // light culling
-    protected _lightCulling (model: Model, validPunctualLights: Light[]) {
+    protected _lightCulling (model: Model, validPunctualLights: Light[]): void {
         let isCulled = false;
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
@@ -299,7 +299,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // add renderQueue
-    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number) {
+    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number): void {
         const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         const { batchingScheme } = pass;
 
@@ -336,7 +336,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // update light DescriptorSet
-    protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
+    protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer): void {
         const device = this._pipeline.device;
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
@@ -466,7 +466,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {
+    protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer): void {
         const { exposure } = camera;
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;

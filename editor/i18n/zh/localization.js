@@ -117,6 +117,8 @@ module.exports = link(mixin({
             HingeConstraint: `${url}/${version}/manual/zh/physics/physics-constraint.html`,
             PointToPointConstraint: `${url}/${version}/manual/zh/physics/physics-constraint.html`,
             RigidBody: `${url}/${version}/manual/zh/physics/physics-rigidbody.html`,
+            BoxCharacterController: `${url}/${version}/manual/zh/physics/character-controller/index.html`,
+            CapsuleCharacterController: `${url}/${version}/manual/zh/physics/character-controller/index.html`,
             PhysicsMaterial: `${url}/${version}/manual/zh/physics/physics-material.html`,
             ConstantForce: `${url}/${version}/manual/zh/physics/physics-component.html`,
             VideoPlayer: `${url}/${version}/manual/zh/ui-system/components/editor/videoplayer.html`,
@@ -1256,7 +1258,7 @@ module.exports = link(mixin({
         fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
     },
     color_grading: {
-        originalMap: '内置lut贴图路径internal/dependencies/textures/lut/。',
+        originalMap: '支持任意Nx1的长条图和8x8的方块图，系统自动适配。内置lut贴图路径internal/dependencies/textures/lut/',
     },
 },
 

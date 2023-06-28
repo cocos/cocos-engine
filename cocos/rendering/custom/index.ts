@@ -34,6 +34,7 @@ import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
+import { PostProcessBuilder } from '../post-process/post-process-builder';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -60,7 +61,7 @@ export function createCustomPipeline (): BasicPipeline {
 
 export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 
-export function setCustomPipeline (name: string, builder: PipelineBuilder) {
+export function setCustomPipeline (name: string, builder: PipelineBuilder): void {
     customPipelineBuilderMap.set(name, builder);
 }
 export function getCustomPipeline (name: string): PipelineBuilder {
@@ -76,15 +77,15 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     return builder;
 }
 
-function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
-    map.set('Forward', new ForwardPipelineBuilder());
+function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
+    map.set('Forward', new PostProcessBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Deprecated', new CustomPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {
         const readBinaryData = new BinaryInputArchive(arrayBuffer);
         loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
@@ -92,7 +93,7 @@ export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 
-export function destroy () {
+export function destroy (): void {
     terminateLayoutGraphData(defaultLayoutGraph);
 }
 

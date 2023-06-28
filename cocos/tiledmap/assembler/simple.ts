@@ -183,7 +183,7 @@ texture coordinate
 a c
 b d
 */
-function _flipTexture (inGrid: TiledGrid, gid: MixedGID) {
+function _flipTexture (inGrid: TiledGrid, gid: MixedGID): void {
     if (inGrid._rotated) {
         // 2:b   1:a
         // 4:d   3:c
@@ -246,7 +246,7 @@ texture coordinate
 b     c
    d
 */
-function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID) {
+function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID): void {
     if (inGrid._rotated) {
         //       2:b
         // 4:d         1:a
@@ -301,7 +301,7 @@ function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID) {
     }
 }
 
-function packRenderData () {
+function packRenderData (): void {
     if (_fillCount < 1 || !_curTexture) return;
 
     const vbCount = 4 * _fillCount;
@@ -326,7 +326,7 @@ function packRenderData () {
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
 function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
-    rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
+    rowMoveDir: number, colMoveDir: number, comp: TiledLayer): void {
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
@@ -536,7 +536,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 }
 
 function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
-    left: number, right: number, top: number, bottom: number, diamondTile: boolean) {
+    left: number, right: number, top: number, bottom: number, diamondTile: boolean): void {
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;

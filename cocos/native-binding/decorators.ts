@@ -984,6 +984,36 @@ export function patch_cc_Skeleton(ctx: cc_Skeleton_Context_Args, apply = default
   apply(() => { $.ccclass('cc.Skeleton')(Skeleton); }, 'ccclass', null);
 } // end of patch_cc_Skeleton
 
+//---- class cc_SkinInfo
+interface cc_SkinInfo_Context_Args {
+   SkinInfo: any;
+   CCFloat: any;
+}
+export function patch_cc_SkinInfo(ctx: cc_SkinInfo_Context_Args, apply = defaultExec) {
+  const { SkinInfo, CCFloat } = { ...ctx };
+  const enabledDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'enabled');
+  const blurRadiusDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'blurRadius');
+  const sssIntensityDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'sssIntensity');
+  apply(() => { $.tooltip('i18n:skin.enabled')(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'tooltip', 'enabled');
+  apply(() => { $$.readOnly(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'readOnly', 'enabled');
+  apply(() => { $.editable(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'editable', 'enabled');
+  apply(() => { $.tooltip('i18n:skin.blurRadius')(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'tooltip', 'blurRadius');
+  apply(() => { $.type(CCFloat)(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'type', 'blurRadius');
+  apply(() => { $.slide(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'slide', 'blurRadius');
+  apply(() => { $.range([0.0, 0.1, 0.001])(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'range', 'blurRadius');
+  apply(() => { $.editable(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'editable', 'blurRadius');
+  apply(() => { $.visible(false)(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'visible', 'blurRadius');
+  apply(() => { $.tooltip('i18n:skin.sssIntensity')(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'tooltip', 'sssIntensity');
+  apply(() => { $.type(CCFloat)(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'type', 'sssIntensity');
+  apply(() => { $.slide(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'slide', 'sssIntensity');
+  apply(() => { $.range([0.0, 10.0, 0.1])(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'range', 'sssIntensity');
+  apply(() => { $.editable(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'editable', 'sssIntensity');
+  apply(() => { $.serializable(SkinInfo.prototype, '_enabled',  () => { return true; }); }, 'serializable', '_enabled');
+  apply(() => { $.serializable(SkinInfo.prototype, '_blurRadius',  () => { return 0.01; }); }, 'serializable', '_blurRadius');
+  apply(() => { $.serializable(SkinInfo.prototype, '_sssIntensity',  () => { return 3.0; }); }, 'serializable', '_sssIntensity');
+  apply(() => { $.ccclass('cc.SkinInfo')(SkinInfo); }, 'ccclass', null);
+} // end of patch_cc_SkinInfo
+
 //---- class cc_SkyboxInfo
 interface cc_SkyboxInfo_Context_Args {
    SkyboxInfo: any;
@@ -1021,7 +1051,7 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'type', 'diffuseMap');
   apply(() => { $$.readOnly(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'readOnly', 'diffuseMap');
   apply(() => { $.editable(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'editable', 'diffuseMap');
-  apply(() => { $.visible(function (this: SkyboxInfo) {
+  apply(() => { $.visible(function (this: SkyboxInfo): boolean {
   if (this.useIBL && this.applyDiffuseMap) {
     return true;
   }

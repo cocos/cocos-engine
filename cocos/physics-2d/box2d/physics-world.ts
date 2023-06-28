@@ -61,11 +61,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
     protected _raycastQueryCallback: PhysicsRayCastCallback;
 
-    get impl () {
+    get impl (): b2.World {
         return this._world;
     }
 
-    get groundBodyImpl () {
+    get groundBodyImpl (): b2.Body {
         return this._physicsGroundBody;
     }
 
@@ -86,7 +86,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
@@ -101,7 +101,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._debugDrawFlags = v;
     }
 
-    _checkDebugDrawValid () {
+    _checkDebugDrawValid (): void {
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
@@ -124,7 +124,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.layer = Layers.Enum.UI_2D;
 
             this._debugGraphics = node.addComponent(Graphics);
-            this._debugGraphics.lineWidth = 2;
+            this._debugGraphics.lineWidth = 3;
 
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
             this._b2DebugDrawer = debugDraw;
@@ -139,15 +139,15 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    setGravity (v: IVec2Like) {
+    setGravity (v: IVec2Like): void {
         this._world.SetGravity(v as b2.Vec2);
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         this._world.SetAllowSleeping(true);
     }
 
-    step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+    step (deltaTime: number, velocityIterations = 10, positionIterations = 10): void {
         const animatedBodies = this._animatedBodies;
         for (let i = 0, l = animatedBodies.length; i < l; i++) {
             animatedBodies[i].animate(deltaTime);
@@ -219,7 +219,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return [];
     }
 
-    syncPhysicsToScene () {
+    syncPhysicsToScene (): void {
         const bodies = this._bodies;
         for (let i = 0, l = bodies.length; i < l; i++) {
             const body = bodies[i];
@@ -244,14 +244,14 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.setWorldRotationFromEuler(0, 0, angle);
         }
     }
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         const bodies = this._bodies;
         for (let i = 0; i < bodies.length; i++) {
             bodies[i].syncSceneToPhysics();
         }
     }
 
-    addBody (body: b2RigidBody2D) {
+    addBody (body: b2RigidBody2D): void {
         const bodies = this._bodies;
         if (bodies.includes(body)) {
             return;
@@ -305,7 +305,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._bodies.push(body);
     }
 
-    removeBody (body: b2RigidBody2D) {
+    removeBody (body: b2RigidBody2D): void {
         if (!this._bodies.includes(body)) {
             return;
         }
@@ -368,7 +368,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return testResults;
     }
 
-    drawDebug () {
+    drawDebug (): void {
         this._checkDebugDrawValid();
 
         if (!this._debugGraphics) {
@@ -378,7 +378,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._world.DrawDebugData();
     }
 
-    finalizeContactEvent () {
+    finalizeContactEvent (): void {
         this._contactListener.finalizeContactEvent();
     }
 }

@@ -36,7 +36,7 @@ export interface IJointTransform {
     parent: IJointTransform | null;
 }
 
-export function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
+export function getWorldMatrix (transform: IJointTransform | null, stamp: number): Readonly<Mat4> {
     let i = 0;
     let res = Mat4.IDENTITY;
     while (transform) {
@@ -59,7 +59,7 @@ export function getWorldMatrix (transform: IJointTransform | null, stamp: number
     return res;
 }
 
-export function getTransform (node: Node, root: Node) {
+export function getTransform (node: Node, root: Node): IJointTransform | null {
     let joint: IJointTransform | null = null;
     let i = 0;
     while (node !== root) {
@@ -85,7 +85,7 @@ export function getTransform (node: Node, root: Node) {
     return joint;
 }
 
-export function deleteTransform (node: Node) {
+export function deleteTransform (node: Node): void {
     let transform = pool.get(node.uuid) || null;
     while (transform) {
         pool.delete(transform.node.uuid);

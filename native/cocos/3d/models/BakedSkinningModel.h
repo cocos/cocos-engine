@@ -29,7 +29,6 @@
 #include "3d/assets/Skeleton.h"
 #include "3d/models/MorphModel.h"
 #include "3d/skeletal-animation/SkeletalAnimationUtils.h"
-#include "core/event/EventTarget.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -49,10 +48,6 @@ struct BakedJointInfo {
 };
 
 class BakedSkinningModel final : public MorphModel {
-    IMPL_EVENT_TARGET(BakedSkinningModel)
-    DECLARE_TARGET_EVENT_BEGIN(BakedSkinningModel)
-    TARGET_EVENT_ARG0(Destroy)
-    DECLARE_TARGET_EVENT_END()
 public:
     using Super = MorphModel;
     BakedSkinningModel();

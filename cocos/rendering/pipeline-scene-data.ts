@@ -34,8 +34,6 @@ import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
-import { ModelRenderer } from '../misc/model-renderer';
-import { scene } from '../render-scene';
 import { Model } from '../render-scene/scene';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
@@ -47,14 +45,14 @@ export class PipelineSceneData {
       * @zh 是否开启 HDR。
       * @readonly
       */
-    public get isHDR () {
+    public get isHDR (): boolean {
         return this._isHDR;
     }
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
     }
-    public get shadingScale () {
+    public get shadingScale (): number {
         return this._shadingScale;
     }
 
@@ -62,7 +60,7 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
-    public get csmSupported () {
+    public get csmSupported (): boolean {
         return this._csmSupported;
     }
     public set csmSupported (val: boolean) {
@@ -75,20 +73,28 @@ export class PipelineSceneData {
      * @zh 获取全局的4s标准模型
      * @returns The model id
      */
-    get standardSkinModel  () { return this._standardSkinModel; }
-
-    /**
-     * @engineInternal
-     * @en Set the Separable-SSS skin standard model.
-     * @zh 设置一个全局的4s标准模型
-     * @returns The model id
-     */
-    set standardSkinModel (val: MeshRenderer | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
+    get standardSkinModel (): Model | null { return this._standardSkinModel; }
+    set standardSkinModel (val: Model | null) {
         this._standardSkinModel = val;
     }
 
-    get skinMaterialModel () {
+    /**
+     * @engineInternal
+     * @en Set the Separable-SSS skin standard model component.
+     * @zh 设置一个全局的4s标准模型组件
+     * @returns The model id
+     */
+    get standardSkinMeshRenderer (): MeshRenderer | null { return this._standardSkinMeshRenderer; }
+    set standardSkinMeshRenderer (val: MeshRenderer | null) {
+        if (this._standardSkinMeshRenderer && this._standardSkinMeshRenderer !== val) {
+            this._standardSkinMeshRenderer.clearGlobalStandardSkinObjectFlag();
+        }
+
+        this._standardSkinMeshRenderer = val;
+        this.standardSkinModel = val ? val.model : null;
+    }
+
+    get skinMaterialModel (): Model {
         return this._skinMaterialModel!;
     }
     set skinMaterialModel (val: Model) {
@@ -128,14 +134,15 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
-    private _standardSkinModel: MeshRenderer | null = null;
+    private _standardSkinMeshRenderer: MeshRenderer | null = null;
+    private _standardSkinModel: Model | null = null;
     private _skinMaterialModel: Model | null = null;
 
     constructor () {
         this._shadingScale = 1.0;
     }
 
-    public activate (device: Device) {
+    public activate (device: Device): boolean {
         this._device = device;
 
         this.initGeometryRendererMaterials();
@@ -144,7 +151,7 @@ export class PipelineSceneData {
         return true;
     }
 
-    public initGeometryRendererMaterials () {
+    public initGeometryRendererMaterials (): void {
         let offset = 0;
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
@@ -159,15 +166,15 @@ export class PipelineSceneData {
         }
     }
 
-    public get geometryRendererPasses () {
+    public get geometryRendererPasses (): Pass[] {
         return this._geometryRendererPasses;
     }
 
-    public get geometryRendererShaders () {
+    public get geometryRendererShaders (): Shader[] {
         return this._geometryRendererShaders;
     }
 
-    public initOcclusionQuery () {
+    public initOcclusionQuery (): void {
         if (!this._occlusionQueryInputAssembler) {
             this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
         }
@@ -191,10 +198,10 @@ export class PipelineSceneData {
         return null;
     }
 
-    public updatePipelineSceneData () {
+    public updatePipelineSceneData (): void {
     }
 
-    public destroy () {
+    public destroy (): void {
         this.shadows.destroy();
         this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
@@ -204,14 +211,17 @@ export class PipelineSceneData {
         this._occlusionQueryVertexBuffer = null;
         this._occlusionQueryIndicesBuffer?.destroy();
         this._occlusionQueryIndicesBuffer = null;
+        this._standardSkinMeshRenderer = null;
+        this._standardSkinModel = null;
+        this._skinMaterialModel = null;
     }
 
-    public isGPUDrivenEnabled () {
+    public isGPUDrivenEnabled (): boolean {
         // Only support in native.
         return false;
     }
 
-    private _createOcclusionQueryIA () {
+    private _createOcclusionQueryIA (): InputAssembler {
         // create vertex buffer
         const device = this._device;
         const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);

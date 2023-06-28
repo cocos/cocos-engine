@@ -228,14 +228,6 @@ public:
     virtual void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
     virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
@@ -288,10 +280,6 @@ public:
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
@@ -335,10 +323,6 @@ public:
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
     virtual bool getShowStatistics() const = 0;
@@ -429,10 +413,6 @@ public:
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
     /**
      * @beta function signature might change
@@ -482,10 +462,6 @@ public:
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
     /**
      * @beta function signature might change

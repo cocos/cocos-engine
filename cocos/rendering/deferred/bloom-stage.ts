@@ -85,16 +85,16 @@ export class BloomStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline, flow: RenderFlow) {
+    public activate (pipeline: RenderPipeline, flow: RenderFlow): void {
         super.activate(pipeline, flow);
 
         if (this._bloomMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).bloomMaterial = this._bloomMaterial; }
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         pipeline.generateBloomRenderData();
         if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
@@ -127,7 +127,7 @@ export class BloomStage extends RenderStage {
         this._combinePass(camera, pipeline);
     }
 
-    private _prefilterPass (camera: Camera, pipeline: RenderPipeline) {
+    private _prefilterPass (camera: Camera, pipeline: RenderPipeline): void {
         pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
@@ -168,7 +168,7 @@ export class BloomStage extends RenderStage {
         cmdBuff.endRenderPass();
     }
 
-    private _downsamplePass (camera: Camera, pipeline: RenderPipeline) {
+    private _downsamplePass (camera: Camera, pipeline: RenderPipeline): void {
         pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
@@ -216,7 +216,7 @@ export class BloomStage extends RenderStage {
         }
     }
 
-    private _upsamplePass (camera: Camera, pipeline: RenderPipeline) {
+    private _upsamplePass (camera: Camera, pipeline: RenderPipeline): void {
         const bloomData = pipeline.getPipelineRenderData().bloom!;
         pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= this.iterations + 1;
@@ -265,7 +265,7 @@ export class BloomStage extends RenderStage {
         }
     }
 
-    private _combinePass (camera: Camera, pipeline: RenderPipeline) {
+    private _combinePass (camera: Camera, pipeline: RenderPipeline): void {
         pipeline.generateRenderArea(camera, this._renderArea);
 
         const cmdBuff = pipeline.commandBuffers[0];

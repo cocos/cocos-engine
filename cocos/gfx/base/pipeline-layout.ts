@@ -30,7 +30,7 @@ import { GFXObject, ObjectType, PipelineLayoutInfo } from './define';
  * @zh GFX 管线布局。
  */
 export abstract class PipelineLayout extends GFXObject {
-    get setLayouts () {
+    get setLayouts (): DescriptorSetLayout[] {
         return this._setLayouts;
     }
 

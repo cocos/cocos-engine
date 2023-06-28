@@ -214,7 +214,7 @@ export class Label extends UIRenderer {
     @displayOrder(4)
     @tooltip('i18n:label.string')
     @multiline
-    get string () {
+    get string (): string {
         return this._string;
     }
     set string (value) {
@@ -242,7 +242,7 @@ export class Label extends UIRenderer {
     @type(HorizontalTextAlignment)
     @displayOrder(5)
     @tooltip('i18n:label.horizontal_align')
-    get horizontalAlign () {
+    get horizontalAlign (): HorizontalTextAlignment {
         return this._horizontalAlign;
     }
     set horizontalAlign (value) {
@@ -264,7 +264,7 @@ export class Label extends UIRenderer {
     @type(VerticalTextAlignment)
     @displayOrder(6)
     @tooltip('i18n:label.vertical_align')
-    get verticalAlign () {
+    get verticalAlign (): VerticalTextAlignment {
         return this._verticalAlign;
     }
     set verticalAlign (value) {
@@ -283,7 +283,7 @@ export class Label extends UIRenderer {
      * @zh
      * SHRINK 模式下面文本实际渲染的字体大小。
      */
-    get actualFontSize () {
+    get actualFontSize (): number {
         return this._actualFontSize;
     }
     set actualFontSize (value) {
@@ -299,7 +299,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(7)
     @tooltip('i18n:label.font_size')
-    get fontSize () {
+    get fontSize (): number {
         return this._fontSize;
     }
     set fontSize (value) {
@@ -320,7 +320,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(8)
     @tooltip('i18n:label.line_height')
-    get lineHeight () {
+    get lineHeight (): number {
         return this._lineHeight;
     }
     set lineHeight (value) {
@@ -344,7 +344,7 @@ export class Label extends UIRenderer {
     })
     @displayOrder(9)
     @tooltip('i18n:label.spacing_x')
-    get spacingX () {
+    get spacingX (): number {
         return this._spacingX;
     }
     set spacingX (value) {
@@ -366,7 +366,7 @@ export class Label extends UIRenderer {
     @type(Overflow)
     @displayOrder(10)
     @tooltip('i18n:label.overflow')
-    get overflow () {
+    get overflow (): Overflow {
         return this._overflow;
     }
     set overflow (value) {
@@ -387,7 +387,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(11)
     @tooltip('i18n:label.wrap')
-    get enableWrapText () {
+    get enableWrapText (): boolean {
         return this._enableWrapText;
     }
     set enableWrapText (value) {
@@ -408,7 +408,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(12)
     @tooltip('i18n:label.system_font')
-    get useSystemFont () {
+    get useSystemFont (): boolean {
         return this._isSystemFontUsed;
     }
     set useSystemFont (value) {
@@ -444,7 +444,7 @@ export class Label extends UIRenderer {
     @displayOrder(13)
     @visible(function (this: Label) { return this._isSystemFontUsed; })
     @tooltip('i18n:label.font_family')
-    get fontFamily () {
+    get fontFamily (): string {
         return this._fontFamily;
     }
     set fontFamily (value) {
@@ -467,7 +467,7 @@ export class Label extends UIRenderer {
     @displayOrder(13)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('i18n:label.font')
-    get font () {
+    get font (): Font | null {
         // return this._N$file;
         return this._font;
     }
@@ -504,7 +504,7 @@ export class Label extends UIRenderer {
     @type(CacheMode)
     @displayOrder(14)
     @tooltip('i18n:label.cache_mode')
-    get cacheMode () {
+    get cacheMode (): CacheMode {
         return this._cacheMode;
     }
     set cacheMode (value) {
@@ -532,7 +532,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(15)
     @tooltip('i18n:label.font_bold')
-    get isBold () {
+    get isBold (): boolean {
         return this._isBold;
     }
     set isBold (value) {
@@ -553,7 +553,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(16)
     @tooltip('i18n:label.font_italic')
-    get isItalic () {
+    get isItalic (): boolean {
         return this._isItalic;
     }
     set isItalic (value) {
@@ -574,7 +574,7 @@ export class Label extends UIRenderer {
      */
     @displayOrder(17)
     @tooltip('i18n:label.font_underline')
-    get isUnderline () {
+    get isUnderline (): boolean {
         return this._isUnderline;
     }
     set isUnderline (value) {
@@ -594,7 +594,7 @@ export class Label extends UIRenderer {
     @editable
     @displayOrder(18)
     @tooltip('i18n:label.underline_height')
-    public get underlineHeight () {
+    public get underlineHeight (): number {
         return this._underlineHeight;
     }
     public set underlineHeight (value) {
@@ -606,28 +606,28 @@ export class Label extends UIRenderer {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get spriteFrame () {
+    get spriteFrame (): SpriteFrame | LetterRenderTexture | null {
         return this._texture;
     }
 
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get ttfSpriteFrame () {
+    get ttfSpriteFrame (): SpriteFrame | null {
         return this._ttfSpriteFrame;
     }
 
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get assemblerData () {
+    get assemblerData (): ISharedLabelData | null {
         return this._assemblerData;
     }
 
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get fontAtlas () {
+    get fontAtlas (): FontAtlas | null {
         return this._fontAtlas;
     }
 
@@ -638,7 +638,7 @@ export class Label extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    get _bmFontOriginalSize () {
+    get _bmFontOriginalSize (): number {
         if (this._font instanceof BitmapFont) {
             return this._font.fontSize;
         } else {
@@ -649,25 +649,25 @@ export class Label extends UIRenderer {
     /**
      * @engineInternal
      */
-    get textStyle () {
+    get textStyle (): TextStyle {
         return this._textStyle!;
     }
     /**
      * @engineInternal
      */
-    get textLayout () {
+    get textLayout (): TextLayout {
         return this._textLayout!;
     }
     /**
      * @engineInternal
      */
-    get textRenderData () {
+    get textRenderData (): TextOutputRenderData {
         return this._textRenderData!;
     }
     /**
      * @engineInternal
      */
-    get textLayoutData () {
+    get textLayoutData (): TextOutputLayoutData {
         return this._textLayoutData!;
     }
 
@@ -726,7 +726,7 @@ export class Label extends UIRenderer {
     /**
      * @engineInternal
      */
-    get contentWidth () {
+    get contentWidth (): number {
         return this._contentWidth;
     }
 
@@ -750,7 +750,7 @@ export class Label extends UIRenderer {
         this._textRenderData = new TextOutputRenderData();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
 
         // TODO: Hack for barbarians
@@ -765,7 +765,7 @@ export class Label extends UIRenderer {
         this._applyFontTexture();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._assembler && this._assembler.resetAssemblerData) {
             this._assembler.resetAssemblerData(this._assemblerData!);
         }
@@ -785,10 +785,11 @@ export class Label extends UIRenderer {
             this._ttfSpriteFrame = null;
         }
 
-        this._textStyle = null;
-        this._textLayout = null;
-        this._textRenderData = null;
-        this._textLayoutData = null;
+        // Don't set null for properties which are init in constructor.
+        // this._textStyle = null;
+        // this._textLayout = null;
+        // this._textRenderData = null;
+        // this._textLayoutData = null;
 
         // texture cannot be destroyed in here, lettertexture image source is public.
         this._letterTexture = null;
@@ -801,7 +802,7 @@ export class Label extends UIRenderer {
      * @zh 更新渲染相关数据。
      * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
      */
-    public updateRenderData (force = false) {
+    public updateRenderData (force = false): void {
         if (force) {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
@@ -814,12 +815,12 @@ export class Label extends UIRenderer {
         }
     }
 
-    protected _render (render: IBatcher) {
+    protected _render (render: IBatcher): void {
         render.commitComp(this, this.renderData, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
-    protected _updateColor () {
+    protected _updateColor (): void {
         super._updateColor();
         this.markForUpdateRenderData();
     }
@@ -827,7 +828,7 @@ export class Label extends UIRenderer {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public setEntityColor (color: Color) {
+    public setEntityColor (color: Color): void {
         if (JSB) {
             if (this._font instanceof BitmapFont) {
                 this._renderEntity.color = color;
@@ -838,7 +839,7 @@ export class Label extends UIRenderer {
         }
     }
 
-    protected _canRender () {
+    protected _canRender (): boolean {
         if (!super._canRender() || !this._string) {
             return false;
         }
@@ -855,7 +856,7 @@ export class Label extends UIRenderer {
         return true;
     }
 
-    protected _flushAssembler () {
+    protected _flushAssembler (): void {
         const assembler = Label.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -876,7 +877,7 @@ export class Label extends UIRenderer {
         }
     }
 
-    protected _applyFontTexture () {
+    protected _applyFontTexture (): void {
         this.markForUpdateRenderData();
         const font = this._font;
         if (font instanceof BitmapFont) {
@@ -912,7 +913,7 @@ export class Label extends UIRenderer {
         }
     }
 
-    protected changeMaterialForDefine () {
+    protected changeMaterialForDefine (): void {
         if (!this._texture) {
             return;
         }
@@ -936,7 +937,7 @@ export class Label extends UIRenderer {
     /**
      * @engineInternal
      */
-    public _updateBlendFunc () {
+    public _updateBlendFunc (): void {
         // override for BYTEDANCE
         if (BYTEDANCE) {
             // need to fix ttf font black border at the sdk verion lower than 2.0.0

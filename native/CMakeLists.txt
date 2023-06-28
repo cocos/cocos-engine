@@ -1384,12 +1384,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/DebugView.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
-                 cocos/renderer/pipeline/custom/BinaryArchive.h
-                 cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
-                 cocos/renderer/pipeline/custom/details/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
-                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
-                 cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.cpp
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.h
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.cpp
@@ -1399,12 +1394,14 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/ArchiveFwd.h
                  cocos/renderer/pipeline/custom/ArchiveTypes.cpp
                  cocos/renderer/pipeline/custom/ArchiveTypes.h
+                 cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/CustomFwd.h
                  cocos/renderer/pipeline/custom/CustomTypes.cpp
                  cocos/renderer/pipeline/custom/CustomTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
+                 cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphFwd.h
                  cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
@@ -1413,6 +1410,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.h
+                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h
@@ -1426,6 +1424,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
+                 cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
                  cocos/renderer/pipeline/custom/NativeSceneCulling.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
@@ -1449,6 +1448,20 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
                  cocos/renderer/pipeline/custom/RenderingModule.h
+                 cocos/renderer/pipeline/custom/details/DebugUtils.h
+                 cocos/renderer/pipeline/custom/details/GraphImpl.h
+                 cocos/renderer/pipeline/custom/details/GraphTypes.h
+                 cocos/renderer/pipeline/custom/details/GraphView.h
+                 cocos/renderer/pipeline/custom/details/GslUtils.h
+                 cocos/renderer/pipeline/custom/details/JsbConversion.h
+                 cocos/renderer/pipeline/custom/details/Map.h
+                 cocos/renderer/pipeline/custom/details/Overload.h
+                 cocos/renderer/pipeline/custom/details/PathUtils.h
+                 cocos/renderer/pipeline/custom/details/Pmr.h
+                 cocos/renderer/pipeline/custom/details/Range.h
+                 cocos/renderer/pipeline/custom/details/SerializationUtils.h
+                 cocos/renderer/pipeline/custom/details/Set.h
+                 cocos/renderer/pipeline/custom/details/Utility.h
 )
 
 if (USE_GEOMETRY_RENDERER)
@@ -1517,6 +1530,8 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
+		 cocos/scene/Skin.h
+		 cocos/scene/Skin.cpp
                  cocos/scene/gpu-scene/Define.h
                  cocos/scene/gpu-scene/GPUBatchPool.cpp
                  cocos/scene/gpu-scene/GPUBatchPool.h

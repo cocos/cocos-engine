@@ -38,7 +38,7 @@ export class TerrainLodKey {
     public west = 0;
     public east = 0;
 
-    public equals (rk: TerrainLodKey) {
+    public equals (rk: TerrainLodKey): boolean {
         return this.level === rk.level && this.north === rk.north && this.south === rk.south && this.west === rk.west && this.east === rk.east;
     }
 }
@@ -57,7 +57,7 @@ export class TerrainIndexData {
 }
 
 export class TerrainLod {
-    public static mapIndex (i: number, j: number, k: number) {
+    public static mapIndex (i: number, j: number, k: number): number {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
@@ -142,7 +142,7 @@ export class TerrainLod {
         }
     }
 
-    public getIndexData (k: TerrainLodKey) {
+    public getIndexData (k: TerrainLodKey): TerrainIndexData | null {
         for (let i = 0; i < this._indexMap.length; ++i) {
             if (this._indexMap[i].key.equals(k)) {
                 return this._indexMap[i];
@@ -152,7 +152,7 @@ export class TerrainLod {
         return null;
     }
 
-    private _genBodyIndex (level: number) {
+    private _genBodyIndex (level: number): void {
         const step = 1 << level;
         let tiles = TERRAIN_LOD_TILES >> level;
         let start = 0;
@@ -205,7 +205,7 @@ export class TerrainLod {
         this._bodyIndexPool[level].indices = indices;
     }
 
-    private _genConnecterIndexNorth (level: number, connecter: number) {
+    private _genConnecterIndexNorth (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_NORTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -248,7 +248,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexSouth (level: number, connecter: number) {
+    private _genConnecterIndexSouth (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_SOUTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -291,7 +291,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexWest (level: number, connecter: number) {
+    private _genConnecterIndexWest (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_WEST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -334,7 +334,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexEast (level: number, connecter: number) {
+    private _genConnecterIndexEast (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_EAST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -377,11 +377,11 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _getConnenterIndex (i: number, j: number, k: number) {
+    private _getConnenterIndex (i: number, j: number, k: number): TerrainIndexPool {
         return this._connecterIndexPool[TerrainLod.mapIndex(i, j, k)];
     }
 
-    private _genIndexData (k: TerrainLodKey) {
+    private _genIndexData (k: TerrainLodKey): TerrainIndexData | null {
         let data = this.getIndexData(k);
         if (data != null) {
             return data;

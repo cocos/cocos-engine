@@ -32,11 +32,11 @@ import { CannonRigidBody } from '../cannon-rigid-body';
 const v3_0 = new Vec3();
 
 export class CannonPointToPointConstraint extends CannonConstraint implements IPointToPointConstraint {
-    public get impl () {
+    public get impl (): CANNON.PointToPointConstraint {
         return this._impl as CANNON.PointToPointConstraint;
     }
 
-    public get constraint () {
+    public get constraint (): PointToPointConstraint {
         return this._com as PointToPointConstraint;
     }
 
@@ -60,7 +60,7 @@ export class CannonPointToPointConstraint extends CannonConstraint implements IP
         }
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
         const cb = this.constraint.connectedBody;
         let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
@@ -72,11 +72,11 @@ export class CannonPointToPointConstraint extends CannonConstraint implements IP
         this.setPivotB(this.constraint.pivotB);
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.setPivotA(this.constraint.pivotA);
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.setPivotB(this.constraint.pivotB);
     }
 }

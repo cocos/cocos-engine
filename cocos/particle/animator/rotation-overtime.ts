@@ -51,7 +51,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -71,7 +71,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      */
     @displayOrder(1)
     @tooltip('i18n:rotationOvertimeModule.separateAxes')
-    get separateAxes () {
+    get separateAxes (): boolean {
         return this._separateAxes;
     }
 
@@ -121,7 +121,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _quatRot: Quat = new Quat();
     private _otherEuler: Vec3 = new Vec3();
 
-    private _processRotation (p: Particle, r2d: number) {
+    private _processRotation (p: Particle, r2d: number): void {
         // Same as the particle-vs-legacy.chunk glsl statemants
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
@@ -143,7 +143,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
      * @internal
      */
-    public animate (p: Particle, dt: number) {
+    public animate (p: Particle, dt: number): void {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
         const renderMode = p.particleSystem.processor.getInfo().renderMode;

@@ -117,6 +117,8 @@ module.exports = link(mixin({
             HingeConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
             PointToPointConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
             RigidBody: `${url}/${version}/manual/en/physics/physics-rigidbody.html`,
+            BoxCharacterController: `${url}/${version}/manual/en/physics/character-controller/index.html`,
+            CapsuleCharacterController: `${url}/${version}/manual/en/physics/character-controller/index.html`,
             PhysicsMaterial: `${url}/${version}/manual/en/physics/physics-material.html`,
             ConstantForce: `${url}/${version}/manual/en/physics/physics-component.html`,
             VideoPlayer: `${url}/${version}/manual/en/ui-system/components/editor/videoplayer.html`,
@@ -1275,7 +1277,7 @@ module.exports = link(mixin({
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
     color_grading: {
-        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
+        originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
 },
 

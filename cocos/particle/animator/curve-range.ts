@@ -27,6 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
+import { setPropertyEnumType } from '../../core/internal-index';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -100,7 +101,7 @@ export default class CurveRange  {
             break;
         }
     }
-    get mode () {
+    get mode (): number {
         return this._mode;
     }
     /**
@@ -126,7 +127,7 @@ export default class CurveRange  {
      * @zh 当 mode 为 Curve 时，使用的曲线。
      * @deprecated Since V3.3. Use `spline` instead.
      */
-    get curve () {
+    get curve (): geometry.AnimationCurve {
         return this._curve ??= new geometry.AnimationCurve(this.spline);
     }
 
@@ -140,7 +141,7 @@ export default class CurveRange  {
      * @zh 当 mode 为 TwoCurves 时，使用的曲线下限。
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
-    get curveMin () {
+    get curveMin (): geometry.AnimationCurve {
         return this._curveMin ??= new geometry.AnimationCurve(this.splineMin);
     }
 
@@ -154,7 +155,7 @@ export default class CurveRange  {
      * @zh 当 mode 为 TwoCurves 时，使用的曲线上限。
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
-    get curveMax () {
+    get curveMax (): geometry.AnimationCurve {
         return this._curveMax ??= new geometry.AnimationCurve(this.splineMax);
     }
 
@@ -212,7 +213,7 @@ export default class CurveRange  {
      *                 @zh 当模式为双曲线或双常数时，使用的插值比例，通常粒子系统会传入一个随机数以获得一个随机结果。
      * @returns @en Curve value. @zh 曲线的值。
      */
-    public evaluate (time: number, rndRatio: number) {
+    public evaluate (time: number, rndRatio: number): number {
         switch (this._mode) {
         default:
         case Mode.Constant:
@@ -262,7 +263,7 @@ export default class CurveRange  {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props) {
+    public _onBeforeSerialize (props): readonly ['mode', 'constant', 'multiplier'] | readonly ['mode', 'spline', 'multiplier'] | readonly ['mode', 'splineMin', 'splineMax', 'multiplier'] | readonly ['mode', 'constantMin', 'constantMax', 'multiplier'] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }
@@ -287,8 +288,7 @@ setClassAttr(CurveRange, 'multiplier', 'visible', true);
 setClassAttr(CurveRange, 'constantMax', 'visible', true);
 setClassAttr(CurveRange, 'constantMin', 'visible', true);
 setClassAttr(CurveRange, 'constant', 'visible', true);
-setClassAttr(CurveRange, 'mode', 'type', 'Enum');
-setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
+setPropertyEnumType(CurveRange, 'mode', Mode);
 setClassAttr(CurveRange, 'mode', 'visible', true);
 setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
 setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
@@ -300,7 +300,7 @@ setClassAttr(CurveRange, 'spline', 'type', 'Object');
 setClassAttr(CurveRange, 'spline', 'ctor', RealCurve);
 setClassAttr(CurveRange, 'spline', 'visible', true);
 
-function evaluateCurve (cr: CurveRange, time: number, index: number) {
+function evaluateCurve (cr: CurveRange, time: number, index: number): number {
     switch (cr.mode) {
     case Mode.Constant:
         return cr.constant;
@@ -315,7 +315,7 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
     }
 }
 
-function evaluateHeight (cr: CurveRange) {
+function evaluateHeight (cr: CurveRange): number {
     switch (cr.mode) {
     case Mode.TwoConstants:
         return 2;
@@ -326,7 +326,7 @@ function evaluateHeight (cr: CurveRange) {
     }
 }
 
-function packTexture (data, width, height) {
+function packTexture (data, width, height): Texture2D {
     const image = new ImageAsset({
         width,
         height,
@@ -356,7 +356,7 @@ function updateTexture (tex: Texture2D | null, data, width, height): Texture2D {
     return tex;
 }
 
-export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -383,7 +383,7 @@ export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | nul
     }
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
-export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -413,7 +413,7 @@ export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | nul
 }
 
 // eslint-disable-next-line max-len
-export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, discrete?: boolean) {
+export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -443,7 +443,7 @@ export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | nu
 }
 
 // eslint-disable-next-line max-len
-export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean) {
+export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -473,7 +473,7 @@ export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | n
 }
 
 // eslint-disable-next-line max-len
-export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean) {
+export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {

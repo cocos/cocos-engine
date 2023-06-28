@@ -141,6 +141,9 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+ui-prop { margin-right: 4px; }
+ui-section.config { margin-right: 0; }
+
 .warn-words {
     color: var(--color-warn-fill);
 }

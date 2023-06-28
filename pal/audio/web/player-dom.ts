@@ -36,8 +36,8 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
         if (promise === undefined) {  // Chrome50/Firefox53 below
             return resolve();
         }
-        promise.then(resolve).catch(() => {
-            const onGesture = () => {
+        promise.then(resolve).catch((): void => {
+            const onGesture = (): void => {
                 domAudio.play().then(() => {
                     // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
@@ -56,7 +56,7 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
 export class OneShotAudioDOM {
     private _domAudio: HTMLAudioElement;
     private _onPlayCb?: () => void;
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -64,7 +64,7 @@ export class OneShotAudioDOM {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -111,7 +111,7 @@ export class AudioPlayerDOM implements OperationQueueable {
         // event
         game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
-        this._onEnded = () => {
+        this._onEnded = (): void => {
             this.seek(0).catch((e) => {});
             this._state = AudioState.INIT;
             this._eventTarget.emit(AudioEvent.ENDED);
@@ -119,7 +119,7 @@ export class AudioPlayerDOM implements OperationQueueable {
         this._domAudio.addEventListener('ended', this._onEnded);
     }
 
-    destroy () {
+    destroy (): void {
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         this._domAudio.removeEventListener('ended', this._onEnded);
@@ -152,16 +152,16 @@ export class AudioPlayerDOM implements OperationQueueable {
                     success();
                 }
             }, 8000);
-            const clearEvent = () => {
+            const clearEvent = (): void => {
                 clearTimeout(timer);
                 domAudio.removeEventListener(loadedEvent, success, false);
                 domAudio.removeEventListener('error', failure, false);
             };
-            const success = () => {
+            const success = (): void => {
                 clearEvent();
                 resolve(domAudio);
             };
-            const failure = () => {
+            const failure = (): void => {
                 clearEvent();
                 const message = `load audio failure - ${url}`;
                 reject(message);
@@ -181,7 +181,7 @@ export class AudioPlayerDOM implements OperationQueueable {
         });
     }
 
-    private _onInterruptedBegin () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -189,7 +189,7 @@ export class AudioPlayerDOM implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onInterruptedEnd () {
+    private _onInterruptedEnd (): void {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
@@ -268,10 +268,10 @@ export class AudioPlayerDOM implements OperationQueueable {
         });
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

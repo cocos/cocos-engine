@@ -176,7 +176,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum = 0;
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: Component): void {
         super.onInit(ps);
         this._setVertexAttrib();
         this._initModel();
@@ -185,24 +185,24 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._inited = true;
     }
 
-    public updateRenderMode () {
+    public updateRenderMode (): void {
         this._setVertexAttrib();
         this.updateMaterialParams();
         this.setVertexAttributes();
     }
 
-    public setVertexAttributes () {
+    public setVertexAttributes (): void {
         super.setVertexAttributes();
         this._model!.constructAttributeIndex();
     }
 
-    public clear () {
+    public clear (): void {
         super.clear();
         this._particleNum = 0;
         this.updateRenderData();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         super.onDestroy();
         if (this._forceTexture) this._forceTexture.destroy();
         if (this._velocityTexture) this._velocityTexture.destroy();
@@ -218,7 +218,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._animData = null;
     }
 
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule): void {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
@@ -238,7 +238,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._tempParticle;
     }
 
-    public setNewParticle (p: Particle) {
+    public setNewParticle (p: Particle): void {
         this._model!.addGPUParticleVertexData(p, this._particleNum, this._particleSystem._time);
         this._particleNum++;
     }
@@ -247,13 +247,13 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
+    public updateRotation (pass: Pass | null): void {
         if (pass) {
             this.doUpdateRotation(pass);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (pass): void {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
@@ -284,13 +284,13 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale (pass: Pass | null) {
+    public updateScale (pass: Pass | null): void {
         if (pass) {
             this.doUpdateScale(pass);
         }
     }
 
-    private doUpdateScale (pass) {
+    private doUpdateScale (pass): void {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
@@ -304,7 +304,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(pass.getHandle('scale'), this._node_scale);
     }
 
-    public updateParticles (dt: number) {
+    public updateParticles (dt: number): number {
         if (EDITOR_NOT_IN_PREVIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
@@ -329,19 +329,19 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     // internal function
-    public updateRenderData () {
+    public updateRenderData (): void {
     }
 
-    public beforeRender () {
+    public beforeRender (): void {
         // update vertex buffer
         this._model!.updateIA(this._particleNum);
     }
 
-    public updateAlignSpace (space) {
+    public updateAlignSpace (space): void {
         this._alignSpace = space;
     }
 
-    public updateShaderUniform (dt: number) {
+    public updateShaderUniform (dt: number): void {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
@@ -358,7 +358,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this.doUpdateRotation(pass);
     }
 
-    public initShaderUniform (mat: Material) {
+    public initShaderUniform (mat: Material): void {
         const pass = mat.passes[0];
 
         this._uTimeHandle = pass.getHandle('u_timeDelta');
@@ -500,20 +500,20 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._particleNum;
     }
 
-    public onMaterialModified (index: number, material: Material) {
+    public onMaterialModified (index: number, material: Material): void {
         if (!this._inited) {
             return;
         }
         this.updateMaterialParams();
     }
 
-    public onRebuildPSO (index: number, material: Material) {
+    public onRebuildPSO (index: number, material: Material): void {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
     }
 
-    public updateVertexAttrib () {
+    public updateVertexAttrib (): void {
         if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
             return;
         }
@@ -535,7 +535,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttrib () {
+    private _setVertexAttrib (): void {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
             case RenderMode.StrecthedBillboard:
@@ -552,7 +552,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttribIns () {
+    private _setVertexAttribIns (): void {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
             this._vertAttrs = _gpu_vert_attr_ins.slice();
@@ -565,7 +565,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateMaterialParams () {
+    public updateMaterialParams (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -632,7 +632,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    public setUseInstance (value: boolean) {
+    public setUseInstance (value: boolean): void {
         if (this._useInstance === value) {
             return;
         }
@@ -644,7 +644,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this.updateRenderMode();
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
+    public getNoisePreview (out: number[], width: number, height: number): void {
 
     }
 }

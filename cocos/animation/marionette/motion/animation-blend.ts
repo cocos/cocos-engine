@@ -50,13 +50,13 @@ export class AnimationBlendItem {
     @serializable
     public motion: Motion | null = null;
 
-    public clone () {
+    public clone (): AnimationBlendItem {
         const that = new AnimationBlendItem();
         this._copyTo(that);
         return that;
     }
 
-    protected _copyTo (that: AnimationBlendItem) {
+    protected _copyTo (that: AnimationBlendItem): AnimationBlendItem {
         that.motion = this.motion?.clone() ?? null;
         return that;
     }
@@ -67,7 +67,7 @@ export abstract class AnimationBlend extends Motion {
     @serializable
     name = '';
 
-    public copyTo (that: AnimationBlend) {
+    public copyTo (that: AnimationBlend): void {
         that.name = this.name;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }
@@ -103,7 +103,7 @@ export class AnimationBlendEval implements MotionEval {
         );
     }
 
-    get childCount () {
+    get childCount (): number {
         return this._weights.length;
     }
 
@@ -111,11 +111,11 @@ export class AnimationBlendEval implements MotionEval {
         return this._weights[childIndex];
     }
 
-    public getChildMotionEval (childIndex: number) {
+    public getChildMotionEval (childIndex: number): MotionEval | null {
         return this._childEvaluators[childIndex];
     }
 
-    get duration () {
+    get duration (): number {
         let uniformDuration = 0.0;
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
             uniformDuration += (this._childEvaluators[iChild]?.duration ?? 0.0) * this._weights[iChild];
@@ -129,7 +129,7 @@ export class AnimationBlendEval implements MotionEval {
         let iChild = 0;
         let currentChildIterator: Iterator<ClipStatus> | undefined;
         return {
-            next () {
+            next (): IteratorResult<ClipStatus, any> {
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
                     if (currentChildIterator) {
@@ -186,16 +186,16 @@ export class AnimationBlendEval implements MotionEval {
         }
     }
 
-    public setInput (value: number, index: number) {
+    public setInput (value: number, index: number): void {
         this._inputs[index] = value;
         this.doEval();
     }
 
-    protected doEval () {
+    protected doEval (): void {
         this.eval(this._weights, this._inputs);
     }
 
-    protected eval (_weights: number[], _inputs: readonly number[]) {
+    protected eval (_weights: number[], _inputs: readonly number[]): void {
 
     }
 }
@@ -210,6 +210,14 @@ class AnimationBlendPort implements MotionPort {
 
     public evaluate (progress: number, context: AnimationGraphEvaluationContext): Pose {
         return this._host.__evaluatePort(this, progress, context);
+    }
+
+    public reenter () {
+        const { childPorts } = this;
+        const nChildPorts = childPorts.length;
+        for (let iChild = 0; iChild < nChildPorts; ++iChild) {
+            childPorts[iChild]?.reenter();
+        }
     }
 
     private _host: AnimationBlendEval;

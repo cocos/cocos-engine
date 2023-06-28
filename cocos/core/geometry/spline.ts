@@ -111,7 +111,7 @@ export class Spline {
      * @param knots @en The knots to create the Spline instance. @zh 用于创建 Spline 实例的结点列表。
      * @returns @en The created Spline instance. @zh 创建出的 Spline 实例。
      */
-    public static create (mode: SplineMode, knots: Vec3[] = []) {
+    public static create (mode: SplineMode, knots: Vec3[] = []): Spline {
         return new Spline(mode, knots);
     }
 
@@ -123,7 +123,7 @@ export class Spline {
      * @param s @en The Spline instance to be cloned. @zh 用于克隆的 Spline 实例。
      * @returns @en The cloned Spline instance. @zh 克隆出的 Spline 实例。
      */
-    public static clone (s: Spline) {
+    public static clone (s: Spline): Spline {
         return new Spline(s.mode, s.knots);
     }
 
@@ -136,7 +136,7 @@ export class Spline {
      * @param s @en The source Spline instance to copy from. @zh 拷贝源 Spline 实例。
      * @returns @en The target Spline instance to copy to, same as the `out` parameter. @zh 拷贝目标 Spline 实例，值与 `out` 参数相同。
      */
-    public static copy (out: Spline, s: Spline) {
+    public static copy (out: Spline, s: Spline): Spline {
         out._mode = s.mode;
         out._knots.length = 0;
 
@@ -155,7 +155,7 @@ export class Spline {
      * @zh
      * 获取此 Spline 的类型，固定返回 `enums.SHAPE_SPLINE`
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -165,7 +165,7 @@ export class Spline {
      * @zh
      * 获取当前 Spline 实例的模式。
      */
-    get mode () {
+    get mode (): SplineMode {
         return this._mode;
     }
 
@@ -187,7 +187,7 @@ export class Spline {
      * @param mode @en The mode to be set to this Spline instance. @zh 要设置到当前 Spline 实例的模式。
      * @param knots @en The knots to be set to this spline instance. @zh 要设置到当前 Spline 实例的结点列表。
      */
-    public setModeAndKnots (mode: SplineMode, knots: Vec3[]) {
+    public setModeAndKnots (mode: SplineMode, knots: Vec3[]): void {
         this._mode = mode;
         this._knots.length = 0;
 
@@ -202,7 +202,7 @@ export class Spline {
      * @zh
      * 清空当前 Spline 实例的所有结点。
      */
-    public clearKnots () {
+    public clearKnots (): void {
         this._knots.length = 0;
     }
 
@@ -213,7 +213,7 @@ export class Spline {
      * 获取当前 Spline 实例的结点数量。
      * @returns @en The knot count of this Spline instance. @zh 当前 Spline 实例的结点数量。
      */
-    public getKnotCount () {
+    public getKnotCount (): number {
         return this._knots.length;
     }
 
@@ -224,7 +224,7 @@ export class Spline {
      * 给当前 Spline 实例添加一个结点。
      * @param knot @en The knot to add to this Spline instance. @zh 要添加到当前 Spline 实例的结点。
      */
-    public addKnot (knot: Vec3) {
+    public addKnot (knot: Vec3): void {
         this._knots.push(new Vec3(knot));
     }
 
@@ -236,7 +236,7 @@ export class Spline {
      * @param index @en The position of this Spline instance to be inserted. @zh 要插入到此 Spline 实例的位置。
      * @param knot @en The knot to be inserted. @zh 要插入的结点。
      */
-    public insertKnot (index: number, knot: Vec3) {
+    public insertKnot (index: number, knot: Vec3): void {
         const item = new Vec3(knot);
         if (index >= this._knots.length) {
             this._knots.push(item);
@@ -253,7 +253,7 @@ export class Spline {
      * 移除当前 Spline 实例的指定位置的一个结点。
      * @param index
      */
-    public removeKnot (index: number) {
+    public removeKnot (index: number): void {
         assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
 
         this._knots.splice(index, 1);
@@ -267,7 +267,7 @@ export class Spline {
      * @param index @en The specified position of this Spline instance. @zh 要设置结点的指定位置。
      * @param knot @en The knot to be set to the specified position. @zh 要设置的结点。
      */
-    public setKnot (index: number, knot: Vec3) {
+    public setKnot (index: number, knot: Vec3): void {
         assertIsTrue(index >= 0 && index < this._knots.length, 'Spline: invalid index');
 
         this._knots[index].set(knot);
@@ -296,7 +296,7 @@ export class Spline {
      * @param index @en The knot index of this Spline instance, default value is the whole curve. @zh 当前 Spline 实例的某个结点索引，默认值为整条曲线。
      * @returns @en The point matches the input `t` factor and `index`. @zh 满足输入 `t` 参数和 `index` 参数的点。
      */
-    public getPoint (t: number, index: number = SPLINE_WHOLE_INDEX) {
+    public getPoint (t: number, index: number = SPLINE_WHOLE_INDEX): Vec3 {
         t = clamp(t, 0.0, 1.0);
 
         const segments = this.getSegments();
@@ -362,7 +362,7 @@ export class Spline {
         return points;
     }
 
-    private getSegments () {
+    private getSegments (): number {
         const count = this._knots.length;
         switch (this._mode) {
         case SplineMode.LINEAR:
@@ -385,7 +385,7 @@ export class Spline {
         }
     }
 
-    private static calcLinear (v0: Vec3, v1: Vec3, t: number) {
+    private static calcLinear (v0: Vec3, v1: Vec3, t: number): Vec3 {
         const result = new Vec3();
         Vec3.multiplyScalar(_v0, v0, (1.0 - t));
         Vec3.multiplyScalar(_v1, v1, t);
@@ -394,7 +394,7 @@ export class Spline {
         return result;
     }
 
-    private static calcBezier (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
+    private static calcBezier (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number): Vec3 {
         const result = new Vec3();
         const s = 1.0 - t;
         Vec3.multiplyScalar(_v0, v0, s * s * s);
@@ -407,7 +407,7 @@ export class Spline {
 
         return result;
     }
-    private static calcCatmullRom (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number) {
+    private static calcCatmullRom (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, t: number): Vec3 {
         const result = new Vec3();
         const t2 = t * t;
         const t3 = t2 * t;

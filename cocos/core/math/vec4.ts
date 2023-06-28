@@ -47,7 +47,7 @@ export class Vec4 extends ValueType {
      * @en Obtains a clone of the given vector object
      * @zh 获得指定向量的拷贝
      */
-    public static clone <Out extends IVec4Like> (a: Out) {
+    public static clone <Out extends IVec4Like> (a: Out): Vec4 {
         return new Vec4(a.x, a.y, a.z, a.w);
     }
 
@@ -55,7 +55,7 @@ export class Vec4 extends ValueType {
      * @en Copy the target vector and save the results to out vector object
      * @zh 复制目标向量
      */
-    public static copy <Out extends IVec4Like> (out: Out, a: Out) {
+    public static copy <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -67,7 +67,7 @@ export class Vec4 extends ValueType {
      * @en Sets the out vector with the given x, y, z and w values
      * @zh 设置向量值
      */
-    public static set <Out extends IVec4Like> (out: Out, x: number, y: number, z: number, w: number) {
+    public static set <Out extends IVec4Like> (out: Out, x: number, y: number, z: number, w: number): Out {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -81,7 +81,7 @@ export class Vec4 extends ValueType {
      * @param out
      * @param color
      */
-    public static fromColor <Out extends IVec4Like> (out: Out, color: IColorLike) {
+    public static fromColor <Out extends IVec4Like> (out: Out, color: IColorLike): Out {
         out.x = color.r;
         out.y = color.g;
         out.z = color.b;
@@ -93,7 +93,7 @@ export class Vec4 extends ValueType {
      * @en The angle between two vectors
      * @zh 两个向量之间的夹角
      */
-    public static angle <Out extends IVec4Like> (a: Out, b: Out) {
+    public static angle <Out extends IVec4Like> (a: Out, b: Out): number {
         // use atan2 to get the sign of the angle correctly
         const dx = (a.y * b.z - a.z * b.y);
         const dy = (a.z * b.x - a.x * b.z);
@@ -107,7 +107,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise vector addition and save the results to out vector object
      * @zh 逐元素向量加法
      */
-    public static add <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static add <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -119,7 +119,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise vector subtraction and save the results to out vector object
      * @zh 逐元素向量减法
      */
-    public static subtract <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static subtract <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -131,7 +131,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise vector multiplication and save the results to out vector object
      * @zh 逐元素向量乘法
      */
-    public static multiply <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static multiply <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -143,7 +143,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise vector division and save the results to out vector object
      * @zh 逐元素向量除法
      */
-    public static divide <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static divide <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -155,7 +155,7 @@ export class Vec4 extends ValueType {
      * @en Rounds up by elements of the vector and save the results to out vector object
      * @zh 逐元素向量向上取整
      */
-    public static ceil <Out extends IVec4Like> (out: Out, a: Out) {
+    public static ceil <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -167,7 +167,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise rounds down of the current vector and save the results to the out vector
      * @zh 逐元素向量向下取整
      */
-    public static floor <Out extends IVec4Like> (out: Out, a: Out) {
+    public static floor <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -179,7 +179,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the minimum values by elements of the vector and save the results to the out vector
      * @zh 逐元素向量最小值
      */
-    public static min <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static min <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -191,7 +191,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the maximum values by elements of the vector and save the results to the out vector
      * @zh 逐元素向量最大值
      */
-    public static max <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
+    public static max <Out extends IVec4Like> (out: Out, a: Out, b: Out): Out {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -203,7 +203,7 @@ export class Vec4 extends ValueType {
      * @en Calculates element-wise round results and save to the out vector
      * @zh 逐元素向量四舍五入取整
      */
-    public static round <Out extends IVec4Like> (out: Out, a: Out) {
+    public static round <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -215,7 +215,7 @@ export class Vec4 extends ValueType {
      * @en Vector scalar multiplication and save the results to out vector object
      * @zh 向量标量乘法
      */
-    public static multiplyScalar <Out extends IVec4Like> (out: Out, a: Out, b: number) {
+    public static multiplyScalar <Out extends IVec4Like> (out: Out, a: Out, b: number): Out {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -227,7 +227,7 @@ export class Vec4 extends ValueType {
      * @en Element-wise multiplication and addition with the equation: a + b * scale
      * @zh 逐元素向量乘加: A + B * scale
      */
-    public static scaleAndAdd <Out extends IVec4Like> (out: Out, a: Out, b: Out, scale: number) {
+    public static scaleAndAdd <Out extends IVec4Like> (out: Out, a: Out, b: Out, scale: number): Out {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         out.z = a.z + (b.z * scale);
@@ -239,7 +239,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the euclidean distance of two vectors
      * @zh 求两向量的欧氏距离
      */
-    public static distance <Out extends IVec4Like> (a: Out, b: Out) {
+    public static distance <Out extends IVec4Like> (a: Out, b: Out): number {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -251,7 +251,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the squared euclidean distance of two vectors
      * @zh 求两向量的欧氏距离平方
      */
-    public static squaredDistance <Out extends IVec4Like> (a: Out, b: Out) {
+    public static squaredDistance <Out extends IVec4Like> (a: Out, b: Out): number {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -263,7 +263,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the length of the vector
      * @zh 求向量长度
      */
-    public static len <Out extends IVec4Like> (a: Out) {
+    public static len <Out extends IVec4Like> (a: Out): number {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -275,7 +275,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the squared length of the vector
      * @zh 求向量长度平方
      */
-    public static lengthSqr <Out extends IVec4Like> (a: Out) {
+    public static lengthSqr <Out extends IVec4Like> (a: Out): number {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -287,7 +287,7 @@ export class Vec4 extends ValueType {
      * @en Sets each element to its negative value
      * @zh 逐元素向量取负
      */
-    public static negate <Out extends IVec4Like> (out: Out, a: Out) {
+    public static negate <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -299,7 +299,7 @@ export class Vec4 extends ValueType {
      * @en Sets each element to its inverse value, zero value will become Infinity
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
-    public static inverse <Out extends IVec4Like> (out: Out, a: Out) {
+    public static inverse <Out extends IVec4Like> (out: Out, a: Out): Out {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -311,7 +311,7 @@ export class Vec4 extends ValueType {
      * @en Sets each element to its inverse value, zero value will remain zero
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
-    public static inverseSafe <Out extends IVec4Like> (out: Out, a: Out) {
+    public static inverseSafe <Out extends IVec4Like> (out: Out, a: Out): Out {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -348,7 +348,7 @@ export class Vec4 extends ValueType {
      * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
      * @zh 归一化向量，输入零向量将会返回零向量。
      */
-    public static normalize <Out extends IVec4Like> (out: Out, a: Out) {
+    public static normalize <Out extends IVec4Like> (out: Out, a: Out): Out {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -373,7 +373,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the dot product of the vector
      * @zh 向量点积（数量积）
      */
-    public static dot <Out extends IVec4Like> (a: Out, b: Out) {
+    public static dot <Out extends IVec4Like> (a: Out, b: Out): number {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -381,7 +381,7 @@ export class Vec4 extends ValueType {
      * @en Calculates the linear interpolation between two vectors with a given ratio
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
-    public static lerp <Out extends IVec4Like> (out: Out, a: Out, b: Out, t: number) {
+    public static lerp <Out extends IVec4Like> (out: Out, a: Out, b: Out, t: number): Out {
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -393,7 +393,7 @@ export class Vec4 extends ValueType {
      * @en Scales all ell elements of this vector by the specified scalar value
      * @zh 逐元素向量缩放
      */
-    public static scale <Out extends IVec4Like> (out: Out, a: Out, b: number) {
+    public static scale <Out extends IVec4Like> (out: Out, a: Out, b: number): Out {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -406,7 +406,7 @@ export class Vec4 extends ValueType {
      * @zh 生成一个在单位球体上均匀分布的随机向量
      * @param scale vector length
      */
-    public static random <Out extends IVec4Like> (out: Out, scale?: number) {
+    public static random <Out extends IVec4Like> (out: Out, scale?: number): Out {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -424,7 +424,7 @@ export class Vec4 extends ValueType {
      * @en Vector and fourth order matrix multiplication
      * @zh 向量与四维矩阵乘法
      */
-    public static transformMat4 <Out extends IVec4Like, MatLike extends IMat4Like> (out: Out, a: Out, m: MatLike) {
+    public static transformMat4 <Out extends IVec4Like, MatLike extends IMat4Like> (out: Out, a: Out, m: MatLike): Out {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -441,7 +441,7 @@ export class Vec4 extends ValueType {
      * @zh 向量仿射变换
      */
     public static transformAffine<Out extends IVec4Like, VecLike extends IVec4Like, MatLike extends IMat4Like>
-    (out: Out, v: VecLike, m: MatLike) {
+    (out: Out, v: VecLike, m: MatLike): Out {
         const x = v.x;
         const y = v.y;
         const z = v.z;
@@ -457,7 +457,7 @@ export class Vec4 extends ValueType {
      * @en Vector quaternion multiplication
      * @zh 向量四元数乘法
      */
-    public static transformQuat <Out extends IVec4Like, QuatLike extends IQuatLike> (out: Out, a: Out, q: QuatLike) {
+    public static transformQuat <Out extends IVec4Like, QuatLike extends IQuatLike> (out: Out, a: Out, q: QuatLike): Out {
         // qpq^{-1} https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
         const { x, y, z } = a;
 
@@ -485,7 +485,7 @@ export class Vec4 extends ValueType {
      * @zh 向量转数组
      * @param ofs Array Start Offset
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec4Like, ofs = 0) {
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec4Like, ofs = 0): Out {
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
         out[ofs + 2] = v.z;
@@ -498,7 +498,7 @@ export class Vec4 extends ValueType {
      * @zh 数组转向量
      * @param ofs Array Start Offset
      */
-    public static fromArray <Out extends IVec4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+    public static fromArray <Out extends IVec4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0): Out {
         out.x = arr[ofs + 0];
         out.y = arr[ofs + 1];
         out.z = arr[ofs + 2];
@@ -510,7 +510,7 @@ export class Vec4 extends ValueType {
      * @en Check the equality of the two given vectors
      * @zh 向量等价判断
      */
-    public static strictEquals <Out extends IVec4Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IVec4Like> (a: Out, b: Out): boolean {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -518,7 +518,7 @@ export class Vec4 extends ValueType {
      * @en Check whether the two given vectors are approximately equivalent
      * @zh 排除浮点数误差的向量近似等价判断
      */
-    public static equals <Out extends IVec4Like> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals <Out extends IVec4Like> (a: Out, b: Out, epsilon = EPSILON): boolean {
         // relative epsilon comparison with small number guard:
         // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
         const hasInf =  Math.abs(a.x) === Infinity || Math.abs(a.y) === Infinity || Math.abs(a.z) === Infinity || Math.abs(a.w) === Infinity
@@ -576,7 +576,7 @@ export class Vec4 extends ValueType {
      * @en clone the current Vec4 value.
      * @zh 克隆当前向量。
      */
-    public clone () {
+    public clone (): Vec4 {
         return new Vec4(this.x, this.y, this.z, this.w);
     }
 
@@ -599,7 +599,7 @@ export class Vec4 extends ValueType {
      */
     public set (x?: number, y?: number, z?: number, w?: number): Vec4;
 
-    public set (x?: number | Vec4, y?: number, z?: number, w?: number) {
+    public set (x?: number | Vec4, y?: number, z?: number, w?: number): Vec4 {
         if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
@@ -621,7 +621,7 @@ export class Vec4 extends ValueType {
      * @param epsilon The error allowed. It`s should be a non-negative number.
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public equals (other: Vec4, epsilon = EPSILON) {
+    public equals (other: Vec4, epsilon = EPSILON): boolean {
         return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
             && Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
             && Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
@@ -638,7 +638,7 @@ export class Vec4 extends ValueType {
      * @param epsilon The error allowed. It`s should be a non-negative number.
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON) {
+    public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON): boolean {
         return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
             && Math.abs(this.y - y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
             && Math.abs(this.z - z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
@@ -651,7 +651,7 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public strictEquals (other: Vec4) {
+    public strictEquals (other: Vec4): boolean {
         return this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
@@ -664,7 +664,7 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public strictEquals4f (x: number, y: number, z: number, w: number) {
+    public strictEquals4f (x: number, y: number, z: number, w: number): boolean {
         return this.x === x && this.y === y && this.z === z && this.w === w;
     }
 
@@ -674,7 +674,7 @@ export class Vec4 extends ValueType {
      * @param to Target vector
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Vec4, ratio: number) {
+    public lerp (to: Vec4, ratio: number): Vec4 {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -691,7 +691,7 @@ export class Vec4 extends ValueType {
      * @zh 返回当前向量的字符串表示。
      * @returns The string with vector information
      */
-    public toString () {
+    public toString (): string {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}, ${this.w.toFixed(2)})`;
     }
 
@@ -702,7 +702,7 @@ export class Vec4 extends ValueType {
      * @param maxInclusive Maximum value allowed
      * @returns `this`
      */
-    public clampf (minInclusive: Vec4, maxInclusive: Vec4) {
+    public clampf (minInclusive: Vec4, maxInclusive: Vec4): Vec4 {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
         this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
         this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
@@ -715,7 +715,7 @@ export class Vec4 extends ValueType {
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other specified vector
      */
-    public add (other: Vec4) {
+    public add (other: Vec4): Vec4 {
         this.x += other.x;
         this.y += other.y;
         this.z += other.z;
@@ -731,7 +731,7 @@ export class Vec4 extends ValueType {
      * @param z The z value of specified vector
      * @param w The w value of specified vector
      */
-    public add4f (x: number, y: number, z: number, w: number) {
+    public add4f (x: number, y: number, z: number, w: number): Vec4 {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -744,7 +744,7 @@ export class Vec4 extends ValueType {
      * @zh 向量减法。将当前向量减去指定向量
      * @param other specified vector
      */
-    public subtract (other: Vec4) {
+    public subtract (other: Vec4): Vec4 {
         this.x -= other.x;
         this.y -= other.y;
         this.z -= other.z;
@@ -760,7 +760,7 @@ export class Vec4 extends ValueType {
      * @param z The z value of specified vector
      * @param w The w value of specified vector
      */
-    public subtract4f (x: number, y: number, z: number, w: number) {
+    public subtract4f (x: number, y: number, z: number, w: number): Vec4 {
         this.x -= x;
         this.y -= y;
         this.z -= z;
@@ -773,7 +773,7 @@ export class Vec4 extends ValueType {
      * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar scalar number
      */
-    public multiplyScalar (scalar: number) {
+    public multiplyScalar (scalar: number): Vec4 {
         if (typeof scalar === 'object') { console.warn('should use Vec4.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
@@ -787,7 +787,7 @@ export class Vec4 extends ValueType {
      * @zh 向量乘法。将当前向量乘以指定向量
      * @param other specified vector
      */
-    public multiply (other: Vec4) {
+    public multiply (other: Vec4): Vec4 {
         if (typeof other !== 'object') { console.warn('should use Vec4.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
@@ -804,7 +804,7 @@ export class Vec4 extends ValueType {
      * @param z The z value of specified vector
      * @param w The w value of specified vector
      */
-    public multiply4f (x: number, y: number, z: number, w: number) {
+    public multiply4f (x: number, y: number, z: number, w: number): Vec4 {
         this.x *= x;
         this.y *= y;
         this.z *= z;
@@ -817,7 +817,7 @@ export class Vec4 extends ValueType {
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other specified vector
      */
-    public divide (other: Vec4) {
+    public divide (other: Vec4): Vec4 {
         this.x /= other.x;
         this.y /= other.y;
         this.z /= other.z;
@@ -833,7 +833,7 @@ export class Vec4 extends ValueType {
      * @param z The z value of specified vector
      * @param w The w value of specified vector
      */
-    public divide4f (x: number, y: number, z: number, w: number) {
+    public divide4f (x: number, y: number, z: number, w: number): Vec4 {
         this.x /= x;
         this.y /= y;
         this.z /= z;
@@ -845,7 +845,7 @@ export class Vec4 extends ValueType {
      * @en Sets each component of this vector with its negative value
      * @zh 将当前向量的各个分量取反
      */
-    public negative () {
+    public negative (): Vec4 {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
@@ -859,7 +859,7 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      * @returns 当前向量与指定向量点乘的结果。
      */
-    public dot (vector: Vec4) {
+    public dot (vector: Vec4): number {
         return this.x * vector.x + this.y * vector.y + this.z * vector.z + this.w * vector.w;
     }
 
@@ -870,7 +870,7 @@ export class Vec4 extends ValueType {
      *
      * @deprecated since v3.8 cross product only defined in 3D space, use [[Vec3.cross]] instead.
      */
-    public cross (vector: Vec4) {
+    public cross (vector: Vec4): Vec4 {
         const { x: ax, y: ay, z: az } = this;
         const { x: bx, y: by, z: bz } = vector;
 
@@ -885,7 +885,7 @@ export class Vec4 extends ValueType {
      * @zh 计算向量的长度（模）。
      * @returns Length of vector
      */
-    public length () {
+    public length (): number {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -898,7 +898,7 @@ export class Vec4 extends ValueType {
      * @zh 计算向量长度（模）的平方。
      * @returns the squared length of this vector
      */
-    public lengthSqr () {
+    public lengthSqr (): number {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -910,7 +910,7 @@ export class Vec4 extends ValueType {
      * @en Normalize the current vector.
      * @zh 将当前向量归一化
      */
-    public normalize () {
+    public normalize (): Vec4 {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -930,7 +930,7 @@ export class Vec4 extends ValueType {
      * @en Scales the current vector by a scalar number.
      * @zh 向量数乘。
      */
-    public scale (scalar: number) {
+    public scale (scalar: number): Vec4 {
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
@@ -943,7 +943,7 @@ export class Vec4 extends ValueType {
      * @zh 应用四维矩阵变换到当前矩阵
      * @param matrix matrix to transform with
      */
-    public transformMat4 (matrix: Mat4) {
+    public transformMat4 (matrix: Mat4): Vec4 {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -962,7 +962,7 @@ legacyCC.Vec4 = Vec4;
 export function v4 (other: Vec4): Vec4;
 export function v4 (x?: number, y?: number, z?: number, w?: number): Vec4;
 
-export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number) {
+export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number): Vec4 {
     return new Vec4(x as any, y, z, w);
 }
 

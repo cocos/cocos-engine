@@ -91,7 +91,7 @@ export class StencilManager {
      * @zh 模板缓冲阶段。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get stage () {
+    get stage (): Stage {
         return this._stage;
     }
     set stage (val: Stage) {
@@ -103,7 +103,16 @@ export class StencilManager {
      * @zh 模板缓冲样式。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get pattern () {
+    get pattern (): {
+        stencilTest: boolean;
+        func: ComparisonFunc;
+        stencilMask: number;
+        writeMask: number;
+        failOp: StencilOp;
+        zFailOp: StencilOp;
+        passOp: StencilOp;
+        ref: number;
+    } {
         return this._stencilPattern;
     }
 
@@ -112,7 +121,7 @@ export class StencilManager {
      * @zh 添加mask嵌套。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public pushMask (mask: any) {
+    public pushMask (mask: any): void {
         this._maskStack.push(mask);
     }
 
@@ -121,7 +130,7 @@ export class StencilManager {
      * @zh 清空模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public clear (comp: UIRenderer | UIMeshRenderer) {
+    public clear (comp: UIRenderer | UIMeshRenderer): Stage {
         const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
         return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }
@@ -131,7 +140,7 @@ export class StencilManager {
      * @zh 开启模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public enableMask () {
+    public enableMask (): void {
         this.stage = Stage.ENABLED;
     }
 
@@ -140,7 +149,7 @@ export class StencilManager {
      * @zh 退出模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public exitMask () {
+    public exitMask (): void {
         if (this._maskStack.length === 0) {
             // cc.errorID(9001);
             return;
@@ -158,7 +167,7 @@ export class StencilManager {
      * @zh 获取写入模板缓冲的位数。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public getWriteMask () {
+    public getWriteMask (): number {
         return 1 << (this._maskStack.length - 1);
     }
 
@@ -167,11 +176,11 @@ export class StencilManager {
      * @zh 获取退出时模板缓冲的位数。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public getExitWriteMask () {
+    public getExitWriteMask (): number {
         return 1 << this._maskStack.length;
     }
 
-    private getStencilRef () {
+    private getStencilRef (): number {
         let result = 0;
         for (let i = 0; i < this._maskStack.length; ++i) {
             result += (0x00000001 << i);
@@ -184,7 +193,7 @@ export class StencilManager {
      * @zh 获取mask嵌套数量。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public getMaskStackSize () {
+    public getMaskStackSize (): number {
         return this._maskStack.length;
     }
 
@@ -193,13 +202,13 @@ export class StencilManager {
      * @zh 重置模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public reset () {
+    public reset (): void {
         // reset stack and stage
         this._maskStack.length = 0;
         this.stage = Stage.DISABLED;
     }
 
-    public destroy () {
+    public destroy (): void {
         this.stencilStateMap.forEach((value, key) => {
             value.destroy();
         });
@@ -214,7 +223,7 @@ export class StencilManager {
      * @zh 获取模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public getStencilStage (stage: Stage, mat?: Material) {
+    public getStencilStage (stage: Stage, mat?: Material): DepthStencilState {
         let key = 0;
         let depthTest = false;
         let depthWrite = false;
@@ -269,12 +278,12 @@ export class StencilManager {
      * @zh 获取模板状态的哈希值。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public getStencilHash (stage: Stage) {
+    public getStencilHash (stage: Stage): number {
         return (stage << 8) | this._maskStack.length;
     }
 
     // Notice: Only children node in Mask need use this.stage
-    private setStateFromStage (stage) {
+    private setStateFromStage (stage): void {
         const pattern = this._stencilPattern;
         if (stage === Stage.DISABLED) {
             pattern.stencilTest = false;

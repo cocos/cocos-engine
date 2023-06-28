@@ -53,26 +53,26 @@ export class BulletRigidBody implements IRigidBody {
         return state === btCollisionObjectStates.ISLAND_SLEEPING;
     }
 
-    setMass (value: number) {
+    setMass (value: number): void {
         if (!this._rigidBody.isDynamic) return;
         bt.RigidBody_setMass(this.impl, value);
         this._wakeUpIfSleep();
         this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
-    setType (v: ERigidBodyType) {
+    setType (v: ERigidBodyType): void {
         this._sharedBody.setType(v);
     }
 
-    setLinearDamping (value: number) {
+    setLinearDamping (value: number): void {
         bt.RigidBody_setDamping(this.impl, this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    setAngularDamping (value: number) {
+    setAngularDamping (value: number): void {
         bt.RigidBody_setDamping(this.impl, this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    useGravity (value: boolean) {
+    useGravity (value: boolean): void {
         if (!this._rigidBody.isDynamic) return;
         let m_rigidBodyFlag = bt.RigidBody_getFlags(this.impl);
         if (value) {
@@ -86,27 +86,27 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
-    useCCD (value: boolean) {
+    useCCD (value: boolean): void {
         bt.CollisionObject_setCcdMotionThreshold(this.impl, value ? 0.01 : 0);
         bt.CollisionObject_setCcdSweptSphereRadius(this.impl, value ? 0.1 : 0);
         this._isUsingCCD = value;
     }
 
-    isUsingCCD () {
+    isUsingCCD (): boolean {
         return this._isUsingCCD;
     }
 
-    setLinearFactor (v: IVec3Like) {
+    setLinearFactor (v: IVec3Like): void {
         bt.RigidBody_setLinearFactor(this.impl, cocos2BulletVec3(BulletCache.instance.BT_V3_0, v));
         this._wakeUpIfSleep();
     }
 
-    setAngularFactor (v: IVec3Like) {
+    setAngularFactor (v: IVec3Like): void {
         bt.RigidBody_setAngularFactor(this.impl, cocos2BulletVec3(BulletCache.instance.BT_V3_0, v));
         this._wakeUpIfSleep();
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         if (!this._rigidBody.isDynamic) return;
         if (v) {
             bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.ACTIVE_TAG);
@@ -119,10 +119,10 @@ export class BulletRigidBody implements IRigidBody {
     private static idCounter = 0;
     readonly id: number;
 
-    get impl () { return this._sharedBody.body; }
-    get rigidBody () { return this._rigidBody; }
-    get sharedBody () { return this._sharedBody; }
-    get isEnabled () { return this._isEnabled; }
+    get impl (): number { return this._sharedBody.body; }
+    get rigidBody (): RigidBody { return this._rigidBody; }
+    get sharedBody (): BulletSharedBody { return this._sharedBody; }
+    get isEnabled (): boolean { return this._isEnabled; }
 
     private _isEnabled = false;
     private _isUsingCCD = false;
@@ -148,13 +148,13 @@ export class BulletRigidBody implements IRigidBody {
 
     /** LIFECYCLE */
 
-    initialize (com: RigidBody) {
+    initialize (com: RigidBody): void {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BulletWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
     }
 
-    onEnable () {
+    onEnable (): void {
         this._isEnabled = true;
         this.setMass(this._rigidBody.mass);
         this.setAllowSleep(this._rigidBody.allowSleep);
@@ -166,12 +166,12 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.bodyEnabled = true;
     }
 
-    onDisable () {
+    onDisable (): void {
         this._isEnabled = false;
         this._sharedBody.bodyEnabled = false;
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         (this._rigidBody as any) = null;
         (this._sharedBody as any) = null;
@@ -316,7 +316,7 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
-    protected _wakeUpIfSleep () {
+    protected _wakeUpIfSleep (): void {
         if (!this.isAwake) { bt.CollisionObject_activate(this.impl, true); }
     }
 }

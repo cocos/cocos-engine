@@ -29,13 +29,13 @@ import { b2PhysicsWorld } from '../physics-world';
 import { Vec2 } from '../../../core';
 
 export class b2Joint implements IJoint2D {
-    get impl () {
+    get impl (): b2.Joint | null {
         return this._b2joint;
     }
-    get comp () {
+    get comp (): Joint2D | null {
         return this._jointComp;
     }
-    get body () {
+    get body (): RigidBody2D | null {
         return this._body;
     }
 
@@ -45,24 +45,24 @@ export class b2Joint implements IJoint2D {
 
     private _inited = false;
 
-    initialize (comp: Joint2D) {
+    initialize (comp: Joint2D): void {
         this._jointComp = comp;
     }
 
-    onEnable () {
+    onEnable (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
     }
 
-    onDisable () {
+    onDisable (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
     }
 
     // need init after body and connected body init
-    start () {
+    start (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
     }
 
-    _init () {
+    _init (): void {
         if (this._inited) return;
 
         const comp = this._jointComp!;
@@ -98,7 +98,7 @@ export class b2Joint implements IJoint2D {
         this._inited = true;
     }
 
-    _destroy () {
+    _destroy (): void {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
@@ -111,7 +111,7 @@ export class b2Joint implements IJoint2D {
         return null;
     }
 
-    isValid () {
+    isValid (): Joint2D | null {
         return this._b2joint && this._body && this._body.impl && this._jointComp;
     }
 }

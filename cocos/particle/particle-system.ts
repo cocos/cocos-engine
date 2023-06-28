@@ -28,7 +28,7 @@ import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Renderer } from '../misc/renderer';
 import { ModelRenderer } from '../misc/model-renderer';
 import { Material } from '../asset/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy } from '../core';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy, warn } from '../core';
 import { scene } from '../render-scene';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';
@@ -80,7 +80,7 @@ export class ParticleSystem extends ModelRenderer {
     @range([0, Number.POSITIVE_INFINITY, 1])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
-    public get capacity () {
+    public get capacity (): number {
         return this._capacity;
     }
 
@@ -255,7 +255,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @displayOrder(3)
     @tooltip('i18n:particle_system.prewarm')
-    get prewarm () {
+    get prewarm (): boolean {
         return this._prewarm;
     }
 
@@ -274,7 +274,7 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     @displayOrder(4)
     @tooltip('i18n:particle_system.simulationSpace')
-    get simulationSpace () {
+    get simulationSpace (): number {
         return this._simulationSpace;
     }
 
@@ -367,7 +367,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    get renderCulling () {
+    get renderCulling (): boolean {
         return this._renderCulling;
     }
 
@@ -381,7 +381,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(CullingMode)
     @displayOrder(17)
     @tooltip('i18n:particle_system.cullingMode')
-    get cullingMode () {
+    get cullingMode (): number {
         return this._cullingMode;
     }
 
@@ -405,7 +405,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfX')
-    get aabbHalfX () {
+    get aabbHalfX (): number {
         const res = this.getBoundingX();
         if (res) {
             return res;
@@ -428,7 +428,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfY')
-    get aabbHalfY () {
+    get aabbHalfY (): number {
         const res = this.getBoundingY();
         if (res) {
             return res;
@@ -451,7 +451,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(CCFloat)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfZ')
-    get aabbHalfZ () {
+    get aabbHalfZ (): number {
         const res = this.getBoundingZ();
         if (res) {
             return res;
@@ -473,7 +473,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @displayOrder(28)
     @tooltip('i18n:particle_system.dataCulling')
-    get dataCulling () {
+    get dataCulling (): boolean {
         return this._dataCulling;
     }
 
@@ -489,7 +489,7 @@ export class ParticleSystem extends ModelRenderer {
     @visible(false)
     @serializable
     @displayName('Materials')
-    get sharedMaterials () {
+    get sharedMaterials (): any {
         // if we don't create an array copy, the editor will modify the original array directly.
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return superMaterials.get!.call(this);
@@ -510,7 +510,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ColorOverLifetimeModule)
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
-    public get colorOverLifetimeModule () {
+    public get colorOverLifetimeModule (): ColorOverLifetimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._colorOverLifetimeModule) {
                 this._colorOverLifetimeModule = new ColorOverLifetimeModule();
@@ -535,7 +535,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ShapeModule)
     @displayOrder(17)
     @tooltip('i18n:particle_system.shapeModule')
-    public get shapeModule () {
+    public get shapeModule (): ShapeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._shapeModule) {
                 this._shapeModule = new ShapeModule();
@@ -560,7 +560,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     @displayOrder(21)
     @tooltip('i18n:particle_system.sizeOvertimeModule')
-    public get sizeOvertimeModule () {
+    public get sizeOvertimeModule (): SizeOvertimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._sizeOvertimeModule) {
                 this._sizeOvertimeModule = new SizeOvertimeModule();
@@ -585,7 +585,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     @displayOrder(18)
     @tooltip('i18n:particle_system.velocityOvertimeModule')
-    public get velocityOvertimeModule () {
+    public get velocityOvertimeModule (): VelocityOvertimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._velocityOvertimeModule) {
                 this._velocityOvertimeModule = new VelocityOvertimeModule();
@@ -610,7 +610,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ForceOvertimeModule)
     @displayOrder(19)
     @tooltip('i18n:particle_system.forceOvertimeModule')
-    public get forceOvertimeModule () {
+    public get forceOvertimeModule (): ForceOvertimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._forceOvertimeModule) {
                 this._forceOvertimeModule = new ForceOvertimeModule();
@@ -636,7 +636,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(LimitVelocityOvertimeModule)
     @displayOrder(20)
     @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
-    public get limitVelocityOvertimeModule () {
+    public get limitVelocityOvertimeModule (): LimitVelocityOvertimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._limitVelocityOvertimeModule) {
                 this._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
@@ -661,7 +661,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(RotationOvertimeModule)
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
-    public get rotationOvertimeModule () {
+    public get rotationOvertimeModule (): RotationOvertimeModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._rotationOvertimeModule) {
                 this._rotationOvertimeModule = new RotationOvertimeModule();
@@ -686,7 +686,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TextureAnimationModule)
     @displayOrder(24)
     @tooltip('i18n:particle_system.textureAnimationModule')
-    public get textureAnimationModule () {
+    public get textureAnimationModule (): TextureAnimationModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._textureAnimationModule) {
                 this._textureAnimationModule = new TextureAnimationModule();
@@ -715,7 +715,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(NoiseModule)
     @displayOrder(24)
     @tooltip('i18n:particle_system.noiseModule')
-    public get noiseModule () {
+    public get noiseModule (): NoiseModule | null {
         if (EDITOR) {
             if (!this._noiseModule) {
                 this._noiseModule = new NoiseModule();
@@ -740,7 +740,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TrailModule)
     @displayOrder(25)
     @tooltip('i18n:particle_system.trailModule')
-    public get trailModule () {
+    public get trailModule (): TrailModule | null {
         if (EDITOR_NOT_IN_PREVIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
@@ -846,11 +846,11 @@ export class ParticleSystem extends ModelRenderer {
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
     }
 
-    public onFocusInEditor () {
+    public onFocusInEditor (): void {
         this.renderer.create(this);
     }
 
-    public onLoad () {
+    public onLoad (): void {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
@@ -866,7 +866,7 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onMaterialModified (index: number, material: Material) {
+    public _onMaterialModified (index: number, material: Material): void {
         if (this.processor !== null) {
             this.processor.onMaterialModified(index, material);
         }
@@ -875,7 +875,7 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onRebuildPSO (index: number, material: Material) {
+    public _onRebuildPSO (index: number, material: Material): void {
         this.processor.onRebuildPSO(index, material);
     }
 
@@ -891,7 +891,7 @@ export class ParticleSystem extends ModelRenderer {
         return this._models;
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
         this.processor.attachToScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._attachToScene();
@@ -901,7 +901,7 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _detachFromScene () {
+    public _detachFromScene (): void {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
@@ -920,7 +920,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Bind module to particle processor.
      * @zh 把模块绑定到粒子更新函数上。
      */
-    private bindModule () {
+    private bindModule (): void {
         if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
         if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
         if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor);
@@ -940,7 +940,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Play particle system.
      * @zh 播放粒子效果。
      */
-    public play () {
+    public play (): void {
         if (this._needToRestart) {
             this.reset();
             this._needToRestart = false;
@@ -979,9 +979,9 @@ export class ParticleSystem extends ModelRenderer {
      * @en Pause particle system.
      * @zh 暂停播放粒子效果。
      */
-    public pause () {
+    public pause (): void {
         if (this._isStopped) {
-            console.warn('pause(): particle system is already stopped.');
+            warn('pause(): particle system is already stopped.');
             return;
         }
         if (this._isPlaying) {
@@ -995,7 +995,7 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 停止发射粒子。
      * @en Stop emitting particles.
      */
-    public stopEmitting () {
+    public stopEmitting (): void {
         this._isEmitting = false;
         this._needToRestart = true;
     }
@@ -1004,7 +1004,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Stop particle system.
      * @zh 停止播放粒子。
      */
-    public stop () {
+    public stop (): void {
         if (this._isPlaying || this._isPaused) {
             this.clear();
         }
@@ -1026,7 +1026,7 @@ export class ParticleSystem extends ModelRenderer {
         this.reset();
     }
 
-    private reset () {
+    private reset (): void {
         this._time = 0.0;
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
@@ -1041,7 +1041,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en remove all particles from current particle system.
      * @zh 将所有粒子从粒子系统中清除。
      */
-    public clear () {
+    public clear (): void {
         if (this.enabledInHierarchy) {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
@@ -1053,7 +1053,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Get current particle capacity.
      * @zh 获取当前粒子数量。
      */
-    public getParticleCount () {
+    public getParticleCount (): number {
         if (this.processor) {
             return this.processor.getParticleCount();
         } else {
@@ -1064,18 +1064,18 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @ignore
      */
-    public setCustomData1 (x, y) {
+    public setCustomData1 (x, y): void {
         Vec2.set(this._customData1, x, y);
     }
 
     /**
      * @ignore
      */
-    public setCustomData2 (x, y) {
+    public setCustomData2 (x, y): void {
         Vec2.set(this._customData2, x, y);
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         this.stop();
         if (this.processor.getModel()?.scene) {
             this.processor.detachFromScene();
@@ -1094,7 +1094,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         super.onEnable();
         cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         if (this.playOnAwake && !EDITOR_NOT_IN_PREVIEW) {
@@ -1103,7 +1103,7 @@ export class ParticleSystem extends ModelRenderer {
         this.processor.onEnable();
         if (this._trailModule) this._trailModule.onEnable();
     }
-    protected onDisable () {
+    protected onDisable (): void {
         cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
@@ -1117,7 +1117,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    private _calculateBounding (forceRefresh: boolean) {
+    private _calculateBounding (forceRefresh: boolean): void {
         if (this._boundingBox) {
             if (!this._culler) {
                 this._culler = new ParticleCuller(this);
@@ -1151,7 +1151,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected update (dt: number) {
+    protected update (dt: number): void {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
         if (!this.renderCulling) {
@@ -1286,7 +1286,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected beforeRender () {
+    protected beforeRender (): void {
         if (this.getParticleCount() <= 0) {
             if (this.processor.getModel()?.scene) {
                 this.processor.detachFromScene();
@@ -1299,7 +1299,7 @@ export class ParticleSystem extends ModelRenderer {
             this._needAttach = true;
         }
 
-        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
+        if (!this._isPlaying) return;
 
         // update render data
         this.processor.updateRenderData();
@@ -1311,13 +1311,13 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected _onVisibilityChange (val) {
+    protected _onVisibilityChange (val): void {
         if (this.processor.model) {
             this.processor.model.visFlags = val;
         }
     }
 
-    private emit (count: number, dt: number) {
+    private emit (count: number, dt: number): void {
         const loopDelta = (this._time % this.duration) / this.duration; // loop delta value
 
         // refresh particle node position to update emit position
@@ -1399,7 +1399,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // initialize particle system as though it had already completed a full cycle.
-    private _prewarmSystem () {
+    private _prewarmSystem (): void {
         this.startDelay.mode = Mode.Constant; // clear startDelay.
         this.startDelay.constant = 0;
         const dt = 1.0; // should use varying value?
@@ -1413,7 +1413,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // internal function
-    private _emit (dt) {
+    private _emit (dt): void {
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {
@@ -1458,40 +1458,40 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    private _resetPosition () {
+    private _resetPosition (): void {
         this.node.getWorldPosition(this._oldWPos);
         Vec3.copy(this._curWPos, this._oldWPos);
     }
 
-    private addSubEmitter (subEmitter) {
+    private addSubEmitter (subEmitter): void {
         this._subEmitters.push(subEmitter);
     }
 
-    private removeSubEmitter (idx) {
+    private removeSubEmitter (idx): void {
         this._subEmitters.splice(this._subEmitters.indexOf(idx), 1);
     }
 
-    private addBurst (burst) {
+    private addBurst (burst): void {
         this.bursts.push(burst);
     }
 
-    private removeBurst (idx) {
+    private removeBurst (idx): void {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
     }
 
-    private getBoundingX () {
+    private getBoundingX (): number {
         return this._aabbHalfX;
     }
 
-    private getBoundingY () {
+    private getBoundingY (): number {
         return this._aabbHalfY;
     }
 
-    private getBoundingZ () {
+    private getBoundingZ (): number {
         return this._aabbHalfZ;
     }
 
-    private setBoundingX (value: number) {
+    private setBoundingX (value: number): void {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.x = value;
             this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
@@ -1499,7 +1499,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    private setBoundingY (value: number) {
+    private setBoundingY (value: number): void {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.y = value;
             this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
@@ -1507,7 +1507,7 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    private setBoundingZ (value: number) {
+    private setBoundingZ (value: number): void {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.z = value;
             this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
@@ -1518,7 +1518,7 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @ignore
      */
-    get isPlaying () {
+    get isPlaying (): boolean {
         return this._isPlaying;
     }
 
@@ -1526,7 +1526,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Query particle system is paused or not.
      * @zh 获取粒子系统当前是否已经暂停运行。
      */
-    get isPaused () {
+    get isPaused (): boolean {
         return this._isPaused;
     }
 
@@ -1534,7 +1534,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Query particle system is stopped or not.
      * @zh 获取粒子系统当前是否已经停止。
      */
-    get isStopped () {
+    get isStopped (): boolean {
         return this._isStopped;
     }
 
@@ -1542,7 +1542,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Query particle system is emitting or not.
      * @zh 获取粒子系统当前是否还在发射。
      */
-    get isEmitting () {
+    get isEmitting (): boolean {
         return this._isEmitting;
     }
 
@@ -1550,16 +1550,16 @@ export class ParticleSystem extends ModelRenderer {
      * @en Query particle system simulation time.
      * @zh 获取粒子系统运行时间。
      */
-    get time () {
+    get time (): number {
         return this._time;
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props) {
+    public _onBeforeSerialize (props): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+        return this.dataCulling ? props.filter((p): any => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 
     /**

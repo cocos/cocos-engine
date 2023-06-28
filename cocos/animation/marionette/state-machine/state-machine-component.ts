@@ -75,7 +75,7 @@ export class StateMachineComponent {
      * 在刚刚进入状态机时调用。
      * @param controller The animation controller it within.
      */
-    public onStateMachineEnter (controller: AnimationController) {
+    public onStateMachineEnter (controller: AnimationController): void {
         // Can be overrode
     }
 
@@ -86,7 +86,7 @@ export class StateMachineComponent {
      * 在即将退出状态机时调用。
      * @param controller The animation controller it within.
      */
-    public onStateMachineExit (controller: AnimationController) {
+    public onStateMachineExit (controller: AnimationController): void {
         // Can be overrode
     }
 }

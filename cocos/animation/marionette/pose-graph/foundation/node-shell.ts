@@ -38,7 +38,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
      * Gets all bindings on this node.
      * @returns @zh 绑定对象数组。 @en The binding objects array.
      */
-    public getBindings () {
+    public getBindings (): PoseGraphNodeInputBinding[] {
         return this._bindings;
     }
 
@@ -55,7 +55,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
      * @en A binding is keyed by the 3-element tuple: input path, producer node and producer output index.
      * Redundantly adding a binding takes no effect.
      */
-    public addBinding (inputPath: NodeInputPath, producer: PoseGraphNode, outputIndex: number) {
+    public addBinding (inputPath: NodeInputPath, producer: PoseGraphNode, outputIndex: number): void {
         this._emplaceBinding(new PoseGraphNodeInputBinding(
             inputPath,
             producer,
@@ -70,7 +70,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
      * Deletes the binding on specified input.
      * @param inputPath @zh 要解绑的输入的路径。 @en Path of the input to unbind.
      */
-    public deleteBinding (inputPath: NodeInputPath) {
+    public deleteBinding (inputPath: NodeInputPath): void {
         const index = this._findBindingIndex(inputPath);
         if (index >= 0) {
             this._bindings.splice(index, 1);
@@ -91,7 +91,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
      * @param forward @en 替换的方向。`true` 表示向前替换，反之向后。
      *              @en Substitution direction. `true` means substitute in forward, backward otherwise.
      */
-    public moveArrayElementBindingForward (propertyKey: string, firstIndex: number, forward: boolean) {
+    public moveArrayElementBindingForward (propertyKey: string, firstIndex: number, forward: boolean): void {
         // TODO: this method has worse performance!
         const { _bindings: bindings } = this;
 
@@ -125,7 +125,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
      * Deletes all the bindings bound to specified producer.
      * @param producer @zh 生产方结点。 @en The producer node.
      */
-    public deleteBindingTo (producer: PoseGraphNode) {
+    public deleteBindingTo (producer: PoseGraphNode): void {
         const { _bindings: bindings } = this;
         for (let iBinding = 0;
             iBinding < bindings.length; // Note: array length might vary
@@ -153,13 +153,13 @@ export class PoseGraphNodeShell extends EditorExtendable {
     @serializable
     private _bindings: PoseGraphNodeInputBinding[] = [];
 
-    private _findBindingIndex (inputPath: NodeInputPath) {
+    private _findBindingIndex (inputPath: NodeInputPath): number {
         return this._bindings.findIndex(
             (searchElement) => isEqualNodeInputPath(searchElement.inputPath, inputPath),
         );
     }
 
-    private _emplaceBinding (binding: PoseGraphNodeInputBinding) {
+    private _emplaceBinding (binding: PoseGraphNodeInputBinding): void {
         const index = this._bindings.findIndex(
             (searchElement) => isEqualNodeInputPath(searchElement.inputPath, binding.inputPath),
         );
@@ -171,7 +171,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
     }
 }
 
-function isEqualNodeInputPath (lhs: NodeInputPath, rhs: NodeInputPath) {
+function isEqualNodeInputPath (lhs: NodeInputPath, rhs: NodeInputPath): boolean {
     const [lhsPropertyKey, lhsElementIndex] = lhs;
     const [rhsPropertyKey, rhsElementIndex] = rhs;
     return lhsPropertyKey === rhsPropertyKey && lhsElementIndex === rhsElementIndex;
@@ -186,18 +186,20 @@ class PoseGraphNodeInputBinding {
     constructor (
         inputPath: NodeInputPath,
         producer: PoseGraphNode,
-        outputIndex: number,
+        outputIndex?: number,
     ) {
         this._inputPath = inputPath;
         this._producer = producer;
-        this._outputIndex = outputIndex;
+        if (typeof outputIndex !== 'undefined') {
+            this._outputIndex = outputIndex;
+        }
     }
 
     /**
      * @zh 消费方结点的输入路径。
      * @en Input path of consumer node.
      */
-    get inputPath () {
+    get inputPath (): NodeInputPath {
         return this._inputPath;
     }
 
@@ -205,7 +207,7 @@ class PoseGraphNodeInputBinding {
      * @zh 生产方结点。
      * @en The producer node.
      */
-    get producer () {
+    get producer (): PoseGraphNode {
         return this._producer;
     }
 
@@ -213,7 +215,7 @@ class PoseGraphNodeInputBinding {
      * @zh 生产方结点的输出索引。
      * @en The producer node's output index.
      */
-    get outputIndex () {
+    get outputIndex (): number {
         return this._outputIndex;
     }
 

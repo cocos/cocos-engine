@@ -29,6 +29,7 @@ import { EventType } from './video-player-enums';
 import { error } from '../core/platform';
 import { director } from '../game/director';
 import { Node } from '../scene-graph';
+import type { Camera } from '../render-scene/scene';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();
@@ -74,12 +75,12 @@ export abstract class VideoPlayerImpl {
         this._component = component;
         this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
-        this._onInterruptedBegin = () => {
+        this._onInterruptedBegin = (): void => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
             this.video.pause();
             this._interrupted = true;
         };
-        this._onInterruptedEnd = () => {
+        this._onInterruptedEnd = (): void => {
             if (!this._interrupted || !this.video) { return; }
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.video.play();
@@ -119,18 +120,18 @@ export abstract class VideoPlayerImpl {
     // get video player data
     public abstract getDuration(): number;
     public abstract getCurrentTime(): number;
-    public get fullScreenOnAwake () { return this._fullScreenOnAwake; }
-    public get loaded () { return this._loaded; }
-    public get componentEventList () { return this._componentEventList; }
-    public get video () { return this._video; }
-    public get state () { return this._state; }
-    public get isPlaying () { return this._playing; }
-    get UICamera () {
+    public get fullScreenOnAwake (): boolean { return this._fullScreenOnAwake; }
+    public get loaded (): boolean { return this._loaded; }
+    public get componentEventList (): Map<string, () => void> { return this._componentEventList; }
+    public get video (): HTMLVideoElement | null { return this._video; }
+    public get state (): EventType { return this._state; }
+    public get isPlaying (): boolean { return this._playing; }
+    get UICamera (): Camera | null {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }
 
     // video player event
-    public onLoadedMetadata (e: Event) {
+    public onLoadedMetadata (e: Event): void {
         this._loadedMeta = true;
         this._forceUpdate = true;
         if (this._visible) {
@@ -147,21 +148,21 @@ export abstract class VideoPlayerImpl {
         this.delayedPlay();
     }
 
-    public onCanPlay (e: Event) {
+    public onCanPlay (e: Event): void {
         this._loaded = true;
         this.dispatchEvent(EventType.READY_TO_PLAY);
     }
 
-    public onPlay (e: Event) {
+    public onPlay (e: Event): void {
         this._playing = true;
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPlaying (e: Event) {
+    public onPlaying (e: Event): void {
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPause (e: Event) {
+    public onPause (e: Event): void {
         if (this._ignorePause) {
             this._ignorePause = false;
             return;
@@ -170,21 +171,21 @@ export abstract class VideoPlayerImpl {
         this.dispatchEvent(EventType.PAUSED);
     }
 
-    public onStoped (e: Event) {
+    public onStoped (e: Event): void {
         this._playing = false;
         this._ignorePause = false;
         this.dispatchEvent(EventType.STOPPED);
     }
 
-    public onEnded (e: Event) {
+    public onEnded (e: Event): void {
         this.dispatchEvent(EventType.COMPLETED);
     }
 
-    public onClick (e: Event) {
+    public onClick (e: Event): void {
         this.dispatchEvent(EventType.CLICKED);
     }
 
-    public onError (e: Event) {
+    public onError (e: Event): void {
         this.dispatchEvent(EventType.ERROR);
         const video = e.target as HTMLVideoElement;
         if (video && video.error) {
@@ -193,7 +194,7 @@ export abstract class VideoPlayerImpl {
     }
 
     //
-    public play () {
+    public play (): void {
         if (this._loadedMeta || this._loaded) {
             this.canPlay();
         } else {
@@ -201,14 +202,14 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    public delayedPlay () {
+    public delayedPlay (): void {
         if (this._waitingPlay) {
             this.canPlay();
             this._waitingPlay = false;
         }
     }
 
-    public syncFullScreenOnAwake (enabled: boolean) {
+    public syncFullScreenOnAwake (enabled: boolean): void {
         this._fullScreenOnAwake = enabled;
         if (this._loadedMeta || this._loaded) {
             this.canFullScreen(enabled);
@@ -217,14 +218,14 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    public delayedFullScreen () {
+    public delayedFullScreen (): void {
         if (this._waitingFullscreen) {
             this.canFullScreen(this._fullScreenOnAwake);
             this._waitingFullscreen = false;
         }
     }
 
-    protected dispatchEvent (key) {
+    protected dispatchEvent (key): void {
         const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;
@@ -232,14 +233,14 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    protected syncUITransform (width, height) {
+    protected syncUITransform (width, height): void {
         if (this._uiTrans) {
             this._uiTrans.width = width;
             this._uiTrans.height = height;
         }
     }
 
-    protected syncCurrentTime () {
+    protected syncCurrentTime (): void {
         if (!this.video) {
             return;
         }
@@ -249,7 +250,7 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this.removeVideoPlayer();
         this._componentEventList.clear();
         legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);

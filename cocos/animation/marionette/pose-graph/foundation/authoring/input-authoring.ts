@@ -129,7 +129,7 @@ class PoseGraphNodeInputManager {
         constructor: Constructor,
         propertyKey: string,
         options: PoseGraphNodeInputMappingOptions,
-    ) {
+    ): void {
         let classInputRecord = this._classInputMap.get(constructor);
         if (!classInputRecord) {
             classInputRecord = {
@@ -161,7 +161,7 @@ class PoseGraphNodeInputManager {
 
     public getInputKeys (object: PoseGraphNode): readonly PoseGraphInputKey[] {
         const result: PoseGraphInputKey[] = [];
-        const getInputKeysRecurse = (constructor: null | Constructor) => {
+        const getInputKeysRecurse = (constructor: null | Constructor): void => {
             if (!constructor) {
                 return;
             }
@@ -189,7 +189,7 @@ class PoseGraphNodeInputManager {
         return result;
     }
 
-    public isPoseInput (object: PoseGraphNode, key: PoseGraphInputKey) {
+    public isPoseInput (object: PoseGraphNode, key: PoseGraphInputKey): boolean {
         const [propertyKey] = key;
         const propertyInputRecord = this._getPropertyNodeInputRecord(object.constructor, propertyKey);
         if (!propertyInputRecord) {
@@ -225,7 +225,7 @@ class PoseGraphNodeInputManager {
         };
     }
 
-    public hasInput (object: PoseGraphNode, key: PoseGraphInputKey) {
+    public hasInput (object: PoseGraphNode, key: PoseGraphInputKey): boolean {
         const [propertyKey, elementIndex = -1] = key;
         const record = this._getPropertyNodeInputRecord(object.constructor, propertyKey);
         if (!record) {
@@ -262,7 +262,7 @@ class PoseGraphNodeInputManager {
         return result;
     }
 
-    public deleteInput (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey) {
+    public deleteInput (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey): void {
         const [
             propertyKey,
             elementIndex = -1,
@@ -300,7 +300,7 @@ class PoseGraphNodeInputManager {
         deletePoseGraphNodeArrayElement(graph, node, key);
     }
 
-    public insertInput (graph: PoseGraph, node: PoseGraphNode, insertId: PoseGraphNodeInputInsertId) {
+    public insertInput (graph: PoseGraph, node: PoseGraphNode, insertId: PoseGraphNodeInputInsertId): void {
         const propertyKey = insertId;
         const propertyInputRecord = this._getPropertyNodeInputRecord(node.constructor, propertyKey);
         if (!propertyInputRecord) {
@@ -364,7 +364,7 @@ class PoseGraphNodeInputManager {
         syncGroup: ArrayPropertySyncGroup,
         expectedOriginalSyncLength: number,
         insertHint: number,
-    ) {
+    ): void {
         for (let iGroupMember = 0; iGroupMember < syncGroup.members.length; ++iGroupMember) {
             const syncedPropertyKey = syncGroup.members[iGroupMember];
             const syncedPropertyInputRecord = this._getPropertyNodeInputRecord(node.constructor, syncedPropertyKey);
@@ -391,7 +391,7 @@ class PoseGraphNodeInputManager {
         syncGroup: ArrayPropertySyncGroup,
         expectedOriginalSyncLength: number,
         index: number,
-    ) {
+    ): void {
         for (let iGroupMember = 0; iGroupMember < syncGroup.members.length; ++iGroupMember) {
             const syncedPropertyKey = syncGroup.members[iGroupMember];
             const syncedPropertyInputRecord = this._getPropertyNodeInputRecord(node.constructor, syncedPropertyKey);
@@ -408,7 +408,7 @@ class PoseGraphNodeInputManager {
     }
 }
 
-function insertPoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode, inputKey: PoseGraphInputKey, value: unknown) {
+function insertPoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode, inputKey: PoseGraphInputKey, value: unknown): void {
     const shell = graph.getShell(node);
     if (!shell) {
         throw new OperationOnFreestandingNodeError(node);
@@ -430,7 +430,7 @@ function insertPoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode,
     shell.moveArrayElementBindingForward(propertyKey, elementIndex + 1, false);
 }
 
-function deletePoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode, inputKey: PoseGraphInputKey) {
+function deletePoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode, inputKey: PoseGraphInputKey): void {
     const shell = graph.getShell(node);
     if (!shell) {
         throw new OperationOnFreestandingNodeError(node);
@@ -458,7 +458,7 @@ function deletePoseGraphNodeArrayElement (graph: PoseGraph, node: PoseGraphNode,
     shell.moveArrayElementBindingForward(propertyKey, elementIndex + 1, true);
 }
 
-function createDefaultInputValueByType (type: PoseGraphType) {
+function createDefaultInputValueByType (type: PoseGraphType): false | 0 | Vec3 | Quat | null {
     switch (type) {
     default:
         assertIsTrue(false);

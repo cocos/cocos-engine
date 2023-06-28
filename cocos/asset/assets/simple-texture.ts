@@ -36,15 +36,15 @@ const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 export type PresumedGFXTextureInfo = Pick<TextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 export type PresumedGFXTextureViewInfo = Pick<TextureViewInfo, 'texture' | 'format' | 'baseLevel' | 'levelCount'>;
 
-function getMipLevel (width: number, height: number) {
+function getMipLevel (width: number, height: number): number {
     let size = Math.max(width, height);
     let level = 0;
     while (size) { size >>= 1; level++; }
     return level;
 }
 
-function isPOT (n: number) { return n && (n & (n - 1)) === 0; }
-function canGenerateMipmap (device: Device, w: number, h: number) {
+function isPOT (n: number): boolean | 0 { return n && (n & (n - 1)) === 0; }
+function canGenerateMipmap (device: Device, w: number, h: number): boolean | 0 {
     const needCheckPOT = device.gfxAPI === API.WEBGL;
     if (needCheckPOT) { return isPOT(w) && isPOT(h); }
     return true;
@@ -85,7 +85,7 @@ export class SimpleTexture extends TextureBase {
      * @en The mipmap level of the texture.
      * @zh 贴图中的 Mipmap 层级数量。
      */
-    get mipmapLevel () {
+    get mipmapLevel (): number {
         return this._mipmapLevel;
     }
 
@@ -94,11 +94,11 @@ export class SimpleTexture extends TextureBase {
      * @zh 获取此贴图底层的 GFX 贴图对象。
      * @return @en The low level gfx texture. @zh 底层的 GFX 贴图。
      */
-    public getGFXTexture () {
+    public getGFXTexture (): Texture | null {
         return this._gfxTextureView;
     }
 
-    public destroy () {
+    public destroy (): boolean {
         this._tryDestroyTextureView();
         this._tryDestroyTexture();
         return super.destroy();
@@ -108,7 +108,7 @@ export class SimpleTexture extends TextureBase {
      * @en Update the level 0 mipmap image.
      * @zh 更新 0 级 Mipmap。
      */
-    public updateImage () {
+    public updateImage (): void {
         this.updateMipmaps(0);
     }
 
@@ -119,7 +119,7 @@ export class SimpleTexture extends TextureBase {
      * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
      * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
      */
-    public updateMipmaps (firstLevel = 0, count?: number) {
+    public updateMipmaps (firstLevel = 0, count?: number): void {
 
     }
 
@@ -140,7 +140,7 @@ export class SimpleTexture extends TextureBase {
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0) {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
@@ -175,7 +175,7 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
+    protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number): void {
         const data = image.data;
         if (!data) {
             return;
@@ -196,14 +196,14 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _checkTextureLoaded () {
+    protected _checkTextureLoaded (): void {
         this._textureReady();
     }
 
     /**
      * @engineInternal
      */
-    protected _textureReady () {
+    protected _textureReady (): void {
         this.loaded = true;
         this.emit('load');
     }
@@ -218,14 +218,14 @@ export class SimpleTexture extends TextureBase {
      * @engineInternal
      *
      */
-    protected _setMipmapLevel (value: number) {
+    protected _setMipmapLevel (value: number): void {
         this._mipmapLevel = value < 1 ? 1 : value;
     }
 
     /**
      * @engineInternal
      */
-    protected _setMipRange (baseLevel: number, maxLevel: number) {
+    protected _setMipRange (baseLevel: number, maxLevel: number): void {
         this._baseLevel = baseLevel < 1 ? 0 : baseLevel;
         this._maxLevel = maxLevel < 1 ? 0 : maxLevel;
     }
@@ -236,7 +236,7 @@ export class SimpleTexture extends TextureBase {
      * @param baseLevel @en The base mipmap level. @zh 最低 mipmap 等级。
      * @param maxLevel @en The maximum mipmap level. @zh 最高 mipmap 等级。
      */
-    public setMipRange (baseLevel: number, maxLevel: number) {
+    public setMipRange (baseLevel: number, maxLevel: number): void {
         assertID(baseLevel <= maxLevel, 3124);
 
         this._setMipRange(baseLevel, maxLevel);
@@ -275,7 +275,7 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _tryReset () {
+    protected _tryReset (): void {
         this._tryDestroyTextureView();
         this._tryDestroyTexture();
         if (this._mipmapLevel === 0) {
@@ -300,7 +300,7 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _createTexture (device: Device) {
+    protected _createTexture (device: Device): void {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
@@ -350,7 +350,7 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _tryDestroyTexture () {
+    protected _tryDestroyTexture (): void {
         if (this._gfxTexture) {
             this._gfxTexture.destroy();
             this._gfxTexture = null;
@@ -360,7 +360,7 @@ export class SimpleTexture extends TextureBase {
     /**
      * @engineInternal
      */
-    protected _tryDestroyTextureView () {
+    protected _tryDestroyTextureView (): void {
         if (this._gfxTextureView) {
             this._gfxTextureView.destroy();
             this._gfxTextureView = null;

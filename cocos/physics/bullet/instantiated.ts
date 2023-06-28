@@ -23,11 +23,11 @@
 */
 
 import { instantiateWasm } from 'pal/wasm';
-import { FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
+import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
 import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
-import { sys } from '../../core';
+import { debug, error, getError, sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
@@ -69,16 +69,20 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 bt.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
-    console.debug('[Physics][Bullet]: Using wasm Bullet libs.');
+function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<void> {
+    debug('[Physics][Bullet]: Using wasm Bullet libs.');
     return instantiateWasm(wasmUrl, importObject).then((results) => {
         const btInstance = results.instance.exports as Bullet.instance;
         Object.assign(bt, btInstance);
     });
 }
 
-function initAsm (resolve) {
-    console.debug('[Physics][Bullet]: Using asmjs Bullet libs.');
+function initAsm (resolve, reject): void {
+    if (CULL_ASM_JS_MODULE) {
+        reject(getError(4601));
+        return;
+    }
+    debug('[Physics][Bullet]: Using asmjs Bullet libs.');
     const env: any = importFunc;
     const wasmMemory: any = {};
     wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
@@ -89,7 +93,7 @@ function initAsm (resolve) {
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any) => { console.info(msg); };
+    const infoReport = (msg: any): void => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,
@@ -113,21 +117,21 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
-export function waitForAmmoInstantiation () {
-    return new Promise<void>((resolve) => {
-        const errorReport = (msg: any) => { console.error(msg); };
+export function waitForAmmoInstantiation (): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        const errorReport = (msg: any): void => { error(msg); };
         if (FORCE_BANNING_BULLET_WASM) {
-            initAsm(resolve);
+            initAsm(resolve, reject);
         } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
             } else {
-                initAsm(resolve);
+                initAsm(resolve, reject);
             }
         } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
             initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
         } else {
-            initAsm(resolve);
+            initAsm(resolve, reject);
         }
     });
 }

@@ -110,7 +110,7 @@ export class PageView extends ScrollView {
      */
     @type(SizeMode)
     @tooltip('i18n:pageview.sizeMode')
-    get sizeMode () {
+    get sizeMode (): SizeMode {
         return this._sizeMode;
     }
 
@@ -132,7 +132,7 @@ export class PageView extends ScrollView {
      */
     @type(Direction)
     @tooltip('i18n:pageview.direction')
-    get direction () {
+    get direction (): Direction {
         return this._direction;
     }
 
@@ -156,7 +156,7 @@ export class PageView extends ScrollView {
     @slide
     @range([0, 1, 0.01])
     @tooltip('i18n:pageview.scrollThreshold')
-    get scrollThreshold () {
+    get scrollThreshold (): number {
         return this._scrollThreshold;
     }
 
@@ -178,7 +178,7 @@ export class PageView extends ScrollView {
     @slide
     @range([0, 1, 0.01])
     @tooltip('i18n:pageview.pageTurningEventTiming')
-    get pageTurningEventTiming () {
+    get pageTurningEventTiming (): number {
         return this._pageTurningEventTiming;
     }
 
@@ -199,7 +199,7 @@ export class PageView extends ScrollView {
      */
     @type(PageViewIndicator)
     @tooltip('i18n:pageview.indicator')
-    get indicator () {
+    get indicator (): PageViewIndicator | null {
         return this._indicator;
     }
 
@@ -214,7 +214,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    get curPageIdx () {
+    get curPageIdx (): number {
         return this._curPageIdx;
     }
 
@@ -258,7 +258,7 @@ export class PageView extends ScrollView {
     @type(ScrollBar)
     @override
     @visible(false)
-    get verticalScrollBar () {
+    get verticalScrollBar (): ScrollBar | null {
         return super.verticalScrollBar;
     }
 
@@ -275,7 +275,7 @@ export class PageView extends ScrollView {
     @type(ScrollBar)
     @override
     @visible(false)
-    get horizontalScrollBar () {
+    get horizontalScrollBar (): ScrollBar | null {
         return super.horizontalScrollBar;
     }
 
@@ -368,7 +368,7 @@ export class PageView extends ScrollView {
     protected _touchBeganPosition = new Vec2();
     protected _touchEndPosition = new Vec2();
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         this.node.on(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR_NOT_IN_PREVIEW) {
@@ -376,7 +376,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         super.onDisable();
         this.node.off(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR_NOT_IN_PREVIEW) {
@@ -384,7 +384,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    public onLoad () {
+    public onLoad (): void {
         this._initPages();
         if (this.indicator) {
             this.indicator.setPageView(this);
@@ -400,7 +400,7 @@ export class PageView extends ScrollView {
      *
      * @returns @en Current page index of this page view. @zh 当前页面索引。
      */
-    public getCurrentPageIndex () {
+    public getCurrentPageIndex (): number {
         return this._curPageIdx;
     }
 
@@ -412,7 +412,7 @@ export class PageView extends ScrollView {
      * 设置当前页面索引。
      * @param index @en The page index to scroll to. @zh 需要滚动到的页面索引。
      */
-    public setCurrentPageIndex (index: number) {
+    public setCurrentPageIndex (index: number): void {
         this.scrollToPage(index, 1);
     }
 
@@ -425,7 +425,7 @@ export class PageView extends ScrollView {
      *
      * @returns @en return all pages of this page view. @zh 返回当前视图所有页面。
      */
-    public getPages () {
+    public getPages (): Node[] {
         return this._pages;
     }
 
@@ -438,7 +438,7 @@ export class PageView extends ScrollView {
      *
      * @param page @en New page to add to this page view. @zh 新加入的视图。
      */
-    public addPage (page: Node) {
+    public addPage (page: Node): void {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -461,7 +461,7 @@ export class PageView extends ScrollView {
      * @param page @en New page to insert to this page view. @zh 新插入的视图。
      * @param index @en The index of new page to be inserted. @zh 新插入视图的索引。
      */
-    public insertPage (page: Node, index: number) {
+    public insertPage (page: Node, index: number): void {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -488,7 +488,7 @@ export class PageView extends ScrollView {
      *
      * @param page @en The page to be removed. @zh 将被移除的页面。
      */
-    public removePage (page: Node) {
+    public removePage (page: Node): void {
         if (!page || !this.content) { return; }
         const index = this._pages.indexOf(page);
         if (index === -1) {
@@ -507,7 +507,7 @@ export class PageView extends ScrollView {
      *
      * @param index @en The index of the page to be removed. @zh 将被移除界面的页面下标。
      */
-    public removePageAtIndex (index: number) {
+    public removePageAtIndex (index: number): void {
         const pageList = this._pages;
         if (index < 0 || index >= pageList.length) { return; }
         const page = pageList[index];
@@ -524,7 +524,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除所有页面。
      */
-    public removeAllPages () {
+    public removeAllPages (): void {
         if (!this.content) { return; }
         const locPages = this._pages;
         for (let i = 0, len = locPages.length; i < len; i++) {
@@ -544,7 +544,7 @@ export class PageView extends ScrollView {
      * @param idx @en The index of page to be scroll to. @zh 希望滚动到的页面下标。
      * @param timeInSecond @en How long time to scroll to the page, in seconds. @zh 滚动到指定页面所需时间，单位：秒。
      */
-    public scrollToPage (idx: number, timeInSecond = 0.3) {
+    public scrollToPage (idx: number, timeInSecond = 0.3): void {
         if (idx < 0 || idx >= this._pages.length) {
             return;
         }
@@ -557,12 +557,12 @@ export class PageView extends ScrollView {
     }
 
     // override the method of ScrollView
-    public getScrollEndedEventTiming () {
+    public getScrollEndedEventTiming (): number {
         return this.pageTurningEventTiming;
     }
 
     // 刷新页面视图
-    protected _updatePageView () {
+    protected _updatePageView (): void {
         // 当页面数组变化时修改 content 大小
         if (!this.content) {
             return;
@@ -597,7 +597,7 @@ export class PageView extends ScrollView {
     }
 
     // 刷新所有页面的大小
-    protected _updateAllPagesSize () {
+    protected _updateAllPagesSize (): void {
         const viewTrans = this.view;
         if (!this.content || !viewTrans) {
             return;
@@ -613,7 +613,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _handleReleaseLogic () {
+    protected _handleReleaseLogic (): void {
         this._autoScrollToPage();
         if (this._scrolling) {
             this._scrolling = false;
@@ -623,36 +623,36 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _onTouchBegan (event: EventTouch, captureListeners: any) {
+    protected _onTouchBegan (event: EventTouch, captureListeners: any): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchBeganPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchBegan(event, captureListeners);
     }
 
-    protected _onTouchMoved (event: EventTouch, captureListeners: any) {
+    protected _onTouchMoved (event: EventTouch, captureListeners: any): void {
         super._onTouchMoved(event, captureListeners);
     }
 
-    protected _onTouchEnded (event: EventTouch, captureListeners: any) {
+    protected _onTouchEnded (event: EventTouch, captureListeners: any): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchEnded(event, captureListeners);
     }
 
-    protected _onTouchCancelled (event: EventTouch, captureListeners: any) {
+    protected _onTouchCancelled (event: EventTouch, captureListeners: any): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchCancelled(event, captureListeners);
     }
 
-    protected _onMouseWheel () { }
+    protected _onMouseWheel (): void { }
 
-    protected _syncScrollDirection () {
+    protected _syncScrollDirection (): void {
         this.horizontal = this.direction === Direction.Horizontal;
         this.vertical = this.direction === Direction.Vertical;
     }
 
-    protected _syncSizeMode () {
+    protected _syncSizeMode (): void {
         const viewTrans = this.view;
         if (!this.content || !viewTrans) { return; }
         const layout = this.content.getComponent(Layout);
@@ -673,7 +673,7 @@ export class PageView extends ScrollView {
     }
 
     // 初始化页面
-    protected _initPages () {
+    protected _initPages (): void {
         if (!this.content) { return; }
         this._initContentPos = this.content.position as Vec3;
         const children = this.content.children;
@@ -687,7 +687,7 @@ export class PageView extends ScrollView {
         this._updatePageView();
     }
 
-    protected _dispatchPageTurningEvent () {
+    protected _dispatchPageTurningEvent (): void {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
         ComponentEventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
@@ -695,7 +695,7 @@ export class PageView extends ScrollView {
     }
 
     // 快速滑动
-    protected _isQuicklyScrollable (touchMoveVelocity: Vec3) {
+    protected _isQuicklyScrollable (touchMoveVelocity: Vec3): boolean {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
@@ -709,7 +709,7 @@ export class PageView extends ScrollView {
     }
 
     // 通过 idx 获取偏移值数值
-    protected _moveOffsetValue (idx: number) {
+    protected _moveOffsetValue (idx: number): Vec2 {
         const offset = new Vec2();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
@@ -731,7 +731,7 @@ export class PageView extends ScrollView {
         return offset;
     }
 
-    protected _getDragDirection (moveOffset: Vec2) {
+    protected _getDragDirection (moveOffset: Vec2): number {
         if (this._direction === Direction.Horizontal) {
             if (moveOffset.x === 0) {
                 return 0;
@@ -749,7 +749,7 @@ export class PageView extends ScrollView {
     }
 
     // 是否超过自动滚动临界值
-    protected _isScrollable (offset: Vec2, index: number, nextIndex: number) {
+    protected _isScrollable (offset: Vec2, index: number, nextIndex: number): boolean {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
             let nextPageCenter = 0;
@@ -776,7 +776,7 @@ export class PageView extends ScrollView {
         return false;
     }
 
-    protected _autoScrollToPage () {
+    protected _autoScrollToPage (): void {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         if (bounceBackStarted) {
             const bounceBackAmount = this._getHowMuchOutOfBoundary();

@@ -214,7 +214,7 @@ export class Event {
      * @zh
      * 重置事件对象以便在对象池中存储。
      */
-    public unuse () {
+    public unuse (): void {
         this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
@@ -231,7 +231,7 @@ export class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: SystemEventTypeUnion, bubbles?: boolean) {
+    public reuse (type: SystemEventTypeUnion, bubbles?: boolean): void {
         this.type = type;
         this.bubbles = bubbles || false;
     }
@@ -260,7 +260,7 @@ export class Event {
      * @zh
      * 检查该事件是否已经停止传递。
      */
-    public isStopped () {
+    public isStopped (): boolean {
         return this.propagationStopped || this.propagationImmediateStopped;
     }
 
@@ -273,7 +273,7 @@ export class Event {
      * 获取当前目标节点
      * @returns - The target with which the event associates.
      */
-    public getCurrentTarget () {
+    public getCurrentTarget (): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.currentTarget;
     }
@@ -284,7 +284,7 @@ export class Event {
      * @zh
      * 获取事件类型。
      */
-    public getType () {
+    public getType (): string {
         return this.type;
     }
 }

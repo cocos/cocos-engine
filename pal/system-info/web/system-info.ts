@@ -69,7 +69,7 @@ class SystemInfo extends EventTarget {
         }
 
         // init isLittleEndian
-        this.isLittleEndian = (() => {
+        this.isLittleEndian = ((): boolean => {
             const buffer = new ArrayBuffer(2);
             new DataView(buffer).setInt16(0, 256, true);
             // Int16Array uses the platform's endianness.
@@ -199,7 +199,7 @@ class SystemInfo extends EventTarget {
         // NOTE: xr is not totally supported on web
         const supportXR = typeof (navigator as any).xr !== 'undefined';
         // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
-        const supportWasm = (() => {
+        const supportWasm = ((): boolean => {
             // NOTE: safari on iOS 15.4 and MacOS 15.4 has some wasm memory issue, can not use wasm for bullet
             const isSafari_15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
             if (isSafari_15_4) {
@@ -262,7 +262,7 @@ class SystemInfo extends EventTarget {
         return Promise.resolve();
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         let hiddenPropName: string;
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';
@@ -277,14 +277,14 @@ class SystemInfo extends EventTarget {
         }
 
         let hidden = false;
-        const onHidden = () => {
+        const onHidden = (): void => {
             if (!hidden) {
                 hidden = true;
                 this.emit('hide');
             }
         };
         // In order to adapt the most of platforms the onshow API.
-        const onShown = (arg0?, arg1?, arg2?, arg3?, arg4?) => {
+        const onShown = (arg0?, arg1?, arg2?, arg3?, arg4?): void => {
             if (hidden) {
                 hidden = false;
                 this.emit('show', arg0, arg1, arg2, arg3, arg4);
@@ -330,7 +330,7 @@ class SystemInfo extends EventTarget {
         }
     }
 
-    private _setFeature (feature: Feature, value: boolean) {
+    private _setFeature (feature: Feature, value: boolean): boolean {
         return this._featureMap[feature] = value;
     }
 
@@ -373,9 +373,12 @@ class SystemInfo extends EventTarget {
         }
     }
 
-    public close () {
-        this.emit('close');
+    public exit (): void {
         window.close();
+    }
+
+    public close (): void {
+        this.emit('close');
     }
 }
 

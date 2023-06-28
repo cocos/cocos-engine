@@ -4,11 +4,11 @@ import { assertIsTrue, Quat } from '../../../core';
 
 @ccclass('cc.animation.QuatVariable')
 export class QuatVariable implements BasicVariableDescription<VariableType.QUAT_experimental> {
-    get type () {
+    get type (): VariableType.QUAT_experimental {
         return VariableType.QUAT_experimental as const;
     }
 
-    get value () {
+    get value (): Readonly<Quat> {
         return this._value as Readonly<Quat>;
     }
 
@@ -16,7 +16,7 @@ export class QuatVariable implements BasicVariableDescription<VariableType.QUAT_
         Quat.copy(this._value, value);
     }
 
-    public [createInstanceTag] () {
+    public [createInstanceTag] (): VarInstanceQuat {
         return new VarInstanceQuat(this._value);
     }
 

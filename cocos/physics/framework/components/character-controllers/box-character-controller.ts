@@ -43,10 +43,9 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.BoxCharacterController')
-//@help('i18n:cc.BoxCharacterController')
+@help('i18n:cc.BoxCharacterController')
 @menu('Physics/BoxCharacterController')
 @executeInEditMode
-@disallowMultiple
 @executionOrder(-1)
 export class BoxCharacterController extends CharacterController {
     constructor () {
@@ -62,7 +61,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfHeight')
     @type(CCFloat)
-    public get halfHeight () {
+    public get halfHeight (): number {
         return this._halfHeight;
     }
 
@@ -82,7 +81,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfSideExtent')
     @type(CCFloat)
-    public get halfSideExtent () {
+    public get halfSideExtent (): number {
         return this._halfSideExtent;
     }
 
@@ -102,7 +101,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfForwardExtent')
     @type(CCFloat)
-    public get halfForwardExtent () {
+    public get halfForwardExtent (): number {
         return this._halfForwardExtent;
     }
 

@@ -57,11 +57,11 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         }
     }
 
-    get antiAliasing () {
+    get antiAliasing (): AntiAliasing {
         return this._antiAliasing;
     }
 
-    public get bloomMaterial () {
+    public get bloomMaterial (): Material {
         return this._bloomMaterial;
     }
 
@@ -72,7 +72,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _bloomMaterial: Material;
 
-    public get postprocessMaterial () {
+    public get postprocessMaterial (): Material {
         return this._postprocessMaterial;
     }
 
@@ -83,11 +83,11 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _postprocessMaterial: Material;
 
-    public updatePipelineSceneData () {
+    public updatePipelineSceneData (): void {
         this.updatePipelinePassInfo();
     }
 
-    private updateBloomPass () {
+    private updateBloomPass (): void {
         if (!this._bloomMaterial) return;
 
         const prefilterPass = this._bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
@@ -113,7 +113,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         combinePass.endChangeStatesSilently();
     }
 
-    private updatePostProcessPass () {
+    private updatePostProcessPass (): void {
         if (!this.postprocessMaterial) return;
 
         const passPost = this.postprocessMaterial.passes[0];
@@ -122,7 +122,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passPost.endChangeStatesSilently();
     }
 
-    public initPipelinePassInfo () {
+    public initPipelinePassInfo (): void {
         // builtin deferred material
         const deferredMat = new Material();
         deferredMat._uuid = 'builtin-deferred-material';
@@ -141,9 +141,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this._antiAliasing = AntiAliasing.FXAA;
-        }
         postMat.initialize({
             effectName: 'pipeline/post-process',
             defines: {
@@ -159,7 +156,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         this.updatePipelinePassInfo();
     }
 
-    public get deferredLightingMaterial () {
+    public get deferredLightingMaterial (): Material {
         return this._deferredLightingMaterial;
     }
 
@@ -172,23 +169,23 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     protected declare _deferredLightingMaterial: Material;
     protected declare _deferredPostMaterial: Material;
 
-    protected updatePipelinePassInfo () {
+    protected updatePipelinePassInfo (): void {
         this.updateBloomPass();
         this.updatePostProcessPass();
         this.updateDeferredPassInfo();
     }
 
-    public activate (device: Device) {
+    public activate (device: Device): boolean {
         super.activate(device);
         this.initPipelinePassInfo();
         return true;
     }
 
-    private updateDeferredPassInfo () {
+    private updateDeferredPassInfo (): void {
         this.updateDeferredLightPass();
     }
 
-    private updateDeferredLightPass () {
+    private updateDeferredLightPass (): void {
         if (!this._deferredLightingMaterial) return;
 
         // It's temporary solution for main light shadowmap

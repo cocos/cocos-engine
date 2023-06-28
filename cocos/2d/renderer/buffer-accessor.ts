@@ -28,8 +28,8 @@ import { getAttributeStride } from './vertex-format';
 
 export class BufferAccessor {
     public get attributes (): Readonly<Attribute[]> { return this._attributes; }
-    public get vertexFormatBytes () { return this._vertexFormatBytes; }
-    public get floatsPerVertex () { return this._floatsPerVertex; }
+    public get vertexFormatBytes (): number { return this._vertexFormatBytes; }
+    public get floatsPerVertex (): number { return this._floatsPerVertex; }
 
     protected _device: Device = null!
     protected _attributes: Attribute[] = null!;
@@ -45,12 +45,12 @@ export class BufferAccessor {
         this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
     }
 
-    public initialize () {}
-    public reset () {}
-    public request (vertexCount = 4, indexCount = 6) {}
-    public appendBuffers (vertices: Float32Array, indices: Uint16Array) {}
-    public uploadBuffers () {}
-    public destroy () {
+    public initialize (): void {}
+    public reset (): void {}
+    public request (vertexCount = 4, indexCount = 6): void {}
+    public appendBuffers (vertices: Float32Array, indices: Uint16Array): void {}
+    public uploadBuffers (): void {}
+    public destroy (): void {
         this._attributes.length = 0;
     }
 }

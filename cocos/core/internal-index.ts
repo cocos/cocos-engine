@@ -41,6 +41,8 @@ export type { DeserializationContext } from './data/custom-serializable';
 export * from './data/utils/asserts';
 export * from './data/utils/compiler';
 
+export { setPropertyEnumType, setPropertyEnumTypeOnAttrs } from './data/utils/attribute-internal';
+
 export { ENUM_TAG, BITMASK_TAG } from './data/class';
 export { isCCObject, isValid } from './data/object';
 

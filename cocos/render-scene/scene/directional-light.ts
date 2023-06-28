@@ -100,7 +100,7 @@ export class DirectionalLight extends Light {
      * @en The illuminance of the light in HDR mode
      * @zh HDR 模式下光源的辐照度
      */
-    get illuminanceHDR () {
+    get illuminanceHDR (): number {
         return this._illuminanceHDR;
     }
     set illuminanceHDR (value: number) {
@@ -111,7 +111,7 @@ export class DirectionalLight extends Light {
      * @en The illuminance of the light in LDR mode
      * @zh LDR 模式下光源的辐照度
      */
-    get illuminanceLDR () {
+    get illuminanceLDR (): number {
         return this._illuminanceLDR;
     }
     set illuminanceLDR (value: number) {
@@ -122,7 +122,7 @@ export class DirectionalLight extends Light {
      * @en Whether activate shadow
      * @zh 是否启用阴影？
      */
-    get shadowEnabled () {
+    get shadowEnabled (): boolean {
         return this._shadowEnabled;
     }
     set shadowEnabled (val) {
@@ -134,7 +134,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow pcf.
      * @zh 获取或者设置阴影pcf等级。
      */
-    get shadowPcf () {
+    get shadowPcf (): number {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
@@ -146,7 +146,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow map sampler offset
      * @zh 获取或者设置阴影纹理偏移值
      */
-    get shadowBias () {
+    get shadowBias (): number {
         return this._shadowBias;
     }
     set shadowBias (val) {
@@ -157,7 +157,7 @@ export class DirectionalLight extends Light {
      * @en get or set normal bias.
      * @zh 设置或者获取法线偏移。
      */
-    get shadowNormalBias () {
+    get shadowNormalBias (): number {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val: number) {
@@ -168,7 +168,7 @@ export class DirectionalLight extends Light {
      * @en Shadow color saturation
      * @zh 阴影颜色饱和度
      */
-    get shadowSaturation () {
+    get shadowSaturation (): number {
         return this._shadowSaturation;
     }
     set shadowSaturation (val: number) {
@@ -179,7 +179,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera far
      * @zh 获取或者设置潜在阴影产生的范围
      */
-    get shadowDistance () {
+    get shadowDistance (): number {
         return this._shadowDistance;
     }
     set shadowDistance (val) {
@@ -190,7 +190,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera far
      * @zh 获取或者设置潜在阴影产生的范围
      */
-    get shadowInvisibleOcclusionRange () {
+    get shadowInvisibleOcclusionRange (): number {
         return this._shadowInvisibleOcclusionRange;
     }
     set shadowInvisibleOcclusionRange (val) {
@@ -201,7 +201,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow CSM level
      * @zh 获取或者设置级联阴影层数
      */
-    get csmLevel () {
+    get csmLevel (): number {
         return this._csmLevel;
     }
     set csmLevel (val) {
@@ -213,7 +213,7 @@ export class DirectionalLight extends Light {
      * @en is CSM need update
      * @zh 获取或者设置级联阴影是否需要更新
      */
-    get csmNeedUpdate () {
+    get csmNeedUpdate (): boolean {
         return this._csmNeedUpdate;
     }
     set csmNeedUpdate (val) {
@@ -224,7 +224,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow CSM level ratio
      * @zh 获取或者设置级联阴影层数系数
      */
-    get csmLayerLambda () {
+    get csmLayerLambda (): number {
         return this._csmLayerLambda;
     }
     set csmLayerLambda (val) {
@@ -235,7 +235,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow CSM performance optimization mode
      * @zh 获取或者设置级联阴影性能优化模式
      */
-    get csmOptimizationMode () {
+    get csmOptimizationMode (): number {
         return this._csmOptimizationMode;
     }
     set csmOptimizationMode (val) {
@@ -246,7 +246,7 @@ export class DirectionalLight extends Light {
      * @en get or set fixed area shadow
      * @zh 是否是固定区域阴影
      */
-    get shadowFixedArea () {
+    get shadowFixedArea (): boolean {
         return this._shadowFixedArea;
     }
     set shadowFixedArea (val) {
@@ -258,7 +258,7 @@ export class DirectionalLight extends Light {
      * @en The near clip plane of the shadow camera
      * @zh 获取或者设置阴影相机近裁剪面
      */
-    get shadowNear () {
+    get shadowNear (): number {
         return this._shadowNear;
     }
     set shadowNear (val) {
@@ -269,7 +269,7 @@ export class DirectionalLight extends Light {
      * @en The far clip plane of the shadow camera
      * @zh 获取或者设置阴影相机远裁剪面
      */
-    get shadowFar () {
+    get shadowFar (): number {
         return this._shadowFar;
     }
     set shadowFar (val) {
@@ -280,7 +280,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    get shadowOrthoSize () {
+    get shadowOrthoSize (): number {
         return this._shadowOrthoSize;
     }
     set shadowOrthoSize (val) {
@@ -291,7 +291,7 @@ export class DirectionalLight extends Light {
      * @en Enabled csm layers transition
      * @zh 是否启用级联阴影层级过渡？
      */
-    get csmLayersTransition () {
+    get csmLayersTransition (): boolean {
         return this._csmLayersTransition;
     }
     set csmLayersTransition (val) {
@@ -303,7 +303,7 @@ export class DirectionalLight extends Light {
      * @en get or set csm layers transition range
      * @zh 获取或者设置级联阴影层级过渡范围？
      */
-    get csmTransitionRange () {
+    get csmTransitionRange (): number {
         return this._csmTransitionRange;
     }
     set csmTransitionRange (val) {
@@ -315,7 +315,7 @@ export class DirectionalLight extends Light {
         this._type = LightType.DIRECTIONAL;
     }
 
-    public initialize () {
+    public initialize (): void {
         super.initialize();
 
         this.illuminance = Ambient.SUN_ILLUM;
@@ -326,7 +326,7 @@ export class DirectionalLight extends Light {
      * @en Update the direction
      * @zh 更新方向
      */
-    public update () {
+    public update (): void {
         if (this._node && this._node.hasChangedFlags) {
             this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
         }
@@ -335,7 +335,7 @@ export class DirectionalLight extends Light {
     /**
      * @engineInternal
      */
-    public activate () {
+    public activate (): void {
         const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         if (this._shadowEnabled) {

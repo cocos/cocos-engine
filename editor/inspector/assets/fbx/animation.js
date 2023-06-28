@@ -78,7 +78,7 @@ exports.template = /* html */`
             <span slot="label">Speed</span>
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
-        <ui-section>
+        <ui-section expand cache-expand="inspector-asset-fbx-animation-additive">
             <ui-label slot="header" value="i18n:ENGINE.assets.fbx.animationSetting.additive.header"></ui-label>
             <ui-prop>
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationSetting.additive.enabled.label"></ui-label>
@@ -97,6 +97,10 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+.container {
+    padding: 4px;
+}
+
 .container[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
  }
@@ -133,6 +137,7 @@ exports.style = /* css */`
     padding: 0 4px;
     margin-bottom: 4px;
     border-bottom: 1px solid var(--color-default-border);
+    color: var(--color-default-fill-weakest);
 }
 .container > .clips > .clip > .table > .line {
     display: flex;
@@ -510,7 +515,7 @@ const Elements = {
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
                 updateElementReadonly.call(panel, miniIcon);
-                button.appendChild(miniIcon);
+                button.prepend(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
 

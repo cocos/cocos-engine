@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum } from '../core';
+import { CCString, Enum, error } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
@@ -82,7 +82,7 @@ export class SkeletonData extends Asset {
      * @en An atlas text description.
      * @zh Atlas 文本描述。
      */
-    get atlasText () {
+    get atlasText (): string {
         return this._atlasText;
     }
     set atlasText (value) {
@@ -158,7 +158,7 @@ export class SkeletonData extends Asset {
      * @internal
      * @deprecated Since v3.7.2, this is an engine private interface that will be removed in the future.
      */
-    public createNode (callback: (err: Error|null, node: Node) => void) {
+    public createNode (callback: (err: Error|null, node: Node) => void): void {
         const node = new Node(this.name);
         const skeleton = node.addComponent('cc.Skeleton') as Skeleton;
         skeleton.skeletonData = this;
@@ -169,7 +169,7 @@ export class SkeletonData extends Asset {
      * @en Resets skeleton data state.
      * @zh 重置数据。
      */
-    public reset () {
+    public reset (): void {
         this._skeletonCache = null;
         if (EDITOR_NOT_IN_PREVIEW) {
             this._skinsEnum = null;
@@ -181,7 +181,7 @@ export class SkeletonData extends Asset {
      * @en Reset skeleton skin and animation enumeration.
      * @zh 重置皮肤和动画枚举。
      */
-    public resetEnums () {
+    public resetEnums (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
@@ -203,7 +203,7 @@ export class SkeletonData extends Asset {
 
         if (!(this.textures && this.textures.length > 0) && this.textureNames && this.textureNames.length > 0) {
             if (!quiet) {
-                console.error(`${this.name} no textures found!`);
+                error(`${this.name} no textures found!`);
             }
             return null;
         }
@@ -217,7 +217,7 @@ export class SkeletonData extends Asset {
             const rawData = new Uint8Array(this._nativeAsset);
             const byteSize = rawData.length;
             const ptr = spine.wasmUtil.queryStoreMemory(byteSize);
-            const wasmMem = spine.wasmUtil.HEAPU8.subarray(ptr, ptr + byteSize);
+            const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
             wasmMem.set(rawData);
             this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText);
             spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
@@ -229,7 +229,9 @@ export class SkeletonData extends Asset {
     /**
      * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
-    public getSkinsEnum () {
+    public getSkinsEnum (): {
+        [key: string]: number;
+    } | null {
         if (this._skinsEnum /* && Object.keys(this._skinsEnum).length > 0 */) {
             return this._skinsEnum;
         }
@@ -248,7 +250,9 @@ export class SkeletonData extends Asset {
     /**
      * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
-    public getAnimsEnum () {
+    public getAnimsEnum (): {
+        [key: string]: number;
+    } | null {
         if (this._animsEnum && Object.keys(this._animsEnum).length > 1) {
             return this._animsEnum;
         }
@@ -268,7 +272,7 @@ export class SkeletonData extends Asset {
      * @en Destroy skeleton data.
      * @zh 销毁 skeleton data。
      */
-    public destroy () {
+    public destroy (): boolean {
         SkeletonCache.sharedCache.destroyCachedAnimations(this._uuid);
         if (this._skeletonCache) {
             spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);

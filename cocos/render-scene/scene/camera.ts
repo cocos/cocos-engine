@@ -30,6 +30,7 @@ import { RenderScene } from '../core/render-scene';
 import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
 import { PostProcess } from '../../rendering/post-process/components/post-process';
+import type { Frustum } from '../../core/geometry';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -402,7 +403,7 @@ export class Camera {
      * @en This exposure value corresponding to default standard camera exposure parameters.
      * @zh 默认相机的曝光值。
      */
-    public static get standardExposureValue () {
+    public static get standardExposureValue (): number {
         return 1.0 / 38400.0;
     }
 
@@ -410,7 +411,7 @@ export class Camera {
      * @en The luminance unit scale used by area lights.
      * @zh 默认局部光源使用的亮度单位缩放。
      */
-    public static get standardLightMeterScale () {
+    public static get standardLightMeterScale (): number {
         return 10000.0;
     }
 
@@ -418,7 +419,7 @@ export class Camera {
      * @en The name of the camera
      * @zh 相机的名称
      */
-    get name () {
+    get name (): string | null {
         return this._name;
     }
 
@@ -426,7 +427,7 @@ export class Camera {
      * @en The render scene to which the camera is attached
      * @zh 相机所挂载的场景
      */
-    get scene () {
+    get scene (): RenderScene | null {
         return this._scene;
     }
 
@@ -437,7 +438,7 @@ export class Camera {
     set node (val: Node) {
         this._node = val;
     }
-    get node () {
+    get node (): Node {
         return this._node!;
     }
 
@@ -445,7 +446,7 @@ export class Camera {
      * @en The unique ID of system window which the camera will render to.
      * @zh 相机关联的渲染窗口ID
      */
-    get systemWindowId () {
+    get systemWindowId (): number {
         return this._windowId;
     }
 
@@ -456,7 +457,7 @@ export class Camera {
     set window (val) {
         this._window = val;
     }
-    get window () {
+    get window (): RenderWindow {
         return this._window!;
     }
 
@@ -467,7 +468,7 @@ export class Camera {
     set enabled (val) {
         this._enabled = val;
     }
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -498,7 +499,7 @@ export class Camera {
      * @en The width of the camera's view size
      * @zh 相机的视图宽度
      */
-    get width () {
+    get width (): number {
         return this._width;
     }
 
@@ -506,7 +507,7 @@ export class Camera {
      * @en The height of the camera's view size
      * @zh 相机的视图高度
      */
-    get height () {
+    get height (): number {
         return this._height;
     }
 
@@ -517,7 +518,7 @@ export class Camera {
     set position (val) {
         this._position = val;
     }
-    get position () {
+    get position (): Vec3 {
         return this._position;
     }
 
@@ -528,7 +529,7 @@ export class Camera {
     set forward (val) {
         this._forward = val;
     }
-    get forward () {
+    get forward (): Vec3 {
         return this._forward;
     }
 
@@ -624,7 +625,7 @@ export class Camera {
         this._clearColor.z = val.z;
         this._clearColor.w = val.w;
     }
-    get clearColor () {
+    get clearColor (): IVec4Like {
         return this._clearColor as IVec4Like;
     }
 
@@ -658,7 +659,7 @@ export class Camera {
         this._proj = val;
         this._isProjDirty = true;
     }
-    get projectionType () {
+    get projectionType (): CameraProjection {
         return this._proj;
     }
 
@@ -666,7 +667,7 @@ export class Camera {
      * @en The aspect ratio of the camera
      * @zh 相机视图的长宽比
      */
-    get aspect () {
+    get aspect (): number {
         return this._aspect;
     }
 
@@ -678,7 +679,7 @@ export class Camera {
         this._orthoHeight = val;
         this._isProjDirty = true;
     }
-    get orthoHeight () {
+    get orthoHeight (): number {
         return this._orthoHeight;
     }
 
@@ -690,7 +691,7 @@ export class Camera {
         this._fovAxis = axis;
         this._isProjDirty = true;
     }
-    get fovAxis () {
+    get fovAxis (): CameraFOVAxis {
         return this._fovAxis;
     }
 
@@ -702,7 +703,7 @@ export class Camera {
         this._fov = fov;
         this._isProjDirty = true;
     }
-    get fov () {
+    get fov (): number {
         return this._fov;
     }
 
@@ -714,7 +715,7 @@ export class Camera {
         this._nearClip = nearClip;
         this._isProjDirty = true;
     }
-    get nearClip () {
+    get nearClip (): number {
         return this._nearClip;
     }
 
@@ -726,7 +727,7 @@ export class Camera {
         this._farClip = farClip;
         this._isProjDirty = true;
     }
-    get farClip () {
+    get farClip (): number {
         return this._farClip;
     }
 
@@ -734,7 +735,7 @@ export class Camera {
      * @en The viewport rect of the camera, pre-rotated (i.e. always in identity/portrait mode) if possible.
      * @zh 相机的视口矩形，如果设备允许的话，这个视口会永远保持竖屏状态，由渲染流程保障旋转的正确。
      */
-    get viewport () {
+    get viewport (): Rect {
         return this._viewport;
     }
     set viewport (val) {
@@ -749,7 +750,7 @@ export class Camera {
     set frustum (val) {
         this._frustum = val;
     }
-    get frustum () {
+    get frustum (): Frustum {
         return this._frustum;
     }
 
@@ -757,7 +758,7 @@ export class Camera {
      * @en The view matrix of the camera
      * @zh 相机的视图矩阵
      */
-    get matView () {
+    get matView (): Mat4 {
         return this._matView;
     }
 
@@ -765,7 +766,7 @@ export class Camera {
      * @en The projection matrix of the camera
      * @zh 相机的投影矩阵
      */
-    get matProj () {
+    get matProj (): Mat4 {
         return this._matProj;
     }
 
@@ -773,7 +774,7 @@ export class Camera {
      * @en The inverse of the projection matrix of the camera
      * @zh 相机的逆投影矩阵
      */
-    get matProjInv () {
+    get matProjInv (): Mat4 {
         return this._matProjInv;
     }
 
@@ -781,7 +782,7 @@ export class Camera {
      * @en The view projection matrix of the camera
      * @zh 相机的视图投影矩阵
      */
-    get matViewProj () {
+    get matViewProj (): Mat4 {
         return this._matViewProj;
     }
 
@@ -789,7 +790,7 @@ export class Camera {
      * @en The inverse of the view projection matrix of the camera
      * @zh 相机的逆视图投影矩阵
      */
-    get matViewProjInv () {
+    get matViewProjInv (): Mat4 {
         return this._matViewProjInv;
     }
 
@@ -874,7 +875,7 @@ export class Camera {
         }
     }
 
-    private _updateAspect (oriented = true) {
+    private _updateAspect (oriented = true): void {
         this._aspect = (this.window.width * this._viewport.width) / (this.window.height * this._viewport.height);
         // window size/viewport is pre-rotated, but aspect should be oriented to acquire the correct projection
         if (oriented) {
@@ -889,7 +890,7 @@ export class Camera {
      * @en Initialize the camera, normally you shouldn't invoke this function, it's managed automatically.
      * @zh 初始化相机，开发者通常不应该使用这个方法，初始化流程是自动管理的。
      */
-    public initialize (info: ICameraInfo) {
+    public initialize (info: ICameraInfo): void {
         if (info.usage !== undefined) {
             this._usage = info.usage;
         } else {
@@ -919,7 +920,7 @@ export class Camera {
      * @en Destroy the camera, you shouldn't invoke this function, it's managed by the render scene.
      * @zh 销毁相机，开发者不应该使用这个方法，销毁流程是由 RenderScene 管理的。
      */
-    public destroy () {
+    public destroy (): void {
         this._node = null;
         this.detachFromScene();
         if (this._window) {
@@ -935,7 +936,7 @@ export class Camera {
      * @zh 将相机添加到相关的渲染场景中，以便可以被渲染器渲染。
      * @param scene @en The render scene @zh 渲染场景
      */
-    public attachToScene (scene: RenderScene) {
+    public attachToScene (scene: RenderScene): void {
         this._enabled = true;
         this._scene = scene;
     }
@@ -944,7 +945,7 @@ export class Camera {
      * @en Detach the camera from previously attached render scene. It will no longer be rendered.
      * @zh 将相机从之前设置的渲染场景移除，之后将不会再被渲染。
      */
-    public detachFromScene () {
+    public detachFromScene (): void {
         this._enabled = false;
         this._scene = null;
     }
@@ -970,7 +971,7 @@ export class Camera {
      * @param width The width of the view size
      * @param height The height of the view size
      */
-    public setFixedSize (width: number, height: number) {
+    public setFixedSize (width: number, height: number): void {
         this._width = width;
         this._height = height;
         this._updateAspect();
@@ -981,7 +982,7 @@ export class Camera {
      * Editor specific gizmo camera logic
      * @internal
      */
-    public syncCameraEditor (camera) {
+    public syncCameraEditor (camera): void {
         if (EDITOR) {
             this.position = camera.position;
             this.forward = camera.forward;
@@ -1053,7 +1054,7 @@ export class Camera {
         }
     }
 
-    get surfaceTransform () {
+    get surfaceTransform (): SurfaceTransform {
         return this._curTransform;
     }
 
@@ -1061,7 +1062,7 @@ export class Camera {
      * @en Set the viewport in oriented space (equal to the actual screen rotation)
      * @zh 在目标朝向空间（实际屏幕朝向）内设置相机视口
      */
-    public setViewportInOrientedSpace (val: Rect) {
+    public setViewportInOrientedSpace (val: Rect): void {
         const { x, width, height } = val;
         const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
@@ -1108,7 +1109,7 @@ export class Camera {
      * @en create geometry renderer for this camera
      * @zh 创建这个摄像机的几何体渲染器
      */
-    public initGeometryRenderer () {
+    public initGeometryRenderer (): void {
         if (!this._geometryRenderer) {
             this._geometryRenderer = cclegacy.internal.GeometryRenderer ? new cclegacy.internal.GeometryRenderer() : null;
             this._geometryRenderer?.activate(this._device);
@@ -1120,7 +1121,7 @@ export class Camera {
      * @zh 获取这个摄像机的几何体渲染器
      * @returns @en return the geometry renderer @zh 返回几何体渲染器
      */
-    get geometryRenderer () {
+    get geometryRenderer (): GeometryRenderer  | null {
         return this._geometryRenderer;
     }
 
@@ -1153,7 +1154,7 @@ export class Camera {
      * @zh 修改相机的目标渲染窗口
      * @param window The target render window, could be null
      */
-    public changeTargetWindow (window: RenderWindow | null = null) {
+    public changeTargetWindow (window: RenderWindow | null = null): void {
         if (this._window) {
             this._window.detachCamera(this);
         }
@@ -1174,7 +1175,7 @@ export class Camera {
      * @en Detach camera from the render window
      * @zh 将 camera 从渲染窗口移除
      */
-    public detachCamera () {
+    public detachCamera (): void {
         if (this._window) {
             this._window.detachCamera(this);
         }
@@ -1310,7 +1311,7 @@ export class Camera {
      * @param height framebuffer height
      * @returns the resulting matrix
      */
-    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number) {
+    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number): Mat4 {
         Mat4.multiply(out, this._matViewProj, worldMatrix);
         Mat4.multiply(out, correctionMatrices[this._curTransform], out);
 
@@ -1330,7 +1331,7 @@ export class Camera {
      * @zh 计算并设置斜视锥体投影矩阵
      * @param clipPlane clip plane in camera space
      */
-    public calculateObliqueMat (viewSpacePlane: Vec4) {
+    public calculateObliqueMat (viewSpacePlane: Vec4): void {
         const clipFar = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1.0, 1.0);
         const viewFar = clipFar.transformMat4(this._matProjInv);
 
@@ -1346,21 +1347,25 @@ export class Camera {
         this._matProj.m14 = m3.w;
     }
 
+    public getClipSpaceMinz (): number {
+        return this._device.capabilities.clipSpaceMinZ;
+    }
+
     /**
      * @en Set exposure with actual value.
      * @zh 设置相机的曝光值
      * @param ev100
      */
-    protected setExposure (ev100) {
+    protected setExposure (ev100): void {
         this._exposure = 0.833333 / (2.0 ** ev100);
     }
 
-    private updateExposure () {
+    private updateExposure (): void {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         this.setExposure(ev100);
     }
 
-    private setDefaultUsage () {
+    private setDefaultUsage (): void {
         if (EDITOR) {
             if (cclegacy.GAME_VIEW) {
                 this._usage = CameraUsage.GAME_VIEW;

@@ -1,7 +1,7 @@
 import { Vec4 } from '../../../core';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -14,9 +14,9 @@ const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
 const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export class BloomPass extends SettingPass {
-    get setting () { return getSetting(Bloom); }
+    get setting (): Bloom { return getSetting(Bloom); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;

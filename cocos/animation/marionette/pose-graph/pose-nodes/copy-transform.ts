@@ -58,7 +58,7 @@ export class PoseNodeCopyTransform extends PoseNodeModifyPoseBase {
         );
     }
 
-    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose) {
+    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose): void {
         const {
             _workspace: workspace,
         } = this;
@@ -73,7 +73,7 @@ export class PoseNodeCopyTransform extends PoseNodeModifyPoseBase {
         inputPose.transforms.setTransform(targetTransformIndex, transform);
     }
 
-    protected getPoseTransformSpaceRequirement () {
+    protected getPoseTransformSpaceRequirement (): PoseTransformSpaceRequirement {
         return this.space === CopySpace.COMPONENT ? PoseTransformSpaceRequirement.COMPONENT : PoseTransformSpaceRequirement.LOCAL;
     }
 
@@ -89,7 +89,7 @@ class Workspace {
 }
 
 if (EDITOR) {
-    PoseNodeCopyTransform.prototype.getTitle = function getTitle (this: PoseNodeCopyTransform) {
+    PoseNodeCopyTransform.prototype.getTitle = function getTitle (this: PoseNodeCopyTransform): string | [string, Record<string, string>] | undefined {
         if (this.sourceNodeName && this.targetNodeName) {
             return [`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeCopyTransform.title`, {
                 sourceNodeName: this.sourceNodeName,

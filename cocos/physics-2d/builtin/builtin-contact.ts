@@ -65,7 +65,7 @@ export class BuiltinContact {
         }
     }
 
-    test () {
+    test (): boolean {
         const s1 = this.shape1!;
         const s2 = this.shape2!;
 
@@ -92,7 +92,7 @@ export class BuiltinContact {
         return false;
     }
 
-    updateState () {
+    updateState (): string {
         const result = this.test();
 
         let type = Contact2DType.None;

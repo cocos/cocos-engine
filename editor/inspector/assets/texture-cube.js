@@ -1,6 +1,7 @@
 'use strict';
 
 const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
+const { injectionStyle } = require('../utils/prop');
 
 const path = require('path');
 
@@ -24,9 +25,11 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+  .asset-texture-cube > .assets {
+    padding-right: 4px;
+  }
   .asset-texture-cube > .preview {
     padding: 20px;
-    margin-top: 10px;
   }
   .asset-texture-cube > .preview > .images {
     position: relative;
@@ -180,6 +183,7 @@ const Elements = {
     panel: {
         ready() {
             this.$.panel.setAttribute('src', path.join(__dirname, './erp-texture-cube.js'));
+            this.$.panel.injectionStyle(injectionStyle);
             this.$.panel.addEventListener('change', () => {
                 this.dispatch('change');
             });

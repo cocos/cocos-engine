@@ -41,11 +41,15 @@ CCEffect %{
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
-        cullMode: back
+        cullMode: none
     - &reflect-map
       vert: terrain-vs
       frag: reflect-map-fs
       phase: reflect-map
+      propertyIndex: 0
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred-forward
       propertyIndex: 0
 }%
 
@@ -62,10 +66,10 @@ CCProgram macro-remapping %{
   #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMALMAP
 }%
 
-CCProgram surface-vertex %{  
+CCProgram surface-vertex %{
   #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
-  { 
+  {
     vec3 worldPos;
     worldPos.x = cc_matWorld[3][0] + In.position.x;
     worldPos.y = cc_matWorld[3][1] + In.position.y;
