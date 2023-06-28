@@ -256,7 +256,6 @@ export class UIRenderer extends Renderer {
     protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
-    protected _postAssembler: IAssembler | null = null;
 
     // RenderEntity
     //protected renderData: RenderData | null = null;
@@ -423,9 +422,6 @@ export class UIRenderer extends Renderer {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public postUpdateAssembler (render: IBatcher) {
-        if (this._postAssembler && this._renderFlag) {
-            this._postRender(render);
-        }
     }
 
     protected _render (render: IBatcher) { }

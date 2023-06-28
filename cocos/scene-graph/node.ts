@@ -1474,10 +1474,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     private static ClearRound = 1000;
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _static = false;
-    /**
      * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
      */
     public declare _pos: Vec3;

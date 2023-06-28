@@ -75,5 +75,5 @@ export interface IBatcher {
     finishMergeBatches ();
     flushMaterial (mat: Material);
 
-    walk (node: Node, level?: number);
+    walk (node: Node);
 }

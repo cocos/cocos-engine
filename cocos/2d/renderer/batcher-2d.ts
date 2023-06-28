@@ -775,73 +775,69 @@ export class Batcher2D implements IBatcher {
         this._currMaterial = mat;
     }
 
-    public walk (node: Node, level = 0) {
+    public walk (node: Node) {
         if (!node.activeInHierarchy) {
             return;
         }
         const children = node.children;
         const uiProps = node._uiProps;
-        const render = uiProps.uiComp as UIRenderer;
+        const renderer = uiProps.uiComp as UIRenderer;
 
         // Save opacity
         const parentOpacity = this._pOpacity;
-        let opacity = parentOpacity;
+        const rendererValid = renderer && renderer.enabled;
         // TODO Always cascade ui property's local opacity before remove it
-        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
-        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+        const selfOpacity = rendererValid && renderer.color ? renderer.color.a / 255 : 1;
+        const stencilStage = rendererValid && renderer.stencilStage;
+        const currentOpacity = this._pOpacity = parentOpacity * selfOpacity * uiProps.localOpacity;
         // TODO Set opacity to ui property's opacity before remove it
-        uiProps.setOpacity(opacity);
-        if (!approx(opacity, 0, EPSILON)) {
-            if (uiProps.colorDirty) {
+        uiProps.setOpacity(currentOpacity);
+        if (currentOpacity > EPSILON) {
+            const colorDirty = uiProps.colorDirty;
+            if (colorDirty) {
             // Cascade color dirty state
                 this._opacityDirty++;
+                // Reset color dirty
+                uiProps.colorDirty = false;
             }
 
             // Render assembler update logic
-            if (render && render.enabledInHierarchy) {
-                render.fillBuffers(this);// for rendering
-            }
-
-            // Update cascaded opacity to vertex buffer
-            if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
-            // HARD COUPLING
-                updateOpacity(render.renderData, opacity);
-                const buffer = render.renderData.getMeshBuffer();
-                if (buffer) {
-                    buffer.setDirty();
+            if (rendererValid) {
+                renderer.fillBuffers(this);// for rendering
+                // Update cascaded opacity to vertex buffer
+                if (this._opacityDirty && !renderer.useVertexOpacity && renderer.renderData && renderer.renderData.vertexCount > 0) {
+                // HARD COUPLING
+                    updateOpacity(renderer.renderData, currentOpacity);
+                    const buffer = renderer.renderData.getMeshBuffer();
+                    if (buffer) {
+                        buffer.setDirty();
+                    }
                 }
             }
 
-            if (children.length > 0 && !node._static) {
-                for (let i = 0; i < children.length; ++i) {
-                    const child = children[i];
-                    this.walk(child, level);
+            const length = children.length;
+            if (length > 0) {
+                for (let i = 0; i < length; ++i) {
+                    this.walk(children[i]);
                 }
             }
 
-            if (uiProps.colorDirty) {
+            if (colorDirty) {
             // Reduce cascaded color dirty state
                 this._opacityDirty--;
-                // Reset color dirty
-                uiProps.colorDirty = false;
             }
         }
         // Restore opacity
         this._pOpacity = parentOpacity;
 
-        // Post render assembler update logic
-        // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
-        if (render && render.enabledInHierarchy) {
-            render.postUpdateAssembler(this);
-            if ((render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)
+        if (rendererValid) {
+            if ((stencilStage === Stage.ENTER_LEVEL || stencilStage === Stage.ENTER_LEVEL_INVERTED)
             && (StencilManager.sharedManager!.getMaskStackSize() > 0)) {
                 this.autoMergeBatches(this._currComponent!);
                 this.resetRenderStates();
                 StencilManager.sharedManager!.exitMask();
             }
         }
-
-        level += 1;
     }
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
