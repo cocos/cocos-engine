@@ -29,7 +29,7 @@ import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
 import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
-import { Color, warnID, Vec4, cclegacy } from '../../core';
+import { Color, warnID, Vec4, cclegacy, warn } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
 
@@ -250,7 +250,7 @@ export class Material extends Asset {
      * @param passIdx @en The pass to apply to. Will apply to all passes if not specified. @zh 要重编的 pass 索引，如果没有指定，则重编所有 pass。
      */
     public recompileShaders (overrides: MacroRecord, passIdx?: number): void {
-        console.warn(`Shaders in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
+        warn(`Shaders in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -260,7 +260,7 @@ export class Material extends Asset {
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number): void {
-        console.warn(`Pipeline states in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
+        warn(`Pipeline states in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -312,7 +312,7 @@ export class Material extends Asset {
                 }
             }
         } else {
-            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            if (passIdx >= this._passes.length) { warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
             if (this._uploadProperty(pass, name, val)) {
                 this._props[pass.propertyIndex][name] = val;
@@ -320,7 +320,7 @@ export class Material extends Asset {
             }
         }
         if (!success) {
-            console.warn(`illegal property name: ${name}.`);
+            warn(`illegal property name: ${name}.`);
         }
     }
 
@@ -348,7 +348,7 @@ export class Material extends Asset {
                 if (name in props) { return props[name]; }
             }
         } else {
-            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
+            if (passIdx >= this._passes.length) { warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[this._passes[passIdx].propertyIndex];
             if (name in props) { return props[name]; }
         }

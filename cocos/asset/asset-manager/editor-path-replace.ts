@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
-import { assert, Settings, settings } from '../../core';
+import { assert, error, Settings, settings } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
 import Task from './task';
 
@@ -98,8 +98,8 @@ if ((EDITOR || PREVIEW) && !TEST) {
                 resolveMap[uuid] = [];
             }
             return text;
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            error(err);
             cache[uuid] = '';
             return '';
         }

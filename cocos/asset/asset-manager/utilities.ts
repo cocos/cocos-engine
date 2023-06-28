@@ -164,7 +164,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             asset._nativeAsset = assetsMap[`${uuid}@native`];
         } else {
             missingAsset = true;
-            console.error(`the native asset of ${uuid} is missing!`);
+            error(`the native asset of ${uuid} is missing!`);
         }
         nativeDependMap.delete(asset);
     }

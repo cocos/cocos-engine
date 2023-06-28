@@ -28,7 +28,7 @@ import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECH
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { warnID, macro, sys, cclegacy } from '../../core';
+import { warnID, macro, sys, cclegacy, warn } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
@@ -246,7 +246,7 @@ export class ImageAsset extends Asset {
             }
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
 
         return out;

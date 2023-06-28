@@ -144,9 +144,7 @@ function cardano (curve: BezierControlPoints, x: number): any {
         } else {
             return x2;
         }
-    }
-    // one real root, and two imaginary roots
-    else {
+    } else { // one real root, and two imaginary roots
         const sd = sqrt(discriminant);
         u1 = crt(-q2 + sd);
         v1 = crt(q2 + sd);

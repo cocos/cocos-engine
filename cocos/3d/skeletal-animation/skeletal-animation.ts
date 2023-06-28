@@ -26,7 +26,7 @@ import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4, cclegacy, js, assertIsTrue } from '../../core';
+import { Mat4, cclegacy, js, assertIsTrue, warn } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';
@@ -276,7 +276,7 @@ export class SkeletalAnimation extends Animation {
         const socket = this._sockets.find((s) => s.path === path);
         if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
-        if (!joint) { console.warn('illegal socket path'); return null; }
+        if (!joint) { warn('illegal socket path'); return null; }
         const target = new Node();
         target.parent = this.node;
         this._sockets.push(new Socket(path, target));

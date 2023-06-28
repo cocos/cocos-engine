@@ -67,7 +67,7 @@ export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: 
  * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @param lessThan Comparison function object which returns ​true if the first argument is less than the second.
+ * @param lessThan Comparison function object which returns true if the first argument is less than the second.
  * @returns The index of the searched element in the sorted array, if found;
  * otherwise, returns the complement of the index of the next element greater than the searching element or,
  * returns the complement of array's length if no element is greater than the searching element or the array is empty.
