@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { log } from '../../core';
 import {
     FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
     FormatInfos, TextureUsageBit,
@@ -113,7 +114,7 @@ export class WebGL2Texture extends Texture {
             this._gpuTexture = (viewInfo.texture as WebGL2Texture)._gpuTexture;
 
             if (this._gpuTexture?.format !== texInfo.format) {
-                console.log('GPU memory alias is not supported');
+                log('GPU memory alias is not supported');
                 return;
             }
 
@@ -135,7 +136,7 @@ export class WebGL2Texture extends Texture {
         }
     }
 
-    public getGLTextureHandle () : number {
+    public getGLTextureHandle (): number {
         const gpuTexture = this._gpuTexture;
         if (!gpuTexture) {
             return 0;

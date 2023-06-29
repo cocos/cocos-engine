@@ -24,7 +24,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { assert } from '../../core';
+import { assert, error, warn } from '../../core';
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPassType, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
@@ -109,7 +109,7 @@ export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType
     case DescriptorTypeOrder.INPUT_ATTACHMENT:
         return DescriptorType.INPUT_ATTACHMENT;
     default:
-        console.error('DescriptorType not found');
+        error('DescriptorType not found');
         return DescriptorType.INPUT_ATTACHMENT;
     }
 }
@@ -137,7 +137,7 @@ export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrd
         return DescriptorTypeOrder.INPUT_ATTACHMENT;
     case DescriptorType.UNKNOWN:
     default:
-        console.error('DescriptorTypeOrder not found');
+        error('DescriptorTypeOrder not found');
         return DescriptorTypeOrder.INPUT_ATTACHMENT;
     }
 }
@@ -460,7 +460,7 @@ export class VisibilityBlock {
     public getVisibility (name: string): ShaderStageFlagBit {
         const v = this.descriptors.get(name);
         if (v === undefined) {
-            console.error(`Can't find visibility for descriptor: ${name}`);
+            error(`Can't find visibility for descriptor: ${name}`);
             return ShaderStageFlagBit.NONE;
         }
         return v;
@@ -542,7 +542,7 @@ export class VisibilityGraph {
                     continue;
                 }
                 if (shader.descriptors === undefined) {
-                    console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
+                    warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
                     continue;
                 }
                 const passName = getPassName(pass);
@@ -675,7 +675,7 @@ export class LayoutGraphInfo {
             return;
         }
         if (value.type !== type) {
-            console.warn(`Type mismatch for descriptor ${name}`);
+            warn(`Type mismatch for descriptor ${name}`);
         }
     }
     private addUniformBlock (block: DescriptorBlock,
@@ -686,7 +686,7 @@ export class LayoutGraphInfo {
             return;
         }
         if (!this.checkConsistency(value, gfxBlock)) {
-            console.warn(`Uniform block ${name} is inconsistent in the same block`);
+            warn(`Uniform block ${name} is inconsistent in the same block`);
         }
     }
     private buildBlocks (visDB: VisibilityDB, rate: UpdateFrequency, blocks: EffectAsset.IBlockInfo[], db: DescriptorDB, counter: DescriptorCounter): void {
@@ -807,11 +807,11 @@ export class LayoutGraphInfo {
                     }
                 }
                 if (!shader) {
-                    console.warn(`program: ${programName} not found`);
+                    warn(`program: ${programName} not found`);
                     continue;
                 }
                 if (shader.descriptors === undefined) {
-                    console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
+                    warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
                     continue;
                 }
                 // get database
@@ -872,13 +872,13 @@ export class LayoutGraphInfo {
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
             if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
-                console.error(`phase: ${lg.getName(phaseID)} has no parent stage`);
+                error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
             const phaseDB = lg.getDescriptors(phaseID);
             const passVisDB = visMap.get(parentID);
             if (!passVisDB) {
-                console.error(`pass: ${lg.getName(parentID)} has no visibility database`);
+                error(`pass: ${lg.getName(parentID)} has no visibility database`);
                 return 1;
             }
             // merge phase visibility to pass visibility
@@ -902,14 +902,14 @@ export class LayoutGraphInfo {
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
             if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
-                console.error(`phase: ${lg.getName(phaseID)} has no parent stage`);
+                error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
             const passDB = lg.getDescriptors(parentID);
             const phaseDB = lg.getDescriptors(phaseID);
             const passVisDB = visMap.get(parentID);
             if (passVisDB === undefined) {
-                console.error(`pass: ${lg.getName(parentID)} has no visibility database`);
+                error(`pass: ${lg.getName(parentID)} has no visibility database`);
                 return 1;
             }
             for (const [key0, block] of phaseDB.blocks) {
@@ -943,7 +943,7 @@ export class LayoutGraphInfo {
                     }
                     const b = block.uniformBlocks.get(name);
                     if (!b) {
-                        console.error(`uniform block: ${name} not found`);
+                        error(`uniform block: ${name} not found`);
                         return 1;
                     }
                     this.addUniformBlock(passBlock, name, b);
@@ -968,22 +968,22 @@ export class LayoutGraphInfo {
             for (const e of lg.children(passID)) {
                 const phaseID = lg.child(e);
                 if (lg.id(phaseID) !== LayoutGraphValue.RenderPhase) {
-                    console.error(`pass: ${lg.getName(passID)} is not single_render_pass or render_subpass`);
+                    error(`pass: ${lg.getName(passID)} is not single_render_pass or render_subpass`);
                     return 1;
                 }
                 const phaseDB = lg.getDescriptors(phaseID);
                 for (const [key, passBlock] of passDB.blocks) {
                     const index: DescriptorBlockIndex = JSON.parse(key);
                     if (index.updateFrequency !== UpdateFrequency.PER_PASS) {
-                        console.error(`phase: ${lg.getName(phaseID)} update frequency is not PER_PASS`);
+                        error(`phase: ${lg.getName(phaseID)} update frequency is not PER_PASS`);
                         return 1;
                     }
                     if (passBlock.count === 0) {
-                        console.error(`pass: ${lg.getName(passID)} count is 0`);
+                        error(`pass: ${lg.getName(passID)} count is 0`);
                         return 1;
                     }
                     if (passBlock.capacity !== passBlock.count) {
-                        console.error(`pass: ${lg.getName(passID)} capacity does not equal count`);
+                        error(`pass: ${lg.getName(passID)} capacity does not equal count`);
                         return 1;
                     }
                     const phaseBlock = this.getDescriptorBlock(key, phaseDB);
@@ -1000,7 +1000,7 @@ export class LayoutGraphInfo {
                 }
             }
         }
-        // console.debug(this.print());
+        // debug(this.print());
         return 0;
     }
     public print (): string {
@@ -1047,7 +1047,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             }
             const vertID = builder.addRenderStage(graph.getName(v), parentID);
             if (vertID !== v) {
-                console.error('vertex id mismatch');
+                error('vertex id mismatch');
             }
             minLevel = UpdateFrequency.PER_PASS;
             maxLevel = UpdateFrequency.PER_PASS;
@@ -1059,7 +1059,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             assert(parentType === RenderPassType.RENDER_SUBPASS || parentType === RenderPassType.SINGLE_RENDER_PASS);
             const vertID = builder.addRenderPhase(graph.getName(v), parentID);
             if (vertID !== v) {
-                console.error('vertex id mismatch');
+                error('vertex id mismatch');
             }
             const phase = graph.getRenderPhase(v);
             for (const shaderName of phase.shaders) {
@@ -1070,7 +1070,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             break;
         }
         default:
-            console.error('unknown vertex type');
+            error('unknown vertex type');
             minLevel = UpdateFrequency.PER_INSTANCE;
             minLevel = UpdateFrequency.PER_PASS;
             break;
@@ -1092,7 +1092,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             }
             const flattened = convertDescriptorBlock(block);
             if (block.capacity === 0) {
-                console.error('block capacity is 0');
+                error('block capacity is 0');
                 return;
             }
             if (index.updateFrequency > UpdateFrequency.PER_BATCH) {
@@ -1176,20 +1176,20 @@ class LayoutGraphBuilder2 {
     }
     addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: Readonly<DescriptorBlockFlattened>): void {
         if (block.capacity <= 0) {
-            console.error('empty block');
+            error('empty block');
             return;
         }
         if (block.descriptorNames.length !== block.descriptors.length) {
-            console.error('error descriptor');
+            error('error descriptor');
             return;
         }
         if (block.uniformBlockNames.length !== block.uniformBlocks.length) {
-            console.error('error uniform');
+            error('error uniform');
             return;
         }
         if (!(index.updateFrequency >= UpdateFrequency.PER_INSTANCE
             && index.updateFrequency <= UpdateFrequency.PER_PASS)) {
-            console.error('invalid update frequency');
+            error('invalid update frequency');
             return;
         }
 
@@ -1230,7 +1230,7 @@ class LayoutGraphBuilder2 {
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         if (block.capacity <= 0) {
-            console.error('empty block');
+            error('empty block');
             return;
         }
         const g: LayoutGraphData = this.lg;
@@ -1250,7 +1250,7 @@ class LayoutGraphBuilder2 {
         }
     }
     compile (): number {
-        // console.debug(this.print());
+        // debug(this.print());
         return 0;
     }
     print (): string {
@@ -1435,7 +1435,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
                 // update uniform buffer binding
                 const ub = uniformBlocks.get(d.descriptorID);
                 if (!ub) {
-                    console.error(`Uniform block not found for ${d.descriptorID}`);
+                    error(`Uniform block not found for ${d.descriptorID}`);
                     continue;
                 }
                 assert(ub.binding === 0xFFFFFFFF);
@@ -1446,7 +1446,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             // update block capacity
             const binding = data.bindingMap.get(d.descriptorID);
             if (binding !== undefined) {
-                console.error(`Duplicated descriptor ${d.descriptorID}`);
+                error(`Duplicated descriptor ${d.descriptorID}`);
             }
             data.bindingMap.set(d.descriptorID, block.offset + block.capacity);
             block.capacity += d.count;
@@ -1507,7 +1507,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
             if (set.descriptorSetLayout !== null) {
-                console.warn('descriptor set layout already initialized. It will be overwritten');
+                warn('descriptor set layout already initialized. It will be overwritten');
             }
             initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData,
                 set.descriptorSetLayoutInfo);
@@ -1565,7 +1565,7 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
         const data = phaseData.descriptorSets.get(rate);
         if (data) {
             if (!data.descriptorSetLayout) {
-                console.error('descriptor set layout not initialized');
+                error('descriptor set layout not initialized');
                 return _emptyDescriptorSetLayout;
             }
             return data.descriptorSetLayout;
@@ -1580,7 +1580,7 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
-            console.error('descriptor set layout not initialized');
+            error('descriptor set layout not initialized');
             return _emptyDescriptorSetLayout;
         }
         return data.descriptorSetLayout;
@@ -1596,7 +1596,7 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
         const data = phaseData.descriptorSets.get(rate);
         if (data) {
             if (!data.descriptorSetLayout) {
-                console.error('descriptor set layout not initialized');
+                error('descriptor set layout not initialized');
                 return null;
             }
             return data.descriptorSetLayout;
@@ -1611,7 +1611,7 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
-            console.error('descriptor set layout not initialized');
+            error('descriptor set layout not initialized');
             return null;
         }
         return data.descriptorSetLayout;

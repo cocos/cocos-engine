@@ -28,7 +28,7 @@
  THE SOFTWARE.
 */
 
-import { getError, logID } from '../core';
+import { getError, log, logID } from '../core';
 import { ccwindow } from '../core/global-exports';
 
 interface IFile {
@@ -79,7 +79,7 @@ export class TiffReader {
         } else if (BOM === 0x4D4D) {
             this._littleEndian = false;
         } else {
-            console.log(BOM);
+            log(BOM);
             throw TypeError(getError(6019));
         }
 

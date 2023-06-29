@@ -24,7 +24,7 @@
 
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
-import { Mat4 } from '../../core';
+import { Mat4, error } from '../../core';
 import { Node } from '../../scene-graph/node';
 
 function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean {
@@ -65,16 +65,16 @@ export class BatchingUtility {
     public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node): boolean {
         const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         if (models.length < 2) {
-            console.error('the number of static models to batch is less than 2,it needn\'t batch.');
+            error('the number of static models to batch is less than 2,it needn\'t batch.');
             return false;
         }
         for (let i = 1; i < models.length; i++) {
             if (!models[0].mesh!.validateMergingMesh(models[i].mesh!)) {
-                console.error(`the meshes of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
+                error(`the meshes of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
                 return false;
             }
             if (!checkMaterialisSame(models[0], models[i])) {
-                console.error(`the materials of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
+                error(`the materials of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
                 return false;
             }
         }

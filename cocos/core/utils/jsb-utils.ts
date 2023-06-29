@@ -60,16 +60,16 @@ import type { Node } from '../../scene-graph';
 //                 func.apply(target, arguments);
 //             };
 //         } else {
-//             console.error('dont go here....');
+//             error(`don't go here....`);
 //             result = target[property];
 //         }
-//         console.warn(`==> get [${property}], result: ${result}, for target: ${target}`);
+//         warn(`==> get [${property}], result: ${result}, for target: ${target}`);
 //         // property is index in this case
 //         return result;
 //     }
 //
 //     set (target: any, property: string, value: any, receiver: any) {
-//         console.warn(`==> set [${property}]=${value}, for target: ${target}`);
+//         warn(`==> set [${property}]=${value}, for target: ${target}`);
 //         const i = parseInt(property);
 //         if (!isNaN(i)) {
 //             if (typeof value === this._options.arrElementType) {

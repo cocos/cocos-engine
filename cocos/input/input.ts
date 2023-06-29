@@ -27,7 +27,7 @@
 import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandheldInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { sys, EventTarget } from '../core';
+import { sys, EventTarget, error } from '../core';
 import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
@@ -295,8 +295,8 @@ export class Input {
                     break;
                 }
             } catch (e) {
-                console.error(`Error occurs in an event listener: ${event.type}`);
-                console.error(e);
+                error(`Error occurs in an event listener: ${event.type}`);
+                error(e);
             }
         }
     }

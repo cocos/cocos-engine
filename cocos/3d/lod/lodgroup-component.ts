@@ -23,7 +23,7 @@
 */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../../core';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat, error, warn } from '../../core';
 import { Node } from '../../scene-graph/node';
 import { Component } from '../../scene-graph/component';
 import { MeshRenderer } from '../framework/mesh-renderer';
@@ -205,7 +205,7 @@ export class LOD {
      */
     public setRenderer (index: number, renderer: MeshRenderer): void {
         if (index < 0 || index >= this.rendererCount) {
-            console.error('setRenderer to LOD error, index out of range');
+            error('setRenderer to LOD error, index out of range');
             return;
         }
         this.deleteRenderer(index);
@@ -378,12 +378,12 @@ export class LODGroup extends Component {
      */
     public eraseLOD (index: number): LOD | null {
         if (index < 0 || index >= this.lodCount) {
-            console.warn('eraseLOD error, index out of range');
+            warn('eraseLOD error, index out of range');
             return null;
         }
         const lod = this._LODs[index];
         if (!lod) {
-            console.warn('eraseLOD error, LOD not exist at specified index.');
+            warn('eraseLOD error, LOD not exist at specified index.');
             return null;
         }
         this._LODs.splice(index, 1);
@@ -401,7 +401,7 @@ export class LODGroup extends Component {
      */
     public getLOD (index: number): LOD | null {
         if (index < 0 || index >= this.lodCount) {
-            console.warn('getLOD error, index out of range');
+            warn('getLOD error, index out of range');
             return null;
         }
         return this._LODs[index];
@@ -415,7 +415,7 @@ export class LODGroup extends Component {
      */
     public setLOD (index: number, lod: LOD): void {
         if (index < 0 || index >= this.lodCount) {
-            console.warn('setLOD error, index out of range');
+            warn('setLOD error, index out of range');
             return;
         }
         this._LODs[index] = lod;

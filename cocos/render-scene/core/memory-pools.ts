@@ -24,6 +24,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
+import { warn } from '../../core';
 
 const contains = (a: number[], t: number): boolean => {
     for (let i = 0; i < a.length; ++i) {
@@ -50,7 +51,7 @@ enum BufferDataType {
     NEVER,
 }
 
-type BufferManifest = { [key: string]: number | string; COUNT: number };
+interface BufferManifest { [key: string]: number | string; COUNT: number }
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
 type BufferDataMembersManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
 type BufferArrayType = Float32Array | Uint32Array;
@@ -143,7 +144,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
         const bufferViews = this._hasFloat32 ? this._float32BufferViews : this._uint32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
-            console.warn('invalid buffer pool handle');
+            warn('invalid buffer pool handle');
             return [] as unknown as BufferArrayType;
         }
 
@@ -156,7 +157,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
              || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
-            console.warn('invalid buffer pool handle');
+            warn('invalid buffer pool handle');
             return [] as unknown as BufferArrayType;
         }
         const index = element as unknown as number;
@@ -171,7 +172,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freeLists.length
              || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
-            console.warn('invalid buffer pool handle');
+            warn('invalid buffer pool handle');
             return;
         }
         const bufferViews = this._hasUint32 ? this._uint32BufferViews : this._float32BufferViews;

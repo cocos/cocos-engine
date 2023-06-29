@@ -24,7 +24,7 @@
 
 import { JSB } from 'internal:constants';
 import { IUV, SpriteFrame } from '../../assets/sprite-frame';
-import { Mat4, Vec3, Color } from '../../../core';
+import { Mat4, Vec3, Color, error } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
@@ -121,7 +121,7 @@ export const tiled: IAssembler = {
 
     createQuadIndices (indexCount) {
         if (indexCount % 6 !== 0) {
-            console.error('illegal index count!');
+            error('illegal index count!');
             return;
         }
         const quadCount = indexCount / 6;

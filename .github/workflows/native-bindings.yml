@@ -28,22 +28,7 @@ jobs:
           add-to-path: false
       - name: Generate decorators
         run: |
-          cd native
-          echo "Generate compile_commands.json & ninja target"
-          bash ./utils/generate_compile_commands_android.sh
-          echo "Generate binding code ..."
-          ninja -C build genbindings
-          cd ..
-          npm install
-          cd scripts/build-engine
-          echo "Installing babel dependencies ..."
-          npm install
-          echo "Build typescripts ... "
-          npm run build
-          cd ../..
-          echo " parsing ..."
-          node .github/workflows/gen_decorators.js
-          echo " generate done!"
+          bash ./native/utils/generate_decorators.sh
           git checkout HEAD package.json package-lock.json
           git checkout HEAD scripts # revert all changes within build-engine/
 

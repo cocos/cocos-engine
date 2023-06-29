@@ -156,7 +156,7 @@ class TrailSegment {
     //                ' velocity:' + e.velocity.toString() + '\n';
     //         return false;
     //     }, null, 0);
-    //     console.log(msg);
+    //     log(msg);
     // }
 }
 
@@ -773,7 +773,7 @@ export default class TrailModule {
     //         log += 'vel:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + '\n';
     //     }
     //     if (log.length > 0) {
-    //         console.log(log);
+    //         log(log);
     //     }
     // }
 }

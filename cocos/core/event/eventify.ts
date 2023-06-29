@@ -141,7 +141,7 @@ export interface IEventified {
  * @param base The base class
  * @example
  * ```ts
- * class Base { say() { console.log('Hello!'); } }
+ * class Base { say() { log('Hello!'); } }
  * class MyClass extends Eventify(Base) { }
  * function (o: MyClass) {
  *     o.say(); // Ok: Extend from `Base`

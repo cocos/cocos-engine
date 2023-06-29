@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { removeProperty, replaceProperty } from '../utils/x-deprecated';
+import { replaceProperty } from '../utils/x-deprecated';
 import { Color } from './color';
 import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';

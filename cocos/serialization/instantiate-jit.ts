@@ -224,7 +224,7 @@ class Parser {
         this.result = Function('O', 'F', code)(this.objs, this.funcs);
 
         // if (TEST && !isPhantomJS) {
-        //     console.log(code);
+        //     log(code);
         // }
 
         // cleanup

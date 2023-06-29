@@ -74,7 +74,7 @@ export interface SerializationOutput {
     writeSuper(): void;
 }
 
-export type SerializationContext = {
+export interface SerializationContext {
     /**
      * The main serializing asset or root node in the scene/prefab passed to the serialization procedure.
      */
@@ -87,17 +87,17 @@ export type SerializationContext = {
      * Customized arguments passed to serialization procedure.
      */
     customArguments: Record<PropertyKey, unknown>;
-};
+}
 
 /**
  * @engineInternal
  */
-export type DeserializationContext = {
+export interface DeserializationContext {
     /**
      * True if the deserialization procedure is deserializing from CCON.
      */
     fromCCON: boolean;
-};
+}
 
 export interface CustomSerializable {
     [serializeTag](output: SerializationOutput, context: SerializationContext): void;

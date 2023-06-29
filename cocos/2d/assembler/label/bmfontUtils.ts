@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
-import { Rect } from '../../../core';
+import { Rect, error } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
@@ -282,7 +282,7 @@ export const bmfontUtils = {
 
     createQuadIndices (indexCount): void {
         if (indexCount % 6 !== 0) {
-            console.error('illegal index count!');
+            error('illegal index count!');
             return;
         }
         const quadCount = indexCount / 6;

@@ -656,9 +656,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @example
      * ```
      * node.walk(function (target) {
-     *     console.log('Walked through node ' + target.name + ' for the first time');
+     *     log('Walked through node ' + target.name + ' for the first time');
      * }, function (target) {
-     *     console.log('Walked through node ' + target.name + ' after walked all children in its sub tree');
+     *     log('Walked through node ' + target.name + ' after walked all children in its sub tree');
      * });
      * ```
      */

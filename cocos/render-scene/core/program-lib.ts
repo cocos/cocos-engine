@@ -36,7 +36,7 @@ import {
 } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
     getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
-import { debug, cclegacy } from '../../core';
+import { debug, cclegacy, warn, error } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -74,7 +74,7 @@ function insertBuiltinBindings (
         const info = source.layouts[b.name] as UniformBlock | undefined;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
-            console.warn(`builtin UBO '${b.name}' not available!`);
+            warn(`builtin UBO '${b.name}' not available!`);
             continue;
         }
         tempBlocks.push(info);
@@ -87,7 +87,7 @@ function insertBuiltinBindings (
         const info = source.layouts[s.name] as UniformSamplerTexture;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-            console.warn(`builtin samplerTexture '${s.name}' not available!`);
+            warn(`builtin samplerTexture '${s.name}' not available!`);
             continue;
         }
         tempSamplerTextures.push(info);
@@ -543,7 +543,7 @@ export class ProgramLib {
         if (deviceShaderVersion) {
             src = tmpl[deviceShaderVersion];
         } else {
-            console.error('Invalid GFX API!');
+            error('Invalid GFX API!');
         }
         tmplInfo.shaderInfo.stages[0].source = prefix + src.vert;
         tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;

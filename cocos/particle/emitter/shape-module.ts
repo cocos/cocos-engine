@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, warn } from '../../core';
 
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
@@ -424,7 +424,7 @@ export default class ShapeModule {
             hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
             break;
         default:
-            console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
+            warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
         if (this.randomPositionAmount > 0) {
             p.position.x += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
@@ -477,7 +477,7 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
         Vec3.normalize(dir, pos);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for sphere emitter.`);
+        warn(`${emitFrom} is not supported for sphere emitter.`);
     }
 }
 
@@ -499,7 +499,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
         Vec3.normalize(dir, pos);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for hemisphere emitter.`);
+        warn(`${emitFrom} is not supported for hemisphere emitter.`);
     }
 }
 
@@ -529,7 +529,7 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
         Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
         break;
     default:
-        console.warn(`${emitFrom} is not supported for cone emitter.`);
+        warn(`${emitFrom} is not supported for cone emitter.`);
     }
 }
 
@@ -558,7 +558,7 @@ function boxEmit (emitFrom, boxThickness, pos, dir): void {
         Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for box emitter.`);
+        warn(`${emitFrom} is not supported for box emitter.`);
     }
     Vec3.copy(dir, particleEmitZAxis);
 }

@@ -25,7 +25,7 @@
 import { ImageData } from 'pal/image';
 import { ImageSource, IMemoryImageSource } from '../../../pal/image/types';
 import { ImageAsset } from '../assets/image-asset';
-import { js } from '../../core';
+import { js, warn } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
@@ -103,7 +103,7 @@ export class Parser {
             out = ImageAsset.parseCompressedTextures(file, 0);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
@@ -118,7 +118,7 @@ export class Parser {
             out = ImageAsset.parseCompressedTextures(file, 1);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
@@ -133,7 +133,7 @@ export class Parser {
             out = ImageAsset.parseCompressedTextures(file, 2);
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
         onComplete(err, out);
     }
@@ -224,7 +224,7 @@ export class Parser {
      *
      * @example
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {
-     *      parser.parse('test.jpg', file, '.jpg', null, (err, img) => console.log(err));
+     *      parser.parse('test.jpg', file, '.jpg', null, (err, img) => log(err));
      * });
      *
      */
