@@ -41,6 +41,7 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
     _gpuRenderPass = ccnew CCVKGPURenderPass;
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
+    _gpuRenderPass->depthStencilResolveAttachment = _depthStencilResolveAttachment;
     _gpuRenderPass->subpasses = _subpasses;
     _gpuRenderPass->dependencies = _dependencies;
 
@@ -56,6 +57,9 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
         if (_depthStencilAttachment.format != Format::UNKNOWN) {
             subpass.depthStencil = colorCount;
         }
+        if (_depthStencilResolveAttachment.format != Format::UNKNOWN) {
+            subpass.depthStencilResolve = colorCount + 1;
+        }
     } else {
         // unify depth stencil index
         for (auto &subpass : _gpuRenderPass->subpasses) {
@@ -63,7 +67,7 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
                 subpass.depthStencil = colorCount;
             }
             if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
-                subpass.depthStencilResolve = colorCount;
+                subpass.depthStencilResolve = colorCount + 1;
             }
         }
     }
