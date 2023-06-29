@@ -35,6 +35,7 @@ import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
+import { ImageAsset } from '../asset/assets';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
@@ -71,11 +72,11 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private bgImage!: ImageData;
+    private bgImage!: ImageAsset;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private logoImage!: ImageData;
+    private logoImage!: ImageAsset;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
@@ -136,26 +137,26 @@ export class SplashScreen {
 
             this.initWaterMark();
             const bgPromise = new Promise<void>((resolve, reject) => {
-                this.bgImage = new ImageData();
-                this.bgImage.onload = () => {
+                this.bgImage = new ImageAsset();
+                this.bgImage.imageData.onload = () => {
                     this.initBG();
                     resolve();
                 };
-                this.bgImage.onerror = () => {
+                this.bgImage.imageData.onerror = () => {
                     reject();
                 };
-                this.bgImage.src = this.settings.bgBase64;
+                this.bgImage.imageData.src = this.settings.bgBase64;
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
-                this.logoImage = new ImageData();
-                this.logoImage.onload = () => {
+                this.logoImage = new ImageAsset();
+                this.logoImage.imageData.onload = () => {
                     this.initLogo();
                     resolve();
                 };
-                this.logoImage.onerror = () => {
+                this.logoImage.imageData.onerror = () => {
                     reject();
                 };
-                this.logoImage.src = this.settings.base64src;
+                this.logoImage.imageData.src = this.settings.base64src;
             });
             return Promise.all([bgPromise, logoPromise]);
         }
@@ -341,7 +342,8 @@ export class SplashScreen {
         region.texExtent.width = this.bgImage.width;
         region.texExtent.height = this.bgImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.bgImage.data as TexImageSource], this.bgTexture, [region]);
+
+        device.copyImagesToTexture([this.bgImage], this.bgTexture, [region]);
     }
 
     private initLogo () {
@@ -376,7 +378,7 @@ export class SplashScreen {
         region.texExtent.width = this.logoImage.width;
         region.texExtent.height = this.logoImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.logoImage.data as TexImageSource], this.logoTexture, [region]);
+        device.copyImagesToTexture([this.logoImage], this.logoTexture, [region]);
 
         const logoRatio = this.logoImage.width / this.logoImage.height;
         if (logoRatio < 1) {

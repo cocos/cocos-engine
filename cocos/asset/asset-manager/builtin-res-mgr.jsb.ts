@@ -24,7 +24,7 @@
 
 import { TEST, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import type { ImageSource } from 'pal/image';
+import { ImageSource } from '../../../pal/image/types';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
 import Bundle from '../asset-manager/bundle';

@@ -24,7 +24,8 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { ImageData, IMemoryImageSource } from 'pal/image';
+import { IMemoryImageSource } from '../../../pal/image/types';
+
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
 import { Filter } from './asset-enum';

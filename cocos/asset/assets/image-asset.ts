@@ -26,13 +26,13 @@
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ImageData } from 'pal/image';
+import { ImageSource, IMemoryImageSource } from '../../../pal/image/types';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
-import { IMemoryImageSource, ImageSource } from '../../../pal/image/types';
 
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;
@@ -507,6 +507,14 @@ export class ImageAsset extends Asset {
      */
     get data () {
         return this._imageData.data;
+    }
+
+    /**
+     * @en Image data manager.
+     * @zh 图像的数据管理。
+     */
+    get imageData () {
+        return this._imageData;
     }
 
     /**

@@ -74,6 +74,10 @@ export class BaseImageData {
         return this.data as any;
     }
 
+    public acceptAnonymousCORS () {
+        (this._imageSource as HTMLImageElement).crossOrigin = 'anonymous';
+    }
+
     set crossOrigin (cors: string) {
         (this._imageSource as HTMLImageElement).crossOrigin = cors;
     }

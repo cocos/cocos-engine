@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
-import { ImageSource } from 'pal/image';
+import { ImageSource } from '../../../pal/image/types';
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { BaseImageData } from '../base-image-data';
-import { ImageSource, IMemoryImageSource } from '../types';
+import type { ImageSource, IMemoryImageSource } from '../types';
 import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
