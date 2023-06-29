@@ -290,6 +290,11 @@ enum class SubpassCapabilities : uint32_t {
      * @zh 支持读取当前像素任意颜色值
      */
     INPUT_COLOR_MRT = 1 << 2,
+    /**
+     * @en Each subpass has its own sample count.
+     * @zh 每个Subpass拥有不同的采样数
+     */
+    HETEROGENEOUS_SAMPLE_COUNT = 1 << 3,
 };
 
 constexpr SubpassCapabilities operator|(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
@@ -636,6 +641,20 @@ public:
     }
 };
 
+class BasicMultisampleRenderPassBuilder : public BasicRenderPassBuilder {
+public:
+    BasicMultisampleRenderPassBuilder() noexcept = default;
+
+    virtual void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) = 0;
+    virtual void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) = 0;
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target) {
+        resolveDepthStencil(source, target, gfx::ResolveMode::SAMPLE_ZERO, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode) {
+        resolveDepthStencil(source, target, depthMode, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+};
+
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -770,7 +789,7 @@ public:
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
      * @returns Multisample basic render pass builder
      */
-    virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
+    virtual BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
      * @deprecated Method will be removed in 3.9.0
      */
@@ -815,7 +834,7 @@ public:
     BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height) {
         return addRenderPass(width, height, "default");
     }
-    BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
+    BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
         return addMultisampleRenderPass(width, height, count, quality, "default");
     }
 };

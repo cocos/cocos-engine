@@ -25,11 +25,11 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, UniformBlock } from '../../gfx';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, ResolveMode, UniformBlock } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -970,7 +970,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     private readonly _layoutGraph: LayoutGraphData;
 }
 
-export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBuilder {
+export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleRenderPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
@@ -1029,7 +1029,18 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
             new Color(depth, stencil, 0, 0));
         this._pass.rasterViews.set(name, view);
     }
-    private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
+    resolveRenderTarget (source: string, target: string): void {
+
+    }
+    resolveDepthStencil (
+        source: string,
+        target: string,
+        depthMode?: ResolveMode,
+        stencilMode?: ResolveMode,
+    ): void {
+
+    }
+    private _addComputeResource (name: string, accessType: AccessType, slotName: string) {
         const view = new ComputeView(slotName);
         view.accessType = accessType;
         if (DEBUG) {
@@ -1762,7 +1773,7 @@ export class WebPipeline implements BasicPipeline {
         this.execute();
         this.endFrame();
     }
-    addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicRenderPassBuilder  {
+    addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicMultisampleRenderPassBuilder  {
         if (DEBUG) {
             const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
             assert(stageId !== 0xFFFFFFFF);
@@ -1789,7 +1800,7 @@ export class WebPipeline implements BasicPipeline {
     addRenderPass (width: number, height: number, layoutName = 'default'): BasicRenderPassBuilder {
         return this.addRenderPassImpl(width, height, layoutName);
     }
-    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicRenderPassBuilder {
+    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicMultisampleRenderPassBuilder {
         assert(count > 1);
         return this.addRenderPassImpl(width, height, layoutName, count, quality);
     }
