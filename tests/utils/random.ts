@@ -9,7 +9,7 @@ export class PseudoRandomGenerator {
     /** Generates number in [min, max]. */
     public range(min: number, max: number) {
         if (min > max) {
-            throw new Error(`min should be less than max.`);
+            throw new Error(`min should not be greater than max.`);
         }
         return min + (max - min) * this.range01();
     }
