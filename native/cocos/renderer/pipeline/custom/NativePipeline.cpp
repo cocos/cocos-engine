@@ -538,7 +538,7 @@ RenderPassBuilder *NativePipeline::addRenderPass(
     return builder;
 }
 
-BasicMultisampleRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
+MultisampleRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
     uint32_t width, uint32_t height,
     uint32_t count, uint32_t quality,
     const ccstd::string &passName) {
@@ -557,7 +557,7 @@ BasicMultisampleRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
         "", // subpassName is empty
         count, quality);
 
-    auto *builder = ccnew NativeBasicMultisampleRenderPassBuilder(
+    auto *builder = ccnew NativeMultisampleRenderPassBuilder(
         this, &renderGraph, passID, &layoutGraph, passLayoutID,
         subpassID, subpassLayoutID);
 

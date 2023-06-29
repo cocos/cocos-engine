@@ -1554,7 +1554,7 @@ void NativeRenderPassBuilder::setVersion(const ccstd::string &name, uint64_t ver
     // noop
 }
 
-void NativeBasicMultisampleRenderPassBuilder::addRenderTarget(
+void NativeMultisampleRenderPassBuilder::addRenderTarget(
     const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) {
     addRasterViewImpl<RasterSubpassTag>(
         name,
@@ -1570,7 +1570,7 @@ void NativeBasicMultisampleRenderPassBuilder::addRenderTarget(
         *renderGraph);
 }
 
-void NativeBasicMultisampleRenderPassBuilder::addDepthStencil(
+void NativeMultisampleRenderPassBuilder::addDepthStencil(
     const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp,
     float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) { // NOLINT(bugprone-easily-swappable-parameters)
     addRasterViewImpl<RasterSubpassTag>(
@@ -1587,7 +1587,7 @@ void NativeBasicMultisampleRenderPassBuilder::addDepthStencil(
         *renderGraph);
 }
 
-void NativeBasicMultisampleRenderPassBuilder::addTexture(
+void NativeMultisampleRenderPassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName, // NOLINT(bugprone-easily-swappable-parameters)
     gfx::Sampler *sampler, uint32_t plane) {
     addSubpassComputeViewImpl(
@@ -1613,7 +1613,41 @@ void NativeBasicMultisampleRenderPassBuilder::addTexture(
     }
 }
 
-RenderQueueBuilder *NativeBasicMultisampleRenderPassBuilder::addQueue(
+void NativeMultisampleRenderPassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addSubpassComputeViewImpl(
+        RasterSubpassTag{},
+        *renderGraph,
+        subpassID,
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeMultisampleRenderPassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addSubpassComputeViewImpl(
+        RasterSubpassTag{},
+        *renderGraph,
+        subpassID,
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+RenderQueueBuilder *NativeMultisampleRenderPassBuilder::addQueue(
     QueueHint hint, const ccstd::string &phaseName) {
     CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(subpassLayoutID == layoutID);
@@ -1634,26 +1668,26 @@ RenderQueueBuilder *NativeBasicMultisampleRenderPassBuilder::addQueue(
     return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
-void NativeBasicMultisampleRenderPassBuilder::setViewport(const gfx::Viewport &viewport) {
+void NativeMultisampleRenderPassBuilder::setViewport(const gfx::Viewport &viewport) {
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
     subpass.viewport = viewport;
 }
 
-void NativeBasicMultisampleRenderPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
+void NativeMultisampleRenderPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
     // noop
 }
 
-bool NativeBasicMultisampleRenderPassBuilder::getShowStatistics() const {
+bool NativeMultisampleRenderPassBuilder::getShowStatistics() const {
     const auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
     return subpass.showStatistics;
 }
 
-void NativeBasicMultisampleRenderPassBuilder::setShowStatistics(bool enable) {
+void NativeMultisampleRenderPassBuilder::setShowStatistics(bool enable) {
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
     subpass.showStatistics = enable;
 }
 
-void NativeBasicMultisampleRenderPassBuilder::resolveRenderTarget(
+void NativeMultisampleRenderPassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
     subpass.resolvePairs.emplace_back(
@@ -1664,7 +1698,7 @@ void NativeBasicMultisampleRenderPassBuilder::resolveRenderTarget(
         gfx::ResolveMode::NONE);
 }
 
-void NativeBasicMultisampleRenderPassBuilder::resolveDepthStencil(
+void NativeMultisampleRenderPassBuilder::resolveDepthStencil(
     const ccstd::string &source, const ccstd::string &target,   // NOLINT(bugprone-easily-swappable-parameters)
     gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);

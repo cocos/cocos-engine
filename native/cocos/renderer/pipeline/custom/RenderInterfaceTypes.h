@@ -1206,6 +1206,14 @@ public:
     }
 };
 
+class MultisampleRenderPassBuilder : public BasicMultisampleRenderPassBuilder {
+public:
+    MultisampleRenderPassBuilder() noexcept = default;
+
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+};
+
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1408,6 +1416,7 @@ public:
      */
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) override = 0 /* covariant */;
+    MultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override = 0 /* covariant */;
     /**
      * @en Add compute pass
      * @zh 添加计算通道
