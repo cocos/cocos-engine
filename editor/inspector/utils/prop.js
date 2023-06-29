@@ -301,7 +301,7 @@ exports.updatePropByDump = function(panel, dump) {
         }
     }
 
-    exports.toggleGroups(panel.$groups);
+    exports.toggleGroup(panel.$groups);
 };
 
 /**
@@ -409,30 +409,7 @@ exports.createTabGroup = function(dump, panel) {
 
     return $group;
 };
-exports.toggleGroups = function($groups) {
-    for (const id in $groups) {
-        const $contents = $groups[id].querySelectorAll('.ui-prop-group-content');
 
-        $contents.forEach($content => {
-            const $props = Array.from($content.querySelectorAll(':scope > ui-prop'));
-            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
-            if (show) {
-                $content.removeAttribute('hidden');
-            } else {
-                $content.setAttribute('hidden', '');
-            }
-        });
-
-        // for tab style
-        const $props = Array.from($groups[id].querySelectorAll('.tab-content > ui-prop'));
-        const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
-        if (show) {
-            $groups[id].removeAttribute('hidden');
-        } else {
-            $groups[id].setAttribute('hidden', '');
-        }
-    }
-},
 exports.appendToGroup = function($group, name) {
     if ($group.names[name]) {
         return;
@@ -516,6 +493,32 @@ exports.appendChildByDisplayOrder = function(parent, newChild) {
         parent.appendChild(newChild);
     }
 };
+exports.toggleGroup = function($groups) {
+    for (const id in $groups) {
+        if ($groups[id].dump.style === 'section') {
+            const $contents = $groups[id].querySelectorAll('.ui-prop-group-content');
+            $contents.forEach($content => {
+                const $props = Array.from($content.querySelectorAll(':scope > ui-prop'));
+                const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+                if (show) {
+                    $content.removeAttribute('hidden');
+                } else {
+                    $content.setAttribute('hidden', '');
+                }
+            });
+        }
+
+        if ($groups[id].dump.style === 'tab') {
+            const $props = Array.from($groups[id].querySelectorAll('.tab-content > ui-prop'));
+            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+            if (show) {
+                $groups[id].removeAttribute('hidden');
+            } else {
+                $groups[id].setAttribute('hidden', '');
+            }
+        }
+    }
+},
 exports.disconnectGroup = function(panel) {
     if (panel.$groups) {
         for (const key in panel.$groups) {
