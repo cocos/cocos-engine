@@ -113,6 +113,7 @@ exports.style = /* css */`
     display: none;
     text-align: center;
     color: var(--color-focus-contrast-weakest);
+    margin-top: 8px;
 }
 .container > .show-type-wrap {
     text-align: center;

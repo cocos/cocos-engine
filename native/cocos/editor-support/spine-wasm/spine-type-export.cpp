@@ -9,6 +9,8 @@
 using namespace emscripten;
 using namespace spine;
 
+namespace {
+
 std::string convertSPString2std(const spine::String& str) {
     std::string stdStr(str.buffer(), str.length());
     return stdStr;
@@ -38,6 +40,8 @@ std::vector<T> convertSPVector2Std_2(Vector<T> container) {
     }
     return stdVector;
 }
+
+} // namespace
 
 EMSCRIPTEN_BINDINGS(spine) {
     register_vector<float>("VectorFloat");

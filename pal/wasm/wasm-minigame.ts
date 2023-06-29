@@ -22,8 +22,7 @@
  THE SOFTWARE.
 */
 
-// fsUtils is defined in engine-adapter
-declare const fsUtils: any;
+import { XIAOMI } from 'internal:constants';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
@@ -32,12 +31,30 @@ export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Impo
 
 export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     return new Promise<ArrayBuffer>((resolve, reject) => {
-        fsUtils.readArrayBuffer(`cocos-js/${binaryUrl}`, (err, arrayBuffer) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(arrayBuffer);
-        });
+        getPlatformBinaryUrl(binaryUrl).then((url) => {
+            // NOTE: fsUtils is defined in engine-adapter, we need to access globalThis explicitly for Taobao platform
+            globalThis.fsUtils.readArrayBuffer(url, (err, arrayBuffer) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(arrayBuffer);
+            });
+        }).catch((e) => {});
+    });
+}
+
+/**
+ * The binary url can be different on different platforms.
+ * @param binaryUrl the basic build output binary url
+ * @returns the real binary url on the exact platform
+ */
+function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
+    return new Promise((resolve) => {
+        if (XIAOMI) {
+            resolve(`src/cocos-js/${binaryUrl}`);
+        } else {
+            resolve(`cocos-js/${binaryUrl}`);
+        }
     });
 }

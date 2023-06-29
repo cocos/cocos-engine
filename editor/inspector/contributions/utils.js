@@ -123,7 +123,6 @@ function collectGroups(dump) {
         if (!dump.groups[key]) {
             dump.groups[key] = {
                 displayOrder: Infinity,
-                style: 'tab',
             };
         }
         const clone = JSON.parse(JSON.stringify(info.group));

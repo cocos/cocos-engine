@@ -21,16 +21,17 @@ exports.template = `
     <template v-for="(screenSize, index) in multiLODs">
         <ui-prop resize resize-group="screen-size-group"
             :key="index"
+            :message="multiLODsErr[index]"
+            :class="multiLODsErr[index] ? 'warn' : ''"
         >
             <ui-label slot="label"
                 :value="handleMultiScreenSize(index)"
             ></ui-label>
             <ui-num-input slot="content"
-                :min="calculateMultiRange('min', index)"
-                :max="calculateMultiRange('max', index)"
                 :invalid="screenSize === 'invalid'"
-                :value="screenSize === 'invalid' ? null : Editor.Utils.Math.multi(screenSize, 100)"
-                @confirm="onMultiScreenSizeConfirm($event, index)"
+                :value="screenSize === 'invalid' ? 0 : Editor.Utils.Math.multi(screenSize, 100)"
+                @confirm.stop="onMultiScreenSizeConfirm($event, index)"
+                @change.stop
             ></ui-num-input>
         </ui-prop>
     </template>
@@ -55,12 +56,15 @@ exports.data = function() {
         multiLen: 0,
         multiObjectSizeInvalid: false,
         multiLODs: [],
+        multiLODsErr: [],
     };
 };
 
 exports.methods = {
     refresh() {
         const that = this;
+        that.multiLODs = [];
+        that.multiLODsErr = [];
         if (that.dump.value) {
             that.multiObjectSizeInvalid = that.dump.value.objectSize.values.some((val) => val !== that.dump.value.objectSize.values[0]);
             const multiLodGroups = that.dump.value.LODs.values;
@@ -92,11 +96,20 @@ exports.methods = {
     },
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
-        that.dump.value.LODs.values.forEach((lod) => {
-            lod[index] && (lod[index].value.screenUsagePercentage.value = Editor.Utils.Math.divide(event.target.value, 100));
-        });
-        that.updateDump(that.dump.value.LODs);
-        trackEventWithTimer('LOD', 'A100011');
+        const multiLODs = that.dump.value.LODs.values;
+        const value = Editor.Utils.Math.divide(event.target.value, 100);
+        if (checkMultiScreenSize(multiLODs, value, index)) {
+            multiLODs.forEach((lod) => {
+                if (lod[index]) {
+                    lod[index].value.screenUsagePercentage.value = value;
+                }
+            });
+            that.updateDump(that.dump.value.LODs);
+            trackEventWithTimer('LOD', 'A100011');
+            that.$set(that.multiLODsErr, index, '');
+        } else {
+            that.$set(that.multiLODsErr, index, 'Input out of range, please check and manually modify the value');
+        }
     },
     resetMultiObjectSize() {
         const that = this;
@@ -115,32 +128,20 @@ exports.methods = {
         that.$refs['multi-lod-dump'].dispatch('change-dump');
         that.$refs['multi-lod-dump'].dispatch('confirm-dump');
     },
-    calculateMultiRange(range, index) {
-        const that = this;
-        if (range === 'min') {
-            let min = that.dump.value.LODs.values[0][index + 1] ? that.dump.value.LODs.values[0][index + 1].value.screenUsagePercentage.value : 0;
-            for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
-                const multiLods = that.dump.value.LODs.values[i];
-                if (multiLods[index + 1] && multiLods[index + 1].value.screenUsagePercentage.value > min) {
-                    min = multiLods[index + 1].value.screenUsagePercentage.value;
-                }
-            }
-            return Editor.Utils.Math.multi(min, 100);
-        } else if (range === 'max') {
-            let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : null;
-            if (max) {
-                for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
-                    const multiLods = that.dump.value.LODs.values[i];
-                    if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value < max) {
-                        max = multiLods[index - 1].value.screenUsagePercentage.value;
-                    }
-                }
-                return Editor.Utils.Math.multi(max, 100);
-            }
-        }
-        return null;
-    },
     handleMultiScreenSize(index) {
         return `LOD ${index} Transition (% Screen Ratio)`;
     },
 };
+
+function checkMultiScreenSize(multiLODs, value, index) {
+    for (let i = 0; i < multiLODs.length; i++) {
+        const multiLods = multiLODs[i];
+        if (multiLods[index + 1] && multiLods[index + 1].value.screenUsagePercentage.value >= value) {
+            return false;
+        }
+        if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value <= value) {
+            return false;
+        }
+    }
+    return true;
+}

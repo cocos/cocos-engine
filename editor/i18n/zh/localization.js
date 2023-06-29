@@ -248,6 +248,8 @@ module.exports = link(mixin({
         ISO: '相机感光度，影响相机的曝光参数',
         rect: '此相机最终渲染到屏幕上的视口位置和大小',
         target_texture: '指定此相机的渲染输出目标贴图，默认为空，直接渲染到屏幕',
+        use_postprocess: '此相机是否需要使用后效。',
+        postprocess: '如果后效没有被指定，将使用全局后效。',
     },
     lights: {
         color: '光源颜色',
@@ -1259,6 +1261,18 @@ module.exports = link(mixin({
     },
     color_grading: {
         originalMap: '支持任意Nx1的长条图和8x8的方块图，系统自动适配。内置lut贴图路径internal/dependencies/textures/lut/',
+    },
+    taa: {
+        sampleScale: 'TAA 采样范围。',
+        feedback: '历史帧混合值。',
+    },
+    fsr: {
+        sharpness: '画面锐化度',
+    },
+    postprocess: {
+        global: '是否对所有后效摄像机开启此后效流程',
+        shadingScale: '渲染分辨率',
+        enableShadingScaleInEditor: '是否在编辑器中缩放渲染分辨率',
     },
 },
 

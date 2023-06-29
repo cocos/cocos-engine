@@ -186,11 +186,13 @@ class PoseGraphNodeInputBinding {
     constructor (
         inputPath: NodeInputPath,
         producer: PoseGraphNode,
-        outputIndex: number,
+        outputIndex?: number,
     ) {
         this._inputPath = inputPath;
         this._producer = producer;
-        this._outputIndex = outputIndex;
+        if (typeof outputIndex !== 'undefined') {
+            this._outputIndex = outputIndex;
+        }
     }
 
     /**
