@@ -923,6 +923,9 @@ getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     if (holds<RasterPassTag>(passID, rg)) {
         return get(RasterPassTag{}, passID, rg).computeViews;
     }
+    if (holds<RasterSubpassTag>(passID, rg)) {
+        return get(RasterSubpassTag{}, passID, rg).computeViews;
+    }
     CC_EXPECTS(holds<ComputeTag>(passID, rg));
     return get(ComputeTag{}, passID, rg).computeViews;
 }
@@ -1135,8 +1138,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-            ctx.currentPassLayoutID = layoutID;
+            const auto& layoutID = locate(ctx.currentPassLayoutID, layoutName, ctx.lg);
             // get layout
             auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
 
