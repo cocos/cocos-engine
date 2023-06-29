@@ -134,7 +134,7 @@ struct GLES3GPUTexture {
     TextureFlags flags{TextureFlagBit::NONE};
     bool isPowerOf2{false};
     bool useRenderBuffer{false};
-    bool allocateMemory{true};
+    bool allocateMemory{true}; // false if swapchain image or implicit ms render buffer.
     GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};

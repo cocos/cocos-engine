@@ -152,7 +152,16 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     SampleCount samples = SampleCount::ONE;
     TextureFlags flags = TextureFlagBit::NONE;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    bool allocateMemory = false;
+
+    /*
+     * allocate and bind memory by Texture.
+     * If any of the following conditions are met, then the statement is false
+     * 1. Texture is a swapchain image.
+     * 2. Texture has flag LAZILY_ALLOCATED.
+     * 3. Memory bound manually bound.
+     * 4. Sparse Image.
+     */
+    bool allocateMemory = true;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
