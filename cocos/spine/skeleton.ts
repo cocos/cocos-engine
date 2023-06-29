@@ -640,6 +640,9 @@ export class Skeleton extends UIRenderer {
     protected _updateSkeletonData () {
         const skeletonData = this._skeletonData;
         if (!skeletonData) {
+            this._runtimeData = null!;
+            this._state = null!;
+            this._skeleton = null!;
             this._textures = [];
             return;
         }
@@ -701,15 +704,15 @@ export class Skeleton extends UIRenderer {
      * @param name @en The name of animation. @zh 动画名称。
      * @param loop @en Use loop mode or not. @zh 是否使用循环播放模式。
      */
-    public setAnimation (trackIndex: number, name: string, loop?: boolean) {
+    public setAnimation (trackIndex: number, name: string, loop?: boolean): spine.TrackEntry | null {
+        let trackEntry: spine.TrackEntry | null = null;
         if (loop === undefined) loop = true;
-
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 warn('Track index can not greater than 0 in cached mode.');
             }
             this._animationName = name;
-            if (!this._skeletonCache) return;
+            if (!this._skeletonCache) return trackEntry;
             let cache = this._skeletonCache.getAnimationCache(this._skeletonData!._uuid, this._animationName);
             if (!cache) {
                 cache = this._skeletonCache.initAnimationCache(this._skeletonData!, this._animationName);
@@ -723,9 +726,65 @@ export class Skeleton extends UIRenderer {
             this._playCount = 0;
         } else {
             this._animationName = name;
-            this._instance.setAnimation(trackIndex, name, loop);
+            trackEntry = this._instance.setAnimation(trackIndex, name, loop);
         }
         this.markForUpdateRenderData();
+        return trackEntry;
+    }
+
+    /**
+     * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
+     * @zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
+     * @param trackIndex @en Index of trackEntry. @zh TrackEntry 索引。
+     * @param name @en The name of animation. @zh 动画名称。
+     * @param loop @en Set play animation in a loop. @zh 是否循环播放。
+     * @param delay @en Delay time of animation start. @zh 动画开始的延迟时间。
+     * @return {sp.spine.TrackEntry}
+     */
+    public addAnimation (trackIndex: number, name: string, loop: boolean, delay?: number) {
+        delay = delay || 0;
+        if (this.isAnimationCached()) {
+            warn(`Cached mode not support addAnimation.`);
+            return null;
+        } else if (this._skeleton) {
+            const animation = this._skeleton.data.findAnimation(name);
+            if (!animation) {
+                error(`Not find animation named ${name}`);
+                return null;
+            }
+            return this._state?.addAnimationWith(trackIndex, animation, loop, delay);
+        }
+        return null;
+    }
+    /**
+     * @en Find animation with specified name.
+     * @zh 查找指定名称的动画
+     * @param name @en The name of animation. @zh 动画名称。
+     * @returns {sp.spine.Animation}
+     */
+    public findAnimation (name: string) {
+        if (this._skeleton) {
+            return this._skeleton.data.findAnimation(name);
+        }
+        return null;
+    }
+    /**
+     * @en Returns track entry by trackIndex.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
+     * @zh 通过 track 索引获取 TrackEntry。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
+     * @param trackIndex @en The index of trackEntry. @zh TrackEntry 索引。
+     * @return {sp.spine.TrackEntry}
+     */
+    public getCurrent (trackIndex: number) {
+        if (this.isAnimationCached()) {
+            warn('\'getCurrent\' interface can not be invoked in cached mode.');
+        } else if (this._state) {
+            return this._state.getCurrent(trackIndex);
+        }
+        return null;
     }
 
     /**

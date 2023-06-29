@@ -52,18 +52,18 @@ Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData* data) {
     return _skeleton;
 }
 
-void SpineSkeletonInstance::setAnimation(float trackIndex, const std::string& name, bool loop) {
-    if (!_skeleton) return;
+TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::string& name, bool loop) {
+    if (!_skeleton) return nullptr;
     spine::Animation *animation = _skeleton->getData()->findAnimation(name.c_str());
     if (!animation) {
         //LogUtil::PrintToJs("Spine: Animation not found:!!!");
         _animState->clearTracks();
         _skeleton->setToSetupPose();
-        return;
+        return nullptr;
     }
     auto *trackEntry = _animState->setAnimation(0, animation, loop);
     _animState->apply(*_skeleton);
-    return;
+    return trackEntry;
 }
 
 void SpineSkeletonInstance::setSkin(const std::string& name) {

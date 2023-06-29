@@ -668,27 +668,25 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("findPathConstraint", optional_override([](SkeletonData &obj, std::string name) { return obj.findPathConstraint(STRING_STD2SP(name));}), allow_raw_pointers())
         .function("findPathConstraintIndex", optional_override([](SkeletonData &obj, std::string name) { return obj.findPathConstraintIndex(STRING_STD2SP(name));}));
 
-    // class_<Timeline>("Timeline")
-    //     .constructor<>()
-    //     .function("apply", &Timeline::apply, allow_raw_pointers())
-    //     .function("getPropertyId", &Timeline::getPropertyId, allow_raw_pointers());
+    class_<Timeline>("Timeline")
+        // to fix apply
+        .function("apply", &Timeline::apply, allow_raw_pointers())
+        .function("getPropertyId", &Timeline::getPropertyId);
 
-    // class_<CurveTimeline>("CurveTimeline")
-    //     .constructor<int>()
-    //     // static const float LINEAR;
-    //     // static const float STEPPED;
-    //     // static const float BEZIER;
-    //     // static const int BEZIER_SIZE;
-    //     .function("getPropertyId", &CurveTimeline::getPropertyId, pure_virtual())
-    //     .function("getFrameCount", &CurveTimeline::getFrameCount)
-    //     .function("setLinear", &CurveTimeline::setLinear)
-    //     .function("setStepped", &CurveTimeline::setStepped)
-    //     .function("getCurveType", &CurveTimeline::getCurveType)
-    //     .function("setCurve", &CurveTimeline::setCurve)
-    //     .function("getCurvePercent", &CurveTimeline::getCurvePercent)
-    //     .function("apply", &CurveTimeline::apply, pure_virtual(&Timeline::apply), allow_raw_pointers());
+    class_<CurveTimeline, base<Timeline>>("CurveTimeline")
+        // static const float LINEAR;
+        // static const float STEPPED;
+        // static const float BEZIER;
+        // static const int BEZIER_SIZE;
+        .function("getPropertyId", &CurveTimeline::getPropertyId, pure_virtual())
+        .function("getFrameCount", &CurveTimeline::getFrameCount)
+        .function("setLinear", &CurveTimeline::setLinear)
+        .function("setStepped", &CurveTimeline::setStepped)
+        .function("getCurveType", &CurveTimeline::getCurveType)
+        .function("setCurve", &CurveTimeline::setCurve)
+        .function("getCurvePercent", &CurveTimeline::getCurvePercent);
 
-    class_<TranslateTimeline>("TranslateTimeline")
+    class_<TranslateTimeline, base<CurveTimeline>>("TranslateTimeline")
         .constructor<int>()
         // will wrap in js
         // static const int ENTRIES
@@ -713,7 +711,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getPropertyId", &ShearTimeline::getPropertyId)
         .function("apply", &ShearTimeline::apply, allow_raw_pointers());
 
-    class_<RotateTimeline>("RotateTimeline")
+    class_<RotateTimeline, base<CurveTimeline>>("RotateTimeline")
         .constructor<int>()
         // will wrap in js
         //static const int PREV_TIME = -2;
@@ -725,7 +723,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &RotateTimeline::setFrame)
         .function("apply", &RotateTimeline::apply, allow_raw_pointers());
 
-    class_<ColorTimeline>("ColorTimeline")
+    class_<ColorTimeline, base<CurveTimeline>>("ColorTimeline")
         .constructor<int>()
         // will wrap in js
         // static const int PREV_TIME;
@@ -743,7 +741,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &ColorTimeline::setFrame)
         .function("apply", &ColorTimeline::apply, allow_raw_pointers()); 
 
-    class_<TwoColorTimeline>("TwoColorTimeline")
+    class_<TwoColorTimeline, base<CurveTimeline>>("TwoColorTimeline")
         .constructor<int>()
         // static variables
         .function("getSlotIndex", &TwoColorTimeline::getSlotIndex)
@@ -752,7 +750,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &TwoColorTimeline::setFrame)
         .function("apply", &TwoColorTimeline::apply, allow_raw_pointers());
 
-    class_<AttachmentTimeline>("AttachmentTimeline")
+    class_<AttachmentTimeline, base<Timeline>>("AttachmentTimeline")
         .constructor<int>()
         .function("getSlotIndex", &AttachmentTimeline::getSlotIndex)
         .function("getFrames", optional_override([](AttachmentTimeline &obj) { return VECTOR_SP2STD((Vector<float> &)obj.getFrames());}))
@@ -763,7 +761,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("apply", &AttachmentTimeline::apply, allow_raw_pointers());
         //.function("setAttachment", &AttachmentTimeline::setAttachment) //have no setAttachment
 
-    class_<DeformTimeline>("DeformTimeline")
+    class_<DeformTimeline, base<CurveTimeline>>("DeformTimeline")
         .constructor<int>()
         .function("getSlotIndex", &DeformTimeline::getSlotIndex)
         .function("getAttachment", &DeformTimeline::getAttachment, allow_raw_pointer<VertexAttachment>())
@@ -773,7 +771,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &DeformTimeline::setFrame)
         .function("apply", &DeformTimeline::apply, allow_raw_pointers());
 
-    class_<EventTimeline>("EventTimeline")
+    class_<EventTimeline, base<Timeline>>("EventTimeline")
         .constructor<int>()
         .function("getFrames", optional_override([](EventTimeline &obj) { return VECTOR_SP2STD2(obj.getFrames());}))
         .function("getEvents", optional_override([](EventTimeline &obj) { return VECTOR_SP2STD(obj.getEvents());}), allow_raw_pointers())
@@ -782,7 +780,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &EventTimeline::setFrame, allow_raw_pointers())
         .function("apply", &EventTimeline::apply, allow_raw_pointers());
 
-    class_<DrawOrderTimeline>("DrawOrderTimeline")
+    class_<DrawOrderTimeline, base<Timeline>>("DrawOrderTimeline")
         .constructor<int>()
         .function("getFrames", optional_override([](DrawOrderTimeline &obj) { return VECTOR_SP2STD(obj.getFrames());}))
         //.function("getProp_drawOrders", &EventTimeline::getDrawOrders)
@@ -791,7 +789,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &DrawOrderTimeline::setFrame, allow_raw_pointers())
         .function("apply", &DrawOrderTimeline::apply, allow_raw_pointers());
 
-    class_<IkConstraintTimeline>("IkConstraintTimeline")
+    class_<IkConstraintTimeline, base<CurveTimeline>>("IkConstraintTimeline")
         .constructor<int>()
         // static variables
         // .function("getProp_ikConstraintIndex", &EventTimeline::getFrames) // private
@@ -800,7 +798,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &IkConstraintTimeline::setFrame)
         .function("apply", &IkConstraintTimeline::apply, allow_raw_pointers());
 
-    class_<TransformConstraintTimeline>("TransformConstraintTimeline")
+    class_<TransformConstraintTimeline, base<CurveTimeline>>("TransformConstraintTimeline")
         .constructor<int>()
         // static variables
         // .function("getProp_ikConstraintIndex", &TransformConstraintTimeline::getFrames) // private
@@ -809,7 +807,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &TransformConstraintTimeline::setFrame)
         .function("apply", &TransformConstraintTimeline::apply, allow_raw_pointers());
 
-    class_<PathConstraintPositionTimeline>("PathConstraintPositionTimeline")
+    class_<PathConstraintPositionTimeline, base<CurveTimeline>>("PathConstraintPositionTimeline")
         .constructor<int>()
         // static variables
         // .function("getProp_ikConstraintIndex", &TransformConstraintTimeline::getFrames) // private
@@ -818,7 +816,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", &PathConstraintPositionTimeline::setFrame)
         .function("apply", &PathConstraintPositionTimeline::apply, allow_raw_pointers());
 
-    class_<PathConstraintMixTimeline>("PathConstraintMixTimeline")
+    class_<PathConstraintMixTimeline, base<CurveTimeline>>("PathConstraintMixTimeline")
         .constructor<int>()
         .function("getPropertyId", &PathConstraintMixTimeline::getPropertyId)
         .function("apply", &PathConstraintMixTimeline::apply, allow_raw_pointers());
@@ -865,12 +863,11 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<SkeletonData *>()
         .function("getDefaultMix", &AnimationStateData::getDefaultMix)
         .function("getSkeletonData", &AnimationStateData::getSkeletonData, allow_raw_pointers())
-        // .function("setMix", static_cast<void (AnimationStateData::*)(const String&, const String&, float)>(&AnimationStateData::setMix))
-        // .function("setMixWith", static_cast<void (AnimationStateData::*)(Animation*, Animation*, float)>(&AnimationStateData::setMix));
+        .function("setMix", optional_override([](AnimationStateData &obj, std::string fromName, std::string toName, float duration) { 
+            return obj.setMix(STRING_STD2SP(fromName), STRING_STD2SP(toName), duration);}))
+        .function("setMixWith", optional_override([](AnimationStateData &obj, Animation* from, Animation* to, float duration) { 
+            return obj.setMix(from, to, duration);}), allow_raw_pointers())
         .function("getMix", &AnimationStateData::getMix, allow_raw_pointers());
-        
-        // .function("setMixWith", &Skeleton::setMixWith_Export)
-        //.function("getMix", &Skeleton::setMix_Export);
 
     class_<AnimationState>("AnimationState")
         .constructor<AnimationStateData *>()
@@ -897,14 +894,14 @@ EMSCRIPTEN_BINDINGS(spine) {
         // .function("queueEvents", &AnimationState::queueEvents, allow_raw_pointers())
         .function("clearTracks", &AnimationState::clearTracks)
         .function("clearTrack", &AnimationState::clearTrack)
-        // .function("setCurrent", &AnimationState::setCurrent, allow_raw_pointers())
-        // .function("setAnimation", &AnimationState::setAnimation)
-        // .function("setAnimationWith", &AnimationState::setAnimation)
-        // .function("addAnimation", &AnimationState::addAnimation)
-        // .function("addAnimationWith", &AnimationState::addAnimation)
-        // .function("setEmptyAnimation", &AnimationState::setEmptyAnimation)
-        // .function("addEmptyAnimation", &AnimationState::addEmptyAnimation, allow_raw_pointer<TrackEntry>())
-        // .function("setEmptyAnimations", &AnimationState::setEmptyAnimations)
+        //.function("setCurrent", &AnimationState::setCurrent, allow_raw_pointers()) // private
+        .function("setAnimation", optional_override([](AnimationState &obj, uint32_t trackIndex, std::string animName, bool loop) { return obj.setAnimation(trackIndex, STRING_STD2SP(animName), loop);}), allow_raw_pointers())
+        .function("setAnimationWith", optional_override([](AnimationState &obj, uint32_t trackIndex, Animation* animation, bool loop) { return obj.setAnimation(trackIndex, animation, loop);}), allow_raw_pointers())
+        .function("addAnimation", optional_override([](AnimationState &obj, uint32_t trackIndex, std::string animName, bool loop, float delay) { return obj.addAnimation(trackIndex, STRING_STD2SP(animName), loop, delay);}), allow_raw_pointers())
+        .function("addAnimationWith", optional_override([](AnimationState &obj, uint32_t trackIndex, Animation* animation, bool loop, float delay) { return obj.addAnimation(trackIndex, animation, loop, delay);}), allow_raw_pointers())
+        .function("setEmptyAnimation", &AnimationState::setEmptyAnimation, allow_raw_pointers())
+        .function("addEmptyAnimation", &AnimationState::addEmptyAnimation, allow_raw_pointers())
+        .function("setEmptyAnimations", &AnimationState::setEmptyAnimations)
         //.function("expandToIndex", &AnimationState::expandToIndex, allow_raw_pointers()) // private        
         //.function("trackEntry", &AnimationState::newTrackEntry, allow_raw_pointers()) // private
         //.function("disposeNext", &AnimationState::disposeNext) // private
@@ -982,9 +979,12 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("findSlotIndex", optional_override([](Skeleton &obj, std::string name) { return obj.findSlotIndex(STRING_STD2SP(name));}))
         .function("setSkinByName", optional_override([](Skeleton &obj, std::string name) { return obj.setSkin(STRING_STD2SP(name));}))
         .function("setSkin", static_cast<void(Skeleton::*)(Skin *)>(&Skeleton::setSkin), allow_raw_pointer<Skin>())
-        //.function("getAttachmentByName", static_cast<Attachment *(Skeleton::*)(const String &, const String &)>(&Skeleton::getAttachment), allow_raw_pointer<Attachment>())
-        //.function("getAttachment", static_cast<Attachment *(Skeleton::*)(int, const String &)>(&Skeleton::getAttachment))
-        .function("setAttachment", &Skeleton::setAttachment)
+        .function("getAttachmentByName", optional_override([](Skeleton &obj, std::string slotName, std::string attachmentName) { 
+            return obj.getAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}), allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skeleton &obj, int slotIndex, std::string attachmentName) { 
+            return obj.getAttachment(slotIndex, STRING_STD2SP(attachmentName));}),allow_raw_pointers())
+        .function("setAttachment", optional_override([](Skeleton &obj, std::string slotName, std::string attachmentName) { 
+            return obj.setAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}))
         .function("findIkConstraint", optional_override([](Skeleton &obj, std::string name) { return obj.findIkConstraint(STRING_STD2SP(name));}), allow_raw_pointers())
         .function("findTransformConstraint", optional_override([](Skeleton &obj, std::string name) { return obj.findTransformConstraint(STRING_STD2SP(name));}), allow_raw_pointers())
         .function("findPathConstraint", optional_override([](Skeleton &obj, std::string name) { return obj.findPathConstraint(STRING_STD2SP(name));}), allow_raw_pointers())
@@ -1063,7 +1063,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<SpineSkeletonInstance>("SkeletonInstance")
         .constructor<>()
         .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
-        .function("setAnimation", &SpineSkeletonInstance::setAnimation)
+        .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
         .function("setSkin", &SpineSkeletonInstance::setSkin)
         .function("updateAnimation", &SpineSkeletonInstance::updateAnimation)
         .function("updateRenderData", &SpineSkeletonInstance::updateRenderData, allow_raw_pointer<SpineModel>())

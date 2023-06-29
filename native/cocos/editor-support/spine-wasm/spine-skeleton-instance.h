@@ -44,7 +44,7 @@ public:
     SpineSkeletonInstance();
     ~SpineSkeletonInstance();
     Skeleton *initSkeleton(SkeletonData* data);
-    void setAnimation(float trackIndex, const std::string& name, bool loop);
+    TrackEntry *setAnimation(float trackIndex, const std::string& name, bool loop);
     void setSkin(const std::string& name);
     void updateAnimation(float dltTime);
     SpineModel* updateRenderData();
