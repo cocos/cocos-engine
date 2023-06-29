@@ -1068,6 +1068,17 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPassBuilder {
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+}
+
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1273,6 +1284,12 @@ export interface Pipeline extends BasicPipeline {
         width: number,
         height: number,
         passName: string): RenderPassBuilder;
+    addMultisampleRenderPass (
+        width: number,
+        height: number,
+        count: number,
+        quality: number,
+        passName: string): MultisampleRenderPassBuilder;
     /**
      * @en Add compute pass
      * @zh 添加计算通道

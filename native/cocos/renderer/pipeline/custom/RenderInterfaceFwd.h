@@ -56,6 +56,7 @@ class MultisampleRenderSubpassBuilder;
 class ComputeQueueBuilder;
 class ComputeSubpassBuilder;
 class RenderPassBuilder;
+class MultisampleRenderPassBuilder;
 class ComputePassBuilder;
 class SceneVisitor;
 class SceneTask;

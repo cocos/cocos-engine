@@ -475,9 +475,9 @@ public:
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
-class NativeBasicMultisampleRenderPassBuilder final : public BasicMultisampleRenderPassBuilder, public NativeSetter {
+class NativeMultisampleRenderPassBuilder final : public MultisampleRenderPassBuilder, public NativeSetter {
 public:
-    NativeBasicMultisampleRenderPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn, uint32_t subpassIDIn, uint32_t subpassLayoutIDIn) noexcept // NOLINT
+    NativeMultisampleRenderPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn, uint32_t subpassIDIn, uint32_t subpassLayoutIDIn) noexcept // NOLINT
     : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn),
       subpassID(subpassIDIn),
       subpassLayoutID(subpassLayoutIDIn) {}
@@ -540,6 +540,9 @@ public:
 
     void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) override;
     void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) override;
+
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
 
     uint32_t subpassID{RenderGraph::null_vertex()};
     uint32_t subpassLayoutID{RenderGraph::null_vertex()};
@@ -1179,7 +1182,6 @@ public:
     void beginFrame() override;
     void update(const scene::Camera *camera) override;
     void endFrame() override;
-    BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
@@ -1191,6 +1193,7 @@ public:
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) override;
+    MultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
