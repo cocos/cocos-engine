@@ -18,7 +18,6 @@ import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
-import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
@@ -103,7 +102,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
     }
     private applyPreviewCamera (camera: Camera) {
         if (!camera.node.parent) return;
-        const camComp = camera.node.parent.getComponent(CameraComponent);
+        const camComp = camera.node.parent.getComponent('cc.Camera') as any;
         const oriCamera = camComp && camComp.camera;
         if (oriCamera) {
             camera.postProcess = oriCamera.postProcess;
