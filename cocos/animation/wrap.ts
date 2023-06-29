@@ -65,7 +65,7 @@ export function wrap (
     return info;
 }
 
-function isReverseIteration (wrapMode: WrapMode, currentIterations: number) {
+function isReverseIteration (wrapMode: WrapMode, currentIterations: number): boolean {
     let needReverse = false;
     if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
         const isEnd = currentIterations - (currentIterations | 0) === 0;

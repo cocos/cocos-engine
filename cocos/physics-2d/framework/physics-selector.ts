@@ -118,7 +118,7 @@ function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     }
 }
 
-function switchTo (id: IPhysicsEngineId) {
+function switchTo (id: IPhysicsEngineId): void {
     //if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
@@ -151,7 +151,7 @@ export const selector: IPhysicsSelector = {
     runInEditor: !EDITOR,
 };
 
-const FUNC = (...v: any) => 0 as any;
+const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
     debugDrawFlags: 0,
@@ -167,7 +167,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     finalizeContactEvent: FUNC,
 };
 
-export function checkPhysicsModule (obj: any) {
+export function checkPhysicsModule (obj: any): boolean {
     if (DEBUG && !TEST && !EDITOR_NOT_IN_PREVIEW && obj == null) {
         errorID(9600);
         return true;
@@ -269,7 +269,7 @@ export function createShape (type: ECollider2DType): IBaseShape {
     return CREATE_COLLIDER_PROXY[type]();
 }
 
-function initColliderProxy () {
+function initColliderProxy (): void {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
@@ -324,7 +324,7 @@ export function createJoint (type: EJoint2DType): IJoint2D {
     return CREATE_JOINT_PROXY[type]();
 }
 
-function initJointProxy () {
+function initJointProxy (): void {
     if (CREATE_JOINT_PROXY.INITED) return;
     CREATE_JOINT_PROXY.INITED = true;
 

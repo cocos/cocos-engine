@@ -42,7 +42,7 @@ export default class MutableForwardIterator<T> {
     constructor (public array: T[]) {
     }
 
-    get length () {
+    get length (): number {
         return this.array.length;
     }
 
@@ -53,14 +53,14 @@ export default class MutableForwardIterator<T> {
         }
     }
 
-    public remove (value: T) {
+    public remove (value: T): void {
         const index = this.array.indexOf(value);
         if (index >= 0) {
             this.removeAt(index);
         }
     }
 
-    public removeAt (i: number) {
+    public removeAt (i: number): void {
         this.array.splice(i, 1);
 
         if (i <= this.i) {
@@ -68,14 +68,14 @@ export default class MutableForwardIterator<T> {
         }
     }
 
-    public fastRemove (value: T) {
+    public fastRemove (value: T): void {
         const index = this.array.indexOf(value);
         if (index >= 0) {
             this.fastRemoveAt(index);
         }
     }
 
-    public fastRemoveAt (i: number) {
+    public fastRemoveAt (i: number): void {
         const array = this.array;
         array[i] = array[array.length - 1];
         --array.length;
@@ -85,7 +85,7 @@ export default class MutableForwardIterator<T> {
         }
     }
 
-    public push (item: T) {
+    public push (item: T): void {
         this.array.push(item);
     }
 }

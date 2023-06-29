@@ -31,17 +31,17 @@ import { BulletCache } from '../bullet-cache';
 import { bt } from '../instantiated';
 
 export class BulletPlaneShape extends BulletShape implements IPlaneShape {
-    setNormal (v: IVec3Like) {
+    setNormal (v: IVec3Like): void {
         cocos2BulletVec3(bt.StaticPlaneShape_getPlaneNormal(this.impl), v);
         this.updateCompoundTransform();
     }
 
-    setConstant (v: number) {
+    setConstant (v: number): void {
         bt.StaticPlaneShape_setPlaneConstant(this.impl, v);
         this.updateCompoundTransform();
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         const bt_v3 = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
@@ -49,11 +49,11 @@ export class BulletPlaneShape extends BulletShape implements IPlaneShape {
         this.updateCompoundTransform();
     }
 
-    get collider () {
+    get collider (): PlaneCollider {
         return this._collider as PlaneCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const normal = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(normal, this.collider.normal);
         this._impl = bt.StaticPlaneShape_new(normal, this.collider.constant);

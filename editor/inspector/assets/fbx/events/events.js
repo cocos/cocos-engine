@@ -62,7 +62,6 @@ exports.methods = {
             click() {
                 that.$emit('del', eventInfo);
             },
-            accelerator: 'Delete',
         },
         ];
         Editor.Menu.popup({
@@ -97,7 +96,7 @@ exports.methods = {
     },
 
     queryKeyStyle(x) {
-        return `transform: translateX(${x | 0 + 3}px);`;
+        return `transform: translateX(${x || 0}px);`;
     },
 
     onDomMouseDown() {

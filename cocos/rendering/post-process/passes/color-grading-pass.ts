@@ -1,7 +1,7 @@
-import { Vec4 } from '../../../core';
+import { Vec2, Vec4 } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -10,9 +10,9 @@ import { ColorGrading } from '../components';
 import { disablePostProcessForDebugView } from './base-pass';
 
 export class ColorGradingPass extends SettingPass {
-    get setting () { return getSetting(ColorGrading); }
+    get setting (): ColorGrading { return getSetting(ColorGrading); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;
@@ -35,11 +35,13 @@ export class ColorGradingPass extends SettingPass {
         const setting = this.setting;
         this.material.setProperty('colorGradingMap', setting.colorGradingMap);
         this.material.setProperty('contribute', setting.contribute);
+        const textureSize = setting.colorGradingMap ? new Vec2(setting.colorGradingMap.width, setting.colorGradingMap.height) : new Vec2(1.0, 1.0);
+        this.material.setProperty('textureSize', textureSize);
 
         const input = this.lastPass!.slotName(camera, 0);
         const slot = this.slotName(camera, 0);
         const isSquareMap = setting.colorGradingMap && setting.colorGradingMap.width === setting.colorGradingMap.height;
-        const passName = isSquareMap ? 'color-grading-8x8' : 'color-grading-32';
+        const passName = isSquareMap ? 'color-grading-8x8' : 'color-grading-nx1';
         const passIndx = isSquareMap ? 1 : 0;
         passContext
             .updatePassViewPort()

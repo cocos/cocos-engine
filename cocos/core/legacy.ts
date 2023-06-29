@@ -49,7 +49,7 @@ legacyCC.path = {
     changeBasename,
     _normalize,
     stripSep,
-    get sep () {
+    get sep (): string {
         return getSeperator();
     },
 };

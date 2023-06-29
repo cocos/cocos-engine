@@ -22,7 +22,7 @@ export class Pose {
     /**
      * @internal
      */
-    public static _create (transforms: TransformArray, auxiliaryCurves: Float64Array) {
+    public static _create (transforms: TransformArray, auxiliaryCurves: Float64Array): Pose {
         return new Pose(transforms, auxiliaryCurves);
     }
 }
@@ -50,7 +50,7 @@ export class TransformFilter {
         this._involvedTransforms = new Uint16Array(involvedTransforms);
     }
 
-    get involvedTransforms () {
+    get involvedTransforms (): Readonly<Uint16Array> {
         return this._involvedTransforms as Readonly<Uint16Array>;
     }
 
@@ -92,7 +92,7 @@ export class TransformFilter {
     private declare _involvedTransforms: Uint16Array;
 }
 
-export function blendPoseInto (target: Pose, source: Readonly<Pose>, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
+export function blendPoseInto (target: Pose, source: Readonly<Pose>, alpha: number, transformFilter: TransformFilter | undefined = undefined): void {
     blendTransformsInto(target.transforms, source.transforms, alpha, transformFilter);
     blendAuxiliaryCurvesInto(target.auxiliaryCurves, source.auxiliaryCurves, alpha);
 }
@@ -102,7 +102,7 @@ export function blendTransformsInto (
     source: Readonly<TransformArray>,
     alpha: number,
     transformFilter: TransformFilter | undefined = undefined,
-) {
+): void {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
     if (alpha === 0) {
@@ -130,7 +130,7 @@ export function blendTransformsInto (
     }
 }
 
-function copyTransformsWithFilter (target: TransformArray, source: Readonly<TransformArray>, filter: TransformFilter) {
+function copyTransformsWithFilter (target: TransformArray, source: Readonly<TransformArray>, filter: TransformFilter): void {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
     // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
@@ -141,10 +141,11 @@ function copyTransformsWithFilter (target: TransformArray, source: Readonly<Tran
     }
 }
 
-const blendIntoTransformArrayAt = (() => {
+type BlendIntoTransformArrayAtFunc = (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number) => void;
+const blendIntoTransformArrayAt = ((): BlendIntoTransformArrayAtFunc => {
     const cacheTransformSource = new Transform();
     const cacheTransformTarget = new Transform();
-    return (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number) => {
+    return (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number): void => {
         const transformTarget = target.getTransform(transformIndex, cacheTransformTarget);
         const transformSource = source.getTransform(transformIndex, cacheTransformSource);
         Transform.lerp(transformTarget, transformTarget, transformSource, alpha);
@@ -152,7 +153,7 @@ const blendIntoTransformArrayAt = (() => {
     };
 })();
 
-export function blendAuxiliaryCurvesInto (target: Float64Array, source: Readonly<Float64Array>, alpha: number) {
+export function blendAuxiliaryCurvesInto (target: Float64Array, source: Readonly<Float64Array>, alpha: number): void {
     const nValues = source.length;
     assertIsTrue(nValues === target.length);
     for (let iValue = 0; iValue < nValues; ++iValue) {
@@ -160,15 +161,16 @@ export function blendAuxiliaryCurvesInto (target: Float64Array, source: Readonly
     }
 }
 
-export function calculateDeltaPose (target: Pose, base: Pose) {
+export function calculateDeltaPose (target: Pose, base: Pose): void {
     calculateDeltaTransforms(target.transforms, base.transforms);
     calculateDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves);
 }
 
-const calculateDeltaTransformArrayAt = (() => {
+type CalculateDeltaTransformArrayAtFunc = (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number) => void;
+const calculateDeltaTransformArrayAt = ((): CalculateDeltaTransformArrayAtFunc => {
     const cacheTransformBase = new Transform();
     const cacheTransformTarget = new Transform();
-    return (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number) => {
+    return (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number): void => {
         const baseTransform = base.getTransform(transformIndex, cacheTransformBase);
         const targetTransform = target.getTransform(transformIndex, cacheTransformTarget);
         __calculateDeltaTransform(targetTransform, targetTransform, baseTransform);
@@ -176,7 +178,7 @@ const calculateDeltaTransformArrayAt = (() => {
     };
 })();
 
-export function calculateDeltaTransforms (target: TransformArray, base: TransformArray) {
+export function calculateDeltaTransforms (target: TransformArray, base: TransformArray): void {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === base.length);
     for (let iTransform = 0; iTransform < nTransforms; ++iTransform) {
@@ -184,7 +186,7 @@ export function calculateDeltaTransforms (target: TransformArray, base: Transfor
     }
 }
 
-export function calculateDeltaAuxiliaryCurves (target: Float64Array, base: Float64Array) {
+export function calculateDeltaAuxiliaryCurves (target: Float64Array, base: Float64Array): void {
     const nAuxiliaryCurves = target.length;
     assertIsTrue(nAuxiliaryCurves === base.length);
     for (let i = 0; i < target.length; ++i) {
@@ -192,15 +194,16 @@ export function calculateDeltaAuxiliaryCurves (target: Float64Array, base: Float
     }
 }
 
-export function applyDeltaPose (target: Pose, base: Pose, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
+export function applyDeltaPose (target: Pose, base: Pose, alpha: number, transformFilter: TransformFilter | undefined = undefined): void {
     applyDeltaTransforms(target.transforms, base.transforms, alpha, transformFilter);
     applyDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves, alpha);
 }
 
-const applyDeltaTransformArrayAt = (() => {
+type ApplyDeltaTransformArrayAtFunc = (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number) => void;
+const applyDeltaTransformArrayAt = ((): ApplyDeltaTransformArrayAtFunc => {
     const cacheTransformDelta = new Transform();
     const cacheTransformTarget = new Transform();
-    return (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number) => {
+    return (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number): void => {
         const deltaTransform = delta.getTransform(transformIndex, cacheTransformDelta);
         const targetTransform = target.getTransform(transformIndex, cacheTransformTarget);
         __applyDeltaTransform(targetTransform, targetTransform, deltaTransform, alpha);
@@ -210,7 +213,7 @@ const applyDeltaTransformArrayAt = (() => {
 
 export function applyDeltaTransforms (
     target: TransformArray, delta: TransformArray, alpha: number, transformFilter: TransformFilter | undefined = undefined,
-) {
+): void {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === delta.length);
     if (!transformFilter) {
@@ -227,7 +230,7 @@ export function applyDeltaTransforms (
     }
 }
 
-export function applyDeltaAuxiliaryCurves (target: Float64Array, delta: Float64Array, alpha: number) {
+export function applyDeltaAuxiliaryCurves (target: Float64Array, delta: Float64Array, alpha: number): void {
     const nAuxiliaryCurves = target.length;
     assertIsTrue(nAuxiliaryCurves === delta.length);
     for (let i = 0; i < target.length; ++i) {

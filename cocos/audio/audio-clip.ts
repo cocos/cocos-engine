@@ -84,7 +84,7 @@ export class AudioClip extends Asset {
             this._duration = 0;
         }
     }
-    get _nativeAsset () {
+    get _nativeAsset (): AudioMeta | null {
         return this._meta;
     }
 
@@ -92,7 +92,12 @@ export class AudioClip extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
-    get _nativeDep () {
+    get _nativeDep (): {
+        uuid: string;
+        audioLoadMode: AudioType;
+        ext: string;
+        __isNative__: boolean;
+    } {
         return {
             uuid: this._uuid,
             audioLoadMode: this.loadMode,
@@ -101,15 +106,15 @@ export class AudioClip extends Asset {
         };
     }
 
-    get loadMode () {
+    get loadMode (): AudioType {
         return this._loadMode;
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this._meta;
     }
 
-    public getDuration () {
+    public getDuration (): number {
         // Dynamicly loaded audioClip._duration is 0
         if (this._duration) {
             return this._duration;
@@ -121,42 +126,42 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.state instead.
      */
-    public get state () {
+    public get state (): AudioState {
         return this._player ? this._player.state : AudioState.INIT;
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.getCurrentTime() instead.
      */
-    public getCurrentTime () {
+    public getCurrentTime (): number {
         return this._player ? this._player.currentTime : 0;
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.getVolume() instead.
      */
-    public getVolume () {
+    public getVolume (): number {
         return this._player ? this._player.volume : 0;
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.getLoop() instead.
      */
-    public getLoop () {
+    public getLoop (): boolean {
         return this._player ? this._player.loop : false;
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.setCurrentTime() instead.
      */
-    public setCurrentTime (time: number) {
+    public setCurrentTime (time: number): void {
         this._player?.seek(time).catch((e) => {});
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.setVolume() instead.
      */
-    public setVolume (volume: number) {
+    public setVolume (volume: number): void {
         if (this._player) {
             this._player.volume = volume;
         }
@@ -165,7 +170,7 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.setLoop() instead.
      */
-    public setLoop (loop: boolean) {
+    public setLoop (loop: boolean): void {
         if (this._player) {
             this._player.loop = loop;
         }
@@ -174,28 +179,28 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.play() instead.
      */
-    public play () {
+    public play (): void {
         this._player?.play().catch((e) => {});
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.pause() instead.
      */
-    public pause () {
+    public pause (): void {
         this._player?.pause().catch((e) => {});
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.stop() instead.
      */
-    public stop () {
+    public stop (): void {
         this._player?.stop().catch((e) => {});
     }
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.playOneShot() instead.
      */
-    public playOneShot (volume = 1) {
+    public playOneShot (volume = 1): void {
         if (this._nativeAsset) {
             AudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume).then((oneShotAudio) => {
                 oneShotAudio.play();

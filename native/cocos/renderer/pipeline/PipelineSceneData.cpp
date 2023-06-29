@@ -32,9 +32,11 @@
 #include "gi/light-probe/LightProbe.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
+#include "scene/Model.h"
 #include "scene/Octree.h"
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
+#include "scene/Skin.h"
 #include "scene/Skybox.h"
 
 namespace cc {
@@ -48,6 +50,7 @@ PipelineSceneData::PipelineSceneData() {
     _csmLayers = ccnew CSMLayers();
     _octree = ccnew scene::Octree();
     _lightProbes = ccnew gi::LightProbes();
+    _skin = ccnew scene::Skin();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -58,6 +61,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_octree);
     CC_SAFE_DELETE(_csmLayers);
     CC_SAFE_DELETE(_lightProbes);
+    CC_SAFE_DELETE(_skin);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
@@ -85,6 +89,8 @@ void PipelineSceneData::destroy() {
     _occlusionQueryInputAssembler = nullptr;
     _occlusionQueryVertexBuffer = nullptr;
     _occlusionQueryIndicesBuffer = nullptr;
+    _standardSkinModel = nullptr;
+    _skinMaterialModel = nullptr;
     _defaultBuffer = nullptr;
 }
 
@@ -175,6 +181,14 @@ bool PipelineSceneData::isGPUDrivenEnabled() const {
 #else
     return _gpuDrivenEnabled && _device->getCapabilities().supportMultiDrawIndirect;
 #endif
+}
+
+void PipelineSceneData::setStandardSkinModel(scene::Model *val) {
+    _standardSkinModel = val;
+}
+
+void PipelineSceneData::setSkinMaterialModel(scene::Model *val) {
+    _skinMaterialModel = val;
 }
 
 } // namespace pipeline

@@ -60,7 +60,7 @@ export class TerrainCollider extends Collider {
      */
     @type(TerrainAsset)
     @tooltip('i18n:physics3d.collider.terrain_terrain')
-    get terrain () {
+    get terrain (): ITerrainAsset | null {
         return this._terrain;
     }
 
@@ -75,11 +75,11 @@ export class TerrainCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    get shape () {
+    get shape (): ITerrainShape {
         return this._shape as ITerrainShape;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         super.onEnable();
 
         if (this.node) {

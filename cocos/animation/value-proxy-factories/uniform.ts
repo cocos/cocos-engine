@@ -75,7 +75,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
 
     public forTarget (target: unknown): IValueProxy | undefined {
         if (!(target instanceof Material)) {
-            warnID(3940, target);
+            warnID(3940, target as string);
             return undefined;
         }
 
@@ -101,18 +101,18 @@ export class UniformProxyFactory implements IValueProxyFactory {
         if (type < Type.SAMPLER1D) {
             const realHandle = channelIndex === undefined ? handle : pass.getHandle(uniformName, channelIndex, Type.FLOAT);
             if (!realHandle) {
-                warnID(3943, target.name, passIndex, uniformName, channelIndex);
+                warnID(3943, target.name, passIndex, uniformName, channelIndex!);
                 return undefined;
             }
             if (isUniformArray(pass, uniformName)) {
                 return {
-                    set: (value: any) => {
+                    set: (value: any): void => {
                         pass.setUniformArray(realHandle, value);
                     },
                 };
             }
             return {
-                set: (value: any) => {
+                set: (value: any): void => {
                     pass.setUniform(realHandle, value);
                 },
             };
@@ -126,7 +126,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                 dftTex = builtinResMgr.get<TextureBase>('default-texture');
             }
             return {
-                set: (value: TextureBase | SpriteFrame) => {
+                set: (value: TextureBase | SpriteFrame): void => {
                     if (!value) { value = dftTex; }
                     const texture = value.getGFXTexture();
                     if (!texture || !texture.width || !texture.height) { return; }
@@ -140,7 +140,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
     }
 }
 
-function isUniformArray (pass: Pass, name: string) {
+function isUniformArray (pass: Pass, name: string): boolean {
     for (const block of pass.shaderInfo.blocks) {
         for (const uniform of block.members) {
             if (uniform.name === name) {

@@ -31,15 +31,15 @@ import { EAxisDirection } from '../../framework/physics-enum';
 import { commitShapeUpdates } from '../cannon-util';
 
 export class CannonCylinderShape extends CannonShape implements ICylinderShape {
-    get collider () {
+    get collider (): CylinderCollider {
         return this._collider as CylinderCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Cylinder {
         return this._shape as CANNON.Cylinder;
     }
 
-    setRadius (v: number) {
+    setRadius (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -51,7 +51,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
-    setHeight (v: number) {
+    setHeight (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -63,7 +63,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
-    setDirection (v: number) {
+    setDirection (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -80,7 +80,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this._shape = new CANNON.Cylinder(radius, radius, height, (CANNON as any).CC_CONFIG.numSegmentsCylinder, direction === EAxisDirection.Y_AXIS);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setRadius(this.collider.radius);
     }
@@ -90,7 +90,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.setRadius(this.collider.radius);
     }
 
-    updateProperties (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like): void {
         let wh = height;
         let wr = radius;
         const cos = Math.cos;

@@ -75,8 +75,8 @@ export class PhysXSharedBody {
     get isKinematic (): boolean { return this._isKinematic; }
     get isDynamic (): boolean { return !this._isStatic && !this._isKinematic; }
     get wrappedBody (): PhysXRigidBody | null { return this._wrappedBody; }
-    get filterData () { return this._filterData; }
-    get isInScene () { return this._index !== -1; }
+    get filterData (): any { return this._filterData; }
+    get isInScene (): boolean { return this._index !== -1; }
     get impl (): any {
         this._initActor();
         return this.isStatic ? this._staticActor : this._dynamicActor;
@@ -145,14 +145,14 @@ export class PhysXSharedBody {
         if (st !== this._isStatic) { this._switchActor(st); }
     }
 
-    private _initStaticActor () {
+    private _initStaticActor (): void {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         this._staticActor = PhysXInstance.physics.createRigidStatic(t);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
-    private _initDynamicActor () {
+    private _initDynamicActor (): void {
         if (this._dynamicActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         this._dynamicActor = PhysXInstance.physics.createRigidDynamic(t);
@@ -176,7 +176,7 @@ export class PhysXSharedBody {
         }
     }
 
-    private _switchActor (isStaticBefore: boolean) {
+    private _switchActor (isStaticBefore: boolean): void {
         if (!this._staticActor || !this._dynamicActor) return;
         const a0 = isStaticBefore ? this._staticActor : this._dynamicActor;
         const a1 = !isStaticBefore ? this._staticActor : this._dynamicActor;
@@ -220,7 +220,7 @@ export class PhysXSharedBody {
         }
     }
 
-    addJoint (v: PhysXJoint, type: 0 | 1) {
+    addJoint (v: PhysXJoint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i < 0) this.wrappedJoints1.push(v);
@@ -230,7 +230,7 @@ export class PhysXSharedBody {
         }
     }
 
-    removeJoint (v: PhysXJoint, type: 0 | 1) {
+    removeJoint (v: PhysXJoint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
@@ -240,13 +240,13 @@ export class PhysXSharedBody {
         }
     }
 
-    setLinearDamping (linDamp: number) {
+    setLinearDamping (linDamp: number): void {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setLinearDamping((1 - (1 - linDamp) ** dt) / dt);
     }
 
-    setAngularDamping (angDamp: number) {
+    setAngularDamping (angDamp: number): void {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setAngularDamping((1 - (1 - angDamp) ** dt) / dt);
@@ -316,7 +316,7 @@ export class PhysXSharedBody {
         syncNoneStaticToSceneIfWaking(this._dynamicActor, this.node);
     }
 
-    syncScale () {
+    syncScale (): void {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             this.wrappedShapes[i].updateScale();
         }

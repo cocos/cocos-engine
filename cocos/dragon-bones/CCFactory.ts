@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
+import { Armature, BaseObject, Animation, BaseFactory, DragonBones, DragonBonesData, DisplayData } from '@cocos/dragonbones-js';
 import { ISchedulable, Scheduler, System, _decorator } from '../core';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../asset/assets/texture-base';
@@ -62,7 +62,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @example
      * let factory = CCFactory.getInstance();
     */
-    static getInstance () {
+    static getInstance (): CCFactory {
         if (!CCFactory._factory) {
             CCFactory._factory = new CCFactory();
         }
@@ -99,7 +99,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Sets CCFactory object null when Restart game.
      * @zh 重启时需将工厂实例置空。
      */
-    onRestart () {
+    onRestart (): void {
         CCFactory._factory = null;
     }
 
@@ -107,7 +107,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Initialize update schedule.
      * @zh 初始化更新计划。
      */
-    initUpdate (dt?: number) {
+    initUpdate (dt?: number): void {
         // director.getScheduler().enableForTarget(this);
         Scheduler.enableForTarget(this);
         director.getScheduler().scheduleUpdate(this, System.Priority.HIGH, false);
@@ -116,7 +116,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Trigger ArmatureDisplay components to update animation and render data.
      * @zh 触发 ArmatureDisplay 组件更新动画和渲染数据。
      */
-    update (dt: number) {
+    update (dt: number): void {
         if (EDITOR_NOT_IN_PREVIEW) return;
         this._dragonBones.advanceTime(dt);
     }
@@ -124,7 +124,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Parser raw data to DragonBonesData.
      * @zh 从 raw data 解析出 DragonBonesData 数据。
      */
-    getDragonBonesDataByRawData (rawData: any) {
+    getDragonBonesDataByRawData (rawData: any): DragonBonesData | null {
         const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
         return dataParser.parseDragonBonesData(rawData, 1.0);
     }
@@ -133,7 +133,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @zh 创建骨架的显示数据。
      */
     // Build new armature with a new display.
-    buildArmatureDisplay (armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string) {
+    buildArmatureDisplay (armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): DisplayData | null {
         const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
         return armature ? armature._display : null;
     }
@@ -145,7 +145,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Create a new node with Dragonbones component.
      * @zh 创建一个附带龙骨组件的 node 节点。
      */
-    createArmatureNode (comp: ArmatureDisplay, armatureName: string, node?: Node) {
+    createArmatureNode (comp: ArmatureDisplay, armatureName: string, node?: Node): ArmatureDisplay {
         node = node || new Node();
         let display = node.getComponent('dragonBones.ArmatureDisplay') as ArmatureDisplay;
         if (!display) {
@@ -162,7 +162,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         return display;
     }
 
-    _buildTextureAtlasData (textureAtlasData: null | CCTextureAtlasData, textureAtlas?: TextureBase) {
+    _buildTextureAtlasData (textureAtlasData: null | CCTextureAtlasData, textureAtlas?: TextureBase): CCTextureAtlasData {
         if (textureAtlasData) {
             textureAtlasData.renderTexture = textureAtlas!;
         } else {
@@ -171,7 +171,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         return textureAtlasData;
     }
 
-    _sortSlots () {
+    _sortSlots (): void {
         const slots = this._slots!;
         const sortedSlots: CCSlot[] = [];
         for (let i = 0, l = slots.length; i < l; i++) {
@@ -191,7 +191,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         }
         this._slots = sortedSlots;
     }
-    _buildArmature (dataPackage) {
+    _buildArmature (dataPackage): Armature {
         const armature = BaseObject.borrowObject(Armature);
 
         armature._skinData = dataPackage.skin;
@@ -211,7 +211,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         return armature;
     }
 
-    _buildSlot (dataPackage, slotData, displays) {
+    _buildSlot (dataPackage, slotData, displays): CCSlot {
         const slot = BaseObject.borrowObject(CCSlot);
         const display = slot;
         slot.init(slotData, displays, display, display);
@@ -221,7 +221,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Gets DragonBonesData object by UUID.
      * @zh 通过 UUID 获取 DragonBonesData object。
      */
-    getDragonBonesDataByUUID (uuid) {
+    getDragonBonesDataByUUID (uuid): DragonBonesData | null {
         for (const name in this._dragonBonesDataMap) {
             if (name.indexOf(uuid) !== -1) {
                 return this._dragonBonesDataMap[name];
@@ -233,7 +233,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @en Remove DragonBonesData object from cache by UUID.
      * @zh 通过 UUID 从缓存移除 DragonBonesData object。
      */
-    removeDragonBonesDataByUUID (uuid: string, disposeData?: boolean) {
+    removeDragonBonesDataByUUID (uuid: string, disposeData?: boolean): void {
         if (disposeData === undefined) { disposeData = true; }
         for (const name in this._dragonBonesDataMap) {
             if (name.indexOf(uuid) === -1) continue;

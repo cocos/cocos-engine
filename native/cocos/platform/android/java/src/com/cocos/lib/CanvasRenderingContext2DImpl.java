@@ -416,7 +416,7 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private void configShadow(Paint paint) {
-        if (mShadowColorA > 0 && (Math.abs(mShadowOffsetX) > Float.MIN_VALUE || Math.abs(mShadowOffsetY) > Float.MIN_VALUE)) {
+        if ((Math.abs(mShadowOffsetX) > Float.MIN_VALUE || Math.abs(mShadowOffsetY) > Float.MIN_VALUE)) {
             if (mShadowBlur < 0) {
                 return;
             }

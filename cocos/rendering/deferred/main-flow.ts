@@ -73,15 +73,15 @@ export class MainFlow extends RenderFlow {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline): void {
         super.activate(pipeline);
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         super.render(camera);
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
     }
 }

@@ -50,10 +50,10 @@ export class ImageData extends BaseImageData {
             image.crossOrigin = 'anonymous';
         }
 
-        image.onload = () => {
+        image.onload = (): void => {
             if (onComplete) { onComplete(null, image.data); }
         };
-        image.onerror = () => {
+        image.onerror = (): void => {
             if (onComplete) { onComplete(new Error(getError(4930, url))); }
         };
 

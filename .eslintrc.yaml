@@ -76,7 +76,7 @@ rules:
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    no-console: off # this is just too much work, cc.warn is still too much pain to use
+    no-console: error # prefer the uniform logging methods
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
@@ -112,6 +112,9 @@ rules:
     # TODO: this is just too much work
     '@typescript-eslint/explicit-module-boundary-types': off
 
+    # NOTE: We don't want to rely on TS automatic type inference
+    '@typescript-eslint/no-inferrable-types': off
+
     # TODO: sadly we still rely heavily on legacyCC
     '@typescript-eslint/no-unsafe-assignment': off
     '@typescript-eslint/no-unsafe-call': off
@@ -143,3 +146,4 @@ rules:
 
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
+    '@typescript-eslint/explicit-function-return-type': [error]

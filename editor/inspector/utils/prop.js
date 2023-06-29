@@ -453,4 +453,9 @@ ui-section > ui-prop[slot="header"],
 ui-prop [slot="content"] ui-prop { 
     margin-top: 0; 
     margin-left: 0;
-}`;
+}
+ui-prop[ui-section-config] + ui-section.config,
+ui-prop[ui-section-config] + ui-prop[ui-section-config],
+ui-section.config + ui-prop[ui-section-config],
+ui-section.config + ui-section.config { margin-top: 0; }
+`;

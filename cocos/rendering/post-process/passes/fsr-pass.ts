@@ -1,8 +1,8 @@
 import { EDITOR } from 'internal:constants';
 import { Vec4 } from '../../../core';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Format } from '../../../gfx';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -11,13 +11,13 @@ import { getSetting, SettingPass } from './setting-pass';
 import { game } from '../../../game';
 
 export class FSRPass extends SettingPass {
-    get setting () { return getSetting(FSR); }
+    get setting (): FSR { return getSetting(FSR); }
 
     name = 'FSRPass'
     effectName = 'pipeline/post-process/fsr';
     outputNames = ['FSRColor']
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;

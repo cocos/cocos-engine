@@ -135,7 +135,7 @@ export class OutEI implements IterableIterator<ED> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): OutEI {
         return this;
     }
     next (): IteratorResult<ED> {
@@ -156,7 +156,7 @@ export class OutEPI implements IterableIterator<EPD> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): OutEPI {
         return this;
     }
     next (): IteratorResult<EPD> {
@@ -183,7 +183,7 @@ export class InEI implements IterableIterator<ED> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): InEI {
         return this;
     }
     next (): IteratorResult<ED> {
@@ -204,7 +204,7 @@ export class InEPI implements IterableIterator<EPD> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): InEPI {
         return this;
     }
     next (): IteratorResult<EPD> {
@@ -262,7 +262,7 @@ export class AdjI implements IterableIterator<vertex_descriptor> {
         this.graph = graph;
         this.iterator = iterator;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): AdjI {
         return this;
     }
     next (): IteratorResult<vertex_descriptor> {
@@ -282,7 +282,7 @@ export class AdjPI implements IterableIterator<vertex_descriptor> {
         this.graph = graph;
         this.iterator = iterator;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): AdjPI {
         return this;
     }
     next (): IteratorResult<vertex_descriptor> {
@@ -749,7 +749,7 @@ implements IncidenceGraph, VertexListGraph {
         this.edge_parallel_category = parallel.allow;
         this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
-    nullVertex () {
+    nullVertex (): vertex_descriptor | null {
         return this.g.nullVertex();
     }
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean {

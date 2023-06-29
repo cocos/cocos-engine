@@ -33,7 +33,7 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings } from '../core';
+import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
@@ -94,11 +94,7 @@ const _constants = {
 };
 
 export class Profiler extends System {
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _stats: IProfilerState | null = null;
-
+    private _profilerStats: IProfilerState | null = null;
     private _showFPS = false;
 
     private _rootNode: Node | null = null;
@@ -135,7 +131,7 @@ export class Profiler extends System {
         }
     }
 
-    init () {
+    init (): void {
         const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
         if (showFPS) {
             this.showStats();
@@ -144,11 +140,27 @@ export class Profiler extends System {
         }
     }
 
-    public isShowingStats () {
+    /**
+     * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
+     */
+    public get _stats (): IProfilerState | null {
+        warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
+        return this._profilerStats;
+    }
+
+    /**
+     * @zh 获取引擎运行性能状态
+     * @en Get engine performance status
+     */
+    public get stats (): IProfilerState | null {
+        return this._profilerStats;
+    }
+
+    public isShowingStats (): boolean {
         return this._showFPS;
     }
 
-    public hideStats () {
+    public hideStats (): void {
         if (this._showFPS) {
             if (this._rootNode) {
                 this._rootNode.active = false;
@@ -167,7 +179,7 @@ export class Profiler extends System {
         }
     }
 
-    public showStats () {
+    public showStats (): void {
         if (!this._showFPS) {
             if (!this._device) {
                 const root = cclegacy.director.root as Root;
@@ -199,7 +211,7 @@ export class Profiler extends System {
         }
     }
 
-    public generateCanvas () {
+    public generateCanvas (): void {
         if (this._canvasDone) {
             return;
         }
@@ -231,12 +243,12 @@ export class Profiler extends System {
         this._region.texExtent.height = textureHeight;
     }
 
-    public generateStats () {
+    public generateStats (): void {
         if (this._statsDone || !this._ctx || !this._canvas) {
             return;
         }
 
-        this._stats = null;
+        this._profilerStats = null;
         const now = performance.now();
 
         this._ctx.textAlign = 'left';
@@ -258,12 +270,12 @@ export class Profiler extends System {
         }
         this._eachNumWidth /= this._canvas.width;
 
-        this._stats = _profileInfo as IProfilerState;
+        this._profilerStats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
         this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
-    public generateNode () {
+    public generateNode (): void {
         if (this._rootNode && this._rootNode.isValid) {
             return;
         }
@@ -340,49 +352,49 @@ export class Profiler extends System {
         this._inited = true;
     }
 
-    public beforeUpdate () {
-        if (!this._stats) {
+    public beforeUpdate (): void {
+        if (!this._profilerStats) {
             return;
         }
 
         const now = performance.now();
-        (this._stats.frame.counter as PerfCounter).start(now);
-        (this._stats.logic.counter as PerfCounter).start(now);
+        (this._profilerStats.frame.counter as PerfCounter).start(now);
+        (this._profilerStats.logic.counter as PerfCounter).start(now);
     }
 
-    public afterUpdate () {
-        if (!this._stats) {
+    public afterUpdate (): void {
+        if (!this._profilerStats) {
             return;
         }
 
         const now = performance.now();
         if (cclegacy.director.isPaused()) {
-            (this._stats.frame.counter as PerfCounter).start(now);
+            (this._profilerStats.frame.counter as PerfCounter).start(now);
         } else {
-            (this._stats.logic.counter as PerfCounter).end(now);
+            (this._profilerStats.logic.counter as PerfCounter).end(now);
         }
     }
 
-    public beforePhysics () {
-        if (!this._stats) {
+    public beforePhysics (): void {
+        if (!this._profilerStats) {
             return;
         }
 
         const now = performance.now();
-        (this._stats.physics.counter as PerfCounter).start(now);
+        (this._profilerStats.physics.counter as PerfCounter).start(now);
     }
 
-    public afterPhysics () {
-        if (!this._stats) {
+    public afterPhysics (): void {
+        if (!this._profilerStats) {
             return;
         }
 
         const now = performance.now();
-        (this._stats.physics.counter as PerfCounter).end(now);
+        (this._profilerStats.physics.counter as PerfCounter).end(now);
     }
 
-    public beforeDraw () {
-        if (!this._stats || !this._inited) {
+    public beforeDraw (): void {
+        if (!this._profilerStats || !this._inited) {
             return;
         }
 
@@ -409,27 +421,27 @@ export class Profiler extends System {
         }
 
         const now = performance.now();
-        (this._stats.render.counter as PerfCounter).start(now);
+        (this._profilerStats.render.counter as PerfCounter).start(now);
     }
 
-    public afterRender () {
-        if (!this._stats || !this._inited) {
+    public afterRender (): void {
+        if (!this._profilerStats || !this._inited) {
             return;
         }
         const now = performance.now();
-        (this._stats.render.counter as PerfCounter).end(now);
-        (this._stats.present.counter as PerfCounter).start(now);
+        (this._profilerStats.render.counter as PerfCounter).end(now);
+        (this._profilerStats.present.counter as PerfCounter).start(now);
     }
 
-    public afterPresent () {
-        if (!this._stats || !this._inited) {
+    public afterPresent (): void {
+        if (!this._profilerStats || !this._inited) {
             return;
         }
 
         const now = performance.now();
-        (this._stats.frame.counter as PerfCounter).end(now);
-        (this._stats.fps.counter as PerfCounter).frame(now);
-        (this._stats.present.counter as PerfCounter).end(now);
+        (this._profilerStats.frame.counter as PerfCounter).end(now);
+        (this._profilerStats.fps.counter as PerfCounter).frame(now);
+        (this._profilerStats.present.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < _average) {
             return;
@@ -437,16 +449,16 @@ export class Profiler extends System {
         this.lastTime = now;
 
         const device = this._device!;
-        (this._stats.draws.counter as PerfCounter).value = device.numDrawCalls;
-        (this._stats.instances.counter as PerfCounter).value = device.numInstances;
-        (this._stats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
-        (this._stats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
-        (this._stats.tricount.counter as PerfCounter).value = device.numTris;
+        (this._profilerStats.draws.counter as PerfCounter).value = device.numDrawCalls;
+        (this._profilerStats.instances.counter as PerfCounter).value = device.numInstances;
+        (this._profilerStats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
+        (this._profilerStats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
+        (this._profilerStats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
         const view = this.digitsData;
-        for (const id in this._stats) {
-            const stat = this._stats[id] as ICounterOption;
+        for (const id in this._profilerStats) {
+            const stat = this._profilerStats[id] as ICounterOption;
             stat.counter.sample(now);
             const result = stat.counter.human().toString();
             for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {

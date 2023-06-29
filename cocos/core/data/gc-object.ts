@@ -29,5 +29,5 @@ export class GCObject {
         return garbageCollectionManager.registerGCObject(this);
     }
 
-    public destroy () {}
+    public destroy (): void {}
 }

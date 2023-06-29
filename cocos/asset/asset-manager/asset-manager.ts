@@ -314,7 +314,7 @@ export class AssetManager {
      * @zh
      * [[AssetManager]] 的全局单例，你可以直接通过 [[assetManager]] 访问。
      */
-    static get instance () {
+    static get instance (): AssetManager {
         if (!this._instance) {
             this._instance = new AssetManager();
         }
@@ -358,7 +358,7 @@ export class AssetManager {
      * @internal
      * @engineInternal
      */
-    public onAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+    public onAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any): void {
         this._eventTarget.on(EVENT_ASSET_MISSING, func, target);
     }
 
@@ -372,7 +372,7 @@ export class AssetManager {
      * @internal
      * @engineInternal
      */
-    public offAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+    public offAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any): void {
         this._eventTarget.off(EVENT_ASSET_MISSING, func, target);
     }
 
@@ -388,7 +388,7 @@ export class AssetManager {
      * @internal
      * @engineInternal
      */
-    public dispatchAssetMissing (parentAsset: Asset, owner: any, propName: string, uuid: string) {
+    public dispatchAssetMissing (parentAsset: Asset, owner: any, propName: string, uuid: string): void {
         this._eventTarget.emit(EVENT_ASSET_MISSING, parentAsset, owner, propName, uuid);
     }
 
@@ -403,7 +403,7 @@ export class AssetManager {
      * @param options @en The configuration of asset manager. @zh 资源管理器的配置选项。
      * @internal
      */
-    public init (options: IAssetManagerOptions = {}) {
+    public init (options: IAssetManagerOptions = {}): void {
         const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
         const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
         const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
@@ -465,7 +465,7 @@ export class AssetManager {
      * @param bundle @en The bundle to be removed. @zh 准备移除的 Bundle。
      *
      */
-    public removeBundle (bundle: Bundle) {
+    public removeBundle (bundle: Bundle): void {
         bundle._destroy();
         bundles.remove(bundle.name);
     }
@@ -531,7 +531,7 @@ export class AssetManager {
         options?: { [key: string]: any, preset?: string } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
         onComplete?: ((err: Error | null, data: any) => void) | null,
-    ) {
+    ): void {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -581,7 +581,7 @@ export class AssetManager {
         options?: { [key: string]: any, preset?: string } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null,
-    ) {
+    ): void {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -619,7 +619,7 @@ export class AssetManager {
      */
     public loadRemote<T extends Asset> (url: string, options: { [k: string]: any, ext?: string } | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadRemote<T extends Asset> (url: string, onComplete?: ((err: Error | null, data: T) => void) | null): void;
-    public loadRemote<T extends Asset> (url: string, options?: { [k: string]: any, ext?: string } | ((err: Error | null, data: T) => void) | null, onComplete?: ((err: Error | null, data: T) => void) | null) {
+    public loadRemote<T extends Asset> (url: string, options?: { [k: string]: any, ext?: string } | ((err: Error | null, data: T) => void) | null, onComplete?: ((err: Error | null, data: T) => void) | null): void {
         const { options: opts, onComplete: onComp } = parseParameters<((err: Error | null, data: T) => void)>(options, undefined, onComplete);
 
         if (!opts.reloadAsset && this.assets.has(url)) {
@@ -629,12 +629,12 @@ export class AssetManager {
 
         opts.__isNative__ = true;
         opts.preset = opts.preset || 'remote';
-        this.loadAny({ url }, opts, null, (err, data) => {
+        this.loadAny({ url }, opts, null, (err, data): void => {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err, data); }
             } else {
-                factory.create(url, data, opts.ext || path.extname(url), opts, (p1, p2) => {
+                factory.create(url, data, opts.ext || path.extname(url), opts, (p1, p2): void => {
                     if (onComp) { onComp(p1, p2 as T); }
                 });
             }
@@ -677,7 +677,7 @@ export class AssetManager {
      */
     public loadBundle (nameOrUrl: string, options: { [k: string]: any, version?: string } | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void;
     public loadBundle (nameOrUrl: string, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void;
-    public loadBundle (nameOrUrl: string, options?: { [k: string]: any, version?: string } | ((err: Error | null, data: Bundle) => void) | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null) {
+    public loadBundle (nameOrUrl: string, options?: { [k: string]: any, version?: string } | ((err: Error | null, data: Bundle) => void) | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void {
         const { options: opts, onComplete: onComp } = parseParameters<((err: Error | null, data: Bundle) => void)>(options, undefined, onComplete);
 
         const bundleName = path.basename(nameOrUrl);
@@ -690,12 +690,12 @@ export class AssetManager {
         opts.preset = opts.preset || 'bundle';
         opts.ext = 'bundle';
         opts.__isNative__ = true;
-        this.loadAny({ url: nameOrUrl }, opts, null, (err, data) => {
+        this.loadAny({ url: nameOrUrl }, opts, null, (err, data): void => {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err, data); }
             } else {
-                factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2) => {
+                factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2): void => {
                     if (onComp) { onComp(p1, p2 as Bundle); }
                 });
             }
@@ -736,8 +736,8 @@ export class AssetManager {
      * @engineInternal
      *
      */
-    public releaseUnusedAssets () {
-        assets.forEach((asset) => {
+    public releaseUnusedAssets (): void {
+        assets.forEach((asset): void => {
             releaseManager.tryRelease(asset);
         });
     }
@@ -750,8 +750,8 @@ export class AssetManager {
      * 释放所有资源。详细信息请参考 [[releaseAsset]]。
      *
      */
-    public releaseAll () {
-        assets.forEach((asset) => {
+    public releaseAll (): void {
+        assets.forEach((asset): void => {
             releaseManager.tryRelease(asset, true);
         });
     }
@@ -776,7 +776,7 @@ export class AssetManager {
         options?: { [key: string]: any, assetId?: string } | ((err: Error | null, data: T) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T) => void) | null,
         onComplete?: ((err: Error | null, data: T) => void) | null,
-    ) {
+    ): void {
         if (BUILD) { throw new Error('Only valid in Editor'); }
 
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<((err: Error | null, data: T) => void)>(options, onProgress, onComplete);
@@ -791,7 +791,7 @@ export class AssetManager {
             input: [item],
             onProgress: onProg,
             options: opts,
-            onComplete: asyncify((err, data: T) => {
+            onComplete: asyncify((err, data: T): void => {
                 if (!err) {
                     if (!opts.assetId) {
                         data._uuid = '';

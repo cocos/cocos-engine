@@ -48,7 +48,7 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
 
-export function getDeviceShaderVersion (device) {
+export function getDeviceShaderVersion (device): string {
     switch (device.gfxAPI) {
     case API.GLES2:
     case API.WEBGL: return 'glsl1';

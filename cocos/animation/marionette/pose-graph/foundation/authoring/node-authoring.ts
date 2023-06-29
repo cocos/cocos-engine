@@ -85,7 +85,7 @@ export function getPoseGraphNodeEditorMetadata (
     return nodeEditorMetadataMap.get(classConstructor);
 }
 
-export function getOrCreateNodeEditorMetadata (constructor: Constructor<PoseGraphNode>) {
+export function getOrCreateNodeEditorMetadata (constructor: Constructor<PoseGraphNode>): PoseGraphNodeEditorMetadata {
     const existing = nodeEditorMetadataMap.get(constructor);
     if (existing) {
         return existing;

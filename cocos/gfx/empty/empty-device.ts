@@ -92,9 +92,9 @@ export class EmptyDevice extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
-    public acquire (swapchains: Readonly<Swapchain[]>) {}
-    public present () {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void {}
+    public acquire (swapchains: Readonly<Swapchain[]>): void {}
+    public present (): void {}
 
     public createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer {
         const cmdBuff = new EmptyCommandBuffer();
@@ -187,7 +187,7 @@ export class EmptyDevice extends Device {
         return [this._swapchain as Swapchain];
     }
 
-    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
         const hash = GeneralBarrier.computeHash(info);
         if (!this._generalBarrierss.has(hash)) {
             this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
@@ -195,7 +195,7 @@ export class EmptyDevice extends Device {
         return this._generalBarrierss.get(hash)!;
     }
 
-    public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -203,7 +203,7 @@ export class EmptyDevice extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public getBufferBarrier (info: Readonly<BufferBarrierInfo>) {
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier {
         const hash = BufferBarrier.computeHash(info);
         if (!this._bufferBarriers.has(hash)) {
             this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
@@ -211,9 +211,9 @@ export class EmptyDevice extends Device {
         return this._bufferBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
-    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {}
-    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {}
+    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
     public copyImagesToTexture (imageAssets: Readonly<ImageAsset[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
 }
 

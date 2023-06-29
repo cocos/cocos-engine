@@ -60,6 +60,7 @@ export class ImageData extends BaseImageData {
                 data = new Uint8Array(rawBuffer);
             }
         } else {
+            // eslint-disable-next-line no-console
             console.log('imageBmp copy not impled!');
         }
         return this.data;
@@ -75,10 +76,10 @@ export class ImageData extends BaseImageData {
             image.crossOrigin = 'anonymous';
         }
 
-        image.onload = () => {
+        image.onload = (): void => {
             if (onComplete) { onComplete(null, image.data); }
         };
-        image.onerror = () => {
+        image.onerror = (): void => {
             if (onComplete) { onComplete(new Error(getError(4930, url))); }
         };
 

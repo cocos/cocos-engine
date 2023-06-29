@@ -87,7 +87,7 @@ class TouchManager {
      * @param touchID
      * @returns
      */
-    public releaseTouch (touchID: number) {
+    public releaseTouch (touchID: number): void {
         if (!this._touchMap.has(touchID)) {
             return;
         }
@@ -130,13 +130,13 @@ class TouchManager {
      * @param x The current location X
      * @param y The current location Y
      */
-    private _updateTouch (touch: Touch, x: number, y: number) {
+    private _updateTouch (touch: Touch, x: number, y: number): void {
         touch.getLocation(tempVec2);
         touch.setPrevPoint(tempVec2);
         touch.setPoint(x, y);
     }
 
-    private _checkTouchMapSizeMoreThanMax (touchID: number) {
+    private _checkTouchMapSizeMoreThanMax (touchID: number): boolean {
         if (this._touchMap.has(touchID)) {
             return false;
         }

@@ -45,7 +45,7 @@ export class Billboard extends Component {
      */
     @type(Texture2D)
     @tooltip('i18n:billboard.texture')
-    get texture () {
+    get texture (): null {
         return this._texture;
     }
 
@@ -63,7 +63,7 @@ export class Billboard extends Component {
      * @zh 高度。
      */
     @tooltip('i18n:billboard.height')
-    get height () {
+    get height (): number {
         return this._height;
     }
 
@@ -82,7 +82,7 @@ export class Billboard extends Component {
      * @zh 宽度。
      */
     @tooltip('i18n:billboard.width')
-    public get width () {
+    public get width (): number {
         return this._width;
     }
 
@@ -101,7 +101,7 @@ export class Billboard extends Component {
      * @zh billboard绕中心点旋转的角度
      */
     @tooltip('i18n:billboard.rotation')
-    public get rotation () {
+    public get rotation (): number {
         return Math.round(toDegree(this._rotation) * 100) / 100;
     }
 
@@ -125,11 +125,11 @@ export class Billboard extends Component {
         super();
     }
 
-    public onLoad () {
+    public onLoad (): void {
         this.createModel();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this.attachToScene();
         this._model!.enabled = true;
         this.width = this._width;
@@ -138,11 +138,11 @@ export class Billboard extends Component {
         this.texture = this.texture;
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.detachFromScene();
     }
 
-    private attachToScene () {
+    private attachToScene (): void {
         if (this._model && this.node && this.node.scene) {
             if (this._model.scene) {
                 this.detachFromScene();
@@ -151,13 +151,13 @@ export class Billboard extends Component {
         }
     }
 
-    private detachFromScene () {
+    private detachFromScene (): void {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }
     }
 
-    private createModel () {
+    private createModel (): void {
         this._mesh = createMesh({
             primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: [0, 0, 0,

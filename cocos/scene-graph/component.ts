@@ -58,7 +58,17 @@ const NullNode = null as unknown as Node;
 class Component extends CCObject {
     public static EventHandler = EventHandler;
 
-    get name () {
+    /**
+     * @engineInternal
+     */
+    public static _executionOrder: number = 0;
+
+    /**
+     * @engineInternal
+     */
+    public static _requireComponent: Constructor<Component> | null = null;
+
+    get name (): string {
         if (this._name) {
             return this._name;
         }
@@ -88,7 +98,7 @@ class Component extends CCObject {
      * log(comp.uuid);
      * ```
      */
-    get uuid () {
+    get uuid (): string {
         return this._id;
     }
 
@@ -99,7 +109,7 @@ class Component extends CCObject {
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
     @disallowAnimation
-    get __scriptAsset () { return null; }
+    get __scriptAsset (): null { return null; }
 
     /**
      * @en Indicates whether this component is enabled or not.
@@ -112,7 +122,7 @@ class Component extends CCObject {
      * log(comp.enabled);
      * ```
      */
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
     set enabled (value) {
@@ -139,7 +149,7 @@ class Component extends CCObject {
      * log(comp.enabledInHierarchy);
      * ```
      */
-    get enabledInHierarchy () {
+    get enabledInHierarchy (): boolean {
         return this._enabled && this.node && this.node.activeInHierarchy;
     }
 
@@ -155,7 +165,7 @@ class Component extends CCObject {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    get _isOnLoadCalled () {
+    get _isOnLoadCalled (): number {
         return this._objFlags & IsOnLoadCalled;
     }
 
@@ -233,7 +243,7 @@ class Component extends CCObject {
      */
     public addComponent (className: string): Component | null;
 
-    public addComponent (typeOrClassName: any) {
+    public addComponent (typeOrClassName: any): Component {
         return this.node.addComponent(typeOrClassName);
     }
 
@@ -270,7 +280,7 @@ class Component extends CCObject {
      */
     public getComponent (className: string): Component | null;
 
-    public getComponent (typeOrClassName: any) {
+    public getComponent (typeOrClassName: any): Component | null {
         return this.node.getComponent(typeOrClassName);
     }
 
@@ -297,7 +307,7 @@ class Component extends CCObject {
      */
     public getComponents (className: string): Component[];
 
-    public getComponents<T extends Component> (typeOrClassName: any) {
+    public getComponents<T extends Component> (typeOrClassName: any): Component[] {
         return this.node.getComponents(typeOrClassName);
     }
 
@@ -324,7 +334,7 @@ class Component extends CCObject {
      */
     public getComponentInChildren (className: string): Component | null;
 
-    public getComponentInChildren (typeOrClassName: any) {
+    public getComponentInChildren (typeOrClassName: any): Component | null {
         return this.node.getComponentInChildren(typeOrClassName);
     }
 
@@ -351,13 +361,13 @@ class Component extends CCObject {
      */
     public getComponentsInChildren (className: string): Component[];
 
-    public getComponentsInChildren (typeOrClassName: any) {
+    public getComponentsInChildren (typeOrClassName: any): Component[] {
         return this.node.getComponentsInChildren(typeOrClassName);
     }
 
     // OVERRIDE
 
-    public destroy () {
+    public destroy (): boolean {
         if (EDITOR) {
             // TODO: `_getDependComponent` is an injected method.
             // issue: https://github.com/cocos/cocos-engine/issues/14643
@@ -380,7 +390,7 @@ class Component extends CCObject {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onPreDestroy () {
+    public _onPreDestroy (): void {
         // Schedules
         this.unscheduleAllCallbacks();
 
@@ -394,7 +404,7 @@ class Component extends CCObject {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _instantiate (cloned?: Component) {
+    public _instantiate (cloned?: Component): Component | undefined {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
@@ -425,8 +435,8 @@ class Component extends CCObject {
      * this.schedule((dt) => void log(`time: ${dt}`), 1);
      * ```
      */
-    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0) {
-        assertID(callback, 1619);
+    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0): void {
+        assertID(Boolean(callback), 1619);
 
         interval = interval || 0;
         assertID(interval >= 0, 1620);
@@ -458,7 +468,7 @@ class Component extends CCObject {
      * this.scheduleOnce((dt) => void log(`time: ${dt}`), 2);
      * ```
      */
-    public scheduleOnce (callback, delay = 0) {
+    public scheduleOnce (callback, delay = 0): void {
         this.schedule(callback, 0, 0, delay);
     }
 
@@ -471,7 +481,7 @@ class Component extends CCObject {
      * this.unschedule(_callback);
      * ```
      */
-    public unschedule (callback_fn) {
+    public unschedule (callback_fn): void {
         if (!callback_fn) {
             return;
         }
@@ -487,7 +497,7 @@ class Component extends CCObject {
      * this.unscheduleAllCallbacks();
      * ```
      */
-    public unscheduleAllCallbacks () {
+    public unscheduleAllCallbacks (): void {
         legacyCC.director.getScheduler().unscheduleAllForTarget(this);
     }
 
@@ -507,6 +517,13 @@ class Component extends CCObject {
     protected update? (dt: number): void;
 
     /**
+     * @engineInternal `update` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalUpdate (): ((dt: number) => void) | undefined {
+        return this.update;
+    }
+
+    /**
      * @en LateUpdate is called every frame, if the Component is enabled.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -515,6 +532,13 @@ class Component extends CCObject {
      * @param dt - the delta time in seconds it took to complete the last frame
      */
     protected lateUpdate? (dt: number): void;
+
+    /**
+     * @engineInternal `lateUpdate` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalLateUpdate (): ((dt: number) => void) | undefined {
+        return this.lateUpdate;
+    }
 
     /**
      * @en `__preload` is called before every onLoad.<br/>
@@ -530,6 +554,13 @@ class Component extends CCObject {
     protected __preload? (): void;
 
     /**
+     * @engineInternal `__preload` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalPreload (): (() => void) | undefined {
+        return this.__preload;
+    }
+
+    /**
      * @en
      * When attaching to an active node or its node first activated.<br/>
      * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
@@ -540,6 +571,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onLoad? (): void;
+
+    /**
+     * @engineInternal `onLoad` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalOnLoad (): (() => void) | undefined {
+        return this.onLoad;
+    }
 
     /**
      * @en
@@ -554,6 +592,13 @@ class Component extends CCObject {
     protected start? (): void;
 
     /**
+     * @engineInternal `start` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalStart (): (() => void) | undefined {
+        return this.start;
+    }
+
+    /**
      * @en Called when this component becomes enabled and its node is active.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -561,6 +606,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onEnable? (): void;
+
+    /**
+     * @engineInternal `onEnable` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalOnEnable (): (() => void) | undefined {
+        return this.onEnable;
+    }
 
     /**
      * @en Called when this component becomes disabled or its node becomes inactive.<br/>
@@ -572,6 +624,13 @@ class Component extends CCObject {
     protected onDisable? (): void;
 
     /**
+     * @engineInternal `onDisable` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalOnDisable (): (() => void) | undefined {
+        return this.onDisable;
+    }
+
+    /**
      * @en Called when this component will be destroyed.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -579,6 +638,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onDestroy? (): void;
+
+    /**
+     * @engineInternal `onDestroy` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get internalOnDestroy (): (() => void) | undefined {
+        return this.onDestroy;
+    }
 
     public onFocusInEditor? (): void;
 
@@ -589,7 +655,7 @@ class Component extends CCObject {
      * This function is only called in editor.<br/>
      * @zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
      */
-    public resetInEditor? (): void;
+    public resetInEditor? (didResetToDefault?: boolean): void;
 
     // VIRTUAL
 
@@ -648,25 +714,7 @@ class Component extends CCObject {
     protected onRestore? (): void;
 }
 
-// NOTE: here we access the protected properties in Component, so we need to mark it as type of any.
-const proto = Component.prototype as any;
-proto.update = undefined;
-proto.lateUpdate = undefined;
-proto.__preload = undefined;
-proto.onLoad = undefined;
-proto.start = undefined;
-proto.onEnable = undefined;
-proto.onDisable = undefined;
-proto.onDestroy = undefined;
-proto.onFocusInEditor = undefined;
-proto.onLostFocusInEditor = undefined;
-proto.resetInEditor = undefined;
-proto._getLocalBounds = undefined;
-proto.onRestore = undefined;
 // NOTE: these are all injected properties
-(Component as any)._requireComponent = null;
-(Component as any)._executionOrder = 0;
-
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
     (Component as any)._executeInEditMode = false;
@@ -687,7 +735,7 @@ if (EDITOR || TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-value(Component, '_registerEditorProps', (cls, props) => {
+value(Component, '_registerEditorProps', (cls, props): void => {
     let reqComp = props.requireComponent;
     if (reqComp) {
         if (Array.isArray(reqComp)) {

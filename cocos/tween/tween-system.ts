@@ -56,7 +56,7 @@ export class TweenSystem extends System {
      * @zh
      * 获取动作管理器。
      */
-    get ActionManager () {
+    get ActionManager (): ActionManager {
         return this.actionMgr;
     }
 
@@ -69,7 +69,7 @@ export class TweenSystem extends System {
      * 此方法会在组件 update 之后自动执行。
      * @param dt @en The delta time @zh 间隔时间
      */
-    update (dt: number) {
+    update (dt: number): void {
         if (!EDITOR_NOT_IN_PREVIEW || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }

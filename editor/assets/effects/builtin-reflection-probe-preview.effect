@@ -9,6 +9,11 @@ CCEffect %{
       migrations: &migs
         properties:
           mainColor:    { formerlySerializedAs: color }
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
+      migrations: *migs
   - name: transparent
     passes:
     - vert: unlit-vs:vert
@@ -16,7 +21,7 @@ CCEffect %{
       depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -24,13 +29,20 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: *props
       migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+      migrations: *migs
   - name: add
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: &r1 { cullMode: none }
       depthStencilState: *d1
-      blendState:
+      blendState: &b2
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -39,13 +51,20 @@ CCEffect %{
           blendDstAlpha: one
       properties: *props
       migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+      migrations: *migs
   - name: alpha-blend
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: *r1
       depthStencilState: *d1
-      blendState:
+      blendState: &b3
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -53,6 +72,13 @@ CCEffect %{
           blendSrcAlpha: src_alpha
           blendDstAlpha: one_minus_src_alpha
       properties: *props
+      migrations: *migs
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      depthStencilState: *d1
+      blendState: *b3
+      propertyIndex: 0
       migrations: *migs
 }%
 
@@ -71,7 +97,7 @@ CCProgram unlit-vs %{
 
   out mediump vec3 v_position;
   out mediump vec3 v_normal;
-  
+
   vec4 vert () {
     vec4 position;
     CCVertInput(position);
@@ -93,7 +119,7 @@ CCProgram unlit-vs %{
         v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
       #endif
     #endif
-    
+
     return cc_matProj * (cc_matView * matWorld) * position;
   }
 }%

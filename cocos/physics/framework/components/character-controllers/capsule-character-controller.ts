@@ -43,10 +43,9 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.CapsuleCharacterController')
-//@help('i18n:cc.CapsuleCharacterController')
+@help('i18n:cc.CapsuleCharacterController')
 @menu('Physics/CapsuleCharacterController')
 @executeInEditMode
-@disallowMultiple
 @executionOrder(-1)
 export class CapsuleCharacterController extends CharacterController {
     constructor () {
@@ -62,7 +61,7 @@ export class CapsuleCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.capsuleRadius')
     @type(CCFloat)
-    public get radius () {
+    public get radius (): number {
         return this._radius;
     }
 
@@ -83,7 +82,7 @@ export class CapsuleCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.capsuleHeight')
     @type(CCFloat)
-    public get height () {
+    public get height (): number {
         return this._height;
     }
 

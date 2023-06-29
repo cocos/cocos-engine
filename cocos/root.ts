@@ -220,7 +220,7 @@ export class Root {
     /**
      * @internal
      */
-    public get dataPoolManager () {
+    public get dataPoolManager (): DataPoolManager {
         return this._dataPoolMgr;
     }
 
@@ -285,7 +285,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(this._device), 4, (cam) => cam.destroy());
+        this._cameraPool = new Pool((): Camera => new Camera(this._device), 4, (cam): void => cam.destroy());
     }
 
     /**
@@ -293,7 +293,7 @@ export class Root {
      * @zh 初始化函数，用户不应该自己初始化 Root，它是由 [[Director]] 管理的。
      * @param info Root initialization information
      */
-    public initialize (info: IRootInfo) {
+    public initialize (info: IRootInfo): void {
         const swapchain: Swapchain = deviceManager.swapchain;
         const colorAttachment = new ColorAttachment();
         colorAttachment.format = swapchain.colorTexture.format;
@@ -320,7 +320,7 @@ export class Root {
      * @en Destroy the root, user shouldn't invoke this function, it will cause undefined behavior.
      * @zh 销毁 Root，用户不应该调用此方法，会造成未知行为。
      */
-    public destroy () {
+    public destroy (): void {
         this.destroyScenes();
 
         if (this._pipeline) {
@@ -350,7 +350,7 @@ export class Root {
      * @param height The new height of the window.
      * @param windowId The system window ID, optional for now.
      */
-    public resize (width: number, height: number, windowId?: number) {
+    public resize (width: number, height: number, windowId?: number): void {
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
@@ -440,7 +440,7 @@ export class Root {
      * @en Notify the pipeline and all scenes that the global pipeline state have been updated so that they can update their render data and states.
      * @zh 通知渲染管线和所有场景全局管线状态已更新，需要更新自身状态。
      */
-    public onGlobalPipelineStateChanged () {
+    public onGlobalPipelineStateChanged (): void {
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
@@ -453,7 +453,7 @@ export class Root {
      * @zh 激活指定窗口为当前窗口 [[curWindow]]
      * @param window The render window to be activated
      */
-    public activeWindow (window: RenderWindow) {
+    public activeWindow (window: RenderWindow): void {
         this._curWindow = window;
     }
 
@@ -461,7 +461,7 @@ export class Root {
      * @en Reset the time cumulated
      * @zh 重置累计时间
      */
-    public resetCumulativeTime () {
+    public resetCumulativeTime (): void {
         this._cumulativeTime = 0;
     }
 
@@ -470,7 +470,7 @@ export class Root {
      * @zh 用于每帧执行渲染流程的入口函数
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
-    public frameMove (deltaTime: number) {
+    public frameMove (deltaTime: number): void {
         this._frameTime = deltaTime;
 
         /*
@@ -519,7 +519,7 @@ export class Root {
      * @zh 销毁指定的窗口
      * @param window The render window to be destroyed
      */
-    public destroyWindow (window: RenderWindow) {
+    public destroyWindow (window: RenderWindow): void {
         for (let i = 0; i < this._windows.length; ++i) {
             if (this._windows[i] === window) {
                 window.destroy();
@@ -533,7 +533,7 @@ export class Root {
      * @en Destroy all render windows
      * @zh 销毁全部窗口
      */
-    public destroyWindows () {
+    public destroyWindows (): void {
         for (const window of this._windows) {
             window.destroy();
         }
@@ -557,7 +557,7 @@ export class Root {
      * @zh 销毁指定的渲染场景
      * @param scene @en The render scene to be destroyed. @zh 要销毁的渲染场景
      */
-    public destroyScene (scene: RenderScene) {
+    public destroyScene (scene: RenderScene): void {
         for (let i = 0; i < this._scenes.length; ++i) {
             if (this._scenes[i] === scene) {
                 scene.destroy();
@@ -571,7 +571,7 @@ export class Root {
      * @en Destroy all render scenes.
      * @zh 销毁全部场景。
      */
-    public destroyScenes () {
+    public destroyScenes (): void {
         for (const scene of this._scenes) {
             scene.destroy();
         }
@@ -587,7 +587,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
+            this._modelPools.set(ModelCtor, new Pool((): Model => new ModelCtor(), 10, (obj): void => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -600,7 +600,7 @@ export class Root {
      * @zh 销毁指定的模型
      * @param m @en The model to be destroyed @zh 要销毁的模型
      */
-    public destroyModel (m: Model) {
+    public destroyModel (m: Model): void {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
@@ -631,7 +631,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool<Light>(() => new LightCtor(), 4, (obj) => obj.destroy()));
+            this._lightPools.set(LightCtor, new Pool<Light>((): T => new LightCtor(), 4, (obj): void => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
@@ -644,7 +644,7 @@ export class Root {
      * @zh 销毁指定的光源
      * @param l @en The light to be destroyed @zh 要销毁的光源
      */
-    public destroyLight (l: Light) {
+    public destroyLight (l: Light): void {
         if (l.scene) {
             switch (l.type) {
             case LightType.DIRECTIONAL:
@@ -674,7 +674,7 @@ export class Root {
      * @zh 回收指定的光源到对象池
      * @param l @en The light to be recycled @zh 要回收的光源
      */
-    public recycleLight (l: Light) {
+    public recycleLight (l: Light): void {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
         if (p) {
             p.free(l);
@@ -702,7 +702,7 @@ export class Root {
         }
     }
 
-    private _doWebXRFrameMove () {
+    private _doWebXRFrameMove (): void {
         const xr = globalThis.__globalXR;
         if (!xr) {
             return;
@@ -768,7 +768,7 @@ export class Root {
         }
     }
 
-    private _frameMoveBegin () {
+    private _frameMoveBegin (): void {
         for (let i = 0; i < this._scenes.length; ++i) {
             this._scenes[i].removeBatches();
         }
@@ -776,7 +776,7 @@ export class Root {
         this._cameraList.length = 0;
     }
 
-    private _frameMoveProcess () {
+    private _frameMoveProcess (): void {
         const { director } = cclegacy;
         const windows = this._windows;
         const cameraList = this._cameraList;
@@ -802,12 +802,12 @@ export class Root {
         }
     }
 
-    private _frameMoveEnd () {
+    private _frameMoveEnd (): void {
         const { director, Director } = cclegacy;
         const cameraList = this._cameraList;
         if (this._pipeline && cameraList.length > 0) {
             director.emit(Director.EVENT_BEFORE_COMMIT);
-            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
+            cameraList.sort((a: Camera, b: Camera): number => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
@@ -821,8 +821,9 @@ export class Root {
         if (this._batcher) this._batcher.reset();
     }
 
-    private _resizeMaxJointForDS () {
-        const usedUBOVectorCount = (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4;
+    private _resizeMaxJointForDS (): void {
+        // TODO: usedUBOVectorCount should be estimated more carefully, the UBOs used could vary in different scenes.
+        const usedUBOVectorCount = Math.max((UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4, 100);
         let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - usedUBOVectorCount) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         localDescriptorSetLayout_ResizeMaxJoints(maxJoints);

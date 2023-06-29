@@ -44,7 +44,7 @@ export class TouchInputSource {
         }
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         minigame.onTouchStart(this._createCallback(InputEventType.TOUCH_START));
         minigame.onTouchMove(this._createCallback(InputEventType.TOUCH_MOVE));
         minigame.onTouchEnd(this._createCallback(InputEventType.TOUCH_END));
@@ -52,7 +52,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: any) => {
+        return (event: any): void => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
             const dpr = screenAdapter.devicePixelRatio;
@@ -87,7 +87,7 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
+    public on (eventType: InputEventType, callback: TouchCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

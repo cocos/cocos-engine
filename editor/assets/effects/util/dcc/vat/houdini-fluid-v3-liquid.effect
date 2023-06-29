@@ -47,7 +47,7 @@ CCEffect %{
         vatRotSignMap:                    { value: white, target: vatRotSignTexture,  editor: { displayName: RotSignMap } }
         vatRotAlphaMap:                   { value: grey, target: vatRotAlphaTexture,  editor: { displayName: RotAlphaMap } }
         vatLookupMap:                     { value: grey, target: vatLookupTexture, editor: { parent: USE_LOOKUP_TEXTURE, displayName: LookupMap } }
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: none
     - &forward-add
       vert: standard-vs
@@ -85,15 +85,21 @@ CCEffect %{
       frag: reflect-map-fs
       phase: reflect-map
       propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      rasterizerState: *r1
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -102,6 +108,14 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -153,7 +167,7 @@ CCProgram surface-vertex %{
   #if USE_LOOKUP_TEXTURE
     uniform highp sampler2D vatLookupTexture;
   #endif
-  
+
   #define CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
   vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
   {
@@ -233,7 +247,7 @@ CCProgram surface-vertex %{
       vec3 voxelUV = VATCalculateFluidVoxelUV(vatBBMin.xyz, vatBBMax.xyz, In.position.xyz);
       In.texCoord = voxelUV.xz;
     #endif
-  }    
+  }
 }%
 
 CCProgram surface-fragment %{
@@ -369,7 +383,7 @@ void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingI
     float multiplier = 1.0 + pow(1.0 - curve, 0.3) * vatLUTParams.w;
     result.environmentSpecular *= multiplier;
   #endif
-  
+
   #if CC_SURFACES_LIGHTING_USE_FRESNEL
     result.fresnel = GetFresnel(result.fresnel);
   #endif

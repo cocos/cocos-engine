@@ -149,7 +149,7 @@ export class KeyboardInputSource {
         }
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         minigame.wx?.onKeyDown?.((res) => {
             const keyCode = getKeyCode(res.code);
             if (!this._keyStateMap[keyCode]) {
@@ -169,13 +169,13 @@ export class KeyboardInputSource {
         });
     }
 
-    private _getInputEvent (event: KeyboardEventData, eventType: InputEventType) {
+    private _getInputEvent (event: KeyboardEventData, eventType: InputEventType): EventKeyboard {
         const keyCode = getKeyCode(event.code);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
         return eventKeyboard;
     }
 
-    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
+    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any): void {
         this._eventTarget.on(eventType, callback,  target);
     }
 }

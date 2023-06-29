@@ -45,7 +45,7 @@ export class BaseImageData {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             // this._setRawAsset('');
@@ -74,7 +74,7 @@ export class BaseImageData {
         return this.data as any;
     }
 
-    public acceptAnonymousCORS () {
+    public acceptAnonymousCORS (): void {
         (this._imageSource as HTMLImageElement).crossOrigin = 'anonymous';
     }
 
@@ -98,7 +98,7 @@ export class BaseImageData {
         return (this._imageSource as HTMLImageElement).src;
     }
 
-    get width () {
+    get width (): number {
         return this._imageSource.width;
     }
 
@@ -152,7 +152,7 @@ export class BaseImageData {
         return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || this.isImageBitmap(imageSource);
     }
 
-    private fetchImageSource (imageSource: ImageSource) {
+    private fetchImageSource (imageSource: ImageSource): any {
         return '_data' in imageSource ? imageSource._data : imageSource;
     }
 

@@ -36,7 +36,7 @@ const Overflow = Label.Overflow;
 export const ttfUtils =  {
 
     updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, comp: Label, trans: UITransform) {
+        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, comp: Label, trans: UITransform): void {
         // font info // both
         style.isSystemFontUsed = comp.useSystemFont;
         style.fontSize = comp.fontSize;
@@ -95,19 +95,19 @@ export const ttfUtils =  {
         layout.verticalAlign = comp.verticalAlign; // render Only
     },
 
-    getAssemblerData () {
+    getAssemblerData (): ISharedLabelData {
         const sharedLabelData = Label._canvasPool.get();
         sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
-    resetAssemblerData (assemblerData: ISharedLabelData) {
+    resetAssemblerData (assemblerData: ISharedLabelData): void {
         if (assemblerData) {
             Label._canvasPool.put(assemblerData);
         }
     },
 
-    updateRenderData (comp: Label) {
+    updateRenderData (comp: Label): void {
         if (!comp.renderData) { return; }
 
         if (comp.renderData.vertDirty) {
@@ -134,7 +134,7 @@ export const ttfUtils =  {
             this._calDynamicAtlas(comp, outputLayoutData);
 
             comp.actualFontSize = style.actualFontSize;
-            trans.setContentSize(outputLayoutData.canvasSize);
+            trans.setContentSize(outputLayoutData.nodeContentSize);
 
             const datalist = renderData.data;
             datalist[0] = outputRenderData.vertexBuffer[0];
@@ -154,11 +154,11 @@ export const ttfUtils =  {
     },
 
     // callBack function
-    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData) {
+    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData): void {
         const data = outputRenderData.vertexBuffer;
 
-        const width = outputLayoutData.canvasSize.width;
-        const height = outputLayoutData.canvasSize.height;
+        const width = outputLayoutData.nodeContentSize.width;
+        const height = outputLayoutData.nodeContentSize.height;
         const appX = outputRenderData.uiTransAnchorX * width;
         const appY = outputRenderData.uiTransAnchorY * height;
 
@@ -172,13 +172,13 @@ export const ttfUtils =  {
         data[3].y = height - appY; // t
     },
 
-    updateVertexData (comp: Label) {
+    updateVertexData (comp: Label): void {
     },
 
-    updateUVs (comp: Label) {
+    updateUVs (comp: Label): void {
     },
 
-    _updateFontFamily (comp: Label) {
+    _updateFontFamily (comp: Label): string {
         let _fontFamily = '';
         if (!comp.useSystemFont) {
             if (comp.font) {
@@ -192,14 +192,14 @@ export const ttfUtils =  {
         return _fontFamily;
     },
 
-    _calDynamicAtlas (comp: Label, outputLayoutData: TextOutputLayoutData) {
+    _calDynamicAtlas (comp: Label, outputLayoutData: TextOutputLayoutData): void {
         if (comp.cacheMode !== Label.CacheMode.BITMAP || outputLayoutData.canvasSize.width <= 0 || outputLayoutData.canvasSize.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv
     },
 
-    _resetDynamicAtlas (comp: Label) {
+    _resetDynamicAtlas (comp: Label): void {
         if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.deleteAtlasSpriteFrame(frame);

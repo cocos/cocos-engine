@@ -85,7 +85,7 @@ export class RenderReflectionProbeQueue {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
     }
-    public gatherRenderObjects (probe: ReflectionProbe, camera: Camera, cmdBuff: CommandBuffer) {
+    public gatherRenderObjects (probe: ReflectionProbe, camera: Camera, cmdBuff: CommandBuffer): void {
         this.clear();
         const scene = camera.scene!;
         const sceneData = this._pipeline.pipelineSceneData;
@@ -121,7 +121,7 @@ export class RenderReflectionProbeQueue {
         this._instancedQueue.uploadBuffers(cmdBuff);
     }
 
-    public clear () {
+    public clear (): void {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
@@ -129,7 +129,7 @@ export class RenderReflectionProbeQueue {
         this._rgbeSubModelsArray.length = 0;
     }
 
-    public add (model: Model) {
+    public add (model: Model): void {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -179,7 +179,7 @@ export class RenderReflectionProbeQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._subModelsArray.length; ++i) {
@@ -199,7 +199,7 @@ export class RenderReflectionProbeQueue {
         this.resetRGBEMacro();
         this._instancedQueue.clear();
     }
-    public resetRGBEMacro () {
+    public resetRGBEMacro (): void {
         for (let i = 0; i < this._rgbeSubModelsArray.length; i++) {
             this._patches = [];
             const subModel = this._rgbeSubModelsArray[i];

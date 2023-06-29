@@ -41,8 +41,7 @@
 
 .header {
     display: none;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin: 4px 4px 4px 0;
 }
 
 .header > .active {
@@ -62,9 +61,15 @@
     border-top: solid 1px var(--color-normal-border);
 }
 
+.scene ui-prop[ui-section-config],
+.scene ui-section.config {
+    margin-top: 0;
+}
+
 .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
     flex: 1;
     justify-content: space-between;
+    margin-right: 2px;
 }
 
 .scene .envmap .envmap-prop ui-prop {
@@ -123,10 +128,6 @@
     color: var(--color-focus-fill-weakest);
 }
 
-.node {
-    display: none;
-}
-
 .node .layer-content {
     display: flex;
 }
@@ -140,10 +141,6 @@
     margin-left: 4px;
 }
 
-.node .node-section {
-    margin-top: 4px;
-}
-
 :host([sub-type='node']) > .container > .node {
     display: block;
 }
@@ -153,6 +150,7 @@
     min-width: 0;
     display: flex;
     align-items: center;
+    margin-right: 2px;
 }
 
 .component .component-header ui-drag-item {
@@ -210,9 +208,4 @@
 
 .section-asset:empty {
     display: none;
-}
-
-.section-asset > ui-panel[type="asset"] {
-    --asset-container-margin-top: 0;
-    --asset-container-content-section-overflow: visible;
 }

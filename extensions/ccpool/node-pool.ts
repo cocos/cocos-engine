@@ -96,7 +96,7 @@ export class NodePool {
      * @en The current available size in the pool
      * @zh 获取当前缓冲池的可用对象数量
      */
-    public size () {
+    public size (): number {
         return this._pool.length;
     }
 
@@ -104,7 +104,7 @@ export class NodePool {
      * @en Destroy all cached nodes in the pool
      * @zh 销毁对象池中缓存的所有节点
      */
-    public clear () {
+    public clear (): void {
         const count = this._pool.length;
         for (let i = 0; i < count; ++i) {
             this._pool[i].destroy();
@@ -124,7 +124,7 @@ export class NodePool {
      * const myNode = instantiate(this.template);
      * this.myPool.put(myNode);
      */
-    public put (obj: Node) {
+    public put (obj: Node): void {
         if (obj && this._pool.indexOf(obj) === -1) {
             // Remove from parent, but don't cleanup
             obj.removeFromParent();

@@ -29,7 +29,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 
@@ -62,13 +61,8 @@ enum class SceneFlags : uint32_t;
 enum class LightingMode : uint32_t;
 enum class AttachmentType;
 enum class AccessType;
-
-struct RasterView;
-
 enum class ClearValueType;
 
-struct ClearValue;
-struct ComputeView;
 struct LightInfo;
 
 enum class DescriptorTypeOrder;
@@ -89,24 +83,5 @@ struct PipelineStatistics;
 } // namespace render
 
 } // namespace cc
-
-namespace ccstd {
-
-template <>
-struct hash<cc::render::RasterView> {
-    hash_t operator()(const cc::render::RasterView& val) const noexcept;
-};
-
-template <>
-struct hash<cc::render::ClearValue> {
-    hash_t operator()(const cc::render::ClearValue& val) const noexcept;
-};
-
-template <>
-struct hash<cc::render::ComputeView> {
-    hash_t operator()(const cc::render::ComputeView& val) const noexcept;
-};
-
-} // namespace ccstd
 
 // clang-format on

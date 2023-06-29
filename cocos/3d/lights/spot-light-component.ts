@@ -75,7 +75,7 @@ export class SpotLight extends Light {
      */
     @tooltip('i18n:lights.luminous_flux')
     @displayOrder(-1)
-    get luminousFlux () {
+    get luminousFlux (): number {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
@@ -103,7 +103,7 @@ export class SpotLight extends Light {
       */
     @tooltip('i18n:lights.luminance')
     @displayOrder(-1)
-    get luminance () {
+    get luminance (): number {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
@@ -149,7 +149,7 @@ export class SpotLight extends Light {
     @slide
     @range([0.0, 10.0, 0.001])
     @type(CCFloat)
-    get size () {
+    get size (): number {
         return this._size;
     }
 
@@ -165,7 +165,7 @@ export class SpotLight extends Light {
      * 光源范围。
      */
     @tooltip('i18n:lights.range')
-    get range () {
+    get range (): number {
         return this._range;
     }
 
@@ -183,7 +183,7 @@ export class SpotLight extends Light {
     @slide
     @range([2, 180, 1])
     @tooltip('The spot light cone angle')
-    get spotAngle () {
+    get spotAngle (): number {
         return this._spotAngle;
     }
 
@@ -201,7 +201,7 @@ export class SpotLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
-    get shadowEnabled () {
+    get shadowEnabled (): boolean {
         return this._shadowEnabled;
     }
     set shadowEnabled (val) {
@@ -220,7 +220,7 @@ export class SpotLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
-    get shadowPcf () {
+    get shadowPcf (): number {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
@@ -239,7 +239,7 @@ export class SpotLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
-    get shadowBias () {
+    get shadowBias (): number {
         return this._shadowBias;
     }
     set shadowBias (val) {
@@ -258,7 +258,7 @@ export class SpotLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)
-    get shadowNormalBias () {
+    get shadowNormalBias (): number {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val) {
@@ -273,7 +273,7 @@ export class SpotLight extends Light {
         this._lightType = scene.SpotLight;
     }
 
-    protected _createLight () {
+    protected _createLight (): void {
         super._createLight();
         this._type = scene.LightType.SPOT;
         this.size = this._size;

@@ -122,7 +122,7 @@ export abstract class RenderFlow {
      * @zh 为指定的渲染管线开启当前渲染流程
      * @param pipeline The render pipeline to activate this render flow
      */
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline): void {
         this._pipeline = pipeline;
         this._stages.sort((a, b) => a.priority - b.priority);
 
@@ -136,7 +136,7 @@ export abstract class RenderFlow {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染阶段。
      * @param view Render view。
      */
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         for (let i = 0, len = this._stages.length; i < len; i++) {
             if (this._stages[i].enabled) this._stages[i].render(camera);
         }
@@ -146,7 +146,7 @@ export abstract class RenderFlow {
      * @en Destroy function.
      * @zh 销毁函数。
      */
-    public destroy () {
+    public destroy (): void {
         for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].destroy();
         }

@@ -138,7 +138,7 @@ export abstract class Device {
      * @en Current device binding mappings.
      * @zh 当前设备的绑定槽位映射关系。
      */
-    get bindingMappingInfo () {
+    get bindingMappingInfo (): BindingMappingInfo {
         return this._bindingMappingInfo;
     }
 
@@ -368,7 +368,7 @@ export abstract class Device {
      * @zh 是否开启自动GFX内部barrier推导，web无影响。
      * @param format The GFX format to be queried.
      */
-    public enableAutoBarrier (en: boolean) {}
+    public enableAutoBarrier (en: boolean): void {}
 }
 
 export class DefaultResource {
@@ -445,7 +445,7 @@ export class DefaultResource {
         }
     }
 
-    public getTexture (type: TextureType) {
+    public getTexture (type: TextureType): Texture | null {
         switch (type) {
         case TextureType.TEX2D: return this._texture2D;
         case TextureType.TEX3D: return this._texture3D;

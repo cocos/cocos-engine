@@ -17,7 +17,6 @@ import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
-import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
@@ -29,7 +28,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.init();
     }
 
-    init () {
+    init (): void {
         const forward = new ForwardPass();
         const forwardFinal = new ForwardFinalPass();
 
@@ -44,9 +43,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // forward pipeline
         this.addPass(forward);
 
-        // TODO: The skin material currently conflicts with the TransparencyPass queue and is temporarily pre-rendered by TransparencyPass.
-        this.addPass(new ForwardTransparencyPass());
         this.addPass(new SkinPass());
+        this.addPass(new ForwardTransparencyPass());
 
         // pipeline related
         this.addPass(new HBAOPass());
@@ -64,46 +62,46 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(forwardFinal);
     }
 
-    getPass (passClass: typeof BasePass, pipelineName = 'forward') {
+    getPass (passClass: typeof BasePass, pipelineName = 'forward'): BasePass | undefined {
         const pp = this.pipelines.get(pipelineName);
-        return pp && pp.find((p) => p instanceof passClass);
+        return pp && pp.find((p): boolean => p instanceof passClass);
     }
-    addPass (pass: BasePass, pipelineName = 'forward') {
+    addPass (pass: BasePass, pipelineName = 'forward'): void {
         let pp = this.pipelines.get(pipelineName);
         if (!pp) {
             pp = [];
             this.pipelines.set(pipelineName, pp);
         }
 
-        const oldIdx = pp.findIndex((p) => p.name === pass.name);
+        const oldIdx = pp.findIndex((p): boolean => p.name === pass.name);
         if (oldIdx !== -1) {
             pp.splice(oldIdx, 1);
         }
         pp.push(pass);
     }
-    insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
+    insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward'): void {
         const pp = this.pipelines.get(pipelineName);
         if (pp) {
-            const oldIdx = pp.findIndex((p) => p.name === pass.name);
+            const oldIdx = pp.findIndex((p): boolean => p.name === pass.name);
             if (oldIdx !== -1) {
                 pp.splice(oldIdx, 1);
             }
 
-            const idx = pp.findIndex((p) => p instanceof passClass);
+            const idx = pp.findIndex((p): boolean => p instanceof passClass);
             if (idx !== -1) {
                 pp.splice(idx + 1, 0, pass);
             }
         }
     }
 
-    private initEditor () {
-        director.root!.cameraList.forEach((cam) => {
+    private initEditor (): void {
+        director.root!.cameraList.forEach((cam): void => {
             if (cam.name === 'Editor Camera') {
                 cam.usePostProcess = cam.projectionType === CameraProjection.PERSPECTIVE;
             }
         });
     }
-    private applyPreviewCamera (camera: Camera) {
+    private applyPreviewCamera (camera: Camera): void {
         if (!camera.node.parent) return;
         const camComp = camera.node.parent.getComponent(CameraComponent);
         const oriCamera = camComp && camComp.camera;
@@ -113,7 +111,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
-    private resortEditorCameras (cameras: Camera[]) {
+    private resortEditorCameras (cameras: Camera[]): Camera[] {
         const newCameras: Camera[] = [];
         for (let i = 0; i < cameras.length; i++) {
             const c = cameras[i];
@@ -132,7 +130,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         return newCameras;
     }
 
-    setup (cameras: Camera[], ppl: Pipeline) {
+    setup (cameras: Camera[], ppl: Pipeline): void {
         if (EDITOR) {
             this.initEditor();
             cameras = this.resortEditorCameras(cameras);
@@ -177,7 +175,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
-    getCameraPipelineName (camera: Camera) {
+    getCameraPipelineName (camera: Camera): string {
         let pipelineName = camera.pipeline;
         if (!pipelineName && camera.usePostProcess) {
             pipelineName = 'forward';
@@ -187,19 +185,19 @@ export class PostProcessBuilder implements PipelineBuilder  {
         return pipelineName;
     }
 
-    getCameraPasses (camera: Camera) {
+    getCameraPasses (camera: Camera): BasePass[] {
         const pipelineName = this.getCameraPipelineName(camera);
         return this.pipelines.get(pipelineName) || [];
     }
 
-    renderCamera (camera: Camera, ppl: Pipeline) {
+    renderCamera (camera: Camera, ppl: Pipeline): void {
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
         passContext.camera = camera;
         passContext.updateViewPort();
 
         const passes = this.getCameraPasses(camera);
 
-        const taaPass = passes.find((p) => p instanceof TAAPass) as TAAPass;
+        const taaPass = passes.find((p): boolean => p instanceof TAAPass) as TAAPass;
         if (taaPass && taaPass.checkEnable(camera)) {
             taaPass.applyCameraJitter(camera);
             taaPass.updateSample();
@@ -223,5 +221,3 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 }
-
-setCustomPipeline('Custom', new PostProcessBuilder());

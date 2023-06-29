@@ -91,5 +91,6 @@ exports.updateEventInfo = function(time, eventInfos) {
     userData.events = newEvents;
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = newEvents;
     this.updateEventInfo();
+    this.dispatch('change');
     this.dispatch('update');
 };

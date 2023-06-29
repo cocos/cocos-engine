@@ -79,7 +79,7 @@ export class NodeEventProcessor {
     /**
      * Whether the node event is enabled
      */
-    public get isEnabled () {
+    public get isEnabled (): boolean {
         return this._isEnabled;
     }
 
@@ -106,7 +106,7 @@ export class NodeEventProcessor {
     /**
      * The owner of node event processor.
      */
-    public get node () {
+    public get node (): Node {
         return this._node;
     }
 
@@ -144,7 +144,7 @@ export class NodeEventProcessor {
      * @param recursive Recursively set the state or not
      * @returns void
      */
-    public setEnabled (value: boolean, recursive = false) {
+    public setEnabled (value: boolean, recursive = false): void {
         if (this._isEnabled === value) {
             return;
         }
@@ -204,7 +204,7 @@ export class NodeEventProcessor {
         }
     }
 
-    public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
@@ -217,7 +217,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
@@ -231,7 +231,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    public off (type: NodeEventType, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public off (type: NodeEventType, callback?: AnyFunction, target?: unknown, useCapture?: boolean): void {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion> | null;
         if (useCapture) {
@@ -242,7 +242,7 @@ export class NodeEventProcessor {
         invoker?.off(type, callback, target);
     }
 
-    public targetOff (target: unknown) {
+    public targetOff (target: unknown): void {
         this.capturingTarget?.removeAll(target);
         this.bubblingTarget?.removeAll(target);
 
@@ -258,11 +258,11 @@ export class NodeEventProcessor {
         }
     }
 
-    public emit (type: SystemEventTypeUnion, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: SystemEventTypeUnion, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void {
         this.bubblingTarget?.emit(type, arg0, arg1, arg2, arg3, arg4);
     }
 
-    public dispatchEvent (event: Event) {
+    public dispatchEvent (event: Event): void {
         const owner = this.node;
         let target: Node;
         let i = 0;
@@ -321,7 +321,7 @@ export class NodeEventProcessor {
         _cachedArray.length = 0;
     }
 
-    public hasEventListener (type: SystemEventTypeUnion, callback?: AnyFunction, target?: unknown) {
+    public hasEventListener (type: SystemEventTypeUnion, callback?: AnyFunction, target?: unknown): boolean {
         let has = false;
         if (this.bubblingTarget) {
             has = this.bubblingTarget.hasEventListener(type, callback, target);
@@ -341,7 +341,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: Node[]) {
+    public getCapturingTargets (type: string, targets: Node[]): void {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTarget?.hasEventListener(type)) {
@@ -360,7 +360,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: Node[]) {
+    public getBubblingTargets (type: string, targets: Node[]): void {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTarget?.hasEventListener(type)) {
@@ -370,11 +370,11 @@ export class NodeEventProcessor {
         }
     }
 
-    public onUpdatingSiblingIndex () {
+    public onUpdatingSiblingIndex (): void {
         NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
     }
 
-    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
+    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null): IMask[] | null {
         const node = this.node;
         if (ctor) {
             let index = 0;
@@ -401,21 +401,21 @@ export class NodeEventProcessor {
         return null;
     }
 
-    private _attachMask () {
+    private _attachMask (): void {
         this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
     }
 
-    private _isTouchEvent (type: NodeEventType) {
+    private _isTouchEvent (type: NodeEventType): boolean {
         const index = _touchEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _isMouseEvent (type: NodeEventType) {
+    private _isMouseEvent (type: NodeEventType): boolean {
         const index = _mouseEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _hasTouchListeners () {
+    private _hasTouchListeners (): boolean {
         for (let i = 0; i < _touchEvents.length; ++i) {
             const eventType = _touchEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -425,7 +425,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasMouseListeners () {
+    private _hasMouseListeners (): boolean {
         for (let i = 0; i < _mouseEvents.length; ++i) {
             const eventType = _mouseEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -435,7 +435,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasPointerListeners () {
+    private _hasPointerListeners (): boolean {
         const has = this._hasTouchListeners();
         if (has) {
             return true;
@@ -443,7 +443,7 @@ export class NodeEventProcessor {
         return this._hasMouseListeners();
     }
 
-    private _tryEmittingAddEvent (typeToAdd: NodeEventType) {
+    private _tryEmittingAddEvent (typeToAdd: NodeEventType): void {
         const isTouchEvent = this._isTouchEvent(typeToAdd);
         const isMouseEvent = this._isMouseEvent(typeToAdd);
         if (isTouchEvent) {
@@ -594,7 +594,7 @@ export class NodeEventProcessor {
     /**
      * @engineInternal
      */
-    public _handleEventTouch (eventTouch: EventTouch) {
+    public _handleEventTouch (eventTouch: EventTouch): boolean | void {
         switch (eventTouch.type) {
         case InputEventType.TOUCH_START:
             return this._handleTouchStart(eventTouch);
@@ -609,7 +609,7 @@ export class NodeEventProcessor {
         }
     }
 
-    private _handleTouchStart (event: EventTouch) {
+    private _handleTouchStart (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -628,7 +628,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleTouchMove (event: EventTouch) {
+    private _handleTouchMove (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -641,14 +641,13 @@ export class NodeEventProcessor {
         return true;
     }
 
-    private _handleTouchEnd (event: EventTouch) {
+    private _handleTouchEnd (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;
         }
 
         event.getLocation(pos);
-        //console.log('pos: ' + pos);
 
         if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_END;
@@ -660,7 +659,7 @@ export class NodeEventProcessor {
         this._dispatchingTouch = null;
     }
 
-    private _handleTouchCancel (event: EventTouch) {
+    private _handleTouchCancel (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;

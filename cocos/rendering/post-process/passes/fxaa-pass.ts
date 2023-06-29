@@ -1,7 +1,7 @@
 import { Vec4 } from '../../../core';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -9,7 +9,7 @@ import { getSetting, SettingPass } from './setting-pass';
 import { Fxaa } from '../components/fxaa';
 
 export class FxaaPass extends SettingPass {
-    get setting () { return getSetting(Fxaa); }
+    get setting (): Fxaa { return getSetting(Fxaa); }
 
     name = 'FxaaPass'
     effectName = 'pipeline/post-process/fxaa-hq';

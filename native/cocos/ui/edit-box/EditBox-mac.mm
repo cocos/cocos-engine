@@ -27,6 +27,7 @@
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
+#include "engine/EngineEvents.h"
 
 #import <AppKit/AppKit.h>
 
@@ -149,6 +150,9 @@ se::Value g_textInputCallback;
  Implementation of global helper functions.
  ************************************************************************/
 namespace {
+
+static cc::events::Resize::Listener resizeListener;
+
 void getTextInputCallback() {
     if (!g_textInputCallback.isUndefined())
         return;
@@ -241,6 +245,10 @@ void init(const cc::EditBox::ShowInfo &showInfo) {
         initTextView(showInfo);
     else
         initTextField(showInfo);
+
+    resizeListener.bind([&](int /*width*/, int /*height*/ , uint32_t /*windowId*/) {
+        cc::EditBox::complete();
+    });
 }
 } // namespace
 

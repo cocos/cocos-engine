@@ -89,7 +89,7 @@ export abstract class EmbeddedPlayableState {
      * @en
      * Indicates if this player can be adjusted to any time.
      */
-    public get randomAccess () {
+    public get randomAccess (): boolean {
         return this._randomAccess;
     }
 
@@ -134,7 +134,7 @@ export abstract class EmbeddedPlayableState {
      */
     public abstract setSpeed(speed: number): void;
 
-    public setTime (_time: number) {
+    public setTime (_time: number): void {
     }
 
     private declare _randomAccess: boolean;

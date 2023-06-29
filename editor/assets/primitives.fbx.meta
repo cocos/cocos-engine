@@ -1,5 +1,5 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.8",
   "importer": "fbx",
   "imported": true,
   "uuid": "1263d74c-8167-4928-91a6-4e2672411f47",
@@ -11,7 +11,7 @@
       "displayName": "",
       "id": "17020",
       "name": "sphere.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -19,7 +19,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 4
+        "gltfIndex": 4,
+        "triangleCount": 2380
       }
     },
     "801ec": {
@@ -28,7 +29,7 @@
       "displayName": "",
       "id": "801ec",
       "name": "capsule.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -36,7 +37,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 0
+        "gltfIndex": 0,
+        "triangleCount": 2048
       }
     },
     "2e76e": {
@@ -45,7 +47,7 @@
       "displayName": "",
       "id": "2e76e",
       "name": "plane.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -53,7 +55,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 1
+        "gltfIndex": 1,
+        "triangleCount": 200
       }
     },
     "38fd2": {
@@ -62,7 +65,7 @@
       "displayName": "",
       "id": "38fd2",
       "name": "cone.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -70,7 +73,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 2
+        "gltfIndex": 2,
+        "triangleCount": 72
       }
     },
     "40ece": {
@@ -79,7 +83,7 @@
       "displayName": "",
       "id": "40ece",
       "name": "torus.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -87,7 +91,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 3
+        "gltfIndex": 3,
+        "triangleCount": 2048
       }
     },
     "fc873": {
@@ -96,7 +101,7 @@
       "displayName": "",
       "id": "fc873",
       "name": "quad.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -104,7 +109,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 5
+        "gltfIndex": 5,
+        "triangleCount": 2
       }
     },
     "8abdc": {
@@ -113,7 +119,7 @@
       "displayName": "",
       "id": "8abdc",
       "name": "cylinder.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -121,7 +127,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 6
+        "gltfIndex": 6,
+        "triangleCount": 128
       }
     },
     "a804a": {
@@ -130,7 +137,7 @@
       "displayName": "",
       "id": "a804a",
       "name": "box.mesh",
-      "ver": "1.1.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -138,7 +145,8 @@
       ],
       "subMetas": {},
       "userData": {
-        "gltfIndex": 7
+        "gltfIndex": 7,
+        "triangleCount": 12
       }
     },
     "8d883": {
@@ -163,7 +171,7 @@
       "displayName": "",
       "id": "aae0f",
       "name": "primitives.prefab",
-      "ver": "1.0.12",
+      "ver": "1.0.13",
       "imported": true,
       "files": [
         ".json"
@@ -217,7 +225,27 @@
     "legacyFbxImporter": false,
     "fbx": {
       "preferLocalTimeSpan": false,
-      "smartMaterialEnabled": false
+      "smartMaterialEnabled": false,
+      "matchMeshNames": false
+    },
+    "mountAllAnimationsOnPrefab": true,
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
     }
   }
 }

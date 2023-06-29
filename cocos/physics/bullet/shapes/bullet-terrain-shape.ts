@@ -32,7 +32,7 @@ import { CC_V3_0, BulletCache } from '../bullet-cache';
 import { bt } from '../instantiated';
 
 export class BulletTerrainShape extends BulletShape implements ITerrainShape {
-    public get collider () {
+    public get collider (): TerrainCollider {
         return this._collider as TerrainCollider;
     }
 
@@ -80,16 +80,16 @@ export class BulletTerrainShape extends BulletShape implements ITerrainShape {
     private _tileSize = 0;
     private _localOffset = new Vec3();
 
-    onComponentSet () {
+    onComponentSet (): void {
         this.setTerrain(this.collider.terrain);
     }
 
-    onDestroy () {
+    onDestroy (): void {
         if (this._bufPtr) bt._free(this._bufPtr);
         super.onDestroy();
     }
 
-    setCenter (v: IVec3Like) {
+    setCenter (v: IVec3Like): void {
         Vec3.copy(CC_V3_0, v);
         CC_V3_0.add(this._localOffset);
         // CC_V3_0.multiply(this._collider.node.worldScale);

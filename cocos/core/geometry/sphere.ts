@@ -30,7 +30,7 @@ const _v3_tmp = new Vec3();
 const _offset = new Vec3();
 const _min = new Vec3();
 const _max = new Vec3();
-function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
+function maxComponent (v: Vec3): number { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
  * @en
@@ -158,7 +158,7 @@ export class Sphere {
      * @zh
      * 获取球的类型，固定返回 `enums.SHAPE_SPHERE`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -180,7 +180,7 @@ export class Sphere {
         this._radius = r;
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
     /**
@@ -190,7 +190,7 @@ export class Sphere {
      * 克隆一个球实例。
      * @returns @en The cloned sphere instance. @zh 克隆的球实例。
      */
-    public clone () {
+    public clone (): Sphere {
         return Sphere.clone(this);
     }
 
@@ -201,7 +201,7 @@ export class Sphere {
      * 复制一个球的值到当前球实例中。
      * @param a @en The sphere to copy from. @zh 拷贝的目标。
      */
-    public copy (a: Sphere) {
+    public copy (a: Sphere): Sphere {
         return Sphere.copy(this, a);
     }
 
@@ -213,7 +213,7 @@ export class Sphere {
      * @param minPos @en The point with maximum coordinates of the sphere. @zh 当前球实例的最小点。
      * @param maxPos @en The point with minimum coordinates of the sphere. @zh 当前球实例的最大点。
      */
-    public getBoundary (minPos: Vec3, maxPos: Vec3) {
+    public getBoundary (minPos: Vec3, maxPos: Vec3): void {
         Vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
         Vec3.set(maxPos, this.center.x + this.radius, this.center.y + this.radius, this.center.z + this.radius);
     }
@@ -229,7 +229,7 @@ export class Sphere {
      * @param scale @en The scale part of the transform. @zh 变换的缩放部分。
      * @param out @en The sphere which the transform will be applied to. @zh 变换的目标。
      */
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: Sphere) {
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: Sphere): void {
         Vec3.transformMat4(out.center, this.center, m);
         out.radius = this.radius * maxComponent(scale);
     }
@@ -243,7 +243,7 @@ export class Sphere {
      * @param rot @en The rotation part of the transform. @zh 变换的旋转部分。
      * @param out @en The sphere which the transform will be applied to. @zh 变换的目标。
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: Sphere) {
+    public translateAndRotate (m: Mat4, rot: Quat, out: Sphere): void {
         Vec3.transformMat4(out.center, this.center, m);
     }
 
@@ -255,7 +255,7 @@ export class Sphere {
      * @param scale @en The scale value. @zh 缩放值。
      * @param out @en The sphere which the scale will be applied to. @zh 缩放的目标。
      */
-    public setScale (scale: Vec3, out: Sphere) {
+    public setScale (scale: Vec3, out: Sphere): void {
         out.radius = this.radius * maxComponent(scale);
     }
 
@@ -264,7 +264,7 @@ export class Sphere {
      * @zh 合并一个点到当前球实例中。
      * @param point @en The point to be merged to this sphere. @zh 要合并到当前球实例的点。
      */
-    public mergePoint (point: Vec3) {
+    public mergePoint (point: Vec3): void {
         // if sphere.radius Less than 0,
         // Set this point as anchor,
         // And set radius to 0.
@@ -289,7 +289,7 @@ export class Sphere {
      * @zh 合并一些点到当前球实例中。
      * @param points @en The points to be merged to this sphere. @zh 要合并到当前球实例的点列表。
      */
-    public mergePoints (points: Vec3[]) {
+    public mergePoints (points: Vec3[]): void {
         const length = points.length;
         if (length < 1) return;
 
@@ -306,7 +306,7 @@ export class Sphere {
      * @zh 合并一个 AABB 到当前球实例中。
      * @param a @en The AABB instance to be merged to this sphere. @zh 要合并到当前球实例的 AABB 实例。
      */
-    public mergeAABB (a: AABB) {
+    public mergeAABB (a: AABB): void {
         a.getBoundary(_min, _max);
 
         this.mergePoint(_min);

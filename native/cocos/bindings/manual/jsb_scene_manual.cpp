@@ -809,20 +809,6 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_Model_registerListeners) // NOLINT(readability-identifier-naming)
 
-static bool js_BakedSkinningModel_registerOnDestroy(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::BakedSkinningModel>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    auto *jsObject = s.thisObject();
-    cobj->on<cc::BakedSkinningModel::Destroy>([=](cc::BakedSkinningModel * /*emitter*/) {
-        se::AutoHandleScope hs;
-        se::ScriptEngine::getInstance()->callFunction(jsObject, "_onDestroy", 0, nullptr);
-    });
-    return true;
-}
-SE_BIND_FUNC(js_BakedSkinningModel_registerOnDestroy) // NOLINT(readability-identifier-naming)
-
 static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::MaterialInstance>(s);
@@ -910,7 +896,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Model_proto->defineFunction("_setInstancedAttribute", _SE(js_Model_setInstancedAttribute));
 
     __jsb_cc_scene_Model_proto->defineFunction("_registerListeners", _SE(js_Model_registerListeners));
-    __jsb_cc_BakedSkinningModel_proto->defineFunction("_registerOnDestroy", _SE(js_BakedSkinningModel_registerOnDestroy));
     __jsb_cc_MaterialInstance_proto->defineFunction("_registerListeners", _SE(js_assets_MaterialInstance_registerListeners));
 
     return true;

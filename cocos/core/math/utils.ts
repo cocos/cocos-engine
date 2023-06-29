@@ -46,7 +46,7 @@ export const EPSILON = 0.000001;
  * @param b The second number to test.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function equals (a: number, b: number) {
+export function equals (a: number, b: number): boolean {
     return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
 }
 
@@ -58,7 +58,7 @@ export function equals (a: number, b: number) {
  * @param maxDiff Maximum difference.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function approx (a: number, b: number, maxDiff?: number) {
+export function approx (a: number, b: number, maxDiff?: number): boolean {
     maxDiff = maxDiff || EPSILON;
     return Math.abs(a - b) <= maxDiff;
 }
@@ -70,7 +70,7 @@ export function approx (a: number, b: number, maxDiff?: number) {
  * @param min
  * @param max
  */
-export function clamp (val: number, min: number, max: number) {
+export function clamp (val: number, min: number, max: number): number {
     if (min > max) {
         const temp = min;
         min = max;
@@ -85,7 +85,7 @@ export function clamp (val: number, min: number, max: number) {
  * @zh 将值限制在0和1之间。
  * @param val
  */
-export function clamp01 (val: number) {
+export function clamp01 (val: number): number {
     return val < 0 ? 0 : val > 1 ? 1 : val;
 }
 
@@ -96,7 +96,7 @@ export function clamp01 (val: number) {
  * @param to - The ending number.
  * @param ratio - The interpolation coefficient, t should be in the range [0, 1].
  */
-export function lerp (from: number, to: number, ratio: number) {
+export function lerp (from: number, to: number, ratio: number): number {
     return from + (to - from) * ratio;
 }
 
@@ -105,7 +105,7 @@ export function lerp (from: number, to: number, ratio: number) {
  * @zh 把角度换算成弧度。
  * @param {Number} a Angle in Degrees
  */
-export function toRadian (a: number) {
+export function toRadian (a: number): number {
     return a * _d2r;
 }
 
@@ -114,7 +114,7 @@ export function toRadian (a: number) {
  * @zh 把弧度换算成角度。
  * @param {Number} a Angle in Radian
  */
-export function toDegree (a: number) {
+export function toDegree (a: number): number {
     return a * _r2d;
 }
 
@@ -131,7 +131,7 @@ export const random = Math.random;
  * @param max
  * @return The random number.
  */
-export function randomRange (min: number, max: number) {
+export function randomRange (min: number, max: number): number {
     return Math.random() * (max - min) + min;
 }
 
@@ -142,7 +142,7 @@ export function randomRange (min: number, max: number) {
  * @param max
  * @return The random integer.
  */
-export function randomRangeInt (min: number, max: number) {
+export function randomRangeInt (min: number, max: number): number {
     return Math.floor(randomRange(min, max));
 }
 
@@ -155,7 +155,7 @@ export function randomRangeInt (min: number, max: number) {
  * @param seed The random seed.
  * @return The pseudo random.
  */
-export function pseudoRandom (seed: number) {
+export function pseudoRandom (seed: number): number {
     seed = (seed * 9301 + 49297) % 233280;
     return seed / 233280.0;
 }
@@ -171,7 +171,7 @@ export function pseudoRandom (seed: number) {
  * @param max
  * @return The random number.
  */
-export function pseudoRandomRange (seed: number, min: number, max: number) {
+export function pseudoRandomRange (seed: number, min: number, max: number): number {
     return pseudoRandom(seed) * (max - min) + min;
 }
 
@@ -183,7 +183,7 @@ export function pseudoRandomRange (seed: number, min: number, max: number) {
  * @param max
  * @return The random integer.
  */
-export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
+export function pseudoRandomRangeInt (seed: number, min: number, max: number): number {
     return Math.floor(pseudoRandomRange(seed, min, max));
 }
 
@@ -196,7 +196,7 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
  * @param val
  * @return The the next power of two.
  */
-export function nextPow2 (val: number) {
+export function nextPow2 (val: number): number {
     return bits.nextPow2(val);
 }
 
@@ -207,7 +207,7 @@ export function nextPow2 (val: number) {
  * @param length Time of one cycle.
  * @return The Time wrapped in the first cycle.
  */
-export function repeat (t: number, length: number) {
+export function repeat (t: number, length: number): number {
     return t - Math.floor(t / length) * length;
 }
 
@@ -221,7 +221,7 @@ export function repeat (t: number, length: number) {
  * @param length Time of one cycle.
  * @return The time wrapped in the first cycle.
  */
-export function pingPong (t: number, length: number) {
+export function pingPong (t: number, length: number): number {
     t = repeat(t, length * 2);
     t = length - Math.abs(t - length);
     return t;
@@ -235,7 +235,7 @@ export function pingPong (t: number, length: number) {
  * @param value Given value.
  * @return The ratio between [from, to].
  */
-export function inverseLerp (from: number, to: number, value: number) {
+export function inverseLerp (from: number, to: number, value: number): number {
     return (value - from) / (to - from);
 }
 
@@ -245,7 +245,7 @@ export function inverseLerp (from: number, to: number, value: number) {
  * @param v vec3 like value
  * @returns max absolute component
  */
-export function absMaxComponent (v: IVec3Like) {
+export function absMaxComponent (v: IVec3Like): number {
     if (Math.abs(v.x) > Math.abs(v.y)) {
         if (Math.abs(v.x) > Math.abs(v.z)) {
             return v.x;
@@ -265,7 +265,7 @@ export function absMaxComponent (v: IVec3Like) {
  * @param a number
  * @param b number
  */
-export function absMax (a: number, b: number) {
+export function absMax (a: number, b: number): number {
     if (Math.abs(a) > Math.abs(b)) {
         return a;
     } else {
@@ -281,8 +281,8 @@ export function absMax (a: number, b: number) {
  * @param prototype Inherit the prototype chain of the ValueType class
  * @param attrs List of attributes that need to be enumerated
  */
-export function enumerableProps (prototype: ValueType, attrs: string[]) {
-    attrs.forEach((key) => {
+export function enumerableProps (prototype: ValueType, attrs: string[]): void {
+    attrs.forEach((key): void => {
         Object.defineProperty(prototype, key, { enumerable: true });
     });
 }

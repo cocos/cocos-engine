@@ -27,8 +27,8 @@ import { ShaderInfo } from '../base/define';
 import { Shader } from '../base/shader';
 
 export class EmptyShader extends Shader {
-    public initialize (info: Readonly<ShaderInfo>) {
+    public initialize (info: Readonly<ShaderInfo>): void {
         debug(`Shader '${info.name}' compilation succeeded.`);
     }
-    public destroy () {}
+    public destroy (): void {}
 }

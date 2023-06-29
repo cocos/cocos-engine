@@ -36,7 +36,7 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
+import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
@@ -157,14 +157,6 @@ export interface BasicRenderPassBuilder extends Setter {
         slotName: string,
         sampler?: Sampler | null,
         plane?: number): void;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addRasterView (name: string, view: RasterView): void;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addComputeView (name: string, view: ComputeView): void;
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     setViewport (viewport: Viewport): void;
     setVersion (name: string, version: number): void;
@@ -177,15 +169,6 @@ export interface BasicPipeline extends PipelineRuntime {
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addRenderTexture (
-        name: string,
-        format: Format,
-        width: number,
-        height: number,
-        renderWindow: RenderWindow): number;
     addRenderWindow (
         name: string,
         format: Format,
@@ -264,10 +247,6 @@ export interface RenderSubpassBuilder extends Setter {
         name: string,
         accessType: AccessType,
         slotName: string): void;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     showStatistics: boolean;
@@ -310,10 +289,6 @@ export interface ComputeSubpassBuilder extends Setter {
         name: string,
         accessType: AccessType,
         slotName: string): void;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @beta function signature might change
@@ -361,10 +336,6 @@ export interface ComputePassBuilder extends Setter {
         accessType: AccessType,
         slotName: string): void;
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
-    /**
-     * @deprecated method will be removed in 3.9.0
-     */
-    addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @beta function signature might change

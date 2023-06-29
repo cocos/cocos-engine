@@ -24,11 +24,11 @@
 
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { LightInfo, QueueHint, SceneFlags } from '../../custom';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass, getRTFormatBeforeToneMapping } from './base-pass';
+import { BasePass, getRTFormatBeforeToneMapping, getShadowMapSampler } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardTransparencyPass extends BasePass {
@@ -37,11 +37,11 @@ export class ForwardTransparencyPass extends BasePass {
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         return this.lastPass!.slotName(camera, index);
     }
 
-    public render (camera: Camera, ppl: Pipeline) {
+    public render (camera: Camera, ppl: Pipeline): void {
         passContext.clearFlag = ClearFlagBit.NONE;
 
         const output = this.lastPass!.slotName(camera, 0);
@@ -61,12 +61,12 @@ export class ForwardTransparencyPass extends BasePass {
         if (shadowPass) {
             for (const dirShadowName of shadowPass.mainLightShadows) {
                 if (ppl.containsResource(dirShadowName)) {
-                    pass.addTexture(dirShadowName, 'cc_shadowMap');
+                    pass.addTexture(dirShadowName, 'cc_shadowMap', getShadowMapSampler());
                 }
             }
             for (const spotShadowName of shadowPass.spotLightShadows) {
                 if (ppl.containsResource(spotShadowName)) {
-                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
+                    pass.addTexture(spotShadowName, 'cc_spotShadowMap', getShadowMapSampler());
                 }
             }
         }

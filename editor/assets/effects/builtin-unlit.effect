@@ -35,6 +35,11 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+    - &deferred-forward
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: unlit-vs:vert
@@ -42,7 +47,7 @@ CCEffect %{
       depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -51,13 +56,21 @@ CCEffect %{
       properties: *props
       migrations: *migs
     - *planar-shadow
+    - &deferred-forward-transparent
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
+      migrations: *migs
+      depthStencilState: *d1
+      blendState: *b1
   - name: add
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: &r1 { cullMode: none }
       depthStencilState: *d1
-      blendState:
+      blendState: &b2
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -66,13 +79,22 @@ CCEffect %{
           blendDstAlpha: one
       properties: *props
       migrations: *migs
+    - &deferred-forward-add
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+      migrations: *migs
   - name: alpha-blend
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: *r1
       depthStencilState: *d1
-      blendState:
+      blendState: &b3
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -80,6 +102,15 @@ CCEffect %{
           blendSrcAlpha: src_alpha
           blendDstAlpha: one_minus_src_alpha
       properties: *props
+      migrations: *migs
+    - &deferred-forward-alpha-blend
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b3
+      propertyIndex: 0
       migrations: *migs
 }%
 

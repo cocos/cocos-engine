@@ -7,13 +7,17 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+.asset-physics-material {
+    padding-right: 4px;
+}
+
 .asset-physics-material[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
- }
+}
 
- .asset-physics-material[multiple-invalid] > .multiple-warn-tip {
+.asset-physics-material[multiple-invalid] > .multiple-warn-tip {
     display: block;
- }
+}
 
 .asset-physics-material .multiple-warn-tip {
     display: none;

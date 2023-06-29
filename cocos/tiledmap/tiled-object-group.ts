@@ -49,7 +49,7 @@ export class TiledObjectGroup extends Component {
     protected _premultiplyAlpha = false;
 
     @type(CCBoolean)
-    get premultiplyAlpha () {
+    get premultiplyAlpha (): boolean {
         return this._premultiplyAlpha;
     }
     set premultiplyAlpha (value: boolean) {
@@ -64,7 +64,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
-    public getPositionOffset () {
+    public getPositionOffset (): Vec2 | undefined {
         return this._positionOffset;
     }
 
@@ -76,7 +76,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
-    public getProperties () {
+    public getProperties (): PropertiesInfo | undefined {
         return this._properties;
     }
 
@@ -88,7 +88,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
-    public getGroupName () {
+    public getGroupName (): string | undefined {
         return this._groupName;
     }
 
@@ -97,7 +97,7 @@ export class TiledObjectGroup extends Component {
      * @param {String} propertyName
      * @return {Object}
      */
-    public getProperty (propertyName: { toString (): string } | string) {
+    public getProperty (propertyName: { toString (): string } | string): string | number {
         return this._properties![propertyName.toString()];
     }
 
@@ -112,7 +112,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    public getObject (objectName: string) {
+    public getObject (objectName: string): TMXObject | null {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             const obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -131,7 +131,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */
-    public getObjects () {
+    public getObjects (): TMXObject[] {
         return this._objects;
     }
 
@@ -140,7 +140,7 @@ export class TiledObjectGroup extends Component {
     protected _mapInfo?: TMXMapInfo;
     protected _properties?: PropertiesInfo;
     protected _offset?: Vec2;
-    get offset () { return this._offset!; }
+    get offset (): Vec2 { return this._offset!; }
     protected _opacity?: number;
     protected _tintColor: Color | null = null;
 
@@ -157,7 +157,7 @@ export class TiledObjectGroup extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
+    public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids): void {
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
         const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
         const FLAG_VERTICAL = TileFlag.VERTICAL;
@@ -387,7 +387,7 @@ export class TiledObjectGroup extends Component {
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         if (!this._hasAniObj) {
             return;
         }

@@ -42,7 +42,7 @@ export class GeneralBarrier extends GFXObject {
         this._hash = hash;
     }
 
-    static computeHash (info: Readonly<GeneralBarrierInfo>) {
+    static computeHash (info: Readonly<GeneralBarrierInfo>): number {
         return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses} ${info.type}`, 666);
     }
 }

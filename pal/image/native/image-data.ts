@@ -27,7 +27,7 @@ import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
 export class ImageData extends BaseImageData {
-    public destroy () {
+    public destroy (): void {
         if (this.data && this.data instanceof HTMLImageElement) {
             // JSB element should destroy native data.
             // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
@@ -66,10 +66,10 @@ export class ImageData extends BaseImageData {
             image.crossOrigin = 'anonymous';
         }
 
-        image.onload = () => {
+        image.onload = (): void => {
             if (onComplete) { onComplete(null, image.data); }
         };
-        image.onerror = () => {
+        image.onerror = (): void => {
             if (onComplete) { onComplete(new Error(getError(4930, url))); }
         };
 

@@ -38,7 +38,7 @@ export class WebGLFramebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
 
-    public initialize (info: Readonly<FramebufferInfo>) {
+    public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -68,13 +68,13 @@ export class WebGLFramebuffer extends Framebuffer {
             gpuDepthStencilTexture,
             glFramebuffer: null,
             isOffscreen: true,
-            get width () {
+            get width (): number {
                 return this.isOffscreen ? width : this.gpuColorTextures[0].width;
             },
             set width (val) {
                 width = val;
             },
-            get height () {
+            get height (): number {
                 return this.isOffscreen ? height : this.gpuColorTextures[0].height;
             },
             set height (val) {
@@ -86,7 +86,7 @@ export class WebGLFramebuffer extends Framebuffer {
         WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuFramebuffer) {
             WebGLCmdFuncDestroyFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;

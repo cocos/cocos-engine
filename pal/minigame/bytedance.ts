@@ -38,7 +38,7 @@ minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
 
 // #region SystemInfo
 let systemInfo = minigame.getSystemInfoSync();
-minigame.getSystemInfoSync = () => systemInfo;
+minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
 minigame.onWindowResize?.(() => {
     systemInfo = minigame.getSystemInfoSync();
 });
@@ -64,11 +64,11 @@ Object.defineProperty(minigame, 'orientation', {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
-    _accelerometerCb = (res: any) => {
+    _accelerometerCb = (res: any): void => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
@@ -86,13 +86,13 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
         cb(resClone);
     };
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
     if (_accelerometerCb) {
         tt.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
-minigame.startAccelerometer = function (res: any) {
+minigame.startAccelerometer = function (res: any): void {
     if (_accelerometerCb) {
         tt.onAccelerometerChange(_accelerometerCb);
     }
@@ -109,7 +109,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
 
 // #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     const locSystemInfo = tt.getSystemInfoSync() as SystemInfo;
     let { top, left, right } = locSystemInfo.safeArea;
     const { bottom, width, height } = locSystemInfo.safeArea;

@@ -35,7 +35,7 @@ const _v3_tmp4 = new Vec3();
 const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
-const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4 | Readonly<Mat4>) => {
+const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4 | Readonly<Mat4>): void => {
     _m3_tmp.m00 = Math.abs(m4.m00); _m3_tmp.m01 = Math.abs(m4.m01); _m3_tmp.m02 = Math.abs(m4.m02);
     _m3_tmp.m03 = Math.abs(m4.m04); _m3_tmp.m04 = Math.abs(m4.m05); _m3_tmp.m05 = Math.abs(m4.m06);
     _m3_tmp.m06 = Math.abs(m4.m08); _m3_tmp.m07 = Math.abs(m4.m09); _m3_tmp.m08 = Math.abs(m4.m10);
@@ -65,7 +65,7 @@ export class AABB {
       * @param hl @zh AABB 长度的一半。 @en Half the length of the AABB.
       * @returns @zh 返回新创建的 AABB 实例。 @en A new instance of AABB.
       */
-    public static create (px?: number, py?: number, pz?: number, hw?: number, hh?: number, hl?: number) {
+    public static create (px?: number, py?: number, pz?: number, hw?: number, hh?: number, hl?: number): AABB {
         return new AABB(px, py, pz, hw, hh, hl);
     }
 
@@ -77,7 +77,7 @@ export class AABB {
       * @param a @zh 克隆的目标。 @en The target object to be cloned.
       * @returns @zh 克隆出的 AABB 实例。@en The cloned AABB instance.
       */
-    public static clone (a: AABB | Readonly<AABB>) {
+    public static clone (a: AABB | Readonly<AABB>): AABB {
         return new AABB(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
     }
@@ -165,7 +165,7 @@ export class AABB {
       * @param a @zh 输入的 AABB，只读参数。 @en The input AABB，it's readonly.
       * @returns @zh 接受操作的包围球 `out` 的引用. @en The reference to the first parameter `out`.
       */
-    public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>) {
+    public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>): Sphere {
         out.center.set(a.center);
         out.radius = a.halfExtents.length();
         return out;
@@ -209,7 +209,7 @@ export class AABB {
       * @zh
       * 获取此形状的类型。
       */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -229,7 +229,7 @@ export class AABB {
       * @param minPos @zh 存放此 AABB 最小点的向量。 @en The minimum position of the AABB to be stored to.
       * @param maxPos @zh 存放此 AABB 最大点的向量。 @en The maximum position of the AABB to be stored to.
       */
-    public getBoundary (minPos: IVec3Like, maxPos: IVec3Like) {
+    public getBoundary (minPos: IVec3Like, maxPos: IVec3Like): void {
         Vec3.subtract(minPos, this.center, this.halfExtents);
         Vec3.add(maxPos, this.center, this.halfExtents);
     }
@@ -245,7 +245,7 @@ export class AABB {
       * @param scale @zh 变换的缩放部分。 @en 3d-vector scale.
       * @param out @zh 存储结果的 AABB。 @en The output AABB.
       */
-    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
+    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB): void {
         Vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
     }
@@ -278,7 +278,7 @@ export class AABB {
       * @zh 合并一个顶点到当前 AABB 中。
       * @param point @zh 3D 世界中某一个位置的顶点。 @en A point in 3D space.
       */
-    public mergePoint (point: IVec3) {
+    public mergePoint (point: IVec3): void {
         // _v3_tmp is min pos
         // _v3_tmp2 is max pos
         this.getBoundary(_v3_tmp, _v3_tmp2);
@@ -300,7 +300,7 @@ export class AABB {
       * @zh 合并一系列顶点到当前 AABB 中。
       * @param points @zh 3D 世界中的顶点列表。 @en A list of points in 3D space.
       */
-    public mergePoints (points: IVec3[]) {
+    public mergePoints (points: IVec3[]): void {
         if (points.length < 1) { return; }
         for (let i = 0; i < points.length; i++) {
             this.mergePoint(points[i]);
@@ -312,7 +312,7 @@ export class AABB {
       * @zh 合并一个截头锥体的所有顶点到此 AABB 中。
       * @param frustum @zh 输入的截头锥体 @en The frustum object.
       */
-    public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
+    public mergeFrustum (frustum: Frustum | Readonly<Frustum>): void {
         this.mergePoints(frustum.vertices);
     }
 }

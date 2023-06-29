@@ -36,11 +36,11 @@ assertIsTrue((
 
 @ccclass('cc.animation.TriggerVariable')
 export class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> {
-    get type () {
+    get type (): VariableType.TRIGGER {
         return VariableType.TRIGGER as const;
     }
 
-    get value () {
+    get value (): boolean {
         return !!((this._flags & TRIGGER_VARIABLE_FLAG_VALUE_MASK) >> TRIGGER_VARIABLE_FLAG_VALUE_START);
     }
 
@@ -52,7 +52,7 @@ export class TriggerVariable implements BasicVariableDescription<VariableType.TR
         }
     }
 
-    get resetMode () {
+    get resetMode (): TriggerResetMode {
         return ((this._flags & TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK) >> TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 
@@ -63,7 +63,7 @@ export class TriggerVariable implements BasicVariableDescription<VariableType.TR
         this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 
-    public [createInstanceTag] () {
+    public [createInstanceTag] (): VarInstanceTrigger {
         return new VarInstanceTrigger(this.value, this.resetMode);
     }
 

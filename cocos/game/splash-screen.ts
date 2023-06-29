@@ -101,7 +101,7 @@ export class SplashScreen {
 
     private scaleSize = 1;
 
-    public get isFinished () {
+    public get isFinished (): boolean {
         return this._curTime >= this.settings.totalTime;
     }
 
@@ -109,11 +109,11 @@ export class SplashScreen {
         this._curTime = val;
     }
 
-    get curTime () {
+    get curTime (): number {
         return this._curTime;
     }
 
-    public init (): Promise<void[]> | undefined {
+    public init (): Promise<void[]> {
         this.settings = {
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
@@ -136,24 +136,24 @@ export class SplashScreen {
             this.initLayout();
 
             this.initWaterMark();
-            const bgPromise = new Promise<void>((resolve, reject) => {
+            const bgPromise = new Promise<void>((resolve, reject): void => {
                 this.bgImage = new ImageAsset();
-                this.bgImage.imageData.onload = () => {
+                this.bgImage.imageData.onload = (): void => {
                     this.initBG();
                     resolve();
                 };
-                this.bgImage.imageData.onerror = () => {
+                this.bgImage.imageData.onerror = (): void => {
                     reject();
                 };
                 this.bgImage.imageData.src = this.settings.bgBase64;
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
                 this.logoImage = new ImageAsset();
-                this.logoImage.imageData.onload = () => {
+                this.logoImage.imageData.onload = (): void => {
                     this.initLogo();
                     resolve();
                 };
-                this.logoImage.imageData.onerror = () => {
+                this.logoImage.imageData.onerror = (): void => {
                     reject();
                 };
                 this.logoImage.imageData.src = this.settings.base64src;
@@ -163,7 +163,7 @@ export class SplashScreen {
         return Promise.resolve([]);
     }
 
-    private preInit () {
+    private preInit (): void {
         this.clearColors = [new Color(0, 0, 0, 255)]; // clean to black
         const { device, swapchain } = this;
         this.renderArea = new Rect(0, 0, swapchain.width, swapchain.height);
@@ -204,7 +204,7 @@ export class SplashScreen {
         this.isMobile = sys.isMobile;
     }
 
-    private initLayout () {
+    private initLayout (): void {
         if (this.isMobile) {
             this.bgWidth = 812;
             this.bgHeight = 375;
@@ -233,7 +233,7 @@ export class SplashScreen {
         this.initScale();
     }
 
-    private initScale () {
+    private initScale (): void {
         const dw = this.swapchain.width; const dh = this.swapchain.height;
         let desiredWidth = this.isMobile ? 375 : 1080;
         let desiredHeight = this.isMobile ? 812 : 1920;
@@ -249,7 +249,7 @@ export class SplashScreen {
         }
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         const settings = this.settings;
         const { device, swapchain } = this;
         Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
@@ -310,7 +310,7 @@ export class SplashScreen {
         this.frame();
     }
 
-    private initBG () {
+    private initBG (): void {
         const device = this.device;
 
         this.bgMat = new Material();
@@ -346,7 +346,7 @@ export class SplashScreen {
         device.copyImagesToTexture([this.bgImage], this.bgTexture, [region]);
     }
 
-    private initLogo () {
+    private initLogo (): void {
         const device = this.device;
 
         this.logoMat = new Material();
@@ -390,7 +390,7 @@ export class SplashScreen {
         }
     }
 
-    private initWaterMark () {
+    private initWaterMark (): void {
         // create texture from image
         const watermarkImg = ccwindow.document.createElement('canvas');
         watermarkImg.height = this.textHeight * this.scaleSize;
@@ -422,7 +422,7 @@ export class SplashScreen {
         pass.descriptorSet.update();
     }
 
-    private frame () {
+    private frame (): void {
         const { device, swapchain } = this;
 
         if (!sys.isXR || xr.entry.isRenderAllowable()) {
@@ -511,7 +511,7 @@ export class SplashScreen {
         }
     }
 
-    private destroy () {
+    private destroy (): void {
         this.device = null!;
         this.swapchain = null!;
         this.clearColors = null!;
@@ -551,7 +551,7 @@ export class SplashScreen {
 
     private static _ins?: SplashScreen;
 
-    public static get instance () {
+    public static get instance (): SplashScreen {
         if (!SplashScreen._ins) {
             SplashScreen._ins = new SplashScreen();
         }

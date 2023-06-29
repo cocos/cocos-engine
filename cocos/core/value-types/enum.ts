@@ -29,6 +29,8 @@ import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
 
+export type EnumType = Record<string, string | number>;
+
 /**
  * @en
  * Define an enum type. <br/>
@@ -113,7 +115,7 @@ interface EnumExtras<EnumT> {
  * Determines if the object is an enum type.
  * @param enumType @en The object to judge. @zh 需要判断的对象。
  */
-Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => enumType && enumType.hasOwnProperty('__enums__');
+Enum.isEnum = <EnumT extends {}>(enumType: EnumT): boolean => enumType && enumType.hasOwnProperty('__enums__');
 
 function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
     assertIsTrue(enumType.hasOwnProperty('__enums__'));
@@ -149,7 +151,7 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
             enums.push({ name, value: v });
         }
     }
-    enums.sort((a, b) => a.value - b.value);
+    enums.sort((a, b): number => a.value - b.value);
     enumType.__enums__ = enums;
     return enums;
 }
@@ -159,7 +161,7 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
  * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @param compareFn @en Function used to determine the order of the elements. @zh 用于确定元素顺序的函数。
  */
-Enum.sortList = <EnumT extends {}> (enumType: EnumT, compareFn: (a, b) => number) => {
+Enum.sortList = <EnumT extends {}> (enumType: EnumT, compareFn: (a, b) => number): void => {
     assertIsEnum(enumType);
     if (!Array.isArray(enumType.__enums__)) {
         return;
@@ -189,7 +191,7 @@ if (DEV) {
  * @en enumType An enum type, eg, a kind of type with similar semantic defined by TypeScript.
  * @zh 枚举类型，例如 TypeScript 中定义的类型。
  */
-export function ccenum<EnumT extends {}> (enumType: EnumT) {
+export function ccenum<EnumT extends {}> (enumType: EnumT): void {
     if (!('__enums__' in enumType)) {
         value(enumType, '__enums__', null, true);
     }

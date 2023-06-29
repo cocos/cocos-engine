@@ -1006,11 +1006,11 @@ declare namespace spine {
         static BLUE: Color;
         static MAGENTA: Color;
         constructor(r?: number, g?: number, b?: number, a?: number);
-        set(r: number, g: number, b: number, a: number): this;
-        setFromColor(c: Color): this;
-        setFromString(hex: string): this;
-        add(r: number, g: number, b: number, a: number): this;
-        clamp(): this;
+        set(r: number, g: number, b: number, a: number): Color;
+        setFromColor(c: Color): Color;
+        setFromString(hex: string): Color;
+        add(r: number, g: number, b: number, a: number): Color;
+        clamp(): Color;
         static rgba8888ToColor(color: Color, value: number): void;
         static rgb888ToColor(color: Color, value: number): void;
     }
@@ -1074,7 +1074,7 @@ declare namespace spine {
         constructor(x?: number, y?: number);
         set(x: number, y: number): Vector2;
         length(): number;
-        normalize(): this;
+        normalize(): Vector2;
     }
     class TimeKeeper {
         maxDelta: number;
@@ -1289,7 +1289,8 @@ declare namespace spine {
         setSwirlEffect(swirl: spine.VertexEffect);
         updateRenderData();
         setListener(id: number, type: number);
-        static getCurrentEvent(): Event;
+        setDebugMode(debug: boolean);
+        getDebugShapes();
     }
 
     class wasmUtil {
@@ -1306,7 +1307,7 @@ declare namespace spine {
         static getCurrentEventType(): EventType;
         static getCurrentTrackEntry(): TrackEntry;
         static getCurrentEvent(): Event;
-        static HEAPU8: Uint8Array;
+        static wasm: any;
     }
 }
 

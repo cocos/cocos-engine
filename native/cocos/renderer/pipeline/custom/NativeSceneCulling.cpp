@@ -262,9 +262,9 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
                         const auto& csmLevel = mainLight->getCSMLevel();
                         const geometry::Frustum* frustum = nullptr;
                         if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-                            frustum = &csmLayers.getSpecialLayer()->getLightViewFrustum();
+                            frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
                         } else {
-                            frustum = &csmLayers.getLayers()[level]->getLightViewFrustum();
+                            frustum = &csmLayers.getLayers()[level]->getValidFrustum();
                         }
                         sceneCulling(
                             skyboxModelToSkip,
@@ -406,7 +406,7 @@ void SceneCulling::fillRenderQueues(
         CC_EXPECTS(targetID < renderQueues.size());
         auto& nativeQueue = renderQueues[targetID];
         CC_EXPECTS(nativeQueue.empty());
-                
+
         // skybox
         const auto* camera = sceneData.camera;
         CC_EXPECTS(camera);

@@ -22,7 +22,50 @@
  THE SOFTWARE.
 */
 
+import { OPPO } from 'internal:constants';
+
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     wasmUrl = `cocos-js/${wasmUrl}`;
     return WebAssembly.instantiate(wasmUrl, importObject);
+}
+
+export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        // fsUtils is defined in engine-adapter
+        const fsUtils = globalThis.fsUtils;
+        if (OPPO) {
+            getBinaryUrlOnOPPO(binaryUrl).then((url) => {
+                fsUtils.readArrayBuffer(url, (err, arrayBuffer) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(arrayBuffer);
+                });
+            }).catch((e) => {});
+            return;
+        }
+        fsUtils.readArrayBuffer(`cocos-js/${binaryUrl}`, (err, arrayBuffer) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(arrayBuffer);
+        });
+    });
+}
+
+// On OPPO platform, we put binary assets in cocos-library directory when using separate engine.
+function getBinaryUrlOnOPPO (binaryUrl: string): Promise<string> {
+    return new Promise((resolve) => {
+        const urlInCocosJS = `cocos-js/${binaryUrl}`;
+        // fsUtils is defined in engine-adapter
+        globalThis.fsUtils.exists(urlInCocosJS, (isExists: boolean) => {
+            if (isExists) {
+                resolve(urlInCocosJS);
+            } else {
+                resolve(`cocos-library/${binaryUrl}`);
+            }
+        });
+    });
 }

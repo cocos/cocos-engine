@@ -23,7 +23,7 @@
 */
 
 import { UIRenderable } from '../../2d';
-import { IAssembler, IAssemblerManager } from '../../2d/renderer/base';
+import { IAssembler } from '../../2d/renderer/base';
 
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
@@ -34,6 +34,17 @@ import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
+import { Color, Vec3 } from '../../core';
+import { MaterialInstance } from '../../render-scene';
+
+const _slotColor = new Color(0, 0, 255, 255);
+const _boneColor = new Color(255, 0, 0, 255);
+const _originColor = new Color(0, 255, 0, 255);
+const _meshColor = new Color(255, 255, 0, 255);
+let _nodeR: number;
+let _nodeG: number;
+let _nodeB: number;
+let _nodeA: number;
 
 let _accessor: StaticVBAccessor = null!;
 let _tintAccessor: StaticVBAccessor = null!;
@@ -44,7 +55,7 @@ let _useTint = false;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
-function _getSlotMaterial (blendMode: number, comp: Skeleton) {
+function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance {
     let src: BlendFactor;
     let dst: BlendFactor;
     switch (blendMode) {
@@ -114,7 +125,10 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
+    comp.drawList.reset();
+    if (comp.color.a === 0) return;
+    _premultipliedAlpha = comp.premultipliedAlpha;
     _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {
         cacheTraverse(comp);
@@ -126,39 +140,37 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 
-function realTimeTraverse (comp: Skeleton) {
-    _premultipliedAlpha = comp.premultipliedAlpha;
-
+function realTimeTraverse (comp: Skeleton): void {
     const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
-
-    comp.drawList.reset();
     const model = comp.updateRenderData();
     if (!model) return;
-
     const vc = model.vCount;
     const ic = model.iCount;
     const rd = comp.renderData!;
-    rd.resize(vc, ic);
-    rd.indices = new Uint16Array(ic);
+
+    if (rd.vertexCount !== vc || rd.indexCount !== ic) {
+        rd.resize(vc, ic);
+        rd.indices = new Uint16Array(ic);
+    }
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
 
     const vPtr = model.vPtr;
     const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const vData = spine.wasmUtil.HEAPU8.subarray(vPtr, vPtr + vLength);
+    const vData = spine.wasmUtil.wasm.HEAPU8.subarray(vPtr, vPtr + vLength);
     vUint8Buf.set(vData);
 
     const iPtr = model.iPtr;
-    const ibuf = rd.indices;
+    const ibuf = rd.indices!;
     const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const iData = spine.wasmUtil.HEAPU8.subarray(iPtr, iPtr + iLength);
+    const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
     const iUint8Buf = new Uint8Array(ibuf.buffer);
     iUint8Buf.set(iData);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
-        rd.indices[i] += chunkOffset;
+        ibuf[i] += chunkOffset;
     }
 
     const meshes = model.getMeshes();
@@ -172,28 +184,135 @@ function realTimeTraverse (comp: Skeleton) {
         comp.requestDrawData(material, indexOffset, indexCount);
         indexOffset += indexCount;
     }
+    // if enableBatch apply worldMatrix
+    if (comp.enableBatch) {
+        const worldMat = comp.node.worldMatrix;
+        let index = 0;
+        const tempVecPos = new Vec3(0, 0, 0);
+        for (let i = 0; i < vc; i++) {
+            index = i * floatStride;
+            tempVecPos.x = vbuf[index];
+            tempVecPos.y = vbuf[index + 1];
+            tempVecPos.z = 0;
+            tempVecPos.transformMat4(worldMat);
+            vbuf[index] = tempVecPos.x;
+            vbuf[index + 1] = tempVecPos.y;
+            vbuf[index + 2] = tempVecPos.z;
+        }
+    }
+
+    // debug renderer
+    const graphics = comp._debugRenderer;
+    const locSkeleton = comp._skeleton;
+    if (graphics && (comp.debugBones || comp.debugSlots || comp.debugMesh)) {
+        graphics.clear();
+        graphics.lineWidth = 5;
+
+        const debugShapes = comp.getDebugShapes();
+        const shapeCount = debugShapes.size();
+        for (let i = 0; i < shapeCount; i++) {
+            const shape = debugShapes.get(i);
+            const type = shape.type;
+            if (type.value === 0 && comp.debugSlots) {
+                graphics.strokeColor = _slotColor;
+                const vertexFloatOffset = shape.vOffset * floatStride;
+                const vertexFloatCount = shape.vCount * floatStride;
+                graphics.moveTo(vbuf[vertexFloatOffset], vbuf[vertexFloatOffset + 1]);
+                for (let ii = vertexFloatOffset + floatStride, nn = vertexFloatOffset + vertexFloatCount; ii < nn; ii += floatStride) {
+                    graphics.lineTo(vbuf[ii], vbuf[ii + 1]);
+                }
+                graphics.close();
+                graphics.stroke();
+            } else if (type.value === 1 && comp.debugMesh) {
+                // draw debug mesh if enabled graphics
+                graphics.strokeColor = _meshColor;
+                const iCount = shape.iCount as number;
+                const iOffset = shape.iOffset as number;
+
+                for (let ii = iOffset, nn = iOffset + iCount; ii < nn; ii += 3) {
+                    const v1 = ibuf[ii] * floatStride;
+                    const v2 = ibuf[ii + 1] * floatStride;
+                    const v3 = ibuf[ii + 2] * floatStride;
+
+                    graphics.moveTo(vbuf[v1], vbuf[v1 + 1]);
+                    graphics.lineTo(vbuf[v2], vbuf[v2 + 1]);
+                    graphics.lineTo(vbuf[v3], vbuf[v3 + 1]);
+                    graphics.close();
+                    graphics.stroke();
+                }
+            }
+        }
+
+        if (comp.debugBones) {
+            graphics.strokeColor = _boneColor;
+            graphics.fillColor = _slotColor; // Root bone color is same as slot color.
+
+            for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
+                const bone = locSkeleton.bones[i];
+                const x = bone.data.length * bone.a + bone.worldX;
+                const y = bone.data.length * bone.c + bone.worldY;
+
+                // Bone lengths.
+                graphics.moveTo(bone.worldX, bone.worldY);
+                graphics.lineTo(x, y);
+                graphics.stroke();
+
+                // Bone origins.
+                graphics.circle(bone.worldX, bone.worldY, Math.PI * 1.5);
+                graphics.fill();
+                if (i === 0) {
+                    graphics.fillColor = _originColor;
+                }
+            }
+        }
+    }
 }
 
-function cacheTraverse (comp: Skeleton) {
-    _premultipliedAlpha = comp.premultipliedAlpha;
-
-    comp.drawList.reset();
+function cacheTraverse (comp: Skeleton): void {
     const model = comp.updateRenderData();
 
     const vc = model.vCount;
     const ic = model.iCount;
     const rd = comp.renderData!;
-    rd.resize(vc, ic);
-    rd.indices = new Uint16Array(ic);
+    if (rd.vertexCount !== vc || rd.indexCount !== ic) {
+        rd.resize(vc, ic);
+        rd.indices = new Uint16Array(ic);
+    }
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);
 
-    const iUint16Buf = rd.indices;
+    const nodeColor = comp.color;
+    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
+        _nodeR = nodeColor.r / 255;
+        _nodeG = nodeColor.g / 255;
+        _nodeB = nodeColor.b / 255;
+        _nodeA = nodeColor.a / 255;
+        for (let i = 0; i < vc; i++) {
+            const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
+            const R = vUint8Buf[index];
+            const G = vUint8Buf[index + 1];
+            const B = vUint8Buf[index + 2];
+            const A = vUint8Buf[index + 3];
+            const fA = A * _nodeA;
+            const multiplier = _premultipliedAlpha ? fA / 255 :  1;
+            vUint8Buf[index] = Math.floor(multiplier * R * _nodeR);
+            vUint8Buf[index + 1] = Math.floor(multiplier * G * _nodeG);
+            vUint8Buf[index + 2] = Math.floor(multiplier * B * _nodeB);
+            vUint8Buf[index + 3] = Math.floor(fA);
+
+            vUint8Buf[index + 4] = Math.floor(vUint8Buf[index + 4] * _nodeR);
+            vUint8Buf[index + 5] = Math.floor(vUint8Buf[index + 5] * _nodeG);
+            vUint8Buf[index + 6] = Math.floor(vUint8Buf[index + 6] * _nodeB);
+            vUint8Buf[index + 7] = _premultipliedAlpha ? 255 : 0;
+        }
+    }
+
+    const iUint16Buf = rd.indices!;
     iUint16Buf.set(model.iData);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
-        rd.indices[i] += chunkOffset;
+        iUint16Buf[i] += chunkOffset;
     }
 
     const meshes = model.meshes;
@@ -206,6 +325,23 @@ function cacheTraverse (comp: Skeleton) {
         indexCount = mesh.iCount;
         comp.requestDrawData(material, indexOffset, indexCount);
         indexOffset += indexCount;
+    }
+
+    const floatStride = _byteStrideTwoColor / Float32Array.BYTES_PER_ELEMENT;
+    if (comp.enableBatch) {
+        const worldMat = comp.node.worldMatrix;
+        let index = 0;
+        const tempVecPos = new Vec3(0, 0, 0);
+        for (let i = 0; i < vc; i++) {
+            index = i * floatStride;
+            tempVecPos.x = vbuf[index];
+            tempVecPos.y = vbuf[index + 1];
+            tempVecPos.z = 0;
+            tempVecPos.transformMat4(worldMat);
+            vbuf[index] = tempVecPos.x;
+            vbuf[index + 1] = tempVecPos.y;
+            vbuf[index + 2] = tempVecPos.z;
+        }
     }
 }
 

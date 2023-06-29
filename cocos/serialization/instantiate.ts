@@ -75,7 +75,7 @@ export function instantiate (prefab: Prefab): Node;
  */
 export function instantiate<T> (original: T): T;
 
-export function instantiate (original: any, internalForce?: boolean) {
+export function instantiate (original: any, internalForce?: boolean): any {
     if (!internalForce) {
         if (DEV) {
             if (typeof original !== 'object' || Array.isArray(original)) {
@@ -132,7 +132,7 @@ export function instantiate (original: any, internalForce?: boolean) {
  * @return {Object}
  * @private
  */
-function doInstantiate (obj, parent?) {
+function doInstantiate (obj, parent?): any {
     if (DEV) {
         if (Array.isArray(obj)) {
             throw new TypeError(getError(6904));
@@ -167,7 +167,7 @@ function doInstantiate (obj, parent?) {
 
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
-function enumerateCCClass (klass, obj, clone, parent) {
+function enumerateCCClass (klass, obj, clone, parent): void {
     const props = klass.__values__;
 
     for (let p = 0; p < props.length; p++) {
@@ -187,7 +187,7 @@ function enumerateCCClass (klass, obj, clone, parent) {
     }
 }
 
-function enumerateObject (obj, clone, parent) {
+function enumerateObject (obj, clone, parent): void {
     // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
     js.value(obj, '_iN$t', clone, true);
@@ -226,7 +226,7 @@ function enumerateObject (obj, clone, parent) {
  * @param {Object|Array} obj - the original non-nil object, typeof must be 'object'
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
-function instantiateObj (obj, parent) {
+function instantiateObj (obj, parent): any {
     if (obj instanceof ValueType) {
         return obj.clone();
     }

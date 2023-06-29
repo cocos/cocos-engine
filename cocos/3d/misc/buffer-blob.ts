@@ -26,7 +26,7 @@ export class BufferBlob {
     private _arrayBufferOrPaddings: Array<ArrayBuffer | number> = [];
     private _length = 0;
 
-    public setNextAlignment (align: number) {
+    public setNextAlignment (align: number): void {
         if (align !== 0) {
             const remainder = this._length % align;
             if (remainder !== 0) {
@@ -37,18 +37,18 @@ export class BufferBlob {
         }
     }
 
-    public addBuffer (arrayBuffer: ArrayBuffer) {
+    public addBuffer (arrayBuffer: ArrayBuffer): number {
         const result = this._length;
         this._arrayBufferOrPaddings.push(arrayBuffer);
         this._length += arrayBuffer.byteLength;
         return result;
     }
 
-    public getLength () {
+    public getLength (): number {
         return this._length;
     }
 
-    public getCombined () {
+    public getCombined (): ArrayBufferLike {
         const result = new Uint8Array(this._length);
         let counter = 0;
         this._arrayBufferOrPaddings.forEach((arrayBufferOrPadding) => {

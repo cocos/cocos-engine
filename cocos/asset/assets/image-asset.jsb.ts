@@ -69,6 +69,22 @@ Object.defineProperty(imageAssetProto, 'data', {
     },
 });
 
+Object.defineProperty(imageAssetProto, 'nativeData', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._imageData.nativeData();
+    },
+});
+
+Object.defineProperty(imageAssetProto, 'imageData', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._imageData;
+    },
+});
+
 imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     if (inLibrary !== false) {
         this._native = filename || '';

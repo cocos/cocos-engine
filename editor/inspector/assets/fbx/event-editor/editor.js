@@ -3,12 +3,6 @@ const { join } = require('path');
 module.paths.push(join(Editor.App.path, 'node_modules'));
 
 const eventItem = require('./event-item');
-const defaultFunc = [
-    {
-        func: '',
-        params: [],
-    },
-];
 
 exports.template = `<section v-if="show" id="event-editor" @mousedown.stop>
     <header class="flex">

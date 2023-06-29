@@ -130,7 +130,7 @@ export function bindNumericOr<TValue, TThis, TArgs extends any[]> (
     callback: BindCallback<TValue, TThis, TArgs>,
     thisArg: TThis,
     ...args: TArgs
-) {
+): number | TValue {
     const {
         variable,
         value,
@@ -167,19 +167,19 @@ export function validateVariableExistence (varInstance: VarInstance | undefined,
     }
 }
 
-export function validateVariableType (type: VariableType, expected: VariableType, name: string) {
+export function validateVariableType (type: VariableType, expected: VariableType, name: string): void {
     if (type !== expected) {
         throw new VariableTypeMismatchedError(name, 'number');
     }
 }
 
-export function validateVariableTypeNumeric (type: VariableType, name: string) {
+export function validateVariableTypeNumeric (type: VariableType, name: string): void {
     if (type !== VariableType.FLOAT && type !== VariableType.INTEGER) {
         throw new VariableTypeMismatchedError(name, 'number or integer');
     }
 }
 
-export function validateVariableTypeTriggerLike (type: VariableType, name: string) {
+export function validateVariableTypeTriggerLike (type: VariableType, name: string): void {
     if (type !== VariableType.TRIGGER) {
         throw new VariableTypeMismatchedError(name, 'trigger');
     }

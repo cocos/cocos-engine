@@ -39,11 +39,11 @@ class Screen {
     /**
      * @internal
      */
-    public init () {
+    public init (): void {
         const exactFitScreen = settings.querySettings(Settings.Category.SCREEN, 'exactFitScreen') ?? true;
         const orientation = settings.querySettings(Settings.Category.SCREEN, 'orientation') ?? 'auto';
         const isHeadlessMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3;
-        screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, () => {
+        screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, (): void => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {
                 warnID(1220);
@@ -60,7 +60,7 @@ class Screen {
      * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比。
      * 注意：出于性能考虑，引擎在一些平台会限制 DPR 的最高值，这个属性返回的是引擎限制后的 DPR。
      */
-    public get devicePixelRatio () {
+    public get devicePixelRatio (): number {
         return screenAdapter.devicePixelRatio;
     }
 
@@ -90,7 +90,7 @@ class Screen {
      *
      * @readonly
      */
-    public get resolution () {
+    public get resolution (): Size {
         return screenAdapter.resolution;
     }
 
@@ -154,9 +154,9 @@ class Screen {
         if (arguments.length > 0) {
             warnID(1400, 'screen.requestFullScreen(element, onFullScreenChange?, onFullScreenError?)', 'screen.requestFullScreen(): Promise');
         }
-        return screenAdapter.requestFullScreen().then(() => {
+        return screenAdapter.requestFullScreen().then((): void => {
             onFullScreenChange?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
-        }).catch((err) => {
+        }).catch((err): void => {
             console.error(err);
             onFullScreenError?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         });
@@ -179,15 +179,15 @@ class Screen {
      *
      * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
-    public autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
-        this.requestFullScreen(element, onFullScreenChange)?.catch((e) => {});
+    public autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any): void {
+        this.requestFullScreen(element, onFullScreenChange)?.catch((e): void => {});
     }
 
     /**
      * @param element
      * @deprecated since v3.3
      */
-    public disableAutoFullScreen (element) {
+    public disableAutoFullScreen (element): void {
         // DO NOTHING
     }
 
@@ -198,7 +198,7 @@ class Screen {
      * @zh
      * 注册screen事件回调。
      */
-    public on (type: PalScreenEvent, callback: any, target?: any) {
+    public on (type: PalScreenEvent, callback: any, target?: any): void {
         screenAdapter.on(type, callback, target);
     }
 
@@ -208,7 +208,7 @@ class Screen {
      * @zh
      * 注册单次的screen事件回调。
      */
-    public once (type: PalScreenEvent, callback?: any, target?: any) {
+    public once (type: PalScreenEvent, callback?: any, target?: any): void {
         screenAdapter.once(type, callback, target);
     }
 
@@ -218,7 +218,7 @@ class Screen {
      * @zh
      * 取消注册screen事件回调。
      */
-    public off (type: PalScreenEvent, callback?: any, target?: any) {
+    public off (type: PalScreenEvent, callback?: any, target?: any): void {
         screenAdapter.off(type, callback, target);
     }
 }

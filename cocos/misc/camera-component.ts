@@ -40,6 +40,7 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';
 import { PostProcess } from '../rendering/post-process/components/post-process';
 import { property } from '../core/data/class-decorator';
+import type { Ray } from '../core/geometry';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -186,7 +187,7 @@ export class Camera extends Component {
      * @en The render camera representation.
      * @zh 渲染场景中的相机对象。
      */
-    get camera () {
+    get camera (): scene.Camera {
         return this._camera!;
     }
 
@@ -197,7 +198,7 @@ export class Camera extends Component {
     @displayOrder(0)
     @range([0, 65535, 1])
     @tooltip('i18n:camera.priority')
-    get priority () {
+    get priority (): number {
         return this._priority;
     }
 
@@ -215,7 +216,7 @@ export class Camera extends Component {
     @type(Layers.BitMask)
     @displayOrder(1)
     @tooltip('i18n:camera.visibility')
-    get visibility () {
+    get visibility (): number {
         return this._visibility;
     }
 
@@ -233,7 +234,7 @@ export class Camera extends Component {
     @type(ClearFlag)
     @displayOrder(2)
     @tooltip('i18n:camera.clear_flags')
-    get clearFlags () {
+    get clearFlags (): ClearFlagBit {
         return this._clearFlags;
     }
 
@@ -266,7 +267,7 @@ export class Camera extends Component {
      */
     @displayOrder(4)
     @tooltip('i18n:camera.depth')
-    get clearDepth () {
+    get clearDepth (): number {
         return this._depth;
     }
 
@@ -281,7 +282,7 @@ export class Camera extends Component {
      */
     @displayOrder(5)
     @tooltip('i18n:camera.stencil')
-    get clearStencil () {
+    get clearStencil (): number {
         return this._stencil;
     }
 
@@ -297,7 +298,7 @@ export class Camera extends Component {
     @type(ProjectionType)
     @displayOrder(6)
     @tooltip('i18n:camera.projection')
-    get projection () {
+    get projection (): CameraProjection {
         return this._projection;
     }
 
@@ -312,11 +313,11 @@ export class Camera extends Component {
      */
     @type(FOVAxis)
     @displayOrder(7)
-    @visible(function (this: Camera) {
+    @visible(function (this: Camera): boolean {
         return this._projection === ProjectionType.PERSPECTIVE;
     })
     @tooltip('i18n:camera.fov_axis')
-    get fovAxis () {
+    get fovAxis (): CameraFOVAxis {
         return this._fovAxis;
     }
 
@@ -334,12 +335,12 @@ export class Camera extends Component {
      * @zh 相机的视角大小。
      */
     @displayOrder(8)
-    @visible(function (this: Camera) {
+    @visible(function (this: Camera): boolean {
         return this._projection === ProjectionType.PERSPECTIVE;
     })
     @range([1, 180, 1])
     @tooltip('i18n:camera.fov')
-    get fov () {
+    get fov (): number {
         return this._fov;
     }
 
@@ -353,12 +354,12 @@ export class Camera extends Component {
      * @zh 正交模式下的相机视角高度。
      */
     @displayOrder(9)
-    @visible(function (this: Camera) {
+    @visible(function (this: Camera): boolean {
         return this._projection === ProjectionType.ORTHO;
     })
     @rangeMin(1)
     @tooltip('i18n:camera.ortho_height')
-    get orthoHeight () {
+    get orthoHeight (): number {
         return this._orthoHeight;
     }
 
@@ -374,7 +375,7 @@ export class Camera extends Component {
     @displayOrder(10)
     @rangeMin(0)
     @tooltip('i18n:camera.near')
-    get near () {
+    get near (): number {
         return this._near;
     }
 
@@ -390,7 +391,7 @@ export class Camera extends Component {
     @displayOrder(11)
     @rangeMin(0)
     @tooltip('i18n:camera.far')
-    get far () {
+    get far (): number {
         return this._far;
     }
 
@@ -406,7 +407,7 @@ export class Camera extends Component {
     @type(Aperture)
     @displayOrder(12)
     @tooltip('i18n:camera.aperture')
-    get aperture () {
+    get aperture (): CameraAperture {
         return this._aperture;
     }
 
@@ -422,7 +423,7 @@ export class Camera extends Component {
     @type(Shutter)
     @displayOrder(13)
     @tooltip('i18n:camera.shutter')
-    get shutter () {
+    get shutter (): CameraShutter {
         return this._shutter;
     }
 
@@ -438,7 +439,7 @@ export class Camera extends Component {
     @type(ISO)
     @displayOrder(14)
     @tooltip('i18n:camera.ISO')
-    get iso () {
+    get iso (): CameraISO {
         return this._iso;
     }
 
@@ -453,7 +454,7 @@ export class Camera extends Component {
      */
     @displayOrder(15)
     @tooltip('i18n:camera.rect')
-    get rect () {
+    get rect (): Rect {
         return this._rect;
     }
 
@@ -469,7 +470,7 @@ export class Camera extends Component {
     @type(RenderTexture)
     @displayOrder(16)
     @tooltip('i18n:camera.target_texture')
-    get targetTexture () {
+    get targetTexture (): RenderTexture | null {
         return this._targetTexture;
     }
 
@@ -491,7 +492,7 @@ export class Camera extends Component {
     }
 
     @property
-    get usePostProcess () {
+    get usePostProcess (): boolean {
         return this._usePostProcess;
     }
     set usePostProcess (v) {
@@ -502,7 +503,7 @@ export class Camera extends Component {
     }
 
     @type(PostProcess)
-    get postProcess () {
+    get postProcess (): PostProcess | null {
         return this._postProcess;
     }
     set postProcess (v) {
@@ -517,7 +518,7 @@ export class Camera extends Component {
      * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
-    get screenScale () {
+    get screenScale (): number {
         return this._screenScale;
     }
 
@@ -529,7 +530,7 @@ export class Camera extends Component {
     /**
      * @internal
      */
-    get inEditorMode () {
+    get inEditorMode (): boolean {
         return this._inEditorMode;
     }
 
@@ -544,7 +545,7 @@ export class Camera extends Component {
     /**
      * @internal
      */
-    get cameraType () {
+    get cameraType (): CameraType {
         return this._cameraType;
     }
 
@@ -561,7 +562,7 @@ export class Camera extends Component {
     /**
      * @internal
      */
-    get trackingType () {
+    get trackingType (): TrackingType {
         return this._trackingType;
     }
 
@@ -575,24 +576,24 @@ export class Camera extends Component {
         }
     }
 
-    public onLoad () {
+    public onLoad (): void {
         this._createCamera();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this._camera) {
             this._detachFromScene();
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._camera) {
             this._camera.destroy();
             this._camera = null;
@@ -611,7 +612,7 @@ export class Camera extends Component {
      * @param out The output ray object.
      * @returns Return the output ray object.
      */
-    public screenPointToRay (x: number, y: number, out?: geometry.Ray) {
+    public screenPointToRay (x: number, y: number, out?: geometry.Ray): Ray {
         if (!out) { out = geometry.Ray.create(); }
         if (this._camera) { this._camera.screenPointToRay(out, x, y); }
         return out;
@@ -624,7 +625,7 @@ export class Camera extends Component {
      * @param out The output position in screen space coordinates.
      * @returns Return the output position object.
      */
-    public worldToScreen (worldPos: Vec3 | Readonly<Vec3>, out?: Vec3) {
+    public worldToScreen (worldPos: Vec3 | Readonly<Vec3>, out?: Vec3): Vec3 {
         if (!out) { out = new Vec3(); }
         if (this._camera) { this._camera.worldToScreen(out, worldPos); }
         return out;
@@ -637,7 +638,7 @@ export class Camera extends Component {
      * @param out The output position in world space coordinates
      * @returns Return the output position object.
      */
-    public screenToWorld (screenPos: Vec3, out?: Vec3) {
+    public screenToWorld (screenPos: Vec3, out?: Vec3): Vec3 {
         if (!out) { out = this.node.getWorldPosition(); }
         if (this._camera) { this._camera.screenToWorld(out, screenPos); }
         return out;
@@ -657,7 +658,7 @@ export class Camera extends Component {
      * uiNode.position = out;
      * ```
      */
-    public convertToUINode (wpos: Vec3 | Readonly<Vec3>, uiNode: Node, out?: Vec3) {
+    public convertToUINode (wpos: Vec3 | Readonly<Vec3>, uiNode: Node, out?: Vec3): Vec3 {
         if (!out) {
             out = new Vec3();
         }
@@ -681,7 +682,7 @@ export class Camera extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _createCamera () {
+    public _createCamera (): void {
         if (!this._camera) {
             this._camera = (cclegacy.director.root).createCamera();
             this._camera!.initialize({
@@ -716,7 +717,7 @@ export class Camera extends Component {
         this._updateTargetTexture();
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
         if (!this.node.scene || !this._camera) {
             return;
         }
@@ -727,13 +728,13 @@ export class Camera extends Component {
         rs.addCamera(this._camera);
     }
 
-    protected _detachFromScene () {
+    protected _detachFromScene (): void {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
         }
     }
 
-    protected _checkTargetTextureEvent (old: RenderTexture | null) {
+    protected _checkTargetTextureEvent (old: RenderTexture | null): void {
         if (old) {
             old.off('resize');
         }
@@ -747,7 +748,7 @@ export class Camera extends Component {
         }
     }
 
-    protected _updateTargetTexture () {
+    protected _updateTargetTexture (): void {
         if (!this._camera) {
             return;
         }

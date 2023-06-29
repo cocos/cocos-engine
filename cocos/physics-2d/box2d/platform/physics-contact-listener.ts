@@ -40,7 +40,7 @@ import { b2Shape2D } from '../shapes/shape-2d';
 export class PhysicsContactListener extends b2.ContactListener {
     static readonly _contactMap = new Map<string, PhysicsContact>();
 
-    private getContactKey (contact: b2.Contact) {
+    private getContactKey (contact: b2.Contact): string {
         const colliderA = (contact.m_fixtureA.m_userData as b2Shape2D).collider;
         const colliderB = (contact.m_fixtureB.m_userData as b2Shape2D).collider;
         let key = colliderA.uuid + colliderB.uuid;
@@ -50,62 +50,51 @@ export class PhysicsContactListener extends b2.ContactListener {
         return key;
     }
 
-    BeginContact (contact: b2.Contact) {
+    BeginContact (contact: b2.Contact): void {
         const key = this.getContactKey(contact);
 
         if (PhysicsContactListener._contactMap.has(key)) {
             const retContact = PhysicsContactListener._contactMap.get(key)!;
             retContact.ref++;
-            //console.log('   collision++', key, 'current ref is:', retContact.ref);
             if (retContact.status === Contact2DType.END_CONTACT) {
                 retContact.status = Contact2DType.STAY_CONTACT;
-                //console.log('   set as stay');
             } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
                 retContact.status = Contact2DType.BEGIN_CONTACT;
-                //console.log('   set as enter');
             }
         } else {
-            //console.log('   new collision', key, 'current ref is:', 1);
             const retCollision = new PhysicsContact(contact);
             PhysicsContactListener._contactMap.set(key, retCollision);
             retCollision.status = Contact2DType.BEGIN_CONTACT;
         }
     }
 
-    EndContact (contact: b2.Contact) {
+    EndContact (contact: b2.Contact): void {
         const key = this.getContactKey(contact);
 
         const retContact = PhysicsContactListener._contactMap.get(key);
-        assert(retContact);
+        assert(typeof retContact !== 'undefined');
 
         retContact.ref--;
-        //console.log('   collision--', key, 'current ref is:', retCollision.ref);
         if (retContact.ref <= 0) {
-            //console.log('   set as exit');
             retContact.status = Contact2DType.END_CONTACT;
         }
     }
 
-    PreSolve (contact: b2.Contact, oldManifold: b2.Manifold) {
+    PreSolve (contact: b2.Contact, oldManifold: b2.Manifold): void {
     }
 
-    PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse) {
+    PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse): void {
     }
 
-    public finalizeContactEvent () {
-        PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string) => {
-            //console.log('forEach', key, collision);
-
+    public finalizeContactEvent (): void {
+        PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string): void => {
             // emit collision event
             if (!contact.disabled || contact.status === Contact2DType.BEGIN_CONTACT) { //BEGIN_CONTACT always emits
                 if (contact.status === Contact2DType.END_CONTACT) {
-                    //console.log('   report end collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.END_CONTACT, contact);
                 } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
-                    //console.log('   report enter collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.BEGIN_CONTACT, contact);
                 } else if (contact.status === Contact2DType.STAY_CONTACT) {
-                    //console.log('   report stay collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.STAY_CONTACT, contact);
                 }
             }
@@ -119,7 +108,7 @@ export class PhysicsContactListener extends b2.ContactListener {
         });
     }
 
-    private emit (contactType, contact: PhysicsContact) {
+    private emit (contactType, contact: PhysicsContact): void {
         const colliderA = contact.colliderA;
         const colliderB = contact.colliderB;
         if (!colliderA || !colliderB) {

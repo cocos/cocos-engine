@@ -46,14 +46,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _debugGraphics: Graphics | null = null;
     private _debugDrawFlags = 0;
 
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
         this._debugDrawFlags = v;
     }
 
-    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D) {
+    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D): number | boolean {
         const collider1 = c1.collider; const collider2 = c2.collider;
         const collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
         return (collider1 !== collider2)
@@ -62,7 +62,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             && (collisionMatrix[collider2.group] & collider1.group);
     }
 
-    addShape (shape: BuiltinShape2D) {
+    addShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index === -1) {
@@ -80,7 +80,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    removeShape (shape: BuiltinShape2D) {
+    removeShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
@@ -106,14 +106,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         shape._contacts.length = 0;
     }
 
-    updateShapeGroup (shape: BuiltinShape2D) {
+    updateShapeGroup (shape: BuiltinShape2D): void {
         this.removeShape(shape);
         if (shape.collider.enabledInHierarchy) {
             this.addShape(shape);
         }
     }
 
-    step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+    step (deltaTime: number, velocityIterations = 10, positionIterations = 10): void {
         // update collider
         const shapes = this._shapes;
         for (let i = 0, l = shapes.length; i < l; i++) {
@@ -140,7 +140,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    drawDebug () {
+    drawDebug (): void {
         if (!this._debugDrawFlags) {
             return;
         }
@@ -151,8 +151,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!debugDrawer) {
             return;
         }
-
         debugDrawer.clear();
+        debugDrawer.lineWidth = 3;
 
         const shapes = this._shapes;
 
@@ -191,7 +191,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    private _emitCollide (contact: BuiltinContact, collisionType?: string) {
+    private _emitCollide (contact: BuiltinContact, collisionType?: string): void {
         collisionType = collisionType || contact.type;
 
         const c1 = contact.shape1!.collider;
@@ -202,7 +202,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         c2.emit(collisionType, c2, c1);
     }
 
-    private _checkDebugDrawValid () {
+    private _checkDebugDrawValid (): void {
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
@@ -257,17 +257,17 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     // empty implements
-    impl () {
+    impl (): any {
         return null;
     }
-    setGravity () { }
-    setAllowSleep () { }
-    syncPhysicsToScene () { }
-    syncSceneToPhysics () { }
+    setGravity (): void { }
+    setAllowSleep (): void { }
+    syncPhysicsToScene (): void { }
+    syncSceneToPhysics (): void { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
     }
-    finalizeContactEvent () {
+    finalizeContactEvent (): void {
 
     }
 }

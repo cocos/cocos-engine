@@ -93,7 +93,7 @@ replaceProperty(director, 'director', [
         name: '_getSceneUuid',
         targetName: 'assetManager.main',
         newName: 'getSceneInfo',
-        customFunction: (sceneName) => {
+        customFunction: (sceneName): string | undefined => {
             if (assetManager.main) {
                 return assetManager.main.getSceneInfo(sceneName)?.uuid;
             }
@@ -118,10 +118,10 @@ replaceProperty(game, 'game', [
         name: '_sceneInfos',
         targetName: 'assetManager.main',
         newName: 'getSceneInfo',
-        customGetter: () => {
+        customGetter: (): ISceneInfo[] => {
             const scenes: ISceneInfo[] = [];
             if (assetManager.main) {
-                assetManager.main.config.scenes.forEach((val) => {
+                assetManager.main.config.scenes.forEach((val): void => {
                     scenes.push(val);
                 });
             }

@@ -45,7 +45,7 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         return this._com as FixedConstraint;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const cb = this.constraint.connectedBody;
         const bodyA = (this._rigidBody.body as BulletRigidBody).impl;
         const bodyB = cb ? (cb.body as BulletRigidBody).impl : bt.TypedConstraint_getFixedBody();
@@ -57,7 +57,7 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         this.updateFrames();
     }
 
-    updateFrames () {
+    updateFrames (): void {
         const cb = this.constraint.connectedBody;
         const bodyA = (this._rigidBody.body as BulletRigidBody).sharedBody;
 
@@ -94,11 +94,11 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         bt.FixedConstraint_setFrames(this._impl, trans0, trans1);
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.updateFrames();
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.updateFrames();
     }
 }

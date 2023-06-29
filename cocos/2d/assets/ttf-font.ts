@@ -44,7 +44,7 @@ export class TTFFont extends Font {
      */
     @override
     @string
-    get _nativeAsset () {
+    get _nativeAsset (): string | null {
         return this._fontFamily;
     }
     set _nativeAsset (value) {
@@ -55,7 +55,12 @@ export class TTFFont extends Font {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
-    get _nativeDep () {
+    get _nativeDep (): {
+        uuid: string;
+        __nativeName__: string;
+        ext: string;
+        __isNative__: boolean;
+    } {
         return { uuid: this._uuid, __nativeName__: this._native, ext: path.extname(this._native), __isNative__: true };
     }
 
@@ -65,7 +70,7 @@ export class TTFFont extends Font {
      * @param uuid @en Asset uuid. @zh 资源 uuid。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         this._fontFamily = 'Arial';
         super.initDefault(uuid);
     }
