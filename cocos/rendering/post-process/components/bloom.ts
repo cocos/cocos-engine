@@ -14,6 +14,7 @@ export class Bloom extends PostProcessSetting {
     @serializable
     protected _intensity = 2.3;
 
+    @tooltip('i18n:bloom.threshold')
     @rangeMin(0)
     @type(CCFloat)
     set threshold (value: number) {
@@ -23,6 +24,7 @@ export class Bloom extends PostProcessSetting {
         return this._threshold;
     }
 
+    @tooltip('i18n:bloom.iterations')
     @slide
     @range([1, 6, 1])
     @type(CCInteger)
@@ -33,6 +35,7 @@ export class Bloom extends PostProcessSetting {
         return this._iterations;
     }
 
+    @tooltip('i18n:bloom.intensity')
     @rangeMin(0)
     @type(CCFloat)
     set intensity (value: number) {

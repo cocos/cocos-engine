@@ -1257,14 +1257,25 @@ module.exports = link(mixin({
         maxPos: '生成光照探针的包围盒最大点',
     },
     reflection_probe: {
-        fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
+        fastBake: '勾选则不会对生成的 cubemap 进行 GGX 卷积，烘焙速度非常快。',
+    },
+    hbao: {
+        radiusScale: '环境光遮蔽的范围，通过调整该值可以让暗部区域更好的按场景尺度进行适配',
+        aoSaturation: '环境光遮蔽的饱和度，该值越大则越暗',
+        needBlur: '开启可以获得更柔和的效果，噪点更少，但会耗费一些性能',
+    },
+    bloom: {
+        threshold: '光晕的亮度阈值，大于此亮度的区域才会产生泛光，该值单位是人眼所见的 LDR 亮度，和曝光无关',
+        iterations: '模糊迭代次数，该值越大则光晕范围越大、越柔和，但性能也会有所降低',
+        intensity: '泛光强度，该值越大则光晕越亮，请适度调节',
     },
     color_grading: {
-        originalMap: '支持任意Nx1的长条图和8x8的方块图，系统自动适配。内置lut贴图路径internal/dependencies/textures/lut/',
+        contribute: 'color grading 的贡献度，可在0-1的范围内调节其对颜色的影响程度',
+        originalMap: '支持任意 Nx1 的长条图和 8x8 的方块图，系统自动适配。内置 LUT 贴图路径 internal/dependencies/textures/lut/',
     },
     taa: {
-        sampleScale: 'TAA 采样范围。',
-        feedback: '历史帧混合值。',
+        sampleScale: 'TAA 采样范围',
+        feedback: '历史帧混合值',
     },
     fsr: {
         sharpness: '画面锐化度',

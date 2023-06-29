@@ -1278,7 +1278,18 @@ module.exports = link(mixin({
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
+    hbao: {
+        radiusScale: 'The range of ambient occlusion, by adjusting this value, the dark area can be better adapted to the scale of the scene.',
+        aoSaturation: 'The saturation of ambient occlusion, the higher the value, the darker.',
+        needBlur: 'Turn on for a softer effect with less noise, but it consumes some performance.',
+    },
+    bloom: {
+        threshold: 'The brightness threshold, brighter area will produce bloom, this value unit is the LDR brightness seen by the human eye, independent of exposure.',
+        iterations: 'The number of blur iterations, the higher the value that results in a larger and softer flare range, but with reduced performance.',
+        intensity: 'Flood intensity, the higher the value, the brighter the halo, please adjust it moderately.',
+    },
     color_grading: {
+        contribute: 'Adjust contribution of LUT for screen color, The influence on screen color can be adjusted in the range of 0-1.',
         originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
     taa: {
