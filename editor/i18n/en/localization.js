@@ -251,6 +251,8 @@ module.exports = link(mixin({
         ISO: 'Camera ISO, controls the exposure parameter',
         rect: 'The size of the viewport that this camera will eventually render to the screen.',
         target_texture: 'Output render texture of the camera. Default to null, which outputs directly to screen',
+        use_postprocess: 'Whether this camera should use post process.',
+        postprocess: 'If camera post process is not specified, will use the global post process.',
     },
     lights: {
         color: 'Color of the light',
@@ -1278,6 +1280,18 @@ module.exports = link(mixin({
     },
     color_grading: {
         originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
+    },
+    taa: {
+        sampleScale: 'TAA sample range.',
+        feedback: 'History frame blend value.',
+    },
+    fsr: {
+        sharpness: 'Sharpness',
+    },
+    postprocess: {
+        global: 'Whether the post process is enabled for all post process camera.',
+        shadingScale: 'Rendering resolution.',
+        enableShadingScaleInEditor: 'Enable Shading Scale In Editor',
     },
 },
 

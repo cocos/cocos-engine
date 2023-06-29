@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../../asset/assets';
 import { property } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, menu } from '../../../core/data/decorators';
@@ -33,6 +34,15 @@ export class BlitScreen extends PostProcessSetting {
     }
     set activeMaterials (v) {
         this._activeMaterials = v;
+        for (let i = 0; i < this._materials.length; i++) {
+            for (let j = 0; j < v.length; j++) {
+                if (this._materials[i] && v[j]) {
+                    if (this._materials[i].material?.uuid === v[j].uuid) {
+                        this._materials[i].material = v[j];
+                    }
+                }
+            }
+        }
     }
 
     @property(BlitScreenMaterial)
@@ -44,6 +54,11 @@ export class BlitScreen extends PostProcessSetting {
     }
     set materials (v) {
         this._materials = v;
+        if (EDITOR) {
+            setTimeout(() => {
+                globalThis.cce.Engine.repaintInEditMode();
+            }, 50);
+        }
         this.updateActiveMateirals();
     }
 
