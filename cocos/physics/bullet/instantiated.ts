@@ -27,7 +27,7 @@ import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from
 import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
 import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
-import { debug, error, getError, sys } from '../../core';
+import { debug, error, getError, log, sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
@@ -93,7 +93,7 @@ function initAsm (resolve, reject): void {
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any): void => { console.info(msg); };
+    const infoReport = (msg: any): void => { log(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,

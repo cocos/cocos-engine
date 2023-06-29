@@ -209,16 +209,16 @@ export default class Bundle {
      *
      * @example
      * // load the texture (${project}/assets/resources/textures/background.jpg) from resources
-     * resources.load('textures/background', Texture2D, (err, texture) => console.log(err));
+     * resources.load('textures/background', Texture2D, (err, texture) => log(err));
      *
      * // load the audio (${project}/assets/resources/music/hit.mp3) from resources
-     * resources.load('music/hit', AudioClip, (err, audio) => console.log(err));
+     * resources.load('music/hit', AudioClip, (err, audio) => log(err));
      *
      * // load the prefab (${project}/assets/bundle1/misc/character/cocos) from bundle1 folder
-     * bundle1.load('misc/character/cocos', Prefab, (err, prefab) => console.log(err));
+     * bundle1.load('misc/character/cocos', Prefab, (err, prefab) => log(err));
      *
      * // load the sprite frame (${project}/assets/some/xxx/bundle2/imgs/cocos.png) from bundle2 folder
-     * bundle2.load('imgs/cocos', SpriteFrame, null, (err, spriteFrame) => console.log(err));
+     * bundle2.load('imgs/cocos', SpriteFrame, null, (err, spriteFrame) => log(err));
      *
      */
     public load<T extends Asset> (
@@ -346,10 +346,10 @@ export default class Bundle {
      * });
      *
      * // load all prefabs (${project}/assets/bundle1/misc/characters/) from bundle1 folder
-     * bundle1.loadDir('misc/characters', Prefab, (err, prefabs) => console.log(err));
+     * bundle1.loadDir('misc/characters', Prefab, (err, prefabs) => log(err));
      *
      * // load all sprite frame (${project}/assets/some/xxx/bundle2/skills/) from bundle2 folder
-     * bundle2.loadDir('skills', SpriteFrame, null, (err, spriteFrames) => console.log(err));
+     * bundle2.loadDir('skills', SpriteFrame, null, (err, spriteFrames) => log(err));
      *
      */
     public loadDir<T extends Asset> (dir: string, type: Constructor<T> | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: T[]) => void) | null): void;

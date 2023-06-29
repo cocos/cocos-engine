@@ -31,6 +31,7 @@ import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { warn } from '../platform/debug';
 
 /**
  * @en Representation of 2D vectors and points.
@@ -640,7 +641,7 @@ export class Vec2 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec2 {
-        if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
+        if (typeof scalar === 'object') { warn('should use Vec2.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
         return this;
@@ -652,7 +653,7 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec2): Vec2 {
-        if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
+        if (typeof other !== 'object') { warn('should use Vec2.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
         return this;

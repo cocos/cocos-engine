@@ -26,7 +26,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { BufferTextureCopy } from '../../../gfx';
-import { cclegacy } from '../../../core';
+import { cclegacy, warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
@@ -254,7 +254,7 @@ export class DynamicAtlasTexture extends Texture2D {
 
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
-            console.warn('Unable to get device');
+            warn('Unable to get device');
             return;
         }
 

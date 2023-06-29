@@ -26,7 +26,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -680,7 +680,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else if (renderMode === RenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
+            warn(`particle system renderMode ${renderMode} not support.`);
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {

@@ -29,6 +29,7 @@ import { sys, macro, warnID, cclegacy } from '../../core';
 import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
 import type { ImageAsset as JsbImageAsset } from './image-asset';
+import { error } from 'console';
 
 declare const jsb: any;
 
@@ -181,7 +182,7 @@ imageAssetProto._syncDataToNative = function () {
     }
     else {
         if(!this._nativeData._data){
-            console.error(`[ImageAsset] setData bad argument ${this._nativeData}`);
+            error(`[ImageAsset] setData bad argument ${this._nativeData}`);
             return;
         }
         this.setData(this._nativeData._data);

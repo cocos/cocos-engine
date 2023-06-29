@@ -261,7 +261,7 @@ export class ParticleSystem extends ModelRenderer {
 
     set prewarm (val) {
         if (val === true && this.loop === false) {
-            // console.warn('prewarm only works if loop is also enabled.');
+            // warn('prewarm only works if loop is also enabled.');
         }
         this._prewarm = val;
     }

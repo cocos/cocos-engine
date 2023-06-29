@@ -315,14 +315,17 @@ export class Director extends EventTarget {
         assertID(scene instanceof Scene, 1216);
 
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('InitScene');
         }
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('InitScene');
         }
         // Re-attach or replace persist nodes
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('AttachPersist');
         }
         const persistNodeList = Object.keys(this._persistRootNodes).map((x): Node => this._persistRootNodes[x] as Node);
@@ -344,12 +347,14 @@ export class Director extends EventTarget {
             }
         }
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('AttachPersist');
         }
         const oldScene = this._scene;
 
         // unload scene
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('Destroy');
         }
         if (isValid(oldScene)) {
@@ -358,10 +363,12 @@ export class Director extends EventTarget {
         if (!EDITOR) {
             // auto release assets
             if (BUILD && DEBUG) {
+                // eslint-disable-next-line no-console
                 console.time('AutoRelease');
             }
             releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
+                // eslint-disable-next-line no-console
                 console.timeEnd('AutoRelease');
             }
         }
@@ -370,6 +377,7 @@ export class Director extends EventTarget {
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
+        // eslint-disable-next-line no-console
         if (BUILD && DEBUG) { console.timeEnd('Destroy'); }
 
         if (onBeforeLoadScene) {
@@ -385,10 +393,12 @@ export class Director extends EventTarget {
         this._scene = scene;
 
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('Activate');
         }
         scene._activate();
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('Activate');
         }
         // start scene
@@ -440,8 +450,10 @@ export class Director extends EventTarget {
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
+            // eslint-disable-next-line no-console
             console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene): void => {
+                // eslint-disable-next-line no-console
                 console.timeEnd(`LoadScene ${sceneName}`);
                 this._loadingScene = '';
                 if (err) {
@@ -508,7 +520,7 @@ export class Director extends EventTarget {
         }
     }
 
-    public buildGPUScene (scene: Scene) {
+    public buildGPUScene (scene: Scene): void {
         const sceneData = this.root!.pipeline.pipelineSceneData;
         if (!sceneData || !sceneData.isGPUDrivenEnabled()) {
             return;

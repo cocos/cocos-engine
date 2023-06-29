@@ -33,7 +33,7 @@ import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID } from './layout-graph-utils';
-import { assert } from '../../core/platform/debug';
+import { assert, error, warn } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 import { PipelineRuntime } from './pipeline';
 
@@ -65,7 +65,7 @@ function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgra
             }
         }
         if (!found) {
-            console.error(`Block ${block.name} not found in shader ${shaderInfo.name}`);
+            error(`Block ${block.name} not found in shader ${shaderInfo.name}`);
         }
     }
 }
@@ -183,7 +183,7 @@ function populateMergedShaderInfo (valueNames: string[],
             for (const block of descriptorBlock.descriptors) {
                 const uniformBlock = layout.uniformBlocks.get(block.descriptorID);
                 if (uniformBlock === undefined) {
-                    console.error(`Failed to find uniform block ${block.descriptorID} in layout`);
+                    error(`Failed to find uniform block ${block.descriptorID} in layout`);
                     continue;
                 }
                 blockSizes.push(getSize(uniformBlock.members));
@@ -195,7 +195,7 @@ function populateMergedShaderInfo (valueNames: string[],
                 ++binding;
             }
             if (binding !== descriptorBlock.offset + descriptorBlock.capacity) {
-                console.error(`Uniform buffer binding mismatch for set ${set}`);
+                error(`Uniform buffer binding mismatch for set ${set}`);
             }
             break;
         case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
@@ -319,7 +319,7 @@ function populateLocalShaderInfo (
         const info = source.layouts[block.name] as UniformBlock | undefined;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
-            console.warn(`builtin UBO '${block.name}' not available!`);
+            warn(`builtin UBO '${block.name}' not available!`);
             continue;
         }
         blockSizes.push(getSize(block.members));
@@ -331,7 +331,7 @@ function populateLocalShaderInfo (
         const info = source.layouts[samplerTexture.name] as UniformSamplerTexture;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-            console.warn(`builtin samplerTexture '${samplerTexture.name}' not available!`);
+            warn(`builtin samplerTexture '${samplerTexture.name}' not available!`);
             continue;
         }
         shaderInfo.samplerTextures.push(new UniformSamplerTexture(
@@ -549,7 +549,7 @@ function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: nu
             return [v.name, type];
         }
     }
-    console.error('descriptor not found');
+    error('descriptor not found');
     return ['', Type.UNKNOWN];
 }
 
@@ -567,7 +567,7 @@ function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
         data.descriptorBlocks.push(block);
         const binding = data.bindingMap.get(nameID);
         if (binding !== undefined) {
-            console.error(`duplicate descriptor name '${name}'`);
+            error(`duplicate descriptor name '${name}'`);
         }
         data.bindingMap.set(nameID, b.binding);
         const v = source.layouts[name];
@@ -601,7 +601,7 @@ function buildProgramData (
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
         if (localDescriptorSetLayout.bindings.length !== setData.descriptorSetLayoutInfo.bindings.length) {
-            console.error('local descriptor set layout inconsistent');
+            error('local descriptor set layout inconsistent');
         } else {
             for (let k = 0; k !== localDescriptorSetLayout.bindings.length; ++k) {
                 const b = localDescriptorSetLayout.bindings[k];
@@ -610,7 +610,7 @@ function buildProgramData (
                     || b.descriptorType !== b2.descriptorType
                     || b.count !== b2.count
                     || b.stageFlags !== b2.stageFlags) {
-                    console.error('local descriptor set layout inconsistent');
+                    error('local descriptor set layout inconsistent');
                 }
             }
         }
@@ -682,20 +682,20 @@ function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
     const programName = pass.program;
     const passID = getCustomPassID(lg, pass.pass);
     if (passID === INVALID_ID) {
-        console.error(`Invalid render pass, program: ${programName}`);
+        error(`Invalid render pass, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
 
     const enableSubpass = pass.subpass && pass.subpass !== '' && ENABLE_SUBPASS;
     const subpassID = enableSubpass ? getCustomSubpassID(lg, passID, pass.subpass!) : INVALID_ID;
     if (enableSubpass && subpassID === INVALID_ID) {
-        console.error(`Invalid render subpass, program: ${programName}`);
+        error(`Invalid render subpass, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
 
     const phaseID = getCustomPhaseID(lg, subpassID === INVALID_ID ? passID : subpassID, pass.phase);
     if (phaseID === INVALID_ID) {
-        console.error(`Invalid render phase, program: ${programName}`);
+        error(`Invalid render phase, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
     let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
@@ -715,7 +715,7 @@ function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
 function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
     // source shader info
     if (srcShaderInfo.descriptors === undefined) {
-        console.error(`No descriptors in shader: ${srcShaderInfo.name}, please reimport ALL effects`);
+        error(`No descriptors in shader: ${srcShaderInfo.name}, please reimport ALL effects`);
         return 1;
     }
     return 0;
@@ -738,7 +738,7 @@ export class WebProgramLibrary implements ProgramLibrary {
                 const programName = pass.program;
                 const [passID, subpassID, phaseID, srcShaderInfo] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
-                    console.error(`program: ${programName} not found`);
+                    error(`program: ${programName} not found`);
                     continue;
                 }
                 assert(passID !== INVALID_ID && phaseID !== INVALID_ID);
@@ -795,7 +795,7 @@ export class WebProgramLibrary implements ProgramLibrary {
                 const programName = pass.program;
                 const [passID, subpassID, phaseID, srcShaderInfo, shaderID] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
-                    console.error(`program: ${programName} not valid`);
+                    error(`program: ${programName} not valid`);
                     continue;
                 }
                 assert(passID !== INVALID_ID && phaseID !== INVALID_ID && shaderID !== INVALID_ID);
@@ -833,13 +833,13 @@ export class WebProgramLibrary implements ProgramLibrary {
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return '';
         }
         // get info
         const info = group.programInfos.get(programName);
         if (info === undefined) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return '';
         }
         return getVariantKey(info.programInfo, defines);
@@ -851,13 +851,13 @@ export class WebProgramLibrary implements ProgramLibrary {
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
-            console.error(`Invalid render phase, program: ${name}`);
+            error(`Invalid render phase, program: ${name}`);
             return null;
         }
         // get info
         const info = group.programInfos.get(name);
         if (info === undefined) {
-            console.error(`Invalid program, program: ${name}`);
+            error(`Invalid program, program: ${name}`);
             return null;
         }
         const programInfo = info.programInfo;
@@ -882,7 +882,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         if (deviceShaderVersion) {
             src = programInfo[deviceShaderVersion];
         } else {
-            console.error('Invalid GFX API!');
+            error('Invalid GFX API!');
         }
 
         // prepare shader info
@@ -927,12 +927,12 @@ export class WebProgramLibrary implements ProgramLibrary {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
         if (!group) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return [];
         }
         const info = group.programInfos.get(programName);
         if (!info) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return [];
         }
         return info.blockSizes;
@@ -942,12 +942,12 @@ export class WebProgramLibrary implements ProgramLibrary {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
         if (!group) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return {};
         }
         const info = group.programInfos.get(programName);
         if (!info) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return {};
         }
         return info.handleMap;

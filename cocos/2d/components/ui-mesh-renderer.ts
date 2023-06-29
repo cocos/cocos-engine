@@ -34,7 +34,7 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, cclegacy } from '../../core';
+import { assert, cclegacy, warn } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';
 
@@ -99,7 +99,7 @@ export class UIMeshRenderer extends Component {
 
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
             return;
         }
         if (JSB) {

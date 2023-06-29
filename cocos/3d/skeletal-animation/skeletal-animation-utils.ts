@@ -381,8 +381,7 @@ export class JointTexturePool {
         }
     }
 
-    private _createAnimInfos (skeleton: Skeleton, clip: AnimationClip, skinningRoot: Node): IInternalJointAnimInfo[]
-    {
+    private _createAnimInfos (skeleton: Skeleton, clip: AnimationClip, skinningRoot: Node): IInternalJointAnimInfo[] {
         const animInfos: IInternalJointAnimInfo[] = [];
         const { joints, bindposes } = skeleton;
         const jointCount = joints.length;

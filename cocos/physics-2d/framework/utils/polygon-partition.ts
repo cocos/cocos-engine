@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec2Like } from '../../../core';
+import { IVec2Like, log } from '../../../core';
 
 //https://github.com/x6ud/poly-partition-js
 
@@ -278,7 +278,7 @@ function Triangulate (polygon: IVec2Like[]): IVec2Like[][] | null {
                     const p2 = vertex.point!;
                     const p3 = vertex.next!.point!;
                     if (Math.abs(area(p1, p2, p3)) > 1e-5) {
-                        console.log('Failed to find ear. There might be self-intersection in the polygon.');
+                        log('Failed to find ear. There might be self-intersection in the polygon.');
                         return null;
                     }
                 }

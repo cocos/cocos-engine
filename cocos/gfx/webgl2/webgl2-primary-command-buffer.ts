@@ -38,6 +38,7 @@ import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { error } from '../../core';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (
@@ -86,7 +87,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            error('Command \'draw\' must be recorded inside a render pass.');
         }
     }
 
@@ -138,7 +139,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncUpdateBuffer(WebGL2DeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            error('Command \'updateBuffer\' must be recorded outside a render pass.');
         }
     }
 
@@ -149,7 +150,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
         }
     }
 

@@ -137,9 +137,9 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print https://www.cocos.com
+     * log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print https://www.cocos.com
      * settings.overrideSettings(Settings.Category.ASSETS, 'server', 'http://www.test.com');
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print http://www.test.com
+     * log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print http://www.test.com
      * ```
      */
     overrideSettings<T = any> (category: Category | string, name: string, value: T): void {
@@ -162,7 +162,7 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ENGINE, 'debug')); // print false
+     * log(settings.querySettings(Settings.Category.ENGINE, 'debug')); // print false
      * ```
      */
     querySettings<T = any> (category: Category | string, name: string): T | null {
