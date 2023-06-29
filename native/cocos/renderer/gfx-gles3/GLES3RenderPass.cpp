@@ -44,6 +44,7 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
     _gpuRenderPass = ccnew GLES3GPURenderPass;
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
+    _gpuRenderPass->depthStencilResolveAttachment = _depthStencilResolveAttachment;
     _gpuRenderPass->subpasses = _subpasses;
     _gpuRenderPass->dependencies = _dependencies;
 

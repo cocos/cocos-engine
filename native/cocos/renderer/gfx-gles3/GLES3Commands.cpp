@@ -1458,6 +1458,7 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
         }
 
         gpuRenderPass->depthStencil = sub.depthStencil;
+        gpuRenderPass->depthStencilResolve = sub.depthStencilResolve;
     }
 }
 
@@ -1515,108 +1516,6 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *device,
-                                                                  const ccstd::vector<GLES3GPUTextureView *> &attachments, const uint32_t *colors, size_t colorCount,
-                                                                  const GLES3GPUTextureView *depthStencilView,
-                                                                  const uint32_t *resolves = nullptr,
-                                                                  const GLES3GPUTextureView *depthStencilResolveView = nullptr,
-                                                                  GLbitfield *resolveMask = nullptr) {
-    static ccstd::vector<GLenum> drawBuffers;
-    GLES3GPUStateCache *cache = device->stateCache();
-    GLES3GPUFramebuffer::GLFramebufferInfo res;
-
-    GL_CHECK(glGenFramebuffers(1, &res.glFramebuffer));
-    if (cache->glDrawFramebuffer != res.glFramebuffer) {
-        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, res.glFramebuffer));
-        cache->glDrawFramebuffer = res.glFramebuffer;
-    }
-
-    drawBuffers.clear();
-
-    auto supportLevel = device->constantRegistry()->mMSRT;
-    bool autoResolve = supportLevel > MSRTSupportLevel::LEVEL1 || (supportLevel != MSRTSupportLevel::NONE && colorCount <= 1);
-
-    for (size_t j = 0; j < colorCount; ++j) {
-        GLES3GPUTextureView *gpuColorTextureView = attachments[colors[j]];
-        GLES3GPUTextureView *gpuResolveTextureView = resolves ? attachments[resolves[j]] : nullptr;
-        GLES3GPUTexture *gpuColorTexture = gpuColorTextureView->gpuTexture;
-        GLES3GPUTexture *gpuResolveTexture = resolves && gpuColorTexture->memoryless ? gpuResolveTextureView->gpuTexture : nullptr;
-
-        drawBuffers.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j));
-
-        if (gpuResolveTexture) {
-            if (autoResolve && gpuResolveTexture->glTexture != 0) {
-                GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture,
-                                                              gpuResolveTextureView->baseLevel, gpuColorTexture->glSamples));
-                continue;
-            }
-            *resolveMask |= GL_COLOR_BUFFER_BIT; // fallback to blit-based manual resolve
-        }
-        if (gpuColorTexture) {
-            if (gpuColorTexture->glTexture) {
-                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                gpuColorTexture->glTarget, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel));
-            } else {
-                GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                   gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
-            }
-        }
-        res.width = std::min(res.width, gpuColorTexture->width);
-        res.height = std::min(res.height, gpuColorTexture->height);
-    }
-
-    GLES3GPUTexture *depthStencil = depthStencilView ? depthStencilView->gpuTexture : nullptr;
-    GLES3GPUTexture *depthStencilResolve = depthStencilResolveView ? depthStencilResolveView->gpuTexture : nullptr;
-    if (depthStencil) {
-        bool hasStencil = GFX_FORMAT_INFOS[static_cast<int>(depthStencil->format)].hasStencil;
-        GLenum glAttachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-        if (depthStencil->glTexture) {
-            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, glAttachment, depthStencil->glTarget, depthStencil->glTexture, depthStencilView->baseLevel));
-        } else if (depthStencil->glRenderbuffer) {
-            GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, glAttachment, depthStencil->glTarget, depthStencil->glRenderbuffer));
-        }
-
-        // fallback to blit-based manual resolve
-        if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
-        res.width = std::min(res.width, depthStencil->width >> depthStencilView->baseLevel);
-        res.height = std::min(res.height, depthStencil->height >> depthStencilView->baseLevel);
-    }
-
-    // register to framebuffer caches
-    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, attachments[colors[0]]->gpuTexture, 0);
-    if (depthStencil) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, depthStencilView->gpuTexture, 0);
-
-    GL_CHECK(glDrawBuffers(utils::toUint(drawBuffers.size()), drawBuffers.data()));
-
-    GLenum status;
-    GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        switch (status) {
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
-                break;
-            case GL_FRAMEBUFFER_UNSUPPORTED:
-                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED");
-                break;
-            default:
-                CC_LOG_ERROR("checkFramebufferStatus() - %x", status);
-                break;
-        }
-    }
-
-    return res;
-}
-
 static GLES3GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES3GPUTextureView *> &textureViews, const uint32_t *indices, size_t count) {
     GLES3GPUSwapchain *swapchain{nullptr};
     if (indices) {
@@ -1634,68 +1533,145 @@ static GLES3GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES3GPUTextu
     return swapchain;
 }
 
-static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO, const ccstd::vector<uint32_t> &colors,
-                                        uint32_t depthStencil, GLES3GPUFramebuffer::Framebuffer *outFBO,
-                                        const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
-    GLES3GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, colors.data(), colors.size())};
-    if (!swapchain) {
-        const GLES3GPUTextureView *depthStencilTextureView = nullptr;
-        if (depthStencil != INVALID_BINDING) {
-            depthStencilTextureView = depthStencil < gpuFBO->gpuColorViews.size()
-                                          ? gpuFBO->gpuColorViews[depthStencil]
-                                          : gpuFBO->gpuDepthStencilView;
-        }
-        const GLES3GPUTextureView *depthStencilResolveTextureView = nullptr;
-        if (depthStencilResolve != INVALID_BINDING) {
-            depthStencilResolveTextureView = depthStencilResolve < gpuFBO->gpuColorViews.size()
-                                                 ? gpuFBO->gpuColorViews[depthStencilResolve]
-                                                 : gpuFBO->gpuDepthStencilView;
-        }
-
-        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorViews, colors.data(), utils::toUint(colors.size()),
-                                                           depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask));
-        if (outFBO->resolveMask) {
-            size_t resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? utils::toUint(colors.size()) : 0U;
-            GLES3GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, resolves, resolveCount)};
-            if (!resolveSwapchain) {
-                outFBO->resolveFramebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorViews, resolves, resolveCount, depthStencilResolveTextureView));
-            } else {
-                outFBO->resolveFramebuffer.initialize(resolveSwapchain);
-            }
-        }
+static GLbitfield getColorBufferMask(Format format) {
+    GLbitfield mask = 0U;
+    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(format)];
+    if (info.hasDepth || info.hasStencil) {
+        if (info.hasDepth) mask |= GL_DEPTH_BUFFER_BIT;
+        if (info.hasStencil) mask |= GL_STENCIL_BUFFER_BIT;
     } else {
-        outFBO->framebuffer.initialize(swapchain);
+        mask = GL_COLOR_BUFFER_BIT;
     }
+    return mask;
+}
+
+static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
+    device->context()->makeCurrent(gpuFbo->framebuffer.swapchain, gpuFbo->resolveFramebuffer.swapchain);
+    auto *cache = device->stateCache();
+    auto width = gpuFbo->width;
+    auto height = gpuFbo->height;
+
+    if (cache->glReadFramebuffer != gpuFbo->framebuffer.handle) {
+        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, gpuFbo->framebuffer.handle));
+        cache->glReadFramebuffer = gpuFbo->framebuffer.handle;
+    }
+
+    if (cache->glDrawFramebuffer != gpuFbo->resolveFramebuffer.handle) {
+        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gpuFbo->resolveFramebuffer.handle));
+        cache->glDrawFramebuffer = gpuFbo->resolveFramebuffer.handle;
+    }
+
+    gpuFbo->resolveFramebuffer.processLoad(GL_DRAW_FRAMEBUFFER);
+
+    if (!gpuFbo->colorBlitPairs.empty()) {
+        auto resolveColorNum = gpuFbo->resolveFramebuffer.colors.size();
+        std::vector<GLenum> drawBuffers(resolveColorNum, GL_NONE);
+        for (auto &[src, dst] : gpuFbo->colorBlitPairs) {
+            drawBuffers[dst] = GL_COLOR_ATTACHMENT0 + dst;
+            GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0 + src));
+            GL_CHECK(glDrawBuffers(resolveColorNum, drawBuffers.data()));
+
+            GL_CHECK(glBlitFramebuffer(
+                0, 0, width, height,
+                0, 0, width, height,
+                GL_COLOR_BUFFER_BIT, GL_NEAREST));
+            drawBuffers[dst] = GL_NONE;
+        }
+    }
+    if (gpuFbo->dsResolveMask != 0) {
+        GL_CHECK(glBlitFramebuffer(
+            0, 0, width, height,
+            0, 0, width, height,
+            gpuFbo->dsResolveMask, GL_NEAREST));
+    }
+
+    gpuFbo->framebuffer.processStore(GL_READ_FRAMEBUFFER);
+    gpuFbo->resolveFramebuffer.processStore(GL_DRAW_FRAMEBUFFER);
 }
 
 void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
-    const auto &colors = gpuFBO->gpuRenderPass->colors;
-    const auto &resolves = gpuFBO->gpuRenderPass->resolves;
-    const auto &depthStencil = gpuFBO->gpuRenderPass->depthStencil;
+    const auto *renderPass = gpuFBO->gpuRenderPass;
+    const auto &colors = renderPass->colors;
+    const auto &resolves = renderPass->resolves;
+    const auto &indices = renderPass->indices;
+    const auto depthStencil = renderPass->depthStencil;
+    const auto depthStencilResolve = renderPass->depthStencilResolve;
 
-    doCreateFramebufferInstance(device, gpuFBO, colors, depthStencil, &gpuFBO->frameBuffer, resolves.empty() ? nullptr : resolves.data());
-}
+    gpuFBO->framebuffer.initialize(getSwapchainIfExists(gpuFBO->gpuColorViews, colors.data(), colors.size()));
+    gpuFBO->resolveFramebuffer.initialize(getSwapchainIfExists(gpuFBO->gpuColorViews, resolves.data(), resolves.size()));
 
-void GLES3GPUFramebuffer::GLFramebuffer::destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap) {
-    if (swapchain) {
-        swapchain = nullptr;
-    } else {
-        if (cache->glDrawFramebuffer == _glFramebuffer) {
-            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
-            cache->glDrawFramebuffer = 0;
+    auto supportLevel = device->constantRegistry()->mMSRT;
+    /*
+     * LEVEL0 does ont support on-chip resolve
+     * LEVEL1 only support COLOR_ATTACHMENT0
+     * LEVEL2 support COLOR_ATTACHMENT(i) + DEPTH_STENCIL
+     */
+    uint32_t supportCount = supportLevel > MSRTSupportLevel::LEVEL1 ? 255 : static_cast<uint32_t>(supportLevel);
+    constexpr bool USE_DS_RESOLVE = true;
+
+    uint32_t resolveColorIndex = 0;
+    for (uint32_t i = 0; i < colors.size(); ++i) {
+        const auto &attachmentIndex = colors[i];
+        const auto &colorIndex = indices[attachmentIndex];
+        const auto &resolveIndex = resolves.empty() ? INVALID_BINDING : resolves[attachmentIndex];
+
+        const auto &desc = renderPass->colorAttachments[attachmentIndex];
+        const auto *view = gpuFBO->gpuColorViews[attachmentIndex];
+        CC_ASSERT(view != nullptr);
+
+        // need to resolve
+        if (view->gpuTexture->glSamples != 1 && resolveIndex != INVALID_BINDING) {
+            const auto &resolveDesc = renderPass->colorAttachments[resolveIndex];
+            const auto *resolveView = gpuFBO->gpuColorViews[resolveIndex];
+            CC_ASSERT(resolveView != nullptr);
+
+            if (view->gpuTexture->memoryless &&                  // MS attachment should be memoryless
+                resolveView->gpuTexture->swapchain != nullptr && // not back buffer
+                i < supportCount) {                              // extension limit
+                gpuFBO->framebuffer.bindColorMultiSample(resolveView, colorIndex, view->gpuTexture->glSamples, resolveDesc);
+            } else {
+                gpuFBO->framebuffer.bindColor(view, colorIndex, desc);
+                gpuFBO->resolveFramebuffer.bindColor(resolveView, resolveColorIndex++, resolveDesc);
+            }
+            continue;
         }
-        GL_CHECK(glDeleteFramebuffers(1, &_glFramebuffer));
-        framebufferCacheMap->unregisterExternal(_glFramebuffer);
-        _glFramebuffer = 0U;
+        gpuFBO->framebuffer.bindColor(view, colorIndex, desc);
     }
+
+    if (depthStencil != INVALID_BINDING) {
+        const auto &desc = renderPass->depthStencilAttachment;
+        const auto *view = gpuFBO->gpuDepthStencilView;
+        CC_ASSERT(view != nullptr);
+
+        if (view->gpuTexture->glSamples != 1 && depthStencilResolve != INVALID_BINDING) {
+            const auto &resolveDesc = renderPass->depthStencilResolveAttachment;
+            const auto *resolveView = gpuFBO->gpuDepthStencilResolveView;
+
+            if (view->gpuTexture->memoryless &&                     // MS attachment should be memoryless
+                resolveView->gpuTexture->swapchain != nullptr &&    // not back buffer
+                supportCount > 1 &&                                 // extension limit
+                USE_DS_RESOLVE) {                                   // enable ds resolve
+                gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, resolveDesc);
+            } else {
+                gpuFBO->dsResolveMask = getColorBufferMask(desc.format);
+                gpuFBO->framebuffer.bindDepthStencil(view, desc);
+                gpuFBO->resolveFramebuffer.bindDepthStencil(resolveView, resolveDesc);
+            }
+        } else {
+            gpuFBO->framebuffer.bindDepthStencil(view, desc);
+        }
+    }
+
+    gpuFBO->framebuffer.finalize(device->stateCache());
+    gpuFBO->resolveFramebuffer.finalize(device->stateCache());
 }
 
 void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
     auto *cache = device->stateCache();
     auto *framebufferCacheMap = device->framebufferCacheMap();
 
-    gpuFBO->frameBuffer.framebuffer.destroy(cache, framebufferCacheMap);
-    gpuFBO->frameBuffer.resolveFramebuffer.destroy(cache, framebufferCacheMap);
+    gpuFBO->framebuffer.destroy(cache, framebufferCacheMap);
+    gpuFBO->resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
 void completeBarrier(GLES3GPUGeneralBarrier *barrier) {
@@ -1857,7 +1833,6 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
 
 void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass, GLES3GPUFramebuffer *gpuFramebuffer,
                                  const Rect *renderArea, const Color *clearColors, float clearDepth, uint32_t clearStencil) {
-    ccstd::vector<GLenum> invalidAttachments;
     GLES3GPUStateCache *cache = device->stateCache();
     GLES3ObjectCache &gfxStateCache = cache->gfxStateCache;
     gfxStateCache.subpassIdx = 0;
@@ -1869,14 +1844,12 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
     gfxStateCache.clearStencil = clearStencil;
 
     if (gpuFramebuffer && gpuRenderPass) {
-        auto &instance = gpuFramebuffer->frameBuffer;
+        auto &framebuffer = gpuFramebuffer->framebuffer;
+        device->context()->makeCurrent(gpuFramebuffer->framebuffer.swapchain, gpuFramebuffer->framebuffer.swapchain);
 
-        GLuint glFramebuffer = instance.framebuffer.getFramebuffer();
-        device->context()->makeCurrent(instance.framebuffer.swapchain, instance.framebuffer.swapchain);
-
-        if (cache->glDrawFramebuffer != glFramebuffer) {
-            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer));
-            cache->glDrawFramebuffer = glFramebuffer;
+        if (cache->glDrawFramebuffer != framebuffer.handle) {
+            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.handle));
+            cache->glDrawFramebuffer = framebuffer.handle;
         }
 
         if (cache->viewport.left != renderArea->x ||
@@ -1896,38 +1869,27 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
         }
 
         GLbitfield glClears = 0;
-        invalidAttachments.clear();
-
         float fColors[4]{};
         bool maskSet = false;
 
         auto performLoadOp = [&](uint32_t attachmentIndex, uint32_t glAttachmentIndex) {
             const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[attachmentIndex];
-            if (colorAttachment.format != Format::UNKNOWN) {
-                switch (colorAttachment.loadOp) {
-                    case LoadOp::LOAD: break; // GL default behaviour
-                    case LoadOp::CLEAR: {
-                        if (!maskSet && cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
-                            GL_CHECK(glColorMask(true, true, true, true));
-                            maskSet = true;
-                        }
+            if (colorAttachment.format != Format::UNKNOWN && colorAttachment.loadOp == LoadOp::CLEAR) {
+                if (!maskSet && cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
+                    GL_CHECK(glColorMask(true, true, true, true));
+                    maskSet = true;
+                }
 
-                        const Color &color = clearColors[attachmentIndex];
-                        if (glFramebuffer) {
-                            fColors[0] = color.x;
-                            fColors[1] = color.y;
-                            fColors[2] = color.z;
-                            fColors[3] = color.w;
-                            GL_CHECK(glClearBufferfv(GL_COLOR, glAttachmentIndex, fColors));
-                        } else {
-                            GL_CHECK(glClearColor(color.x, color.y, color.z, color.w));
-                            glClears |= GL_COLOR_BUFFER_BIT;
-                        }
-                    } break;
-                    case LoadOp::DISCARD:
-                        // invalidate fbo
-                        invalidAttachments.push_back(glFramebuffer ? GL_COLOR_ATTACHMENT0 + glAttachmentIndex : GL_COLOR);
-                        break;
+                const Color &color = clearColors[attachmentIndex];
+                if (framebuffer.handle) {
+                    fColors[0] = color.x;
+                    fColors[1] = color.y;
+                    fColors[2] = color.z;
+                    fColors[3] = color.w;
+                    GL_CHECK(glClearBufferfv(GL_COLOR, glAttachmentIndex, fColors));
+                } else {
+                    GL_CHECK(glClearColor(color.x, color.y, color.z, color.w));
+                    glClears |= GL_COLOR_BUFFER_BIT;
                 }
             }
         };
@@ -1941,41 +1903,23 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                     depthLoadOp = stencilLoadOp = gpuRenderPass->colorAttachments[attachmentIndex].loadOp;
                     hasStencils = GFX_FORMAT_INFOS[toNumber(gpuRenderPass->colorAttachments[attachmentIndex].format)].hasStencil;
                 }
-                switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
-                    case LoadOp::LOAD: break; // GL default behaviour
-                    case LoadOp::CLEAR:
-                        if (!cache->dss.depthWrite) {
-                            GL_CHECK(glDepthMask(true));
-                        }
-                        GL_CHECK(glClearDepthf(clearDepth));
-                        glClears |= GL_DEPTH_BUFFER_BIT;
-                        break;
-                    case LoadOp::DISCARD:
-                        invalidAttachments.push_back(glFramebuffer ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
-                        break;
-                }
-                if (hasStencils) {
-                    switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
-                        case LoadOp::LOAD: break; // GL default behaviour
-                        case LoadOp::CLEAR: {
-                            if (!cache->dss.stencilWriteMaskFront) {
-                                GL_CHECK(glStencilMaskSeparate(GL_FRONT, 0xffffffff));
-                            }
-                            if (!cache->dss.stencilWriteMaskBack) {
-                                GL_CHECK(glStencilMaskSeparate(GL_BACK, 0xffffffff));
-                            }
-                            GL_CHECK(glClearStencil(clearStencil));
-                            glClears |= GL_STENCIL_BUFFER_BIT;
-                        } break;
-                        case LoadOp::DISCARD:
-                            invalidAttachments.push_back(glFramebuffer ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
-                            break;
+                if (gpuRenderPass->depthStencilAttachment.depthLoadOp == LoadOp::CLEAR) {
+                    if (!cache->dss.depthWrite) {
+                        GL_CHECK(glDepthMask(true));
                     }
+                    GL_CHECK(glClearDepthf(clearDepth));
+                    glClears |= GL_DEPTH_BUFFER_BIT;
                 }
-            }
-
-            if (!invalidAttachments.empty()) {
-                GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, utils::toUint(invalidAttachments.size()), invalidAttachments.data()));
+                if (hasStencils && gpuRenderPass->depthStencilAttachment.depthLoadOp == LoadOp::CLEAR) {
+                    if (!cache->dss.stencilWriteMaskFront) {
+                        GL_CHECK(glStencilMaskSeparate(GL_FRONT, 0xffffffff));
+                    }
+                    if (!cache->dss.stencilWriteMaskBack) {
+                        GL_CHECK(glStencilMaskSeparate(GL_BACK, 0xffffffff));
+                    }
+                    GL_CHECK(glClearStencil(clearStencil));
+                    glClears |= GL_STENCIL_BUFFER_BIT;
+                }
             }
 
             if (glClears) {
@@ -2011,6 +1955,8 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
             performLoadOp(i, indices[i]);
         }
         performDepthStencilLoadOp(gpuRenderPass->depthStencil);
+
+        framebuffer.processLoad(GL_DRAW_FRAMEBUFFER);
     }
 }
 
@@ -2032,113 +1978,14 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
 
     GLES3GPUStateCache *cache = device->stateCache();
     GLES3ObjectCache &gfxStateCache = cache->gfxStateCache;
-    GLES3GPURenderPass *gpuRenderPass = gfxStateCache.gpuRenderPass;
     GLES3GPUFramebuffer *gpuFramebuffer = gfxStateCache.gpuFramebuffer;
-    const auto &instance = gpuFramebuffer->frameBuffer;
-    const SubpassInfo &subpass = gpuRenderPass->subpasses[gfxStateCache.subpassIdx];
 
-    GLuint glFramebuffer = instance.framebuffer.getFramebuffer();
-    GLuint glResolveFramebuffer = instance.resolveFramebuffer.getFramebuffer();
-    GLenum invalidateTarget = GL_DRAW_FRAMEBUFFER;
-
-    auto performStoreOp = [&](uint32_t attachmentIndex, uint32_t glAttachmentIndex) {
-        const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[attachmentIndex];
-        if (colorAttachment.format != Format::UNKNOWN) {
-            switch (colorAttachment.storeOp) {
-                case StoreOp::STORE: break;
-                case StoreOp::DISCARD:
-                    // invalidate fbo
-                    invalidAttachments.push_back(glFramebuffer ? GL_COLOR_ATTACHMENT0 + glAttachmentIndex : GL_COLOR);
-                    break;
-            }
-        }
-    };
-
-    auto performDepthStencilStoreOp = [&](uint32_t attachmentIndex) {
-        if (attachmentIndex != INVALID_BINDING) {
-            StoreOp depthStoreOp = gpuRenderPass->depthStencilAttachment.depthStoreOp;
-            StoreOp stencilStoreOp = gpuRenderPass->depthStencilAttachment.stencilStoreOp;
-            bool hasStencils = GFX_FORMAT_INFOS[toNumber(gpuRenderPass->depthStencilAttachment.format)].hasStencil;
-            if (attachmentIndex < gpuRenderPass->colorAttachments.size()) {
-                depthStoreOp = stencilStoreOp = gpuRenderPass->colorAttachments[attachmentIndex].storeOp;
-                hasStencils = GFX_FORMAT_INFOS[toNumber(gpuRenderPass->colorAttachments[attachmentIndex].format)].hasStencil;
-            }
-
-            switch (gpuRenderPass->depthStencilAttachment.depthStoreOp) {
-                case StoreOp::STORE: break;
-                case StoreOp::DISCARD:
-                    invalidAttachments.push_back(glFramebuffer ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
-                    break;
-            }
-            if (hasStencils) {
-                switch (gpuRenderPass->depthStencilAttachment.stencilStoreOp) {
-                    case StoreOp::STORE: break;
-                    case StoreOp::DISCARD:
-                        invalidAttachments.push_back(glFramebuffer ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
-                        break;
-                }
-            }
-        }
-
-        if (!invalidAttachments.empty()) {
-            GL_CHECK(glInvalidateFramebuffer(invalidateTarget, utils::toUint(invalidAttachments.size()), invalidAttachments.data()));
-        }
-    };
-
-    if (instance.resolveMask) {
-        device->context()->makeCurrent(instance.resolveFramebuffer.swapchain, instance.framebuffer.swapchain);
-
-        if (cache->glReadFramebuffer != glFramebuffer) {
-            GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, glFramebuffer));
-            cache->glReadFramebuffer = glFramebuffer;
-        }
-
-        if (cache->glDrawFramebuffer != glResolveFramebuffer) {
-            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glResolveFramebuffer));
-            cache->glDrawFramebuffer = glResolveFramebuffer;
-        }
-
-        if (instance.resolveMask & GL_COLOR_BUFFER_BIT) {
-            for (uint32_t i = 0; i < subpass.colors.size(); ++i) {
-                auto attachment = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i);
-                GL_CHECK(glReadBuffer(attachment));
-                GL_CHECK(glDrawBuffers(1, &attachment));
-
-                GLES3GPUTexture *srcTex = gpuFramebuffer->gpuColorViews[subpass.colors[i]]->gpuTexture;
-                GLES3GPUTexture *dstTex = gpuFramebuffer->gpuColorViews[subpass.resolves[i]]->gpuTexture;
-
-                ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
-                GL_CHECK(glBlitFramebuffer(
-                    0, 0, srcTex->width, srcTex->height,
-                    0, 0, dstTex->width, dstTex->height,
-                    GL_COLOR_BUFFER_BIT, GL_NEAREST));
-            }
-        }
-
-        if (instance.resolveMask & GL_DEPTH_BUFFER_BIT) {
-            GLES3GPUTexture *srcTex = subpass.depthStencil < gpuFramebuffer->gpuColorViews.size()
-                                          ? gpuFramebuffer->gpuColorViews[subpass.depthStencil]->gpuTexture
-                                          : gpuFramebuffer->gpuDepthStencilView->gpuTexture;
-            GLES3GPUTexture *dstTex = subpass.depthStencilResolve < gpuFramebuffer->gpuColorViews.size()
-                                          ? gpuFramebuffer->gpuColorViews[subpass.depthStencilResolve]->gpuTexture
-                                          : gpuFramebuffer->gpuDepthStencilView->gpuTexture;
-
-            ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
-            GL_CHECK(glBlitFramebuffer(
-                0, 0, srcTex->width, srcTex->height,
-                0, 0, dstTex->width, dstTex->height,
-                instance.resolveMask & (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT), GL_NEAREST));
-        }
-
-        invalidateTarget = GL_READ_FRAMEBUFFER;
+    if (gpuFramebuffer->resolveFramebuffer.isActive()) {
+        doResolve(device, gpuFramebuffer);
+    } else {
+        gpuFramebuffer->framebuffer.processStore(GL_DRAW_FRAMEBUFFER);
     }
 
-    const auto &attachments = gpuRenderPass->colorAttachments;
-    const auto &indices = gpuRenderPass->indices;
-    for (uint32_t i = 0; i < attachments.size(); ++i) {
-        performStoreOp(i, indices[i]);
-    }
-    performDepthStencilStoreOp(gpuRenderPass->depthStencil);
 //    if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
 //        GL_CHECK(glFramebufferFetchBarrierEXT());
 //    } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
@@ -3066,15 +2913,7 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
                              const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3GPUStateCache *cache = device->stateCache();
 
-    GLbitfield mask = 0U;
-    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(gpuTextureSrc->format)];
-    if (info.hasDepth || info.hasStencil) {
-        if (info.hasDepth) mask |= GL_DEPTH_BUFFER_BIT;
-        if (info.hasStencil) mask |= GL_STENCIL_BUFFER_BIT;
-    } else {
-        mask = GL_COLOR_BUFFER_BIT;
-    }
-
+    GLbitfield mask = getColorBufferMask(gpuTextureSrc->format);
     for (uint32_t i = 0U; i < count; ++i) {
         const TextureBlit &region = regions[i];
 
@@ -3182,6 +3021,186 @@ void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                 break;
         }
         cmdIdx++;
+    }
+}
+
+void GLES3GPUFramebufferObject::initialize(GLES3GPUSwapchain *swc) {
+    swapchain = swc;
+}
+
+void GLES3GPUFramebufferObject::bindColor(const GLES3GPUTextureView *texture, uint32_t colorIndex, const ColorAttachment &attachment) {
+    bindColorMultiSample(texture, colorIndex, 1, attachment);
+}
+
+void GLES3GPUFramebufferObject::bindColorMultiSample(const GLES3GPUTextureView *texture, uint32_t colorIndex, GLint samples, const ColorAttachment &attachment) {
+    if (colorIndex >= colors.size()) {
+        colors.resize(colorIndex + 1);
+    }
+    bool isDefaultFb = swapchain != nullptr;
+
+    if (attachment.loadOp == LoadOp::DISCARD) {
+        loadInvalidates.emplace_back(isDefaultFb ? GL_COLOR : GL_COLOR_ATTACHMENT0 + colorIndex);
+    }
+    if (attachment.storeOp == StoreOp::DISCARD) {
+        storeInvalidates.emplace_back(isDefaultFb ? GL_COLOR : GL_COLOR_ATTACHMENT0 + colorIndex);
+    }
+    colors[colorIndex] = {texture, samples};
+}
+
+void GLES3GPUFramebufferObject::bindDepthStencil(const GLES3GPUTextureView *texture, const DepthStencilAttachment &attachment) {
+    bindDepthStencilMultiSample(texture, 1, attachment);
+}
+
+void GLES3GPUFramebufferObject::bindDepthStencilMultiSample(const GLES3GPUTextureView *texture, GLint samples, const DepthStencilAttachment &attachment) {
+    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(texture->gpuTexture->format)];
+
+    bool isDefaultFb = swapchain != nullptr;
+    bool hasDepth = info.hasDepth;
+    bool hasStencil = info.hasStencil;
+
+    dsAttachment = hasDepth && hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT :
+        hasDepth ? GL_DEPTH_ATTACHMENT : GL_STENCIL_ATTACHMENT;
+
+    if (hasDepth) {
+        auto att = isDefaultFb ? GL_DEPTH : GL_DEPTH_ATTACHMENT;
+        if (attachment.depthLoadOp == LoadOp::DISCARD) {
+            loadInvalidates.emplace_back(att);
+        }
+        if (attachment.depthStoreOp == StoreOp::DISCARD) {
+            storeInvalidates.emplace_back(att);
+        }
+    }
+    if (hasStencil) {
+        auto att = isDefaultFb ? GL_STENCIL : GL_STENCIL_ATTACHMENT;
+        if (attachment.stencilLoadOp == LoadOp::DISCARD) {
+            loadInvalidates.emplace_back(att);
+        }
+        if (attachment.stencilStoreOp == StoreOp::DISCARD) {
+            storeInvalidates.emplace_back(att);
+        }
+    }
+
+    depthStencil.first = texture;
+    depthStencil.second = samples;
+}
+
+bool GLES3GPUFramebufferObject::isActive() const {
+    return swapchain != nullptr || (handle != 0);
+}
+
+void GLES3GPUFramebufferObject::processLoad(GLenum target) {
+    if (!loadInvalidates.empty()) {
+        GL_CHECK(glInvalidateFramebuffer(target, utils::toUint(loadInvalidates.size()), loadInvalidates.data()));
+    }
+}
+
+void GLES3GPUFramebufferObject::processStore(GLenum target) {
+    if (!storeInvalidates.empty()) {
+        GL_CHECK(glInvalidateFramebuffer(target, utils::toUint(storeInvalidates.size()), storeInvalidates.data()));
+    }
+}
+
+void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
+    if (swapchain != nullptr) {
+        return;
+    }
+
+    if (colors.empty() && dsAttachment == GL_NONE) {
+        return;
+    }
+
+    if (cache->glDrawFramebuffer != handle) {
+        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, handle));
+        cache->glDrawFramebuffer = handle;
+    }
+
+    ccstd::vector<GLenum> drawBuffers(colors.size(), GL_NONE);
+    for (uint32_t i = 0; i < colors.size(); ++i) {
+        const auto &[view, samples] = colors[i];
+        auto att = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i);
+        drawBuffers[i] =att;
+
+        auto *texture = view->gpuTexture;
+        if (samples != 1) {
+            CC_ASSERT(view->gpuTexture->glTexture != 0);
+            GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
+                att,
+                GL_TEXTURE_2D,
+                texture->glTexture,
+                view->baseLevel,
+                static_cast<GLsizei>(samples)));
+            continue;
+        }
+
+        if (texture->glTexture) {
+            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, att, texture->glTarget, texture->glTexture, view->baseLevel));
+        } else {
+            GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, att, texture->glTarget, texture->glRenderbuffer));
+        }
+    }
+
+    if (depthStencil.first != nullptr) {
+        const auto &[view, samples] = depthStencil;
+
+        auto *texture = view->gpuTexture;
+        if (samples != 1) {
+            CC_ASSERT(view->gpuTexture->glTexture != 0);
+            GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
+                dsAttachment,
+                texture->glTexture,
+                view->gpuTexture->glTexture,
+                view->baseLevel,
+                static_cast<GLsizei>(samples)));
+        } else {
+            if (texture->glTexture) {
+                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glTexture, view->baseLevel));
+            } else {
+                GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glRenderbuffer));
+            }
+        }
+    }
+
+    if (!drawBuffers.empty()) {
+        GL_CHECK(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
+    }
+
+    GLenum status;
+    GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        switch (status) {
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
+                break;
+            case GL_FRAMEBUFFER_UNSUPPORTED:
+                CC_LOG_ERROR("checkFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED");
+                break;
+            default:
+                CC_LOG_ERROR("checkFramebufferStatus() - %x", status);
+                break;
+        }
+    }
+}
+
+void GLES3GPUFramebufferObject::destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap) {
+    if (swapchain) {
+        swapchain = nullptr;
+    } else {
+        if (cache->glDrawFramebuffer == handle) {
+            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+            cache->glDrawFramebuffer = 0;
+        }
+        GL_CHECK(glDeleteFramebuffers(1, &handle));
+        framebufferCacheMap->unregisterExternal(handle);
+        handle = 0U;
     }
 }
 
