@@ -78,7 +78,7 @@ namespace cc {
 namespace render {
 
 /**
- * @internal
+ * @engineInternal
  * @en PipelineRuntime is the runtime of both classical and custom pipelines.
  * It is used internally and should not be called directly.
  * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
@@ -96,16 +96,20 @@ public:
     /**
      * @en Activate PipelineRuntime with default swapchain
      * @zh 用默认交换链初始化PipelineRuntime
+     * @param swapchain @en Default swapchain @zh 默认的交换链
+     * @returns Success or not
      */
     virtual bool activate(gfx::Swapchain *swapchain) = 0;
     /**
      * @en Destroy resources of PipelineRuntime
      * @zh 销毁PipelineRuntime所持资源
+     * @returns Success or not
      */
     virtual bool destroy() noexcept = 0;
     /**
      * @en Render contents of cameras
      * @zh 根据相机进行绘制
+     * @param cameras @en Camera list @zh 相机列表
      */
     virtual void render(const ccstd::vector<scene::Camera*> &cameras) = 0;
     /**
@@ -174,36 +178,42 @@ public:
      * @en Get macro as string.
      * @zh 根据宏名获得字符串
      * @param name @en Name of macro @zh 宏的名字
+     * @returns String value
      */
     virtual const ccstd::string &getMacroString(const ccstd::string &name) const = 0;
     /**
      * @en Get macro as integer.
      * @zh 根据宏名获得整型
      * @param name @en Name of macro @zh 宏的名字
+     * @returns Integer value
      */
     virtual int32_t getMacroInt(const ccstd::string &name) const = 0;
     /**
      * @en Get macro as boolean.
      * @zh 根据宏名获得布尔值
      * @param name @en Name of macro @zh 宏的名字
+     * @returns Boolean value
      */
     virtual bool getMacroBool(const ccstd::string &name) const = 0;
     /**
      * @en Assign string value to macro.
      * @zh 给宏赋值字符串
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en String value @zh 字符串
      */
     virtual void setMacroString(const ccstd::string &name, const ccstd::string &value) = 0;
     /**
      * @en Assign integer value to macro.
      * @zh 给宏赋值整型
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en Integer value @zh 整型值
      */
     virtual void setMacroInt(const ccstd::string &name, int32_t value) = 0;
     /**
      * @en Assign boolean value to macro.
      * @zh 给宏赋值布尔值
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en Boolean value @zh 布尔值
      */
     virtual void setMacroBool(const ccstd::string &name, bool value) = 0;
     /**
@@ -645,13 +655,13 @@ public:
     virtual PipelineType getType() const = 0;
     virtual PipelineCapabilities getCapabilities() const = 0;
     /**
-     * @internal
+     * @engineInternal
      * @en Begin render pipeline setup
      * @zh 开始管线构建
      */
     virtual void beginSetup() = 0;
     /**
-     * @internal
+     * @engineInternal
      * @en End render pipeline setup
      * @zh 结束管线构建
      */
@@ -660,6 +670,7 @@ public:
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册
      * @param name @en Resource name @zh 资源名字
+     * @returns Exist or not
      */
     virtual bool containsResource(const ccstd::string &name) const = 0;
     /**
@@ -670,6 +681,7 @@ public:
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
+     * @returns Resource ID
      */
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     /**
@@ -687,6 +699,7 @@ public:
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
      */
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
@@ -697,6 +710,7 @@ public:
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
      */
     virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
@@ -718,19 +732,20 @@ public:
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     /**
-     * @internal
+     * @engineInternal
      * @en Begin rendering one frame
      * @zh 开始一帧的渲染
      */
     virtual void beginFrame() = 0;
     /**
-     * @internal
+     * @engineInternal
      * @en Update camera
      * @zh 更新相机
+     * @param camera @en Camera @zh 相机
      */
     virtual void update(const scene::Camera *camera) = 0;
     /**
-     * @internal
+     * @engineInternal
      * @en End rendering one frame
      * @zh 结束一帧的渲染
      */
@@ -741,6 +756,7 @@ public:
      * @param width @en Width of the render pass @zh 渲染通道的宽度
      * @param height @en Height of the render pass @zh 渲染通道的高度
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Basic render pass builder
      */
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) = 0;
     /**
@@ -752,6 +768,7 @@ public:
      * @param count @en Sample count @zh 采样数
      * @param quality @en Sample quality. Default value is 0 @zh 采样质量，默认值是0
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Multisample basic render pass builder
      */
     virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
@@ -780,7 +797,7 @@ public:
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     /**
-     * @internal
+     * @engineInternal
      */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
@@ -1473,7 +1490,7 @@ public:
 };
 
 /**
- * @internal
+ * @engineInternal
  */
 class RenderingModule {
 public:

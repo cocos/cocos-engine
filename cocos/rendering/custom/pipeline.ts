@@ -41,7 +41,7 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
 /**
- * @internal
+ * @engineInternal
  * @en PipelineRuntime is the runtime of both classical and custom pipelines.
  * It is used internally and should not be called directly.
  * @zh PipelineRuntime是经典管线以及自定义管线的运行时。
@@ -51,16 +51,20 @@ export interface PipelineRuntime {
     /**
      * @en Activate PipelineRuntime with default swapchain
      * @zh 用默认交换链初始化PipelineRuntime
+     * @param swapchain @en Default swapchain @zh 默认的交换链
+     * @returns Success or not
      */
     activate (swapchain: Swapchain): boolean;
     /**
      * @en Destroy resources of PipelineRuntime
      * @zh 销毁PipelineRuntime所持资源
+     * @returns Success or not
      */
     destroy (): boolean;
     /**
      * @en Render contents of cameras
      * @zh 根据相机进行绘制
+     * @param cameras @en Camera list @zh 相机列表
      */
     render (cameras: Camera[]): void;
     /**
@@ -127,36 +131,42 @@ export interface PipelineRuntime {
      * @en Get macro as string.
      * @zh 根据宏名获得字符串
      * @param name @en Name of macro @zh 宏的名字
+     * @returns String value
      */
     getMacroString (name: string): string;
     /**
      * @en Get macro as integer.
      * @zh 根据宏名获得整型
      * @param name @en Name of macro @zh 宏的名字
+     * @returns Integer value
      */
     getMacroInt (name: string): number;
     /**
      * @en Get macro as boolean.
      * @zh 根据宏名获得布尔值
      * @param name @en Name of macro @zh 宏的名字
+     * @returns Boolean value
      */
     getMacroBool (name: string): boolean;
     /**
      * @en Assign string value to macro.
      * @zh 给宏赋值字符串
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en String value @zh 字符串
      */
     setMacroString (name: string, value: string): void;
     /**
      * @en Assign integer value to macro.
      * @zh 给宏赋值整型
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en Integer value @zh 整型值
      */
     setMacroInt (name: string, value: number): void;
     /**
      * @en Assign boolean value to macro.
      * @zh 给宏赋值布尔值
      * @param name @en Name of macro @zh 宏的名字
+     * @param value @en Boolean value @zh 布尔值
      */
     setMacroBool (name: string, value: boolean): void;
     /**
@@ -534,13 +544,13 @@ export interface BasicPipeline extends PipelineRuntime {
     readonly type: PipelineType;
     readonly capabilities: PipelineCapabilities;
     /**
-     * @internal
+     * @engineInternal
      * @en Begin render pipeline setup
      * @zh 开始管线构建
      */
     beginSetup (): void;
     /**
-     * @internal
+     * @engineInternal
      * @en End render pipeline setup
      * @zh 结束管线构建
      */
@@ -549,6 +559,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册
      * @param name @en Resource name @zh 资源名字
+     * @returns Exist or not
      */
     containsResource (name: string): boolean;
     /**
@@ -559,6 +570,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
+     * @returns Resource ID
      */
     addRenderWindow (
         name: string,
@@ -581,6 +593,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
      */
     addRenderTarget (
         name: string,
@@ -596,6 +609,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
      * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
      */
     addDepthStencil (
         name: string,
@@ -630,19 +644,20 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     /**
-     * @internal
+     * @engineInternal
      * @en Begin rendering one frame
      * @zh 开始一帧的渲染
      */
     beginFrame (): void;
     /**
-     * @internal
+     * @engineInternal
      * @en Update camera
      * @zh 更新相机
+     * @param camera @en Camera @zh 相机
      */
     update (camera: Camera): void;
     /**
-     * @internal
+     * @engineInternal
      * @en End rendering one frame
      * @zh 结束一帧的渲染
      */
@@ -653,6 +668,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param width @en Width of the render pass @zh 渲染通道的宽度
      * @param height @en Height of the render pass @zh 渲染通道的高度
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Basic render pass builder
      */
     addRenderPass (
         width: number,
@@ -667,6 +683,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param count @en Sample count @zh 采样数
      * @param quality @en Sample quality. Default value is 0 @zh 采样质量，默认值是0
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Multisample basic render pass builder
      */
     addMultisampleRenderPass (
         width: number,
@@ -700,7 +717,7 @@ export interface BasicPipeline extends PipelineRuntime {
      */
     addCopyPass (copyPairs: CopyPair[]): void;
     /**
-     * @internal
+     * @engineInternal
      */
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
@@ -1326,7 +1343,7 @@ export interface PipelineBuilder {
 }
 
 /**
- * @internal
+ * @engineInternal
  */
 export interface RenderingModule {
     getPassID (name: string): number;
