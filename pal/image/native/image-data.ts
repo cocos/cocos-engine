@@ -37,7 +37,7 @@ export class ImageData extends BaseImageData {
         }
         super.destroy();
     }
-    public nativeData (): unknown {
+    public rawData (): unknown {
         if (this._imageSource instanceof HTMLCanvasElement) {
             // @ts-ignore
             return this._imageSource._data.data;
@@ -47,7 +47,7 @@ export class ImageData extends BaseImageData {
         } else if (ArrayBuffer.isView(this._imageSource)) {
             return this._imageSource.buffer;
         }
-        return super.nativeData();
+        return super.rawData();
     }
 
     protected isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {

@@ -494,11 +494,11 @@ export class ImageAsset extends Asset {
     }
 
     /*
-     * @en Image data.
-     * @zh 此图像资源的图像数据。
+     * @en Raw image data.
+     * @zh 原始图像数据。
      */
-    get nativeData (): any {
-        return this._imageData.nativeData();
+    get rawData (): any {
+        return this._imageData.rawData();
     }
 
     /**
@@ -510,8 +510,8 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @en Image data manager.
-     * @zh 图像的数据管理。
+     * @en Image data object.
+     * @zh 图像的数据对象。
      */
     get imageData (): ImageData {
         return this._imageData;

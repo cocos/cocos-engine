@@ -247,7 +247,13 @@ export class Texture2D extends SimpleTexture {
      * @deprecated Please use [[ImageAsset.data]] instead
      */
     public getHtmlElementObj (): HTMLCanvasElement | HTMLImageElement | null {
-        return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;
+        if (!this._mipmaps[0]) {
+            return null;
+        }
+        if (this._mipmaps[0].data instanceof HTMLCanvasElement || this._mipmaps[0].data instanceof HTMLImageElement) {
+            return this._mipmaps[0].data;
+        }
+        return null;
     }
 
     /**

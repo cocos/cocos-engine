@@ -60,7 +60,7 @@ deviceProto.copyImagesToTexture = function (imageAssets, texture, regions) {
     if (imageAssets) {
         for (let i = 0; i < imageAssets.length; ++i) {
             const image = imageAssets[i];
-            images.push(image.nativeData);
+            images.push(image.rawData);
         }
     }
     oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);

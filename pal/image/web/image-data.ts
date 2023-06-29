@@ -27,7 +27,7 @@ import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
 export class ImageData extends BaseImageData {
-    public nativeData (): unknown {
+    public rawData (): unknown {
         let data;
         if ('getContext' in this._imageSource) {
             const canvasElem = this._imageSource;

@@ -71,9 +71,9 @@ declare module 'pal/image' {
         onerror: ((ev: Event) => void) | null;
 
         /**
-         * Get image data, in web platform is image source(like data interface), in native platform is image raw data.
+         * Get raw image data, in web platform is image source(like data interface), in native platform is image raw data.
          */
-        nativeData (): unknown;
+        rawData (): unknown;
         /**
          * Determine if it is an HTMLElement element.
          */

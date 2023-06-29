@@ -201,7 +201,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     Device.prototype.copyImagesToTexture = function (imageAssets: ImageAsset[], texture: typeof Texture, regions: BufferTextureCopy[]) {
         const buffers: Uint8Array[] = [];
         for (let i = 0; i < regions.length; i++)  {
-            buffers.push(imageAssets[i].nativeData);
+            buffers.push(imageAssets[i].rawData);
         }
         oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
     }

@@ -85,6 +85,7 @@ export class Parser {
     public parseImage (file: ImageData | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): void {
         if (file instanceof ImageData) {
             onComplete(null, file.data);
+            return;
         }
         createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result) => {
             onComplete(null, result);

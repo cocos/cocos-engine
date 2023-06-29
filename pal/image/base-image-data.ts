@@ -70,7 +70,7 @@ export class BaseImageData {
         return this._imageSource && this._imageSource._data;
     }
 
-    public nativeData (): unknown {
+    public rawData (): unknown {
         return this.data as any;
     }
 

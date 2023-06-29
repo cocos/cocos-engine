@@ -44,7 +44,7 @@ const simpleTextureProto = jsb.SimpleTexture.prototype;
 const oldUpdateDataFunc = simpleTextureProto.uploadData;
 simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     let imageData = new ImageData(source);
-    oldUpdateDataFunc.call(this, imageData.nativeData(), level, arrayIndex);
+    oldUpdateDataFunc.call(this, imageData.rawData(), level, arrayIndex);
 };
 
 simpleTextureProto._ctor = function () {
