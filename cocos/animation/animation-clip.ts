@@ -1039,12 +1039,14 @@ class TrackEvalStatus<TValue> {
     constructor (binding: RuntimeBinding<TValue>, trackEval: TrackEval<TValue>) {
         this._binding = binding;
         this._trackEval = trackEval;
+        this._shouldEvaluateDefault = !!binding.getValue && trackEval.requiresDefault;
     }
 
     public evaluate (time: number): void {
         const { _binding: binding, _trackEval: trackEval } = this;
-        const defaultValue = binding.getValue && trackEval.requiresDefault
-            ? binding.getValue() as TValue extends unknown ? unknown : Readonly<TValue>
+        const defaultValue = this._shouldEvaluateDefault
+            // See `this._shouldEvaluateDefault` for the assertion.
+            ? (binding.getValue!)() as TValue extends unknown ? unknown : Readonly<TValue>
             : undefined;
         const value = trackEval.evaluate(time, defaultValue);
         binding.setValue(value);
@@ -1052,6 +1054,7 @@ class TrackEvalStatus<TValue> {
 
     private _binding: RuntimeBinding<TValue>;
     private _trackEval: TrackEval<TValue>;
+    private _shouldEvaluateDefault = true;
 }
 
 interface AnimationClipEvalContext {
