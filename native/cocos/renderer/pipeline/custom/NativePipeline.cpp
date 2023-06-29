@@ -31,6 +31,7 @@
 #include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeRenderGraphUtils.h"
 #include "NativeUtils.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphGraphs.h"
@@ -504,6 +505,7 @@ void NativePipeline::updateShadingRateTexture(
 }
 
 void NativePipeline::beginFrame() {
+    // noop
 }
 
 void NativePipeline::update(const scene::Camera *camera) {
@@ -516,59 +518,52 @@ void NativePipeline::update(const scene::Camera *camera) {
 }
 
 void NativePipeline::endFrame() {
+    // noop
 }
 
-namespace {
-
-RenderPassBuilder *addRenderPassImpl(
-    const PipelineRuntime *ppl,
-    RenderGraph &renderGraph, const NativeProgramLibrary &lib,
-    uint32_t width, uint32_t height,  // NOLINT(bugprone-easily-swappable-parameters)
-    uint32_t count, uint32_t quality, // NOLINT(bugprone-easily-swappable-parameters)
+RenderPassBuilder *NativePipeline::addRenderPass(
+    uint32_t width, uint32_t height,
     const ccstd::string &passName) {
-    RasterPass pass(renderGraph.get_allocator());
-    pass.width = width;
-    pass.height = height;
-    pass.viewport.width = width;
-    pass.viewport.height = height;
-    pass.count = count;
-    pass.quality = quality;
+    const auto &layoutGraph = programLibrary->layoutGraph;
 
-    auto passID = addVertex(
-        RasterPassTag{},
-        std::forward_as_tuple(passName),
-        std::forward_as_tuple(passName),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(pass)),
-        renderGraph);
-
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), passName, lib.layoutGraph);
-    CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
+    auto [passID, passLayoutID] = addRenderPassVertex(
+        renderGraph, layoutGraph,
+        width, height, 1, 0, passName);
 
     auto *builder = ccnew NativeRenderPassBuilder(
-        ppl, &renderGraph, passID, &lib.layoutGraph, passLayoutID);
+        this, &renderGraph, passID, &layoutGraph, passLayoutID);
+
     updateRasterPassConstants(width, height, *builder);
 
     return builder;
 }
 
-} // namespace
-
-RenderPassBuilder *NativePipeline::addRenderPass(
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
-    const ccstd::string &passName) {
-    return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, 1, 0, passName);
-}
-
-BasicRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+BasicMultisampleRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
+    uint32_t width, uint32_t height,
     uint32_t count, uint32_t quality,
     const ccstd::string &passName) {
     CC_EXPECTS(count > 1);
-    return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, count, quality, passName);
+    const auto &layoutGraph = programLibrary->layoutGraph;
+
+    auto [passID, passLayoutID] = addRenderPassVertex(
+        renderGraph, layoutGraph,
+        width, height, count, quality, passName);
+
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
+
+    auto [subpassID, subpassLayoutID] = addRenderSubpassVertex(
+        pass, renderGraph, passID,
+        layoutGraph, passLayoutID,
+        "", // subpassName is empty
+        count, quality);
+
+    auto *builder = ccnew NativeBasicMultisampleRenderPassBuilder(
+        this, &renderGraph, passID, &layoutGraph, passLayoutID,
+        subpassID, subpassLayoutID);
+
+    updateRasterPassConstants(pass.width, pass.height, *builder);
+
+    return builder;
 }
 
 void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) {
@@ -743,7 +738,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
 #if ENABLE_FLOAT_OUTPUT
     setValue("CC_USE_FLOAT_OUTPUT", true);
-# else
+#else
     setValue("CC_USE_FLOAT_OUTPUT", false);
 #endif
 

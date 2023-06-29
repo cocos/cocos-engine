@@ -249,6 +249,11 @@ export enum SubpassCapabilities {
      * @zh 支持读取当前像素任意颜色值
      */
     INPUT_COLOR_MRT = 1 << 2,
+    /**
+     * @en Each subpass has its own sample count.
+     * @zh 每个Subpass拥有不同的采样数
+     */
+    HETEROGENEOUS_SAMPLE_COUNT = 1 << 3,
 }
 
 /**
@@ -528,6 +533,15 @@ export interface BasicRenderPassBuilder extends Setter {
     showStatistics: boolean;
 }
 
+export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilder {
+    resolveRenderTarget (source: string, target: string): void;
+    resolveDepthStencil (
+        source: string,
+        target: string,
+        depthMode?: ResolveMode,
+        stencilMode?: ResolveMode): void;
+}
+
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -690,7 +704,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         count: number,
         quality: number,
-        passName?: string): BasicRenderPassBuilder;
+        passName?: string): BasicMultisampleRenderPassBuilder;
     /**
      * @deprecated Method will be removed in 3.9.0
      */

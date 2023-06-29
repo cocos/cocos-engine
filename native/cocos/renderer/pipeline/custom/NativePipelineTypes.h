@@ -475,6 +475,76 @@ public:
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
+class NativeBasicMultisampleRenderPassBuilder final : public BasicMultisampleRenderPassBuilder, public NativeSetter {
+public:
+    NativeBasicMultisampleRenderPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn, uint32_t subpassIDIn, uint32_t subpassLayoutIDIn) noexcept // NOLINT
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn),
+      subpassID(subpassIDIn),
+      subpassLayoutID(subpassLayoutIDIn) {}
+
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
+
+    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override;
+    void setViewport(const gfx::Viewport &viewport) override;
+    void setVersion(const ccstd::string &name, uint64_t version) override;
+    bool getShowStatistics() const override;
+    void setShowStatistics(bool enable) override;
+
+    void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) override;
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) override;
+
+    uint32_t subpassID{RenderGraph::null_vertex()};
+    uint32_t subpassLayoutID{RenderGraph::null_vertex()};
+};
+
 class NativeComputeQueueBuilder final : public ComputeQueueBuilder, public NativeSetter {
 public:
     NativeComputeQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
@@ -1109,7 +1179,7 @@ public:
     void beginFrame() override;
     void update(const scene::Camera *camera) override;
     void endFrame() override;
-    BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
+    BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;

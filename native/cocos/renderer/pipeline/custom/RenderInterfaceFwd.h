@@ -49,6 +49,7 @@ class RenderNode;
 class Setter;
 class RenderQueueBuilder;
 class BasicRenderPassBuilder;
+class BasicMultisampleRenderPassBuilder;
 class BasicPipeline;
 class RenderSubpassBuilder;
 class MultisampleRenderSubpassBuilder;
