@@ -14,6 +14,7 @@ export class ColorGrading extends PostProcessSetting {
     @serializable
     protected _colorGradingMap: Texture2D | null = null;
 
+    @tooltip('i18n:color_grading.contribute')
     @slide
     @range([0, 1, 0.01])
     @type(CCFloat)
