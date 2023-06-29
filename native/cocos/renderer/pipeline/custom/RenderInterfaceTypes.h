@@ -480,9 +480,6 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags) = 0;
-    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -651,20 +648,6 @@ public:
     }
 };
 
-class BasicMultisampleRenderPassBuilder : public BasicRenderPassBuilder {
-public:
-    BasicMultisampleRenderPassBuilder() noexcept = default;
-
-    virtual void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) = 0;
-    virtual void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) = 0;
-    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target) {
-        resolveDepthStencil(source, target, gfx::ResolveMode::SAMPLE_ZERO, gfx::ResolveMode::SAMPLE_ZERO);
-    }
-    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode) {
-        resolveDepthStencil(source, target, depthMode, gfx::ResolveMode::SAMPLE_ZERO);
-    }
-};
-
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -760,8 +743,6 @@ public:
      * @param format @en Format of the resource @zh 资源的格式
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
-    virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
-    virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -801,7 +782,7 @@ public:
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
      * @returns Multisample basic render pass builder
      */
-    virtual BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
+    virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
      * @deprecated Method will be removed in 3.9.0
      */
@@ -1218,14 +1199,6 @@ public:
     }
 };
 
-class MultisampleRenderPassBuilder : public BasicMultisampleRenderPassBuilder {
-public:
-    MultisampleRenderPassBuilder() noexcept = default;
-
-    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-};
-
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1428,7 +1401,6 @@ public:
      */
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) override = 0 /* covariant */;
-    MultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override = 0 /* covariant */;
     /**
      * @en Add compute pass
      * @zh 添加计算通道

@@ -402,16 +402,6 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
-    addScene (camera: Camera, sceneFlags: SceneFlags): void;
-    addSceneCulledByDirectionalLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: DirectionalLight,
-        level: number): void;
-    addSceneCulledBySpotLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: SpotLight): void;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -549,15 +539,6 @@ export interface BasicRenderPassBuilder extends Setter {
     showStatistics: boolean;
 }
 
-export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilder {
-    resolveRenderTarget (source: string, target: string): void;
-    resolveDepthStencil (
-        source: string,
-        target: string,
-        depthMode?: ResolveMode,
-        stencilMode?: ResolveMode): void;
-}
-
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -673,27 +654,6 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
-    addResource (
-        name: string,
-        dimension: ResourceDimension,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount,
-        flags: ResourceFlags,
-        residency: ResourceResidency): number;
-    updateResource (
-        name: string,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount): void;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -742,6 +702,9 @@ export interface BasicPipeline extends PipelineRuntime {
         count: number,
         quality: number,
         passName?: string): BasicMultisampleRenderPassBuilder;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     */
     /**
      * @deprecated Method will be removed in 3.9.0
      */
@@ -1105,17 +1068,6 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
-export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPassBuilder {
-    addStorageBuffer (
-        name: string,
-        accessType: AccessType,
-        slotName: string): void;
-    addStorageImage (
-        name: string,
-        accessType: AccessType,
-        slotName: string): void;
-}
-
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1321,12 +1273,6 @@ export interface Pipeline extends BasicPipeline {
         width: number,
         height: number,
         passName: string): RenderPassBuilder;
-    addMultisampleRenderPass (
-        width: number,
-        height: number,
-        count: number,
-        quality: number,
-        passName: string): MultisampleRenderPassBuilder;
     /**
      * @en Add compute pass
      * @zh 添加计算通道
