@@ -7,7 +7,8 @@ elif [ -n "$ANDROID_NDK_ROOT" ]; then
 elif [ -n "$NDK_ROOT" ]; then
     ndk_path=$NDK_ROOT
 else
-    echo "Cannot find NDK root path"
+    echo "NDK path not found."
+    echo "Please set one of the following environment variables: ANDROID_NDK_HOME, ANDROID_NDK_ROOT, or NDK_ROOT."
     exit 1
 fi
 
