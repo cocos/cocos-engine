@@ -1329,6 +1329,7 @@ using SubpassDependencyList = ccstd::vector<SubpassDependency>;
 struct RenderPassInfo {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    DepthStencilAttachment depthStencilResolveAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
@@ -1388,6 +1389,7 @@ struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
     TextureList colorTextures;
     Texture *depthStencilTexture{nullptr}; // @ts-nullable
+    Texture *depthStencilResolveTexture{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(FramebufferInfo)
 };

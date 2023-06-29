@@ -45,6 +45,7 @@ public:
     inline RenderPass *getRenderPass() const { return _renderPass; }
     inline const TextureList &getColorTextures() const { return _colorTextures; }
     inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
+    inline Texture *getDepthStencilResolveTexture() const { return _depthStencilResolveTexture; }
 
 protected:
     virtual void doInit(const FramebufferInfo &info) = 0;
@@ -56,6 +57,7 @@ protected:
     TextureList _colorTextures;
     // weak reference
     Texture *_depthStencilTexture{nullptr};
+    Texture *_depthStencilResolveTexture{nullptr};
 };
 
 } // namespace gfx
