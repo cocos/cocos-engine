@@ -780,6 +780,7 @@ export class Batcher2D implements IBatcher {
             return;
         }
         const children = node.children;
+        const shouldWalkChildren = !node._static;
         const uiProps = node._uiProps;
         const renderer = uiProps.uiComp as UIRenderer;
 
@@ -816,7 +817,7 @@ export class Batcher2D implements IBatcher {
             }
 
             const length = children.length;
-            if (length > 0) {
+            if (length > 0 && shouldWalkChildren) {
                 for (let i = 0; i < length; ++i) {
                     this.walk(children[i]);
                 }
