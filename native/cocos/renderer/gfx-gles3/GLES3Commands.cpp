@@ -1606,7 +1606,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
      * LEVEL2 support COLOR_ATTACHMENT(i) + DEPTH_STENCIL
      */
     uint32_t supportCount = supportLevel > MSRTSupportLevel::LEVEL1 ? 255 : static_cast<uint32_t>(supportLevel);
-    constexpr bool USE_DS_RESOLVE = true;
+    constexpr bool useDsResolve = true;
 
     uint32_t resolveColorIndex = 0;
     for (uint32_t i = 0; i < colors.size(); ++i) {
@@ -1649,7 +1649,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             if (view->gpuTexture->memoryless &&                     // MS attachment should be memoryless
                 resolveView->gpuTexture->swapchain != nullptr &&    // not back buffer
                 supportCount > 1 &&                                 // extension limit
-                USE_DS_RESOLVE) {                                   // enable ds resolve
+                useDsResolve) {                                   // enable ds resolve
                 gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, resolveDesc);
             } else {
                 gpuFBO->dsResolveMask = getColorBufferMask(desc.format);
