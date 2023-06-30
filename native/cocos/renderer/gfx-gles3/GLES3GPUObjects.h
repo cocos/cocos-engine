@@ -356,7 +356,6 @@ struct GLES3GPUFramebufferObject {
     GLuint handle{0};
     GLES3GPUSwapchain *swapchain{nullptr};
 
-    GLint samples{0};
     ccstd::vector<Reference> colors;
     Reference depthStencil{nullptr, 1};
     GLenum dsAttachment{GL_NONE};

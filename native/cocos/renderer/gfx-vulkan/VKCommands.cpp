@@ -385,7 +385,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     const size_t colorAttachmentCount = gpuRenderPass->colorAttachments.size();
     const size_t hasDepthStencil = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN ? 1 : 0;
     const size_t hasDepthResolve = gpuRenderPass->depthStencilResolveAttachment.format != Format::UNKNOWN ? 1 : 0;
-    uint32_t attachmentCount = static_cast<uint32_t>(colorAttachmentCount + hasDepthStencil + hasDepthResolve);
+    auto attachmentCount = static_cast<uint32_t>(colorAttachmentCount + hasDepthStencil + hasDepthResolve);
     uint32_t depthIndex = colorAttachmentCount;
     uint32_t stencilIndex = colorAttachmentCount + 1;
 
@@ -797,7 +797,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
     const auto *gpuRenderPass = gpuFramebuffer->gpuRenderPass.get();
     const size_t hasDepthStencil = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN ? 1 : 0;
     const size_t hasDepthResolve = gpuRenderPass->depthStencilResolveAttachment.format != Format::UNKNOWN ? 1 : 0;
-    uint32_t attachmentCount = static_cast<uint32_t>(colorViewCount + hasDepthStencil + hasDepthResolve);
+    auto attachmentCount = static_cast<uint32_t>(colorViewCount + hasDepthStencil + hasDepthResolve);
 
     ccstd::vector<VkImageView> attachments(attachmentCount);
     VkFramebufferCreateInfo createInfo{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
