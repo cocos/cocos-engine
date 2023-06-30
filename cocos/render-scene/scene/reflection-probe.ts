@@ -26,7 +26,7 @@ import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, Cam
 import { Node } from '../../scene-graph/node';
 import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { ClearFlagBit, Framebuffer } from '../../gfx';
+import { ClearFlagBit, Filter, Format, Framebuffer, Texture, TextureBlit, TextureFlagBit, TextureInfo, TextureType, TextureUsageBit, deviceManager } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
@@ -63,6 +63,8 @@ export class ReflectionProbe {
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
     protected readonly _size = new Vec3(1, 1, 1);
+    protected _planarReflectionTexture: Texture | null = null;
+    protected _textureBlit: TextureBlit = new TextureBlit();
 
     /**
      * @en Render cubemap's camera
@@ -273,6 +275,10 @@ export class ReflectionProbe {
         return this._previewPlane!;
     }
 
+    get planarReflectionTexture () {
+        return this._planarReflectionTexture!;
+    }
+
     constructor (id: number) {
         this._probeId = id;
     }
@@ -310,7 +316,6 @@ export class ReflectionProbe {
         if (!this.realtimePlanarTexture) {
             const canvasSize = cclegacy.view.getDesignResolutionSize();
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
-            cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
@@ -405,7 +410,39 @@ export class ReflectionProbe {
         return true;
     }
 
-    private _syncCameraParams (camera: Camera) {
+    public generateMipmapFromTexture (): void {
+        if (!this.realtimePlanarTexture || !deviceManager.gfxDevice) {
+            return;
+        }
+        const width = this.realtimePlanarTexture.width;
+        const height = this.realtimePlanarTexture.height;
+
+        if (!this._planarReflectionTexture) {
+            this._planarReflectionTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA8,
+                this.realtimePlanarTexture.width,
+                this.realtimePlanarTexture.height,
+                TextureFlagBit.GEN_MIPMAP,
+                1,
+                11,
+            ));
+        }
+
+        this._textureBlit.srcExtent.width = width;
+        this._textureBlit.srcExtent.height = height;
+
+        this._textureBlit.dstExtent.width = width / 4;
+        this._textureBlit.dstExtent.height = height / 4;
+        this._textureBlit.dstSubres.layerCount = 1;
+        this._textureBlit.dstSubres.mipLevel = 2;
+
+        // eslint-disable-next-line max-len
+        deviceManager.gfxDevice.commandBuffer.blitTexture(this.realtimePlanarTexture.getGFXTexture()!, this._planarReflectionTexture, [this._textureBlit], Filter.LINEAR);
+    }
+
+    private _syncCameraParams (camera: Camera): void {
         this.camera.projectionType = camera.projectionType;
         this.camera.orthoHeight = camera.orthoHeight;
         this.camera.nearClip = camera.nearClip;

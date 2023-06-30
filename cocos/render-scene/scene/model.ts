@@ -1028,7 +1028,7 @@ export class Model {
         const sampler = this._device.getSampler(new SamplerInfo(
             Filter.LINEAR,
             Filter.LINEAR,
-            Filter.NONE,
+            Filter.LINEAR,
             Address.CLAMP,
             Address.CLAMP,
             Address.CLAMP,

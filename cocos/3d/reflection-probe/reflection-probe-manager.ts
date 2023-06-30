@@ -265,7 +265,7 @@ export class ReflectionProbeManager {
                 if (!this._probes[i].realtimePlanarTexture) {
                     this.updatePlanarMap(this._probes[i], null);
                 } else {
-                    this.updatePlanarMap(this._probes[i], this._probes[i].realtimePlanarTexture!.getGFXTexture());
+                    this.updatePlanarMap(this._probes[i], this._probes[i].planarReflectionTexture);
                 }
             }
         }
@@ -327,7 +327,7 @@ export class ReflectionProbeManager {
         const meshRender = probe.previewPlane.getComponent(MeshRenderer);
         if (meshRender) {
             if (probe.realtimePlanarTexture) {
-                this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
+                this.updatePlanarMap(probe, probe.planarReflectionTexture);
             }
         }
     }
