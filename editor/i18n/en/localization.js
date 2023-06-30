@@ -130,6 +130,15 @@ module.exports = link(mixin({
             DragonBones: `${url}/${version}/manual/en/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
             LightProbe: ``,
+            PostProcess: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            BlitScreen: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            TAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            FSR: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Fxaa: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Bloom: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            HBAO: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            ColorGrading: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Skin: `${url}/${version}/manual/en/shader/surface-shader/skin.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -1293,8 +1302,8 @@ module.exports = link(mixin({
         originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
     taa: {
-        sampleScale: 'TAA sample range.',
-        feedback: 'History frame blend value.',
+        sampleScale: 'TAA sample range. Smaller values are recommended, as too large values may cause jittering.',
+        feedback: 'History frame blend value. The higher the value, the better the anti-aliasing effect, but the picture may become blurry.',
     },
     fsr: {
         sharpness: 'Sharpness',

@@ -1,8 +1,9 @@
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { CCFloat, CCInteger } from '../../../core/data/utils/attribute';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.Bloom')
+@help('cc.Bloom')
 @menu('PostProcess/Bloom')
 @disallowMultiple
 @executeInEditMode

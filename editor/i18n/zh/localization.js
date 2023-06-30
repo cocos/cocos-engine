@@ -130,6 +130,15 @@ module.exports = link(mixin({
             DragonBones: `${url}/${version}/manual/zh/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
             LightProbe: ``,
+            PostProcess: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            BlitScreen: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            TAA: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            FSR: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            Fxaa: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            Bloom: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            HBAO: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            ColorGrading: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            Skin: `${url}/${version}/manual/zh/shader/surface-shader/skin.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -1274,8 +1283,8 @@ module.exports = link(mixin({
         originalMap: '支持任意 Nx1 的长条图和 8x8 的方块图，系统自动适配。内置 LUT 贴图路径 internal/dependencies/textures/lut/',
     },
     taa: {
-        sampleScale: 'TAA 采样范围',
-        feedback: '历史帧混合值',
+        sampleScale: 'TAA 采样范围，推荐使用较小的值，过大的值可能导致抖动',
+        feedback: '历史帧混合值，该值越大抗锯齿效果越好，但是画面可能会变糊',
     },
     fsr: {
         sharpness: '画面锐化度',

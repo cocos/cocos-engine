@@ -1,9 +1,10 @@
 import { CCFloat } from '../../../core';
 import { type } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, serializable, slide, tooltip } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, serializable, slide, tooltip } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.FSR')
+@help('cc.FSR')
 @menu('PostProcess/FSR')
 @disallowMultiple
 @executeInEditMode
