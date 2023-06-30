@@ -1,10 +1,11 @@
 import { Texture2D } from '../../../asset/assets';
 import { CCFloat } from '../../../core';
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, serializable, slide, tooltip, type } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.ColorGrading')
+@help('cc.ColorGrading')
 @menu('PostProcess/ColorGrading')
 @disallowMultiple
 @executeInEditMode

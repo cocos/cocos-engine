@@ -2,6 +2,7 @@ import { ccclass, disallowMultiple, executeInEditMode, menu } from '../../../cor
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.Fxaa')
+@help('cc.Fxaa')
 @menu('PostProcess/Fxaa')
 @disallowMultiple
 @executeInEditMode
