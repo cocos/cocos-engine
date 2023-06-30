@@ -121,7 +121,7 @@ struct GLES2GPUTexture {
     SampleCount samples{SampleCount::ONE};
     TextureFlags flags{TextureFlagBit::NONE};
     bool isPowerOf2{false};
-    bool memoryless{false};
+    bool allocateMemory{true};
     GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};

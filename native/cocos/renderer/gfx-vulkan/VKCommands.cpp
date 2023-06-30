@@ -157,13 +157,13 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
         VmaAllocationInfo res;
 
-        if (ENABLE_LAZY_ALLOCATION && hasAllFlags(TEXTURE_USAGE_TRANSIENT, gpuTexture->usage)) {
+        if (hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
             createInfo.usage = usageFlags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED;
             VkResult result = vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo,
                                              pVkImage, pVmaAllocation, &res);
             if (!result) {
-                gpuTexture->memoryless = true;
+                gpuTexture->allocateMemory = false;
                 return;
             }
 
@@ -172,7 +172,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
         }
 
-        gpuTexture->memoryless = false;
+        gpuTexture->allocateMemory = true;
         VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo,
                                 pVkImage, pVmaAllocation, &res));
     };
@@ -190,7 +190,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
                 gpuTexture->swapchainVkImages[i] = gpuTexture->swapchain->swapchainImages[i];
             }
         }
-        gpuTexture->memoryless = true;
+        gpuTexture->allocateMemory = false;
     } else if (hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) || hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
         gpuTexture->vkImage = gpuTexture->externalVKImage;
     } else {

@@ -156,10 +156,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     ccstd::string msaaLevelStr = "NONE";
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
-        msaaLevelStr = "MRT1";
+        msaaLevelStr = "MSRT1";
         if (checkExtension("multisampled_render_to_texture2")) {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
-            msaaLevelStr = "MRT2";
+            msaaLevelStr = "MSRT2";
         } else {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
         }
