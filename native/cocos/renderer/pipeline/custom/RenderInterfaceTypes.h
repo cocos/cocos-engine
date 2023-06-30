@@ -450,6 +450,13 @@ public:
      * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
      */
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
+    virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
+    virtual void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) = 0;
+    virtual void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightViewConstants(light, 0);
+    }
 };
 
 /**
@@ -473,6 +480,9 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags) = 0;
+    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
