@@ -56,6 +56,7 @@ static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
 static spine::Cocos2dTextureLoader textureLoader;
+static std::vector<middleware::Texture2D*> _slotTextureSet {};
 
 enum DebugType {
     NONE = 0,
@@ -1103,7 +1104,20 @@ void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D
         }
     }
     if (!attachmentVertices) return;
-    attachmentVertices->_texture = new middleware::Texture2D();
-    attachmentVertices->_texture->addRef();
-    attachmentVertices->_texture->setRealTexture(tex2d);
+    middleware::Texture2D* middlewareTexture = nullptr;
+    for (auto it = _slotTextureSet.begin(); it != _slotTextureSet.end(); it++) {
+        if ((*it)->getRealTexture() == tex2d) {
+            middlewareTexture = *it;
+            break;
+        }
+    }
+    if (!middlewareTexture) {
+        middlewareTexture = new middleware::Texture2D();
+        middlewareTexture->addRef();
+        middlewareTexture->setRealTexture(tex2d);
+    }
+    if (attachmentVertices->_texture) {
+        attachmentVertices->_texture->release();
+    }
+    attachmentVertices->_texture = middlewareTexture;
 }

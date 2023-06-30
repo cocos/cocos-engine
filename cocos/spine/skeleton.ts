@@ -47,7 +47,7 @@ import { TrackEntryListeners } from './track-entry-listeners';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
-let _slotTextureID = 100;
+let _slotTextureID = 0;
 
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
@@ -1556,7 +1556,7 @@ export class Skeleton extends UIRenderer {
             if (value === tex2d) textureID = key;
         });
         if (textureID === 0) {
-            textureID = _slotTextureID++;
+            textureID = ++_slotTextureID;
             this._slotTextures.set(textureID, tex2d);
         }
         this._instance.setSlotTexture(slotName, textureID);
