@@ -400,7 +400,7 @@ export class LetterAtlas {
     }
 
     public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
-        const hash = char.charCodeAt(0) + labelInfo.hash;
+        const hash = char.charCodeAt(0) + Number(labelInfo.hash);
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
             const temp = new LetterTexture(char, labelInfo);
@@ -445,13 +445,13 @@ export const shareLabelInfo: IShareLabelInfo = {
     fontScale: 1,
 };
 
-export function computeHash (labelInfo): string {
+export function computeHash (labelInfo: IShareLabelInfo): string {
     const hashData = '';
     const color = labelInfo.color.toHEX();
     let out = '';
     if (labelInfo.isOutlined && labelInfo.margin > 0) {
-        out = out + labelInfo.margin + labelInfo.out.toHEX();
+        out = out + labelInfo.margin.toString() + labelInfo.out.toHEX();
     }
 
-    return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
+    return hashData + labelInfo.fontSize.toString() + labelInfo.fontFamily + color + out;
 }

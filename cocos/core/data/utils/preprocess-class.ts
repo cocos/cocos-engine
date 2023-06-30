@@ -92,7 +92,7 @@ function parseType (val, type, className, propName): void {
         if (type.length > 0) {
             val.type = type = type[0];
         } else {
-            return errorID(5508, className, propName);
+            errorID(5508, className, propName);
         }
     }
     if (typeof type === 'function') {
@@ -132,6 +132,8 @@ function parseType (val, type, className, propName): void {
         case null:
             warnID(5511, className, propName);
             break;
+        default:
+            break;
         }
     }
 
@@ -153,6 +155,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls): any {
         }
         return res;
     }
+    return null;
 }
 
 function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>): {

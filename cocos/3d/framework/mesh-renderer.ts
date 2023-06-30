@@ -990,7 +990,7 @@ export class MeshRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public isUseGPUScene () {
+    public isUseGPUScene (): boolean {
         const sceneData = cclegacy.director.root.pipeline.pipelineSceneData;
         if (!sceneData || !sceneData.isGPUDrivenEnabled()) {
             return false;

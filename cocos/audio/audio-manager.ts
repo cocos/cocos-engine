@@ -97,6 +97,7 @@ export class AudioManager {
             });
         }
         if (audioInfoToDiscard) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             audioInfoToDiscard.audio.stop();
             this.removePlaying(audioInfoToDiscard.audio);
         }

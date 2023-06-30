@@ -212,7 +212,7 @@ class AnimationBlendPort implements MotionPort {
         return this._host.__evaluatePort(this, progress, context);
     }
 
-    public reenter () {
+    public reenter (): void {
         const { childPorts } = this;
         const nChildPorts = childPorts.length;
         for (let iChild = 0; iChild < nChildPorts; ++iChild) {

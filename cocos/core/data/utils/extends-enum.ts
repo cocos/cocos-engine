@@ -44,7 +44,7 @@ import { errorID } from '../../platform/debug';
  * const ApplePen = extendsEnum(Apple, Pen);
  * ```
  */
-export function extendsEnum (): {};
+export function extendsEnum (): {}
 
 export function extendsEnum<E0> (e0: E0): E0;
 
