@@ -1,8 +1,9 @@
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, slide, tooltip } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, slide, tooltip } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.TAA')
+@help('cc.TAA')
 @menu('PostProcess/TAA')
 @disallowMultiple
 @executeInEditMode

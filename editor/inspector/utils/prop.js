@@ -233,17 +233,29 @@ exports.updatePropByDump = function(panel, dump) {
                     const { id = 'default', name } = info.group;
 
                     if (!panel.$groups[id] && dump.groups[id]) {
-                        panel.$groups[id] = exports.createGroup(dump.groups[id]);
+                        if (dump.groups[id].style === 'tab') {
+                            panel.$groups[id] = exports.createTabGroup(dump.groups[id], panel);
+                        } else if (dump.groups[id].style === 'section') {
+                            panel.$groups[id] = exports.createGroup(dump.groups[id]);
+                        }
                     }
 
                     if (panel.$groups[id]) {
                         if (!panel.$groups[id].isConnected) {
                             exports.appendChildByDisplayOrder(panel.$.componentContainer, panel.$groups[id]);
                         }
-                        exports.appendToGroup(panel.$groups[id], name);
+                        if (dump.groups[id].style === 'tab') {
+                            exports.appendToTabGroup(panel.$groups[id], name);
+                        } else if (dump.groups[id].style === 'section') {
+                            exports.appendToGroup(panel.$groups[id], name);
+                        }
                     }
 
-                    exports.appendChildByDisplayOrder(panel.$groups[id].names[name], $prop);
+                    if (dump.groups[id].style === 'tab') {
+                        exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop);
+                    } else if (dump.groups[id].style === 'section') {
+                        exports.appendChildByDisplayOrder(panel.$groups[id].names[name], $prop);
+                    }
                 } else {
                     exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop);
                 }
@@ -252,7 +264,11 @@ exports.updatePropByDump = function(panel, dump) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
                 if (info.group && dump.groups) {
                     const { id = 'default', name } = info.group;
-                    exports.appendChildByDisplayOrder(panel.$groups[id].names[name], $prop);
+                    if (dump.groups[id].style === 'tab') {
+                        exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop);
+                    } else {
+                        exports.appendChildByDisplayOrder(panel.$groups[id].names[name], $prop);
+                    }
                 } else {
                     exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop);
                 }
@@ -340,21 +356,60 @@ exports.createGroup = function(dump) {
 
     return $group;
 };
-exports.toggleGroup = function($groups) {
-    for (const id in $groups) {
-        const $contents = $groups[id].querySelectorAll('.ui-prop-group-content');
+exports.createTabGroup = function(dump, panel) {
+    const $group = document.createElement('div');
+    $group.setAttribute('class', 'tab-group');
 
-        $contents.forEach($content => {
-            const $props = Array.from($content.querySelectorAll(':scope > ui-prop'));
-            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
-            if (show) {
-                $content.removeAttribute('hidden');
+    $group.dump = dump;
+    $group.tabs = {};
+    $group.displayOrder = dump.displayOrder;
+
+    $group.$header = document.createElement('ui-tab');
+    $group.$header.setAttribute('class', 'tab-header');
+    $group.appendChild($group.$header);
+
+    $group.$header.addEventListener('change', (e) => {
+        active(e.target.value);
+    });
+
+    function active(index) {
+        const tabNames = Object.keys($group.tabs);
+        const tabName = tabNames[index];
+        $group.childNodes.forEach((child) => {
+            if (!child.classList.contains('tab-content')) {
+                return;
+            }
+            if (child.getAttribute('name') === tabName) {
+                child.style.display = 'block';
             } else {
-                $content.setAttribute('hidden', '');
+                child.style.display = 'none';
             }
         });
     }
-},
+
+    // check style
+    if (!panel.$this.shadowRoot.querySelector('style#group-style')) {
+        const style = document.createElement('style');
+        style.setAttribute('id', 'group-style');
+        style.innerText = `
+            .tab-group {
+                margin-top: 4px;
+            }
+            .tab-content {
+                display: none;
+                padding-bottom: 6px;
+            }`;
+
+        panel.$.componentContainer.before(style);
+    }
+
+    setTimeout(() => {
+        active(0);
+    });
+
+    return $group;
+};
+
 exports.appendToGroup = function($group, name) {
     if ($group.names[name]) {
         return;
@@ -393,6 +448,33 @@ exports.appendToGroup = function($group, name) {
     $group.names[name] = $content;
 
 };
+exports.appendToTabGroup = function($group, tabName) {
+    if ($group.tabs[tabName]) {
+        return;
+    }
+
+    const $content = document.createElement('div');
+
+    $group.tabs[tabName] = $content;
+
+    $content.setAttribute('class', 'tab-content');
+    $content.setAttribute('name', tabName);
+    $group.appendChild($content);
+
+    const $label = document.createElement('ui-label');
+    let displayName = tabName;
+    if (displayName.startsWith(i18nPrefix)) {
+        displayName = exports.getName({ displayName: tabName });
+    } else {
+        displayName = exports.getName({ name: tabName });
+    }
+    $label.setAttribute('value', displayName);
+
+    const $button = document.createElement('ui-button');
+    $button.setAttribute('name', tabName);
+    $button.appendChild($label);
+    $group.$header.appendChild($button);
+};
 exports.appendChildByDisplayOrder = function(parent, newChild) {
     const displayOrder = newChild.displayOrder || 0;
     const children = Array.from(parent.children);
@@ -411,6 +493,32 @@ exports.appendChildByDisplayOrder = function(parent, newChild) {
         parent.appendChild(newChild);
     }
 };
+exports.toggleGroup = function($groups) {
+    for (const id in $groups) {
+        if ($groups[id].dump.style === 'section') {
+            const $contents = $groups[id].querySelectorAll('.ui-prop-group-content');
+            $contents.forEach($content => {
+                const $props = Array.from($content.querySelectorAll(':scope > ui-prop'));
+                const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+                if (show) {
+                    $content.removeAttribute('hidden');
+                } else {
+                    $content.setAttribute('hidden', '');
+                }
+            });
+        }
+
+        if ($groups[id].dump.style === 'tab') {
+            const $props = Array.from($groups[id].querySelectorAll('.tab-content > ui-prop'));
+            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+            if (show) {
+                $groups[id].removeAttribute('hidden');
+            } else {
+                $groups[id].setAttribute('hidden', '');
+            }
+        }
+    }
+},
 exports.disconnectGroup = function(panel) {
     if (panel.$groups) {
         for (const key in panel.$groups) {
@@ -422,7 +530,6 @@ exports.disconnectGroup = function(panel) {
         panel.$groups = {};
     }
 };
-
 
 exports.injectionStyle = `
 ui-prop,

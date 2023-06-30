@@ -23,12 +23,15 @@
 */
 
 import b2 from '@cocos/box2d';
-import { b2Contact } from '@cocos/box2d/src/box2d';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
+
+export type b2ContactExtends = b2.Contact & {
+    m_userData: any
+}
 
 const pools: PhysicsContact[] = [];
 
@@ -64,29 +67,40 @@ const impulse: IPhysics2DImpulse = {
 };
 
 export class PhysicsContact implements IPhysics2DContact {
-    public constructor (b2contact: b2Contact) {
-        this.ref = 1;
-        this.init(b2contact);
+    static get (b2contact: b2ContactExtends) {
+        let c = pools.pop();
+
+        if (!c) {
+            c = new PhysicsContact();
+        }
+
+        c.init(b2contact);
+        return c;
     }
 
-    public ref = 0;
-    public status = Contact2DType.None;
+    static put (b2contact: b2ContactExtends) {
+        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
+        if (!c) return;
 
-    public colliderA: Collider2D | null = null;
-    public colliderB: Collider2D | null = null;
+        pools.push(c);
+        c.reset();
+    }
 
-    public disabled = false;
-    public disabledOnce = false;
+    colliderA: Collider2D | null = null;
+    colliderB: Collider2D | null = null;
+
+    disabled = false;
+    disabledOnce = false;
 
     private _impulse: b2.ContactImpulse | null = null;
     private _inverted = false;
-    private _b2contact: b2Contact | null = null;
+    private _b2contact: b2ContactExtends | null = null;
 
     _setImpulse (impulse: b2.ContactImpulse | null) {
         this._impulse = impulse;
     }
 
-    private init (b2contact) {
+    init (b2contact: b2ContactExtends) {
         this.colliderA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider;
         this.colliderB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider;
         this.disabled = false;
@@ -96,6 +110,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this._inverted = false;
 
         this._b2contact = b2contact;
+        b2contact.m_userData = this;
     }
 
     reset () {
@@ -107,6 +122,8 @@ export class PhysicsContact implements IPhysics2DContact {
         this.colliderB = null;
         this.disabled = false;
         this._impulse = null;
+
+        this._b2contact!.m_userData = null;
         this._b2contact = null;
     }
 
@@ -191,6 +208,47 @@ export class PhysicsContact implements IPhysics2DContact {
         tangentImpulses.length = normalImpulses.length = count;
 
         return impulse;
+    }
+
+    emit (contactType) {
+        let func;
+        switch (contactType) {
+        case Contact2DType.BEGIN_CONTACT:
+            func = 'onBeginContact';
+            break;
+        case Contact2DType.END_CONTACT:
+            func = 'onEndContact';
+            break;
+        case Contact2DType.PRE_SOLVE:
+            func = 'onPreSolve';
+            break;
+        case Contact2DType.POST_SOLVE:
+            func = 'onPostSolve';
+            break;
+        }
+
+        const colliderA = this.colliderA;
+        const colliderB = this.colliderB;
+
+        const bodyA = colliderA!.body;
+        const bodyB = colliderB!.body;
+
+        if (bodyA!.enabledContactListener) {
+            colliderA?.emit(contactType, colliderA, colliderB, this);
+        }
+
+        if (bodyB!.enabledContactListener) {
+            colliderB?.emit(contactType, colliderB, colliderA, this);
+        }
+
+        if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
+            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
+        }
+
+        if (this.disabled || this.disabledOnce) {
+            this.setEnabled(false);
+            this.disabledOnce = false;
+        }
     }
 
     setEnabled (value) {

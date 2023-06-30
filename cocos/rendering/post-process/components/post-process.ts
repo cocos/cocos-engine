@@ -1,11 +1,12 @@
 import { EDITOR } from 'internal:constants';
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, range, slide, tooltip } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, help, range, slide, tooltip } from '../../../core/data/decorators';
 import { Director, director } from '../../../game';
 import { Component } from '../../../scene-graph';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.PostProcess')
+@help('cc.PostProcess')
 @disallowMultiple
 @executeInEditMode
 export class PostProcess extends Component {
