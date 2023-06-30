@@ -819,6 +819,21 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    skeleton.setSlotTexture = function (slotName, tex2d, createNew) {
+        if (this.isAnimationCached()) {
+            console.error(`Cached mode can't change texture of slot`);
+            return;
+        }
+        if (!this._nativeSkeleton) return;
+        const slot = this.findSlot(slotName);
+        if (!slot) {
+            console.error(`No slot named:${slotName}`);
+            return;
+        }
+        const createNewAttachment = createNew || false;
+        this._nativeSkeleton.setSlotTexture(slotName, tex2d, createNewAttachment);
+    };
+
     //////////////////////////////////////////
     // assembler
     const assembler = cc.internal.SpineAssembler;
