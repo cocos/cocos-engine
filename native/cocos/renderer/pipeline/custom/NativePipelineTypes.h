@@ -86,6 +86,10 @@ public:
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
+    void setBuiltinCameraConstants(const scene::Camera *camera) /*implements*/;
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) /*implements*/;
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) /*implements*/;
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
     void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
@@ -165,8 +169,23 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
+    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) override;
+    void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
+    void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
@@ -224,6 +243,18 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override {
@@ -308,6 +339,18 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override {
@@ -396,6 +439,18 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
@@ -455,6 +510,18 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
     void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
@@ -528,6 +595,18 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
 
     void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
@@ -599,6 +678,18 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
 
     void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) override;
 };
@@ -653,6 +744,18 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;

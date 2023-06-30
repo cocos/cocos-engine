@@ -30,6 +30,7 @@
 /* eslint-disable max-len */
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
@@ -39,6 +40,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
+import { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
  * @engineInternal
@@ -373,6 +375,10 @@ export interface Setter extends RenderNode {
      * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
      */
     setSampler (name: string, sampler: Sampler): void;
+    setBuiltinCameraConstants (camera: Camera): void;
+    setBuiltinShadowMapConstants (light: DirectionalLight): void;
+    setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
+    setBuiltinSpotLightViewConstants (light: SpotLight): void;
 }
 
 /**
@@ -396,6 +402,16 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
+    addScene (camera: Camera, sceneFlags: SceneFlags): void;
+    addSceneCulledByDirectionalLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: DirectionalLight,
+        level: number): void;
+    addSceneCulledBySpotLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: SpotLight): void;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形

@@ -154,6 +154,7 @@ enum class SceneFlags : uint32_t {
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
     REFLECTION_PROBE = 0x2000,
+    GPU_DRIVEN = 0x4000,
     ALL = 0xFFFFFFFF,
 };
 

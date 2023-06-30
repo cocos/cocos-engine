@@ -9,6 +9,36 @@ namespace cc {
 
 namespace render {
 
+inline LayoutGraphData::vertex_descriptor getSubpassOrPassID(
+    RenderGraph::vertex_descriptor vertID,
+    const RenderGraph &rg, const LayoutGraphData &lg) {
+    const auto queueID = parent(vertID, rg);
+    CC_ENSURES(queueID != RenderGraph::null_vertex());
+    const auto subpassOrPassID = parent(queueID, rg);
+    CC_ENSURES(subpassOrPassID != RenderGraph::null_vertex());
+    const auto passID = parent(subpassOrPassID, rg);
+
+    auto layoutID = LayoutGraphData::null_vertex();
+    if (passID == RenderGraph::null_vertex()) { // single render pass
+        const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
+        CC_ENSURES(!layoutName.empty());
+        layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
+    } else { // render pass
+        const auto &passLayoutName = get(RenderGraph::LayoutTag{}, rg, passID);
+        CC_ENSURES(!passLayoutName.empty());
+        const auto passLayoutID = locate(LayoutGraphData::null_vertex(), passLayoutName, lg);
+        CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
+
+        const auto &subpassLayoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
+        CC_ENSURES(!subpassLayoutName.empty());
+        const auto subpassLayoutID = locate(passLayoutID, subpassLayoutName, lg);
+        CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
+        layoutID = subpassLayoutID;
+    }
+    CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
+    return layoutID;
+}
+
 inline std::tuple<RenderGraph::vertex_descriptor, LayoutGraphData::vertex_descriptor>
 addRenderPassVertex(
     RenderGraph &renderGraph, const LayoutGraphData &layoutGraph,
