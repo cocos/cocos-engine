@@ -582,14 +582,14 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
 
             auto requestedSampleCount = static_cast<GLint>(gpuTexture->samples);
             gpuTexture->glSamples = std::min(maxSamples, requestedSampleCount);
-
-            // skip multi-sampled attachment resources if we can use auto resolve
-            if (gpuTexture->usage == TextureUsageBit::COLOR_ATTACHMENT) {
-                gpuTexture->memoryless = true;
-                return;
-            }
         } else {
             gpuTexture->glSamples = 1; // fallback to single sample if the extensions is not available
+        }
+
+        if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE &&
+            hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
+            gpuTexture->allocateMemory = false;
+            return;
         }
     }
 
@@ -810,7 +810,7 @@ void cmdFuncGLES2DestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
-    if (gpuTexture->memoryless || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
+    if (!gpuTexture->allocateMemory || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
 
     if (gpuTexture->glSamples <= 1) {
         switch (gpuTexture->type) {
