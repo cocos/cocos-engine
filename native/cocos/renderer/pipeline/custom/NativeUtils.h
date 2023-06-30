@@ -6,9 +6,7 @@
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
-namespace gfx {
-class Device;
-}
+
 namespace render {
 
 void setMat4Impl(
