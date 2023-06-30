@@ -13,6 +13,8 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "editor-support/spine-creator-support/spine-cocos2dx.h"
+#include "editor-support/spine-creator-support/Vector2.h"
+#include "editor-support/spine-creator-support/SkinEntry.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -22,6 +24,8 @@
 #include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_spine_auto.h"
 using namespace spine;
+
+#define SWIGINTERN static;
 %}
 
 // ----- Ignore Section ------
@@ -47,9 +51,6 @@ using namespace spine;
 
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
-%ignore spine::JitterVertexEffect::JitterVertexEffect;
-%ignore spine::SwirlVertexEffect::SwirlVertexEffect;
-%ignore spine::ConstraintData::ConstraintData;
 
 %ignore spine::SkeletonRenderer::create;
 %ignore spine::SkeletonRenderer::initWithJsonFile;
@@ -96,18 +97,12 @@ using namespace spine;
 %ignore spine::ShearTimeline::getRTTI;
 %ignore spine::Skin::findAttachmentsForSlot;
 %ignore spine::Skin::findNamesForSlot;
+%ignore spine::Skin::getAttachments;
 %ignore spine::Timeline::getRTTI;
 %ignore spine::TransformConstraint::getRTTI;
 %ignore spine::TransformConstraintTimeline::getRTTI;
 %ignore spine::TranslateTimeline::getRTTI;
 %ignore spine::TwoColorTimeline::getRTTI;
-%ignore spine::VertexEffect::transform;
-%ignore spine::JitterVertexEffect::begin;
-%ignore spine::JitterVertexEffect::transform;
-%ignore spine::JitterVertexEffect::end;
-%ignore spine::SwirlVertexEffect::begin;
-%ignore spine::SwirlVertexEffect::transform;
-%ignore spine::SwirlVertexEffect::end;
 %ignore spine::VertexAttachment::getRTTI;
 %ignore spine::SkeletonDataMgr::destroyInstance;
 %ignore spine::SkeletonDataMgr::hasSkeletonData;
@@ -117,6 +112,30 @@ using namespace spine;
 %ignore spine::SkeletonCacheAnimation::render;
 %ignore spine::SkeletonCacheAnimation::requestDrawInfo;
 %ignore spine::SkeletonCacheAnimation::requestMaterial;
+%ignore spine::Timeline::apply(Skeleton&, float, float, Vector<Event*>*, float, MixBlend, MixDirection);
+%ignore spine::AnimationState::apply(Skeleton&);
+%ignore spine::Animation::apply(Skeleton&, float, float, bool, Vector<Event*>*, float, MixBlend, MixDirection);
+%ignore spine::VertexAttachment::computeWorldVertices;
+%ignore spine::Bone::Bone;
+%ignore spine::Event::Event;
+%ignore spine::IkConstraint::IkConstraint;
+%ignore spine::PathConstraint::PathConstraint;
+%ignore spine::PointAttachment::computeWorldPosition;
+%ignore spine::PointAttachment::computeWorldRotation;
+%ignore spine::RegionAttachment::computeWorldVertices;
+%ignore spine::Slot::Slot;
+%ignore spine::VertexEffect::begin;
+%ignore spine::TransformConstraint::TransformConstraint;
+%ignore spine::SkeletonBounds::update;
+%ignore spine::SlotData::SlotData;
+%ignore spine::SwirlVertexEffect::SwirlVertexEffect;
+%ignore spine::SwirlVertexEffect::transform;
+%ignore spine::JitterVertexEffect::transform;
+%ignore spine::VertexEffect::transform;
+%ignore spine::DeformTimeline::setFrame;
+%ignore spine::DrawOrderTimeline::setFrame;
+%ignore spine::Skeleton::getBounds;
+%ignore spine::Skin::findAttachmentsForSlot;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -215,35 +234,35 @@ using namespace spine;
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
 
-%attribute(spine::Animation, ccstd::string&, name, getName);
-%attribute(spine::Animation, ccstd::vector<spine::Timeline*>&, timelines, getTimelines);
+%attribute(spine::Animation, spine::String&, name, getName);
+%attribute(spine::Animation, spine::Vector<spine::Timeline*>&, timelines, getTimelines);
 %attribute(spine::Animation, float, duration, getDuration, setDuration);
 
 %attribute(spine::RotateTimeline, int, boneIndex, getBoneIndex, setBoneIndex);
-%attribute(spine::RotateTimeline, ccstd::vector<float>&, frames, getFrames);
+%attribute(spine::RotateTimeline, spine::Vector<float>&, frames, getFrames);
 
 %attribute(spine::ColorTimeline, int, slotIndex, getSlotIndex, setSlotIndex);
-%attribute(spine::ColorTimeline, ccstd::vector<float>&, frames, getFrames);
+%attribute(spine::ColorTimeline, spine::Vector<float>&, frames, getFrames);
 
 %attribute(spine::TwoColorTimeline, int, slotIndex, getSlotIndex, setSlotIndex);
 
 %attribute(spine::AttachmentTimeline, size_t, slotIndex, getSlotIndex, setSlotIndex);
-%attribute(spine::AttachmentTimeline, ccstd::vector<float>&, frames, getFrames);
-%attribute(spine::AttachmentTimeline, ccstd::vector<ccstd::string>&, attachmentNames, getAttachmentNames);
+%attribute(spine::AttachmentTimeline, spine::Vector<float>&, frames, getFrames);
+%attribute(spine::AttachmentTimeline, spine::Vector<spine::String>&, attachmentNames, getAttachmentNames);
 
 %attribute(spine::DeformTimeline, int, slotIndex, getSlotIndex, setSlotIndex);
-%attribute(spine::DeformTimeline, ccstd::vector<float>&, frames, getFrames);
-%attribute(spine::DeformTimeline, ccstd::vector<float>&, frameVertices, getVertices);
+%attribute(spine::DeformTimeline, spine::Vector<float>&, frames, getFrames);
+%attribute(spine::DeformTimeline, spine::Vector<float>&, frameVertices, getVertices);
 %attribute(spine::DeformTimeline, spine::VertexAttachment*, attachment, getAttachment);
 
-%attribute(spine::EventTimeline, ccstd::vector<float>&, frames, getFrames);
-%attribute(spine::EventTimeline, ccstd::vector<spine::Event*>&, events, getEvents);
+%attribute(spine::EventTimeline, spine::Vector<float>&, frames, getFrames);
+%attribute(spine::EventTimeline, spine::Vector<spine::Event*>&, events, getEvents);
 
-%attribute(spine::DrawOrderTimeline, ccstd::vector<float>&, frames, getFrames);
-%attribute(spine::DrawOrderTimeline, ccstd::vector<ccstd::vector<int>>&, drawOrders, getDrawOrders);
+%attribute(spine::DrawOrderTimeline, spine::Vector<float>&, frames, getFrames);
+%attribute(spine::DrawOrderTimeline, spine::Vector<spine::Vector<int>>&, drawOrders, getDrawOrders);
 
 %attribute(spine::AnimationState, spine::AnimationStateData*, data, getData);
-%attribute(spine::AnimationState, ccstd::vector<spine::TrackEntry*>&, tracks, getTracks);
+%attribute(spine::AnimationState, spine::Vector<spine::TrackEntry*>&, tracks, getTracks);
 %attribute(spine::AnimationState, float, timeScale, getTimeScale, setTimeScale);
 
 %attribute(spine::TrackEntry, spine::Animation*, animation, getAnimation);
@@ -270,8 +289,8 @@ using namespace spine;
 
 %attribute(spine::Bone, spine::BoneData&, data, getData);
 %attribute(spine::Bone, spine::Skeleton&, skeleton, getSkeleton);
-%attribute(spine::Bone, spine::Bone&, parent, getParent);
-%attribute(spine::Bone, ccstd::vector<spine::Bone*>, children, getChildren);
+%attribute(spine::Bone, spine::Bone*, parent, getParent);
+%attribute(spine::Bone, spine::Vector<spine::Bone*>&, children, getChildren);
 %attribute(spine::Bone, float, x, getX, setX);
 %attribute(spine::Bone, float, y, getY, setY);
 %attribute(spine::Bone, float, rotation, getRotation, setRotation);
@@ -295,8 +314,8 @@ using namespace spine;
 %attribute(spine::Bone, bool, active, isActive, setActive);
 
 %attribute(spine::BoneData, int, index, getIndex);
-%attribute(spine::BoneData, ccstd::string&, name, getName);
-%attribute(spine::BoneData, spine::BoneData&, parent, getParent);
+%attribute(spine::BoneData, spine::String&, name, getName);
+%attribute(spine::BoneData, spine::BoneData*, parent, getParent);
 %attribute(spine::BoneData, float, length, getLength, setLength);
 %attribute(spine::BoneData, float, x, getX, setX);
 %attribute(spine::BoneData, float, y, getY, setY);
@@ -308,28 +327,28 @@ using namespace spine;
 %attribute(spine::BoneData, spine::TransformMode, transformMode, getTransformMode, setTransformMode);
 %attribute(spine::BoneData, bool, skinRequired, isSkinRequired, setSkinRequired);
 
-%attribute(spine::ConstraintData, ccstd::string&, name, getName);
+%attribute(spine::ConstraintData, spine::String&, name, getName);
 %attribute(spine::ConstraintData, size_t, order, getOrder, setOrder);
 %attribute(spine::ConstraintData, bool, skinRequired, isSkinRequired, setSkinRequired);
 
 %attribute(spine::Event, spine::EventData&, data, getData);
 %attribute(spine::Event, int, intValue, getIntValue, setIntValue);
 %attribute(spine::Event, float, floatValue, getFloatValue, setFloatValue);
-%attribute(spine::Event, ccstd::string&, stringValue, getStringValue, setStringValue);
+%attribute(spine::Event, spine::String&, stringValue, getStringValue, setStringValue);
 %attribute(spine::Event, float, time, getTime);
 %attribute(spine::Event, float, volume, getVolume, setVolume);
 %attribute(spine::Event, float, balance, getBalance, setBalance);
 
-%attribute(spine::EventData, ccstd::string&, name, getName);
+%attribute(spine::EventData, spine::String&, name, getName);
 %attribute(spine::EventData, int, intValue, getIntValue, setIntValue);
 %attribute(spine::EventData, float, floatValue, getFloatValue, setFloatValue);
-%attribute(spine::EventData, ccstd::string&, stringValue, getStringValue, setStringValue);
+%attribute(spine::EventData, spine::String&, stringValue, getStringValue, setStringValue);
 %attribute(spine::EventData, float, volume, getVolume, setVolume);
 %attribute(spine::EventData, float, balance, getBalance, setBalance);
-%attribute(spine::EventData, ccstd::string&, audioPath, getAudioPath, setAudioPath);
+%attribute(spine::EventData, spine::String&, audioPath, getAudioPath, setAudioPath);
 
 %attribute(spine::IkConstraint, spine::IkConstraintData&, data, getData);
-%attribute(spine::IkConstraint, ccstd::vector<spine::Bone*>&, bones, getBones);
+%attribute(spine::IkConstraint, spine::Vector<spine::Bone*>&, bones, getBones);
 %attribute(spine::IkConstraint, spine::Bone*, target, getTarget, setTarget);
 %attribute(spine::IkConstraint, int, bendDirection, getBendDirection, setBendDirection);
 %attribute(spine::IkConstraint, bool, compress, getCompress, setCompress);
@@ -338,7 +357,7 @@ using namespace spine;
 %attribute(spine::IkConstraint, float, softness, getSoftness, setSoftness);
 %attribute(spine::IkConstraint, bool, active, isActive, setActive);
 
-%attribute(spine::IkConstraintData, ccstd::vector<spine::BoneData*>&, bones, getBones);
+%attribute(spine::IkConstraintData, spine::Vector<spine::BoneData*>&, bones, getBones);
 %attribute(spine::IkConstraintData, spine::BoneData*, target, getTarget);
 %attribute(spine::IkConstraintData, int, bendDirection, getBendDirection, setBendDirection);
 %attribute(spine::IkConstraintData, bool, compress, getCompress, setCompress);
@@ -348,7 +367,7 @@ using namespace spine;
 %attribute(spine::IkConstraintData, float, softness, getSoftness, setSoftness);
 
 %attribute(spine::PathConstraint, spine::PathConstraintData&, data, getData);
-%attribute(spine::PathConstraint, ccstd::vector<spine::Bone*>&, bones, getBones);
+%attribute(spine::PathConstraint, spine::Vector<spine::Bone*>&, bones, getBones);
 %attribute(spine::PathConstraint, spine::Slot*, target, getTarget, setTarget);
 %attribute(spine::PathConstraint, float, position, getPosition, setPosition);
 %attribute(spine::PathConstraint, float, spacing, getSpacing, setSpacing);
@@ -356,7 +375,7 @@ using namespace spine;
 %attribute(spine::PathConstraint, float, translateMix, getTranslateMix, setTranslateMix);
 %attribute(spine::PathConstraint, bool, active, isActive, setActive);
 
-%attribute(spine::PathConstraintData, ccstd::vector<spine::BoneData*>&, bones, getBones);
+%attribute(spine::PathConstraintData, spine::Vector<spine::BoneData*>&, bones, getBones);
 %attribute(spine::PathConstraintData, spine::SlotData*, target, getTarget, setTarget);
 %attribute(spine::PathConstraintData, spine::PositionMode, positionMode, getPositionMode, setPositionMode);
 %attribute(spine::PathConstraintData, spine::SpacingMode, spacingMode, getSpacingMode, setSpacingMode);
@@ -368,14 +387,14 @@ using namespace spine;
 %attribute(spine::PathConstraintData, float, translateMix, getTranslateMix, setTranslateMix);
 
 %attribute(spine::Skeleton, spine::SkeletonData*, data, getData);
-%attribute(spine::Skeleton, ccstd::vector<spine::Bone*>, bones, getBones);
-%attribute(spine::Skeleton, ccstd::vector<spine::Slot*>, slots, getSlots);
-%attribute(spine::Skeleton, ccstd::vector<spine::Slot*>, drawOrder, getDrawOrder);
-%attribute(spine::Skeleton, ccstd::vector<spine::IkConstraint*>, ikConstraints, getIkConstraints);
-%attribute(spine::Skeleton, ccstd::vector<spine::TransformConstraint*>, transformConstraints, getTransformConstraints);
-%attribute(spine::Skeleton, ccstd::vector<spine::PathConstraint*>, pathConstraints, getPathConstraints);
-%attribute(spine::Skeleton, ccstd::vector<spine::Updatable*>, _updateCache, getUpdateCacheList);
-%attribute(spine::Skeleton, spine::Skin*, skin, setSkin);
+%attribute(spine::Skeleton, spine::Vector<spine::Bone*>&, bones, getBones);
+%attribute(spine::Skeleton, spine::Vector<spine::Slot*>&, slots, getSlots);
+%attribute(spine::Skeleton, spine::Vector<spine::Slot*>&, drawOrder, getDrawOrder);
+%attribute(spine::Skeleton, spine::Vector<spine::IkConstraint*>&, ikConstraints, getIkConstraints);
+%attribute(spine::Skeleton, spine::Vector<spine::TransformConstraint*>&, transformConstraints, getTransformConstraints);
+%attribute(spine::Skeleton, spine::Vector<spine::PathConstraint*>&, pathConstraints, getPathConstraints);
+%attribute(spine::Skeleton, spine::Vector<spine::Updatable*>&, _updateCache, getUpdateCacheList);
+%attribute(spine::Skeleton, spine::Skin*, skin, getSkin, setSkin);
 %attribute(spine::Skeleton, spine::Color&, color, getColor);
 %attribute(spine::Skeleton, float, time, getTime, setTime);
 %attribute(spine::Skeleton, float, scaleX, getScaleX, setScaleX);
@@ -385,52 +404,52 @@ using namespace spine;
 
 %attribute(spine::SkeletonBinary, float, scale, setScale);
 
-%attribute(spine::SkeletonClipping, ccstd::vector<float>&, clippedVertices, getClippedVertices);
-%attribute(spine::SkeletonClipping, ccstd::vector<unsigned short>&, clippedTriangles, getClippedTriangles);
+%attribute(spine::SkeletonClipping, spine::Vector<float>&, clippedVertices, getClippedVertices);
+%attribute(spine::SkeletonClipping, spine::Vector<unsigned short>&, clippedTriangles, getClippedTriangles);
 
-%attribute(spine::SkeletonData, ccstd::string&, name, getName, setName);
-%attribute(spine::SkeletonData, ccstd::vector<spine::BoneData*>&, bones, getBones);
-%attribute(spine::SkeletonData, ccstd::vector<spine::SlotData*>&, slots, getSlots);
-%attribute(spine::SkeletonData, ccstd::vector<spine::Skin*>&, skins, getSkins);
+%attribute(spine::SkeletonData, spine::String&, name, getName, setName);
+%attribute(spine::SkeletonData, spine::Vector<spine::BoneData*>&, bones, getBones);
+%attribute(spine::SkeletonData, spine::Vector<spine::SlotData*>&, slots, getSlots);
+%attribute(spine::SkeletonData, spine::Vector<spine::Skin*>&, skins, getSkins);
 %attribute(spine::SkeletonData, spine::Skin*, defaultSkin, getDefaultSkin, setDefaultSkin);
-%attribute(spine::SkeletonData, ccstd::vector<spine::EventData*>&, events, getEvents);
-%attribute(spine::SkeletonData, ccstd::vector<spine::Animation*>&, animations, getAnimations);
-%attribute(spine::SkeletonData, ccstd::vector<spine::IkConstraintData*>&, ikConstraints, getIkConstraints);
-%attribute(spine::SkeletonData, ccstd::vector<spine::TransformConstraintData*>&, transformConstraints, getTransformConstraints);
-%attribute(spine::SkeletonData, ccstd::vector<spine::PathConstraintData*>&, pathConstraints, getPathConstraints);
+%attribute(spine::SkeletonData, spine::Vector<spine::EventData*>&, events, getEvents);
+%attribute(spine::SkeletonData, spine::Vector<spine::Animation*>&, animations, getAnimations);
+%attribute(spine::SkeletonData, spine::Vector<spine::IkConstraintData*>&, ikConstraints, getIkConstraints);
+%attribute(spine::SkeletonData, spine::Vector<spine::TransformConstraintData*>&, transformConstraints, getTransformConstraints);
+%attribute(spine::SkeletonData, spine::Vector<spine::PathConstraintData*>&, pathConstraints, getPathConstraints);
 %attribute(spine::SkeletonData, float, x, getX, setX);
 %attribute(spine::SkeletonData, float, y, getY, setY);
 %attribute(spine::SkeletonData, float, width, getWidth, setWidth);
 %attribute(spine::SkeletonData, float, height, getHeight, setHeight);
-%attribute(spine::SkeletonData, ccstd::string&, version, getVersion, setVersion);
-%attribute(spine::SkeletonData, ccstd::string&, hash, getHash, setHash);
+%attribute(spine::SkeletonData, spine::String&, version, getVersion, setVersion);
+%attribute(spine::SkeletonData, spine::String&, hash, getHash, setHash);
 %attribute(spine::SkeletonData, float, fps, getFps, setFps);
-%attribute(spine::SkeletonData, ccstd::string&, imagesPath, getImagesPath, setImagesPath);
-%attribute(spine::SkeletonData, ccstd::string&, audioPath, getAudioPath, setAudioPath);
+%attribute(spine::SkeletonData, spine::String&, imagesPath, getImagesPath, setImagesPath);
+%attribute(spine::SkeletonData, spine::String&, audioPath, getAudioPath, setAudioPath);
 
 %attribute(spine::SkeletonJson, float, scale, setScale);
 
-%attribute(spine::Skin, ccstd::string&, name, getName);
-%attribute(spine::Skin, ccstd::vector<BoneData*>&, bones, getBones);
-%attribute(spine::Skin, ccstd::vector<ConstraintData*>&, constraints, getConstraints);
+%attribute(spine::Skin, spine::String&, name, getName);
+%attribute(spine::Skin, spine::Vector<BoneData*>&, bones, getBones);
+%attribute(spine::Skin, spine::Vector<ConstraintData*>&, constraints, getConstraints);
 
 %attribute(spine::Slot, spine::SlotData&, data, getData);
 %attribute(spine::Slot, spine::Bone&, bone, getBone);
 %attribute(spine::Slot, spine::Color&, color, getColor);
 %attribute(spine::Slot, spine::Color&, darkColor, getDarkColor);
 %attribute(spine::Slot, spine::Attachment*, attachment, getAttachment, setAttachment);
-%attribute(spine::Slot, ccstd::vector<float>&, deform, getDeform);
+%attribute(spine::Slot, spine::Vector<float>&, deform, getDeform);
 
 %attribute(spine::SlotData, int, index, getIndex);
-%attribute(spine::SlotData, ccstd::string&, name, getName);
-%attribute(spine::SlotData, spine::boneData&, boneData, getBoneData);
+%attribute(spine::SlotData, spine::String&, name, getName);
+%attribute(spine::SlotData, spine::BoneData&, boneData, getBoneData);
 %attribute(spine::SlotData, spine::Color&, color, getColor);
 %attribute(spine::SlotData, spine::Color&, darkColor, getDarkColor);
-%attribute(spine::SlotData, ccstd::string&, attachmentName, getAttachmentName, setAttachmentName);
+%attribute(spine::SlotData, spine::String&, attachmentName, getAttachmentName, setAttachmentName);
 %attribute(spine::SlotData, spine::BlendMode, blendMode, getBlendMode, setBlendMode);
 
 %attribute(spine::TransformConstraint, spine::TransformConstraintData&, data, getData);
-%attribute(spine::TransformConstraint, ccstd::vector<spine::Bone*>&, bones, getBones);
+%attribute(spine::TransformConstraint, spine::Vector<spine::Bone*>&, bones, getBones);
 %attribute(spine::TransformConstraint, spine::Bone*, target, getTarget, setTarget);
 %attribute(spine::TransformConstraint, float, rotateMix, getRotateMix, setRotateMix);
 %attribute(spine::TransformConstraint, float, translateMix, getTranslateMix, setTranslateMix);
@@ -438,7 +457,7 @@ using namespace spine;
 %attribute(spine::TransformConstraint, float, shearMix, getShearMix, setShearMix);
 %attribute(spine::TransformConstraint, bool, active, isActive, setActive);
 
-%attribute(spine::TransformConstraintData, ccstd::vector<spine::BoneData*>&, bones, getBones);
+%attribute(spine::TransformConstraintData, spine::Vector<spine::BoneData*>&, bones, getBones);
 %attribute(spine::TransformConstraintData, spine::BoneData*, target, getTarget);
 %attribute(spine::TransformConstraintData, float, rotateMix, getRotateMix);
 %attribute(spine::TransformConstraintData, float, translateMix, getTranslateMix);
@@ -453,25 +472,56 @@ using namespace spine;
 %attribute(spine::TransformConstraintData, bool, relative, isRelative);
 %attribute(spine::TransformConstraintData, bool, local, isLocal);
 
-%attribute(spine::Attachment, ccstd::string&, name, getName);
+%attribute(spine::Attachment, spine::String&, name, getName);
 
 %attribute(spine::VertexAttachment, int, id, getId);
-%attribute(spine::VertexAttachment, ccstd::vector<size_t>&, bones, getBones);
-%attribute(spine::VertexAttachment, ccstd::vector<float>&, vertices, getVertices);
+%attribute(spine::VertexAttachment, spine::Vector<size_t>&, bones, getBones);
+%attribute(spine::VertexAttachment, spine::Vector<float>&, vertices, getVertices);
 %attribute(spine::VertexAttachment, size_t, worldVerticesLength, getWorldVerticesLength, setWorldVerticesLength);
 %attribute(spine::VertexAttachment, spine::VertexAttachment*, deformAttachment, getDeformAttachment, setDeformAttachment);
 
 %attribute(spine::ClippingAttachment, spine::SlotData*, endSlot, getEndSlot, setEndSlot);
 
-%attribute(spine::MeshAttachment, ccstd::string&, path, getPath, setPath);
-%attribute(spine::MeshAttachment, ccstd::vector<float>&, regionUVs, getRegionUVs);
-%attribute(spine::MeshAttachment, ccstd::vector<float>&, uvs, getUVs);
-%attribute(spine::MeshAttachment, ccstd::vector<unsigned short>&, triangles, getTriangles);
+%attribute(spine::MeshAttachment, spine::String&, path, getPath, setPath);
+%attribute(spine::MeshAttachment, spine::Vector<float>&, regionUVs, getRegionUVs);
+%attribute(spine::MeshAttachment, spine::Vector<float>&, uvs, getUVs);
+%attribute(spine::MeshAttachment, spine::Vector<unsigned short>&, triangles, getTriangles);
 %attribute(spine::MeshAttachment, spine::Color&, color, getColor);
 %attribute(spine::MeshAttachment, float, width, getWidth, setWidth);
 %attribute(spine::MeshAttachment, float, height, getHeight, setHeight);
 %attribute(spine::MeshAttachment, int, hullLength, getHullLength, setHullLength);
-%attribute(spine::MeshAttachment, ccstd::vector<unsigned short>&, edges, getEdges);
+%attribute(spine::MeshAttachment, spine::Vector<unsigned short>&, edges, getEdges);
+
+%attribute(spine::PathAttachment, spine::Vector<float>&, lengths, getLengths);
+%attribute(spine::PathAttachment, bool, closed, isClosed, setClosed);
+%attribute(spine::PathAttachment, bool, constantSpeed, isConstantSpeed, setConstantSpeed);
+
+%attribute(spine::PointAttachment, float, x, getX, setX);
+%attribute(spine::PointAttachment, float, y, getY, setY);
+%attribute(spine::PointAttachment, float, rotation, getRotation, setRotation);
+
+%attribute(spine::RegionAttachment, float, x, getX, setX);
+%attribute(spine::RegionAttachment, float, y, getY, setY);
+%attribute(spine::RegionAttachment, float, scaleX, getScaleX, setScaleX);
+%attribute(spine::RegionAttachment, float, scaleY, getScaleY, setScaleY);
+%attribute(spine::RegionAttachment, float, rotation, getRotation, setRotation);
+%attribute(spine::RegionAttachment, float, width, getWidth, setWidth);
+%attribute(spine::RegionAttachment, float, height, getHeight, setHeight);
+%attribute(spine::RegionAttachment, spine::Color&, color, getColor);
+%attribute(spine::RegionAttachment, spine::String&, path, getPath, setPath);
+%attribute(spine::RegionAttachment, spine::Vector<float>&, offset, getOffset);
+%attribute(spine::RegionAttachment, spine::Vector<float>&, uvs, getUVs);
+
+%attribute(spine::JitterVertexEffect, float, jitterX, getJitterX, setJitterX);
+%attribute(spine::JitterVertexEffect, float, jitterY, getJitterY, setJitterY);
+
+%attribute(spine::SwirlVertexEffect, float, centerX, getCenterX, setCenterX);
+%attribute(spine::SwirlVertexEffect, float, centerY, getCenterY, setCenterY);
+%attribute(spine::SwirlVertexEffect, float, radius, getRadius, setRadius);
+%attribute(spine::SwirlVertexEffect, float, angle, getAngle, setAngle);
+
+%attribute(spine::Vector2, float, x, getX, setX);
+%attribute(spine::Vector2, float, y, getY, setY);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
@@ -559,3 +609,146 @@ using namespace spine;
         IkConstraint::apply(*parent, *child, targetX, targetY, bendDir, stretch, softness, alpha);
     }
 };
+
+%extend spine::Timeline {
+    void apply(spine::Skeleton *skeleton, float lastTime, float time, const ccstd::vector<spine::Event*>& events, float alpha, spine::MixBlend blend, spine::MixDirection direction) {
+        spine::Vector<spine::Event*> spEvents;
+        for (int i = 0; i < events.size(); ++i) {
+            spEvents.add(events[i]);
+        }
+        $self->apply(*skeleton, lastTime, time, &spEvents, alpha, blend, direction);
+    }
+}
+
+%extend spine::AnimationState {
+    void apply(spine::Skeleton* skeleton) {
+        $self->apply(*skeleton);
+    }
+}
+
+%extend spine::Animation {
+    void apply(spine::Skeleton *skeleton, float lastTime, float time, bool loop, const ccstd::vector<spine::Event*>& events, float alpha, spine::MixBlend blend, spine::MixDirection direction) {
+        spine::Vector<spine::Event*> spEvents;
+        for (int i = 0; i < events.size(); ++i) {
+            spEvents.add(events[i]);
+        }
+        $self->apply(*skeleton, lastTime, time, loop, &spEvents, alpha, blend, direction);
+    }
+}
+
+%extend spine::Bone {
+    Bone(spine::BoneData *data, spine::Skeleton *skeleton, spine::Bone *parent = NULL) {
+        $self->Bone(*data, *skeleton, parent);
+    }
+}
+
+%extend spine::Event {
+    Event(float time, const spine::EventData *data) {
+        $self->Event(time, *data);
+    }
+}
+
+%extend spine::IkConstraint {
+    IkConstraint(spine::IkConstraintData *data, spine::Skeleton *skeleton) {
+        $self->IkConstraint(*data, *skeleton);
+    }
+}
+
+%extend spine::PathConstraint {
+    PathConstraint(spine::PathConstraintData* data, spine::Skeleton* skeleton) {
+        $self->PathConstraint(*data, *skeleton);
+    }
+}
+
+%extend spine::PointAttachment {
+    void computeWorldPosition(spine::Bone* bone, float& ox, float& oy) {
+        $self->computeWorldPosition(*bone, ox, oy);
+    }
+
+    float computeWorldRotation(spine::Bone* bone) {
+        return $self->computeWorldRotation(*bone);
+    }
+}
+
+%extend spine::Bone {
+    Slot(spine::SlotData *data, spine::Bone *bone) {
+        $self->Slot(*data, *bone);
+    }
+}
+
+%extend spine::SkeletonBounds {
+    void update(spine::Skeleton* skeleton, bool updateAabb) {
+        $self->update(*skeleton, updateAabb);
+    }
+}
+
+%extend spine::TransformConstraint {
+    TransformConstraint(spine::TransformConstraintData* data, spine::Skeleton* skeleton) {
+        $self->TransformConstraint(*data, *skeleton);
+    }
+}
+
+%extend spine::SlotData {
+    SlotData(int index, const spine::String *name, spine::BoneData *boneData) {
+        $self->SlotData(index, *name, *boneData);
+    }
+}
+
+%extend spine::VertexEffect {
+    begin(spine::Skeleton *skeleton) {
+        $self->begin(*skeleton);
+    }
+
+    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
+        $self->transform(position->getX(), position->getY());
+    }
+}
+
+%extend spine::SwirlVertexEffect {
+    SwirlVertexEffect(float radius, spine::Interpolation *interpolation) {
+        $self->SwirlVertexEffect(radius, *interpolation);
+    }
+
+    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
+        $self->transform(position->getX(), position->getY())
+    }
+}
+
+%extend spine::JitterVertexEffect {
+    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
+        $self->transform(position->getX(), position->getY())
+    }
+}
+
+%extend spine::Skin {
+    ccstd::vector<spine::SkinEntry*> getAttachments() {
+        spine::Skin::AttachmentMap::Entries entries = $self->getAttachments();
+        ccstd::vector<spine::SkinEntry*> result;
+        while (entries.hasNext()) {
+            spine::Skin::AttachmentMap::Entry entry = entries.next();
+            spine::SkinEntry* skinEntry = new spine::SkinEntry(entry._slotIndex, entry._name, entry._attachment);
+            result.push_back(skinEntry);
+        }
+        return result;
+    }
+}
+
+%extend spine::DeformTimeline {
+    void setFrame(int frameIndex, float time, ccstd::vector<float>* vertices) {
+        spine::Vector<float> spVertices;
+        for (int i = 0; i < vertices->size(); ++i) {
+            spVertices.add((*vertices)[i]);
+        }
+        $self->setFrame(frameIndex, time, spVertices);
+    }
+}
+
+%extend spine::DrawOrderTimeline {
+    void setFrame(size_t frameIndex, float time, ccstd::vector<int>* drawOrder) {
+        spine::Vector<int> spDrawOrder;
+        for (int i = 0; i < drawOrder->size(); ++i) {
+            spDrawOrder.add((*drawOrder)[i]);
+        }
+        $self->setFrame(frameIndex, time, spDrawOrder);
+    }
+}

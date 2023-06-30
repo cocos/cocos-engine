@@ -37,6 +37,8 @@
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
+#include "spine-creator-support/Vector2.h"
+#include "spine-creator-support/SkinEntry.h"
 
 using namespace cc;
 
@@ -213,6 +215,155 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
 }
 SE_BIND_FUNC(js_register_spine_retainSkeletonData)
 
+static bool js_computeWorldVertices_VertexAttachment(se::State &s) {
+    const auto &args = s.args();
+
+    spine::VertexAttachment *vertexAttachment = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == vertexAttachment) return true;
+
+    spine::Slot *slot = nullptr;
+    size_t start = 0, count = 0, offset = 0, stride = 0;
+    se::Value worldVerticesVal;
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &slot, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing slot");
+
+    ok = sevalue_to_native(args[1], &start, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing start");
+    
+    ok = sevalue_to_native(args[2], &worldVerticesVal, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing vertices");
+
+    ok = sevalue_to_native(args[3], &count, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing count");
+
+    ok = sevalue_to_native(args[4], &offset, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing offset");
+    
+    ok = sevalue_to_native(args[5], &stride, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing stride");
+
+    if (worldVerticesVal.toObject()->isTypedArray()) {
+        uint8_t* ptr = nullptr;
+        size_t len = 0;
+        worldVerticesVal.toObject()->getTypedArrayData(&ptr, &len);
+        vertexAttachment->computeWorldVertices(*slot, start, count, (float*)ptr, offset, stride);
+    } else if (worldVerticesVal.toObject()->isArray()) {
+        spine::Vector<float> worldVertices;
+        worldVertices.ensureCapacity(count);
+        vertexAttachment->computeWorldVertices(*slot, start, count, worldVertices, 0);
+
+        int tCount = offset + (count >> 1) * stride;
+        
+        for (size_t i = offset, t = 0; i < tCount; i += stride, t += 2) {
+            worldVerticesVal.toObject()->setArrayElement(i, se::Value(worldVertices[t]));
+            worldVerticesVal.toObject()->setArrayElement(i + 1, se::Value(worldVertices[t + 1]));
+        }
+    }
+    return true;
+}
+SE_BIND_FUNC(js_computeWorldVertices_VertexAttachment)
+
+static bool js_computeWorldVertices_RegionAttachment(se::State &s) {
+    const auto &args = s.args();
+
+    spine::RegionAttachment *regionAttachment = SE_THIS_OBJECT<spine::RegionAttachment>(s);
+    if (nullptr == regionAttachment) return true;
+
+    spine::Bone *bone = nullptr;
+    size_t offset = 0, stride = 0;
+    se::Value worldVerticesVal;
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &bone, s.thisObject());
+    ok = sevalue_to_native(args[1], &worldVerticesVal, s.thisObject());
+    ok = sevalue_to_native(args[2], &offset, s.thisObject());
+    ok = sevalue_to_native(args[3], &stride, s.thisObject());
+
+    if (worldVerticesVal.toObject()->isTypedArray()) {
+        uint8_t* ptr = nullptr;
+        size_t len = 0;
+        worldVerticesVal.toObject()->getTypedArrayData(&ptr, &len);
+        regionAttachment->computeWorldVertices(*bone, (float*)ptr, offset, stride);
+    } else if (worldVerticesVal.toObject()->isArray()) {
+        spine::Vector<float> worldVertices;
+        int count = 8;
+        worldVertices.ensureCapacity(count);
+        regionAttachment->computeWorldVertices(*bone, worldVertices, 0);
+
+        int curr = offset;
+        worldVerticesVal.toObject()->setArrayElement(curr, se::Value(worldVertices[0]));
+        worldVerticesVal.toObject()->setArrayElement(curr + 1, se::Value(worldVertices[1]));
+
+        curr += stride;
+        worldVerticesVal.toObject()->setArrayElement(curr, se::Value(worldVertices[2]));
+        worldVerticesVal.toObject()->setArrayElement(curr + 1, se::Value(worldVertices[3]));
+
+        curr += stride;
+        worldVerticesVal.toObject()->setArrayElement(curr, se::Value(worldVertices[4]));
+        worldVerticesVal.toObject()->setArrayElement(curr + 1, se::Value(worldVertices[5]));
+
+        curr += stride;
+        worldVerticesVal.toObject()->setArrayElement(curr, se::Value(worldVertices[6]));
+        worldVerticesVal.toObject()->setArrayElement(curr + 1, se::Value(worldVertices[7]));
+    }
+    return true;
+}
+SE_BIND_FUNC(js_computeWorldVertices_RegionAttachment)
+
+static bool js_getBounds_Skeleton(se::State &s) {
+    const auto &args = s.args();
+    spine::Skeleton* skeleton = SE_THIS_OBJECT<spine::Skeleton>(s);
+    if (nullptr == skeleton) return true;
+
+    se::Value temp;
+
+    bool ok = false;
+    ok = sevalue_to_native(args[2], &temp, s.thisObject());
+
+    {
+        float offx, offy, sizex, sizey;
+        spine::Vector<float> outVertexBuffer;
+        skeleton->getBounds(offx, offy, sizex, sizey, outVertexBuffer);
+        args[0].toObject()->setProperty("x", se::Value(offx));
+        args[0].toObject()->setProperty("y", se::Value(offy));
+        args[1].toObject()->setProperty("x", se::Value(sizex));
+        args[1].toObject()->setProperty("y", se::Value(sizey));
+        if (!temp.isNullOrUndefined()) {
+            for (int i = 0; i < outVertexBuffer.size(); ++i) {
+                temp.toObject()->setArrayElement(i, se::Value(outVertexBuffer[i]));
+            }
+        }
+    }
+    return true;
+}
+SE_BIND_FUNC(js_getBounds_Skeleton)
+
+static bool js_findAttachmentsForSlot_Skin(se::State &s) {
+    const auto &args = s.args();
+    spine::Skin* skin = SE_THIS_OBJECT<spine::Skin>(s);
+    if (nullptr == skin) return true;
+
+    size_t slotIndex = 0;
+    se::Value attachmentsVal;
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &slotIndex, s.thisObject());
+    ok = sevalue_to_native(args[1], &attachmentsVal, s.thisObject());
+
+    spine::Vector<spine::Attachment*> attachments;
+    skin->findAttachmentsForSlot(slotIndex, attachments);
+
+    for (int i = 0; i < attachments.size(); ++i) {
+        spine::Attachment* attach = attachments[i];
+        spine::SkinEntry* entry = new spine::SkinEntry(slotIndex, attach->getName(), attach);
+        attachmentsVal.toObject()->setArrayElement(i, se::Value(entry));
+    }
+    return true;
+}
+SE_BIND_FUNC(js_findAttachmentsForSlot_Skin)
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -227,6 +378,11 @@ bool register_all_spine_manual(se::Object *obj) {
     ns->defineFunction("initSkeletonData", _SE(js_register_spine_initSkeletonData));
     ns->defineFunction("retainSkeletonData", _SE(js_register_spine_retainSkeletonData));
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
+
+    __jsb_spine_VertexAttachment_proto->defineFunction("computeWorldVertices", _SE(js_computeWorldVertices_VertexAttachment));
+    __jsb_spine_RegionAttachment_proto->defineFunction("computeWorldVertices", _SE(js_computeWorldVertices_RegionAttachment));
+    __jsb_spine_Skeleton_proto->defineFunction("getBounds", _SE(js_getBounds_Skeleton));
+    __jsb_spine_Skin_proto->defineFunction("getAttachmentsForSlot", _SE(js_findAttachmentsForSlot_Skin));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {

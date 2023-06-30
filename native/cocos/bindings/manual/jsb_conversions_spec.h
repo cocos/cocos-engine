@@ -135,6 +135,8 @@ template <typename K, typename V>
 class Map;
 } // namespace spine
 
+#include "cocos/editor-support/spine-creator-support/Vector2.h"
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
@@ -599,6 +601,8 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
+
+bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 #endif
 
