@@ -101,6 +101,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     if (!renderWindow->getSwapchain()) {
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         return addVertex(
             FramebufferTag{},
             std::forward_as_tuple(name.c_str()),
@@ -153,7 +154,7 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount, ResourceResidency residency) {
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -161,12 +162,9 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = sampleCount;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
-    if (name == "msaa" || name == "msaaDS") {
-        desc.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
-    }
 
     return addVertex(
         ManagedTextureTag{},
@@ -180,7 +178,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount, ResourceResidency residency) {
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -188,12 +186,9 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = sampleCount;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
-    if (name == "msaa" || name == "msaaDS") {
-        desc.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
-    }
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 

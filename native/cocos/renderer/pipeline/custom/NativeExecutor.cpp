@@ -1133,7 +1133,18 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            const auto& layoutID = locate(ctx.currentPassLayoutID, layoutName, ctx.lg);
+            
+            auto parentLayoutID = ctx.currentPassLayoutID;
+            auto layoutID = parentLayoutID;
+            if (!layoutName.empty()) {
+                auto parentID = parent(ctx.currentPassLayoutID, ctx.lg);
+                if (parentID != LayoutGraphData::null_vertex()) {
+                    parentLayoutID = parentID;
+                }
+                layoutID = locate(parentLayoutID, layoutName, ctx.lg);
+            }
+
+            ctx.currentPassLayoutID = layoutID;
             // get layout
             auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
 

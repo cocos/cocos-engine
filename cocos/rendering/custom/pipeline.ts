@@ -32,7 +32,7 @@ import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
+import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
@@ -630,6 +630,7 @@ export interface BasicPipeline extends PipelineRuntime {
         format: Format,
         width: number,
         height: number,
+        sampleCount?: SampleCount,
         residency?: ResourceResidency): number;
     /**
      * @en Add 2D depth stencil.
@@ -646,6 +647,7 @@ export interface BasicPipeline extends PipelineRuntime {
         format: Format,
         width: number,
         height: number,
+        sampleCount?: SampleCount,
         residency?: ResourceResidency): number;
     /**
      * @en Update render target information.

@@ -2221,6 +2221,7 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
                 fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
             }
             fillRenderPassInfo(view.loadOp, view.storeOp, view.attachmentType, rpInfo, slotID, viewDesc, false);
+            fgRenderpassInfo.orderedViews.emplace_back(name);
         }
     } else {
         auto colorSize = pass.rasterViews.size();
