@@ -134,15 +134,24 @@ class SystemInfo extends EventTarget {
 
         // init os, osVersion and osMainVersion
         const minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();
-        if (minigamePlatform === 'android') {
+        switch (minigamePlatform) {
+        case 'android':
             this.os = OS.ANDROID;
-        } else if (minigamePlatform === 'ios') {
+            break;
+        case 'ios':
             this.os = OS.IOS;
-        } else if (minigamePlatform === 'windows') {
+            break;
+        case 'windows':
             this.os = OS.WINDOWS;
-        } else {
+            break;
+        case 'mac':
+            this.os = OS.OSX;
+            break;
+        default:
             this.os = OS.UNKNOWN;
+            break;
         }
+
         let minigameSystem = minigameSysInfo.system.toLowerCase();
         // Adaptation to Android P
         if (minigameSystem === 'android p') {
@@ -154,7 +163,7 @@ class SystemInfo extends EventTarget {
 
         // init isMobile and platform
         this.platform = currentPlatform;
-        this.isMobile = this.os !== OS.WINDOWS;
+        this.isMobile = this.os === OS.ANDROID || this.os === OS.IOS;
 
         // init browserType and browserVersion
         this.browserType = BrowserType.UNKNOWN;
