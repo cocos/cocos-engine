@@ -63,6 +63,7 @@ TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::str
     }
     auto *trackEntry = _animState->setAnimation(0, animation, loop);
     _animState->apply(*_skeleton);
+    _skeleton->updateWorldTransform();
     return trackEntry;
 }
 
@@ -70,6 +71,8 @@ void SpineSkeletonInstance::setSkin(const std::string& name) {
     if (!_skeleton) return;
     _skeleton->setSkin(name.c_str());
     _skeleton->setSlotsToSetupPose();
+    _animState->apply(*_skeleton); 
+    _skeleton->updateWorldTransform();
     //LogUtil::PrintToJs(name.c_str());
 }
 
