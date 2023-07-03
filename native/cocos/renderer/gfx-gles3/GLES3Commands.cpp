@@ -901,6 +901,8 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
             case TextureType::TEX3D:
                 GL_CHECK(glTexStorage3D(gpuTexture->glTarget, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h, d));
                 break;
+            default:
+                break;
         }
     }
 }
