@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import { XIAOMI } from 'internal:constants';
+import { HUAWEI, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
+import { minigame } from 'pal/minigame';
+import { warn } from '../../cocos/core/platform/debug';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    wasmUrl = `cocos-js/${wasmUrl}`;
-    return WebAssembly.instantiate(wasmUrl, importObject);
+    return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
 }
 
 export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
@@ -41,6 +42,57 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
                 resolve(arrayBuffer);
             });
         }).catch((e) => {});
+    });
+}
+
+function loadSubpackage (name: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (minigame.loadSubpackage) {
+            minigame.loadSubpackage({
+                name,
+                success () {
+                    resolve();
+                },
+                fail (err) {
+                    reject(err);
+                },
+            });
+        } else {
+            warn(`Subpackage is not supported on this platform`);
+            resolve();
+        }
+    });
+}
+
+let isWasmModuleReady = false;
+/**
+ * Sometimes we need to put wasm in subpackage to reduce code size.
+ * In this case we need to ensure the wasm module is ready before we import it.
+ */
+export function ensureWasmModuleReady (): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        if (isWasmModuleReady) {
+            resolve();
+            return;
+        }
+        if (WASM_SUBPACKAGE) {
+            if (HUAWEI) {
+                // NOTE: huawei quick game doesn't support concurrent loading subpackage.
+                loadSubpackage('__ccWasmAssetSubpkg__').then(() => loadSubpackage('__ccWasmChunkSubpkg__')).then(() => {
+                    isWasmModuleReady = true;
+                    resolve();
+                }).catch(reject);
+            } else {
+                Promise.all(['__ccWasmAssetSubpkg__', '__ccWasmChunkSubpkg__'].map((pkgName) => loadSubpackage(pkgName)))
+                    .then(() => {
+                        isWasmModuleReady = true;
+                        resolve();
+                    }).catch(reject);
+            }
+        } else {
+            isWasmModuleReady = true;
+            resolve();
+        }
     });
 }
 

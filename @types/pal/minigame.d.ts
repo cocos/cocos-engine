@@ -34,6 +34,7 @@ declare module 'pal/minigame' {
 
         // file system
         getFileSystemManager(): FileSystemManager;
+        loadSubpackage? (option: LoadSubpackageOption): LoadSubpackageTask;
 
         // input
         onTouchStart: IEventManager<TouchEvent>;
@@ -248,4 +249,23 @@ declare class InnerAudioContext {
     play(): any;
     seek(position:number): any;
     stop(): any;
+}
+
+interface LoadSubpackageOption {
+    name: string;
+    fail?: (...args: unknown[]) => void;
+    success?: (...args: unknown[]) => void;
+    complete?: (...args: unknown[]) => void;
+}
+interface LoadSubpackageTask {
+    onProgressUpdate(
+        /** 分包加载进度变化事件的监听函数 */
+        listener: LoadSubpackageTaskOnProgressUpdateCallback
+    ): void;
+}
+type LoadSubpackageTaskOnProgressUpdateCallback = (result: LoadSubpackageTaskOnProgressUpdateListenerResult) => void;
+interface LoadSubpackageTaskOnProgressUpdateListenerResult {
+    progress: number;
+    totalBytesExpectedToWrite: number;
+    totalBytesWritten: number;
 }
