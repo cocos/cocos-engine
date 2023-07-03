@@ -19,6 +19,7 @@
 #if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
   #include <builtin/functionalities/probe>
+  #include <common/texture/cubemap>
 #endif
 #if CC_USE_LIGHT_PROBE
 #include <legacy/sh-fs>
@@ -242,7 +243,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         R = normalize(CalculateReflectDirection(N, V, max(abs(dot(N, V)), 0.0)));
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(N, V, s.position, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
-        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount);
+        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, GetRoughnessWithoutConvolution(s.roughness) * mipCount);
       } 
       env = unpackRGBE(probe);
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX

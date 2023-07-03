@@ -654,7 +654,7 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
         gfx::SamplerInfo info{
             cc::gfx::Filter::LINEAR,
             cc::gfx::Filter::LINEAR,
-            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::LINEAR,
             cc::gfx::Address::CLAMP,
             cc::gfx::Address::CLAMP,
             cc::gfx::Address::CLAMP,

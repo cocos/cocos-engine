@@ -175,7 +175,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
         GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, FSInput_reflectionProbeId);
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(lightingData.N, lightingData.V, worldPos, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
-        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount)).xyz;
+        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, GetRoughnessWithoutConvolution(lightingData.specularParam) * mipCount)).xyz;
     }
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
     if(FSInput_reflectionProbeId < 0.0){

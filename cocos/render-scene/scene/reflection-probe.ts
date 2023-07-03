@@ -65,9 +65,9 @@ export class ReflectionProbe {
     protected _cubemap: TextureCube | null = null;
     protected readonly _size = new Vec3(1, 1, 1);
     protected _planarReflectionTexture: Texture | null = null;
-    protected _textureBlit: TextureBlit = new TextureBlit();
-    private _mipmapCount = 1;
-
+    protected _textureRegion: TextureBlit = new TextureBlit();
+    protected _previewSphere: Node | null = null;
+    protected _previewPlane: Node | null = null;
     /**
      * @en Render cubemap's camera
      * @zh 渲染cubemap的相机
@@ -121,9 +121,8 @@ export class ReflectionProbe {
      * @en Reflection probe cube pattern preview sphere
      * @zh 反射探针cube模式的预览小球
      */
-    protected _previewSphere: Node | null = null;
 
-    protected _previewPlane: Node | null = null;
+    private _mipmapCount = 1;
 
     /**
      * @en Set probe type,cube or planar.
@@ -275,6 +274,10 @@ export class ReflectionProbe {
 
     get previewPlane () {
         return this._previewPlane!;
+    }
+
+    get planarMipmapCount (): number {
+        return this._mipmapCount;
     }
 
     constructor (id: number) {
@@ -438,23 +441,24 @@ export class ReflectionProbe {
         const width = this.realtimePlanarTexture.width;
         const height = this.realtimePlanarTexture.height;
         const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
-
-        this._textureBlit.srcExtent.width = width;
-        this._textureBlit.srcExtent.height = height;
+        this._textureRegion.srcExtent.width = width;
+        this._textureRegion.srcExtent.height = height;
+        this._textureRegion.dstExtent.width = width;
+        this._textureRegion.dstExtent.height = height;
         const srcTexture = this.realtimePlanarTexture.getGFXTexture()!;
         if (bGenerate) {
             let dstWidth = width;
             let dstHeight = height;
             for (let i = 0; i < this._mipmapCount; i++) {
-                this._textureBlit.dstExtent.width = dstWidth;
-                this._textureBlit.dstExtent.height = dstHeight;
-                this._textureBlit.dstSubres.mipLevel = i;
-                deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureBlit], Filter.LINEAR);
+                this._textureRegion.dstExtent.width = dstWidth;
+                this._textureRegion.dstExtent.height = dstHeight;
+                this._textureRegion.dstSubres.mipLevel = i;
+                deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureRegion], Filter.LINEAR);
                 dstWidth >>= 1;
                 dstHeight >>= 1;
             }
         } else {
-            deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureBlit], Filter.NONE);
+            deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureRegion], Filter.NONE);
         }
     }
 

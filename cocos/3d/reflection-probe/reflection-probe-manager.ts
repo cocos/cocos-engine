@@ -379,7 +379,7 @@ export class ReflectionProbeManager {
                 buffer[bufferOffset + 6] = 0.0;
                 buffer[bufferOffset + 7] = 0.0;
                 //mipCount;
-                buffer[bufferOffset + 8] = 1.0;
+                buffer[bufferOffset + 8] = probe.planarMipmapCount;
             }
             bufferOffset += 4 * dataWidth;
         }
