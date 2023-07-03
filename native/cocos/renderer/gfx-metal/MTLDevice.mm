@@ -146,7 +146,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         }
     }
 
-    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [device supportsFamily: MTLGPUFamilyApple3];
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily: MTLGPUFamilyApple3];
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
