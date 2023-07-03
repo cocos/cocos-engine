@@ -53,7 +53,7 @@ export const TriggerEventObject = {
 };
 
 export const CharacterTriggerEventObject = {
-    type: 'onCharacterTriggerEnter' as CharacterTriggerEventType,
+    type: 'onControllerTriggerEnter' as CharacterTriggerEventType,
     collider: null as Collider | null,
     characterController: null as CharacterController | null,
     impl: null as any,
