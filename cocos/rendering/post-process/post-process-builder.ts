@@ -18,7 +18,7 @@ import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
-import { CameraComponent } from '../../misc';
+import { Camera as CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 

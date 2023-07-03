@@ -491,6 +491,7 @@ export class Camera extends Component {
         this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
     }
 
+    @tooltip('i18n:camera.use_postprocess')
     @property
     get usePostProcess (): boolean {
         return this._usePostProcess;
@@ -502,6 +503,7 @@ export class Camera extends Component {
         }
     }
 
+    @tooltip('i18n:camera.postprocess')
     @type(PostProcess)
     get postProcess (): PostProcess | null {
         return this._postProcess;

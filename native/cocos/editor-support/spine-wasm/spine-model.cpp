@@ -11,7 +11,7 @@ void SpineModel::addSlotMesh(SlotMesh& mesh, bool needMerge) {
     auto count = meshArray.size();
     if (needMerge && count >= 1) {
         auto* lastMesh = &meshArray[count - 1];
-        if (lastMesh->blendMode == mesh.blendMode) {
+        if (lastMesh->blendMode == mesh.blendMode && lastMesh->textureID == mesh.textureID) {
             canMerge = true;
             lastMesh->vCount += mesh.vCount;
             lastMesh->iCount += mesh.iCount;

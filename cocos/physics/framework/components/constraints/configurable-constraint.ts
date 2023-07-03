@@ -125,7 +125,7 @@ export class LinearLimitSettings  {
 
     @type(CCBoolean)
     @tooltip('i18n:physics3d.constraint.linearLimit.enableSoftConstraint')
-    @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
+    @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings', style: 'section' })
     get enableSoftConstraint (): boolean {
         return this._enableSoftConstraint;
     }

@@ -8,6 +8,7 @@ class AttachmentVertices {
 public:
     AttachmentVertices(int verticesCount, uint16_t *triangles, int trianglesCount);
     virtual ~AttachmentVertices();
+    AttachmentVertices *copy();
     Triangles *_triangles = nullptr;
 };
 

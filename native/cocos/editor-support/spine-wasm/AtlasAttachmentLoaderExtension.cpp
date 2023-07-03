@@ -18,6 +18,11 @@ AttachmentVertices::~AttachmentVertices() {
     delete _triangles;
 }
 
+AttachmentVertices *AttachmentVertices::copy() {
+    AttachmentVertices *atv = new AttachmentVertices(_triangles->vertCount, _triangles->indices, _triangles->indexCount);
+    return atv;
+}
+
 static void deleteAttachmentVertices(void *vertices) {
     delete static_cast<AttachmentVertices *>(vertices);
 }

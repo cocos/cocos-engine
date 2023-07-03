@@ -327,9 +327,9 @@ public:
                 }
 
                 auto lx = controllerData.leftStick.stickX;
-                auto ly = controllerData.leftStick.stickY;
+                auto ly = -controllerData.leftStick.stickY;
                 auto rx = controllerData.rightStick.stickX;
-                auto ry = controllerData.rightStick.stickY;
+                auto ry = -controllerData.rightStick.stickY;
 
                 info.axisInfos.emplace_back(StickAxisCode::LEFT_STICK_X, lx);
                 info.axisInfos.emplace_back(StickAxisCode::LEFT_STICK_Y, ly);
