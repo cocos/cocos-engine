@@ -1358,85 +1358,101 @@ function overrideProperty_TrackEntry () {
             proto: prototype,
             property: 'loop',
             getter: prototype.getLoop,
+            setter: prototype.setLoop,
         },
         {
             proto: prototype,
             property: 'holdPrevious',
             getter: prototype.getHoldPrevious,
+            setter: prototype.setHoldPrevious,
         },
         {
             proto: prototype,
             property: 'eventThreshold',
             getter: prototype.getEventThreshold,
+            setter: prototype.setEventThreshold,
         },
         {
             proto: prototype,
             property: 'attachmentThreshold',
             getter: prototype.getAttachmentThreshold,
+            setter: prototype.setAttachmentThreshold,
         },
         {
             proto: prototype,
             property: 'drawOrderThreshold',
             getter: prototype.getDrawOrderThreshold,
+            setter: prototype.setDrawOrderThreshold,
         },
         {
             proto: prototype,
             property: 'animationStart',
             getter: prototype.getAnimationStart,
+            setter: prototype.setAnimationStart,
         },
         {
             proto: prototype,
             property: 'animationEnd',
             getter: prototype.getAnimationEnd,
+            setter: prototype.setAnimationEnd,
         },
         {
             proto: prototype,
             property: 'animationLast',
             getter: prototype.getAnimationLast,
+            setter: prototype.setAnimationLast,
         },
         {
             proto: prototype,
             property: 'delay',
             getter: prototype.getDelay,
+            setter: prototype.setDelay,
         },
         {
             proto: prototype,
             property: 'trackTime',
             getter: prototype.getTrackTime,
+            setter: prototype.setTrackTime,
         },
         {
             proto: prototype,
             property: 'trackEnd',
             getter: prototype.getTrackEnd,
+            setter: prototype.setTrackEnd,
         },
         {
             proto: prototype,
             property: 'timeScale',
             getter: prototype.getTimeScale,
+            setter: prototype.setTimeScale,
         },
         {
             proto: prototype,
             property: 'alpha',
             getter: prototype.getAlpha,
+            setter: prototype.setAlpha,
         },
         {
             proto: prototype,
             property: 'mixTime',
             getter: prototype.getMixTime,
+            setter: prototype.setMixTime,
         },
         {
             proto: prototype,
             property: 'mixDuration',
             getter: prototype.getMixDuration,
+            setter: prototype.setMixDuration,
         },
         {
             proto: prototype,
             property: 'mixBlend',
             getter: prototype.getMixBlend,
+            setter: prototype.setMixBlend,
         },
     ];
     propertyPolyfills.forEach((prop) => {
-        js.getset(prop.proto, prop.property, prop.getter);
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
 }
 
@@ -1471,10 +1487,11 @@ function overrideProperty_AnimationState () {
             proto: prototype,
             property: 'timeScale',
             getter: prototype.getTimeScale,
+            setter: prototype.setTimeScale,
         },
     ];
     propertyPolyfills.forEach((prop) => {
-        js.getset(prop.proto, prop.property, prop.getter);
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
 
     overrideDefineArrayProp(prototype, prototype.getTracks, 'tracks');
@@ -1497,10 +1514,11 @@ function overrideProperty_Animation () {
             proto: prototype,
             property: 'duration',
             getter: prototype.getDuration,
+            setter: prototype.setDuration,
         },
     ];
     propertyPolyfills.forEach((prop) => {
-        js.getset(prop.proto, prop.property, prop.getter);
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
 }
 
