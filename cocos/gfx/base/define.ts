@@ -1609,6 +1609,7 @@ export class RenderPassInfo {
     constructor (
         public colorAttachments: ColorAttachment[] = [],
         public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public depthStencilResolveAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
         public dependencies: SubpassDependency[] = [],
     ) {}
@@ -1616,6 +1617,7 @@ export class RenderPassInfo {
     public copy (info: Readonly<RenderPassInfo>) {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
         return this;
@@ -1704,12 +1706,14 @@ export class FramebufferInfo {
         public renderPass: RenderPass = null!,
         public colorTextures: Texture[] = [],
         public depthStencilTexture: Texture | null = null,
+        public depthStencilResolveTexture: Texture | null = null,
     ) {}
 
     public copy (info: Readonly<FramebufferInfo>) {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
+        this.depthStencilResolveTexture = info.depthStencilResolveTexture;
         return this;
     }
 }
