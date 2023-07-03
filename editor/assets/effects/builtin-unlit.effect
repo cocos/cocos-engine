@@ -15,11 +15,6 @@ CCEffect %{
       migrations: &migs
         properties:
           mainColor:    { formerlySerializedAs: color }
-    - vert: unlit-vs:vert
-      frag: unlit-fs:frag
-      pass: default/forward
-      phase: default/forward/forward-phase
-      propertyIndex: 0
     - &planar-shadow
       vert: planar-shadow-vs:vert
       frag: planar-shadow-fs:frag
