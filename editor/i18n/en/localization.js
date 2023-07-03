@@ -130,6 +130,15 @@ module.exports = link(mixin({
             DragonBones: `${url}/${version}/manual/en/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
             LightProbe: ``,
+            PostProcess: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            BlitScreen: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            TAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            FSR: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Fxaa: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Bloom: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            HBAO: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            ColorGrading: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            Skin: `${url}/${version}/manual/en/shader/surface-shader/skin.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -148,7 +157,7 @@ module.exports = link(mixin({
             'erp-texture-cube': `${url}/${version}/manual/en/asset/texture-cube.html`,
             gltf: `${url}/${version}/manual/en/asset/model/glTF.html`,
             fbx: `${url}/${version}/manual/en/asset/model/mesh.html`,
-            json: `${url}/${version}manual/en/asset/json.html`,
+            json: `${url}/${version}/manual/en/asset/json.html`,
             'label-atlas': `${url}/${version}/manual/en/asset/label-atlas.html`,
             material: `${url}/${version}/manual/en/asset/material.html`,
             particle: '',
@@ -162,7 +171,7 @@ module.exports = link(mixin({
             'sprite-frame': `${url}/${version}/manual/en/asset/sprite-frame.html`,
             terrain: `${url}/${version}/manual/en/editor/terrain/#creating-terrain-objects-and-assets`,
             text: `${url}/${version}/manual/en/asset/text.html`,
-            'tiled-map': `${url}/${version}/manual/manual/en/asset/tiledmap.html`,
+            'tiled-map': `${url}/${version}/manual/en/asset/tiledmap.html`,
             'ttf-font': `${url}/${version}/manual/en/asset/font.html#dynamic-fonts`,
             'video-clip': ``,
             'render-texture': `${url}/${version}/manual/en/asset/render-texture.html`,
@@ -251,6 +260,8 @@ module.exports = link(mixin({
         ISO: 'Camera ISO, controls the exposure parameter',
         rect: 'The size of the viewport that this camera will eventually render to the screen.',
         target_texture: 'Output render texture of the camera. Default to null, which outputs directly to screen',
+        use_postprocess: 'Whether this camera should use post process.',
+        postprocess: 'If camera post process is not specified, will use the global post process.',
     },
     lights: {
         color: 'Color of the light',
@@ -1276,8 +1287,31 @@ module.exports = link(mixin({
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
+    hbao: {
+        radiusScale: 'The range of ambient occlusion, by adjusting this value, the dark area can be better adapted to the scale of the scene.',
+        aoSaturation: 'The saturation of ambient occlusion, the higher the value, the darker.',
+        needBlur: 'Turn on for a softer effect with less noise, but it consumes some performance.',
+    },
+    bloom: {
+        threshold: 'The brightness threshold, brighter area will produce bloom, this value unit is the LDR brightness seen by the human eye, independent of exposure.',
+        iterations: 'The number of blur iterations, the higher the value that results in a larger and softer flare range, but with reduced performance.',
+        intensity: 'Flood intensity, the higher the value, the brighter the halo, please adjust it moderately.',
+    },
     color_grading: {
+        contribute: 'Adjust contribution of LUT for screen color, The influence on screen color can be adjusted in the range of 0-1.',
         originalMap: 'Support arbitary LUT for Nx1 blocks or 8x8 blocks automatically. The builtin lut texture path is internal/dependencies/textures/lut/.',
+    },
+    taa: {
+        sampleScale: 'TAA sample range. Smaller values are recommended, as too large values may cause jittering.',
+        feedback: 'History frame blend value. The higher the value, the better the anti-aliasing effect, but the picture may become blurry.',
+    },
+    fsr: {
+        sharpness: 'Sharpness',
+    },
+    postprocess: {
+        global: 'Whether the post process is enabled for all post process camera.',
+        shadingScale: 'Rendering resolution.',
+        enableShadingScaleInEditor: 'Enable Shading Scale In Editor',
     },
 },
 

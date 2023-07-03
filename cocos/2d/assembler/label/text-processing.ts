@@ -43,6 +43,7 @@ const Alignment = [
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
 const _invisibleAlpha = (1 / 255).toFixed(3);
+const MAX_CALCULATION_NUM = 3;
 
 export interface IRenderData {
     x: number;
@@ -79,9 +80,26 @@ export class TextProcessing {
     public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]): void {
         if (!isBmFont) {
+            let loopTime = 0;
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+            // check & limit canvas size
+            while ((outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)
+                && (loopTime <= MAX_CALCULATION_NUM)) {
+                loopTime++;
+                if (loopTime > MAX_CALCULATION_NUM) {
+                    this._fontScale = 1;
+                } else {
+                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
+                    const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
+                    this._fontScale *=  canvasScaleToMaxSizeRatio;
+                    this._fontScale = Math.max(1, this._fontScale);
+                }
+
+                this._updatePaddingRect(style, outputLayoutData);
+                this._calculateLabelFont(style, layout, outputLayoutData, inputString);
+            }
         } else {
             if (!style.fntConfig) { // for char
                 this._fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
@@ -179,14 +197,14 @@ export class TextProcessing {
         case Overflow.SHRINK: {
             this._calculateShrinkFont(paragraphedStrings, style, layout, outputLayoutData);
             this._calculateWrapText(paragraphedStrings, style, layout, outputLayoutData);
-            outputLayoutData.canvasSize.width  *= this._fontScale;
-            outputLayoutData.canvasSize.height *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
+            outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height * this._fontScale;
             break;
         }
         case Overflow.CLAMP: {
             this._calculateWrapText(paragraphedStrings, style, layout, outputLayoutData);
-            outputLayoutData.canvasSize.width  *= this._fontScale;
-            outputLayoutData.canvasSize.height *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
+            outputLayoutData.canvasSize.height = outputLayoutData.nodeContentSize.height * this._fontScale;
             break;
         }
         case Overflow.RESIZE_HEIGHT: {
@@ -194,7 +212,7 @@ export class TextProcessing {
             const rawHeight = (outputLayoutData.parsedString.length + BASELINE_RATIO)
             * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
 
-            outputLayoutData.canvasSize.width  *= this._fontScale;
+            outputLayoutData.canvasSize.width  = outputLayoutData.nodeContentSize.width * this._fontScale;
             outputLayoutData.canvasSize.height = (rawHeight + outputLayoutData.canvasPadding.height * this._fontScale);
             // set node height
             outputLayoutData.nodeContentSize.height = (rawHeight + outputLayoutData.contentSizeExtend.height * this._fontScale) / this._fontScale;
@@ -203,18 +221,6 @@ export class TextProcessing {
         default: {
             // nop
         }
-        }
-
-        // check & limit canvas size
-        if ((outputLayoutData.nodeContentSize.width < MAX_SIZE && outputLayoutData.nodeContentSize.height < MAX_SIZE)
-            && (outputLayoutData.canvasSize.width > MAX_SIZE || outputLayoutData.canvasSize.height > MAX_SIZE)) {
-            const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
-            let scale = MAX_SIZE / maxValue;
-            if (scale < 1) { scale = 1; }
-            this._fontScale = scale;
-
-            this._updatePaddingRect(style, outputLayoutData);
-            this._calculateLabelFont(style, layout, outputLayoutData, inputString); // only one time
         }
     }
 
