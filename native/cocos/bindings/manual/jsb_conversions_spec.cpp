@@ -1173,6 +1173,14 @@ bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /
     set_member_field(obj, to, "y", &spine::Vector2::y, tmp);
     return true;
 }
+
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    to.setObject(obj);
+    return true;
+}
 #endif
 
 #if CC_USE_MIDDLEWARE

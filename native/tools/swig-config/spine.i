@@ -136,6 +136,8 @@ using namespace spine;
 %ignore spine::DrawOrderTimeline::setFrame;
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Skin::findAttachmentsForSlot;
+%ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
+%ignore spine::PointAttachment::computeWorldPosition;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -609,6 +611,12 @@ using namespace spine;
         IkConstraint::apply(*parent, *child, targetX, targetY, bendDir, stretch, softness, alpha);
     }
 };
+
+%extend spine::Bone {
+    void updateWorldTransformWith(float x, float y, float rotation, float scaleX, float scaleY, float shearX, float shearY) {
+        $self->updateWorldTransform(x, y, rotation, scaleX, scaleY, shearX, shearY);
+    }
+}
 
 %extend spine::Timeline {
     void apply(spine::Skeleton *skeleton, float lastTime, float time, const ccstd::vector<spine::Event*>& events, float alpha, spine::MixBlend blend, spine::MixDirection direction) {

@@ -340,6 +340,69 @@ static bool js_getBounds_Skeleton(se::State &s) {
 }
 SE_BIND_FUNC(js_getBounds_Skeleton)
 
+static bool js_worldToLocal_Bone(se::State &s) {
+    const auto &args = s.args();
+    spine::Bone* bone = SE_THIS_OBJECT<spine::Bone>(s);
+    if (nullptr == bone) return true;
+
+    spine::Vector2 world(0, 0);
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &world, s.thisObject());
+
+    float outX, outY;
+    bone->worldToLocal(world.x, world.y, outX, outY);
+
+    spine::Vector2 outNative(outX, outY);
+    se::Value ret;
+    nativevalue_to_se(outNative, ret, s.thisObject());
+    s.rval().setObject(ret.toObject());
+    return true;
+}
+SE_BIND_FUNC(js_worldToLocal_Bone)
+
+static bool js_localToWorld_Bone(se::State &s) {
+    const auto &args = s.args();
+    spine::Bone* bone = SE_THIS_OBJECT<spine::Bone>(s);
+    if (nullptr == bone) return true;
+
+    spine::Vector2 local(0, 0);
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &local, s.thisObject());
+
+    float outX, outY;
+    bone->localToWorld(local.x, local.y, outX, outY);
+
+    spine::Vector2 outNative(outX, outY);
+    se::Value ret;
+    nativevalue_to_se(outNative, ret, s.thisObject());
+    s.rval().setObject(ret.toObject());
+    return true;
+}
+SE_BIND_FUNC(js_localToWorld_Bone)
+
+static bool js_computeWorldPosition_PointAttachment(se::State &s) {
+    const auto &args = s.args();
+    spine::PointAttachment* pointAttachment = SE_THIS_OBJECT<spine::PointAttachment>(s);
+    if (nullptr == pointAttachment) return true;
+
+    spine::Bone* bone = nullptr;
+
+    bool ok = false;
+    ok = sevalue_to_native(args[0], &bone, s.thisObject());
+
+    float outX, outY;
+    pointAttachment->computeWorldPosition(*bone, outX, outY);
+
+    spine::Vector2 outNative(outX, outY);
+    se::Value ret;
+    nativevalue_to_se(outNative, ret, s.thisObject());
+    s.rval().setObject(ret.toObject());
+    return true;
+}
+SE_BIND_FUNC(js_computeWorldPosition_PointAttachment)
+
 static bool js_findAttachmentsForSlot_Skin(se::State &s) {
     const auto &args = s.args();
     spine::Skin* skin = SE_THIS_OBJECT<spine::Skin>(s);
@@ -383,6 +446,9 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_RegionAttachment_proto->defineFunction("computeWorldVertices", _SE(js_computeWorldVertices_RegionAttachment));
     __jsb_spine_Skeleton_proto->defineFunction("getBounds", _SE(js_getBounds_Skeleton));
     __jsb_spine_Skin_proto->defineFunction("getAttachmentsForSlot", _SE(js_findAttachmentsForSlot_Skin));
+    __jsb_spine_Bone_proto->defineFunction("worldToLocal", _SE(js_worldToLocal_Bone));
+    __jsb_spine_Bone_proto->defineFunction("localToWorld", _SE(js_localToWorld_Bone));
+    __jsb_spine_PointAttachment_proto->defineFunction("computeWorldPosition", _SE(js_computeWorldPosition_PointAttachment));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {
