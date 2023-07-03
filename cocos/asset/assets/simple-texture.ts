@@ -24,7 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { IMemoryImageSource } from '../../../pal/image/types';
+import { ImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
@@ -142,7 +142,7 @@ export class SimpleTexture extends TextureBase {
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap | IMemoryImageSource, level = 0, arrayIndex = 0): void {
+    public uploadData (source: ImageSource | ArrayBufferView, level = 0, arrayIndex = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }

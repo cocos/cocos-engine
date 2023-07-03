@@ -37,17 +37,17 @@ export class ImageData extends BaseImageData {
         }
         super.destroy();
     }
-    public rawData (): unknown {
+
+    public getRawData (): unknown {
+        // TODO(qgh):Need to remove implementations such as HTMLImageElement and use a simpler image class.
         if (this._imageSource instanceof HTMLCanvasElement) {
-            // @ts-ignore
-            return this._imageSource._data.data;
+            return (this._imageSource as any)._data.data;
         } else if (this._imageSource instanceof HTMLImageElement) {
-            // @ts-ignore
-            return this._imageSource._data;
+            return (this._imageSource as any)._data;
         } else if (ArrayBuffer.isView(this._imageSource)) {
             return this._imageSource.buffer;
         }
-        return super.rawData();
+        return super.getRawData();
     }
 
     protected isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
@@ -57,23 +57,23 @@ export class ImageData extends BaseImageData {
         return super.isNativeImage(imageSource);
     }
 
-    static loadImage (url: string,
-        options: Record<string, any>,
-        onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
-        const image = new ImageData();
+    static loadImage (url: string): Promise<ImageData> {
+        return new Promise((resolve, reject) => {
+            const image = new ImageData();
 
-        if (ccwindow.location.protocol !== 'file:') {
-            image.crossOrigin = 'anonymous';
-        }
+            if (ccwindow.location.protocol !== 'file:') {
+                image.crossOrigin = 'anonymous';
+            }
 
-        image.onload = (): void => {
-            if (onComplete) { onComplete(null, image.data); }
-        };
-        image.onerror = (): void => {
-            if (onComplete) { onComplete(new Error(getError(4930, url))); }
-        };
+            image.onload = (): void => {
+                resolve(image);
+            };
+            image.onerror = (): void => {
+                reject(new Error(getError(4930, url)));
+            };
 
-        image.src = url;
-        return image;
+            image.src = url;
+            return image;
+        });
     }
 }

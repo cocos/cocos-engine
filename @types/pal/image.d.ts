@@ -55,25 +55,12 @@ declare module 'pal/image' {
         /**
          * Download images from the server.
          */
-        static loadImage (
-            url: string,
-            options: Record<string, any>,
-            onComplete: ((err: Error | null, data?: ImageSource | null) => void),
-        ): ImageData;
-
-        /**
-         * Image load success callback(when the image is HTMLImageElement).
-         */
-        onload: ((ev: Event) => void) | null;
-        /**
-         * Image load error callback(when the image is HTMLImageElement).
-         */
-        onerror: ((ev: Event) => void) | null;
+        static loadImage (url: string): Promise<ImageData>
 
         /**
          * Get raw image data, in web platform is image source(like data interface), in native platform is image raw data.
          */
-        rawData (): unknown;
+        getRawData (): unknown;
         /**
          * Determine if it is an HTMLElement element.
          */

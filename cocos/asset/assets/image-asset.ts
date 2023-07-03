@@ -498,23 +498,15 @@ export class ImageAsset extends Asset {
      * @zh 原始图像数据。
      */
     get rawData (): any {
-        return this._imageData.rawData();
+        return this._imageData.getRawData();
     }
 
     /**
      * @en Image data source(include: HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView).
      * @zh 图像的来源（包括：HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView）。
      */
-    get data (): any {
+    get data (): ImageSource | ArrayBufferView | null {
         return this._imageData.data;
-    }
-
-    /**
-     * @en Image data object.
-     * @zh 图像的数据对象。
-     */
-    get imageData (): ImageData {
-        return this._imageData;
     }
 
     /**

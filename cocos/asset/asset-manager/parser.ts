@@ -87,9 +87,9 @@ export class Parser {
             onComplete(null, file.data);
             return;
         }
-        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result) => {
+        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
             onComplete(null, result);
-        }, (err) => {
+        }, (err): void => {
             onComplete(err, null);
         });
     }

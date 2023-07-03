@@ -570,7 +570,7 @@ export class WebGLDevice extends Device {
         imageAssets: Readonly<ImageAsset[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
-    ) {
+    ): void {
         const texImages: TexImageSource[] = [];
         imageAssets.forEach((item) => {
             texImages.push(item.data as TexImageSource);

@@ -70,7 +70,7 @@ export class BaseImageData {
         return this._imageSource && this._imageSource._data;
     }
 
-    public rawData (): unknown {
+    public getRawData (): unknown {
         return this.data as any;
     }
 
@@ -154,17 +154,5 @@ export class BaseImageData {
 
     private fetchImageSource (imageSource: ImageSource): any {
         return '_data' in imageSource ? imageSource._data : imageSource;
-    }
-
-    protected addEventListener (name: string, cb: (ev: Event) => void): void {
-        if (this.isHtmlElement()) {
-            (this.data as HTMLImageElement).addEventListener(name, cb);
-        }
-    }
-
-    protected removeEventListener (name: string, cb: (ev: Event) => void): void {
-        if (this.isHtmlElement()) {
-            (this.data as HTMLImageElement).removeEventListener(name, cb);
-        }
     }
 }

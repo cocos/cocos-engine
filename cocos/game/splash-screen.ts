@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, TAOBAO } from 'internal:constants';
-import { ImageData } from 'pal/image';
+import { ImageData, ImageSource } from 'pal/image';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {
@@ -137,26 +137,24 @@ export class SplashScreen {
 
             this.initWaterMark();
             const bgPromise = new Promise<void>((resolve, reject): void => {
-                this.bgImage = new ImageAsset();
-                this.bgImage.imageData.onload = (): void => {
+                ImageData.loadImage(this.settings.bgBase64).then((imageData) => {
+                    this.bgImage = new ImageAsset();
+                    this.bgImage._nativeAsset = imageData.data;
                     this.initBG();
                     resolve();
-                };
-                this.bgImage.imageData.onerror = (): void => {
+                }).catch((err) => {
                     reject();
-                };
-                this.bgImage.imageData.src = this.settings.bgBase64;
+                });
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
-                this.logoImage = new ImageAsset();
-                this.logoImage.imageData.onload = (): void => {
+                ImageData.loadImage(this.settings.base64src).then((imageData) => {
+                    this.logoImage = new ImageAsset();
+                    this.logoImage._nativeAsset = imageData.data;
                     this.initLogo();
                     resolve();
-                };
-                this.logoImage.imageData.onerror = (): void => {
+                }).catch((err) => {
                     reject();
-                };
-                this.logoImage.imageData.src = this.settings.base64src;
+                });
             });
             return Promise.all([bgPromise, logoPromise]);
         }

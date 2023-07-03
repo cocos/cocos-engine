@@ -27,7 +27,7 @@ import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
 export class ImageData extends BaseImageData {
-    public rawData (): unknown {
+    public getRawData (): unknown {
         let data;
         if ('getContext' in this._imageSource) {
             const canvasElem = this._imageSource;
@@ -66,24 +66,23 @@ export class ImageData extends BaseImageData {
         return this.data;
     }
 
-    static loadImage (url: string,
-        options: Record<string, any>,
-        onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): ImageData {
-        const image = new ImageData();
+    static loadImage (url: string): Promise<ImageData> {
+        return new Promise((resolve, reject) => {
+            const image = new ImageData();
 
-        // NOTE: on xiaomi platform, we need to force setting img.crossOrigin as 'anonymous'
-        if (ccwindow.location.protocol !== 'file:') {
-            image.crossOrigin = 'anonymous';
-        }
+            if (ccwindow.location.protocol !== 'file:') {
+                image.crossOrigin = 'anonymous';
+            }
 
-        image.onload = (): void => {
-            if (onComplete) { onComplete(null, image.data); }
-        };
-        image.onerror = (): void => {
-            if (onComplete) { onComplete(new Error(getError(4930, url))); }
-        };
+            image.onload = (): void => {
+                resolve(image);
+            };
+            image.onerror = (): void => {
+                reject(new Error(getError(4930, url)));
+            };
 
-        image.src = url;
-        return image;
+            image.src = url;
+            return image;
+        });
     }
 }

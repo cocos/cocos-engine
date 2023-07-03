@@ -54,7 +54,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._imageData;
+        return this._imageData.data;
     },
     set (value: ImageSource) {
         this.reset(value);
@@ -73,15 +73,7 @@ Object.defineProperty(imageAssetProto, 'rawData', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._imageData.rawData();
-    },
-});
-
-Object.defineProperty(imageAssetProto, 'imageData', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._imageData;
+        return this._imageData.getRawData();
     },
 });
 
@@ -137,7 +129,7 @@ imageAssetProto._syncDataToNative = function () {
     this.setHeight(this._height);
     this.url = this.nativeUrl;
 
-    this.setData(this._imageData.rawData());
+    this.setData(this._imageData.getRawData());
     if (data._mipmapLevelDataSize){
         this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
     }
