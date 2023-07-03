@@ -29,6 +29,7 @@ import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Filter, Format, Framebuffer, Texture, TextureBlit, TextureFlagBit, TextureInfo, TextureType, TextureUsageBit, deviceManager } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
+import { canGenerateMipmap, getMipLevel } from '../../asset/assets/simple-texture';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -65,6 +66,7 @@ export class ReflectionProbe {
     protected readonly _size = new Vec3(1, 1, 1);
     protected _planarReflectionTexture: Texture | null = null;
     protected _textureBlit: TextureBlit = new TextureBlit();
+    private _mipmapCount = 1;
 
     /**
      * @en Render cubemap's camera
@@ -275,10 +277,6 @@ export class ReflectionProbe {
         return this._previewPlane!;
     }
 
-    get planarReflectionTexture () {
-        return this._planarReflectionTexture!;
-    }
-
     constructor (id: number) {
         this._probeId = id;
     }
@@ -314,9 +312,25 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera) {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = cclegacy.view.getDesignResolutionSize();
-            this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
+            this.realtimePlanarTexture = this._createTargetTexture(sourceCamera.width, sourceCamera.height);
         }
+        if (!this._planarReflectionTexture) {
+            const width = this.realtimePlanarTexture.width;
+            const height = this.realtimePlanarTexture.height;
+            const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
+            this._mipmapCount = getMipLevel(width, height);
+            this._planarReflectionTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA8,
+                width,
+                height,
+                bGenerate ? TextureFlagBit.GEN_MIPMAP : TextureFlagBit.NONE,
+                1,
+                bGenerate ? this._mipmapCount : 1,
+            ));
+        }
+
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
         this._needRender = true;
@@ -368,6 +382,10 @@ export class ReflectionProbe {
             this.realtimePlanarTexture.destroy();
             this.realtimePlanarTexture = null;
         }
+        if (this._planarReflectionTexture) {
+            this._planarReflectionTexture.destroy();
+            this._planarReflectionTexture = null;
+        }
     }
     public enable () {
     }
@@ -410,36 +428,41 @@ export class ReflectionProbe {
         return true;
     }
 
-    public generateMipmapFromTexture (): void {
-        if (!this.realtimePlanarTexture || !deviceManager.gfxDevice) {
+    /**
+     * @engineInternal
+     */
+    public copyTextureToMipmap (): void {
+        if (!this.realtimePlanarTexture || !this._planarReflectionTexture || !deviceManager.gfxDevice) {
             return;
         }
         const width = this.realtimePlanarTexture.width;
         const height = this.realtimePlanarTexture.height;
-
-        if (!this._planarReflectionTexture) {
-            this._planarReflectionTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-                Format.RGBA8,
-                this.realtimePlanarTexture.width,
-                this.realtimePlanarTexture.height,
-                TextureFlagBit.GEN_MIPMAP,
-                1,
-                11,
-            ));
-        }
+        const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
 
         this._textureBlit.srcExtent.width = width;
         this._textureBlit.srcExtent.height = height;
+        const srcTexture = this.realtimePlanarTexture.getGFXTexture()!;
+        if (bGenerate) {
+            let dstWidth = width;
+            let dstHeight = height;
+            for (let i = 0; i < this._mipmapCount; i++) {
+                this._textureBlit.dstExtent.width = dstWidth;
+                this._textureBlit.dstExtent.height = dstHeight;
+                this._textureBlit.dstSubres.mipLevel = i;
+                deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureBlit], Filter.LINEAR);
+                dstWidth >>= 1;
+                dstHeight >>= 1;
+            }
+        } else {
+            deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureBlit], Filter.NONE);
+        }
+    }
 
-        this._textureBlit.dstExtent.width = width / 4;
-        this._textureBlit.dstExtent.height = height / 4;
-        this._textureBlit.dstSubres.layerCount = 1;
-        this._textureBlit.dstSubres.mipLevel = 2;
-
-        // eslint-disable-next-line max-len
-        deviceManager.gfxDevice.commandBuffer.blitTexture(this.realtimePlanarTexture.getGFXTexture()!, this._planarReflectionTexture, [this._textureBlit], Filter.LINEAR);
+    /**
+     * @engineInternal
+     */
+    public getPlanarReflectionTexture (): Texture | null {
+        return this._planarReflectionTexture;
     }
 
     private _syncCameraParams (camera: Camera): void {

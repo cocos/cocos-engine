@@ -80,7 +80,7 @@ export class ReflectionProbeFlow extends RenderFlow {
             if (probe.probeType === ProbeType.PLANAR) {
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                probe.generateMipmapFromTexture();
+                probe.copyTextureToMipmap();
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     const renderTexture = probe.bakedCubeTextures[faceIdx];
