@@ -1300,9 +1300,7 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
 
             // overwrite programInfo
             overwriteProgramBlockInfo(device, shaderInfo, programInfo, scratch);
-            if (strstr(effect._name.c_str(), "mssub")) {
-                printf("1111111111111");
-            }
+
             // handle map
             auto handleMap = genHandles(shaderInfo);
 

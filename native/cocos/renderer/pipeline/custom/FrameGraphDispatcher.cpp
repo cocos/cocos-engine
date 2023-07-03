@@ -2135,21 +2135,6 @@ void fillRenderPassInfo(gfx::LoadOp loadOp, gfx::StoreOp storeOp, AttachmentType
     }
 }
 
-struct SubpassViewCollector : boost::dfs_visitor<> {
-    void discover_vertex(RenderGraph::vertex_descriptor u, const RenderGraph& g) {
-        visitObject(u, g,
-            [&](const RasterSubpass& subpass) {
-                for (const auto &[name, view] : subpass.rasterViews) {
-                    uberPass.rasterViews[name] = view;
-                }
-            },
-            [&](const auto&) {}
-            );
-    }
-
-    RasterPass &uberPass;
-};
-
 void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &pass) {
     const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
 
@@ -2191,7 +2176,6 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
             const auto &view = pass.rasterViews.at(name);
             const auto &viewDesc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
             auto prevAccess = pair.second;
-            CC_ASSERT(slotID < node.attachmentStatus.size());
             // TD:remove find
             auto nodeIter = std::find_if(node.attachmentStatus.begin(), node.attachmentStatus.end(), [resID](const AccessStatus &status) {
                 return status.vertID == resID;
