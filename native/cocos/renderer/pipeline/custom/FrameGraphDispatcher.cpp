@@ -32,6 +32,7 @@
 #include <iterator>
 #include <limits>
 #include <vector>
+#include <numeric>
 #include "FGDispatcherGraphs.h"
 #include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
@@ -1862,13 +1863,15 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
 
 
         // TODO(Zeqiang): visbility of slot name "_" not found
-        if (memAccess == gfx::MemoryAccess::READ_ONLY) {
+        if (hasFlag(memAccess, gfx::MemoryAccess::READ_ONLY)) {
             if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE && rasterized) {
                 texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::INPUT_ATTACHMENT));
             } else {
                 texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
             }
-        } else {
+        }
+
+        if (hasFlag(memAccess, gfx::MemoryAccess::WRITE_ONLY)) {
             texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
         }
 
@@ -2118,20 +2121,29 @@ bool checkResolveResource(const Graphs &graphs, uint32_t vertID, uint32_t passID
 void fillRenderPassInfo(gfx::LoadOp loadOp, gfx::StoreOp storeOp, AttachmentType attachmentType, gfx::RenderPassInfo &rpInfo, uint32_t index, const ResourceDesc &viewDesc, bool resolve) {
     if (attachmentType != AttachmentType::DEPTH_STENCIL || resolve) {
         auto &colorAttachment = rpInfo.colorAttachments[index];
-        colorAttachment.format = viewDesc.format;
-        colorAttachment.loadOp = loadOp;
-        colorAttachment.storeOp = storeOp;
-        colorAttachment.sampleCount = viewDesc.sampleCount;
-        // colorAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
+        if (colorAttachment.format == gfx::Format::UNKNOWN) {
+            colorAttachment.format = viewDesc.format;
+            colorAttachment.loadOp = loadOp;
+            colorAttachment.storeOp = storeOp;
+            colorAttachment.sampleCount = viewDesc.sampleCount;
+        } else {
+            colorAttachment.storeOp = storeOp;
+        }
+       
     } else {
         auto &depthStencilAttachment = rpInfo.depthStencilAttachment;
-        depthStencilAttachment.format = viewDesc.format;
-        depthStencilAttachment.depthLoadOp = loadOp;
-        depthStencilAttachment.depthStoreOp = storeOp;
-        depthStencilAttachment.stencilLoadOp = loadOp;
-        depthStencilAttachment.stencilStoreOp = storeOp;
-        depthStencilAttachment.sampleCount = viewDesc.sampleCount;
-        // depthStencilAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
+        if (depthStencilAttachment.format == gfx::Format::UNKNOWN) {
+            depthStencilAttachment.format = viewDesc.format;
+            depthStencilAttachment.depthLoadOp = loadOp;
+            depthStencilAttachment.depthStoreOp = storeOp;
+            depthStencilAttachment.stencilLoadOp = loadOp;
+            depthStencilAttachment.stencilStoreOp = storeOp;
+            depthStencilAttachment.sampleCount = viewDesc.sampleCount;
+        } else {
+            // TODO(Zeqiang): separate ds
+            depthStencilAttachment.depthStoreOp = storeOp;
+            depthStencilAttachment.stencilStoreOp = storeOp;
+        }
     }
 }
 
@@ -2365,6 +2377,10 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         tryAddEdge(EXPECT_START_ID, parentRagVert, relationGraph);
     }
 
+    if (!pass.resolvePairs.empty()) {
+        subpassInfo.resolves.resize(pass.resolvePairs.size(), gfx::INVALID_BINDING);
+    }
+
     uint32_t localSlot = 0;
     bool dsAppeared{false};
     for (const auto &[sortKey, name, access] : viewIndex) {
@@ -2403,7 +2419,10 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
                 subpassInfo.depthResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode;
                 subpassInfo.stencilResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode1;
             } else {
-                subpassInfo.resolves.emplace_back(slot);
+                auto indexIter = std::find(fgRenderpassInfo.orderedViews.begin(), fgRenderpassInfo.orderedViews.end(), resolveiter->source);
+                auto srcIndex = indexIter == fgRenderpassInfo.orderedViews.end() ? fgRenderpassInfo.orderedViews.size()
+                                                                                    : std::distance(fgRenderpassInfo.orderedViews.begin(), indexIter);
+                subpassInfo.resolves[srcIndex] = slot;
             }
             accessType = AccessType::WRITE;
         } else {
@@ -2413,7 +2432,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             loadOp = view.loadOp;
             storeOp = view.storeOp;
 
-                    // TD:remove find
+            // TD:remove find
             auto nodeIter = std::find_if(head->attachmentStatus.begin(), head->attachmentStatus.end(), [resID](const AccessStatus &status) {
                 return status.vertID == resID;
             });
@@ -2449,9 +2468,9 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             } else {
                 fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
             }
-            fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
             fgRenderpassInfo.orderedViews.emplace_back(resName);
         }
+        fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
         fgRenderpassInfo.needResolve |= resolveView;
         ++localSlot;
     }
