@@ -71,6 +71,7 @@ protected:
     Format _convertedFormat = Format::UNKNOWN;
     bool _isArray = false;
     bool _isPVRTC = false;
+    bool _allocateMemory = true;
 
     id<MTLTexture> _mtlTexture = nil;
     id<MTLTexture> _mtlTextureView = nil;
