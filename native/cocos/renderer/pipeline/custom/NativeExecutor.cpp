@@ -184,14 +184,24 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
         for (const auto& name : passViews) {
-            const auto& view = pass.rasterViews.at(name);
-            const auto resID = vertex(name, ctx.resourceGraph);
-            const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
+            bool colorLikeView{false};
+            bool dsAttachment{false};
+            auto iter = pass.rasterViews.find(name);
+            if(iter != pass.rasterViews.end()) {
+                const auto& view = iter->second;
+                colorLikeView = view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE;
+                dsAttachment = ~colorLikeView;
+                data.clearDepth = view.clearColor.x;
+                data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
+            } else {
+                const auto resID = vertex(name, ctx.resourceGraph);
+                const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
+                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::ONE);
+                colorLikeView = true;
+                data.clearColors.emplace_back(gfx::Color{});
+            }
 
-            bool colorLikeView = hasResolve && desc.sampleCount == gfx::SampleCount::ONE;
-            if (view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE || colorLikeView) { // RenderTarget
-                data.clearColors.emplace_back(view.clearColor);
-
+            if (colorLikeView) { // RenderTarget
                 auto resID = findVertex(name, resg);
                 visitObject(
                     resID, resg,
@@ -234,10 +244,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         std::ignore = view;
                         CC_EXPECTS(false);
                     });
-            } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
-                data.clearDepth = view.clearColor.x;
-                data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
-
+            } else if (dsAttachment) { // DepthStencil
                 if (!fbInfo.depthStencilTexture) {
                     auto resID = findVertex(name, resg);
                     visitObject(
@@ -917,8 +924,7 @@ const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&
 getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     if (holds<RasterPassTag>(passID, rg)) {
         return get(RasterPassTag{}, passID, rg).computeViews;
-    }
-    if (holds<RasterSubpassTag>(passID, rg)) {
+    } else if (holds<RasterSubpassTag>(passID, rg)) {
         return get(RasterSubpassTag{}, passID, rg).computeViews;
     }
     CC_EXPECTS(holds<ComputeTag>(passID, rg));
@@ -1746,6 +1752,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         for (const auto& [name, views] : pass.computeViews) {
             auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+        for (const auto& resolve : pass.resolvePairs) {
+            auto resID = findVertex(resolve.target, resg);
             CC_EXPECTS(resID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, resID);
         }

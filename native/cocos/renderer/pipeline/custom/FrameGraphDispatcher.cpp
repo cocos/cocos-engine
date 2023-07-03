@@ -2229,6 +2229,12 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
             return pair.second.attachmentType == AttachmentType::DEPTH_STENCIL;
         });
         colorSize -= hasDS;
+        const auto& subpasses = pass.subpassGraph.subpasses;
+        uint32_t count = 0;
+        auto resolveNum = std::accumulate(subpasses.begin(), subpasses.end(), 0, [](uint32_t initVal, const Subpass& subpass){
+            return initVal + subpass.resolvePairs.size();
+        });
+        colorSize += resolveNum;
         rpInfo.colorAttachments.resize(colorSize);
         fgRenderpassInfo.colorAccesses.resize(colorSize);
     }
@@ -2309,6 +2315,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         uint32_t accessType;
         uint32_t attachmentType;
         std::string_view slotName;
+        uint32_t samplesReverseWeight;
     };
     using RasterViewSortKey = std::tuple<AccessType, AttachmentType, std::string_view>;
     struct SubpassRasterViewData {
@@ -2320,13 +2327,28 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     ccstd::vector<SubpassRasterViewData> viewIndex;
     for (const auto &[name, view] : pass.rasterViews) {
         auto resIter = rag.resourceIndex.find(name);
+        const auto& resID = vertex(name, resourceGraph);
+        const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
         gfx::AccessFlags prevAccess = resIter == rag.resourceIndex.end() ? gfx::AccessFlags::NONE : rag.accessRecord.at(resIter->second).currStatus.accessFlag;
         viewIndex.emplace_back(SubpassRasterViewData {
-            {ACCESS_TYPE_WEIGHT[static_cast<uint32_t>(view.accessType)], ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(view.attachmentType)], view.slotName}, name, prevAccess
+            {ACCESS_TYPE_WEIGHT[static_cast<uint32_t>(view.accessType)], ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(view.attachmentType)], view.slotName, static_cast<uint32_t>(desc.sampleCount)},
+            name, prevAccess,
+        });
+    }
+    
+    for (const auto &resolve : pass.resolvePairs) {
+        auto resIter = rag.resourceIndex.find(resolve.target);
+        gfx::AccessFlags prevAccess = resIter == rag.resourceIndex.end() ? gfx::AccessFlags::NONE : rag.accessRecord.at(resIter->second).currStatus.accessFlag;
+        viewIndex.emplace_back(SubpassRasterViewData {
+            {ACCESS_TYPE_WEIGHT[static_cast<uint32_t>(AccessType::WRITE)], ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(AttachmentType::RENDER_TARGET)], "_", 0xFFFFFFFF},
+            resolve.target, prevAccess,
         });
     }
 
     std::sort(viewIndex.begin(), viewIndex.end(), [](const SubpassRasterViewData &lhs, const SubpassRasterViewData &rhs) {
+        if (lhs.sortKey.samplesReverseWeight != rhs.sortKey.samplesReverseWeight) {
+            return lhs.sortKey.samplesReverseWeight < rhs.sortKey.samplesReverseWeight;
+        }
         if (lhs.sortKey.accessType != rhs.sortKey.accessType) {
             return lhs.sortKey.accessType < rhs.sortKey.accessType;
         }

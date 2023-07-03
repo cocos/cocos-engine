@@ -521,14 +521,19 @@ void NativeRenderSubpassBuilderImpl::setShowStatistics(bool enable) {
 void NativeMultisampleRenderSubpassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
-
-    addRenderTarget(target, AccessType::WRITE, "_", gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, gfx::Color{});
+    
+    auto parentID = parent(nodeID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, parentID, *renderGraph);
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         ResolveFlags::COLOR,
         gfx::ResolveMode::AVERAGE,
         gfx::ResolveMode::NONE);
+    
+    subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
 void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
@@ -542,14 +547,19 @@ void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
     if (stencilMode != gfx::ResolveMode::NONE) {
         flags |= ResolveFlags::STENCIL;
     }
+    
+    auto parentID = parent(nodeID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, parentID, *renderGraph);
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
 
-    addDepthStencil(target, AccessType::WRITE, "_", "_", gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, 1.0, 0, gfx::ClearFlagBit::NONE);
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         flags,
         depthMode,
         stencilMode);
+    
+    subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
 void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
@@ -1079,13 +1089,18 @@ void NativeMultisampleRenderPassBuilder::setShowStatistics(bool enable) {
 void NativeMultisampleRenderPassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
-    addRenderTarget(target, gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, gfx::Color{});
+    
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         ResolveFlags::COLOR,
         gfx::ResolveMode::AVERAGE,
         gfx::ResolveMode::NONE);
+    
+    subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
 void NativeMultisampleRenderPassBuilder::resolveDepthStencil(
@@ -1099,13 +1114,18 @@ void NativeMultisampleRenderPassBuilder::resolveDepthStencil(
     if (stencilMode != gfx::ResolveMode::NONE) {
         flags |= ResolveFlags::STENCIL;
     }
-    addDepthStencil(target,gfx::LoadOp::DISCARD, gfx::StoreOp::STORE, 1.0, 0, gfx::ClearFlagBit::NONE);
+    
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         flags,
         depthMode,
         stencilMode);
+    
+    subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
 // NativeComputeQueue

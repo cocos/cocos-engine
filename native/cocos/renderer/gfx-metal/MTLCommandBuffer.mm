@@ -258,7 +258,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 if (subpasses[i].resolves.size() > j) {
                     uint32_t resolve = subpasses[i].resolves[j];
                     auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
-                    if (resolveTex->textureInfo().samples == SampleCount::ONE)
+                    if (resolveTex->textureInfo().samples != SampleCount::ONE)
                         continue;
                     mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
                     mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
