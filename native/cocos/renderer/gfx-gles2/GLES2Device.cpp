@@ -536,6 +536,9 @@ void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, co
 }
 
 SampleCount GLES2Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    std::ignore = format;
+    std::ignore = usage;
+    std::ignore = flags;
     return static_cast<SampleCount>(cmdFuncGLES2GetMaxSampleCount());
 }
 
