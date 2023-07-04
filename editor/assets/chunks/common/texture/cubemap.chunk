@@ -4,6 +4,11 @@ float RoughnessToPerceptualRoughness(float roughness)
   return sqrt(roughness);
 }
 
+float GetRoughnessWithoutConvolution(float roughness)
+{
+    return pow(roughness, 0.5);
+}
+
 // for legacy only
 #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
   vec3 EnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {

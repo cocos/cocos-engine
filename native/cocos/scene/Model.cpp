@@ -213,7 +213,7 @@ void Model::updateUBOs(uint32_t stamp) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
                 const Vec4 plane = {probe->getNode()->getUp().x, probe->getNode()->getUp().y, probe->getNode()->getUp().z, 1.F};
                 _localBuffer->write(plane, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
-                const Vec4 depthScale = {1.F, 0.F, 0.F, 1.F};
+                const Vec4 depthScale = {1.F, 0.F, 0.F, static_cast<float>(probe->getMipmapCount()) };
                 _localBuffer->write(depthScale, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
             } else {
                 uint16_t mipAndUseRGBE = probe->isRGBE() ? 1000 : 0;
@@ -654,7 +654,7 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
         gfx::SamplerInfo info{
             cc::gfx::Filter::LINEAR,
             cc::gfx::Filter::LINEAR,
-            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::LINEAR,
             cc::gfx::Address::CLAMP,
             cc::gfx::Address::CLAMP,
             cc::gfx::Address::CLAMP,

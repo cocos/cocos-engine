@@ -114,6 +114,7 @@ public:
     inline const cc::TextureCube* getCubeMap() const { return _cubemap; }
 
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
+    inline gfx::Texture* getPlanarReflectionTexture() const { return _planarReflectionTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
@@ -138,6 +139,8 @@ public:
     Vec2 getRenderArea() const;
     void packBackgroundColor();
     bool isRGBE() const;
+    void copyTextureToMipmap();
+    uint32_t getMipmapCount() const { return _mipmapCount; }
 
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
@@ -204,6 +207,11 @@ private:
      * @zh 世界空间相机朝上的方向向量
      */
     Vec3 _up;
+
+    IntrusivePtr<gfx::Texture> _planarReflectionTexture{ nullptr };
+
+    uint32_t _mipmapCount{1};
+    gfx::TextureBlit _textureRegion;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
 };

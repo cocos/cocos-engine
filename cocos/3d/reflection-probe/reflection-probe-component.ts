@@ -151,6 +151,7 @@ export class ReflectionProbe extends Component {
                     this._objFlags ^= CCObject.Flags.IsRotationLocked;
                 }
                 if (!this._sourceCamera) {
+                    // eslint-disable-next-line no-console
                     console.warn('the reflection camera is invalid, please set the reflection camera');
                 } else {
                     this.probe.switchProbeType(value, this._sourceCamera.camera);

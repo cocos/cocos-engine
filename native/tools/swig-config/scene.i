@@ -593,6 +593,8 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
+%attribute(cc::scene::ReflectionProbe, uint32_t, planarMipmapCount, getMipmapCount);
+
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 %attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);

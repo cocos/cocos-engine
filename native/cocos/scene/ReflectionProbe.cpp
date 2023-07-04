@@ -29,6 +29,8 @@
 #include "scene/ReflectionProbeManager.h"
 #include "core/scene-graph/SceneGlobals.h"
 #include "scene/Skybox.h"
+#include "renderer/gfx-base/GFXDef-common.h"
+
 namespace cc {
 namespace scene {
 // right left up down front back
@@ -86,13 +88,28 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
     _camera->setShutter(CameraShutter::D125);
     _camera->setIso(CameraISO::ISO100);
 
-    RenderWindow* win = Root::getInstance()->getMainWindow();
     _realtimePlanarTexture = ccnew RenderTexture();
     IRenderTextureCreateInfo info;
+    uint32_t width = _camera->getWidth();
+    uint32_t height = _camera->getHeight();
     info.name = "realtimePlanarTexture";
-    info.height = win->getHeight();
-    info.width = win->getWidth();
+    info.width = width;
+    info.height = height;
     _realtimePlanarTexture->initialize(info);
+
+    uint32_t size = std::max(width, height);
+    while (size>>=1) _mipmapCount++;
+
+    gfx::TextureInfo textureInfo = {gfx::TextureType::TEX2D,
+                                    gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
+                                    gfx::Format::RGBA8,
+                                    _camera->getWidth(),
+                                    _camera->getHeight(),
+                                    gfx::TextureFlagBit::GEN_MIPMAP,
+                                    1,
+                                    _mipmapCount };
+    auto *device{ Root::getInstance()->getDevice() };
+    _planarReflectionTexture = device->createTexture(textureInfo);
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {
@@ -203,6 +220,10 @@ void ReflectionProbe::destroy() {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
+    if (_planarReflectionTexture) {
+        _planarReflectionTexture->destroy();
+        _planarReflectionTexture = nullptr;
+    }
     for (const auto& rt : _bakedCubeTextures) {
         rt->destroy();
     }
@@ -302,6 +323,28 @@ bool ReflectionProbe::isRGBE() const {
         return _node->getScene()->getSceneGlobals()->getSkyboxInfo()->getEnvmap()->isRGBE;
     }
     return true;
+}
+
+void ReflectionProbe::copyTextureToMipmap() {
+    auto *device{ Root::getInstance()->getDevice() };
+    if (!_realtimePlanarTexture || !_planarReflectionTexture || !device) {
+        return;
+    }
+    uint32_t width = _realtimePlanarTexture->getWidth();
+    uint32_t height = _realtimePlanarTexture->getHeight();
+
+    _textureRegion.srcExtent.width = width;
+    _textureRegion.srcExtent.height = height;
+
+    auto* srcTexture = _realtimePlanarTexture->getGFXTexture();
+    for (uint32_t i = 0; i < _mipmapCount; i++) {
+        _textureRegion.dstExtent.width = width;
+        _textureRegion.dstExtent.height = height;
+        _textureRegion.dstSubres.mipLevel = i;
+        device->getCommandBuffer()->blitTexture(srcTexture, _planarReflectionTexture.get(), {_textureRegion}, gfx::Filter::LINEAR);
+        width >>= 1;
+        height >>= 1;
+    }
 }
 
 } // namespace scene

@@ -15,10 +15,11 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
       float dataMapWidth = 12.0;
       vec4 texData1 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 0.0, uv_y);
       vec4 texData2 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 4.0, uv_y);
+      vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
       plane.xyz = texData1.xyz;
       plane.w = texData2.x;
       planarReflectionDepthScale = texData2.y;
-      mipCount = texData2.z;
+      mipCount = texData3.x;
     #else
       plane = cc_reflectionProbeData1;
       planarReflectionDepthScale = cc_reflectionProbeData2.x;

@@ -26,9 +26,10 @@ import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, Cam
 import { Node } from '../../scene-graph/node';
 import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { ClearFlagBit, Framebuffer } from '../../gfx';
+import { ClearFlagBit, Filter, Format, Framebuffer, Texture, TextureBlit, TextureFlagBit, TextureInfo, TextureType, TextureUsageBit, deviceManager } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
+import { canGenerateMipmap, getMipLevel } from '../../asset/assets/simple-texture';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -63,7 +64,10 @@ export class ReflectionProbe {
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
     protected readonly _size = new Vec3(1, 1, 1);
-
+    protected _planarReflectionTexture: Texture | null = null;
+    protected _textureRegion: TextureBlit = new TextureBlit();
+    protected _previewSphere: Node | null = null;
+    protected _previewPlane: Node | null = null;
     /**
      * @en Render cubemap's camera
      * @zh 渲染cubemap的相机
@@ -117,9 +121,8 @@ export class ReflectionProbe {
      * @en Reflection probe cube pattern preview sphere
      * @zh 反射探针cube模式的预览小球
      */
-    protected _previewSphere: Node | null = null;
 
-    protected _previewPlane: Node | null = null;
+    private _mipmapCount = 1;
 
     /**
      * @en Set probe type,cube or planar.
@@ -273,6 +276,10 @@ export class ReflectionProbe {
         return this._previewPlane!;
     }
 
+    get planarMipmapCount (): number {
+        return this._mipmapCount;
+    }
+
     constructor (id: number) {
         this._probeId = id;
     }
@@ -308,10 +315,30 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera): void {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = cclegacy.view.getDesignResolutionSize();
-            this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
-            cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
+            this.realtimePlanarTexture = this._createTargetTexture(sourceCamera.width, sourceCamera.height);
         }
+        if (!this._planarReflectionTexture) {
+            const width = this.realtimePlanarTexture.width;
+            const height = this.realtimePlanarTexture.height;
+            let flags = TextureFlagBit.NONE;
+            this._mipmapCount = 1;
+            const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
+            if (bGenerate) {
+                flags = TextureFlagBit.GEN_MIPMAP;
+                this._mipmapCount = getMipLevel(width, height);
+            }
+            this._planarReflectionTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA8,
+                width,
+                height,
+                flags,
+                1,
+                this._mipmapCount,
+            ));
+        }
+
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
         this._needRender = true;
@@ -363,6 +390,10 @@ export class ReflectionProbe {
             this.realtimePlanarTexture.destroy();
             this.realtimePlanarTexture = null;
         }
+        if (this._planarReflectionTexture) {
+            this._planarReflectionTexture.destroy();
+            this._planarReflectionTexture = null;
+        }
     }
     public enable (): void {
     }
@@ -403,6 +434,42 @@ export class ReflectionProbe {
     public isRGBE (): boolean  {
         //todo: realtime do not use rgbe
         return true;
+    }
+    /**
+     * @engineInternal
+     */
+    public copyTextureToMipmap (): void {
+        if (!this.realtimePlanarTexture || !this._planarReflectionTexture || !deviceManager.gfxDevice) {
+            return;
+        }
+        const width = this.realtimePlanarTexture.width;
+        const height = this.realtimePlanarTexture.height;
+        this._textureRegion.srcExtent.width = width;
+        this._textureRegion.srcExtent.height = height;
+        this._textureRegion.dstExtent.width = width;
+        this._textureRegion.dstExtent.height = height;
+        const srcTexture = this.realtimePlanarTexture.getGFXTexture()!;
+        if (canGenerateMipmap(deviceManager.gfxDevice, width, height)) {
+            let dstWidth = width;
+            let dstHeight = height;
+            for (let i = 0; i < this._mipmapCount; i++) {
+                this._textureRegion.dstExtent.width = dstWidth;
+                this._textureRegion.dstExtent.height = dstHeight;
+                this._textureRegion.dstSubres.mipLevel = i;
+                deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureRegion], Filter.LINEAR);
+                dstWidth >>= 1;
+                dstHeight >>= 1;
+            }
+        } else {
+            deviceManager.gfxDevice.commandBuffer.blitTexture(srcTexture, this._planarReflectionTexture, [this._textureRegion], Filter.NONE);
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    public getPlanarReflectionTexture (): Texture | null {
+        return this._planarReflectionTexture;
     }
 
     private _syncCameraParams (camera: Camera): void {
