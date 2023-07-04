@@ -644,6 +644,7 @@ export class Skeleton extends UIRenderer {
             this._state = null!;
             this._skeleton = null!;
             this._textures = [];
+            this._refreshInspector();
             return;
         }
         this._textures = skeletonData.textures;
