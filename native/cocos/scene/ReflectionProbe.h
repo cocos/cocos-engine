@@ -114,9 +114,7 @@ public:
     inline const cc::TextureCube* getCubeMap() const { return _cubemap; }
 
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
-    inline gfx::Texture* getPlanarReflectionTexture() const {
-        return _planarReflectionTexture;
-    }
+    inline gfx::Texture* getPlanarReflectionTexture() const { return _planarReflectionTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);

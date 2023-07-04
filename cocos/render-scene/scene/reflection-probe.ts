@@ -320,17 +320,22 @@ export class ReflectionProbe {
         if (!this._planarReflectionTexture) {
             const width = this.realtimePlanarTexture.width;
             const height = this.realtimePlanarTexture.height;
+            let flags = TextureFlagBit.NONE;
+            this._mipmapCount = 1;
             const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
-            this._mipmapCount = getMipLevel(width, height);
+            if (bGenerate) {
+                flags = TextureFlagBit.GEN_MIPMAP;
+                this._mipmapCount = getMipLevel(width, height);
+            }
             this._planarReflectionTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
                 Format.RGBA8,
                 width,
                 height,
-                bGenerate ? TextureFlagBit.GEN_MIPMAP : TextureFlagBit.NONE,
+                flags,
                 1,
-                bGenerate ? this._mipmapCount : 1,
+                this._mipmapCount,
             ));
         }
 
@@ -440,13 +445,12 @@ export class ReflectionProbe {
         }
         const width = this.realtimePlanarTexture.width;
         const height = this.realtimePlanarTexture.height;
-        const bGenerate = canGenerateMipmap(deviceManager.gfxDevice, width, height);
         this._textureRegion.srcExtent.width = width;
         this._textureRegion.srcExtent.height = height;
         this._textureRegion.dstExtent.width = width;
         this._textureRegion.dstExtent.height = height;
         const srcTexture = this.realtimePlanarTexture.getGFXTexture()!;
-        if (bGenerate) {
+        if (canGenerateMipmap(deviceManager.gfxDevice, width, height)) {
             let dstWidth = width;
             let dstHeight = height;
             for (let i = 0; i < this._mipmapCount; i++) {
