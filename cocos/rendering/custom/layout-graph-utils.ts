@@ -148,8 +148,8 @@ export function getCustomPassID (lg: LayoutGraphData, name: string | undefined):
 }
 
 // find subpassID using name
-export function getCustomSubpassID (lg: LayoutGraphData, passID: number, name: string): number {
-    return lg.locateChild(passID, name);
+export function getCustomSubpassID (lg: LayoutGraphData, passID: number, name: string | undefined): number {
+    return lg.locateChild(passID, name || 'default');
 }
 
 // find phaseID using subpassOrPassID and phase name

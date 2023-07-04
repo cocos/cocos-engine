@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 
 import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
-import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, SampleCount, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
@@ -13,10 +13,10 @@ export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
     clearColor = new Color()
     clearDepthColor = new Color()
-    ppl: Pipeline| undefined
-    camera: Camera| undefined
-    material: Material| undefined
-    pass: RenderPassBuilder| undefined
+    ppl: Pipeline | undefined
+    camera: Camera | undefined
+    material: Material | undefined
+    pass: RenderPassBuilder | undefined
     rasterWidth = 0
     rasterHeight = 0
     layoutName = ''
@@ -121,9 +121,9 @@ export class PassContext {
 
         if (!ppl.containsResource(name)) {
             if (format === Format.DEPTH_STENCIL) {
-                ppl.addDepthStencil(name, format, this.rasterWidth, this.rasterHeight, ResourceResidency.MANAGED);
+                ppl.addDepthStencil(name, format, this.rasterWidth, this.rasterHeight, SampleCount.ONE, ResourceResidency.MANAGED);
             } else if (offscreen) {
-                ppl.addRenderTarget(name, format, this.rasterWidth, this.rasterHeight, residency || ResourceResidency.MANAGED);
+                ppl.addRenderTarget(name, format, this.rasterWidth, this.rasterHeight, SampleCount.ONE, residency || ResourceResidency.MANAGED);
             } else {
                 ppl.addRenderWindow(name, format, this.rasterWidth, this.rasterHeight, camera.window);
             }
