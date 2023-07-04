@@ -74,6 +74,9 @@ module.exports = link(mixin({
             UICoordinateTracker: `${url}/${version}/manual/zh/ui-system/components/editor/ui-coordinate-tracker.html`,
             Animation: `${url}/${version}/manual/zh/animation/animation-component.html`,
             SkeletalAnimation: `${url}/${version}/manual/zh/animation/skeletal-animation.html`,
+            animation: {
+                AnimationController: `${url}/${version}/manual/zh/animation/marionette/animation-controller.html`,
+            },
             AudioSource: `${url}/${version}/manual/zh/audio-system/overview.html`,
             Billboard: `${url}/${version}/manual/zh/particle-system/billboard-component.html`,
             Line: `${url}/${version}/manual/zh/particle-system/line-component.html`,
