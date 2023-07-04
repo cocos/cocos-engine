@@ -121,7 +121,7 @@ export class ReflectionProbe {
 
     private _mipmapCount = 1;
 
-    protected _textureRegion: TextureBlit = new TextureBlit();
+    private _textureRegion: TextureBlit = new TextureBlit();
 
     /**
      * @en Set probe type,cube or planar.
