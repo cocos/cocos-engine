@@ -320,7 +320,7 @@ void addRasterViewImpl(
         CC_ENSURES(res.second);
         res.first->second.slotID = slotID;
 
-        pass.rasterViews.emplace(name, subpass.rasterViews.at(name.data()))
+        pass.rasterViews.emplace(name, subpass.rasterViews.at(name.data()));
     }
     CC_ENSURES(subpass.rasterViews.size() == subpassData.rasterViews.size());
 }
