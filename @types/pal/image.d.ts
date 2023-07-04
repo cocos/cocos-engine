@@ -10,39 +10,29 @@ declare module 'pal/image' {
         destroy (): void;
 
         /**
-         * Get the url of the image(when source is HTMLImageElement).
+         * Get and set the url of the image(when source is HTMLImageElement).
          */
         get src (): string;
-        /**
-         * Set the url of the image(when source is HTMLImageElement).
-         */
         set src(url: string);
         /**
-         * Set image data source.
-         * @param value Image data source.
-         */
-        set data(value: ImageSource | ArrayBufferView);
-        /**
-         * Get image data source.
+         * Get and set image data source.
          * @param value Image data source.
          */
         get data(): ImageSource | ArrayBufferView;
+        set data(value: ImageSource | ArrayBufferView);
+
         /**
-         * Set image width(when source is IMemoryImageSource).
-         */
-        set width(value: number);
-        /**
-         * Get image width.
+         * Get and set image width(when source is IMemoryImageSource).
          */
         get width(): number;
+        set width(value: number);
+
         /**
-         * Set image height(when source is IMemoryImageSource).
-         */
-        set height(value: number);
-        /**
-         * Get image height.
+         * Get and set image height(when source is IMemoryImageSource).
          */
         get height(): number;
+        set height(value: number);
+
         /**
          * Get image format.
          */
@@ -53,7 +43,7 @@ declare module 'pal/image' {
         get compressed(): boolean;
         get mipmapLevelDataSize(): number[] | undefined;
         /**
-         * Download images from the server.
+         * Load image via local url or web url.
          */
         static loadImage (url: string): Promise<ImageData>
 
