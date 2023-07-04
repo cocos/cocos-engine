@@ -601,6 +601,16 @@ export class Skeleton extends UIRenderer {
 
     }
     /**
+     * @en Gets the animation state object.
+     * @zh 获取动画状态。
+     * @method getState
+     * @return {sp.spine.AnimationState} state
+     */
+    public getState(): spine.AnimationState | undefined {
+        return this._state;
+    }
+
+    /**
      * @en Be called when component state becomes available.
      * @zh 组件状态变为可用时调用。
      */
