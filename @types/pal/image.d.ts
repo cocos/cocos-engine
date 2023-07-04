@@ -10,11 +10,6 @@ declare module 'pal/image' {
         destroy (): void;
 
         /**
-         * Get and set the url of the image(when source is HTMLImageElement).
-         */
-        get src (): string;
-        set src(url: string);
-        /**
          * Get and set image data source.
          * @param value Image data source.
          */
@@ -22,19 +17,25 @@ declare module 'pal/image' {
         set data(value: ImageSource | ArrayBufferView);
 
         /**
-         * Get and set image width(when source is IMemoryImageSource).
+         * Get image width.
          */
         get width(): number;
+        /**
+         * Set image width(when source is IMemoryImageSource).
+         */
         set width(value: number);
 
         /**
-         * Get and set image height(when source is IMemoryImageSource).
+         * Get image height.
          */
         get height(): number;
+        /**
+         * Set image height(when source is IMemoryImageSource).
+         */
         set height(value: number);
 
         /**
-         * Get image format.
+         * Get image format(when source is IMemoryImageSource).
          */
         get format(): PixelFormat;
         /**

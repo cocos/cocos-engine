@@ -604,7 +604,7 @@ export class TiledMap extends Component {
     }
 
     doCleanupImageCache (texture): void {
-        // TODO:There is a bug here, if you uncomment, it will cause the display result to be incorrect.
+        // TODO:There is a bug here, if we uncomment, it will cause the display result to be incorrect.
         // texture.image.destroy();
         // texture.image = null;
     }
