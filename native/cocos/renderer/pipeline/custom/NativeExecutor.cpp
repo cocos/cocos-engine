@@ -190,7 +190,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
             if(iter != pass.rasterViews.end()) {
                 const auto& view = iter->second;
                 colorLikeView = view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE;
-                dsAttachment = ~colorLikeView;
+                dsAttachment = !colorLikeView;
                 data.clearDepth = view.clearColor.x;
                 data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
             } else {
@@ -924,7 +924,8 @@ const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&
 getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     if (holds<RasterPassTag>(passID, rg)) {
         return get(RasterPassTag{}, passID, rg).computeViews;
-    } else if (holds<RasterSubpassTag>(passID, rg)) {
+    }
+    if (holds<RasterSubpassTag>(passID, rg)) {
         return get(RasterSubpassTag{}, passID, rg).computeViews;
     }
     CC_EXPECTS(holds<ComputeTag>(passID, rg));

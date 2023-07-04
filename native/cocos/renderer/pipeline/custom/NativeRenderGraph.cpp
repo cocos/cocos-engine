@@ -319,7 +319,8 @@ void addRasterViewImpl(
                 gfx::ShaderStageFlagBit::NONE));
         CC_ENSURES(res.second);
         res.first->second.slotID = slotID;
-        pass.rasterViews[name.data()] = subpass.rasterViews[name.data()];
+
+        pass.rasterViews.emplace(name, subpass.rasterViews.at(name.data()))
     }
     CC_ENSURES(subpass.rasterViews.size() == subpassData.rasterViews.size());
 }
