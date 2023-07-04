@@ -341,9 +341,7 @@ void ReflectionProbe::copyTextureToMipmap() {
         _textureRegion.dstExtent.width = width;
         _textureRegion.dstExtent.height = height;
         _textureRegion.dstSubres.mipLevel = i;
-        gfx::TextureBlitList regions;
-        regions.push_back(_textureRegion);
-        device->getCommandBuffer()->blitTexture(srcTexture, _planarReflectionTexture.get(), regions, gfx::Filter::LINEAR);
+        device->getCommandBuffer()->blitTexture(srcTexture, _planarReflectionTexture.get(), {_textureRegion}, gfx::Filter::LINEAR);
         width >>= 1;
         height >>= 1;
     }

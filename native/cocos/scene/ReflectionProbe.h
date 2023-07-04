@@ -142,6 +142,7 @@ public:
     void packBackgroundColor();
     bool isRGBE() const;
     void copyTextureToMipmap();
+    uint32_t getMipmapCount() const { return _mipmapCount; }
 
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
