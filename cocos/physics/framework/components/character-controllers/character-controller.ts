@@ -384,7 +384,7 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: CharacterTriggerEventType | CharacterCollisionEventType, callback?: (...any) => void, target?) {
+    public off (type: CharacterTriggerEventType | CharacterCollisionEventType, callback?: (...any) => void, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -502,7 +502,7 @@ export class CharacterController extends Eventify(Component) {
         return this._needCollisionEvent;
     }
 
-    public get needTriggerEvent () : boolean {
+    public get needTriggerEvent (): boolean {
         return this._needTriggerEvent;
     }
 
