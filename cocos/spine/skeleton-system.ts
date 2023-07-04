@@ -26,6 +26,7 @@ import { director } from '../game/director';
 import { System } from '../core';
 import { Skeleton } from './skeleton';
 import { legacyCC } from '../core/global-exports';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 
 export class SkeletonSystem extends System {
     /**
@@ -70,6 +71,10 @@ export class SkeletonSystem extends System {
         if (this._skeletons.has(skeleton)) {
             this._skeletons.delete(skeleton);
         }
+        if(!EDITOR_NOT_IN_PREVIEW) return;
+        this._skeletons.forEach((skeleton) => {
+            skeleton.markForUpdateRenderData();
+        });
     }
 
     postUpdate (dt: number) {
