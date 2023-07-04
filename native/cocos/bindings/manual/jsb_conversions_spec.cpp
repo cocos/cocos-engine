@@ -1596,6 +1596,18 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTShape
     return true;
 }
 
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTTriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
+    se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::CCTTriggerEventPair::COUNT));
+    for (size_t i = 0; i < from.size(); i++) {
+        auto t = i * cc::physics::CCTTriggerEventPair::COUNT;
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->cct));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shape));
+        array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
+    }
+    to.setObject(array);
+    return true;
+}
+
 bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("shape", se::Value(from.shape));

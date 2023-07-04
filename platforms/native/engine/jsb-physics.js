@@ -52,6 +52,13 @@ const CCTShapeEventObject = {
     motionLength: 0,
 };
 
+const CCTTriggerEventObject = {
+    type: 'onControllerTriggerEnter',
+    characterController: null,
+    collider: null,
+    impl: null,
+};
+
 function emitTriggerEvent (t, c0, c1, impl) {
     TriggerEventObject.type = t;
     TriggerEventObject.impl = impl;
@@ -64,6 +71,17 @@ function emitTriggerEvent (t, c0, c1, impl) {
         TriggerEventObject.selfCollider = c1;
         TriggerEventObject.otherCollider = c0;
         c1.emit(t, TriggerEventObject);
+    }
+}
+
+function emitCCTTriggerEvent (t, cct, collider, impl) {
+    CCTTriggerEventObject.type = t;
+    CCTTriggerEventObject.impl = impl;
+    if (collider.needTriggerEvent) {
+        CCTTriggerEventObject.characterController = cct;
+        CCTTriggerEventObject.collider = collider;
+        cct.emit(t, CCTTriggerEventObject);
+        collider.emit(t, CCTTriggerEventObject);
     }
 }
 
@@ -311,6 +329,7 @@ class PhysicsWorld {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
         this.emitCCTShapeEvent();
+        this.emitCCTTriggerEvent();
         this._impl.emitEvents();
     }
 
@@ -376,6 +395,29 @@ class PhysicsWorld {
             const c0 = cct.characterController; const c1 = shape.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
             emitCCTShapeEvent('onControllerColliderHit', c0, c1, events[t + 2]);
+        }
+    }
+
+    emitCCTTriggerEvent () {
+        const teps = this._impl.getCCTTriggerEventPairs();
+        const len = teps.length / 3;
+        for (let i = 0; i < len; i++) {
+            const t = i * 3;
+            const sa = ptrToObj[teps[t + 0]];
+            const sb = ptrToObj[teps[t + 1]];
+            if (!sa || !sb) continue;
+            const cct = sa.characterController;
+            const collider = sb.collider;
+            if (!(cct && cct.isValid && collider && collider.isValid)) continue;
+            if (!collider.needTriggerEvent) continue;
+            const state = teps[t + 2];
+            if (state === 1) {
+                emitCCTTriggerEvent('onControllerTriggerStay', cct, collider, teps);
+            } else if (state === 0) {
+                emitCCTTriggerEvent('onControllerTriggerEnter', cct, collider, teps);
+            } else {
+                emitCCTTriggerEvent('onControllerTriggerExit', cct, collider, teps);
+            }
         }
     }
 }

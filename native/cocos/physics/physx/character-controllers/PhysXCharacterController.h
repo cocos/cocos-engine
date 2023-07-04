@@ -88,6 +88,8 @@ public:
     uint32_t getObjectID() const override { return _mObjectID; };
     //ICharacterController END
 
+    inline physx::PxController& getCCT() { return *_impl; };
+
 protected:
     physx::PxController* _impl{ nullptr };
     uint8_t _mFlag{ 0 };
@@ -114,6 +116,7 @@ protected:
     void insertToCCTMap();
     void eraseFromCCTMap();
     cc::Vec3 scaledCenter();
+    physx::PxShape* getShape();
 };
 
 } // namespace physics

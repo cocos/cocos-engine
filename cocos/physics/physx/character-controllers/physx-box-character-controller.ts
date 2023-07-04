@@ -67,7 +67,11 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = PX.createBoxCharacterController(physxWorld.controllerManager, controllerDesc);
 
-        if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (this._impl.$$) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = this;
+            const shapePtr = this._impl.getShape().$$.ptr;
+            PX.IMPL_PTR[shapePtr] = this;
+        }
 
         this.updateScale();
     }
