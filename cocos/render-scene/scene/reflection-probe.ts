@@ -63,6 +63,10 @@ export class ReflectionProbe {
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
     protected readonly _size = new Vec3(1, 1, 1);
+    /**
+    * @en Reflection probe cube pattern preview sphere
+    * @zh 反射探针cube模式的预览小球
+    */
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
     protected _planarReflectionTexture: Texture | null = null;
