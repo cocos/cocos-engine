@@ -23,7 +23,6 @@ CCProgram tonemap-fs %{
   #include <common/common-define>
   #include <common/color/gamma>
   #include <common/color/aces>
-  #include <common/debug/debug-view-define>
 
   in vec2 v_uv;
 
