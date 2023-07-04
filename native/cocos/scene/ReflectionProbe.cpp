@@ -98,18 +98,16 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
     _realtimePlanarTexture->initialize(info);
 
     uint32_t size = std::max(width, height);
-    while (size>>=1) _mipmapCount++;
-
-    gfx::TextureInfo textureInfo = {gfx::TextureType::TEX2D,
-                                    gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
-                                    gfx::Format::RGBA8,
-                                    _camera->getWidth(),
-                                    _camera->getHeight(),
-                                    gfx::TextureFlagBit::GEN_MIPMAP,
-                                    1,
-                                    _mipmapCount };
-    auto *device{ Root::getInstance()->getDevice() };
-    _planarReflectionTexture = device->createTexture(textureInfo);
+    while (size >>= 1) _mipmapCount++;
+    auto* device{Root::getInstance()->getDevice()};
+    _planarReflectionTexture = device->createTexture({gfx::TextureType::TEX2D,
+                                                      gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
+                                                      gfx::Format::RGBA8,
+                                                      width,
+                                                      height,
+                                                      gfx::TextureFlagBit::GEN_MIPMAP,
+                                                      1,
+                                                      _mipmapCount});
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {

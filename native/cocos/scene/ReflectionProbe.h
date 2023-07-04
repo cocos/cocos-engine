@@ -211,6 +211,7 @@ private:
     IntrusivePtr<gfx::Texture> _planarReflectionTexture{ nullptr };
 
     uint32_t _mipmapCount{1};
+
     gfx::TextureBlit _textureRegion;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
