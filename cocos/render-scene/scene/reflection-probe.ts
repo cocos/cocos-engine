@@ -63,10 +63,9 @@ export class ReflectionProbe {
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
     protected readonly _size = new Vec3(1, 1, 1);
-    protected _planarReflectionTexture: Texture | null = null;
-    protected _textureRegion: TextureBlit = new TextureBlit();
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
+    protected _planarReflectionTexture: Texture | null = null;
     /**
      * @en Render cubemap's camera
      * @zh 渲染cubemap的相机
@@ -117,6 +116,8 @@ export class ReflectionProbe {
     private _up = new Vec3();
 
     private _mipmapCount = 1;
+
+    protected _textureRegion: TextureBlit = new TextureBlit();
 
     /**
      * @en Set probe type,cube or planar.
