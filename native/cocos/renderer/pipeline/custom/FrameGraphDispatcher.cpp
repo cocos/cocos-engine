@@ -2484,6 +2484,10 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         ++localSlot;
     }
 
+    if (dsAppeared) {
+        subpassInfo.resolves.resize(subpassInfo.resolves.size() - 1);
+    }
+
     if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
         getPreserves(rpInfo);
     }
