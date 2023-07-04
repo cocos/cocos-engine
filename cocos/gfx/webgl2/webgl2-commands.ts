@@ -1064,7 +1064,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (gpuTexture.samples === SampleCount.ONE) {
+        if (gpuTexture.samples === SampleCount.X1) {
             gpuTexture.glTexture = gl.createTexture();
             if (gpuTexture.size > 0) {
                 const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -1254,7 +1254,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (gpuTexture.samples === SampleCount.ONE) {
+        if (gpuTexture.samples === SampleCount.X1) {
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {

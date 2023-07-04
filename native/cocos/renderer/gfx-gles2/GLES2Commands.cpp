@@ -574,18 +574,9 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
     gpuTexture->glFormat = mapGLFormat(gpuTexture->format);
     gpuTexture->glType = formatToGLType(gpuTexture->format);
     gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
+    gpuTexture->glSamples = static_cast<GLint>(gpuTexture->samples);
 
-    if (gpuTexture->samples > SampleCount::ONE) {
-        if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE) {
-            GLint maxSamples;
-            glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
-
-            auto requestedSampleCount = static_cast<GLint>(gpuTexture->samples);
-            gpuTexture->glSamples = std::min(maxSamples, requestedSampleCount);
-        } else {
-            gpuTexture->glSamples = 1; // fallback to single sample if the extensions is not available
-        }
-
+    if (gpuTexture->samples > SampleCount::X1) {
         if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE &&
             hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
             gpuTexture->allocateMemory = false;
@@ -3040,6 +3031,12 @@ void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
         }
         cmdIdx++;
     }
+}
+
+GLint cmdFuncGLES2GetMaxSampleCount() {
+    GLint maxSamples = 1;
+    GL_CHECK(glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples));
+    return maxSamples;
 }
 
 void GLES2GPUBlitManager::initialize() {

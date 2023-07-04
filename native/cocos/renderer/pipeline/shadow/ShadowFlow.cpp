@@ -283,7 +283,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const sce
 
     const gfx::ColorAttachment colorAttachment{
         format,
-        gfx::SampleCount::ONE,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         device->getGeneralBarrier({
@@ -294,7 +294,7 @@ void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const sce
 
     const gfx::DepthStencilAttachment depthStencilAttachment{
         gfx::Format::DEPTH,
-        gfx::SampleCount::ONE,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::DISCARD,
         gfx::LoadOp::CLEAR,

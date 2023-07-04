@@ -847,15 +847,7 @@ MTLTextureType mu::toMTLTextureType(TextureType type) {
 }
 
 NSUInteger mu::toMTLSampleCount(SampleCount count) {
-    auto* device = CCMTLDevice::getInstance();
-    const auto& supportSamples = device->gpuObject()->supportSamples;
-    switch (count) {
-        case SampleCount::ONE: return 1;
-        case SampleCount::MULTIPLE_PERFORMANCE: return supportSamples.front();
-        case SampleCount::MULTIPLE_BALANCE: return supportSamples[supportSamples.size() - 1];
-        case SampleCount::MULTIPLE_QUALITY:
-            return supportSamples.back();
-    }
+    return static_cast<NSUInteger>(count);
 }
 
 MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {

@@ -535,5 +535,9 @@ void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, co
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
 }
 
+SampleCount GLES2Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    return static_cast<SampleCount>(cmdFuncGLES2GetMaxSampleCount());
+}
+
 } // namespace gfx
 } // namespace cc

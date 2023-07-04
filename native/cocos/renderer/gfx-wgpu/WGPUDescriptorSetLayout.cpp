@@ -169,7 +169,7 @@ void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t binding, const CCWGP
                 const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(texture->isTextureView() ? texture->getViewInfo().texture : texture);
                 TextureType type = ccTex->getViewInfo().type;
                 (*iter).texture.viewDimension = toWGPUTextureViewDimension(type);
-                (*iter).texture.multisampled = ccTex->getInfo().samples != SampleCount::ONE;
+                (*iter).texture.multisampled = ccTex->getInfo().samples != SampleCount::X1;
             }
         } else {
             (*iter).texture.nextInChain = nullptr;
