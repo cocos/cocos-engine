@@ -234,7 +234,7 @@ CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
             .flags = TextureFlagBit::NONE,
             .layerCount = 1,
             .levelCount = 1,
-            .samples = SampleCount::ONE,
+            .samples = SampleCount::X1,
             .depth = 1,
             .externalRes = nullptr,
         };
@@ -256,7 +256,7 @@ CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
             .flags = TextureFlagBit::NONE,
             .layerCount = 1,
             .levelCount = 1,
-            .samples = SampleCount::ONE,
+            .samples = SampleCount::X1,
             .depth = 1,
             .externalRes = nullptr,
         };

@@ -128,7 +128,7 @@ void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out) 
     out->_info.layerCount = 1;
     out->_info.levelCount = 1;
     out->_info.depth = 1;
-    out->_info.samples = SampleCount::ONE;
+    out->_info.samples = SampleCount::X1;
     out->_info.flags = TextureFlagBit::NONE;
     out->_info.usage = GFX_FORMAT_INFOS[toNumber(info.format)].hasDepth
                            ? TextureUsageBit::DEPTH_STENCIL_ATTACHMENT

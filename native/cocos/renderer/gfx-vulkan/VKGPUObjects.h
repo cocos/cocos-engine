@@ -71,8 +71,6 @@ public:
             return std::strcmp(ext, extension.c_str()) == 0;
         });
     }
-
-    VkSampleCountFlagBits getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const;
 };
 
 struct CCVKAccessInfo {
@@ -149,7 +147,7 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     uint32_t size = 0U;
     uint32_t arrayLayers = 1U;
     uint32_t mipLevels = 1U;
-    SampleCount samples = SampleCount::ONE;
+    SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 

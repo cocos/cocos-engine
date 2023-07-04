@@ -613,5 +613,9 @@ void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
     cmdBuff->getQueryPoolResults(queryPool);
 }
 
+SampleCount GLES3Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    return static_cast<SampleCount>(cmdFuncGLES3GetMaxSampleCount(this, format, usage, flags));
+}
+
 } // namespace gfx
 } // namespace cc

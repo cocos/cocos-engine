@@ -395,21 +395,7 @@ static WGPUShaderStageFlags toWGPUShaderStageFlag(ShaderStageFlagBit flag) {
 
 // TODO_Zeqiang: more flexible strategy
 static uint32_t toWGPUSampleCount(SampleCount sampleCount) {
-    // TODO_Zeqiang: msaa
-    return 1;
-    switch (sampleCount) {
-        case SampleCount::ONE:
-            return 1;
-        case SampleCount::MULTIPLE_PERFORMANCE:
-            return 4;
-        case SampleCount::MULTIPLE_BALANCE:
-            return 4;
-        case SampleCount::MULTIPLE_QUALITY:
-            return 4;
-        default:
-            printf("unsupport sampleCount %d.", sampleCount);
-            return 1;
-    }
+    return static_cast<uint32_t>(sampleCount);
 }
 
 // NONE         = 0,

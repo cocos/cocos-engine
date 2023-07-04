@@ -536,5 +536,9 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
     _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::VERTEX_ATTRIBUTE;
 }
 
+SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    return SampleCount::X1;
+}
+
 } // namespace gfx
 } // namespace cc

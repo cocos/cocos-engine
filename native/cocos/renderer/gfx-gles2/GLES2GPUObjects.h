@@ -118,7 +118,7 @@ struct GLES2GPUTexture {
     uint32_t size{0};
     uint32_t arrayLayer{1};
     uint32_t mipLevel{1};
-    SampleCount samples{SampleCount::ONE};
+    SampleCount samples{SampleCount::X1};
     TextureFlags flags{TextureFlagBit::NONE};
     bool isPowerOf2{false};
     bool allocateMemory{true}; // false if swapchain image or implicit ms render buffer.

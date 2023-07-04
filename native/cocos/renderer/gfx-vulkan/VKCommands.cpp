@@ -119,11 +119,6 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     if (!gpuTexture->size) return;
 
     gpuTexture->aspectMask = mapVkImageAspectFlags(gpuTexture->format);
-    // storage images has to be in general layout
-    // if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
-    // remove stencil aspect for depth textures with sampled usage
-    if (hasFlag(gpuTexture->usage, TextureUsageBit::SAMPLED)) gpuTexture->aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
-
     auto createFn = [device, gpuTexture](VkImage *pVkImage, VmaAllocation *pVmaAllocation) {
         VkFormat vkFormat = mapVkFormat(gpuTexture->format, device->gpuDevice());
         VkFormatFeatureFlags features = mapVkFormatFeatureFlags(gpuTexture->usage);
@@ -135,10 +130,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             return;
         }
 
-        VkImageUsageFlags usageFlags = mapVkImageUsageFlagBits(gpuTexture->usage);
-        if (hasFlag(gpuTexture->flags, TextureFlags::GEN_MIPMAP)) {
-            usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        }
+        VkImageUsageFlags usageFlags = mapVkImageUsageFlags(gpuTexture->usage, gpuTexture->flags);
 
         VkImageCreateInfo createInfo{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
         createInfo.flags = mapVkImageCreateFlags(gpuTexture->type);
@@ -147,7 +139,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         createInfo.extent = {gpuTexture->width, gpuTexture->height, gpuTexture->depth};
         createInfo.mipLevels = gpuTexture->mipLevels;
         createInfo.arrayLayers = gpuTexture->arrayLayers;
-        createInfo.samples = device->gpuContext()->getSampleCountForAttachments(gpuTexture->format, vkFormat, gpuTexture->samples);
+        createInfo.samples = static_cast<VkSampleCountFlagBits>(gpuTexture->samples);
         createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         createInfo.usage = usageFlags;
         createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -156,9 +148,12 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
         VmaAllocationInfo res;
-
-        if (hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
-            createInfo.usage = usageFlags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+        const VkFlags lazilyAllocatedFilterFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                                   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                                                   VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
+                                                   VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+        if (hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED) &&
+            (lazilyAllocatedFilterFlags & usageFlags) == usageFlags) {
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED;
             VkResult result = vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo,
                                              pVkImage, pVmaAllocation, &res);
@@ -167,8 +162,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
                 return;
             }
 
-            // feature not present, fallback
-            createInfo.usage = usageFlags;
+            // feature not present, fallback to device memory
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
         }
 
@@ -402,10 +396,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             getInitialFinalLayout(device, static_cast<CCVKGeneralBarrier *>(attachment.barrier), false);
 
         VkFormat vkFormat = mapVkFormat(attachment.format, device->gpuDevice());
-        VkSampleCountFlagBits samples = device->gpuContext()->getSampleCountForAttachments(attachment.format, vkFormat, attachment.sampleCount);
-
         attachmentDescriptions[i].format = vkFormat;
-        attachmentDescriptions[i].samples = samples;
+        attachmentDescriptions[i].samples = static_cast<VkSampleCountFlagBits>(attachment.sampleCount);
         attachmentDescriptions[i].loadOp = mapVkLoadOp(attachment.loadOp);
         attachmentDescriptions[i].storeOp = mapVkStoreOp(attachment.storeOp);
         attachmentDescriptions[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -418,10 +410,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         auto [initialLayout, finalLayout] = getInitialFinalLayout(device, static_cast<CCVKGeneralBarrier *>(attachment.barrier), true);
 
         VkFormat vkFormat = mapVkFormat(attachment.format, device->gpuDevice());
-        VkSampleCountFlagBits samples = device->gpuContext()->getSampleCountForAttachments(attachment.format, vkFormat, attachment.sampleCount);
-
         attachmentDescriptions[depthIndex].format = vkFormat;
-        attachmentDescriptions[depthIndex].samples = samples;
+        attachmentDescriptions[depthIndex].samples = static_cast<VkSampleCountFlagBits>(attachment.sampleCount);
         attachmentDescriptions[depthIndex].loadOp = mapVkLoadOp(attachment.depthLoadOp);
         attachmentDescriptions[depthIndex].storeOp = mapVkStoreOp(attachment.depthStoreOp);
         attachmentDescriptions[depthIndex].stencilLoadOp = hasStencil ? mapVkLoadOp(attachment.stencilLoadOp) : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -1601,33 +1591,6 @@ const CCVKGPUGeneralBarrier *CCVKGPURenderPass::getBarrier(size_t index, CCVKGPU
 bool CCVKGPURenderPass::hasShadingAttachment(uint32_t subPassId) const {
     CC_ASSERT(subPassId < subpasses.size());
     return subpasses[subPassId].shadingRate != INVALID_BINDING;
-}
-
-VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {
-    if (sampleCount <= SampleCount::ONE) return VK_SAMPLE_COUNT_1_BIT;
-
-    static ccstd::unordered_map<Format, VkSampleCountFlags> cacheMap;
-    if (!cacheMap.count(format)) {
-        bool hasDepth = GFX_FORMAT_INFOS[toNumber(format)].hasDepth;
-        VkImageUsageFlags usages = hasDepth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-        VkImageFormatProperties properties;
-        vkGetPhysicalDeviceImageFormatProperties(physicalDevice, vkFormat, VK_IMAGE_TYPE_2D,
-                                                 VK_IMAGE_TILING_OPTIMAL, usages, 0, &properties);
-        cacheMap[format] = properties.sampleCounts;
-    }
-
-    VkSampleCountFlags availableSampleCounts = cacheMap[format];
-
-    auto requestedSampleCount = VK_SAMPLE_COUNT_FLAGS[toNumber(sampleCount)];
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_64_BIT) return VK_SAMPLE_COUNT_64_BIT;
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_32_BIT) return VK_SAMPLE_COUNT_32_BIT;
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_16_BIT) return VK_SAMPLE_COUNT_16_BIT;
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_8_BIT) return VK_SAMPLE_COUNT_8_BIT;
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
-    if (requestedSampleCount & availableSampleCounts & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
-
-    return VK_SAMPLE_COUNT_1_BIT;
 }
 
 void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {

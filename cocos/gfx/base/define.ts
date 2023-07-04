@@ -418,10 +418,13 @@ export enum FormatFeatureBit {
 }
 
 export enum SampleCount {
-    ONE,                  // Single sample
-    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
-    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
-    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
+    X1  = 0x01,
+    X2  = 0x02,
+    X4  = 0x04,
+    X8  = 0x08,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40
 }
 
 export enum VsyncMode {
@@ -1172,7 +1175,7 @@ export class TextureInfo {
         public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.ONE,
+        public samples: SampleCount = SampleCount.X1,
         public depth: number = 1,
         public externalRes: number = 0,
     ) {}
@@ -1514,7 +1517,7 @@ export class ColorAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.ONE,
+        public sampleCount: SampleCount = SampleCount.X1,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
@@ -1535,7 +1538,7 @@ export class DepthStencilAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.ONE,
+        public sampleCount: SampleCount = SampleCount.X1,
         public depthLoadOp: LoadOp = LoadOp.CLEAR,
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,

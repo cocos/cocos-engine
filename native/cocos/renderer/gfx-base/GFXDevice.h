@@ -122,6 +122,7 @@ public:
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
     virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
+    virtual SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const { return SampleCount::X1; };
 
 protected:
     static Device *instance;
