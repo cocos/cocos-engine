@@ -469,6 +469,37 @@ static bool js_transform_JitterVertexEffect(se::State &s) {
 }
 SE_BIND_FUNC(js_transform_JitterVertexEffect)
 
+static bool js_spine_Skin_getAttachments(se::State& s) {
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::Skin *skin = (spine::Skin *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    skin = SE_THIS_OBJECT<spine::Skin>(s);
+    if (nullptr == skin) return true;
+    spine::Skin::AttachmentMap::Entries attachments = skin->getAttachments();
+
+    ccstd::vector<spine::SkinEntry*> entryList;
+    while (attachments.hasNext()) {
+        spine::Skin::AttachmentMap::Entry entry = attachments.next();
+        spine::SkinEntry* skinEntry = new spine::SkinEntry(entry._slotIndex, entry._name, entry._attachment);
+        entryList.push_back(skinEntry);
+    }
+    
+    se::Object *array = se::Object::createArrayObject(entryList.size());
+    for (int i = 0; i < entryList.size(); ++i) {
+        array->setArrayElement(i, se::Value(entryList[i]));
+    }
+    s.rval().setObject(array);
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_Skin_getAttachments)
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -494,6 +525,7 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_VertexEffect_proto->defineFunction("transform", _SE(js_transform_VertexEffect));
     __jsb_spine_SwirlVertexEffect_proto->defineFunction("transform", _SE(js_transform_SwirlVertexEffect));
     __jsb_spine_JitterVertexEffect_proto->defineFunction("transform", _SE(js_transform_JitterVertexEffect));
+    __jsb_spine_Skin_proto->defineFunction("getAttachments", _SE(js_spine_Skin_getAttachments));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {

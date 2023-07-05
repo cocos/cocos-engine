@@ -708,19 +708,6 @@ using namespace spine;
     }
 }
 
-%extend spine::Skin {
-    ccstd::vector<spine::SkinEntry*> getAttachments() {
-        spine::Skin::AttachmentMap::Entries entries = $self->getAttachments();
-        ccstd::vector<spine::SkinEntry*> result;
-        while (entries.hasNext()) {
-            spine::Skin::AttachmentMap::Entry entry = entries.next();
-            spine::SkinEntry* skinEntry = new spine::SkinEntry(entry._slotIndex, entry._name, entry._attachment);
-            result.push_back(skinEntry);
-        }
-        return result;
-    }
-}
-
 %extend spine::DeformTimeline {
     void setFrame(int frameIndex, float time, const ccstd::vector<float>& vertices) {
         spine::Vector<float> spVertices;
