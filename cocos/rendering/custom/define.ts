@@ -23,10 +23,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import {
-    BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
-    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address, SampleCount,
-} from '../../gfx';
+import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
+    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import {
     Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe,
     ShadowType, SKYBOX_FLAG, SpotLight, PointLight, RangedDirectionalLight, SphereLight,
@@ -251,7 +249,7 @@ export function buildFxaaPass (camera: Camera,
 
     // ppl.updateRenderWindow(inputRT, camera.window);
     if (!ppl.containsResource(fxaaPassRTName)) {
-        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(fxaaPassRTName, width, height);
     const fxaaPassIdx = 0;
@@ -354,8 +352,8 @@ export function buildBloomPass (camera: Camera,
     width >>= 1;
     height >>= 1;
     if (!ppl.containsResource(bloomPassPrefilterRTName)) {
-        ppl.addRenderTarget(bloomPassPrefilterRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(bloomPassPrefilterDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(bloomPassPrefilterRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(bloomPassPrefilterDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(bloomPassPrefilterRTName, width, height);
     ppl.updateDepthStencil(bloomPassPrefilterDSName, width, height);
@@ -379,8 +377,8 @@ export function buildBloomPass (camera: Camera,
         width >>= 1;
         height >>= 1;
         if (!ppl.containsResource(bloomPassDownSampleRTName)) {
-            ppl.addRenderTarget(bloomPassDownSampleRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-            ppl.addDepthStencil(bloomPassDownSampleDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+            ppl.addRenderTarget(bloomPassDownSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+            ppl.addDepthStencil(bloomPassDownSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         ppl.updateRenderTarget(bloomPassDownSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassDownSampleDSName, width, height);
@@ -407,8 +405,8 @@ export function buildBloomPass (camera: Camera,
         width <<= 1;
         height <<= 1;
         if (!ppl.containsResource(bloomPassUpSampleRTName)) {
-            ppl.addRenderTarget(bloomPassUpSampleRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-            ppl.addDepthStencil(bloomPassUpSampleDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+            ppl.addRenderTarget(bloomPassUpSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+            ppl.addDepthStencil(bloomPassUpSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         ppl.updateRenderTarget(bloomPassUpSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassUpSampleDSName, width, height);
@@ -434,8 +432,8 @@ export function buildBloomPass (camera: Camera,
     width = area.width;
     height = area.height;
     if (!ppl.containsResource(bloomPassCombineRTName)) {
-        ppl.addRenderTarget(bloomPassCombineRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(bloomPassCombineDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(bloomPassCombineRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(bloomPassCombineDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(bloomPassCombineRTName, width, height);
     ppl.updateDepthStencil(bloomPassCombineDSName, width, height);
@@ -492,7 +490,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
         ppl.addRenderWindow(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
@@ -542,9 +540,9 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, getRTFormatBeforeToneMapping(ppl), width, height, SampleCount.ONE, ResourceResidency.PERSISTENT);
+            ppl.addRenderTarget(forwardPassRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
         }
-        ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     if (!isOffScreen) {
         ppl.updateRenderWindow(forwardPassRTName, camera.window);
@@ -581,7 +579,7 @@ export function buildForwardPass (camera: Camera,
         .addQueue(QueueHint.RENDER_OPAQUE)
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-            | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
         sceneFlags |= SceneFlags.UI;
@@ -609,8 +607,8 @@ export function buildShadowPass (passName: Readonly<string>,
     const shadowMapName = passName;
     if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
-        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(shadowMapName, fboW, fboH);
     ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
@@ -662,7 +660,7 @@ export function buildReflectionProbePass (camera: Camera,
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);
-        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.EXTERNAL);
+        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(probePassRTName, renderWindow);
     ppl.updateDepthStencil(probePassDSName, width, height);
@@ -703,7 +701,7 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Basi
     shadowInfo.shadowEnabled = true;
     let n = 0;
     let m = 0;
-    for (; n < shadow.maxReceived && m < validPunctualLights.length;) {
+    for (;n < shadow.maxReceived && m < validPunctualLights.length;) {
         const light = validPunctualLights[m];
         if (light.type === LightType.SPOT) {
             const spotLight = light as SpotLight;
@@ -764,10 +762,10 @@ export function buildGBufferPass (camera: Camera,
     const gBufferPassDSName = `gBufferPassDSCamera`;
     if (!ppl.containsResource(gBufferPassRTName)) {
         const colFormat = Format.RGBA16F;
-        ppl.addRenderTarget(gBufferPassRTName, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, SampleCount.ONE, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(gBufferPassRTName, colFormat, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(gBufferPassRTName, width, height);
     ppl.updateRenderTarget(gBufferPassNormal, width, height);
@@ -839,7 +837,7 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
     if (!ppl.containsResource(deferredLightingPassRTName)) {
-        ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
     // lighting pass
@@ -913,7 +911,7 @@ export function buildUIPass (camera: Camera,
     const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
     if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
         ppl.addRenderWindow(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
     ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
@@ -1334,8 +1332,8 @@ function _buildSSSSBlurPass (camera: Camera,
     const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
     const ssssBlurDSName = `dsSSSSBlurDSColor${cameraName}`;
     if (!ppl.containsResource(ssssBlurRTName)) {
-        ppl.addRenderTarget(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl), width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(ssssBlurRTName, width, height);
     ppl.updateRenderTarget(ssssBlurDSName, width, height);
@@ -1465,8 +1463,8 @@ export function buildToneMappingPass (camera: Camera,
     const toneMappingPassRTName = `toneMappingPassRTName${cameraID}`;
     const toneMappingPassDS = `toneMappingPassDS${cameraID}`;
     if (!ppl.containsResource(toneMappingPassRTName)) {
-        ppl.addRenderTarget(toneMappingPassRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(toneMappingPassDS, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(toneMappingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(toneMappingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(toneMappingPassRTName, width, height);
     ppl.updateDepthStencil(toneMappingPassDS, width, height);
@@ -1753,7 +1751,7 @@ function _buildHBAOPass (camera: Camera,
 
     const hbaoRTName = `hbaoRTName${cameraID}`;
     if (!ppl.containsResource(hbaoRTName)) {
-        ppl.addRenderTarget(hbaoRTName, Format.BGRA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(hbaoRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(hbaoRTName, width, height);
     const hbaoPass = ppl.addRenderPass(width, height, 'hbao-pass');
@@ -1814,7 +1812,7 @@ function _buildHBAOBlurPass (camera: Camera,
     }
 
     if (!ppl.containsResource(outputRTName)) {
-        ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
     const blurPass = ppl.addRenderPass(width, height, shaderPassName);
@@ -1872,7 +1870,7 @@ function _buildHBAOCombinedPass (camera: Camera,
 
     const outputRTName = outputRT;
     if (!ppl.containsResource(outputRTName)) {
-        ppl.addRenderTarget(outputRTName, getRTFormatBeforeToneMapping(ppl), width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(outputRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
     const hbaoPass = ppl.addRenderPass(width, height, 'combine-pass');
@@ -1944,7 +1942,7 @@ export function buildHBAOPasses (camera: Camera,
     if (root.debugView) {
         if (root.debugView.isEnabled()
             && (root.debugView.singleMode !== DebugViewSingleType.NONE && root.debugView.singleMode !== DebugViewSingleType.AO
-                || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
+            || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
             return { rtName: inputRT, dsName: inputDS };
         }
     }

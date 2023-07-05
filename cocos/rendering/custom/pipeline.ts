@@ -622,7 +622,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param format @en Format of the resource @zh 资源的格式
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
-     * @param sampleCount @en Sample count of the resource. @zh 资源的采样数量
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      * @returns Resource ID
      */
@@ -640,7 +639,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param format @en Format of the resource @zh 资源的格式
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
-     * @param sampleCount @en Sample count of the resource. @zh 资源的采样数量
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      * @returns Resource ID
      */
