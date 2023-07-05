@@ -156,6 +156,7 @@ export const P_POSITION = VFXParameterRegistry.registerGlobalParameter('position
 export const P_PHYSICS_FORCE = VFXParameterRegistry.registerGlobalParameter('physics-force', VFXValueType.VEC3, VFXBuiltinNamespace.PARTICLE, true);
 export const P_BASE_VELOCITY = VFXParameterRegistry.registerGlobalParameter('base-velocity', VFXValueType.VEC3, VFXBuiltinNamespace.PARTICLE, true);
 export const P_VELOCITY = VFXParameterRegistry.registerGlobalParameter('velocity', VFXValueType.VEC3, VFXBuiltinNamespace.PARTICLE, true);
+export const P_SHAPE_NORMAL = VFXParameterRegistry.registerGlobalParameter('shape-normal', VFXValueType.VEC3, VFXBuiltinNamespace.PARTICLE, true);
 export const P_SPRITE_ROTATION = VFXParameterRegistry.registerGlobalParameter('sprite-rotation', VFXValueType.FLOAT, VFXBuiltinNamespace.PARTICLE, true);
 export const P_MESH_ORIENTATION = VFXParameterRegistry.registerGlobalParameter('mesh-orientation', VFXValueType.VEC3, VFXBuiltinNamespace.PARTICLE, true);
 export const P_SUB_UV_INDEX1 = VFXParameterRegistry.registerGlobalParameter('sub-uv-index1', VFXValueType.FLOAT, VFXBuiltinNamespace.PARTICLE, true);

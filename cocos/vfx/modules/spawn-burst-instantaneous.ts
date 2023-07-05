@@ -33,9 +33,9 @@ import { VFXParameterRegistry } from '../vfx-parameter';
 
 const spawnInfo = new SpawnInfo();
 
-@ccclass('cc.SpawnBurstModule')
-@VFXModule.register('SpawnBurst', VFXExecutionStageFlags.EMITTER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
-export class SpawnBurstModule extends VFXModule {
+@ccclass('cc.SpawnBurstInstantaneousModule')
+@VFXModule.register('SpawnBurstInstantaneous', VFXExecutionStageFlags.EMITTER, [E_SPAWN_INFOS.name], [E_LOOPED_AGE.name])
+export class SpawnBurstInstantaneousModule extends VFXModule {
     /**
       * @zh 发射的粒子的数量。
       */
@@ -89,8 +89,8 @@ export class SpawnBurstModule extends VFXModule {
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
         const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
         const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT);
-        if (spawnInfoCount.data === spawnInfos.capacity) {
-            spawnInfos.reserve(spawnInfos.capacity * 2);
+        if (spawnInfoCount.data === spawnInfos.size) {
+            spawnInfos.reserve(spawnInfos.size * 2);
         }
         const countExp = this._count as FloatExpression;
         const timeExp = this._time as FloatExpression;

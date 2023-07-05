@@ -86,7 +86,7 @@ export class PlaneLocationModule extends ShapeLocationModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
-        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID);
         const randomOffset = this._randomOffset;
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
@@ -96,7 +96,7 @@ export class PlaneLocationModule extends ShapeLocationModule {
         for (let i = fromIndex; i < toIndex; i++) {
             planeCenterExp.evaluate(i, center);
             planeSizeExp.evaluate(i, size);
-            randFloat2(randVec2, randomSeed, id[i], randomOffset);
+            randFloat2(randVec2, randomSeed, id.getUint32At(i), randomOffset);
             Vec2.set(pos, randVec2.x * size.x, randVec2.y * size.y);
             pos.x -= size.x * center.x;
             pos.y -= size.y * center.y;

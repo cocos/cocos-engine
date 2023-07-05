@@ -56,10 +56,10 @@ export class LocationEventGeneratorModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).data;
+        const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE);
         const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
-        const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME).data;
-        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME);
+        const id = parameterMap.getUint32ArrayValue(P_ID);
         const events = parameterMap.getEventArrayValue(C_EVENTS);
         const eventCount = parameterMap.getUint32Value(C_EVENT_COUNT);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
@@ -76,7 +76,7 @@ export class LocationEventGeneratorModule extends VFXModule {
         const randomOffset = this._randomOffset;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (randFloat(randomSeed, id[i], randomOffset) > this.probability) {
+                if (randFloat(randomSeed, id.getUint32At(i), randomOffset) > this.probability) {
                     continue;
                 }
                 Vec3.zero(eventInfo.position);
@@ -95,12 +95,12 @@ export class LocationEventGeneratorModule extends VFXModule {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
-                eventInfo.particleId = id[i];
-                eventInfo.currentTime = 1 / invLifeTime[i] * normalizedAge[i];
+                eventInfo.particleId = id.getUint32At(i);
+                eventInfo.currentTime = 1 / invLifeTime.getFloatAt(i) * normalizedAge.getFloatAt(i);
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.type = VFXEventType.LOCATION;
-                if (eventCount.data >= events.capacity) {
-                    events.reserve(events.capacity * 2);
+                if (eventCount.data >= events.size) {
+                    events.reserve(events.size * 2);
                 }
                 events.setEventAt(eventInfo, eventCount.data);
                 eventCount.data++;

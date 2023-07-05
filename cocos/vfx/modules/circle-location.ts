@@ -203,7 +203,7 @@ export class CircleLocationModule extends ShapeLocationModule {
         radiusExp.bind(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
-            const id = parameterMap.getUint32ArrayValue(P_ID).data;
+            const id = parameterMap.getUint32ArrayValue(P_ID);
             const randomOffset = this._randomOffset;
             const randomOffsetTheta = randomOffset + 8718230;
             const radiusCoverageExp = this._radiusCoverage as FloatExpression;
@@ -211,8 +211,8 @@ export class CircleLocationModule extends ShapeLocationModule {
             radiusCoverageExp.bind(parameterMap);
             thetaCoverageExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
-                const r = Math.sqrt(randRangedFloat(1 - radiusCoverageExp.evaluate(i), 1, randomSeed, id[i], randomOffset)) * radiusExp.evaluate(i);
-                const theta = randRangedFloat(1 - thetaCoverageExp.evaluate(i), 1, randomSeed, id[i], randomOffsetTheta) * TWO_PI;
+                const r = Math.sqrt(randRangedFloat(1 - radiusCoverageExp.evaluate(i), 1, randomSeed, id.getUint32At(i), randomOffset)) * radiusExp.evaluate(i);
+                const theta = randRangedFloat(1 - thetaCoverageExp.evaluate(i), 1, randomSeed, id.getUint32At(i), randomOffsetTheta) * TWO_PI;
                 pos.x = Math.cos(theta) * r;
                 pos.y = Math.sin(theta) * r;
                 pos.z = 0;

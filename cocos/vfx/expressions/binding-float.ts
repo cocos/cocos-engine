@@ -28,6 +28,7 @@ import { FloatExpression } from './float';
 import { VFXParameter, VFXParameterBinding, VFXParameterRegistry } from '../vfx-parameter';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { VFXModule } from '../vfx-module';
+import { VFXFloatArray } from '../data';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
@@ -44,7 +45,7 @@ export class BindingFloatExpression extends FloatExpression {
     @serializable
     private _binding: VFXParameterBinding | null = null;
     private _bindingParameter: VFXParameter | null = null;
-    private declare _data: Float32Array;
+    private declare _data: VFXFloatArray;
     private _constant = 0;
     private _getFloat = this._getConstant;
 
@@ -57,7 +58,7 @@ export class BindingFloatExpression extends FloatExpression {
     }
 
     private _getFloatAt (index: number): number {
-        return this._data[index];
+        return this._data.getFloatAt(index);
     }
 
     constructor (parameter?: VFXParameter) {
@@ -90,7 +91,7 @@ export class BindingFloatExpression extends FloatExpression {
     public bind (parameterMap: VFXParameterMap) {
         if (!this._bindingParameter) { return; }
         if (this._bindingParameter.isArray) {
-            this._data = parameterMap.getFloatArrayVale(this._bindingParameter).data;
+            this._data = parameterMap.getFloatArrayVale(this._bindingParameter);
         } else {
             this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
         }

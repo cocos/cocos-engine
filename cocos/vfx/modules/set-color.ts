@@ -72,9 +72,8 @@ export class SetColorModule extends VFXModule {
         const colorExp = this._color as ColorExpression;
         colorExp.bind(parameterMap);
 
-        const dest = color.data;
         for (let i = fromIndex; i < toIndex; i++) {
-            dest[i] = Color.toUint32(colorExp.evaluate(i, tempColor));
+            color.setColorAt(colorExp.evaluate(i, tempColor), i);
         }
     }
 }

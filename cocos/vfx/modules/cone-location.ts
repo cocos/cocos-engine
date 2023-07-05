@@ -132,7 +132,7 @@ export class ConeLocationModule extends ShapeLocationModule {
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
-        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID);
         const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
         const randomOffset = this._randomOffset;
         const randomOffsetTheta = randomOffset + 7189201;
@@ -152,14 +152,14 @@ export class ConeLocationModule extends ShapeLocationModule {
             const length = lengthExp.evaluate(i);
             const angle = Math.cos(degreesToRadians(angleExp.evaluate(i) * 0.5));
             const innerAngle = Math.cos((1 - innerAngleExp.evaluate(i) * 0.5 / 360) * TWO_PI);
-            const phi = Math.acos(randRangedFloat(angle, innerAngle, randomSeed, id[i], randomOffset));
+            const phi = Math.acos(randRangedFloat(angle, innerAngle, randomSeed, id.getUint32At(i), randomOffset));
             const radialAngle = clamp(degreesToRadians(radialAngleExp.evaluate(i)), 0, TWO_PI);
-            const theta = randRangedFloat(0, radialAngle, randomSeed, id[i], randomOffsetTheta);
+            const theta = randRangedFloat(0, radialAngle, randomSeed, id.getUint32At(i), randomOffsetTheta);
             Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
             Vec3.multiplyScalar(pos, pos, Math.sin(phi));
             pos.z = Math.cos(phi);
             const surfaceDistribution = Math.max(surfaceDistributionExp.evaluate(i), 0);
-            const distribution = randRangedFloat(surfaceDistribution, 1, randomSeed, id[i], randomOffsetDis) ** 0.33333;
+            const distribution = randRangedFloat(surfaceDistribution, 1, randomSeed, id.getUint32At(i), randomOffsetDis) ** 0.33333;
             Vec3.multiplyScalar(pos, pos, distribution * length);
             this.storePosition(i, pos, position);
         }

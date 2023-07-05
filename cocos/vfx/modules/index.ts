@@ -28,7 +28,7 @@ export * from './scale-velocity';
 export * from './shape-location';
 export * from './spawn-rate';
 export * from './spawn-per-unit';
-export * from './spawn-burst';
+export * from './spawn-burst-instantaneous';
 export * from './set-position';
 export * from './set-color';
 export * from './set-sprite-rotation';

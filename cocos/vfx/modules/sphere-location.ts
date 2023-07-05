@@ -211,7 +211,7 @@ export class SphereLocationModule extends ShapeLocationModule {
             const randomOffset = this._randomOffset;
             const randomOffsetTheta = randomOffset + 483890;
             const randomOffsetDis  = randomOffset + 588190;
-            const id = parameterMap.getUint32ArrayValue(P_ID).data;
+            const id = parameterMap.getUint32ArrayValue(P_ID);
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const hemisphereDistributionExp = this._hemisphereDistribution as Vec2Expression;
             surfaceDistributionExp.bind(parameterMap);
@@ -220,12 +220,12 @@ export class SphereLocationModule extends ShapeLocationModule {
                 hemisphereDistributionExp.evaluate(i, distribution);
                 const surfaceDistribution = Math.max(surfaceDistributionExp.evaluate(i), 0);
                 const radialAngle = clamp(degreesToRadians(distribution.x), 0, TWO_PI);
-                const angle = Math.acos(randRangedFloat(Math.cos(degreesToRadians(distribution.y * 0.5)), 1, randomSeed, id[i], randomOffset));
-                const theta = randFloat(randomSeed, id[i], randomOffsetTheta) * radialAngle;
+                const angle = Math.acos(randRangedFloat(Math.cos(degreesToRadians(distribution.y * 0.5)), 1, randomSeed, id.getUint32At(i), randomOffset));
+                const theta = randFloat(randomSeed, id.getUint32At(i), randomOffsetTheta) * radialAngle;
                 Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
                 Vec3.multiplyScalar(pos, pos, Math.sin(angle));
                 pos.z = Math.cos(angle);
-                Vec3.multiplyScalar(pos, pos, randRangedFloat(surfaceDistribution, 1.0, randomSeed, id[i], randomOffsetDis) ** 0.3333 * radiusExp.evaluate(i));
+                Vec3.multiplyScalar(pos, pos, randRangedFloat(surfaceDistribution, 1.0, randomSeed, id.getUint32At(i), randomOffsetDis) ** 0.3333 * radiusExp.evaluate(i));
                 this.storePosition(i, pos, position);
             }
         } else if (this.distributionMode === DistributionMode.DIRECT) {

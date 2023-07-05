@@ -665,10 +665,10 @@ export class VFXEmitter extends Component {
         if (parameterMap.has(P_IS_DEAD)) {
             const values = parameterMap.getValueEntriesWithNamespace(VFXBuiltinNamespace.PARTICLE);
             const valueLength = values.length;
-            const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD).data;
+            const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD);
             const particleNum = parameterMap.getUint32Value(E_PARTICLE_NUM);
             for (let i = particleNum.data - 1; i >= 0; i--) {
-                if (isDead[i]) {
+                if (isDead.getBoolAt(i)) {
                     const lastParticle = particleNum.data - 1;
                     if (lastParticle !== i) {
                         for (let i = 0; i < valueLength; i++) {
@@ -778,9 +778,9 @@ export class VFXEmitter extends Component {
             parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).fill(0, fromIndex, toIndex);
         }
         if (parameterMap.has(P_ID)) {
-            const id = parameterMap.getUint32ArrayValue(P_ID).data;
+            const id = parameterMap.getUint32ArrayValue(P_ID);
             for (let i = fromIndex; i < toIndex; i++) {
-                id[i] = ++this._maxParticleId;
+                id.setUint32At(++this._maxParticleId, i);
             }
         }
 

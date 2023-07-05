@@ -71,8 +71,8 @@ export class SpawnPerUnitModule extends VFXModule {
         const spawnRemainderPerUnit = parameterMap.getFloatValue(E_SPAWN_REMAINDER_PER_UNIT);
         const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
         const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT);
-        if (spawnInfoCount.data === spawnInfos.capacity) {
-            spawnInfos.reserve(spawnInfos.capacity * 2);
+        if (spawnInfoCount.data === spawnInfos.size) {
+            spawnInfos.reserve(spawnInfos.size * 2);
         }
         const spawnSpacingExp = this._spawnSpacing as FloatExpression;
         spawnSpacingExp.bind(parameterMap);

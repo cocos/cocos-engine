@@ -226,20 +226,24 @@ export abstract class VFXValue {
         return false;
     }
 
+    get isObject () {
+        return false;
+    }
+
     abstract get type (): VFXValueType;
 }
 
 export abstract class VFXArray extends VFXValue {
-    get capacity () {
-        return this._capacity;
+    get size () {
+        return this._size;
     }
 
     get isArray () {
         return true;
     }
 
-    protected _capacity = DEFAULT_CAPACITY;
-    abstract reserve (capacity: number);
+    protected _size = DEFAULT_CAPACITY;
+    abstract reserve (size: number);
     abstract moveTo (a: Handle, b: Handle);
     abstract copyFrom (src: VFXArray, fromIndex: Handle, toIndex: Handle);
 }

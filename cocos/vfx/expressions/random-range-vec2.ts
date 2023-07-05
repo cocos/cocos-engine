@@ -24,6 +24,7 @@
  */
 import { Enum, lerp, Vec2 } from '../../core';
 import { ccclass, serializable, type, visible } from '../../core/data/decorators';
+import { VFXUint32Array } from '../data';
 import { C_TICK_COUNT, E_RANDOM_SEED, P_ID, VFXRandomEvaluationMode } from '../define';
 import { randFloat2 } from '../rand';
 import { VFXExecutionStage, VFXModule } from '../vfx-module';
@@ -87,7 +88,7 @@ export class RandomRangeVec2Expression extends Vec2Expression {
     private _evaluationMode = VFXRandomEvaluationMode.SPAWN_ONLY;
     @serializable
     private _randomOffset = Math.floor(Math.random() * 0xffffffff);
-    private declare _seed2: Uint32Array;
+    private declare _seed2: VFXUint32Array;
     private _randomSeed = 0;
     private _randomSeed2 = 0;
     private _getRandFloat2: (out: Vec2, index: number) => void = this._getParticleRandFloat2;
@@ -109,7 +110,7 @@ export class RandomRangeVec2Expression extends Vec2Expression {
         this._maximum!.bind(parameterMap);
         this._minimum!.bind(parameterMap);
         if (this.usage === VFXExecutionStage.UPDATE || this.usage === VFXExecutionStage.SPAWN) {
-            this._seed2 = parameterMap.getUint32ArrayValue(P_ID).data;
+            this._seed2 = parameterMap.getUint32ArrayValue(P_ID);
         }
         if (this._evaluationMode === VFXRandomEvaluationMode.SPAWN_ONLY || this.usage === VFXExecutionStage.SPAWN) {
             this._randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
@@ -130,7 +131,7 @@ export class RandomRangeVec2Expression extends Vec2Expression {
     }
 
     private _getParticleRandFloat2 (out: Vec2, index: number) {
-        randFloat2(out, this._randomSeed, this._seed2[index], this._randomSeed2);
+        randFloat2(out, this._randomSeed, this._seed2.getUint32At(index), this._randomSeed2);
     }
 
     private _getEmitterRandFloat2 (out: Vec2, index: number) {

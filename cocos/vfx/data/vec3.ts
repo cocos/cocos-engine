@@ -5,34 +5,30 @@ import { VFXArray, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXValue, VFXValueTyp
 const tempVec3 = new Vec3();
 const STRIDE = 3;
 export class VFXVec3Array extends VFXArray {
-    get data () {
-        return this._data;
-    }
-
     get type () {
         return VFXValueType.VEC3;
     }
 
-    private _data = new Float32Array(STRIDE * this._capacity);
+    private _data = new Float32Array(STRIDE * this._size);
 
     static scaleAndAdd (out: VFXVec3Array, a: VFXVec3Array, b: VFXVec3Array, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
-                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(out._size === a._size && a._size === b._size
+                && toIndex <= out._size && fromIndex >= 0 && fromIndex <= toIndex);
         }
-        const aData = a.data;
-        const bData = b.data;
-        const outData = out.data;
+        const aData = a._data;
+        const bData = b._data;
+        const outData = out._data;
         for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
             outData[i] = aData[i] + bData[i] * scale;
         }
     }
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Float32Array(STRIDE * capacity);
+        this._data = new Float32Array(STRIDE * size);
         this._data.set(oldData);
     }
 
@@ -43,14 +39,14 @@ export class VFXVec3Array extends VFXArray {
      */
     moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
-            assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
+            assertIsTrue(a < this._size && a >= 0 && b < this._size && b >= 0);
         }
         this.setVec3At(this.getVec3At(tempVec3, a), b);
     }
 
     getVec3At (out: Vec3, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -62,7 +58,7 @@ export class VFXVec3Array extends VFXArray {
 
     setVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -73,7 +69,7 @@ export class VFXVec3Array extends VFXArray {
 
     setUniformFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -84,7 +80,7 @@ export class VFXVec3Array extends VFXArray {
 
     addVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -95,7 +91,7 @@ export class VFXVec3Array extends VFXArray {
 
     multiplyVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -106,7 +102,7 @@ export class VFXVec3Array extends VFXArray {
 
     multiplyScalarAt (val: number, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -117,10 +113,10 @@ export class VFXVec3Array extends VFXArray {
 
     copyFrom (src: VFXVec3Array, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(this._size === src._size && toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
+            const source = (fromIndex === 0 && toIndex === this._size) ? src._data : src._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
             this._data.set(source, fromIndex * STRIDE);
         } else {
             const destData = this._data;
@@ -133,7 +129,7 @@ export class VFXVec3Array extends VFXArray {
 
     copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(stride >= strideOffset + STRIDE);
             assertIsTrue(destOffset >= 0);
@@ -141,7 +137,7 @@ export class VFXVec3Array extends VFXArray {
         }
 
         if (stride === STRIDE && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
+            const source = (toIndex === this._size && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
             dest.set(source, destOffset * stride);
             return;
         }
@@ -156,7 +152,7 @@ export class VFXVec3Array extends VFXArray {
 
     fill (val: Vec3, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
         }
         const data = this._data;
         const x = val.x;

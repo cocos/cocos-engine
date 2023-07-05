@@ -6,21 +6,17 @@ const tempColor = new Color();
 const STRIDE = 1;
 
 export class VFXColorArray extends VFXArray {
-    get data () {
-        return this._data;
-    }
-
     get type () {
         return VFXValueType.COLOR;
     }
 
-    private _data = new Uint32Array(this._capacity);
+    private _data = new Uint32Array(this._size);
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Uint32Array(capacity);
+        this._data = new Uint32Array(size);
         this._data.set(oldData);
     }
 
@@ -57,14 +53,14 @@ export class VFXColorArray extends VFXArray {
 
     copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(strideOffset + STRIDE <= stride);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
         }
 
         if (stride === STRIDE && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? this._data : this._data.subarray(fromIndex, toIndex);
+            const source = (fromIndex === 0 && toIndex === this._size) ? this._data : this._data.subarray(fromIndex, toIndex);
             dest.set(source, destOffset * stride);
             return;
         }

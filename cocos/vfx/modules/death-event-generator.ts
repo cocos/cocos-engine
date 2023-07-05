@@ -54,8 +54,8 @@ export class DeathEventGeneratorModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const id = parameterMap.getUint32ArrayValue(P_ID).data;
-        const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID);
+        const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const localToWorld = parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data;
@@ -74,10 +74,10 @@ export class DeathEventGeneratorModule extends VFXModule {
 
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (!isDead[i]) {
+                if (!isDead.getBoolAt(i)) {
                     continue;
                 }
-                if (randFloat(randomSeed, id[i], randomOffset) > probability) {
+                if (randFloat(randomSeed, id.getUint32At(i), randomOffset) > probability) {
                     continue;
                 }
 
@@ -97,12 +97,12 @@ export class DeathEventGeneratorModule extends VFXModule {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
-                eventInfo.particleId = id[i];
+                eventInfo.particleId = id.getUint32At(i);
                 eventInfo.prevTime = 0;
                 eventInfo.currentTime = EPSILON;
                 eventInfo.type = VFXEventType.DEATH;
-                if (eventCount.data >= events.capacity) {
-                    events.reserve(events.capacity * 2);
+                if (eventCount.data >= events.size) {
+                    events.reserve(events.size * 2);
                 }
                 events.setEventAt(eventInfo, eventCount.data);
                 eventCount.data++;

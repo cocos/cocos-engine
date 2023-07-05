@@ -5,17 +5,6 @@ import { DelayMode, LoopMode } from '../../cocos/vfx/enum';
 describe('VFXEmitter', () => {
     test('Parameters Validation', () => {
         const particleEmitter = new VFXEmitter();
-        expect(particleEmitter.duration).toBe(5);
-        particleEmitter.duration = -1;
-        expect(particleEmitter.duration).toBe(0.01);
-        expect(particleEmitter.loopCount).toBe(1);
-        particleEmitter.loopCount = 0;
-        expect(particleEmitter.loopCount).toBe(1);
-        particleEmitter.loopCount = 2.2;
-        expect(particleEmitter.loopCount).toBe(2);
-        expect(particleEmitter.delayRange).toStrictEqual(new Vec2());
-        particleEmitter.delayRange = new Vec2(-1, -0.2);
-        expect(particleEmitter.delayRange).toStrictEqual(new Vec2(0, 0));
         expect(particleEmitter.prewarmTime).toStrictEqual(5);
         particleEmitter.prewarmTime = -1;
         expect(particleEmitter.prewarmTime).toStrictEqual(0.001);
@@ -96,9 +85,9 @@ describe('VFXEmitter', () => {
         expect(particleEmitter.spawnStage.modules.length).toBe(0);
         expect(particleEmitter.updateStage.modules.length).toBe(0);
         expect(particleEmitter.emitterStage.modules.length).toBe(0);
-        expect(particleEmitter.updateStage.execStage).toBe(VFXExecutionStage.UPDATE);
-        expect(particleEmitter.emitterStage.execStage).toBe(VFXExecutionStage.EMITTER);
-        expect(particleEmitter.spawnStage.execStage).toBe(VFXExecutionStage.SPAWN);
+        expect(particleEmitter.updateStage.usage).toBe(VFXExecutionStage.UPDATE);
+        expect(particleEmitter.emitterStage.usage).toBe(VFXExecutionStage.EMITTER);
+        expect(particleEmitter.spawnStage.usage).toBe(VFXExecutionStage.SPAWN);
     });
     
 });

@@ -4,67 +4,63 @@ import { assertIsTrue } from '../../core';
 
 const STRIDE = 1;
 export class VFXFloatArray extends VFXArray {
-    get data () {
-        return this._data;
-    }
-
     get type () {
         return VFXValueType.FLOAT;
     }
 
-    private _data = new Float32Array(this._capacity);
+    private _data = new Float32Array(this._size);
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Float32Array(capacity);
+        this._data = new Float32Array(size);
         this._data.set(oldData);
     }
 
     moveTo (a: number, b: number) {
         if (DEBUG) {
-            assertIsTrue(a <= this._capacity && a >= 0);
-            assertIsTrue(b <= this._capacity && b >= 0);
+            assertIsTrue(a <= this._size && a >= 0);
+            assertIsTrue(b <= this._size && b >= 0);
         }
         this._data[b] = this._data[a];
     }
 
     getFloatAt (handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle <= this._capacity && handle >= 0);
+            assertIsTrue(handle <= this._size && handle >= 0);
         }
         return this._data[handle];
     }
 
     setFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle <= this._capacity && handle >= 0);
+            assertIsTrue(handle <= this._size && handle >= 0);
         }
         this._data[handle] = val;
     }
 
     addFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle <= this._capacity && handle >= 0);
+            assertIsTrue(handle <= this._size && handle >= 0);
         }
         this._data[handle] += val;
     }
 
     multiplyFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
-            assertIsTrue(handle <= this._capacity && handle >= 0);
+            assertIsTrue(handle <= this._size && handle >= 0);
         }
         this._data[handle] *= val;
     }
 
     copyFrom (src: VFXFloatArray, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(src._capacity === this._capacity);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(src._size === this._size);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? src._data : src._data.subarray(fromIndex, toIndex);
+            const source = (toIndex === this._size && fromIndex === 0) ? src._data : src._data.subarray(fromIndex, toIndex);
             this._data.set(source, fromIndex);
         } else {
             const destData = this._data;
@@ -77,7 +73,7 @@ export class VFXFloatArray extends VFXArray {
 
     copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(destOffset >= 0);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
@@ -85,7 +81,7 @@ export class VFXFloatArray extends VFXArray {
         }
 
         if (stride === STRIDE && strideOffset === 0 && toIndex - fromIndex > BATCH_OPERATION_THRESHOLD) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex, toIndex);
+            const source = (toIndex === this._size && fromIndex === 0) ? this._data : this._data.subarray(fromIndex, toIndex);
             dest.set(source, destOffset * stride);
             return;
         }
@@ -98,7 +94,7 @@ export class VFXFloatArray extends VFXArray {
 
     fill (val: number, fromIndex: number, toIndex: number) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);

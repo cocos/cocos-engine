@@ -4,21 +4,17 @@ import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } f
 
 const STRIDE = 1;
 export class VFXInt32Array extends VFXArray {
-    get data () {
-        return this._data;
-    }
-
     get type () {
         return VFXValueType.INT32;
     }
 
-    private _data = new Int32Array(this._capacity);
+    private _data = new Int32Array(this._size);
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Int32Array(capacity);
+        this._data = new Int32Array(size);
         this._data.set(oldData);
     }
 
@@ -48,7 +44,7 @@ export class VFXInt32Array extends VFXArray {
 
     copyToTypedArray (dest: Int32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(toIndex <= this._size && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
         }

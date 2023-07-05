@@ -63,33 +63,36 @@ export class ParticleStateModule extends VFXModule {
     }
 
     public execute (parameterMap: VFXParameterMap) {
-        const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).data;
-        const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME).data;
+        const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE);
+        const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME);
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
-                if (normalizedAge[particleHandle] > 1) {
-                    normalizedAge[particleHandle] -= 1;
+                let age = normalizedAge.getFloatAt(particleHandle) + deltaTime * invLifeTime.getFloatAt(particleHandle);
+                if (age > 1) {
+                    age -= 1;
                 }
+                normalizedAge.setFloatAt(age, particleHandle);
             }
         } else if (this._lifetimeElapsedOperation === LifetimeElapsedOperation.KEEP) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
-                if (normalizedAge[particleHandle] > 1) {
-                    normalizedAge[particleHandle] = 1;
+                let age = normalizedAge.getFloatAt(particleHandle) + deltaTime * invLifeTime.getFloatAt(particleHandle);
+                if (age > 1) {
+                    age = 1;
                 }
+                normalizedAge.setFloatAt(age, particleHandle);
             }
         } else {
-            const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD).data;
+            const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD);
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
-                if (normalizedAge[particleHandle] > 1) {
-                    normalizedAge[particleHandle] = 1;
-                    isDead[particleHandle] = 1;
+                let age = normalizedAge.getFloatAt(particleHandle) + deltaTime * invLifeTime.getFloatAt(particleHandle);
+                if (age > 1) {
+                    age = 1;
+                    isDead.setBoolAt(true, particleHandle);
                 }
+                normalizedAge.setFloatAt(age, particleHandle);
             }
         }
     }

@@ -1,5 +1,5 @@
 
-import { Rand1, RandomStream, RandRanged1 } from "../../cocos/vfx/rand";
+import { Rand1, RandRanged1 } from "../../cocos/vfx/rand";
 
 describe ('rand-num-gen', () => {
     test ('RNG with no seed should produce different sequence', () => {

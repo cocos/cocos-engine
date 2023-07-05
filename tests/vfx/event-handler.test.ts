@@ -1,9 +1,5 @@
 import { EventHandler } from '../../cocos/vfx/event-handler';
-import { ContextDataSet } from '../../cocos/vfx/base';
-import { ParticleDataSet } from '../../cocos/vfx/particle-data-set';
 import { VFXExecutionStageFlags, VFXModule } from '../../cocos/vfx/vfx-module';
-import { EmitterDataSet } from '../../cocos/vfx/emitter-data-set';
-import { UserDataSet } from '../../cocos/vfx/user-data-set';
 
 describe('event-handler', () => {
     test('EventHandler', () => {

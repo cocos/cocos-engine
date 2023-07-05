@@ -120,7 +120,7 @@ export class BoxLocationModule extends ShapeLocationModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const randomSeed = parameterMap.getUint32Value(E_RANDOM_SEED).data;
-        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID);
         const randomOffset = this._randomOffset;
         const randomOffsetFace = this._randomOffset + 1767283;
         const randomOffsetThickness = this._randomOffset + 6176272;
@@ -132,7 +132,7 @@ export class BoxLocationModule extends ShapeLocationModule {
             for (let i = fromIndex; i < toIndex; ++i) {
                 boxSizeExp.evaluate(i, tempBoxSize);
                 boxCenterExp.evaluate(i, tempBoxCenter);
-                randFloat3(randVec3, randomSeed, id[i], randomOffset);
+                randFloat3(randVec3, randomSeed, id.getUint32At(i), randomOffset);
                 Vec3.set(pos, (randVec3.x - tempBoxCenter.x) * tempBoxSize.x,
                     (randVec3.y - tempBoxCenter.y) * tempBoxSize.y, (randVec3.z - tempBoxCenter.z) * tempBoxSize.z);
                 this.storePosition(i, pos, position);
@@ -141,11 +141,11 @@ export class BoxLocationModule extends ShapeLocationModule {
             const surfaceThicknessExp = this._surfaceThickness as FloatExpression;
             surfaceThicknessExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
-                randFloat3(randVec3, randomSeed, id[i], randomOffset);
+                randFloat3(randVec3, randomSeed, id.getUint32At(i), randomOffset);
                 const x = randVec3.x;
                 const y = randVec3.y;
                 const z = randVec3.z;
-                const face = randRangedInt32(0, 3, randomSeed, id[i], randomOffsetFace);
+                const face = randRangedInt32(0, 3, randomSeed, id.getUint32At(i), randomOffsetFace);
                 Vec3.set(tempPosition,
                     face === 0 ? (x >= 0.5 ? 1 : 0) : x,
                     face === 1 ? (y >= 0.5 ? 1 : 0) : y,
@@ -153,7 +153,7 @@ export class BoxLocationModule extends ShapeLocationModule {
                 boxSizeExp.evaluate(i, tempBoxSize);
                 boxCenterExp.evaluate(i, tempBoxCenter);
                 const thickness = surfaceThicknessExp.evaluate(i);
-                randFloat3(randVec3, randomSeed, id[i], randomOffsetThickness);
+                randFloat3(randVec3, randomSeed, id.getUint32At(i), randomOffsetThickness);
                 tempPosition.x *= tempBoxSize.x - thickness * randVec3.x;
                 tempPosition.y *= tempBoxSize.y - thickness * randVec3.y;
                 tempPosition.z *= tempBoxSize.z - thickness * randVec3.z;

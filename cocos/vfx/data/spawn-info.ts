@@ -21,22 +21,22 @@ export class VFXSpawnInfoArray extends VFXArray {
         return VFXValueType.SPAWN_INFO;
     }
 
-    private _data = new Float32Array(STRIDE * this._capacity);
+    private _data = new Float32Array(STRIDE * this._size);
     private _uint32data = new Uint32Array(this._data.buffer);
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Float32Array(STRIDE * capacity);
+        this._data = new Float32Array(STRIDE * size);
         this._uint32data = new Uint32Array(this._data.buffer);
         this._data.set(oldData);
     }
 
     moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
-            assertIsTrue(a <= this._capacity && a >= 0);
-            assertIsTrue(b <= this._capacity && b >= 0);
+            assertIsTrue(a <= this._size && a >= 0);
+            assertIsTrue(b <= this._size && b >= 0);
         }
         const offsetA = a * STRIDE;
         const offsetB = b * STRIDE;

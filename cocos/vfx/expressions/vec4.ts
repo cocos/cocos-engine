@@ -22,66 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { CCFloat, Vec3, serializable } from '../../core';
-import { ccclass, type } from '../../core/data/class-decorator';
-import { VFXParameterMap } from '../vfx-parameter-map';
-import { Vec3Expression } from './vec3';
 
-@ccclass('cc.ConstantVec3Expression')
-export class ConstantVec3Expression extends Vec3Expression {
-    @type(CCFloat)
-    public get x () {
-        return this._x;
+import { ccclass } from 'cc.decorator';
+import { VFXExpression } from '../vfx-expression';
+import { Vec4 } from '../../core';
+import { VFXValueType } from '../vfx-parameter';
+
+@ccclass('cc.Vec4Expression')
+export abstract class Vec4Expression extends VFXExpression {
+    public get valueType (): VFXValueType {
+        return VFXValueType.VEC4;
     }
 
-    public set x (val) {
-        this._x = val;
-    }
-
-    @type(CCFloat)
-    public get y () {
-        return this._y;
-    }
-
-    public set y (val) {
-        this._y = val;
-    }
-
-    @type(CCFloat)
-    public get z () {
-        return this._z;
-    }
-
-    public set z (val) {
-        this._z = val;
-    }
-
-    @serializable
-    private _x = 0;
-
-    @serializable
-    private _y = 0;
-
-    @serializable
-    private _z = 0;
-
-    public get isConstant (): boolean {
-        return true;
-    }
-
-    constructor (x = 0, y = 0, z = 0) {
-        super();
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    public bind (parameterMap: VFXParameterMap) {}
-
-    public evaluate (index: number, out: Vec3) {
-        out.x = this._x;
-        out.y = this._y;
-        out.z = this._z;
-        return out;
-    }
+    public abstract evaluate (index: number, out: Vec4): Vec4;
 }

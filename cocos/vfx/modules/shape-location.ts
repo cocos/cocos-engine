@@ -58,8 +58,26 @@ export enum DistributionMode {
     UNIFORM,
 }
 
+export enum ScaleMode {
+
+}
+
 @ccclass('cc.ShapeLocationModule')
 export abstract class ShapeLocationModule extends VFXModule {
+    /**
+     * @zh 粒子发射器缩放比例。
+     */
+    @type(Vec3Expression)
+    public get scale () {
+        if (!this._scale) {
+            this._scale = new ConstantVec3Expression(1, 1, 1);
+        }
+        return this._scale;
+    }
+    public set scale (val) {
+        this._scale = val;
+        this.requireRecompile();
+    }
     /**
      * @zh 粒子发射器位置。
      */
@@ -87,21 +105,6 @@ export abstract class ShapeLocationModule extends VFXModule {
     }
     public set rotation (val) {
         this._rotation = val;
-        this.requireRecompile();
-    }
-
-    /**
-     * @zh 粒子发射器缩放比例。
-     */
-    @type(Vec3Expression)
-    public get scale () {
-        if (!this._scale) {
-            this._scale = new ConstantVec3Expression(1, 1, 1);
-        }
-        return this._scale;
-    }
-    public set scale (val) {
-        this._scale = val;
         this.requireRecompile();
     }
 

@@ -22,13 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { CCFloat, Vec3, serializable } from '../../core';
+import { CCFloat, Vec3, serializable, Vec4 } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
 import { VFXParameterMap } from '../vfx-parameter-map';
 import { Vec3Expression } from './vec3';
+import { Vec4Expression } from './vec4';
 
-@ccclass('cc.ConstantVec3Expression')
-export class ConstantVec3Expression extends Vec3Expression {
+@ccclass('cc.ConstantVec4Expression')
+export class ConstantVec4Expression extends Vec4Expression {
     @type(CCFloat)
     public get x () {
         return this._x;
@@ -78,7 +79,7 @@ export class ConstantVec3Expression extends Vec3Expression {
 
     public bind (parameterMap: VFXParameterMap) {}
 
-    public evaluate (index: number, out: Vec3) {
+    public evaluate (index: number, out: Vec4) {
         out.x = this._x;
         out.y = this._y;
         out.z = this._z;

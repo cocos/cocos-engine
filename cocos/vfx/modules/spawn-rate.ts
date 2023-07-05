@@ -72,8 +72,8 @@ export class SpawnRateModule extends VFXModule {
         const loopedAge = parameterMap.getFloatValue(E_LOOPED_AGE).data;
         const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
         const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT);
-        if (spawnInfoCount.data === spawnInfos.capacity) {
-            spawnInfos.reserve(spawnInfos.capacity * 2);
+        if (spawnInfoCount.data === spawnInfos.size) {
+            spawnInfos.reserve(spawnInfos.size * 2);
         }
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(parameterMap);

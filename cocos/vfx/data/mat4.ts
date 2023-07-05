@@ -5,33 +5,29 @@ import { VFXArray, VFXValue, VFXValueType } from '../vfx-parameter';
 const tempMat4 = new Mat4();
 const STRIDE = 16;
 export class VFXMat4Array extends VFXArray {
-    get data () {
-        return this._data;
-    }
-
     get type (): VFXValueType {
         return VFXValueType.MAT4;
     }
 
-    private _data = new Float32Array(STRIDE * this._capacity);
+    private _data = new Float32Array(STRIDE * this._size);
 
-    reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
+    reserve (size: number) {
+        if (size <= this._size) return;
+        this._size = size;
         const oldData = this._data;
-        this._data = new Float32Array(STRIDE * capacity);
+        this._data = new Float32Array(STRIDE * size);
         this._data.set(oldData);
     }
     moveTo (a: number, b: number) {
         if (DEBUG) {
-            assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
+            assertIsTrue(a < this._size && a >= 0 && b < this._size && b >= 0);
         }
         this.setMat4At(this.getMat4At(tempMat4, a), b);
     }
 
     getMat4At (out: Mat4, handle: number) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;
@@ -56,7 +52,7 @@ export class VFXMat4Array extends VFXArray {
 
     setMat4At (val: Mat4, handle: number) {
         if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
+            assertIsTrue(handle < this._size && handle >= 0);
         }
         const offset = handle * STRIDE;
         const data = this._data;

@@ -67,9 +67,8 @@ export class SetLifeTimeModule extends VFXModule {
         const lifetimeExp = this._lifetime as FloatExpression;
         lifetimeExp.bind(parameterMap);
 
-        const dest = invLifeTime.data;
         for (let i = fromIndex; i < toIndex; ++i) {
-            dest[i] = 1 / lifetimeExp.evaluate(i);
+            invLifeTime.setFloatAt(1 / lifetimeExp.evaluate(i), i);
         }
     }
 }
