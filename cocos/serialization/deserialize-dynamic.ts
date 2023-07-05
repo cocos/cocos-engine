@@ -136,16 +136,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            let isPrimitiveType;
-            if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-            } else {
-                const defaultType = typeof defaultValue;
-                isPrimitiveType = defaultType === 'string'
-                                  || defaultType === 'number'
-                                  || defaultType === 'boolean';
-            }
-
+            const isPrimitiveType = isPrimitiveTypeInFastMode(defaultValue, userType);
             if (isPrimitiveType) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
@@ -208,16 +199,9 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
             let isPrimitiveType = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-                } else {
-                    const defaultType = typeof defaultValue;
-                    isPrimitiveType = defaultType === 'string'
-                                      || defaultType === 'number'
-                                      || defaultType === 'boolean';
-                }
+                isPrimitiveType = isPrimitiveTypeInFastMode(defaultValue, userType);
             }
-            if (fastMode && isPrimitiveType) {
+            if (isPrimitiveType) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
                     simplePropsToRead = simpleProps.slice();
                 }
@@ -279,6 +263,17 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             s._fillPlainObject(o._$erialized as Record<PropertyKey, unknown>, d);
         }
     };
+}
+
+function isPrimitiveTypeInFastMode (defaultValue: any, userType: any): boolean {
+    if (defaultValue === undefined) {
+        return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+    } else {
+        const defaultType = typeof defaultValue;
+        return defaultType === 'string'
+                          || defaultType === 'number'
+                          || defaultType === 'boolean';
+    }
 }
 
 type TypedArrayViewConstructorName =
