@@ -136,6 +136,7 @@ using namespace spine;
 %ignore spine::DrawOrderTimeline::setFrame(size_t, float, Vector<int>&);
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
+%ignore spine::Skin::findAttachmentsForSlot;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -154,7 +155,6 @@ using namespace spine;
 %rename(setTrackCompleteListenerNative) spine::SkeletonAnimation::setTrackCompleteListener;
 %rename(create) spine::SkeletonRenderer::createWithFile;
 
-%rename(getAttachmentsForSlot) spine::Skin::findAttachmentsForSlot;
 %rename(frames) spine::TranslateTimeline::_frames;
 %rename(boneIndex) spine::TranslateTimeline::_boneIndex;
 %rename(frames) spine::TwoColorTimeline::_frames;
