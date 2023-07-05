@@ -31,7 +31,7 @@ import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getWrap,
+    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -395,7 +395,7 @@ const PhysXCallback = {
         }
     },
 
-    emitTriggerEvent () {
+    emitTriggerEvent (): void {
         let len = triggerEventEndDic.getLength();
         while (len--) {
             const key = triggerEventEndDic.getKeyByIndex(len);
@@ -550,7 +550,7 @@ const PhysXCallback = {
         }
         cctShapeEventDic.reset();
     },
-    emitCCTTriggerEvent () {
+    emitCCTTriggerEvent (): void {
         let len = cctTriggerEventEndDic.getLength();
         while (len--) {
             const key = cctTriggerEventEndDic.getKeyByIndex(len);
