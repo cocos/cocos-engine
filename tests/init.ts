@@ -2,14 +2,15 @@ jest.mock(
     'internal:constants',
     () => {
         const actual = jest.requireActual('./constants-for-test');
-        const { getCurrentTestSuiteConfig } = jest.requireActual('./utils/test-suite-config');
+        const { getCurrentTestSuiteConfig } = jest.requireActual('./utils/test-suite-config') as
+            typeof import('./utils/test-suite-config');
         const config = getCurrentTestSuiteConfig();
-        if (!config.constantsOverride) {
+        if (!config.constantOverrides) {
             return actual;
         }
         return {
             ...actual,
-            ...config.constantsOverride,
+            ...config.constantOverrides,
         };
     },
     { virtual: true, },

@@ -1,10 +1,8 @@
-import { getCurrentTestSuiteConfig, TestSuiteConfig } from "./test-suite-config";
+/// <reference path="../../@types/consts.d.ts"/>
 
-test(`Test suite config`, () => {
-    expect(getCurrentTestSuiteConfig()).toEqual<TestSuiteConfig>({
-        constantOverrides: {
-            SUPPORT_JIT: true,
-            BUILD: true,
-        },
-    });
+import { SUPPORT_JIT, BUILD } from 'internal:constants';
+
+test(`Constant overrides`, () => {
+    expect(SUPPORT_JIT).toBe(true);
+    expect(BUILD).toBe(true);
 });
