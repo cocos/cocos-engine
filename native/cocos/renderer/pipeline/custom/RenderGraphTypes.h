@@ -1123,6 +1123,7 @@ struct RenderGraph {
     ccstd::pmr::vector<gfx::Viewport> viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
+    ccstd::pmr::vector<vertex_descriptor> sortedVertices;
 };
 
 } // namespace render
