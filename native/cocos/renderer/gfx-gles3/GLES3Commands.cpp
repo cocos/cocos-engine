@@ -3167,6 +3167,21 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
     }
 }
 
+void cmdFuncGLES3CopyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBufferSrc,GLES3GPUBuffer *gpuBufferDst,
+                            const BufferCopy *regions, uint32_t count) {
+    GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, gpuBufferSrc->glBuffer));
+    GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, gpuBufferDst->glBuffer));
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &copy = regions[i];
+        GL_CHECK(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER,
+            copy.srcOffset, copy.dstOffset, copy.size));
+    }
+
+    GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, 0));
+}
+
 void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     if (!cmdPackage->cmds.size()) return;
 

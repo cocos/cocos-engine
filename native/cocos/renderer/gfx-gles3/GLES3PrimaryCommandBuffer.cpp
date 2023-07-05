@@ -182,7 +182,10 @@ void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTex
 }
 
 void GLES3PrimaryCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    GLES3GPUBuffer *srcGLBuffer = static_cast<GLES3Buffer *>(srcBuffer)->gpuBuffer();
+    GLES3GPUBuffer *dstGLBuffer = static_cast<GLES3Buffer *>(dstBuffer)->gpuBuffer();
 
+    cmdFuncGLES3CopyBuffer(GLES3Device::getInstance(), srcGLBuffer, dstGLBuffer, regions, count);
 }
 
 void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
