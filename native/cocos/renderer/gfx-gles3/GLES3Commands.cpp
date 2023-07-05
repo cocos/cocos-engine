@@ -830,7 +830,7 @@ static void textureStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
         case TextureType::CUBE:
             CC_ASSERT(gpuTexture->glSamples <= 1);
         case TextureType::TEX2D:
-            if (gpuTexture->glSamples > 1 && device->constantRegistry()->glMinorVersion >= 1) {
+            if (gpuTexture->glSamples > 1 && !gpuTexture->immutable && device->constantRegistry()->glMinorVersion >= 1) {
                 gpuTexture->glTarget = GL_TEXTURE_2D_MULTISAMPLE;
                 GL_CHECK(glTexStorage2DMultisample(gpuTexture->glTarget, gpuTexture->glSamples, gpuTexture->glInternalFmt, w, h, GL_FALSE));
             } else {
@@ -841,8 +841,8 @@ static void textureStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
             CC_ASSERT(gpuTexture->glSamples <= 1);
         case TextureType::TEX2D_ARRAY:
             d = gpuTexture->arrayLayer;
-            if (gpuTexture->glSamples > 1 && device->constantRegistry()->glMinorVersion >= 1) {
-                gpuTexture->glTarget = GL_TEXTURE_2D_MULTISAMPLE;
+            if (gpuTexture->glSamples > 1 && !gpuTexture->immutable && device->constantRegistry()->glMinorVersion >= 1) {
+                gpuTexture->glTarget = GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
                 GL_CHECK(glTexStorage3DMultisample(gpuTexture->glTarget, gpuTexture->glSamples, gpuTexture->glInternalFmt, w, h, d, GL_FALSE));
             } else {
                 GL_CHECK(glTexStorage3D(gpuTexture->glTarget, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h, d));

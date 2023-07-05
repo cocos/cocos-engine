@@ -132,6 +132,7 @@ struct GLES3GPUTexture {
     uint32_t mipLevel{1};
     SampleCount samples{SampleCount::X1};
     TextureFlags flags{TextureFlagBit::NONE};
+    bool immutable{true};
     bool isPowerOf2{false};
     bool useRenderBuffer{false};
     bool allocateMemory{true}; // false if swapchain image or implicit ms render buffer.
