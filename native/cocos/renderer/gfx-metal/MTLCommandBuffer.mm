@@ -892,6 +892,22 @@ void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, c
 }
 
 void CCMTLCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    id<MTLCommandBuffer> cmdBuffer = getMTLCommandBuffer();
+    id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
+
+    auto *ccSrcBuffer = static_cast<CCMTLBuffer *>(srcBuffer);
+    auto *ccDstBuffer = static_cast<CCMTLBuffer *>(dstBuffer);
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &copy = regions[i];
+        [encoder copyFromBuffer: ccSrcBuffer->mtlBuffer()
+                   sourceOffset: ccSrcBuffer->currentOffset() + copy.srcOffset
+                       toBuffer: ccDstBuffer->mtlBuffer()
+              destinationOffset: ccDstBuffer->currentOffset() + copy.dstOffset
+                           size: copy.size];
+    }
+
+    [encoder endEncoding];
 }
 
 void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
