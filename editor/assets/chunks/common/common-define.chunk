@@ -84,3 +84,11 @@ vec4 saturate(vec4 value) { return clamp(value, vec4(0.0), vec4(1.0)); }
 
 // Material
 #define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0
+
+// CC_USE_DEBUG_VIEW Values
+#ifndef CC_SURFACES_DEBUG_VIEW_SINGLE
+  #define CC_SURFACES_DEBUG_VIEW_SINGLE 1
+#endif
+#ifndef CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  #define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC 2
+#endif
