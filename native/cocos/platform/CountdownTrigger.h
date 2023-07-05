@@ -32,13 +32,13 @@ struct CountdownTriggerContext;
 
 /**
  * @class CountdownTrigger
- * @brief A class implementing a singleton watchdog mechanism.
+ * @brief A class implementing a singleton countdown trigger mechanism.
  *
  * The CountdownTrigger class provides a mechanism to trigger a callback function after a specified timeout duration.
  * Due to the underlying signal system implementation, only one instance of CountdownTrigger can be created at a time.
  * This is because signal handlers may overwrite each other if multiple instances exist.
  * The callback function is intended to be automatically triggered when the timeout is reached.
- * If the CountdownTrigger object is destroyed, the watchdog will be cancelled.
+ * If the CountdownTrigger object is destroyed, the countdown trigger will be cancelled.
  *
  * Example usage:
  * @code
