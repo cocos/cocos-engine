@@ -2325,6 +2325,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         gfx::AccessFlags access;
     };
 
+    bool hasDS{false};
     ccstd::vector<SubpassRasterViewData> viewIndex;
     for (const auto &[name, view] : pass.rasterViews) {
         auto resIter = rag.resourceIndex.find(name);
@@ -2336,6 +2337,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             name,
             prevAccess,
         });
+        hasDS |= view.attachmentType == AttachmentType::DEPTH_STENCIL;
     }
 
     for (const auto &resolve : pass.resolvePairs) {
@@ -2385,7 +2387,8 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     }
 
     if (!pass.resolvePairs.empty()) {
-        subpassInfo.resolves.resize(pass.resolvePairs.size(), gfx::INVALID_BINDING);
+        // ds resolve stores in depthStencilResolve
+        subpassInfo.resolves.resize(pass.rasterViews.size() - hasDS, gfx::INVALID_BINDING);
     }
 
     uint32_t localSlot = 0;
@@ -2483,10 +2486,6 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
         fgRenderpassInfo.needResolve |= resolveView;
         ++localSlot;
-    }
-
-    if (dsAppeared) {
-        subpassInfo.resolves.resize(subpassInfo.resolves.size() - 1);
     }
 
     if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
