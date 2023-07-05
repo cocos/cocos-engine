@@ -63,10 +63,10 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
     } else {
         // unify depth stencil index
         for (auto &subpass : _gpuRenderPass->subpasses) {
-            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
+            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil >= colorCount) {
                 subpass.depthStencil = colorCount;
             }
-            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
+            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve >= colorCount) {
                 subpass.depthStencilResolve = colorCount + 1;
             }
         }
