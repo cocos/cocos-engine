@@ -893,15 +893,15 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    public requestDrawData (material: Material, texureID: number, indexOffset: number, indexCount: number) {
+    public requestDrawData (material: Material, textureID: number, indexOffset: number, indexCount: number) {
         const draw = this._drawList.add();
         draw.material = material;
-        if (texureID === 0) {
+        if (textureID === 0) {
             draw.texture = this._textures[0];
         } else {
-            const texture = this._slotTextures?.get(texureID);
+            const texture = this._slotTextures?.get(textureID);
             if (texture) draw.texture = texture;
-            else draw.texture = this._textures[0];
+            else draw.texture = this._textures[textureID];
         }
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
