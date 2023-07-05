@@ -37,7 +37,7 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
+import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 import { SpotLight } from '../../render-scene/scene/spot-light';
@@ -677,6 +677,27 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
+    addResource (
+        name: string,
+        dimension: ResourceDimension,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateResource (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
     /**
      * @engineInternal
      * @en Begin rendering one frame
