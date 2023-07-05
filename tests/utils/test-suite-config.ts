@@ -1,6 +1,6 @@
 
 export interface TestSuiteConfig {
-    constantsOverride?: Record<string, boolean>;
+    constantOverrides?: Record<string, boolean>;
 }
 
 declare global {
