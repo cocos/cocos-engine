@@ -1228,7 +1228,7 @@ module.exports = link(mixin({
             minMoveDistance: '最小移动距离',
             stepOffset: '最大爬台阶高度',
             slopeLimit: '最大爬坡角度',
-            contactOffset: '接触间隙',
+            skinWidth: '皮肤宽度',
             detectCollisions: '是否和其他碰撞体发生碰撞 (在不调用move方法的情况下)',
             enableOverlapRecovery: '和其他碰撞体穿透时是否恢复',
             center: '中心点在局部坐标系中的位置',

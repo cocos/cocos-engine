@@ -1247,7 +1247,7 @@ module.exports = link(mixin({
             minMoveDistance: 'The minimum movement distance of the character controller.',
             stepOffset: 'The step offset of the character controller.',
             slopeLimit: 'The slope limit of the character controller in degree.',
-            contactOffset: 'The contact offset of the character controller.',
+            skinWidth: 'The skin width of the character controller.',
             detectCollisions: 'If the character controller can collide with other objects without calling move().',
             enableOverlapRecovery: 'If the character controller enable overlap recovery when penetrating with other colliders.',
             center: 'The center of the character controller in local space.',
