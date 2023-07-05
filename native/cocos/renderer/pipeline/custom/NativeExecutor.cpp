@@ -2212,7 +2212,12 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             scratch};
 
         RenderGraphVisitor visitor{{}, ctx};
-        boost::depth_first_search(fg, visitor, get(colors, rg));
+        auto colors = rg.colors(scratch);
+        for (const auto vertID : ctx.g.sortedVertices) {
+            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
+                boost::depth_first_visit(fg, vertID, visitor, get(colors, ctx.g));
+            }
+        }
     }
 
     // collect statistics
