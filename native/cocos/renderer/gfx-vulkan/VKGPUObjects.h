@@ -266,6 +266,7 @@ struct CCVKGPUFramebuffer : public CCVKGPUDeviceObject {
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
     ccstd::vector<ConstPtr<CCVKGPUTextureView>> gpuColorViews;
     ConstPtr<CCVKGPUTextureView> gpuDepthStencilView;
+    ConstPtr<CCVKGPUTextureView> gpuDepthStencilResolveView;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
     std::vector<VkFramebuffer> vkFrameBuffers;
     CCVKGPUSwapchain *swapchain = nullptr;

@@ -468,7 +468,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         }
 
         if (subpassInfo.depthStencil != INVALID_BINDING) {
-            const VkAttachmentDescription2 &attachment = attachmentDescriptions.back();
+            const VkAttachmentDescription2 &attachment = attachmentDescriptions[subpassInfo.depthStencil];
             sampleCount = std::max(sampleCount, attachment.samples);
 
             bool appearsInInput = std::find(subpassInfo.inputs.begin(), subpassInfo.inputs.end(), subpassInfo.depthStencil) != subpassInfo.inputs.end();
@@ -568,6 +568,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     }
 
     size_t dependencyCount = gpuRenderPass->dependencies.size();
+    gpuRenderPass->hasSelfDependency.resize(subpassCount, false);
     dependencyManager.clear();
 
     bool manuallyDeduce = true;
@@ -580,8 +581,6 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     if (!manuallyDeduce) {
         // offset = 0U;
         ccstd::unordered_set<const GFXObject *> subpassExternalFilter;
-
-        gpuRenderPass->hasSelfDependency.resize(subpassCount, false);
         for (uint32_t i = 0U; i < dependencyCount; ++i) {
             const auto &dependency{gpuRenderPass->dependencies[i]};
             VkSubpassDependency2 vkDependency{VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2};
@@ -816,9 +815,11 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         } else {
             attachments[colorViewCount] = gpuFramebuffer->gpuDepthStencilView->vkImageView;
         }
+        createInfo.width = std::min(createInfo.width, std::max(1U, gpuFramebuffer->gpuDepthStencilView->gpuTexture->width >> gpuFramebuffer->gpuDepthStencilView->baseLevel));
+        createInfo.height = std::min(createInfo.height, std::max(1U, gpuFramebuffer->gpuDepthStencilView->gpuTexture->height >> gpuFramebuffer->gpuDepthStencilView->baseLevel));
     }
     if (hasDepthResolve) {
-        attachments[colorViewCount + 1] = gpuFramebuffer->gpuDepthStencilView->vkImageView;
+        attachments[colorViewCount + 1] = gpuFramebuffer->gpuDepthStencilResolveView->vkImageView;
     }
 
     gpuFramebuffer->isOffscreen = !swapchainImageIndices;

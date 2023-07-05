@@ -168,14 +168,16 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     }
 
     ccstd::vector<VkClearValue> &clearValues = _curGPURenderPass->clearValues;
-    bool depthEnabled = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
-    size_t attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
-
+    size_t attachmentCount = _curGPURenderPass->colorAttachments.size();
     for (size_t i = 0U; i < attachmentCount; ++i) {
         clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
     }
-    if (depthEnabled) {
+
+    if (_curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
         clearValues[attachmentCount].depthStencil = {depth, stencil};
+    }
+    if (_curGPURenderPass->depthStencilResolveAttachment.format != Format::UNKNOWN) {
+        clearValues[attachmentCount + 1].depthStencil = {depth, stencil};
     }
 
     Rect safeArea{
