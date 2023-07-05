@@ -711,15 +711,19 @@ export class Graphics extends UIRenderer {
     }
 
     protected _canRender (): boolean {
+        let flag = false;
         if (!super._canRender()) {
-            return false;
+            flag = false;
+        } else if (JSB) {
+            flag = this._isDrawing;
+        } else {
+            flag = !!this.model && this._isDrawing;
         }
 
-        if (JSB) {
-            return this._isDrawing;
-        } else {
-            return !!this.model && this._isDrawing;
+        if (flag !== this._renderFlag && this.model) {
+            this.model.invalidateLocalData();
         }
+        return flag;
     }
 
     /**
