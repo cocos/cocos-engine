@@ -180,7 +180,7 @@ function initProgressVertexBuffer() {
 
 function updateVertexBuffer() {
     // By default, maintain aspect ratio by constraining display at 200px height
-    const defaultRatio = 200 / image.width;
+    const defaultRatio = 200 / image.height;
     const widthRatio = image.width / canvas.width * 1.35 * defaultRatio * displayRatio;
     const heightRatio = image.height / canvas.height * 1.35 * defaultRatio * displayRatio;
     const heightOffset = 1/6; // canvas:(-1,1) -> (button, top); heightOffset = (5/12) * (-2) + 1 = 1/6
