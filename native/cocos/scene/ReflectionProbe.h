@@ -136,7 +136,7 @@ public:
     inline const ccstd::vector<IntrusivePtr<cc::RenderTexture>>& getBakedCubeTextures() const { return _bakedCubeTextures; }
     void resetCameraParams();
     void updateCameraDir(int32_t faceIdx);
-    Vec2 getRenderArea() const;
+    Vec2 renderArea() const;
     void packBackgroundColor();
     bool isRGBE() const;
     void copyTextureToMipmap();
@@ -211,6 +211,7 @@ private:
     IntrusivePtr<gfx::Texture> _planarReflectionTexture{ nullptr };
 
     uint32_t _mipmapCount{1};
+
     gfx::TextureBlit _textureRegion;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
