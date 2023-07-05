@@ -630,7 +630,6 @@ export interface BasicPipeline extends PipelineRuntime {
         format: Format,
         width: number,
         height: number,
-        sampleCount?: SampleCount,
         residency?: ResourceResidency): number;
     /**
      * @en Add 2D depth stencil.
@@ -647,7 +646,6 @@ export interface BasicPipeline extends PipelineRuntime {
         format: Format,
         width: number,
         height: number,
-        sampleCount?: SampleCount,
         residency?: ResourceResidency): number;
     /**
      * @en Update render target information.
