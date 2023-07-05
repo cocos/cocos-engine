@@ -259,7 +259,6 @@ interface LoadSubpackageOption {
 }
 interface LoadSubpackageTask {
     onProgressUpdate(
-        /** 分包加载进度变化事件的监听函数 */
         listener: LoadSubpackageTaskOnProgressUpdateCallback
     ): void;
 }
