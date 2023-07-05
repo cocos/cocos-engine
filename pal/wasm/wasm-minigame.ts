@@ -65,10 +65,7 @@ function loadSubpackage (name: string): Promise<void> {
 }
 
 let isWasmModuleReady = false;
-/**
- * Sometimes we need to put wasm in subpackage to reduce code size.
- * In this case we need to ensure the wasm module is ready before we import it.
- */
+
 export function ensureWasmModuleReady (): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (isWasmModuleReady) {
