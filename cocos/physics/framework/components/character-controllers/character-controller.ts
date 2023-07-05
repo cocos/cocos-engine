@@ -133,8 +133,7 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the contact offset of the character controller.
-     * Contact offset is the character's collision skin width.
+     * Gets or sets the skin width of the character controller.
      * @zh
      * 获取或设置角色控制器的皮肤宽度。
      */
