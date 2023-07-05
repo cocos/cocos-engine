@@ -19,7 +19,7 @@ import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
 import { Camera as CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, ReflectionProbePass, SkinPass, ToneMappingPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
 export class PostProcessBuilder implements PipelineBuilder  {
@@ -45,6 +45,9 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         this.addPass(new SkinPass());
         this.addPass(new ForwardTransparencyPass());
+
+        //reflection probe
+        this.addPass(new ReflectionProbePass());
 
         // pipeline related
         this.addPass(new HBAOPass());
@@ -164,8 +167,6 @@ export class PostProcessBuilder implements PipelineBuilder  {
             if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
                 this.applyPreviewCamera(camera);
             }
-
-            buildReflectionProbePasss(camera, ppl);
 
             passContext.postProcess = camera.postProcess || globalPP;
 

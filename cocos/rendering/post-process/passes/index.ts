@@ -13,3 +13,4 @@ export * from './tone-mapping-pass';
 export * from './forward-transparency-pass';
 export * from './forward-transparency-simple-pass';
 export * from './skin-pass';
+export * from './reflection-probe-pass';
