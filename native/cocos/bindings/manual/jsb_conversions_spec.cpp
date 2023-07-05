@@ -1162,6 +1162,25 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
     return true;
 }
+
+bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
+
+    se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
+    se::Value tmp;
+    set_member_field(obj, to, "x", &spine::Vector2::x, tmp);
+    set_member_field(obj, to, "y", &spine::Vector2::y, tmp);
+    return true;
+}
+
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    to.setObject(obj);
+    return true;
+}
 #endif
 
 #if CC_USE_MIDDLEWARE
