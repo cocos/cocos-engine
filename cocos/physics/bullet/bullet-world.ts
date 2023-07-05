@@ -466,7 +466,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    private emitCollisionAndTriggerEvent () {
+    private emitCollisionAndTriggerEvent (): void {
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
@@ -594,7 +594,7 @@ export class BulletWorld implements IPhysicsWorld {
         this.contactsDic.reset();
     }
 
-    private emitCCTTriggerEvent () {
+    private emitCCTTriggerEvent (): void {
         // is enter or stay
         let dicL = this.cctContactsDic.getLength();
         while (dicL--) {
@@ -666,7 +666,7 @@ export class BulletWorld implements IPhysicsWorld {
         this.cctContactsDic.reset();
     }
 
-    private emitCCTCollisionEvent () {
+    private emitCCTCollisionEvent (): void {
         let dicL = this.cctShapeEventDic.getLength();
         while (dicL--) {
             const key = this.cctShapeEventDic.getKeyByIndex(dicL);
