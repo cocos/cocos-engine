@@ -51,6 +51,7 @@ try {
         }
     }
 } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
 }
 
@@ -110,6 +111,7 @@ class ScreenAdapter extends EventTarget {
         return minigame.orientation;
     }
     public set orientation (value: Orientation) {
+        // eslint-disable-next-line no-console
         console.warn('Setting orientation is not supported yet.');
     }
 
