@@ -41,6 +41,7 @@ using namespace spine;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore spine::MathUtil;
 %ignore cc::RefCounted;
 %ignore *::rtti;
 %ignore spine::SkeletonCache::SegmentData;
@@ -77,7 +78,6 @@ using namespace spine;
 %ignore spine::CurveTimeline::getRTTI;
 %ignore spine::DeformTimeline::getVertices;
 %ignore spine::DeformTimeline::getRTTI;
-%ignore spine::DrawOrderTimeline::getDrawOrders;
 %ignore spine::DrawOrderTimeline::getRTTI;
 %ignore spine::EventTimeline::getRTTI;
 %ignore spine::IkConstraint::getRTTI;
@@ -95,7 +95,6 @@ using namespace spine;
 %ignore spine::RotateTimeline::getRTTI;
 %ignore spine::ScaleTimeline::getRTTI;
 %ignore spine::ShearTimeline::getRTTI;
-%ignore spine::Skin::findAttachmentsForSlot;
 %ignore spine::Skin::findNamesForSlot;
 %ignore spine::Skin::getAttachments;
 %ignore spine::Timeline::getRTTI;
@@ -116,28 +115,27 @@ using namespace spine;
 %ignore spine::AnimationState::apply(Skeleton&);
 %ignore spine::Animation::apply(Skeleton&, float, float, bool, Vector<Event*>*, float, MixBlend, MixDirection);
 %ignore spine::VertexAttachment::computeWorldVertices;
-%ignore spine::Bone::Bone;
-%ignore spine::Event::Event;
-%ignore spine::IkConstraint::IkConstraint;
-%ignore spine::PathConstraint::PathConstraint;
+%ignore spine::Bone::Bone(BoneData&, Skeleton&, Bone*);
+%ignore spine::Bone::Bone(BoneData&, Skeleton&);
+%ignore spine::Event::Event(float, const EventData&);
+%ignore spine::IkConstraint::IkConstraint(IkConstraintData&, Skeleton&);
+%ignore spine::PathConstraint::PathConstraint(PathConstraintData&, Skeleton&);
 %ignore spine::PointAttachment::computeWorldPosition;
-%ignore spine::PointAttachment::computeWorldRotation;
+%ignore spine::PointAttachment::computeWorldRotation(Bone&);
 %ignore spine::RegionAttachment::computeWorldVertices;
-%ignore spine::Slot::Slot;
-%ignore spine::VertexEffect::begin;
-%ignore spine::TransformConstraint::TransformConstraint;
-%ignore spine::SkeletonBounds::update;
-%ignore spine::SlotData::SlotData;
-%ignore spine::SwirlVertexEffect::SwirlVertexEffect;
-%ignore spine::SwirlVertexEffect::transform;
-%ignore spine::JitterVertexEffect::transform;
-%ignore spine::VertexEffect::transform;
-%ignore spine::DeformTimeline::setFrame;
-%ignore spine::DrawOrderTimeline::setFrame;
+%ignore spine::Slot::Slot(SlotData&, Bone&);
+%ignore spine::VertexEffect::begin(Skeleton&);
+%ignore spine::TransformConstraint::TransformConstraint(TransformConstraintData&, Skeleton&);
+%ignore spine::SkeletonBounds::update(Skeleton&, bool);
+%ignore spine::SlotData::SlotData(int, const String&, BoneData&);
+%ignore spine::SwirlVertexEffect::SwirlVertexEffect(float, Interpolation&);
+%ignore spine::SwirlVertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
+%ignore spine::JitterVertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
+%ignore spine::VertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
+%ignore spine::DeformTimeline::setFrame(int, float, Vector<float>&);
+%ignore spine::DrawOrderTimeline::setFrame(size_t, float, Vector<int>&);
 %ignore spine::Skeleton::getBounds;
-%ignore spine::Skin::findAttachmentsForSlot;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
-%ignore spine::PointAttachment::computeWorldPosition;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -539,6 +537,7 @@ using namespace spine;
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
+%include "editor-support/spine/MathUtil.h"
 %include "editor-support/spine/MixBlend.h"
 %include "editor-support/spine/MixDirection.h"
 %include "editor-support/spine/TransformMode.h"
@@ -613,8 +612,18 @@ using namespace spine;
 };
 
 %extend spine::Bone {
+    Bone(spine::BoneData *data, spine::Skeleton *skeleton, spine::Bone *parent) {
+        return new Bone(*data, *skeleton, parent);
+    }
+
     void updateWorldTransformWith(float x, float y, float rotation, float scaleX, float scaleY, float shearX, float shearY) {
         $self->updateWorldTransform(x, y, rotation, scaleX, scaleY, shearX, shearY);
+    }
+}
+
+%extend spine::Slot {
+    Slot(spine::SlotData *data, spine::Bone *bone) {
+        return new Slot(*data, *bone);
     }
 }
 
@@ -644,43 +653,27 @@ using namespace spine;
     }
 }
 
-%extend spine::Bone {
-    Bone(spine::BoneData *data, spine::Skeleton *skeleton, spine::Bone *parent = NULL) {
-        $self->Bone(*data, *skeleton, parent);
-    }
-}
-
 %extend spine::Event {
-    Event(float time, const spine::EventData *data) {
-        $self->Event(time, *data);
+    Event(float time, spine::EventData *data) {
+        return new Event(time, *data);
     }
 }
 
 %extend spine::IkConstraint {
     IkConstraint(spine::IkConstraintData *data, spine::Skeleton *skeleton) {
-        $self->IkConstraint(*data, *skeleton);
+        return new IkConstraint(*data, *skeleton);
     }
 }
 
 %extend spine::PathConstraint {
     PathConstraint(spine::PathConstraintData* data, spine::Skeleton* skeleton) {
-        $self->PathConstraint(*data, *skeleton);
+        return new PathConstraint(*data, *skeleton);
     }
 }
 
 %extend spine::PointAttachment {
-    void computeWorldPosition(spine::Bone* bone, float& ox, float& oy) {
-        $self->computeWorldPosition(*bone, ox, oy);
-    }
-
     float computeWorldRotation(spine::Bone* bone) {
         return $self->computeWorldRotation(*bone);
-    }
-}
-
-%extend spine::Bone {
-    Slot(spine::SlotData *data, spine::Bone *bone) {
-        $self->Slot(*data, *bone);
     }
 }
 
@@ -692,13 +685,14 @@ using namespace spine;
 
 %extend spine::TransformConstraint {
     TransformConstraint(spine::TransformConstraintData* data, spine::Skeleton* skeleton) {
-        $self->TransformConstraint(*data, *skeleton);
+        return new TransformConstraint(*data, *skeleton);
     }
 }
 
 %extend spine::SlotData {
-    SlotData(int index, const spine::String *name, spine::BoneData *boneData) {
-        $self->SlotData(index, *name, *boneData);
+    SlotData(int index, const ccstd::string *name, spine::BoneData *boneData) {
+        spine::String spName(name->data());
+        return new SlotData(index, spName, *boneData);
     }
 }
 
@@ -706,25 +700,11 @@ using namespace spine;
     begin(spine::Skeleton *skeleton) {
         $self->begin(*skeleton);
     }
-
-    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
-        $self->transform(position->getX(), position->getY());
-    }
 }
 
 %extend spine::SwirlVertexEffect {
     SwirlVertexEffect(float radius, spine::Interpolation *interpolation) {
-        $self->SwirlVertexEffect(radius, *interpolation);
-    }
-
-    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
-        $self->transform(position->getX(), position->getY())
-    }
-}
-
-%extend spine::JitterVertexEffect {
-    void transform(spine::Vector2* position, spine::Vector2* uv, spine::Color* light, spine::Color* dark) {
-        $self->transform(position->getX(), position->getY())
+        return new SwirlVertexEffect(radius, *interpolation);
     }
 }
 
@@ -742,20 +722,20 @@ using namespace spine;
 }
 
 %extend spine::DeformTimeline {
-    void setFrame(int frameIndex, float time, ccstd::vector<float>* vertices) {
+    void setFrame(int frameIndex, float time, const ccstd::vector<float>& vertices) {
         spine::Vector<float> spVertices;
-        for (int i = 0; i < vertices->size(); ++i) {
-            spVertices.add((*vertices)[i]);
+        for (int i = 0; i < vertices.size(); ++i) {
+            spVertices.add(vertices[i]);
         }
         $self->setFrame(frameIndex, time, spVertices);
     }
 }
 
 %extend spine::DrawOrderTimeline {
-    void setFrame(size_t frameIndex, float time, ccstd::vector<int>* drawOrder) {
+    void setFrame(size_t frameIndex, float time, const ccstd::vector<int>& drawOrder) {
         spine::Vector<int> spDrawOrder;
-        for (int i = 0; i < drawOrder->size(); ++i) {
-            spDrawOrder.add((*drawOrder)[i]);
+        for (int i = 0; i < drawOrder.size(); ++i) {
+            spDrawOrder.add(drawOrder[i]);
         }
         $self->setFrame(frameIndex, time, spDrawOrder);
     }

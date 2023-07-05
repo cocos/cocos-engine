@@ -427,6 +427,48 @@ static bool js_findAttachmentsForSlot_Skin(se::State &s) {
 }
 SE_BIND_FUNC(js_findAttachmentsForSlot_Skin)
 
+static bool js_transform_VertexEffect(se::State &s) {
+    const auto &args = s.args();
+    spine::VertexEffect* effect = SE_THIS_OBJECT<spine::VertexEffect>(s);
+    if (nullptr == effect) return true;
+
+    float outX, outY;
+    effect->transform(outX, outY);
+
+    args[0].toObject()->setProperty("x", se::Value(outX));
+    args[0].toObject()->setProperty("y", se::Value(outY));
+    return true;
+}
+SE_BIND_FUNC(js_transform_VertexEffect)
+
+static bool js_transform_SwirlVertexEffect(se::State &s) {
+    const auto &args = s.args();
+    spine::SwirlVertexEffect* effect = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
+    if (nullptr == effect) return true;
+
+    float outX, outY;
+    effect->transform(outX, outY);
+
+    args[0].toObject()->setProperty("x", se::Value(outX));
+    args[0].toObject()->setProperty("y", se::Value(outY));
+    return true;
+}
+SE_BIND_FUNC(js_transform_SwirlVertexEffect)
+
+static bool js_transform_JitterVertexEffect(se::State &s) {
+    const auto &args = s.args();
+    spine::JitterVertexEffect* effect = SE_THIS_OBJECT<spine::JitterVertexEffect>(s);
+    if (nullptr == effect) return true;
+
+    float outX, outY;
+    effect->transform(outX, outY);
+
+    args[0].toObject()->setProperty("x", se::Value(outX));
+    args[0].toObject()->setProperty("y", se::Value(outY));
+    return true;
+}
+SE_BIND_FUNC(js_transform_JitterVertexEffect)
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -449,6 +491,9 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_Bone_proto->defineFunction("worldToLocal", _SE(js_worldToLocal_Bone));
     __jsb_spine_Bone_proto->defineFunction("localToWorld", _SE(js_localToWorld_Bone));
     __jsb_spine_PointAttachment_proto->defineFunction("computeWorldPosition", _SE(js_computeWorldPosition_PointAttachment));
+    __jsb_spine_VertexEffect_proto->defineFunction("transform", _SE(js_transform_VertexEffect));
+    __jsb_spine_SwirlVertexEffect_proto->defineFunction("transform", _SE(js_transform_SwirlVertexEffect));
+    __jsb_spine_JitterVertexEffect_proto->defineFunction("transform", _SE(js_transform_JitterVertexEffect));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {

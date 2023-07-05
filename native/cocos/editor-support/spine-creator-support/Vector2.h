@@ -37,6 +37,7 @@ namespace spine {
     public:
         float x, y;
     public:
+        Vector2();
         Vector2(float x, float y);
         ~Vector2();
 
