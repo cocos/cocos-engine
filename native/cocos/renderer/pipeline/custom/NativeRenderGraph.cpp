@@ -495,7 +495,7 @@ RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(
     const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
     CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
-    auto queueID = addVertex(
+    auto queueID = addVertex2(
         QueueTag{},
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(phaseName),
@@ -635,7 +635,7 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
     const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
     CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
-    auto queueID = addVertex(
+    auto queueID = addVertex2(
         QueueTag{},
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(phaseName),
@@ -651,7 +651,7 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     const auto *pLight = light.light.get();
     SceneData scene(camera->getScene(), camera, sceneFlags, light);
-    auto sceneID = addVertex(
+    auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Camera"),
         std::forward_as_tuple(),
@@ -696,7 +696,7 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
 void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
 
-    auto sceneID = addVertex(
+    auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
@@ -714,7 +714,7 @@ void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level});
 
-    auto sceneID = addVertex(
+    auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
@@ -732,7 +732,7 @@ void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0});
 
-    auto sceneID = addVertex(
+    auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
@@ -746,7 +746,7 @@ void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
 void NativeRenderQueueBuilder::addFullscreenQuad(
     Material *material, uint32_t passID, SceneFlags sceneFlags) {
     std::string_view name = "FullscreenQuad";
-    auto drawID = addVertex(
+    auto drawID = addVertex2(
         BlitTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -761,7 +761,7 @@ void NativeRenderQueueBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, uint32_t passID,
     SceneFlags sceneFlags) {
     std::string_view name = "CameraQuad";
-    auto drawID = addVertex(
+    auto drawID = addVertex2(
         BlitTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -800,7 +800,7 @@ void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, cons
     ccstd::pmr::vector<ClearView> clears(renderGraph->get_allocator());
     clears.emplace_back(name.c_str(), gfx::ClearFlagBit::COLOR, color);
 
-    auto clearID = addVertex(
+    auto clearID = addVertex2(
         ClearTag{},
         std::forward_as_tuple("ClearRenderTarget"),
         std::forward_as_tuple(),
@@ -818,7 +818,7 @@ void NativeRenderQueueBuilder::setViewport(const gfx::Viewport &viewport) {
 
 void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior) {
     std::string_view name = "FullscreenQuad";
-    auto drawID = addVertex(
+    auto drawID = addVertex2(
         BlitTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -843,7 +843,7 @@ RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
     const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
     CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
-    auto queueID = addVertex(
+    auto queueID = addVertex2(
         QueueTag{},
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(phaseName),
@@ -905,7 +905,7 @@ ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::s
 
     ComputeSubpass subpass(subpassIndex, renderGraph->get_allocator());
 
-    auto subpassID = addVertex(
+    auto subpassID = addVertex2(
         ComputeSubpassTag{},
         std::forward_as_tuple(subpassName),
         std::forward_as_tuple(subpassName),
@@ -1040,7 +1040,7 @@ RenderQueueBuilder *NativeMultisampleRenderPassBuilder::addQueue(
     const auto phaseLayoutID = locate(subpassLayoutID, phaseName, *layoutGraph);
     CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
-    auto queueID = addVertex(
+    auto queueID = addVertex2(
         QueueTag{},
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(phaseName),
@@ -1106,7 +1106,7 @@ void NativeComputeQueueBuilder::addDispatch(
     uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
     Material *material, uint32_t passID) {
     std::string_view name("Dispatch");
-    addVertex(
+    addVertex2(
         DispatchTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -1208,7 +1208,7 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &pha
     const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
     CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
-    auto queueID = addVertex(
+    auto queueID = addVertex2(
         QueueTag{},
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(phaseName),
