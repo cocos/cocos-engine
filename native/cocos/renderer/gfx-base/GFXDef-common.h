@@ -1082,6 +1082,8 @@ struct ALIGNAS(8) TextureViewInfo {
     uint32_t levelCount{1};
     uint32_t baseLayer{0};
     uint32_t layerCount{1};
+    uint32_t basePlane{0};
+    uint32_t planeCount{1};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif

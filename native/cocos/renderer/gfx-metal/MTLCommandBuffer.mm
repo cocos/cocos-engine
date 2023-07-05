@@ -219,7 +219,9 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         for (size_t i = 0; i < subpasses.size(); ++i) {
             for (size_t j = 0; j < subpasses[i].inputs.size(); ++j) {
                 uint32_t input = subpasses[i].inputs[j];
-                if(input >= colorAttachments.size()) {
+                if(input >= colorAttachments.size() ||
+                   colorAttachments[input].format == Format::DEPTH_STENCIL ||
+                   colorAttachments[input].format == Format::DEPTH) {
                     continue; // depthStencil as input
                 }
                 if (visited[input])

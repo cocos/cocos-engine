@@ -164,12 +164,14 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage, CCMTLRenderPass *r
 
     auto* spvData = spirv->getOutputData();
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
+    
+    NSString *rawStr = [NSString stringWithUTF8String:stage.source.c_str()];
 
     static const ccstd::vector<uint32_t> emptyBuffer;
     const auto &drawBuffer = renderPass != nullptr ? renderPass->getDrawBuffer(subPass) : emptyBuffer;
     const auto &readBuffer = renderPass != nullptr ? renderPass->getReadBuffer(subPass) : emptyBuffer;
     ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage,
-        _gpuShader, drawBuffer, readBuffer);
+        _gpuShader, renderPass, subPass);
 
     NSString* shader = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError* error = nil;
