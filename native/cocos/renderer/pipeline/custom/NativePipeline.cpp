@@ -206,6 +206,67 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         resourceGraph);
 }
 
+uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimension dimension,
+    gfx::Format format,
+    uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
+    gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
+    ResourceDesc desc{
+        dimension,
+        0,
+        width,
+        height,
+        static_cast<uint16_t>(dimension == ResourceDimension::TEXTURE3D ? depth : arraySize),
+        static_cast<uint16_t>(mipLevels),
+        format,
+        sampleCount,
+        gfx::TextureFlagBit::NONE,
+        flags,
+    };
+    return addVertex(
+        ManagedTextureTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{residency}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        resourceGraph);
+}
+
+void NativePipeline::updateResource(const ccstd::string& name, gfx::Format format,
+    uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, // NOLINT(bugprone-easily-swappable-parameters)
+    gfx::SampleCount sampleCount) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+
+    // update format
+    if (format == gfx::Format::UNKNOWN) {
+        format = desc.format;
+    }
+    visitObject(
+        resID, resourceGraph,
+        [&](ManagedTexture &tex) {
+            uint32_t depthOrArraySize = static_cast<uint16_t>(
+                desc.dimension == ResourceDimension::TEXTURE3D ? depth : arraySize);
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.depthOrArraySize, desc.mipLevels, desc.format, desc.sampleCount) !=
+                std::forward_as_tuple(width, height, depthOrArraySize, mipLevels, format, sampleCount);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
+                desc.depthOrArraySize = depthOrArraySize;
+                desc.mipLevels = mipLevels;
+                desc.format = format;
+                desc.sampleCount = sampleCount;
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
+            }
+        },
+        [](const auto & /*res*/) {});
+}
+
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     ResourceDesc desc{};
