@@ -312,6 +312,11 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device,
                              uint32_t count,
                              Filter filter);
 
+void cmdFuncGLES3CopyBuffer(GLES3GPUBuffer *gpuBufferSrc,
+                            GLES3GPUBuffer *gpuBufferDst,
+                            const BufferCopy *regions,
+                            uint32_t count);
+
 void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 
 void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
