@@ -124,14 +124,14 @@ using namespace spine;
 %ignore spine::PointAttachment::computeWorldRotation(Bone&);
 %ignore spine::RegionAttachment::computeWorldVertices;
 %ignore spine::Slot::Slot(SlotData&, Bone&);
-%ignore spine::VertexEffect::begin(Skeleton&);
+%ignore spine::VertexEffect::begin;
 %ignore spine::TransformConstraint::TransformConstraint(TransformConstraintData&, Skeleton&);
 %ignore spine::SkeletonBounds::update(Skeleton&, bool);
 %ignore spine::SlotData::SlotData(int, const String&, BoneData&);
 %ignore spine::SwirlVertexEffect::SwirlVertexEffect(float, Interpolation&);
-%ignore spine::SwirlVertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
-%ignore spine::JitterVertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
-%ignore spine::VertexEffect::transform(const Vector2&, const Vector2&, const Color&, const Color&);
+%ignore spine::SwirlVertexEffect::transform(float&, float&);
+%ignore spine::JitterVertexEffect::transform(float&, float&);
+%ignore spine::VertexEffect::transform(float&, float&);
 %ignore spine::DeformTimeline::setFrame(int, float, Vector<float>&);
 %ignore spine::DrawOrderTimeline::setFrame(size_t, float, Vector<int>&);
 %ignore spine::Skeleton::getBounds;
@@ -693,12 +693,6 @@ using namespace spine;
     SlotData(int index, const ccstd::string *name, spine::BoneData *boneData) {
         spine::String spName(name->data());
         return new SlotData(index, spName, *boneData);
-    }
-}
-
-%extend spine::VertexEffect {
-    begin(spine::Skeleton *skeleton) {
-        $self->begin(*skeleton);
     }
 }
 

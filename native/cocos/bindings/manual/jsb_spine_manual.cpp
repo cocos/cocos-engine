@@ -500,6 +500,30 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
 }
 SE_BIND_FUNC(js_spine_Skin_getAttachments)
 
+static bool js_spine_VertexEffect_begin(se::State& s) {
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexEffect *arg1 = (spine::VertexEffect *) NULL ;
+    spine::Skeleton *arg2 = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexEffect>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->begin(*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexEffect_begin) 
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -522,6 +546,7 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_Bone_proto->defineFunction("worldToLocal", _SE(js_worldToLocal_Bone));
     __jsb_spine_Bone_proto->defineFunction("localToWorld", _SE(js_localToWorld_Bone));
     __jsb_spine_PointAttachment_proto->defineFunction("computeWorldPosition", _SE(js_computeWorldPosition_PointAttachment));
+    __jsb_spine_VertexEffect_proto->defineFunction("begin", _SE(js_spine_VertexEffect_begin));
     __jsb_spine_VertexEffect_proto->defineFunction("transform", _SE(js_transform_VertexEffect));
     __jsb_spine_SwirlVertexEffect_proto->defineFunction("transform", _SE(js_transform_SwirlVertexEffect));
     __jsb_spine_JitterVertexEffect_proto->defineFunction("transform", _SE(js_transform_JitterVertexEffect));
