@@ -51,7 +51,6 @@ try {
         }
     }
 } catch (e) {
-    // eslint-disable-next-line no-console
     console.error(e);
 }
 
@@ -111,7 +110,6 @@ class ScreenAdapter extends EventTarget {
         return minigame.orientation;
     }
     public set orientation (value: Orientation) {
-        // eslint-disable-next-line no-console
         console.warn('Setting orientation is not supported yet.');
     }
 
@@ -157,7 +155,6 @@ class ScreenAdapter extends EventTarget {
 
     constructor () {
         super();
-        // TODO: onResize or onOrientationChange is not supported well
         minigame.onWindowResize?.(() => {
             this.emit('window-resize', this.windowSize.width, this.windowSize.height);
         });
