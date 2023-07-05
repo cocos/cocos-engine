@@ -3167,7 +3167,7 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
     }
 }
 
-void cmdFuncGLES3CopyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBufferSrc,GLES3GPUBuffer *gpuBufferDst,
+void cmdFuncGLES3CopyBuffer(GLES3GPUBuffer *gpuBufferSrc,GLES3GPUBuffer *gpuBufferDst,
                             const BufferCopy *regions, uint32_t count) {
     GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, gpuBufferSrc->glBuffer));
     GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, gpuBufferDst->glBuffer));
