@@ -24,7 +24,7 @@
 
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let my: any;
 
@@ -78,10 +78,19 @@ minigame.onTouchCancel = function (cb) {
 };
 // #endregion TouchEvent
 
+// #region Audio
+const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
+    onPlay: true,  // Fix: onPlay won't execute.
+    onPause: true,  // NOTE: calling pause() twice onPause won't execute twice.
+    onStop: false,
+    onSeek: false,
+}, true);
+
+// eslint-disable-next-line func-names
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     // NOTE: `onCanPlay` and `offCanPlay` is not standard minigame interface,
     // so here we mark audio as type of any
-    const audio: any = my.createInnerAudioContext();
+    const audio: any = polyfilledCreateInnerAudio();
     audio.onCanplay = audio.onCanPlay.bind(audio);
     audio.offCanplay = audio.offCanPlay.bind(audio);
     delete audio.onCanPlay;
