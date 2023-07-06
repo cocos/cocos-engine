@@ -90,7 +90,7 @@ export class RenderShadowMapBatchedQueue {
                     for (let i = 0; i < dirShadowObjects.length; i++) {
                         const ro = dirShadowObjects[i];
                         const model = ro.model;
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
 
@@ -109,7 +109,7 @@ export class RenderShadowMapBatchedQueue {
                             || !geometry.intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
                 break;
@@ -131,7 +131,7 @@ export class RenderShadowMapBatchedQueue {
         this._instancedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model, level: number) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -141,7 +141,7 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = pass.getInstancedBuffer();
+                const buffer = pass.getInstancedBuffer(level);
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
             } else {
