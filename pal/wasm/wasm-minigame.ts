@@ -103,8 +103,7 @@ function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
             } else {
                 resolve(`__ccWasmAssetSubpkg__/${basename(binaryUrl)}`);
             }
-        }
-        else {
+        } else {
             resolve(`cocos-js/${binaryUrl}`);
         }
     });
