@@ -400,7 +400,7 @@ export class LetterAtlas {
     }
 
     public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
-        const hash = char.charCodeAt(0) + Number(labelInfo.hash);
+        const hash = char.charCodeAt(0).toString() + labelInfo.hash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
             const temp = new LetterTexture(char, labelInfo);
