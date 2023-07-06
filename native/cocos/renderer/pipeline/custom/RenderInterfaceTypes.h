@@ -730,7 +730,7 @@ public:
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      * @returns Resource ID
      */
-    virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount, ResourceResidency residency) = 0;
+    virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
      * @en Add 2D depth stencil.
      * @zh 添加2D深度模板缓冲
@@ -741,7 +741,7 @@ public:
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      * @returns Resource ID
      */
-    virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount, ResourceResidency residency) = 0;
+    virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
      * @en Update render target information.
      * @zh 更新渲染目标的信息
@@ -760,6 +760,8 @@ public:
      * @param format @en Format of the resource @zh 资源的格式
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
+    virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -829,17 +831,11 @@ public:
      * @engineInternal
      */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
-    uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount) {
-        return addRenderTarget(name, format, width, height, sampleCount, ResourceResidency::MANAGED);
-    }
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
-        return addRenderTarget(name, format, width, height, gfx::SampleCount::ONE, ResourceResidency::MANAGED);
-    }
-    uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, gfx::SampleCount sampleCount) {
-        return addDepthStencil(name, format, width, height, sampleCount, ResourceResidency::MANAGED);
+        return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
     }
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
-        return addDepthStencil(name, format, width, height, gfx::SampleCount::ONE, ResourceResidency::MANAGED);
+        return addDepthStencil(name, format, width, height, ResourceResidency::MANAGED);
     }
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateRenderTarget(name, width, height, gfx::Format::UNKNOWN);

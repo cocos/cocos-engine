@@ -92,10 +92,7 @@ export function getPassID (name: string | undefined): number {
     return _renderModule.getPassID(name);
 }
 
-export function getSubpassID (passID: number, name: string | undefined): number {
-    if (name === undefined) {
-        return _renderModule.getSubpassID(passID, 'default');
-    }
+export function getSubpassID (passID: number, name: string): number {
     return _renderModule.getSubpassID(passID, name);
 }
 

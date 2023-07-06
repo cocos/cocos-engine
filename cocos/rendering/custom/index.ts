@@ -101,7 +101,7 @@ export function getPassID (name: string | undefined): number {
     return getCustomPassID(defaultLayoutGraph, name);
 }
 
-export function getSubpassID (passID: number, name: string | undefined): number {
+export function getSubpassID (passID: number, name: string): number {
     return getCustomSubpassID(defaultLayoutGraph, passID, name);
 }
 

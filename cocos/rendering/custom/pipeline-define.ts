@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '../../core';
-import { ClearFlagBit, Color, Format, LoadOp, SampleCount, ShaderStageFlagBit, StoreOp, Viewport } from '../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, ShaderStageFlagBit, StoreOp, Viewport } from '../../gfx';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, Light, LightType, ProbeType, ReflectionProbe, ShadowType } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
@@ -91,8 +91,8 @@ function buildShadowRes (ppl: BasicPipeline, name: string, width, height) {
     const device = ppl.device;
     if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
-        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, SampleCount.ONE, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(shadowMapName, fboW, fboH);
     ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
@@ -111,7 +111,7 @@ export function setupShadowRes (ppl: BasicPipeline, cameraInfo: CameraInfo): Sha
     const _validLights: Light[] = shadowInfo.validLights;
     let n = 0;
     let m = 0;
-    for (; n < shadow.maxReceived && m < validPunctualLights.length;) {
+    for (;n < shadow.maxReceived && m < validPunctualLights.length;) {
         const light = validPunctualLights[m];
         if (light.type === LightType.SPOT) {
             const spotLight = light as any;
@@ -149,7 +149,7 @@ export function setupShadowRes (ppl: BasicPipeline, cameraInfo: CameraInfo): Sha
     return shadowInfo;
 }
 
-export const updateShadowRes = setupShadowRes;
+export const  updateShadowRes = setupShadowRes;
 let shadowPass;
 function buildShadowPass (passName: Readonly<string>,
     ppl: BasicPipeline,
@@ -216,7 +216,7 @@ export function setupForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isO
         ppl.addRenderWindow(`ForwardColor${cameraInfo.id}`, Format.BGRA8, width, height, cameraInfo.camera.window);
     } else {
         ppl.addRenderTarget(`ForwardColor${cameraInfo.id}`, getRTFormatBeforeToneMapping(ppl),
-            width, height, SampleCount.ONE, ResourceResidency.PERSISTENT);
+            width, height, ResourceResidency.PERSISTENT);
     }
     ppl.addDepthStencil(`ForwardDepthStencil${cameraInfo.id}`, Format.DEPTH_STENCIL, width, height);
 }
@@ -301,7 +301,7 @@ export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, is
         .addQueue(QueueHint.RENDER_OPAQUE)
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-            | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
 
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
@@ -326,7 +326,7 @@ export function buildReflectionProbeRes (ppl: BasicPipeline, probe: ReflectionPr
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);
-        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(probePassRTName, renderWindow);
     ppl.updateDepthStencil(probePassDSName, width, height);
@@ -405,10 +405,10 @@ export function setupGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
     const gBufferPassEmissive = `gBufferPassEmissive${info.id}`;
     const gBufferPassDSName = `gBufferPassDSCamera${info.id}`;
     const colFormat = Format.RGBA16F;
-    ppl.addRenderTarget(gBufferPassRTName, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-    ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-    ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
-    ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+    ppl.addRenderTarget(gBufferPassRTName, colFormat, width, height, ResourceResidency.MANAGED);
+    ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, ResourceResidency.MANAGED);
+    ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, ResourceResidency.MANAGED);
+    ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     gBufferInfo.color = gBufferPassRTName;
     gBufferInfo.normal = gBufferPassNormal;
     gBufferInfo.emissive = gBufferPassEmissive;
@@ -541,7 +541,7 @@ export function setupLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     const height = area.height;
 
     const deferredLightingPassRTName = `deferredLightingPassRTName${info.id}`;
-    ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+    ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
 }
 
 export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
@@ -625,7 +625,7 @@ export function setupPostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
     const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     ppl.addRenderWindow(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
-    ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+    ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
 }
 
 export function updatePostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
@@ -690,7 +690,7 @@ export function setupUIRes (ppl: BasicPipeline,
     const dsUIAndProfilerPassRTName = `dsUIAndProfilerPassColor${info.id}`;
     const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${info.id}`;
     ppl.addRenderWindow(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-    ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, SampleCount.ONE, ResourceResidency.MANAGED);
+    ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
 }
 
 export function updateUIRes (ppl: BasicPipeline,

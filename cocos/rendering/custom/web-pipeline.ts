@@ -1377,6 +1377,37 @@ export class WebPipeline implements BasicPipeline {
         desc.width = width;
         desc.height = height;
     }
+    addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const desc = new ResourceDesc();
+        desc.dimension = dimension;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        desc.format = format;
+        desc.sampleCount = sampleCount;
+        desc.flags = flags;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
+        );
+    }
+    updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = desc.dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        if (format !== Format.UNKNOWN) {
+            desc.format = format;
+        }
+        desc.sampleCount = sampleCount;
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -1636,7 +1667,7 @@ export class WebPipeline implements BasicPipeline {
             new SamplerInfo(),
         );
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number, sampleCount = SampleCount.ONE, residency = ResourceResidency.MANAGED) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1644,7 +1675,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.sampleCount = sampleCount;
+        desc.sampleCount = SampleCount.ONE;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
@@ -1656,7 +1687,7 @@ export class WebPipeline implements BasicPipeline {
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number, sampleCount = SampleCount.ONE, residency = ResourceResidency.MANAGED) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1664,7 +1695,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.sampleCount = sampleCount;
+        desc.sampleCount = SampleCount.ONE;
         desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT | ResourceFlags.SAMPLED;
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,

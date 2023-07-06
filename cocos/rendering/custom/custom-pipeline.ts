@@ -68,7 +68,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 const width = area.width;
                 const height = area.height;
                 if (!ppl.containsResource('copyTexTest')) {
-                    ppl.addRenderTarget('copyTexTest', Format.RGBA16F, width, height, gfx.SampleCount.ONE, ResourceResidency.PERSISTENT);
+                    ppl.addRenderTarget('copyTexTest', Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
                 }
                 copyPair.source = forwardInfo.rtName;
                 copyPair.target = 'copyTexTest';
