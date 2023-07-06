@@ -36,6 +36,7 @@ import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';
 import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
+import { InstancedBuffer } from './instanced-buffer';
 
 let _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModel: SubModel): number {
@@ -90,7 +91,7 @@ export class RenderShadowMapBatchedQueue {
                     for (let i = 0; i < dirShadowObjects.length; i++) {
                         const ro = dirShadowObjects[i];
                         const model = ro.model;
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
 
@@ -109,7 +110,7 @@ export class RenderShadowMapBatchedQueue {
                             || !geometry.intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
                 break;
@@ -131,7 +132,7 @@ export class RenderShadowMapBatchedQueue {
         this._instancedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model, level: number) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -141,7 +142,7 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = pass.getInstancedBuffer();
+                const buffer = InstancedBuffer.get(pass, level);
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
             } else {
