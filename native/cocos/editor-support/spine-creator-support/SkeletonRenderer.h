@@ -38,6 +38,7 @@
 #include "base/RefMap.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/VertexEffectDelegate.h"
+#include "core/assets/Texture2D.h"
 #include "spine/spine.h"
 
 namespace cc {
@@ -150,6 +151,7 @@ public:
     cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
     void setMaterial(cc::Material *material);
     void setRenderEntity(cc::RenderEntity* entity);
+    void setSlotTexture(const std::string &slotName, cc::Texture2D* tex2d, bool createAttachment);
 
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
