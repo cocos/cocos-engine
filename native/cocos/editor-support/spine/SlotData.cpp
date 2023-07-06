@@ -83,6 +83,14 @@ const String &SlotData::getAttachmentName() {
 
 void SlotData::setAttachmentName(const String &inValue) {
     _attachmentName = inValue;
+
+    // Calculate hash code.
+    int count = _attachmentName.length();
+    hash = 0;
+    for(int s = 0; s < count; s++) {
+        hash += _attachmentName.buffer()[s];
+    }
+    hash += _attachmentName.buffer()[count-1];
 }
 
 BlendMode SlotData::getBlendMode() {

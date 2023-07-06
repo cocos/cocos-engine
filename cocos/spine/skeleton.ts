@@ -901,7 +901,10 @@ export class Skeleton extends UIRenderer {
         } else {
             const texture = this._slotTextures?.get(textureID);
             if (texture) draw.texture = texture;
-            else draw.texture = this._textures[textureID];
+            else {
+                const drawIndex = this._skeletonData!.getAtlasIndex(textureID);
+                draw.texture = this._textures[drawIndex];
+            }
         }
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
