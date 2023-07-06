@@ -27,7 +27,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../scene-graph';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core';
+import { Mat4, Vec2, Vec4, Quat, Vec3, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -39,6 +39,7 @@ import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../render-scene/scene/camera';
 import type { ParticleSystem } from '../particle-system';
 
+const _tempNodeScale = new Vec4();
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
 const _world_rot = new Quat();
@@ -295,17 +296,18 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     private doUpdateScale (pass): void {
+        const nodeScale = this._node_scale;
         switch (this._particleSystem?.scaleSpace) {
         case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
+            this._particleSystem.node.getScale(nodeScale);
             break;
         case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
+            this._particleSystem.node.getWorldScale(nodeScale);
             break;
         default:
             break;
         }
-        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+        pass.setUniform(pass.getHandle('scale'), _tempNodeScale.set(nodeScale.x, nodeScale.y, nodeScale.z));
     }
 
     public updateParticles (dt: number): number {
@@ -620,7 +622,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         } else if (renderMode === RenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
+            warn(`particle system renderMode ${renderMode} not support.`);
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
