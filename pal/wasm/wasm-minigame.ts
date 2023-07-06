@@ -62,30 +62,26 @@ function loadSubpackage (name: string): Promise<void> {
     });
 }
 
-let isWasmModuleReady = false;
+let promiseToLoadWasmModule: Promise<void> | undefined;
 
 export function ensureWasmModuleReady (): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        if (isWasmModuleReady) {
-            resolve();
-            return;
-        }
+    if (promiseToLoadWasmModule) {
+        return promiseToLoadWasmModule;
+    }
+    return promiseToLoadWasmModule = new Promise<void>((resolve, reject) => {
         if (WASM_SUBPACKAGE) {
             if (HUAWEI) {
                 // NOTE: huawei quick game doesn't support concurrent loading subpackage.
                 loadSubpackage('__ccWasmAssetSubpkg__').then(() => loadSubpackage('__ccWasmChunkSubpkg__')).then(() => {
-                    isWasmModuleReady = true;
                     resolve();
                 }).catch(reject);
             } else {
                 Promise.all(['__ccWasmAssetSubpkg__', '__ccWasmChunkSubpkg__'].map((pkgName) => loadSubpackage(pkgName)))
                     .then(() => {
-                        isWasmModuleReady = true;
                         resolve();
                     }).catch(reject);
             }
         } else {
-            isWasmModuleReady = true;
             resolve();
         }
     });
