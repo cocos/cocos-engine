@@ -2585,20 +2585,6 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
 
     if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
         getPreserves(rpInfo);
-        const auto &resg = resourceGraph;
-        std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [&uberPass, &resg](const AccessStatus &lhs, const AccessStatus &rhs) {
-            auto getSlot = [](const auto &uberPass, const PmrString& resName) {
-                uint32_t slotID = INVALID_ID;
-                auto iter = uberPass.attachmentIndexMap.find(resName);
-                if (iter != uberPass.attachmentIndexMap.end()) {
-                    slotID = iter->second;
-                }
-                return slotID;
-            };
-            auto lhsSlot = getSlot(uberPass, get(ResourceGraph::NameTag{}, resg, lhs.vertID));
-            auto rhsSlot = getSlot(uberPass, get(ResourceGraph::NameTag{}, resg, rhs.vertID));
-            return lhsSlot < rhsSlot;
-        });
     }
 }
 
