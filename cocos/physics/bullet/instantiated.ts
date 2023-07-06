@@ -117,31 +117,33 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
+function shouldUseWasmModule () {
+    if (FORCE_BANNING_BULLET_WASM) {
+        return false;
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 export function waitForAmmoInstantiation () {
     const errorReport = (msg: any) => { error(msg); };
-    return new Promise<void>((resolve, reject) => {
-        ensureWasmModuleReady().then(() => Promise.all([
-            import('external:emscripten/bullet/bullet.wasm'),
-            import('external:emscripten/bullet/bullet.asm.js'),
-        ]).then(([
-            { default: bulletWasmUrl },
-            { default: asmFactory  },
-        ]) => {
-            if (FORCE_BANNING_BULLET_WASM) {
-                return initAsmJS(asmFactory);
-            } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-                if (sys.hasFeature(sys.Feature.WASM)) {
-                    return initWasm(bulletWasmUrl, importObject).then(resolve);
-                } else {
-                    return initAsmJS(asmFactory);
-                }
-            } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-                return initWasm(bulletWasmUrl, importObject).then(resolve);
-            } else {
-                return initAsmJS(asmFactory);
-            }
-        })).catch(errorReport);
-    });
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/bullet/bullet.wasm'),
+        import('external:emscripten/bullet/bullet.asm.js'),
+    ]).then(([
+        { default: bulletWasmUrl },
+        { default: asmFactory  },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initWasm(bulletWasmUrl, importObject);
+        } else {
+            return initAsmJS(asmFactory);
+        }
+    })).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

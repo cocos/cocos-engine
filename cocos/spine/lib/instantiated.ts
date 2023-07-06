@@ -89,6 +89,16 @@ function initAsmJS (asmFactory, asmJsMemUrl): Promise<void> {
     });
 }
 
+function shouldUseWasmModule (): boolean {
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 export function waitForSpineWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any) => { error(msg); };
     return ensureWasmModuleReady().then(() => Promise.all([
@@ -102,13 +112,7 @@ export function waitForSpineWasmInstantiation (): Promise<void> {
         { default: wasmFactory },
         { default: spineWasmUrl },
     ]) => {
-        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                return initWasm(wasmFactory, spineWasmUrl);
-            } else {
-                return initAsmJS(asmFactory, asmJsMemUrl);
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        if (shouldUseWasmModule()) {
             return initWasm(wasmFactory, spineWasmUrl);
         } else {
             return initAsmJS(asmFactory, asmJsMemUrl);
