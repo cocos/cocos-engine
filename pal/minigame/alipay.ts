@@ -80,8 +80,8 @@ minigame.onTouchCancel = function (cb) {
 
 // #region Audio
 const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
-    onPlay: true,  // Fix: onPlay won't execute.
-    onPause: true,  // NOTE: calling pause() twice onPause won't execute twice.
+    onPlay: true,  // Fix: onPlay can not be executed at Alipay(Override onPlay method).
+    onPause: true,  // Fix: calling pause twice, onPause won't execute twice.(Override onPause method)
     onStop: false,
     onSeek: false,
 }, true);
