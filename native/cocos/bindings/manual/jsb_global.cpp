@@ -1445,9 +1445,11 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
 
-    se::HandleObject blockingDetection(se::Object::createPlainObject());
-    __jsbObj->setProperty("blkDct", se::Value(blockingDetection));
-    blockingDetection->defineProperty("timeout", _SE(jsb_get_blocking_timeout), _SE(jsb_set_blocking_timeout));
+    se::HandleObject monitorObj(se::Object::createPlainObject());
+    se::HandleObject blockingObj(se::Object::createPlainObject());
+    monitorObj->setProperty("blocking", se::Value(blockingObj));
+    blockingObj->defineProperty("timeout", _SE(jsb_get_blocking_timeout), _SE(jsb_set_blocking_timeout));
+    __jsbObj->setProperty("monitor", se::Value(monitorObj));
 
     // Create process object
     se::HandleObject processObj{se::Object::createPlainObject()};

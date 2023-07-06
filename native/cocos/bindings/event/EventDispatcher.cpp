@@ -464,9 +464,11 @@ void EventDispatcher::dispatchScriptExecutionTimeout() {
             CC_LOG_ERROR("Execution Timeout Detected (timeout: %d ms):\nCall stack:\n%s", gameEngine->getBlockingTimeout(), stackString.c_str());
             if (!jsBlockingDetectedObj) {
                 se::Value jsbObj;
+                se::Value monitorObj;
                 se::Value blockingObject;
                 scriptEngine->getGlobalObject()->getProperty("jsb", &jsbObj);
-                jsbObj.toObject()->getProperty("blkDct", &blockingObject);
+                jsbObj.toObject()->getProperty("monitor", &monitorObj);
+                monitorObj.toObject()->getProperty("blocking", &blockingObject);
                 jsBlockingDetectedObj = blockingObject.toObject();
                 jsBlockingDetectedObj->incRef();
             }
