@@ -1403,8 +1403,8 @@ export declare namespace native {
     }
 
     /**
-     * @en A module to detect blocking execution of the gameTick procedure.
-     * @zh 用于检测 gameTick 执行阻塞的模块
+     * @en A module to detect blocking execution of the gameTick procedure. 'blkDct' is an abbreviation for 'blocking detection'.
+     * @zh 用于检测 gameTick 执行阻塞的模块. 'blkDct' 是 'blocking detection' 的简写.
      */
     namespace blkDct {
         /**
