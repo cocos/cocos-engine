@@ -24,7 +24,6 @@
 
 import { HUAWEI, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { warn } from '../../cocos/core/platform/debug';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
@@ -58,8 +57,7 @@ function loadSubpackage (name: string): Promise<void> {
                 },
             });
         } else {
-            warn(`Subpackage is not supported on this platform`);
-            resolve();
+            reject(new Error(`Subpackage is not supported on this platform`));
         }
     });
 }
