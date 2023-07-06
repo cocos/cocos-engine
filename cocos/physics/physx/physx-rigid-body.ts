@@ -135,7 +135,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean): void {
         if (this.isStaticOrKinematic) return;
-        const wc = v ? 0 : 0xffffffff;
+        const wc = v ? 0.0001 : 0xffffffff;
         this.impl.setWakeCounter(wc);
     }
 

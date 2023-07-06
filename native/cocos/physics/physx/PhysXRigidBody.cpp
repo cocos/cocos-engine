@@ -121,7 +121,7 @@ void PhysXRigidBody::setAngularFactor(float x, float y, float z) {
 
 void PhysXRigidBody::setAllowSleep(bool v) {
     if (!getSharedBody().isDynamic()) return;
-    PxReal wc = v ? 0.F : FLT_MAX;
+    PxReal wc = v ? 0.0001F : FLT_MAX;
     getSharedBody().getImpl().rigidDynamic->setWakeCounter(wc);
 }
 
