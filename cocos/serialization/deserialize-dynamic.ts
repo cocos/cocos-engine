@@ -100,7 +100,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -136,17 +136,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            let isPrimitiveType;
-            if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-            } else {
-                const defaultType = typeof defaultValue;
-                isPrimitiveType = defaultType === 'string'
-                                  || defaultType === 'number'
-                                  || defaultType === 'boolean';
-            }
-
-            if (isPrimitiveType) {
+            const isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
+            if (isPrimitiveTypeInFastMode) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
@@ -181,7 +172,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     const shouldCopyId = js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component);
     let shouldCopyRawData = false;
 
@@ -206,18 +197,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
-            let isPrimitiveType = false;
+            let isPrimitiveTypeInFastMode = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-                } else {
-                    const defaultType = typeof defaultValue;
-                    isPrimitiveType = defaultType === 'string'
-                                      || defaultType === 'number'
-                                      || defaultType === 'boolean';
-                }
+                isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
             }
-            if (fastMode && isPrimitiveType) {
+            if (isPrimitiveTypeInFastMode) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
                     simplePropsToRead = simpleProps.slice();
                 }
@@ -279,6 +263,28 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             s._fillPlainObject(o._$erialized as Record<PropertyKey, unknown>, d);
         }
     };
+}
+
+/**
+ * Tells if the class can be deserialized in "fast mode".
+ * In fast mode, deserialization of the class will go into an optimized way:
+ * each class property will be examined whether to be primitive according to their default value
+ * and type. Finally, all primitive properties would be together deserialized using simple assignment,
+ * without performing in-loop check.
+ */
+function canBeDeserializedInFastMode (klass: any): boolean {
+    return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+}
+
+function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
+    if (defaultValue === undefined) {
+        return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+    } else {
+        const defaultType = typeof defaultValue;
+        return defaultType === 'string'
+                          || defaultType === 'number'
+                          || defaultType === 'boolean';
+    }
 }
 
 type TypedArrayViewConstructorName =
