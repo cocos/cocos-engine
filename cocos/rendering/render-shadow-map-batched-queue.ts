@@ -36,7 +36,6 @@ import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';
 import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
-import { InstancedBuffer } from './instanced-buffer';
 
 let _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModel: SubModel): number {
@@ -142,7 +141,7 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = InstancedBuffer.get(pass, level);
+                const buffer = pass.getInstancedBuffer(level);
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
             } else {

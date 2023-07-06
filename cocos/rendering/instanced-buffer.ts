@@ -54,15 +54,6 @@ export class InstancedBuffer {
     public dynamicOffsets: number[] = [];
     private _device: Device;
 
-    private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
-
-    public static get (pass: Pass, extraKey = 0) {
-        const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(pass)) buffers.set(pass, {});
-        const record = buffers.get(pass)!;
-        return record[extraKey] || (record[extraKey] = new InstancedBuffer(pass));
-    }
-
     constructor (pass: Pass) {
         this._device = pass.device;
         this.pass = pass;
