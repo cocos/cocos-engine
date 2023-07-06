@@ -91,8 +91,6 @@ export class SkeletonData extends Asset {
         this.reset();
     }
 
-    private atlasMap:Record<string, number> = {};
-
     /**
      * @en Texture array.
      * @zh 纹理数组。
@@ -226,33 +224,7 @@ export class SkeletonData extends Asset {
             spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
         }
 
-        let strAtlas = this._atlasText.replace("\r", "");
-        let atlasLines = strAtlas.split('\n');
-
-        let index = -1;
-        let count = atlasLines.length;
-        for(let i = 0; i < count; i++) {
-            let line = atlasLines[i];
-            if (line.trim().length == 0) index++;
-            else if(line[0] == ' ') continue;
-            else{
-                let hash = 0;
-                let count = line.length;
-                for(let j = 0; j < count; j++) {
-                    hash += line.charCodeAt(j) * j * 7;
-                }
-                hash += line.charCodeAt(count - 1);
-                this.atlasMap[hash] = index;
-            }
-        }
-
         return this._skeletonCache;
-    }
-
-    public getAtlasIndex(number:number) {
-        let index = this.atlasMap[number];
-        if(index == undefined) index = 0;
-        return index;
     }
 
     /**

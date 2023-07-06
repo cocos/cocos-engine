@@ -4,6 +4,7 @@
 #include "spine-mesh-data.h"
 #include "AtlasAttachmentLoaderExtension.h"
 #include <map>
+#include <sstream>
 
 std::map<std::string, SkeletonData*> skeletonDataMap {};
 
@@ -44,30 +45,71 @@ SkeletonData* SpineWasmUtil::querySpineSkeletonDataByUUID(const std::string& uui
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const std::string& jsonStr, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonJson json(attachmentLoader);
     json.setScale(1.0F);
     SkeletonData *skeletonData = json.readSkeletonData(jsonStr.c_str());
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SpineWasmUtil::calculateTextureID(skeletonData, altasStr.c_str());
     return skeletonData;
 }
 
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonBinary binary(attachmentLoader);
     binary.setScale(1.0F);
     SkeletonData *skeletonData = binary.readSkeletonData(s_mem, byteSize);
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SpineWasmUtil::calculateTextureID(skeletonData, altasStr.c_str());
     return skeletonData;
 }
+
+void SpineWasmUtil::calculateTextureID(SkeletonData* skeletonData, const std::string& atlasStr) {
+    std::string strAtlas = atlasStr;
+    strAtlas.erase(std::remove(strAtlas.begin(), strAtlas.end(), '\r'), strAtlas.end());
+
+    std::istringstream ss(strAtlas);
+    std::string line;
+    std::map<std::string, int> tempMap;
+
+    int index = -1;
+    
+    while (std::getline(ss, line, '\n')) {
+        if (line.find_first_not_of(' ') == std::string::npos) {
+            index++;
+        } else if (line[0] == ' ') {
+            continue;
+        } else {
+            tempMap[line] = index;
+        }
+    }
+
+    auto& slotArray = skeletonData->getSlots();
+    const size_t count = slotArray.size();
+    for (size_t i = 0; i < count; i++) {
+        const std::string& attachmentName = slotArray[i]->getAttachmentName().buffer();
+        auto it = tempMap.find(attachmentName);
+        if (it != tempMap.end()) {
+            int value = it->second;
+            slotArray[i]->hash = value + 10000;
+        } else {
+            const std::string& name = slotArray[i]->getName().buffer();
+            auto itName = tempMap.find(name);
+            if (itName != tempMap.end()) {
+                int itValue = itName->second;
+                slotArray[i]->hash = itValue + 10000;
+            }else{
+                slotArray[i]->hash = 30000;
+            }
+        }
+    }
+}
+
+
 
 void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const std::string& uuid) {
     auto iter = skeletonDataMap.find(uuid);
