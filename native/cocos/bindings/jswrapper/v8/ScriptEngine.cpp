@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include "ScriptEngine.h"
+#include <tuple>
 #include "engine/EngineEvents.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
@@ -80,8 +81,7 @@ namespace {
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
         v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
-        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG
-            , "JS: %s", *utf8);
+        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG, "JS: %s", *utf8);
     }
 }
 
@@ -115,11 +115,12 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
         stackStr += tmp;
         stackStr += "]";
         stackStr += (funcName.empty() ? "anonymous" : funcName.c_str());
-        stackStr += "@";
-        stackStr += (scriptName.empty() ? "(no filename)" : scriptName.c_str());
+        stackStr += " (";
+        stackStr += (scriptName.empty() ? "no filename" : scriptName.c_str());
         stackStr += ":";
-        snprintf(tmp, sizeof(tmp), "%d", frame->GetLineNumber());
+        snprintf(tmp, sizeof(tmp), "%d:%d", frame->GetLineNumber(), frame->GetColumn());
         stackStr += tmp;
+        stackStr += ")";
 
         if (i < (e - 1)) {
             stackStr += "\n";
@@ -145,8 +146,7 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
     int argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
-        cc::Log::logMessage(cc::LogType::KERNEL, level 
-            ,"JS: %s", msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level, "JS: %s", msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -158,8 +158,7 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
                 msg += " " + args[i].toStringForce();
             }
         }
-        cc::Log::logMessage(cc::LogType::KERNEL, level
-            ,"JS: %s", msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level, "JS: %s", msg.c_str());
     }
 
     return true;
@@ -1202,6 +1201,17 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
         }
     }
     return true;
+}
+
+void ScriptEngine::requestInterrupt(void (*callback)(void *), void *data) {
+    using context_t = std::tuple<decltype(callback), void *>;
+    _isolate->RequestInterrupt(
+        +[](v8::Isolate * /*isolate*/, void *data) {
+            auto *ctx = reinterpret_cast<context_t *>(data);
+            std::get<0> (*ctx)(std::get<1>(*ctx));
+            delete ctx;
+        },
+        ccnew context_t(callback, data));
 }
 
 // VMStringPool

@@ -532,11 +532,14 @@ cocos_source_files(
     cocos/platform/BasePlatform.h
     cocos/platform/UniversalPlatform.cpp
     cocos/platform/UniversalPlatform.h
+    cocos/platform/CountdownTrigger.h
 )
+
 if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
+        cocos/platform/win32/WindowsCountdownTrigger.cpp
     )
 elseif(LINUX)
     cocos_source_files(
@@ -548,12 +551,12 @@ elseif(ANDROID)
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
         cocos/platform/android/AndroidKeyCodes.cpp
+        cocos/platform/android/AndroidCountdownTrigger.cpp
     )
 elseif(OPENHARMONY)
     cocos_source_files(
         cocos/platform/openharmony/napi/NapiHelper.cpp
         cocos/platform/openharmony/napi/NapiHelper.h
-
         cocos/platform/openharmony/WorkerMessageQueue.cpp
         cocos/platform/openharmony/WorkerMessageQueue.h
         cocos/platform/openharmony/OpenHarmonyPlatform.cpp
@@ -572,6 +575,7 @@ elseif(MACOSX)
         cocos/platform/mac/ViewController.mm
         cocos/platform/mac/AppDelegate.h
         cocos/platform/mac/AppDelegate.mm
+        cocos/platform/apple/AppleCountdownTrigger.cpp
     )
 elseif(IOS)
     cocos_source_files(
@@ -579,6 +583,7 @@ elseif(IOS)
         cocos/platform/ios/IOSPlatform.h
         cocos/platform/ios/AppDelegateBridge.mm
         cocos/platform/ios/AppDelegateBridge.h
+        cocos/platform/apple/AppleCountdownTrigger.cpp
     )
 endif()
 
