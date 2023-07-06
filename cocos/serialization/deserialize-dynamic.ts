@@ -136,8 +136,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            const isPrimitiveType = isPrimitiveTypeInFastMode(defaultValue, userType);
-            if (isPrimitiveType) {
+            const isPrimitiveTypeInFastMode = checkIsPrimitiveTypeInFastMode(defaultValue, userType);
+            if (isPrimitiveTypeInFastMode) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
@@ -197,11 +197,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
-            let isPrimitiveType = false;
+            let isPrimitiveTypeInFastMode = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                isPrimitiveType = isPrimitiveTypeInFastMode(defaultValue, userType);
+                isPrimitiveTypeInFastMode = checkIsPrimitiveTypeInFastMode(defaultValue, userType);
             }
-            if (isPrimitiveType) {
+            if (isPrimitiveTypeInFastMode) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
                     simplePropsToRead = simpleProps.slice();
                 }
@@ -265,7 +265,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     };
 }
 
-function isPrimitiveTypeInFastMode (defaultValue: any, userType: any): boolean {
+function checkIsPrimitiveTypeInFastMode (defaultValue: any, userType: any): boolean {
     if (defaultValue === undefined) {
         return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
     } else {
