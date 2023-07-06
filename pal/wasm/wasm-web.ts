@@ -60,3 +60,7 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
         }
     });
 }
+
+export function ensureWasmModuleReady (): Promise<void> {
+    return Promise.resolve();
+}
