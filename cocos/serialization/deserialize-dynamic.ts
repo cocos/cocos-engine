@@ -136,7 +136,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            const isPrimitiveTypeInFastMode = checkIsPrimitiveTypeInFastMode(defaultValue, userType);
+            const isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
             if (isPrimitiveTypeInFastMode) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
@@ -199,7 +199,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
             let isPrimitiveTypeInFastMode = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                isPrimitiveTypeInFastMode = checkIsPrimitiveTypeInFastMode(defaultValue, userType);
+                isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
             }
             if (isPrimitiveTypeInFastMode) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
@@ -276,7 +276,7 @@ function canBeDeserializedInFastMode (klass: any): boolean {
     return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
 }
 
-function checkIsPrimitiveTypeInFastMode (defaultValue: any, userType: any): boolean {
+function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
     if (defaultValue === undefined) {
         return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
     } else {
