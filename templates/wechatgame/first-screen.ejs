@@ -179,9 +179,10 @@ function initProgressVertexBuffer() {
 }
 
 function updateVertexBuffer() {
-    // the ratio value may be adjusted according to the expected image display effect
-    const widthRatio = image.width / canvas.width * 1.35 * displayRatio; 
-    const heightRatio = image.height / canvas.height * 1.35 * displayRatio;
+    // By default, maintain aspect ratio by constraining display at 200px height
+    const defaultRatio = 200 / image.height;
+    const widthRatio = image.width / canvas.width * 1.35 * defaultRatio * displayRatio;
+    const heightRatio = image.height / canvas.height * 1.35 * defaultRatio * displayRatio;
     const heightOffset = 1/6; // canvas:(-1,1) -> (button, top); heightOffset = (5/12) * (-2) + 1 = 1/6
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1.0, 1.0,
