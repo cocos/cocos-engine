@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
-import { HUAWEI, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
+import { HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
 import { minigame } from 'pal/minigame';
+import { basename } from '../../cocos/core/utils/path';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
@@ -96,7 +97,14 @@ function getPlatformBinaryUrl (binaryUrl: string): Promise<string> {
     return new Promise((resolve) => {
         if (XIAOMI) {
             resolve(`src/cocos-js/${binaryUrl}`);
-        } else {
+        } if (TAOBAO_MINIGAME && WASM_SUBPACKAGE) {
+            if (minigame.isDevTool) {
+                resolve(`cocos-js/${binaryUrl}`);
+            } else {
+                resolve(`__ccWasmAssetSubpkg__/${basename(binaryUrl)}`);
+            }
+        }
+        else {
             resolve(`cocos-js/${binaryUrl}`);
         }
     });
