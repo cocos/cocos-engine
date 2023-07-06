@@ -75,7 +75,7 @@ function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
     });
 }
 
-function initAsm (asmFactory): Promise<void> {
+function initAsmJS (asmFactory): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (CULL_ASM_JS_MODULE) {
             reject(getError(4601));
@@ -128,17 +128,17 @@ export function waitForAmmoInstantiation () {
             { default: asmFactory  },
         ]) => {
             if (FORCE_BANNING_BULLET_WASM) {
-                return initAsm(asmFactory);
+                return initAsmJS(asmFactory);
             } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
                 if (sys.hasFeature(sys.Feature.WASM)) {
                     return initWasm(bulletWasmUrl, importObject).then(resolve);
                 } else {
-                    return initAsm(asmFactory);
+                    return initAsmJS(asmFactory);
                 }
             } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
                 return initWasm(bulletWasmUrl, importObject).then(resolve);
             } else {
-                return initAsm(asmFactory);
+                return initAsmJS(asmFactory);
             }
         })).catch(errorReport);
     });
