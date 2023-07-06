@@ -216,7 +216,6 @@ export class SkeletonData extends Asset {
         } else if (this.skeletonJsonStr) {
             this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText);
             spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
-            console.log(this._atlasText);
         } else {
             const rawData = new Uint8Array(this._nativeAsset);
             const byteSize = rawData.length;
@@ -240,12 +239,9 @@ export class SkeletonData extends Asset {
                 let hash = 0;
                 let count = line.length;
                 for(let j = 0; j < count; j++) {
-                    hash += line.charCodeAt(j);
+                    hash += line.charCodeAt(j) * j * 7;
                 }
                 hash += line.charCodeAt(count - 1);
-                if(this.atlasMap[hash] != undefined){
-                    console.warn(line, ' hash:', hash);
-                }
                 this.atlasMap[hash] = index;
             }
         }

@@ -88,7 +88,7 @@ void SlotData::setAttachmentName(const String &inValue) {
     int count = _attachmentName.length();
     hash = 0;
     for(int s = 0; s < count; s++) {
-        hash += _attachmentName.buffer()[s];
+        hash += _attachmentName.buffer()[s] * s * 7;
     }
     hash += _attachmentName.buffer()[count-1];
 }
