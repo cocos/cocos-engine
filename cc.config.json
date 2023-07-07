@@ -666,6 +666,12 @@
             "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "WASM_SUBPACKAGE": {
+            "comment": "An internal constant to indicate whether we use wasm assets as minigame subpackage.\nThis is useful when we need to reduce code size.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     },
 

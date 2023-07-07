@@ -18,4 +18,11 @@ declare module 'pal/wasm' {
      * @param binaryUrl the url of wasm or js mem, this should be a url relative from build output chunk.
      */
     export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer>;
+
+    /**
+     * Sometimes we need to put wasm modules in subpackage to reduce code size.
+     * In this case we need to ensure that the wasm modules is ready before we import them.
+     * Please remember to invoke this method before we import wasm modules.
+     */
+    export function ensureWasmModuleReady (): Promise<void>;
 }
