@@ -88,5 +88,6 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return res;
 });

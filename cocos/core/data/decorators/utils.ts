@@ -160,11 +160,11 @@ export function getOrCreateClassDecoratorStash (cls: AnyFunction, decoratorName?
     return stash;
 }
 
-export function getClassDecoratorStash (cls: AnyFunction) {
+export function getClassDecoratorStash (cls: AnyFunction): ClassStash | undefined {
     return classDecoratorStashMap.get(cls);
 }
 
-export function deleteClassDecoratorStash (cls: AnyFunction) {
+export function deleteClassDecoratorStash (cls: AnyFunction): void {
     classDecoratorStashMap.delete(cls);
 }
 
