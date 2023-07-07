@@ -539,7 +539,7 @@ SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, Te
         SampleCount::X2,
     };
     for (auto sampleCount : samples) {
-        if  ([mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)] {
+        if  ([_mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)]) {
             return sampleCount;
         }
     }
