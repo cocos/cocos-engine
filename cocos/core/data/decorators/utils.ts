@@ -145,7 +145,6 @@ export function makeSmartEditorClassDecorator<TValue> (propertyName: string, def
     });
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 const classDecoratorStashMap = new WeakMap<AnyFunction, ClassStash>();
 
 export function getOrCreateClassDecoratorStash (cls: AnyFunction, decoratorName?: string): ClassStash {
