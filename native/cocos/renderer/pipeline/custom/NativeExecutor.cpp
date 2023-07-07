@@ -198,7 +198,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 // resolves
                 const auto resID = vertex(name, ctx.resourceGraph);
                 const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
-                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::ONE);
+                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::X1);
             }
 
             if (colorLikeView) { // RenderTarget
@@ -1145,7 +1145,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            
+
             auto parentLayoutID = ctx.currentPassLayoutID;
             auto layoutID = parentLayoutID;
             if (!layoutName.empty()) {
