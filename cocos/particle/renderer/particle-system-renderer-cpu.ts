@@ -642,15 +642,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {
-            _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
-            _matInsInfo.owner = this._particleSystem;
-            _matInsInfo.subModelIdx = 0;
-            this._defaultMat = new MaterialInstance(_matInsInfo);
-            _matInsInfo.parent = null!;
-            _matInsInfo.owner = null!;
-            _matInsInfo.subModelIdx = 0;
-            if (this._renderInfo!.mainTexture !== null) {
-                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
+            if (Editor) {
+                _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
+                _matInsInfo.owner = this._particleSystem;
+                _matInsInfo.subModelIdx = 0;
+                this._defaultMat = new MaterialInstance(_matInsInfo);
+                _matInsInfo.parent = null!;
+                _matInsInfo.owner = null!;
+                _matInsInfo.subModelIdx = 0;
+                if (this._renderInfo!.mainTexture !== null) {
+                    this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
+                }
             }
         }
         const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
@@ -716,14 +718,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
             let mat = ps.getMaterialInstance(1);
-            if (mat === null && this._defaultTrailMat === null) {
-                _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
-                _matInsInfo.owner = this._particleSystem;
-                _matInsInfo.subModelIdx = 1;
-                this._defaultTrailMat = new MaterialInstance(_matInsInfo);
-                _matInsInfo.parent = null!;
-                _matInsInfo.owner = null!;
-                _matInsInfo.subModelIdx = 0;
+            if (Editor) {
+                if (mat === null && this._defaultTrailMat === null) {
+                    _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
+                    _matInsInfo.owner = this._particleSystem;
+                    _matInsInfo.subModelIdx = 1;
+                    this._defaultTrailMat = new MaterialInstance(_matInsInfo);
+                    _matInsInfo.parent = null!;
+                    _matInsInfo.owner = null!;
+                    _matInsInfo.subModelIdx = 0;
+                }
             }
             mat = mat || this._defaultTrailMat;
             mat.recompileShaders(this._trailDefines);
