@@ -44,7 +44,7 @@ LODGroup::~LODGroup() = default;
 void LODGroup::attachToScene(RenderScene *scene) { 
     _scene = scene;
     // node's active maybe changed dynamically
-    if (_vecLockedLevels.size() > 0) {
+    if (!_vecLockedLevels.empty()) {
         _isLockLevelChanged = true;
     }
 }
