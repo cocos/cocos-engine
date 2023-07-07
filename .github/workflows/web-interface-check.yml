@@ -81,9 +81,7 @@ jobs:
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
 
-      - name: Upload interface-diff.txt artifact
-        uses: actions/upload-artifact@v2
+      - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          name: interface-diff.txt
           path: ./engine/interface-diff.txt
           
