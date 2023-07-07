@@ -142,6 +142,7 @@ module.exports = link(mixin({
             HBAO: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             ColorGrading: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             Skin: `${url}/${version}/manual/zh/shader/surface-shader/skin.html`,
+            RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
