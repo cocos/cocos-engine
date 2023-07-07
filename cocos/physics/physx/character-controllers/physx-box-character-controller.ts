@@ -58,7 +58,7 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         controllerDesc.density = 10.0;
         controllerDesc.scaleCoeff = 0.8;
         controllerDesc.volumeGrowth = 1.5;
-        controllerDesc.contactOffset = this.component.contactOffset;
+        controllerDesc.contactOffset = this.component.skinWidth;
         controllerDesc.stepOffset = this.component.stepOffset;
         controllerDesc.slopeLimit = Math.cos(degreesToRadians(this.component.slopeLimit));
         controllerDesc.upDirection = upDir;

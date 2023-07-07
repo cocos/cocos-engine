@@ -34,7 +34,7 @@ import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation
 import { AnimationGraphLike } from './animation-graph-like';
 import type { ReadonlyClipOverrideMap } from './clip-overriding';
 
-const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
+const { ccclass, menu, help, type, serializable, editable, formerlySerializedAs } = _decorator;
 
 export type {
     MotionStateStatus,
@@ -55,6 +55,7 @@ export type {
  */
 @ccclass('cc.animation.AnimationController')
 @menu('Animation/Animation Controller')
+@help('i18n:cc.animation.AnimationController')
 export class AnimationController extends Component {
     /**
      * @zh
