@@ -26,6 +26,7 @@ import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { getClassName } from '../../utils/js-typed';
+import { ClassStash } from '../class-stash';
 
 export type Initializer = () => unknown;
 
@@ -104,7 +105,7 @@ export function makeSmartClassDecorator<TArg> (
 }
 
 function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue): void {
-    const cache = getClassCache(constructor, propertyName);
+    const cache = getOrCreateClassDecoratorStash(constructor, propertyName);
     if (cache) {
         const proto = getSubDict(cache, 'proto');
         getSubDict(proto, 'editor')[propertyName] = value;
@@ -144,16 +145,28 @@ export function makeSmartEditorClassDecorator<TValue> (propertyName: string, def
     });
 }
 
-// caches for class construction
-export const CACHE_KEY = '__ccclassCache__';
+// eslint-disable-next-line @typescript-eslint/ban-types
+const classDecoratorStashMap = new WeakMap<AnyFunction, ClassStash>();
 
-export function getClassCache (ctor, decoratorName?): any {
-    if (DEV && CCClass._isCCClass(ctor)) {
-        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
-        return null;
+export function getOrCreateClassDecoratorStash (cls: AnyFunction, decoratorName?: string): ClassStash {
+    if (DEV && CCClass._isCCClass(cls)) {
+        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(cls));
+        return {};
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return getSubDict(ctor, CACHE_KEY);
+    let stash = classDecoratorStashMap.get(cls);
+    if (!stash) {
+        stash = {};
+        classDecoratorStashMap.set(cls, stash);
+    }
+    return stash;
+}
+
+export function getClassDecoratorStash (cls: AnyFunction) {
+    return classDecoratorStashMap.get(cls);
+}
+
+export function deleteClassDecoratorStash (cls: AnyFunction) {
+    classDecoratorStashMap.delete(cls);
 }
 
 export function getSubDict<T, TKey extends keyof T> (obj: T, key: TKey): NonNullable<T[TKey]> {
