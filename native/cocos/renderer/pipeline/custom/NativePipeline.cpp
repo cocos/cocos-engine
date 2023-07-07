@@ -888,6 +888,9 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
 }
 
 bool NativePipeline::destroy() noexcept {
+#if CC_USE_DEBUG_RENDERER
+    DebugRenderer::getInstance()->destroy();
+#endif
     if (globalDSManager) {
         globalDSManager->destroy();
         globalDSManager.reset();

@@ -56,6 +56,7 @@ class SpineModel {
 class SpineDrawItem {
     public iCount = 0;
     public blendMode = 0;
+    public textureID = 0;
 }
 
 export interface AnimationFrame {
@@ -163,6 +164,7 @@ export class AnimationCache {
             const meshData = new SpineDrawItem();
             meshData.iCount = mesh.iCount;
             meshData.blendMode = mesh.blendMode;
+            meshData.textureID = mesh.textureID;
             modelData.meshes.push(meshData);
         }
 
