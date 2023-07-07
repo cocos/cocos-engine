@@ -26,7 +26,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -40,6 +40,7 @@ import { NoiseModule } from '../animator/noise-module';
 import { isCurveTwoValues } from '../particle-general-function';
 import type { ParticleSystem } from '../particle-system';
 
+const _tempNodeScale = new Vec4();
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
 const _tempParentInverse = new Mat4();
@@ -339,17 +340,20 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private doUpdateScale (pass): void {
+        const nodeScale = this._node_scale;
         switch (this._particleSystem?.scaleSpace) {
         case Space.Local:
-            this._particleSystem?.node.getScale(this._node_scale);
+            this._particleSystem?.node.getScale(nodeScale);
             break;
         case Space.World:
-            this._particleSystem?.node.getWorldScale(this._node_scale);
+            this._particleSystem?.node.getWorldScale(nodeScale);
             break;
         default:
             break;
         }
-        pass.setUniform(this._uScaleHandle, this._node_scale);
+        // NOTE: the `_node_scale` should be a Vec3, but we implement `scale` uniform property as a Vec4,
+        // here we pass a temperate Vec4 object to prevent creating Vec4 object every time we set uniform.
+        pass.setUniform(this._uScaleHandle, _tempNodeScale.set(nodeScale.x, nodeScale.y, nodeScale.z));
     }
 
     private noise: ParticleNoise = new ParticleNoise();
@@ -688,7 +692,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else if (renderMode === RenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
+            warn(`particle system renderMode ${renderMode} not support.`);
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
