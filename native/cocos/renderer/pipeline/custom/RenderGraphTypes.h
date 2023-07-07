@@ -246,8 +246,8 @@ struct Subpass {
 };
 
 inline bool operator==(const Subpass& lhs, const Subpass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.resolvePairs) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.resolvePairs);
 }
 
 inline bool operator!=(const Subpass& lhs, const Subpass& rhs) noexcept {
@@ -1170,6 +1170,7 @@ inline hash_t hash<cc::render::Subpass>::operator()(const cc::render::Subpass& v
     hash_t seed = 0;
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.resolvePairs);
     return seed;
 }
 

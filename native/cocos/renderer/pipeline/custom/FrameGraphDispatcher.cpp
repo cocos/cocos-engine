@@ -1152,7 +1152,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         if (hasSubpass) {
             // rpinfo instead
             auto &fgRenderPassInfo = rag.rpInfos.at(passID);
-            auto iter = std::find(fgRenderPassInfo.orderedViews.begin(), fgRenderPassInfo.orderedViews.end(), resName);
+            auto iter = std::find(fgRenderPassInfo.orderedViews.begin(), fgRenderPassInfo.orderedViews.end(), resName.c_str());
             CC_ASSERT(iter != fgRenderPassInfo.orderedViews.end());
             auto index = std::distance(fgRenderPassInfo.orderedViews.begin(), iter);
             index -= fgRenderPassInfo.rpInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN;
@@ -2435,7 +2435,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
                 subpassInfo.depthResolveMode = gfx::ResolveMode::AVERAGE;   // resolveiter->mode;
                 subpassInfo.stencilResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode1;
             } else {
-                auto indexIter = std::find(fgRenderpassInfo.orderedViews.begin(), fgRenderpassInfo.orderedViews.end(), resolveIter->source);
+                auto indexIter = std::find(fgRenderpassInfo.orderedViews.begin(), fgRenderpassInfo.orderedViews.end(), resolveIter->source.c_str());
                 auto srcIndex = indexIter == fgRenderpassInfo.orderedViews.end() ? fgRenderpassInfo.orderedViews.size()
                                                                                  : std::distance(fgRenderpassInfo.orderedViews.begin(), indexIter);
                 subpassInfo.resolves[srcIndex] = slot;
