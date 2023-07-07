@@ -177,13 +177,14 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     PmrFlatSet<ccstd::pmr::string> set(scratch);
-    auto fillFrameBufferInfo = [&](const ccstd::vector<ccstd::pmr::string>& passViews, bool hasResolve) {
+    auto fillFrameBufferInfo = [&](const ccstd::vector<std::string>& passViews, bool hasResolve) {
         const auto& uberPass = pass;
         auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
 
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
-        for (const auto& name : passViews) {
+        for (const auto nameIn : passViews) {
+            const char* name = nameIn.c_str();
             bool colorLikeView{true};
             bool dsAttachment{false};
             auto clearColor = gfx::Color{};
