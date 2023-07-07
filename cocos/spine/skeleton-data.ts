@@ -86,6 +86,7 @@ export class SkeletonData extends Asset {
         return this._atlasText;
     }
     set atlasText (value) {
+        //console.log(value);
         this._atlasText = value;
         this.reset();
     }

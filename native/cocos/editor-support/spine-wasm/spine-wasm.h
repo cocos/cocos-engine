@@ -20,6 +20,8 @@ public:
     static void            destroySpineSkeletonDataWithUUID(const std::string& uuid);
     static void            destroySpineInstance(SpineSkeletonInstance* instance);
 
+    static void calculateTextureID(SkeletonData* skeletonData, const std::string& atlasStr);
+
     static uint32_t getCurrentListenerID();
     static EventType getCurrentEventType();
     static TrackEntry* getCurrentTrackEntry();
