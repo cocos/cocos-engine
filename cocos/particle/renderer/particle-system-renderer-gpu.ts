@@ -307,6 +307,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         default:
             break;
         }
+        // NOTE: the `_node_scale` should be a Vec3, but we implement `scale` uniform property as a Vec4,
+        // here we pass a temperate Vec4 object to prevent creating Vec4 object every time we set uniform.
         pass.setUniform(pass.getHandle('scale'), _tempNodeScale.set(nodeScale.x, nodeScale.y, nodeScale.z));
     }
 
