@@ -242,6 +242,7 @@ struct Subpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    ccstd::pmr::vector<ResolvePair> resolvePairs;
 };
 
 inline bool operator==(const Subpass& lhs, const Subpass& rhs) noexcept {

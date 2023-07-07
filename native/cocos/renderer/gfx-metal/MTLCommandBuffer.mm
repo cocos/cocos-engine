@@ -237,6 +237,17 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 if(color >= colorAttachments.size()) {
                     continue; // depthStencil as output
                 }
+                if (subpasses[i].resolves.size() > j) {
+                    uint32_t resolve = subpasses[i].resolves[j];
+                    auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
+                    if (resolveTex->textureInfo().samples != SampleCount::ONE)
+                        continue;
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
+                }
                 if (visited[color])
                     continue;
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[color]);
@@ -255,17 +266,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
                 visited[color] = true;
                 _colorAppearedBefore.set(color);
-                if (subpasses[i].resolves.size() > j) {
-                    uint32_t resolve = subpasses[i].resolves[j];
-                    auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
-                    if (resolveTex->textureInfo().samples == SampleCount::ONE)
-                        continue;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
-                }
             }
         }
         updateDepthStencilState(ccMtlRenderPass->getCurrentSubpassIndex(), mtlRenderPassDescriptor);

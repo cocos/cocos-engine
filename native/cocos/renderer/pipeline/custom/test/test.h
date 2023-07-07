@@ -149,7 +149,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         nameSet.emplace(viewName);
                     }
 
-                    auto &rasterViews = hasSubpass ? (*subpass).rasterViews : raster.rasterViews;
+                    auto &views = hasSubpass ? (*subpass).rasterViews : raster.rasterViews;
                     auto view = RasterView{
                         viewName.c_str(),
                         isOutput ? AccessType::WRITE : AccessType::READ,
@@ -161,7 +161,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         gfx::ShaderStageFlagBit::NONE,
                     };
                     view.slotID = slot;
-                    rasterViews.emplace(viewName.c_str(), view);
+                    views.emplace(viewName.c_str(), view);
                     if (subpassViews) {
                         subpassViews->emplace(viewName.c_str(), view);
 
@@ -170,6 +170,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         if (iter == raster.attachmentIndexMap.end()) {
                             raster.attachmentIndexMap.emplace(viewName, newID);
                         }
+                        rasterViews.emplace(viewName, view);
                     }
                     ++slot;
                 }

@@ -326,6 +326,7 @@ struct CCMTLGPUCommandBufferObject {
 
 struct CCMTLGPUDeviceObject {
     CCMTLCommandBuffer *_transferCmdBuffer{nullptr};
+    ccstd::vector<uint32_t> supportSamples;
 };
 
 struct CCMTLGPUQueryPool {

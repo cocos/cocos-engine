@@ -138,6 +138,13 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
+    
+    const uint32_t samples[] = {2, 4, 8, 16, 32};
+    for (auto sampleCount : samples) {
+        if  ([mtlDevice supportsTextureSampleCount:sampleCount]) {
+            _gpuDeviceObj->supportSamples.emplace_back(sampleCount);
+        }
+    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
