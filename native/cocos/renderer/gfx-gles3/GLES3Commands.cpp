@@ -3071,10 +3071,9 @@ void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
         return;
     }
 
-    if (cache->glDrawFramebuffer != handle) {
-        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, handle));
-        cache->glDrawFramebuffer = handle;
-    }
+    GL_CHECK(glGenFramebuffers(1, &handle));
+    GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, handle));
+    cache->glDrawFramebuffer = handle;
 
     ccstd::vector<GLenum> drawBuffers(colors.size(), GL_NONE);
     for (uint32_t i = 0; i < colors.size(); ++i) {
