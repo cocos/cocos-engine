@@ -37,8 +37,6 @@
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
-#include "spine-creator-support/Vector2.h"
-#include "spine-creator-support/SkinEntry.h"
 
 using namespace cc;
 
@@ -215,37 +213,6 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
 }
 SE_BIND_FUNC(js_register_spine_retainSkeletonData)
 
-static bool js_spine_Skin_getAttachments(se::State& s) {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::Skin *skin = (spine::Skin *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    skin = SE_THIS_OBJECT<spine::Skin>(s);
-    if (nullptr == skin) return true;
-    spine::Skin::AttachmentMap::Entries attachments = skin->getAttachments();
-
-    ccstd::vector<spine::SkinEntry*> entryList;
-    while (attachments.hasNext()) {
-        spine::Skin::AttachmentMap::Entry entry = attachments.next();
-        spine::SkinEntry* skinEntry = new spine::SkinEntry(entry._slotIndex, entry._name, entry._attachment);
-        entryList.push_back(skinEntry);
-    }
-    
-    se::Object *array = se::Object::createArrayObject(entryList.size());
-    for (int i = 0; i < entryList.size(); ++i) {
-        array->setArrayElement(i, se::Value(entryList[i]));
-    }
-    s.rval().setObject(array);
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_Skin_getAttachments)
-
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -260,8 +227,6 @@ bool register_all_spine_manual(se::Object *obj) {
     ns->defineFunction("initSkeletonData", _SE(js_register_spine_initSkeletonData));
     ns->defineFunction("retainSkeletonData", _SE(js_register_spine_retainSkeletonData));
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
-
-    __jsb_spine_Skin_proto->defineFunction("getAttachments", _SE(js_spine_Skin_getAttachments));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {
