@@ -115,6 +115,8 @@ struct FGRenderPassInfo {
     std::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
     gfx::RenderPassInfo rpInfo;
+    std::vector<ccstd::pmr::string> orderedViews;
+    bool needResolve{false};
 };
 
 struct ResourceAccessGraph {

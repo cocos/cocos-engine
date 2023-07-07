@@ -177,25 +177,31 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     PmrFlatSet<ccstd::pmr::string> set(scratch);
-    auto fillFrameBufferInfo = [&](const auto& pass) {
-        auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
-
-        PmrFlatMap<uint32_t, ccstd::pmr::string> viewIndex(scratch);
-        for (const auto& [name, view] : pass.rasterViews) {
-            if (set.emplace(name).second) {
-                viewIndex.emplace(view.slotID, name);
-            }
-        }
+    auto fillFrameBufferInfo = [&](const ccstd::vector<ccstd::pmr::string>& passViews, bool hasResolve) {
+        const auto& uberPass = pass;
+        auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
 
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
-        for (const auto& [slotID, name] : viewIndex) {
-            const auto& view = pass.rasterViews.at(name);
-            const auto resID = vertex(name, ctx.resourceGraph);
-            const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
+        for (const auto& name : passViews) {
+            bool colorLikeView{true};
+            bool dsAttachment{false};
+            auto clearColor = gfx::Color{};
+            auto iter = pass.rasterViews.find(name);
+            if(iter != pass.rasterViews.end()) {
+                const auto& view = iter->second;
+                colorLikeView = view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE;
+                dsAttachment = !colorLikeView;
+                clearColor = view.clearColor;
+            } else {
+                // resolves
+                const auto resID = vertex(name, ctx.resourceGraph);
+                const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
+                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::ONE);
+            }
 
-            if (view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE) { // RenderTarget
-                data.clearColors.emplace_back(view.clearColor);
+            if (colorLikeView) { // RenderTarget
+                data.clearColors.emplace_back(clearColor);
 
                 auto resID = findVertex(name, resg);
                 visitObject(
@@ -239,9 +245,9 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         std::ignore = view;
                         CC_EXPECTS(false);
                     });
-            } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
-                data.clearDepth = view.clearColor.x;
-                data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
+            } else if (dsAttachment) { // DepthStencil
+                data.clearDepth = clearColor.x;
+                data.clearStencil = static_cast<uint8_t>(clearColor.y);
 
                 if (!fbInfo.depthStencilTexture) {
                     auto resID = findVertex(name, resg);
@@ -281,14 +287,14 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
         // persistent cache
         data.clearColors.reserve(numColors);
-        rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
-        fillFrameBufferInfo(pass);
+        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
+        rpInfo = fgdRpInfo.rpInfo;
+        fillFrameBufferInfo(fgdRpInfo.orderedViews, false);
 
     } else {
-        rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
-        for (const auto& subpass : pass.subpassGraph.subpasses) {
-            fillFrameBufferInfo(subpass);
-        }
+        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
+        rpInfo = fgdRpInfo.rpInfo;
+        fillFrameBufferInfo(fgdRpInfo.orderedViews, fgdRpInfo.needResolve);
     }
     CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
@@ -923,6 +929,9 @@ getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     if (holds<RasterPassTag>(passID, rg)) {
         return get(RasterPassTag{}, passID, rg).computeViews;
     }
+    if (holds<RasterSubpassTag>(passID, rg)) {
+        return get(RasterSubpassTag{}, passID, rg).computeViews;
+    }
     CC_EXPECTS(holds<ComputeTag>(passID, rg));
     return get(ComputeTag{}, passID, rg).computeViews;
 }
@@ -1135,7 +1144,17 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
+            
+            auto parentLayoutID = ctx.currentPassLayoutID;
+            auto layoutID = parentLayoutID;
+            if (!layoutName.empty()) {
+                auto parentID = parent(ctx.currentPassLayoutID, ctx.lg);
+                if (parentID != LayoutGraphData::null_vertex()) {
+                    parentLayoutID = parentID;
+                }
+                layoutID = locate(parentLayoutID, layoutName, ctx.lg);
+            }
+
             ctx.currentPassLayoutID = layoutID;
             // get layout
             auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
@@ -1738,6 +1757,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         for (const auto& [name, views] : pass.computeViews) {
             auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+        for (const auto& resolve : pass.resolvePairs) {
+            auto resID = findVertex(resolve.target, resg);
             CC_EXPECTS(resID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, resID);
         }

@@ -101,6 +101,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     if (!renderWindow->getSwapchain()) {
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         return addVertex(
             FramebufferTag{},
             std::forward_as_tuple(name.c_str()),
