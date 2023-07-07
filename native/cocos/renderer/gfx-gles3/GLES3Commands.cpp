@@ -1496,7 +1496,7 @@ static GLbitfield getColorBufferMask(Format format) {
 }
 
 static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
-    device->context()->makeCurrent(gpuFbo->framebuffer.swapchain, gpuFbo->resolveFramebuffer.swapchain);
+    device->context()->makeCurrent(gpuFbo->resolveFramebuffer.swapchain, gpuFbo->framebuffer.swapchain);
     auto *cache = device->stateCache();
     auto width = gpuFbo->width;
     auto height = gpuFbo->height;
@@ -1519,7 +1519,9 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
         for (auto &[src, dst] : gpuFbo->colorBlitPairs) {
             drawBuffers[dst] = GL_COLOR_ATTACHMENT0 + dst;
             GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0 + src));
-            GL_CHECK(glDrawBuffers(resolveColorNum, drawBuffers.data()));
+            if (gpuFbo->resolveFramebuffer.handle != 0) {
+                GL_CHECK(glDrawBuffers(resolveColorNum, drawBuffers.data()));
+            }
 
             GL_CHECK(glBlitFramebuffer(
                 0, 0, width, height,
@@ -1528,7 +1530,7 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
             drawBuffers[dst] = GL_NONE;
         }
     }
-    if (gpuFbo->dsResolveMask != 0) {
+    if (gpuFbo->dsResolveMask != 0 && gpuFbo->resolveFramebuffer.handle != 0) {
         GL_CHECK(glBlitFramebuffer(
             0, 0, width, height,
             0, 0, width, height,
@@ -1586,6 +1588,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
                     GL_CHECK(glGenRenderbuffers(1, &view->gpuTexture->glRenderbuffer));
                     renderBufferStorage(device, view->gpuTexture);
                 }
+                gpuFBO->colorBlitPairs.emplace_back(colorIndex, resolveColorIndex);
                 gpuFBO->framebuffer.bindColor(view, colorIndex, desc);
                 gpuFBO->resolveFramebuffer.bindColor(resolveView, resolveColorIndex++, resolveDesc);
             }
@@ -1807,7 +1810,13 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
 
     if (gpuFramebuffer && gpuRenderPass) {
         auto &framebuffer = gpuFramebuffer->framebuffer;
-        device->context()->makeCurrent(gpuFramebuffer->framebuffer.swapchain, gpuFramebuffer->framebuffer.swapchain);
+        auto &resolveFramebuffer = gpuFramebuffer->resolveFramebuffer;
+        if (gpuFramebuffer->resolveFramebuffer.isActive()) {
+            device->context()->makeCurrent(resolveFramebuffer.swapchain, framebuffer.swapchain);
+        } else {
+            device->context()->makeCurrent(framebuffer.swapchain);
+        }
+
 
         if (cache->glDrawFramebuffer != framebuffer.handle) {
             GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.handle));
