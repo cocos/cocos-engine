@@ -180,7 +180,6 @@ export declare namespace EffectAsset {
 }
 
 const legacyBuiltinEffectNames = [
-    'planar-shadow',
     'skybox',
     'deferred-lighting',
     'bloom',
@@ -189,7 +188,6 @@ const legacyBuiltinEffectNames = [
     'post-process',
     'profiler',
     'splash-screen',
-    'standard',
     'unlit',
     'sprite',
     'particle',

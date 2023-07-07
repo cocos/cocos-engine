@@ -331,44 +331,6 @@ export class Shadows {
     protected _size: Vec2 = new Vec2(1024, 1024);
     protected _shadowMapDirty = false;
 
-    /**
-     * @en Get the shader for the planar shadow with macro patches
-     * @zh 通过指定宏获取平面阴影的 Shader 对象
-     * @param patches The macro patches for the shader
-     * @returns The shader for the planar shadow
-     */
-    public getPlanarShader (patches: Readonly<IMacroPatch[] | null>): Shader | null {
-        if (!this._material) {
-            this._material = new Material();
-            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
-        }
-
-        const passes = this._material.passes;
-        if (DEBUG) {
-            assert(passes.length > 0, 'passes should not be empty!');
-        }
-        return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
-    }
-
-    /**
-     * @en Get the shader which support instancing draw for the planar shadow with macro patches
-     * @zh 通过指定宏获取支持实例化渲染的平面阴影的 Shader 对象
-     * @param patches The macro patches for the shader
-     * @returns The shader for the planar shadow
-     */
-    public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
-        if (!this._instancingMaterial) {
-            this._instancingMaterial = new Material();
-            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
-        }
-
-        const passes = this._instancingMaterial.passes;
-        if (DEBUG) {
-            assert(passes.length > 0, 'passes should not be empty!');
-        }
-        return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
-    }
-
     public initialize (shadowsInfo: ShadowsInfo) {
         this._enabled = shadowsInfo.enabled;
         this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
@@ -402,14 +364,6 @@ export class Shadows {
     }
 
     protected _updatePlanarInfo () {
-        if (!this._material) {
-            this._material = new Material();
-            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
-        }
-        if (!this._instancingMaterial) {
-            this._instancingMaterial = new Material();
-            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
-        }
         const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         pipeline.macros.CC_SHADOW_TYPE = 1;

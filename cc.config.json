@@ -36,6 +36,7 @@
         "2d": {
             "modules": ["2d", "sorting"],
             "dependentAssets": [
+                "60f7195c-ec2a-45eb-ba94-8955f60e81d0",
                 "efe8e2a3-eace-427b-b4f1-cb8a937ec77d",
                 "e9aa9a3e-5b2b-4ac7-a2c7-073de2b2b24f",
                 "8bbdbcdd-5cd4-4100-b6d5-b7c9625b6107",
