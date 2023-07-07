@@ -4,7 +4,6 @@
 #include "spine-mesh-data.h"
 #include "AtlasAttachmentLoaderExtension.h"
 #include <map>
-#include <sstream>
 
 std::map<std::string, SkeletonData*> skeletonDataMap {};
 
@@ -51,7 +50,8 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const std::string& 
     spine::SkeletonJson json(attachmentLoader);
     json.setScale(1.0F);
     SkeletonData *skeletonData = json.readSkeletonData(jsonStr.c_str());
-    SpineWasmUtil::calculateTextureID(skeletonData, altasStr.c_str());
+    SpineWasmUtil::calculateTextureID(atlas, skeletonData);
+    
     return skeletonData;
 }
 
@@ -64,49 +64,30 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
     spine::SkeletonBinary binary(attachmentLoader);
     binary.setScale(1.0F);
     SkeletonData *skeletonData = binary.readSkeletonData(s_mem, byteSize);
-    SpineWasmUtil::calculateTextureID(skeletonData, altasStr.c_str());
+    SpineWasmUtil::calculateTextureID(atlas, skeletonData);
     return skeletonData;
 }
 
-void SpineWasmUtil::calculateTextureID(SkeletonData* skeletonData, const std::string& atlasStr) {
-    std::string strAtlas = atlasStr;
-    strAtlas.erase(std::remove(strAtlas.begin(), strAtlas.end(), '\r'), strAtlas.end());
-
-    std::istringstream ss(strAtlas);
-    std::string line;
-    std::map<std::string, int> tempMap;
-
-    int index = -1;
-    
-    while (std::getline(ss, line, '\n')) {
-        if (line.find_first_not_of(' ') == std::string::npos) {
-            index++;
-        } else if (line[0] == ' ') {
-            continue;
-        } else {
-            tempMap[line] = index;
-        }
-    }
+void SpineWasmUtil::calculateTextureID(Atlas* atlas, SkeletonData* skeletonData) {
 
     auto& slotArray = skeletonData->getSlots();
     const size_t count = slotArray.size();
     for (size_t i = 0; i < count; i++) {
-        const std::string& attachmentName = slotArray[i]->getAttachmentName().buffer();
-        auto it = tempMap.find(attachmentName);
-        if (it != tempMap.end()) {
-            int value = it->second;
-            slotArray[i]->hash = value + 10000;
-        } else {
-            const std::string& name = slotArray[i]->getName().buffer();
-            auto itName = tempMap.find(name);
-            if (itName != tempMap.end()) {
-                int itValue = itName->second;
-                slotArray[i]->hash = itValue + 10000;
+        slotArray[i]->hash = 60000;
+        const spine::String attachmentName = slotArray[i]->getAttachmentName();
+        AtlasRegion* atlasRegion = atlas->findRegion(attachmentName);
+        if(atlasRegion != NULL) {
+            slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
+        }else{
+            const spine::String name = slotArray[i]->getName();
+            AtlasRegion* atlasRegion = atlas->findRegion(name);
+            if(atlasRegion) {
+               slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
             }else{
-                slotArray[i]->hash = 30000;
+                slotArray[i]->hash = 20000;
             }
         }
-    }
+    } 
 }
 
 
