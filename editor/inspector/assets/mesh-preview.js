@@ -102,7 +102,7 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 // Non-model previews do not respond to events
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
-                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callMeshPreviewFunction('onMouseMove', {
@@ -130,6 +130,15 @@ const Elements = {
 
                 panel.isPreviewDataDirty = true;
             });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                // Non-model previews do not respond to events
+                if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
+                await callMeshPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY
+                });
+                panel.isPreviewDataDirty = true;
+            })
 
             const GlPreview = Editor._Module.require('PreviewExtends').default;
             panel.glPreview = new GlPreview('scene:mesh-preview', 'query-mesh-preview-data');
@@ -257,7 +266,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -266,7 +275,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -280,7 +289,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

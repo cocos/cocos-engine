@@ -339,7 +339,7 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callModelPreviewFunction('onMouseMove', {
@@ -367,6 +367,13 @@ const Elements = {
 
                 panel.isPreviewDataDirty = true;
             });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                await callModelPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY
+                });
+                panel.isPreviewDataDirty = true;
+            })
 
             const GlPreview = Editor._Module.require('PreviewExtends').default;
             panel.glPreview = new GlPreview('scene:model-preview', 'query-model-preview-data');
@@ -690,7 +697,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -732,7 +739,7 @@ exports.ready = function() {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -763,7 +770,7 @@ exports.update = async function(assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
