@@ -1313,6 +1313,7 @@ export class WebPipeline implements BasicPipeline {
         if (renderWindow.swapchain === null) {
             assert(renderWindow.framebuffer.colorTextures.length === 1
                 && renderWindow.framebuffer.colorTextures[0] !== null);
+            desc.sampleCount = renderWindow.framebuffer.colorTextures[0].info.samples;
             return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
                 ResourceGraphValue.Framebuffer,
                 renderWindow.framebuffer,
@@ -1674,6 +1675,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
+        desc.sampleCount = SampleCount.ONE;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
@@ -1693,6 +1695,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
+        desc.sampleCount = SampleCount.ONE;
         desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT | ResourceFlags.SAMPLED;
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,

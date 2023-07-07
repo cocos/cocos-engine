@@ -32,7 +32,7 @@ import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
-import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
+import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
 
@@ -99,6 +99,10 @@ export function destroy () {
 
 export function getPassID (name: string | undefined): number {
     return getCustomPassID(defaultLayoutGraph, name);
+}
+
+export function getSubpassID (passID: number, name: string): number {
+    return getCustomSubpassID(defaultLayoutGraph, passID, name);
 }
 
 export function getPhaseID (passID: number, name: string | number | undefined): number {

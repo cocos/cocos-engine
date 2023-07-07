@@ -847,16 +847,14 @@ MTLTextureType mu::toMTLTextureType(TextureType type) {
 }
 
 NSUInteger mu::toMTLSampleCount(SampleCount count) {
-    //TODO_Zeqiang: query from device.
+    auto* device = CCMTLDevice::getInstance();
+    const auto& supportSamples = device->gpuObject()->supportSamples;
     switch (count) {
         case SampleCount::ONE: return 1;
-        case SampleCount::MULTIPLE_PERFORMANCE: return 2;
-        case SampleCount::MULTIPLE_BALANCE: return 4;
+        case SampleCount::MULTIPLE_PERFORMANCE: return supportSamples.front();
+        case SampleCount::MULTIPLE_BALANCE: return supportSamples[supportSamples.size() - 1];
         case SampleCount::MULTIPLE_QUALITY:
-            return 8;
-            //        case SampleCount::X16: return 16;
-            //        case SampleCount::X32: return 32;
-            //        case SampleCount::X64: return 64;
+            return supportSamples.back();
     }
 }
 

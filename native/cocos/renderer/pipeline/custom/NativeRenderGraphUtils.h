@@ -48,10 +48,14 @@ inline LayoutGraphData::vertex_descriptor getSubpassOrPassID(
         CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
 
         const auto &subpassLayoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
-        CC_ENSURES(!subpassLayoutName.empty());
-        const auto subpassLayoutID = locate(passLayoutID, subpassLayoutName, lg);
-        CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
-        layoutID = subpassLayoutID;
+        if (subpassLayoutName.empty()) {
+            layoutID = passLayoutID; // expect to be multisample pass
+        } else {
+            const auto subpassLayoutID = locate(passLayoutID, subpassLayoutName, lg);
+            CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
+            layoutID = subpassLayoutID;
+        }
+        
     }
     CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
     return layoutID;

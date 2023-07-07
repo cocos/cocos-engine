@@ -88,6 +88,8 @@ public:
             _swapchains.erase(iter);
         }
     }
+    
+    inline CCMTLGPUDeviceObject* gpuObject() { return _gpuDeviceObj; }
 
 protected:
     static CCMTLDevice *_instance;
