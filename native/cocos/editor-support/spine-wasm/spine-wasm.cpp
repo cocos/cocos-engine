@@ -87,10 +87,8 @@ void SpineWasmUtil::calculateTextureID(Atlas* atlas, SkeletonData* skeletonData)
                 slotArray[i]->hash = 20000;
             }
         }
-    } 
+    }
 }
-
-
 
 void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const std::string& uuid) {
     auto iter = skeletonDataMap.find(uuid);
