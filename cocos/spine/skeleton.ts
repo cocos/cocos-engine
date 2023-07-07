@@ -878,6 +878,7 @@ export class Skeleton extends UIRenderer {
             }
             const subIndices = rd.indices!.subarray(0, indicesCount);
             accessor.appendIndices(chunk.bufferId, subIndices);
+            accessor.getMeshBuffer(chunk.bufferId).setDirty();
         }
     }
 
