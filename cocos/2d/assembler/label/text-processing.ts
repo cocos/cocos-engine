@@ -185,8 +185,8 @@ export class TextProcessing {
             }
             canvasSizeY = (_splitStrings.length + BASELINE_RATIO)
             * this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
-            const rawWidth = parseFloat(canvasSizeX.toFixed(2));
-            const rawHeight = parseFloat(canvasSizeY.toFixed(2));
+            const rawWidth = canvasSizeX;
+            const rawHeight = canvasSizeY;
 
             outputLayoutData.canvasSize.width = rawWidth + outputLayoutData.canvasPadding.width * this._fontScale;
             outputLayoutData.canvasSize.height = rawHeight + outputLayoutData.canvasPadding.height * this._fontScale;

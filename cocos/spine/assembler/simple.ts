@@ -274,6 +274,7 @@ function realTimeTraverse (comp: Skeleton) {
 
 function cacheTraverse (comp: Skeleton) {
     const model = comp.updateRenderData();
+    if (!model) return;
 
     const vc = model.vCount;
     const ic = model.iCount;

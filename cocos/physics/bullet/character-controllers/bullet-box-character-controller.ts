@@ -55,7 +55,7 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
         const controllerDesc = bt.BoxCharacterControllerDesc_new(
             degreesToRadians(this.component.slopeLimit),
             this.component.stepOffset,
-            this.component.contactOffset,
+            this.component.skinWidth,
             up,
             pos,
             report, //btUserControllerHitReport

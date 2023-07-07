@@ -834,8 +834,10 @@ export class Skeleton extends UIRenderer {
         if (this.isAnimationCached()) {
             this._accTime += dt;
             const frameIdx = Math.floor(this._accTime / CachedFrameTime);
-            this._animCache!.updateToFrame(frameIdx);
-            this._curFrame = this._animCache!.getFrame(frameIdx);
+            if (this._animCache) {
+                this._animCache.updateToFrame(frameIdx);
+                this._curFrame = this._animCache.getFrame(frameIdx);
+            }
         } else {
             this._instance.updateAnimation(dt);
         }
@@ -887,6 +889,7 @@ export class Skeleton extends UIRenderer {
             }
             const subIndices = rd.indices!.subarray(0, indicesCount);
             accessor.appendIndices(chunk.bufferId, subIndices);
+            accessor.getMeshBuffer(chunk.bufferId).setDirty();
         }
     }
 
