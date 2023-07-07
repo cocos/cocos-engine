@@ -60,14 +60,17 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
         if (_depthStencilAttachment.format != Format::UNKNOWN) {
             subpass.depthStencil = colorCount;
         }
+        if (_depthStencilResolveAttachment.format != Format::UNKNOWN) {
+            subpass.depthStencil = colorCount + 1;
+        }
     } else {
         // unify depth stencil index
         for (auto &subpass : _gpuRenderPass->subpasses) {
-            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
+            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil >= colorCount) {
                 subpass.depthStencil = colorCount;
             }
-            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
-                subpass.depthStencilResolve = colorCount;
+            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencil >= colorCount) {
+                subpass.depthStencilResolve = colorCount + 1;
             }
         }
     }

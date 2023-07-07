@@ -824,7 +824,7 @@ static void textureStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
     }
     uint32_t w = gpuTexture->width;
     uint32_t h = gpuTexture->height;
-    uint32_t d = gpuTexture->depth;
+    uint32_t d = gpuTexture->type == TextureType::TEX2D_ARRAY ? gpuTexture->arrayLayer : gpuTexture->depth;
 
     switch (gpuTexture->type) {
         case TextureType::CUBE:
@@ -840,7 +840,6 @@ static void textureStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
         case TextureType::TEX3D:
             CC_ASSERT(gpuTexture->glSamples <= 1);
         case TextureType::TEX2D_ARRAY:
-            d = gpuTexture->arrayLayer;
             if (gpuTexture->glSamples > 1 && !gpuTexture->immutable && device->constantRegistry()->glMinorVersion >= 1) {
                 gpuTexture->glTarget = GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
                 GL_CHECK(glTexStorage3DMultisample(gpuTexture->glTarget, gpuTexture->glSamples, gpuTexture->glInternalFmt, w, h, d, GL_FALSE));
