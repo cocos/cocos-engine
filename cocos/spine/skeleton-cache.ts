@@ -103,7 +103,7 @@ export class AnimationCache {
             return;
         }
         this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);
-        if(this._maxFrameIdex <= 0) this._maxFrameIdex = 1;
+        if (this._maxFrameIdex <= 0) this._maxFrameIdex = 1;
         this._instance.setAnimation(0, animationName, false);
     }
 
