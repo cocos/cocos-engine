@@ -46,6 +46,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     register_vector<float>("VectorFloat");
     register_vector<BoneData*>("VectorBoneData");
     register_vector<Bone*>("VectorBone");
+    register_vector<Skin::AttachmentMap::Entry*>("VectorSkinEntry");
     register_vector<SlotData*>("VectorSlotData");
     register_vector<Slot*>("VectorSlot");
     register_vector<Animation*>("VectorAnimation");
@@ -287,31 +288,31 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getName", optional_override([](Attachment &obj) { return STRING_SP2STD(obj.getName());}));
 
     // pure_virtual and raw pointer 
-    // class_<VertexAttachment>("VertexAttachment")
-    //     .constructor<const String& >()
-    //     .function("getProp_id", &VertexAttachment::getId)
-    //     .function("getProp_bones", &VertexAttachment::getBones)
-    //     .function("getProp_vertices", &VertexAttachment::getVertices)
-    //     .function("getProp_worldVerticesLength", &VertexAttachment::getWorldVerticesLength)
-    //     .function("getProp_deformAttachment", &VertexAttachment::getDeformAttachment, allow_raw_pointer<VertexAttachment>())
-    //     .function("getProp_name", &VertexAttachment::getName)
-    //     //.function("computeWorldVertices", &VertexAttachment::computeWorldVertices);
-    //     .function("copy", &VertexAttachment::copy, pure_virtual())
-    //     .function("copyTo", &VertexAttachment::copyTo, allow_raw_pointer<VertexAttachment>());
+    class_<VertexAttachment, base<Attachment>>("VertexAttachment")
+        //.constructor<const String& >()
+        .function("getProp_id", &VertexAttachment::getId)
+        .function("getProp_bones", &VertexAttachment::getBones)
+        .function("getProp_vertices", &VertexAttachment::getVertices)
+        .function("getProp_worldVerticesLength", &VertexAttachment::getWorldVerticesLength)
+        .function("getProp_deformAttachment", &VertexAttachment::getDeformAttachment, allow_raw_pointer<VertexAttachment>())
+        .function("getProp_name", &VertexAttachment::getName)
+        //.function("computeWorldVertices", &VertexAttachment::computeWorldVertices);
+        .function("copy", &VertexAttachment::copy, allow_raw_pointer<VertexAttachment>())
+        .function("copyTo", &VertexAttachment::copyTo, allow_raw_pointer<VertexAttachment>());
 
-    class_<BoundingBoxAttachment>("BoundingBoxAttachment")
+    class_<BoundingBoxAttachment, base<VertexAttachment>>("BoundingBoxAttachment")
         .constructor<const String& >()
         .function("getName", optional_override([](BoundingBoxAttachment &obj) { return STRING_SP2STD(obj.getName());}))
         .function("copy", &BoundingBoxAttachment::copy, allow_raw_pointers());
         //.function("getProp_color", &BoundingBoxAttachment::getColor)
 
-    class_<ClippingAttachment>("ClippingAttachment")
+    class_<ClippingAttachment, base<VertexAttachment>>("ClippingAttachment")
         .constructor<const String& >()
         .function("getEndSlot", &ClippingAttachment::getEndSlot, allow_raw_pointer<SlotData>())
         .function("copy", &ClippingAttachment::copy, allow_raw_pointer<Attachment>());
         //.function("getProp_color", &ClippingAttachment::getColor)
 
-    class_<MeshAttachment>("MeshAttachment")
+    class_<MeshAttachment, base<VertexAttachment>>("MeshAttachment")
         .constructor<const String& >()
         //.function("getProp_region", &MeshAttachment::getRegion)
         .function("getPath", optional_override([](MeshAttachment &obj) { return STRING_SP2STD(obj.getPath());}))
@@ -330,7 +331,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("copy", &MeshAttachment::copy, allow_raw_pointer<Attachment>())
         .function("newLinkedMesh", &MeshAttachment::newLinkedMesh, allow_raw_pointer<MeshAttachment>());
 
-    class_<PathAttachment>("PathAttachment")
+    class_<PathAttachment, base<VertexAttachment>>("PathAttachment")
         .constructor<const String& >()
         .function("getLengths", optional_override([](PathAttachment &obj) { return VECTOR_SP2STD(obj.getLengths());}))
         .function("getClosed", &PathAttachment::isClosed)
@@ -338,7 +339,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         //.function("getProp_color", &MeshAttachment::getColor) // no color
         .function("copy", &PathAttachment::copy, allow_raw_pointers());
 
-    class_<PointAttachment>("PointAttachment")
+    class_<PointAttachment, base<Attachment>>("PointAttachment")
         .constructor<const String& >()
         .function("getX", &PointAttachment::getX)
         .function("getY", &PointAttachment::getY)
@@ -352,7 +353,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     //    .constructor<>();
 
 
-    class_<RegionAttachment, base<HasRendererObject>>("RegionAttachment")
+    class_<RegionAttachment, base<Attachment>>("RegionAttachment")
         .constructor<const String& >()
         // static U4: number;
         // static V4: number;
@@ -655,7 +656,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getName", optional_override([](Skin &obj) { return STRING_SP2STD(obj.getName());}))
         .function("getBones", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getBones());}), allow_raw_pointers())
         .function("getConstraints", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getConstraints());}), allow_raw_pointers())
-        .function("setAttachment", select_overload<void(size_t, const String &, Attachment *)>(&Skin::setAttachment), allow_raw_pointers())
+        .function("setAttachment", optional_override([](Skin &obj, size_t index, std::string name, Attachment *attachment) { return obj.setAttachment(index, STRING_STD2SP(name), attachment); }), allow_raw_pointers())
         .function("addSkin", select_overload<void(Skin *)>(&Skin::addSkin), allow_raw_pointers())
         .function("copySkin", select_overload<void(Skin *)>(&Skin::copySkin), allow_raw_pointers())
         .function("getAttachments", optional_override([](Skin &obj) {
@@ -666,8 +667,16 @@ EMSCRIPTEN_BINDINGS(spine) {
             }
             return entriesVector;
         }), allow_raw_pointers())
-        .function("removeAttachment", select_overload<void(size_t, const String &)>(&Skin::removeAttachment))
-        .function("getAttachmentsForSlot", select_overload<void(size_t, Vector<Attachment *> &)>(&Skin::findAttachmentsForSlot), allow_raw_pointers())
+        .function("removeAttachment", optional_override([](Skin &obj, size_t index, std::string name) { obj.removeAttachment(index, STRING_STD2SP(name)); }))
+        .function("getAttachmentsForSlot", optional_override([](Skin &obj, size_t index) {
+            std::vector<Skin::AttachmentMap::Entry*> entriesVector;
+            auto entries = obj.getAttachments();
+            while (entries.hasNext()) {
+                Skin::AttachmentMap::Entry &entry = entries.next();
+                if (entry._slotIndex == index) entriesVector.push_back(&entry);
+            }
+            return entriesVector;
+        }), allow_raw_pointers())
         //.function("clear", &Skin::clear); // have no clear
         //.function("attachAll", &Skin::attachAll)
         ;
