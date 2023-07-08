@@ -16,7 +16,7 @@ std::string STRING_SP2STD(const spine::String& str) {
 }
 
 const spine::String STRING_STD2SP(std::string& str) {
-    const spine::String spString(str.c_str(), str.length());
+    const spine::String spString(str.c_str());
     return spString;
 }
 
