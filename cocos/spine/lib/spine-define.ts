@@ -1120,6 +1120,11 @@ function overrideProperty_SkinEntry () {
     const propertyPolyfills = [
         {
             proto: prototype,
+            property: 'name',
+            getter: prototype.getName,
+        },
+        {
+            proto: prototype,
             property: 'attachment',
             getter: prototype.getAttachment,
         },

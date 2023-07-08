@@ -653,13 +653,19 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<Skin>("Skin")
         .constructor<const String&>()
         .function("getName", optional_override([](Skin &obj) { return STRING_SP2STD(obj.getName());}))
-        .function("getAttachments", &Skin::getAttachments)
         .function("getBones", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getBones());}), allow_raw_pointers())
         .function("getConstraints", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getConstraints());}), allow_raw_pointers())
         .function("setAttachment", select_overload<void(size_t, const String &, Attachment *)>(&Skin::setAttachment), allow_raw_pointers())
         .function("addSkin", select_overload<void(Skin *)>(&Skin::addSkin), allow_raw_pointers())
         .function("copySkin", select_overload<void(Skin *)>(&Skin::copySkin), allow_raw_pointers())
-        .function("getAttachments", select_overload<Skin::AttachmentMap::Entries ()>(&Skin::getAttachments))
+        .function("getAttachments", optional_override([](Skin &obj) {
+            std::vector<Skin::AttachmentMap::Entry*> entriesVector;
+            auto entries = obj.getAttachments();
+            while (entries.hasNext()) {
+                entriesVector.push_back(&entries.next());
+            }
+            return entriesVector;
+        }), allow_raw_pointers())
         .function("removeAttachment", select_overload<void(size_t, const String &)>(&Skin::removeAttachment))
         .function("getAttachmentsForSlot", select_overload<void(size_t, Vector<Attachment *> &)>(&Skin::findAttachmentsForSlot), allow_raw_pointers())
         //.function("clear", &Skin::clear); // have no clear
@@ -670,7 +676,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<size_t, const String &, Attachment *>()
         .property("slotIndex", &Skin::AttachmentMap::Entry::_slotIndex)
         .function("getName", optional_override([](Skin::AttachmentMap::Entry &obj) { return STRING_SP2STD((const String)obj._name);}))
-        //.function("getAttachment", &Skin::AttachmentMap::Entry::getAttachment, allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skin::AttachmentMap::Entry &obj) { return obj._attachment;}), allow_raw_pointers())
         ;
 
     class_<SkeletonClipping>("SkeletonClipping")
