@@ -119,6 +119,10 @@ export class AnimationCache {
         }
     }
 
+    public getMaxFrameIndex() {
+        return this._maxFrameIdex;
+    }
+        
     public getFrame (frameIdx: number) {
         const index = frameIdx % this._maxFrameIdex;
         return this._frames[index];
