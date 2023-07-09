@@ -108,7 +108,15 @@ exports.ready = async function () {
     });
 
     panel.$.canvas.addEventListener('mousedown', async (event) => {
-        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
+
+        async function onkeydown(event) {
+            await callMaterialPreviewFunction('onKeyDown', {
+                code: event.code,
+                keyCode: event.keyCode,
+            });
+            panel.isPreviewDataDirty = true;
+        }
 
         async function mousemove(event) {
             await callMaterialPreviewFunction('onMouseMove', {
@@ -127,11 +135,13 @@ exports.ready = async function () {
 
             document.removeEventListener('mousemove', mousemove);
             document.removeEventListener('mouseup', mouseup);
+            document.removeEventListener('keydown', onkeydown);
 
             panel.isPreviewDataDirty = false;
         }
         document.addEventListener('mousemove', mousemove);
         document.addEventListener('mouseup', mouseup);
+        document.addEventListener('keydown', onkeydown);
 
         panel.isPreviewDataDirty = true;
     });

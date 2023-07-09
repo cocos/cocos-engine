@@ -1,5 +1,7 @@
 'use strict';
 
+const { doc } = require("prettier");
+
 exports.template = /* html */`
 <div class="preview">
     <div class="info">
@@ -51,6 +53,14 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await callSkeletonPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
+                async function onkeydown(event) {
+                    await callSkeletonPreviewFunction('onKeyDown', {
+                        code: event.code,
+                        keyCode: event.keyCode,
+                    });
+                    panel.isPreviewDataDirty = true;
+                }
+
                 async function mousemove(event) {
                     await callSkeletonPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
@@ -68,12 +78,14 @@ const Elements = {
 
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
+                    document.removeEventListener('keydown', onkeydown);
 
                     panel.isPreviewDataDirty = false;
                 }
 
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
+                document.addEventListener('keydown', onkeydown);
 
 
                 panel.isPreviewDataDirty = true;

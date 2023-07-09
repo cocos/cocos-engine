@@ -104,6 +104,16 @@ const Elements = {
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
+                async function onkeydown(event) {
+                    // Non-model previews do not respond to events
+                    if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
+                    await callMeshPreviewFunction('onKeyDown', {
+                        code: event.code,
+                        keyCode: event.keyCode,
+                    });
+                    panel.isPreviewDataDirty = true;
+                }
+
                 async function mousemove(event) {
                     await callMeshPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
@@ -121,12 +131,14 @@ const Elements = {
 
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
+                    document.removeEventListener('keydown', onkeydown);
 
                     panel.isPreviewDataDirty = false;
                 }
 
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
+                document.addEventListener('keydown', onkeydown);
 
                 panel.isPreviewDataDirty = true;
             });
