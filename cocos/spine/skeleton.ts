@@ -718,6 +718,7 @@ export class Skeleton extends UIRenderer {
     public setAnimation (trackIndex: number, name: string, loop?: boolean): spine.TrackEntry | null {
         let trackEntry: spine.TrackEntry | null = null;
         if (loop === undefined) loop = true;
+        this.loop = loop;
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 warn('Track index can not greater than 0 in cached mode.');
@@ -835,8 +836,10 @@ export class Skeleton extends UIRenderer {
             this._accTime += dt;
             const frameIdx = Math.floor(this._accTime / CachedFrameTime);
             if (this._animCache) {
-                this._animCache.updateToFrame(frameIdx);
-                this._curFrame = this._animCache.getFrame(frameIdx);
+                const isCompleted = this._animCache.updateToFrame(frameIdx);
+                const maxFrameIdex = this._animCache.getMaxFrameIndex() - 1;
+                const runFrameIndex = frameIdx >= maxFrameIdex && !this.loop ? maxFrameIdex : frameIdx;
+                this._curFrame = this._animCache.getFrame(runFrameIndex);
             }
         } else {
             this._instance.updateAnimation(dt);
