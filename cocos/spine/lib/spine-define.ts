@@ -192,6 +192,20 @@ function overrideProperty_BoneData () {
     });
 }
 
+function overrideProperty_Attachment () {
+    const prototype = spine.Attachment.prototype as any;
+    const propertyPolyfills = [
+        {
+            proto: prototype,
+            property: 'name',
+            getter: prototype.getName,
+        },
+    ];
+    propertyPolyfills.forEach((prop) => {
+        js.getset(prop.proto, prop.property, prop.getter);
+    });
+}
+
 function overrideProperty_ConstraintData () {
     const prototype = spine.ConstraintData.prototype as any;
     const propertyPolyfills = [
@@ -1120,6 +1134,11 @@ function overrideProperty_SkinEntry () {
     const propertyPolyfills = [
         {
             proto: prototype,
+            property: 'name',
+            getter: prototype.getName,
+        },
+        {
+            proto: prototype,
             property: 'attachment',
             getter: prototype.getAttachment,
         },
@@ -1660,6 +1679,7 @@ export function overrideSpineDefine (wasm) {
     overrideProperty_Bone();
     overrideProperty_Slot();
     overrideProperty_Skin();
+    overrideProperty_Attachment();
     overrideProperty_SkinEntry();
     overrideProperty_SkeletonClipping();
     overrideProperty_SkeletonData();
