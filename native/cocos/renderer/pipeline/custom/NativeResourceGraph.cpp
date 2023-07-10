@@ -127,10 +127,6 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
 
     // usage
     TextureUsage usage = TextureUsage::NONE;
-    if (!(desc.textureFlags & TextureFlagBit::LAZILY_ALLOCATED)) {
-        usage |= TextureUsageBit::TRANSFER_SRC | TextureUsageBit::TRANSFER_DST;
-    }
-
     if (any(desc.flags & ResourceFlags::COLOR_ATTACHMENT)) {
         usage |= TextureUsage::COLOR_ATTACHMENT;
     }
@@ -149,6 +145,12 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
     if (any(desc.flags & ResourceFlags::SAMPLED)) {
         usage |= TextureUsage::SAMPLED;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_SRC)) {
+        usage |= TextureUsage::TRANSFER_SRC;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_DST)) {
+        usage |= TextureUsage::TRANSFER_DST;
     }
 
     return {
