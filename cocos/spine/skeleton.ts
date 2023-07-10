@@ -601,6 +601,16 @@ export class Skeleton extends UIRenderer {
 
     }
     /**
+     * @en Gets the animation state object.
+     * @zh 获取动画状态。
+     * @method getState
+     * @return {sp.spine.AnimationState} state
+     */
+    public getState(): spine.AnimationState | undefined {
+        return this._state;
+    }
+
+    /**
      * @en Be called when component state becomes available.
      * @zh 组件状态变为可用时调用。
      */
@@ -644,6 +654,7 @@ export class Skeleton extends UIRenderer {
             this._state = null!;
             this._skeleton = null!;
             this._textures = [];
+            this._refreshInspector();
             return;
         }
         this._textures = skeletonData.textures;
@@ -878,21 +889,21 @@ export class Skeleton extends UIRenderer {
             }
             const subIndices = rd.indices!.subarray(0, indicesCount);
             accessor.appendIndices(chunk.bufferId, subIndices);
+            accessor.getMeshBuffer(chunk.bufferId).setDirty();
         }
     }
 
     /**
      * @engineInternal
      */
-    public requestDrawData (material: Material, texureID: number, indexOffset: number, indexCount: number) {
+    public requestDrawData (material: Material, textureID: number, indexOffset: number, indexCount: number) {
         const draw = this._drawList.add();
         draw.material = material;
-        if (texureID === 0) {
-            draw.texture = this._textures[0];
+        if (textureID >= 10000) {
+            draw.texture = this._textures[textureID - 10000];
         } else {
-            const texture = this._slotTextures?.get(texureID);
+            const texture = this._slotTextures?.get(textureID);
             if (texture) draw.texture = texture;
-            else draw.texture = this._textures[0];
         }
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;

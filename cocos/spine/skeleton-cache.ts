@@ -56,6 +56,7 @@ class SpineModel {
 class SpineDrawItem {
     public iCount = 0;
     public blendMode = 0;
+    public textureID = 0;
 }
 
 export interface AnimationFrame {
@@ -102,6 +103,7 @@ export class AnimationCache {
             return;
         }
         this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);
+        if (this._maxFrameIdex <= 0) this._maxFrameIdex = 1;
         this._instance.setAnimation(0, animationName, false);
     }
 
@@ -163,6 +165,7 @@ export class AnimationCache {
             const meshData = new SpineDrawItem();
             meshData.iCount = mesh.iCount;
             meshData.blendMode = mesh.blendMode;
+            meshData.textureID = mesh.textureID;
             modelData.meshes.push(meshData);
         }
 

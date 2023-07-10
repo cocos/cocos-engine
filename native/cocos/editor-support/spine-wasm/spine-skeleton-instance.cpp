@@ -355,7 +355,7 @@ void SpineSkeletonInstance::collectMeshData() {
         if (_userData.useSlotTexture) {
             currMesh.textureID = findSlotTextureID(slot);
         } else {
-            currMesh.textureID = 0;
+            currMesh.textureID = slot->getData().hash;
         }
         _model->addSlotMesh(currMesh);
 

@@ -44,29 +44,50 @@ SkeletonData* SpineWasmUtil::querySpineSkeletonDataByUUID(const std::string& uui
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const std::string& jsonStr, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonJson json(attachmentLoader);
     json.setScale(1.0F);
     SkeletonData *skeletonData = json.readSkeletonData(jsonStr.c_str());
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SpineWasmUtil::calculateTextureID(atlas, skeletonData);
+    
     return skeletonData;
 }
 
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonBinary binary(attachmentLoader);
     binary.setScale(1.0F);
     SkeletonData *skeletonData = binary.readSkeletonData(s_mem, byteSize);
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SpineWasmUtil::calculateTextureID(atlas, skeletonData);
     return skeletonData;
+}
+
+void SpineWasmUtil::calculateTextureID(Atlas* atlas, SkeletonData* skeletonData) {
+
+    auto& slotArray = skeletonData->getSlots();
+    const size_t count = slotArray.size();
+    for (size_t i = 0; i < count; i++) {
+        slotArray[i]->hash = 60000;
+        const spine::String attachmentName = slotArray[i]->getAttachmentName();
+        AtlasRegion* atlasRegion = atlas->findRegion(attachmentName);
+        if(atlasRegion != NULL) {
+            slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
+        }else{
+            const spine::String name = slotArray[i]->getName();
+            AtlasRegion* atlasRegion = atlas->findRegion(name);
+            if(atlasRegion) {
+               slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
+            }else{
+                slotArray[i]->hash = 20000;
+            }
+        }
+    }
 }
 
 void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const std::string& uuid) {
