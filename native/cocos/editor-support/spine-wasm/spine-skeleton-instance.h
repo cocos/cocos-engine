@@ -36,7 +36,6 @@ class SpineSkeletonInstance {
         bool useTint = false;
         bool premultipliedAlpha = false;
         bool debugMode = false;
-        bool useSlotTexture = false;
         Color4F color = Color4F(1.0F, 1.0F, 1.0F, 1.0F);
     };
 
@@ -65,7 +64,6 @@ public:
 
 private:
     void collectMeshData();
-    uint32_t findSlotTextureID(Slot* slot);
 private:
     Skeleton *_skeleton = nullptr;
     SkeletonData *_skeletonData = nullptr;
@@ -82,7 +80,6 @@ private:
     uint32_t _eventListenerID = 0;
     UserData _userData;
     std::vector<SpineDebugShape> _debugShapes{};
-    std::map<Slot*, uint32_t> slotTextureSet{};
 };
 
 #endif

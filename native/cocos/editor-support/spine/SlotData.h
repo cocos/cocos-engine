@@ -76,7 +76,7 @@ public:
 
     int getIndex();
 
-    int hash;
+    uint32_t hash;
 
     const String &getName();
 

@@ -70,23 +70,22 @@ SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize
 
 void SpineWasmUtil::calculateTextureID(Atlas* atlas, SkeletonData* skeletonData) {
 
+    spine::Vector<spine::Skin *> skins = skeletonData->getSkins();
     auto& slotArray = skeletonData->getSlots();
-    const size_t count = slotArray.size();
-    for (size_t i = 0; i < count; i++) {
-        slotArray[i]->hash = 60000;
-        const spine::String attachmentName = slotArray[i]->getAttachmentName();
-        AtlasRegion* atlasRegion = atlas->findRegion(attachmentName);
-        if(atlasRegion != NULL) {
-            slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
-        }else{
-            const spine::String name = slotArray[i]->getName();
-            AtlasRegion* atlasRegion = atlas->findRegion(name);
-            if(atlasRegion) {
-               slotArray[i]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
-            }else{
-                slotArray[i]->hash = 20000;
-            }
+
+    const size_t count = skins.size();
+    for (int32_t i = 0; i < count; i++) {
+
+        spine::Skin *skin = skins[i];
+        auto entries = skin->getAttachments();
+        while (entries.hasNext()) 
+        {
+            auto &entry = entries.next();
+            AtlasRegion* atlasRegion = atlas->findRegion(entry._name);
+            if(atlasRegion)
+                slotArray[entry._slotIndex]->hash = atlas->getPages().indexOf(atlasRegion->page) + 10000;
         }
+
     }
 }
 

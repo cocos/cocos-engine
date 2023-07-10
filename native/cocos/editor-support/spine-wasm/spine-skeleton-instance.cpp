@@ -352,13 +352,9 @@ void SpineSkeletonInstance::collectMeshData() {
         }
 
         currMesh.blendMode = static_cast<uint32_t>(slot->getData().getBlendMode());
-        if (_userData.useSlotTexture) {
-            uint32_t textureID = findSlotTextureID(slot);
-            if(textureID == 10000) textureID = slot->getData().hash;
-            currMesh.textureID = textureID;
-        } else {
-            currMesh.textureID = slot->getData().hash;
-        }
+
+        currMesh.textureID = slot->getData().hash;
+        
         _model->addSlotMesh(currMesh);
 
         _clipper->clipEnd(*slot);
@@ -537,24 +533,9 @@ void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32
     }
 }
 
-uint32_t SpineSkeletonInstance::findSlotTextureID(Slot* slot) {
-    auto iter = slotTextureSet.find(slot);
-    if (iter != slotTextureSet.end()) {
-        return iter->second;
-    } else {
-        return 10000;
-    }
-}
-
 void SpineSkeletonInstance::setSlotTexture(const std::string& slotName, uint32_t textureID) {
     if (!_skeleton) return;
     auto slot = _skeleton->findSlot(slotName.c_str());
     if (!slot) return;
-    _userData.useSlotTexture = true;
-    auto iter = slotTextureSet.find(slot);
-    if (iter != slotTextureSet.end()) {
-        iter->second = textureID;
-    } else {
-        slotTextureSet[slot] = textureID;
-    }
+    slot->getData().hash = textureID;
 }
