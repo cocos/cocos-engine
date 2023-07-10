@@ -46,8 +46,8 @@ enum EventType {
     EventType_Start,
     EventType_Interrupt,
     EventType_End,
-    EventType_Complete,
     EventType_Dispose,
+    EventType_Complete,
     EventType_Event
 };
 
