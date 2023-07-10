@@ -25,6 +25,7 @@
 declare const nr: any;
 declare const jsb: any;
 
+import { OPEN_HARMONY } from 'internal:constants'
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
@@ -447,9 +448,11 @@ function proxyArrayAttributeImpl(proto: any, attr: string) {
 
 let proxyArrayAttribute = proxyArrayAttributeImpl;
 
-proxyArrayAttribute(RenderFlow.prototype, '_stages');
-
-proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+if (!OPEN_HARMONY) {
+    // WORKAROUND: the proxy array getLength crashed on OH platform
+    proxyArrayAttribute(RenderFlow.prototype, '_stages');
+    proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+}
 
 //-------------------- register types -------------------- 
 
