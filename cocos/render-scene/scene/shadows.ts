@@ -331,20 +331,6 @@ export class Shadows {
     protected _size: Vec2 = new Vec2(1024, 1024);
     protected _shadowMapDirty = false;
 
-    public initialize (shadowsInfo: ShadowsInfo) {
-        this._enabled = shadowsInfo.enabled;
-        this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
-
-        this.normal = shadowsInfo.planeDirection;
-        this.distance = shadowsInfo.planeHeight;
-        this.shadowColor = shadowsInfo.shadowColor;
-        this.maxReceived = shadowsInfo.maxReceived;
-        if (shadowsInfo.shadowMapSize !== this._size.x) {
-            this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
-            this._shadowMapDirty = true;
-        }
-    }
-
     /**
      * @en Get the shader for the planar shadow with macro patches
      * @zh 通过指定宏获取平面阴影的 Shader 对象
@@ -362,6 +348,20 @@ export class Shadows {
             assert(passes.length > 0, 'passes should not be empty!');
         }
         return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
+    }
+
+    public initialize (shadowsInfo: ShadowsInfo) {
+        this._enabled = shadowsInfo.enabled;
+        this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
+
+        this.normal = shadowsInfo.planeDirection;
+        this.distance = shadowsInfo.planeHeight;
+        this.shadowColor = shadowsInfo.shadowColor;
+        this.maxReceived = shadowsInfo.maxReceived;
+        if (shadowsInfo.shadowMapSize !== this._size.x) {
+            this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
+            this._shadowMapDirty = true;
+        }
     }
 
     public activate () {
@@ -383,6 +383,10 @@ export class Shadows {
     }
 
     protected _updatePlanarInfo () {
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        }
         const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         pipeline.macros.CC_SHADOW_TYPE = 1;
