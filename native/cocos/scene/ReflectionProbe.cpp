@@ -88,13 +88,15 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
     _camera->setShutter(CameraShutter::D125);
     _camera->setIso(CameraISO::ISO100);
 
+    RenderWindow* win = Root::getInstance()->getMainWindow();
     _realtimePlanarTexture = ccnew RenderTexture();
     IRenderTextureCreateInfo info;
-    uint32_t width = _camera->getWidth();
-    uint32_t height = _camera->getHeight();
+    uint32_t width = win->getWidth();
+    uint32_t height = win->getHeight();
     info.name = "realtimePlanarTexture";
     info.width = width;
     info.height = height;
+
     _realtimePlanarTexture->initialize(info);
 
     uint32_t size = std::max(width, height);
