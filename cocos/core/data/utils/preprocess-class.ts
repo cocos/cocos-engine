@@ -93,6 +93,7 @@ function parseType (val, type, className, propName): void {
             val.type = type = type[0];
         } else {
             errorID(5508, className, propName);
+            return;
         }
     }
     if (typeof type === 'function') {
