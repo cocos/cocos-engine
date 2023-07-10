@@ -184,7 +184,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
-        for (const auto nameIn : passViews) {
+        for (const auto& nameIn : passViews) {
             const char* name = nameIn.c_str();
             bool colorLikeView{true};
             bool dsResolveAttachment{false};
