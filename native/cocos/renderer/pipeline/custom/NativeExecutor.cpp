@@ -1263,7 +1263,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto& nodeID = iter->second;
         auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end() && iter2->second.subpassBarriers.empty()) {
+        if (iter2 != ctx.barrierMap.end()) {
             submitBarriers(iter2->second.blockBarrier.frontBarriers);
         }
     }
@@ -1274,7 +1274,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto& nodeID = iter->second;
         auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end() && iter2->second.subpassBarriers.empty()) {
+        if (iter2 != ctx.barrierMap.end()) {
             submitBarriers(iter2->second.blockBarrier.rearBarriers);
         }
     }
@@ -2241,7 +2241,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitor visitor{{}, ctx};
         auto colors = rg.colors(scratch);
         for (const auto vertID : ctx.g.sortedVertices) {
-            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
+            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g) || holds<CopyTag>(vertID, ctx.g)) {
                 boost::depth_first_visit(fg, vertID, visitor, get(colors, ctx.g));
             }
         }
