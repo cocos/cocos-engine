@@ -836,7 +836,7 @@ export class Skeleton extends UIRenderer {
             this._accTime += dt;
             const frameIdx = Math.floor(this._accTime / CachedFrameTime);
             if (this._animCache) {
-                const isCompleted = this._animCache.updateToFrame(frameIdx);
+                this._animCache.updateToFrame(frameIdx);
                 const maxFrameIdex = this._animCache.getMaxFrameIndex() - 1;
                 const runFrameIndex = frameIdx >= maxFrameIdex && !this.loop ? maxFrameIdex : frameIdx;
                 this._curFrame = this._animCache.getFrame(runFrameIndex);
