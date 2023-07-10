@@ -293,7 +293,6 @@ if (cc.internal.VideoPlayer) {
             if (!video || !this._visible) return;
             // HACK: this is to unify inconsistent behavior (on Android, video won't play from begin if called pause() before called stop().
             // but if called play() before stop(), video will play from begin.) of wechat official interface on Android & iOS.
-            // More detail see issue: https://github.com/cocos/3d-tasks/issues/11994#
             if (!this._playing) {
                 video.play();
             }
