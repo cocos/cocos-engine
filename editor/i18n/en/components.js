@@ -3,7 +3,7 @@ module.exports = {
         add_component: 'Add Component',
 
         animation: {
-            use_baked_animation_tips: 'When a skeleton animation is pre-baked, its bones do not move in real-time. If you need to attach external nodes to specific bone joints, it is recommended to use Sockets System.',
+            use_baked_animation_tips: 'When a skeleton animation is pre-baked, its bones do not move in real-time. If you need to attach external nodes to specific bone joints, it is recommended to use <ui-link value="https://docs.cocos.com/creator/manual/en/animation/skeletal-animation.html#socket-system"> Sockets System </ui-link>.',
         },
 
         safe_area: {
