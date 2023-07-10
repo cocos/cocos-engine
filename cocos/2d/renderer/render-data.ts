@@ -1,4 +1,4 @@
-Äã/*
+/*
  Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -256,7 +256,7 @@ export class RenderData extends BaseRenderData {
         this.syncRender2dBuffer();
     }
 
-    get data ():IRenderData[] {
+    get data (): IRenderData[] {
         return this._data;
     }
 
