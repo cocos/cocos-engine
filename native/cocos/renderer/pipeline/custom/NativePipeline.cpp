@@ -220,7 +220,7 @@ uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimensio
         static_cast<uint16_t>(mipLevels),
         format,
         sampleCount,
-        gfx::TextureFlagBit::NONE,
+        residency == ResourceResidency::MEMORYLESS ? gfx::TextureFlagBit::LAZILY_ALLOCATED : gfx::TextureFlagBit::NONE,
         flags,
     };
     return addVertex(

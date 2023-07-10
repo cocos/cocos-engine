@@ -41,10 +41,25 @@ GLES3Framebuffer::~GLES3Framebuffer() {
     destroy();
 }
 
+void GLES3Framebuffer::updateExtent() {
+    if (!_colorTextures.empty()) {
+        const auto *tex = _colorTextures[0];
+        _gpuFBO->width = tex->getWidth();
+        _gpuFBO->height = tex->getHeight();
+        return;
+    }
+    if (_depthStencilTexture != nullptr) {
+        _gpuFBO->width = _depthStencilTexture->getWidth();
+        _gpuFBO->height = _depthStencilTexture->getHeight();
+        return;
+    }
+}
+
 void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew GLES3GPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
+    updateExtent();
 
+    _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
         auto *colorTexture = static_cast<GLES3Texture *>(_colorTextures.at(i));
