@@ -26,7 +26,7 @@ import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { getClassName } from '../../utils/js-typed';
-import { ClassStash } from '../class-stash';
+import type { ClassStash } from '../class-stash';
 
 export type Initializer = () => unknown;
 
@@ -97,6 +97,7 @@ export function makeSmartClassDecorator<TArg> (
             // If no parameter specified
             return decorate(target);
         } else {
+            // eslint-disable-next-line func-names, @typescript-eslint/ban-types
             return function <TFunction extends AnyFunction> (constructor: TFunction): void | Function {
                 return decorate(constructor, target);
             };
