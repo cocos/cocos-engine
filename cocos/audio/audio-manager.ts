@@ -23,7 +23,7 @@
 */
 
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
-import { js } from '../core';
+import { error, js } from '../core';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
 interface AudioInfo<T> {
@@ -97,7 +97,7 @@ export class AudioManager {
             });
         }
         if (audioInfoToDiscard) {
-            audioInfoToDiscard.audio.stop();
+            audioInfoToDiscard.audio.stop()?.catch((err) => { error(err); });
             this.removePlaying(audioInfoToDiscard.audio);
         }
     }

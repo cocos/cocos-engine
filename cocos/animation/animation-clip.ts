@@ -1450,7 +1450,7 @@ class RootMotionEvaluation {
 }
 
 function relativeTransform (out: Mat4, from: Mat4, to: Mat4): void {
-Mat4.invert(out, from);
+    Mat4.invert(out, from);
     Mat4.multiply(out, to, out);
 }
 
@@ -1533,7 +1533,7 @@ class EventEvaluator {
         }
     }
 
-    public reset () {
+    public reset (): void {
         this._lastFrameIndex = -1;
         this._lastIterations = 0.0;
         this._lastDirection = 0;
