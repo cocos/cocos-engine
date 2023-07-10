@@ -382,3 +382,64 @@ describe('Decorated property test', () => {
         });
     });
 });
+
+test(`Property inheritance`, () => {
+    @ccclass
+    class A {
+        @property a = 'a';
+    }
+    
+    @ccclass
+    class B extends A {
+        @property b = 'b';
+    }
+
+    @ccclass
+    class C extends A {
+        @property c = 0;
+    }
+
+    expect(CCClass.isCCClassOrFastDefined(A)).toBe(true);
+    expect(getProps(A)).toStrictEqual(['a']);
+
+    expect(CCClass.isCCClassOrFastDefined(B)).toBe(true);
+    expect(getProps(B)).toStrictEqual(['a', 'b']);
+
+    expect(CCClass.isCCClassOrFastDefined(C)).toBe(true);
+    expect(getProps(C)).toStrictEqual(['a', 'c']);
+
+    unregisterClass(A, B, C);
+});
+
+test('Properties are decorated with @property, but belonging class does not have @ccclass', () => {
+    class A {
+        @property a = 'a';
+    }
+    
+    @ccclass
+    class B extends A {
+        @property b = 'b';
+    }
+
+    @ccclass
+    class C extends A {
+        @property c = 0;
+    }
+
+    expect(CCClass.isCCClassOrFastDefined(A)).toBe(false);
+    expect(getProps(A)).toBeUndefined();
+
+    expect(CCClass.isCCClassOrFastDefined(B)).toBe(true);
+    expect(getProps(B)).toStrictEqual(['b']);
+
+    expect(CCClass.isCCClassOrFastDefined(C)).toBe(true);
+    expect(getProps(C)).toStrictEqual(['c']);
+
+    unregisterClass(A, B, C);
+});
+
+function getProps(cls: Function) {
+    return (cls as {
+        __props__?: string[];
+    }).__props__;
+}
