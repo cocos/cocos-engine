@@ -834,11 +834,11 @@ export class Skeleton extends UIRenderer {
         dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
             this._accTime += dt;
-            const frameIdx = Math.floor(this._accTime / CachedFrameTime);
+            const currentFrameIndex = Math.floor(this._accTime / CachedFrameTime);
             if (this._animCache) {
-                this._animCache.updateToFrame(frameIdx);
-                const maxFrameIdex = this._animCache.getMaxFrameIndex() - 1;
-                const runFrameIndex = frameIdx >= maxFrameIdex && !this.loop ? maxFrameIdex : frameIdx;
+                this._animCache.updateToFrame(currentFrameIndex);
+                const maxFrameIndex = this._animCache.getFrameCount() - 1;
+                const runFrameIndex = currentFrameIndex >= maxFrameIndex && !this.loop ? maxFrameIndex : currentFrameIndex;
                 this._curFrame = this._animCache.getFrame(runFrameIndex);
             }
         } else {
