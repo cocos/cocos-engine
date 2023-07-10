@@ -577,17 +577,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {
-            if (Editor) {
-                _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-gpu-material');
-                _matInsInfo.owner = ps;
-                _matInsInfo.subModelIdx = 0;
-                this._defaultMat = new MaterialInstance(_matInsInfo);
-                _matInsInfo.parent = null!;
-                _matInsInfo.owner = null!;
-                _matInsInfo.subModelIdx = 0;
-                if (this._renderInfo!.mainTexture !== null) {
-                    this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
-                }
+            _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-gpu-material');
+            _matInsInfo.owner = ps;
+            _matInsInfo.subModelIdx = 0;
+            this._defaultMat = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.owner = null!;
+            _matInsInfo.subModelIdx = 0;
+            if (this._renderInfo!.mainTexture !== null) {
+                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;

@@ -345,6 +345,25 @@ export class Shadows {
         }
     }
 
+    /**
+     * @en Get the shader for the planar shadow with macro patches
+     * @zh 通过指定宏获取平面阴影的 Shader 对象
+     * @param patches The macro patches for the shader
+     * @returns The shader for the planar shadow
+     */
+    public getPlanarShader (patches: Readonly<IMacroPatch[] | null>): Shader | null {
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        }
+
+        const passes = this._material.passes;
+        if (DEBUG) {
+            assert(passes.length > 0, 'passes should not be empty!');
+        }
+        return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
+    }
+
     public activate () {
         if (this._enabled) {
             if (this.type === ShadowType.Planar) {
