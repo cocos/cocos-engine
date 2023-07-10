@@ -291,7 +291,9 @@ if (cc.internal.VideoPlayer) {
             let self = this;
             let video = this._video;
             if (!video || !this._visible) return;
-
+            if (!this._playing) { // to unify performance of android and ios
+                video.play();
+            }
             video.stop().then(function (res) {
                 if (res.errMsg && !res.errMsg.includes('ok')) {
                     console.error('failed to stop video player');
