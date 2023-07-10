@@ -38,7 +38,6 @@
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine-creator-support/Vector2.h"
-#include "spine-creator-support/SkinEntry.h"
 
 using namespace cc;
 
@@ -415,13 +414,13 @@ static bool js_findAttachmentsForSlot_Skin(se::State &s) {
     ok = sevalue_to_native(args[0], &slotIndex, s.thisObject());
     ok = sevalue_to_native(args[1], &attachmentsVal, s.thisObject());
 
-    spine::Vector<spine::Attachment*> attachments;
-    skin->findAttachmentsForSlot(slotIndex, attachments);
-
-    for (int i = 0; i < attachments.size(); ++i) {
-        spine::Attachment* attach = attachments[i];
-        spine::SkinEntry* entry = new spine::SkinEntry(slotIndex, attach->getName(), attach);
-        attachmentsVal.toObject()->setArrayElement(i, se::Value(entry));
+    spine::Skin::AttachmentMap::Entries entries = skin->getAttachments();
+    int index = 0;
+    while (entries.hasNext()) {
+        spine::Skin::AttachmentMap::Entry &entry = entries.next();
+        if (entry._slotIndex == slotIndex) {
+            attachmentsVal.toObject()->setArrayElement(index++, se::Value(&entry));
+        }
     }
     return true;
 }
@@ -483,16 +482,15 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
     if (nullptr == skin) return true;
     spine::Skin::AttachmentMap::Entries attachments = skin->getAttachments();
 
-    ccstd::vector<spine::SkinEntry*> entryList;
+    std::vector<spine::Skin::AttachmentMap::Entry*> entries;
     while (attachments.hasNext()) {
-        spine::Skin::AttachmentMap::Entry entry = attachments.next();
-        spine::SkinEntry* skinEntry = new spine::SkinEntry(entry._slotIndex, entry._name, entry._attachment);
-        entryList.push_back(skinEntry);
+        spine::Skin::AttachmentMap::Entry &entry = attachments.next();
+        entries.push_back(&entry);
     }
     
-    se::Object *array = se::Object::createArrayObject(entryList.size());
-    for (int i = 0; i < entryList.size(); ++i) {
-        array->setArrayElement(i, se::Value(entryList[i]));
+    se::Object *array = se::Object::createArrayObject(entries.size());
+    for (int i = 0; i < entries.size(); ++i) {
+        array->setArrayElement(i, se::Value(entries[i]));
     }
     s.rval().setObject(array);
     

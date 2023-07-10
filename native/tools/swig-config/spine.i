@@ -14,7 +14,6 @@
 #include "bindings/manual/jsb_conversions.h"
 #include "editor-support/spine-creator-support/spine-cocos2dx.h"
 #include "editor-support/spine-creator-support/Vector2.h"
-#include "editor-support/spine-creator-support/SkinEntry.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)

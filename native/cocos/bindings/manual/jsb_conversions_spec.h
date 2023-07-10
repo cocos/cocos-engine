@@ -133,9 +133,8 @@ template <typename T>
 class Vector;
 template <typename K, typename V>
 class Map;
+class Vector2;
 } // namespace spine
-
-#include "cocos/editor-support/spine-creator-support/Vector2.h"
 
 #endif
 
