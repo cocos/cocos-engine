@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { encodeUtf8, decodeUtf8 } from 'pal/text-encoding';
 import { getError, cclegacy } from '../core';
 
 const VERSION = 1;
@@ -184,31 +185,11 @@ interface BufferConstructor {
 }
 
 function encodeJson (input: string): Uint8Array {
-    if (typeof TextEncoder !== 'undefined') {
-        return new TextEncoder().encode(input);
-    } else if ('Buffer' in globalThis) {
-        const { Buffer } = (globalThis as unknown as { Buffer: BufferConstructor });
-        const buffer = Buffer.from(input, 'utf8');
-        return new Uint8Array(
-            buffer.buffer,
-            buffer.byteOffset,
-            buffer.length,
-        );
-    } else {
-        throw new Error(getError(13103));
-    }
+    return encodeUtf8(input);
 }
 
 function decodeJson (data: Uint8Array): string {
-    if (typeof TextDecoder !== 'undefined') {
-        return new TextDecoder().decode(data);
-    } else if ('Buffer' in globalThis) {
-        const { Buffer } = (globalThis as unknown as { Buffer: BufferConstructor });
-        // eslint-disable-next-line no-buffer-constructor
-        return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
-    } else {
-        throw new Error(getError(13104));
-    }
+    return decodeUtf8(data);
 }
 
 export class InvalidCCONError extends Error { }

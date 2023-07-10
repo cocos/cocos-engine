@@ -46,6 +46,7 @@
       "./@types/pal/env",
       "./@types/pal/pacer",
       "./@types/pal/wasm",
+      "./@types/pal/text-encoding",
     ]
   },
   "include": [

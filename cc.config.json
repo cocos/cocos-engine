@@ -365,6 +365,35 @@
             "overrides": {
                 "cocos/animation/marionette/pose-graph/runtime-exports.ts": "cocos/animation/marionette/pose-graph/runtime-exports-empty.ts"
             }
+        },
+
+        {
+            "test": "context.buildTimeConstants && (context.buildTimeConstants.WECHAT || context.buildTimeConstants.WECHAT_MINI_PROGRAM)",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/text-encoding": "pal/text-encoding/text-encoding-wechat.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && (context.buildTimeConstants.BYTEDANCE)",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/text-encoding": "pal/text-encoding/text-encoding-bytedance.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && (context.buildTimeConstants.HTML5 || context.buildTimeConstants.NATIVE)",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/text-encoding": "pal/text-encoding/text-encoding-whatwg.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && !(context.buildTimeConstants.HTML5 || context.buildTimeConstants.NATIVE || context.buildTimeConstants.WECHAT || context.buildTimeConstants.WECHAT_MINI_PROGRAM || context.buildTimeConstants.BYTEDANCE)",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/text-encoding": "pal/text-encoding/text-encoding-pure-js.ts"
+            }
         }
     ],
     "includes": [

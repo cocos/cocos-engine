@@ -22,10 +22,10 @@
         "eventified",
         "eventify",
         "forin",
-        "interruptible",
         "glsl",
         "grayscale",
         "IGFX",
+        "interruptible",
         "lerp",
         "lerpable",
         "lightmap",
@@ -51,6 +51,7 @@
         "wasm",
         "WECHAT",
         "WECHATGAME",
+        "WHATWG",
         "XIAOMI",
         "Yaji"
     ]
