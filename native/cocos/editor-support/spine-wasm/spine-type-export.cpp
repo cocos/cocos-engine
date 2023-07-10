@@ -98,8 +98,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .value("start", EventType_Start)
         .value("interrupt", EventType_Interrupt)
         .value("end", EventType_End)
-        .value("complete", EventType_Dispose)
-        .value("dispose", EventType_Complete)
+        .value("dispose", EventType_Dispose)
+        .value("complete", EventType_Complete)
         .value("event", EventType_Event);
 
     enum_<TransformMode>("TransformMode")
