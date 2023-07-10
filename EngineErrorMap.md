@@ -3412,3 +3412,7 @@ Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTP
 ### 16304
 
 Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component.
+
+### 16305
+
+The reflection camera is invalid, please set the reflection camera.

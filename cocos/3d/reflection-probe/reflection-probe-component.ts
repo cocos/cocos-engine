@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../../core';
+import { CCBoolean, CCObject, Color, Enum, Vec3, warnID } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -151,8 +151,7 @@ export class ReflectionProbe extends Component {
                     this._objFlags ^= CCObject.Flags.IsRotationLocked;
                 }
                 if (!this._sourceCamera) {
-                    // eslint-disable-next-line no-console
-                    console.warn('the reflection camera is invalid, please set the reflection camera');
+                    warnID(16305);
                 } else {
                     this.probe.switchProbeType(value, this._sourceCamera.camera);
                 }
