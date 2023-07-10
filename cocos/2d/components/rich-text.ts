@@ -238,10 +238,10 @@ export class RichText extends Component {
 
     /**
      * @en
-     * Font color of RichText.
+     * Font color of RichText. Works when the text content does not have a color parameter set. Transparency cascade is not supported.
      *
      * @zh
-     * 富文本默认文字颜色。
+     * 富文本默认文字颜色。在文本内容没有设置颜色参数时生效。暂不支持颜色级联。
      */
     @type(Color)
     get fontColor (): Color {
