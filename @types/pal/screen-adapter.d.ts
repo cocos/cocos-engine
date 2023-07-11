@@ -80,12 +80,6 @@ declare module 'pal/screen-adapter' {
         public get resolution (): import('cocos/core/math').Size;
 
         /**
-         * Update the resolution by resolutionScale.
-         * This method rebuilds the size of frame buffer and the size of canvas.
-         * This method should be called when window resized (fullscreen changing included) or the resolution scale changed.
-         */
-        private _updateResolution ();
-        /**
          * Get and set the resolution scale of screen, which will affect the quality of the rendering.
          * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
          */
