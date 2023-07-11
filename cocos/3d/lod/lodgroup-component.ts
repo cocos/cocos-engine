@@ -242,6 +242,11 @@ export class LODGroup extends Component {
 
     private _eventRegistered = false;
 
+    /**
+     * @engineInternal
+     */
+    private _forceUsedLevel: number = -1;
+
     constructor () {
         super();
     }
@@ -543,6 +548,7 @@ export class LODGroup extends Component {
      * lodLevel @en The LOD level to use. Passing lodLevel < 0 will return to standard LOD processing. @zh 要使用的LOD层级，为负数时使用标准的处理流程
      */
     public forceLOD (lodLevel: number): void {
+        this._forceUsedLevel = lodLevel;
         this.lodGroup.lockLODLevels(lodLevel < 0 ? [] : [lodLevel]);
     }
 
@@ -587,6 +593,9 @@ export class LODGroup extends Component {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
+        if (this._forceUsedLevel >= 0) {
+            this.lodGroup.lockLODLevels(this._forceUsedLevel < 0 ? [] : [this._forceUsedLevel]);
+        }
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -609,6 +618,9 @@ export class LODGroup extends Component {
 
     onDisable (): void {
         this._detachFromScene();
+        if (this._forceUsedLevel >= 0) {
+            this.lodGroup.lockLODLevels([]);
+        }
     }
 
     private _attachToScene (): void {

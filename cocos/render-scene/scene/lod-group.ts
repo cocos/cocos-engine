@@ -106,11 +106,6 @@ export class LODGroup {
 
     get lodDataArray (): readonly LODData[] { return this._lodDataArray; }
     attachToScene (scene: RenderScene): void {
-        // node's active maybe changed dynamically
-        if (this._lockedLODLevelVec.length > 0) {
-            this._isLockLevelChanged = true;
-        }
-
         this.scene = scene;
     }
 

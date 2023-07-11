@@ -61,7 +61,7 @@ public:
     LODGroup();
     ~LODGroup() override;
 
-    void attachToScene(RenderScene *scene);
+    inline void attachToScene(RenderScene *scene) { _scene = scene; }
     inline void detachFromScene() { _scene = nullptr; }
 
     inline bool isEnabled() const { return _enabled; }
