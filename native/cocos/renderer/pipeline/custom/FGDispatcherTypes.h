@@ -236,6 +236,7 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
     ccstd::pmr::vector<ResourceAccessNode> passResource;
     ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
+    ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
@@ -249,6 +250,10 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
     PmrTransparentMap<ResourceGraph::vertex_descriptor, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
+
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
+    PmrTransparentMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrTransparentMap<ccstd::pmr::string, AccessStatus> movedTargetStatus;
 };
 
 struct RelationGraph {
