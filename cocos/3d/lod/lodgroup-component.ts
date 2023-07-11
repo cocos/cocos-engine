@@ -242,9 +242,6 @@ export class LODGroup extends Component {
 
     private _eventRegistered = false;
 
-    /**
-     * @engineInternal
-     */
     private _forceUsedLevel: number = -1;
 
     constructor () {
@@ -549,7 +546,7 @@ export class LODGroup extends Component {
      */
     public forceLOD (lodLevel: number): void {
         this._forceUsedLevel = lodLevel;
-        this.lodGroup.lockLODLevels(lodLevel < 0 ? [] : [lodLevel]);
+        this._updateLockedLODLevels(lodLevel);
     }
 
     onLoad (): void {
@@ -593,9 +590,7 @@ export class LODGroup extends Component {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
-        if (this._forceUsedLevel >= 0) {
-            this.lodGroup.lockLODLevels([this._forceUsedLevel]);
-        }
+        this._updateLockedLODLevels(this._forceUsedLevel);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -618,9 +613,12 @@ export class LODGroup extends Component {
 
     onDisable (): void {
         this._detachFromScene();
-        if (this._forceUsedLevel >= 0) {
-            this.lodGroup.lockLODLevels([]);
-        }
+        //reset lockedLevel
+        this._updateLockedLODLevels(-1);
+    }
+
+    private _updateLockedLODLevels (level: number): void {
+        this.lodGroup.lockLODLevels(level < 0 ? [] : [level]);
     }
 
     private _attachToScene (): void {
