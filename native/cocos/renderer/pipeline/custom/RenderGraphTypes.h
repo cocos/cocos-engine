@@ -1048,6 +1048,7 @@ struct RenderGraph {
         impl::ValueHandle<ClearTag, vertex_descriptor>,
         impl::ValueHandle<ViewportTag, vertex_descriptor>>;
 
+    vertex_descriptor getPassID(vertex_descriptor nodeID) const;
     ccstd::string print(boost::container::pmr::memory_resource* scratch) const;
 
     // ContinuousContainer

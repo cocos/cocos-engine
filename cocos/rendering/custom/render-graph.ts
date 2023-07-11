@@ -164,6 +164,7 @@ export class ManagedResource {
 export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly resolvePairs: ResolvePair[] = [];
 }
 
 //=================================================================

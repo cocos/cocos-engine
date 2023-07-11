@@ -179,6 +179,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
     PmrFlatSet<ccstd::pmr::string> set(scratch);
     auto fillFrameBufferInfo = [&](const ccstd::vector<std::string>& passViews, bool hasResolve) {
+        std::ignore = hasResolve;
         const auto& uberPass = pass;
         auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
 
