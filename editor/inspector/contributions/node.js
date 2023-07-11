@@ -1125,6 +1125,8 @@ const Elements = {
         async update() {
             const panel = this;
 
+            panel.componentCacheExpand = {};
+
             if (!panel.dump || panel.dump.isScene) {
                 return;
             }
@@ -1207,7 +1209,15 @@ const Elements = {
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component config');
-                    $section.setAttribute('cache-expand', `${component.path}:${component.type}`);
+
+                    let cacheExpandKey = `node-component:${component.type}`;
+                    if (panel.componentCacheExpand[cacheExpandKey]) {
+                        // when exist duplicated component, use uuid as key;
+                        cacheExpandKey = `node-component:${component.value.uuid.value}`;
+                    }
+                    panel.componentCacheExpand[cacheExpandKey] = true;
+                    $section.setAttribute('cache-expand', `${cacheExpandKey}`);
+
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
@@ -1534,6 +1544,7 @@ const Elements = {
                     materialPanel.injectionStyle(injectionStyle);
                     materialPanel.setAttribute('src', panel.typeManager[materialPanelType]);
                     materialPanel.setAttribute('type', materialPanelType);
+                    materialPanel.setAttribute('sub-type', 'unknown');
                     materialPanel.setAttribute('uuid', materialUuid);
 
                     materialPanel.panelObject.replaceContainerWithUISection({
