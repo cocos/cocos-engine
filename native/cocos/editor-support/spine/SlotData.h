@@ -76,8 +76,6 @@ public:
 
     int getIndex();
 
-    int hash;
-
     const String &getName();
 
     BoneData &getBoneData();

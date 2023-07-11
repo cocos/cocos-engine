@@ -47,7 +47,8 @@ import { TrackEntryListeners } from './track-entry-listeners';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
-let _slotTextureID = 0;
+const CUSTOM_SLOT_TEXTURE_BEGIN = 10000;
+let _slotTextureID = CUSTOM_SLOT_TEXTURE_BEGIN;
 
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
@@ -606,7 +607,7 @@ export class Skeleton extends UIRenderer {
      * @method getState
      * @return {sp.spine.AnimationState} state
      */
-    public getState(): spine.AnimationState | undefined {
+    public getState (): spine.AnimationState | undefined {
         return this._state;
     }
 
@@ -899,8 +900,8 @@ export class Skeleton extends UIRenderer {
     public requestDrawData (material: Material, textureID: number, indexOffset: number, indexCount: number) {
         const draw = this._drawList.add();
         draw.material = material;
-        if (textureID >= 10000) {
-            draw.texture = this._textures[textureID - 10000];
+        if (textureID < CUSTOM_SLOT_TEXTURE_BEGIN) {
+            draw.texture = this._textures[textureID];
         } else {
             const texture = this._slotTextures?.get(textureID);
             if (texture) draw.texture = texture;
