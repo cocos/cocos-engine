@@ -65,7 +65,6 @@ public:
 
 private:
     void collectMeshData();
-    uint32_t findSlotTextureID(Slot* slot);
 private:
     Skeleton *_skeleton = nullptr;
     SkeletonData *_skeletonData = nullptr;
