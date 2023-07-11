@@ -594,7 +594,7 @@ export class LODGroup extends Component {
             this.recalculateBounds();
         }
         if (this._forceUsedLevel >= 0) {
-            this.lodGroup.lockLODLevels(this._forceUsedLevel < 0 ? [] : [this._forceUsedLevel]);
+            this.lodGroup.lockLODLevels([this._forceUsedLevel]);
         }
 
         // cache lod for scene
