@@ -14,7 +14,7 @@ concurrency:
 jobs:
   win_gen_simulator:
     runs-on: windows-2019
-    if: 
+    if:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     name: Windows
     defaults:
@@ -31,10 +31,6 @@ jobs:
         run: |
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
-
-      - name: install vulkan-sdk
-        run: |
-          choco install vulkan-sdk
       - name: gen simulator
         run: |
           gulp gen-simulator

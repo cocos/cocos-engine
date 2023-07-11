@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -32,9 +32,41 @@ import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
 import { assert, cclegacy, RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
-    FramebufferInfo, GeneralBarrierInfo, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineState, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
-    TextureType, TextureUsageBit, Viewport } from '../../gfx';
+import {
+    AccessFlagBit,
+    Attribute,
+    Buffer,
+    BufferInfo,
+    BufferUsageBit,
+    BufferViewInfo,
+    Color,
+    ColorAttachment,
+    CommandBuffer,
+    DepthStencilAttachment,
+    DescriptorSet,
+    DescriptorSetInfo,
+    Device,
+    deviceManager,
+    Format,
+    Framebuffer,
+    FramebufferInfo,
+    GeneralBarrierInfo,
+    InputAssemblerInfo,
+    LoadOp,
+    MemoryUsageBit,
+    PipelineState,
+    Rect,
+    RenderPass,
+    RenderPassInfo,
+    StoreOp,
+    SurfaceTransform,
+    Swapchain,
+    Texture,
+    TextureInfo,
+    TextureType,
+    TextureUsageBit,
+    Viewport,
+} from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
@@ -47,10 +79,45 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline, SceneVisitor } from './pipeline';
-import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
-    RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
-    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView, ComputeView, RasterView } from './render-graph';
-import { AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import {
+    Blit,
+    ClearView,
+    ComputePass,
+    ComputeSubpass,
+    ComputeView,
+    CopyPass,
+    Dispatch,
+    FormatView,
+    ManagedBuffer,
+    ManagedResource,
+    ManagedTexture,
+    MovePass,
+    RasterPass,
+    RasterSubpass,
+    RasterView,
+    RaytracePass,
+    RenderData,
+    RenderGraph,
+    RenderGraphVisitor,
+    RenderQueue,
+    RenderSwapchain,
+    ResolvePass,
+    ResourceDesc,
+    ResourceGraph,
+    ResourceGraphVisitor,
+    ResourceTraits,
+    SceneData,
+    SubresourceView,
+} from './render-graph';
+import {
+    AttachmentType,
+    QueueHint,
+    ResourceDimension,
+    ResourceFlags,
+    ResourceResidency,
+    SceneFlags,
+    UpdateFrequency,
+} from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
@@ -59,7 +126,14 @@ import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
-import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
+import {
+    getDescBindingFromName,
+    getDescriptorSetDataFromLayout,
+    getDescriptorSetDataFromLayoutId,
+    getRenderArea,
+    mergeSrcToTargetDesc,
+    updateGlobalDescBinding,
+} from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
@@ -177,6 +251,8 @@ class DeviceTexture extends DeviceResource {
         if (info.flags & ResourceFlags.INPUT_ATTACHMENT) usageFlags |= TextureUsageBit.INPUT_ATTACHMENT;
         if (info.flags & ResourceFlags.SAMPLED) usageFlags |= TextureUsageBit.SAMPLED;
         if (info.flags & ResourceFlags.STORAGE) usageFlags |= TextureUsageBit.STORAGE;
+        if (info.flags & ResourceFlags.TRANSFER_SRC) usageFlags |= TextureUsageBit.TRANSFER_SRC;
+        if (info.flags & ResourceFlags.TRANSFER_DST) usageFlags |= TextureUsageBit.TRANSFER_DST;
 
         this._texture = context.device.createTexture(new TextureInfo(
             type,

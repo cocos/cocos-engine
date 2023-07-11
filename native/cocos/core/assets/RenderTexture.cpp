@@ -36,7 +36,7 @@ gfx::RenderPassInfo getDefaultRenderPassInfo(gfx::Device *device) {
     gfx::RenderPassInfo info;
     info.colorAttachments.push_back({
         gfx::Format::RGBA8,
-        gfx::SampleCount::ONE,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         device->getGeneralBarrier({

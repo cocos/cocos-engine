@@ -54,6 +54,11 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
         _gpuFBO->gpuDepthStencilView = depthTex->gpuTextureView();
     }
 
+    if (_depthStencilResolveTexture) {
+        auto *depthTex = static_cast<CCVKTexture *>(_depthStencilResolveTexture);
+        _gpuFBO->gpuDepthStencilResolveView = depthTex->gpuTextureView();
+    }
+
     cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), _gpuFBO);
 }
 

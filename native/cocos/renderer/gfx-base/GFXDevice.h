@@ -57,7 +57,7 @@ public:
 
     bool initialize(const DeviceInfo &info);
     void destroy();
-    
+
     // aim to ensure waiting for work on gpu done when cpu encodes ahead of gpu certain frame(s).
     virtual void frameSync() = 0;
 
@@ -122,6 +122,12 @@ public:
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
     virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
+    virtual SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+        std::ignore = format;
+        std::ignore = usage;
+        std::ignore = flags;
+        return SampleCount::X1;
+    };
 
 protected:
     static Device *instance;

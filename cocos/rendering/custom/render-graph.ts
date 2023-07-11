@@ -114,7 +114,7 @@ export class ResourceDesc {
     depthOrArraySize = 0;
     mipLevels = 0;
     format: Format = Format.UNKNOWN;
-    sampleCount: SampleCount = SampleCount.ONE;
+    sampleCount: SampleCount = SampleCount.X1;
     textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
 }

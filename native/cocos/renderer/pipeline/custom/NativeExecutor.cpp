@@ -97,6 +97,7 @@ struct RenderGraphVisitorContext {
 void clear(gfx::RenderPassInfo& info) {
     info.colorAttachments.clear();
     info.depthStencilAttachment = {};
+    info.depthStencilResolveAttachment = {};
     info.subpasses.clear();
     info.dependencies.clear();
 }
@@ -183,22 +184,23 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
         // uint32_t dsvCount = 0;
         uint32_t index = 0;
-        for (const auto nameIn : passViews) {
+        for (const auto& nameIn : passViews) {
             const char* name = nameIn.c_str();
             bool colorLikeView{true};
-            bool dsAttachment{false};
+            bool dsResolveAttachment{false};
             auto clearColor = gfx::Color{};
             auto iter = pass.rasterViews.find(name);
             if(iter != pass.rasterViews.end()) {
                 const auto& view = iter->second;
                 colorLikeView = view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE;
-                dsAttachment = !colorLikeView;
                 clearColor = view.clearColor;
             } else {
                 // resolves
                 const auto resID = vertex(name, ctx.resourceGraph);
                 const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
-                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::ONE);
+                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::X1);
+                colorLikeView = desc.format != gfx::Format::DEPTH_STENCIL && desc.format != gfx::Format::DEPTH;
+                dsResolveAttachment = !colorLikeView;
             }
 
             if (colorLikeView) { // RenderTarget
@@ -246,22 +248,23 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         std::ignore = view;
                         CC_EXPECTS(false);
                     });
-            } else if (dsAttachment) { // DepthStencil
-                data.clearDepth = clearColor.x;
-                data.clearStencil = static_cast<uint8_t>(clearColor.y);
+            } else { // DepthStencil
+                if (!dsResolveAttachment) {
+                    data.clearDepth = clearColor.x;
+                    data.clearStencil = static_cast<uint8_t>(clearColor.y);
+                }
 
-                if (!fbInfo.depthStencilTexture) {
-                    auto resID = findVertex(name, resg);
-                    visitObject(
+                auto &dsAttachment = dsResolveAttachment ? fbInfo.depthStencilResolveTexture : fbInfo.depthStencilTexture;
+
+                auto resID = findVertex(name, resg);
+                visitObject(
                         resID, resg,
                         [&](const ManagedTexture& tex) {
                             CC_EXPECTS(tex.texture);
-                            CC_EXPECTS(!fbInfo.depthStencilTexture);
-                            fbInfo.depthStencilTexture = tex.texture.get();
+                            dsAttachment = tex.texture.get();
                         },
                         [&](const IntrusivePtr<gfx::Texture>& tex) {
-                            CC_EXPECTS(!fbInfo.depthStencilTexture);
-                            fbInfo.depthStencilTexture = tex.get();
+                            dsAttachment = tex.get();
                         },
                         [&](const FormatView& view) {
                             std::ignore = view;
@@ -274,7 +277,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         [](const auto& /*unused*/) {
                             CC_EXPECTS(false);
                         });
-                }
             }
             ++index;
         }
@@ -1145,7 +1147,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            
+
             auto parentLayoutID = ctx.currentPassLayoutID;
             auto layoutID = parentLayoutID;
             if (!layoutName.empty()) {
@@ -1261,7 +1263,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto& nodeID = iter->second;
         auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end() && iter2->second.subpassBarriers.empty()) {
+        if (iter2 != ctx.barrierMap.end()) {
             submitBarriers(iter2->second.blockBarrier.frontBarriers);
         }
     }
@@ -1272,7 +1274,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto& nodeID = iter->second;
         auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end() && iter2->second.subpassBarriers.empty()) {
+        if (iter2 != ctx.barrierMap.end()) {
             submitBarriers(iter2->second.blockBarrier.rearBarriers);
         }
     }
@@ -2239,7 +2241,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitor visitor{{}, ctx};
         auto colors = rg.colors(scratch);
         for (const auto vertID : ctx.g.sortedVertices) {
-            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
+            if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g) || holds<CopyTag>(vertID, ctx.g)) {
                 boost::depth_first_visit(fg, vertID, visitor, get(colors, ctx.g));
             }
         }

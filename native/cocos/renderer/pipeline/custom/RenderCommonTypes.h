@@ -102,6 +102,8 @@ enum class ResourceFlags : uint32_t {
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
     SHADING_RATE = 0x80,
+    TRANSFER_SRC = 0x100,
+    TRANSFER_DST = 0x200
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
