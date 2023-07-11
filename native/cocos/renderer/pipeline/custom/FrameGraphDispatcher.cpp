@@ -253,7 +253,7 @@ inline RelationGraph::vertex_descriptor add_vertex(RelationGraph &g) { // NOLINT
     return add_vertex(g, count++);
 }
 
-ResourceGraph::vertex_descriptor parentResource(ResourceGraph::vertex_descriptor vert, const ResourceGraph& resg) {
+ResourceGraph::vertex_descriptor parentResource(ResourceGraph::vertex_descriptor vert, const ResourceGraph &resg) {
     const auto &desc = get(ResourceGraph::DescTag{}, resg, vert);
     if (desc.dimension == ResourceDimension::BUFFER) {
         // TODO(Zeqaing): bufferview
@@ -641,7 +641,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
         bool dstExternalDeps = (srcHasSubpass != INVALID_ID) && (dstHasSubpass == INVALID_ID);
         bool srcExternalDeps = (srcHasSubpass == INVALID_ID) && (dstHasSubpass != INVALID_ID);
-        
+
         std::vector<AccessStatus> commonResources;
         std::set_intersection(srcStatus.begin(), srcStatus.end(),
                               dstStatus.begin(), dstStatus.end(),
@@ -2332,7 +2332,7 @@ uint32_t record(uint32_t index) {
     return res;
 }
 
-uint32_t record(const ccstd::vector<uint32_t>& indices) {
+uint32_t record(const ccstd::vector<uint32_t> &indices) {
     uint32_t res = 0;
     for (auto attachmentIndex : indices) {
         res |= 1 << attachmentIndex;
@@ -2388,7 +2388,7 @@ bool isDefaultAttachment(const PmrString &name) {
     return name.empty() || name == "_";
 }
 
-bool isDefaultDepthStencilAttachment(const PmrString& name, const PmrString& name1) {
+bool isDefaultDepthStencilAttachment(const PmrString &name, const PmrString &name1) {
     return (name.empty() || name == "_") && (name1.empty() || name1 == "_");
 }
 
@@ -2554,135 +2554,135 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             } else {
                 fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
                 dsAppeared = true;
-                if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+                ` if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
                     subpassInfo.inputs.emplace_back(fgRenderpassInfo.colorAccesses.size()); // depth - slotName
                     CC_ASSERT(view.accessType != AccessType::WRITE);
-                } else {
+                }
+                else {
                     subpassInfo.depthStencil = rpInfo.colorAttachments.size();
                 }
             }
 
+            if (iter == node.attachmentStatus.end()) {
+                auto curIter = std::find_if(head->attachmentStatus.begin(), head->attachmentStatus.end(), findByResID);
+                node.attachmentStatus.emplace_back(*curIter);
+                auto prevAccess = access;
+                CC_ASSERT(head->attachmentStatus.size() > localSlot);
+                auto nextAccess = head->attachmentStatus[localSlot].accessFlag;
 
-        if (iter == node.attachmentStatus.end()) {
-            auto curIter = std::find_if(head->attachmentStatus.begin(), head->attachmentStatus.end(), findByResID);
-            node.attachmentStatus.emplace_back(*curIter);
-            auto prevAccess = access;
-            CC_ASSERT(head->attachmentStatus.size() > localSlot);
-            auto nextAccess = head->attachmentStatus[localSlot].accessFlag;
-
-            if (attachmentType == AttachmentType::DEPTH_STENCIL) {
-                fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
-            } else {
-                fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
+                if (attachmentType == AttachmentType::DEPTH_STENCIL) {
+                    fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
+                } else {
+                    fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
+                }
+                fgRenderpassInfo.orderedViews.emplace_back(resName);
             }
-            fgRenderpassInfo.orderedViews.emplace_back(resName);
+            fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
+            fgRenderpassInfo.needResolve |= resolveView;
+            ++localSlot;
         }
-        fillRenderPassInfo(loadOp, storeOp, attachmentType, rpInfo, slot, viewDesc, resolveView);
-        fgRenderpassInfo.needResolve |= resolveView;
-        ++localSlot;
-    }
 
-    if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
-        getPreserves(rpInfo);
-    }
-}
-
-void processComputeSubpass(const Graphs &graphs, uint32_t passID, const ComputeSubpass &pass) {
-    const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
-    const auto &obj = renderGraph.objects.at(passID);
-    const auto parentID = obj.parents.front().target;
-    const auto parentRagVert = resourceAccessGraph.passIndex.at(parentID);
-    const auto *parentPass = get_if<ComputePass>(parentID, &renderGraph);
-    CC_EXPECTS(parentPass);
-    const auto &rag = resourceAccessGraph;
-    const auto &resg = resourceGraph;
-    const auto &uberPass = *parentPass;
-
-    resourceAccessGraph.passIndex[passID] = parentRagVert;
-
-    auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, parentRagVert);
-
-    auto *lastNode = &node;
-    while (lastNode->nextSubpass) {
-        lastNode = lastNode->nextSubpass;
-    }
-    lastNode->nextSubpass = new ResourceAccessNode;
-    auto *head = lastNode->nextSubpass;
-
-    bool dependent = checkComputeViews(graphs, parentRagVert, passID, PassType::COMPUTE, *head, pass.computeViews);
-
-    if (!dependent) {
-        tryAddEdge(EXPECT_START_ID, parentRagVert, resourceAccessGraph);
-        tryAddEdge(EXPECT_START_ID, parentRagVert, relationGraph);
-    }
-}
-
-void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass) {
-    const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
-
-    auto vertID = add_vertex(resourceAccessGraph, passID);
-    auto rlgVertID = add_vertex(relationGraph, vertID);
-    CC_EXPECTS(static_cast<uint32_t>(rlgVertID) == static_cast<uint32_t>(vertID));
-
-    auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, vertID);
-    bool dependent = false;
-    for (const auto &pair : pass.copyPairs) {
-        auto sourceRange = Range{
-            TextureRange{
-                pair.sourceFirstSlice,
-                pair.sourcePlaneSlice,
-                pair.mipLevels,
-                pair.numSlices,
-            }};
-        auto targetRange = Range{
-            TextureRange{
-                pair.targetFirstSlice,
-                pair.targetPlaneSlice,
-                pair.mipLevels,
-                pair.numSlices,
-            }};
-        ResourceUsage srcUsage = gfx::TextureUsage::TRANSFER_SRC;
-        ViewStatus srcViewStatus{pair.source, PassType::COPY, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY, gfx::AccessFlags::TRANSFER_READ, srcUsage};
-        addCopyAccessStatus(resourceAccessGraph, resourceGraph, node, srcViewStatus, sourceRange);
-        ResourceUsage dstUsage = gfx::TextureUsage::TRANSFER_DST;
-        ViewStatus dstViewStatus{pair.target, PassType::COPY, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY, gfx::AccessFlags::TRANSFER_WRITE, dstUsage};
-        addCopyAccessStatus(resourceAccessGraph, resourceGraph, node, dstViewStatus, targetRange);
-
-        uint32_t lastVertSrc = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, srcViewStatus);
-        if (lastVertSrc != INVALID_ID) {
-            tryAddEdge(lastVertSrc, vertID, resourceAccessGraph);
-            tryAddEdge(lastVertSrc, rlgVertID, relationGraph);
-            dependent = true;
-        }
-        uint32_t lastVertDst = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, dstViewStatus);
-        if (lastVertDst != INVALID_ID) {
-            tryAddEdge(lastVertDst, vertID, resourceAccessGraph);
-            tryAddEdge(lastVertDst, rlgVertID, relationGraph);
-            dependent = true;
+        if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
+            getPreserves(rpInfo);
         }
     }
-    if (!dependent) {
-        tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
-        tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
+
+    void processComputeSubpass(const Graphs &graphs, uint32_t passID, const ComputeSubpass &pass) {
+        const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
+        const auto &obj = renderGraph.objects.at(passID);
+        const auto parentID = obj.parents.front().target;
+        const auto parentRagVert = resourceAccessGraph.passIndex.at(parentID);
+        const auto *parentPass = get_if<ComputePass>(parentID, &renderGraph);
+        CC_EXPECTS(parentPass);
+        const auto &rag = resourceAccessGraph;
+        const auto &resg = resourceGraph;
+        const auto &uberPass = *parentPass;
+
+        resourceAccessGraph.passIndex[passID] = parentRagVert;
+
+        auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, parentRagVert);
+
+        auto *lastNode = &node;
+        while (lastNode->nextSubpass) {
+            lastNode = lastNode->nextSubpass;
+        }
+        lastNode->nextSubpass = new ResourceAccessNode;
+        auto *head = lastNode->nextSubpass;
+
+        bool dependent = checkComputeViews(graphs, parentRagVert, passID, PassType::COMPUTE, *head, pass.computeViews);
+
+        if (!dependent) {
+            tryAddEdge(EXPECT_START_ID, parentRagVert, resourceAccessGraph);
+            tryAddEdge(EXPECT_START_ID, parentRagVert, relationGraph);
+        }
     }
-    std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [](const AccessStatus &lhs, const AccessStatus &rhs) { return lhs.vertID < rhs.vertID; });
-}
 
-void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass) {
-    const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
+    void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass) {
+        const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
 
-    auto vertID = add_vertex(resourceAccessGraph, passID);
-    auto rlgVertID = add_vertex(relationGraph, vertID);
-    CC_EXPECTS(static_cast<uint32_t>(rlgVertID) == static_cast<uint32_t>(vertID));
+        auto vertID = add_vertex(resourceAccessGraph, passID);
+        auto rlgVertID = add_vertex(relationGraph, vertID);
+        CC_EXPECTS(static_cast<uint32_t>(rlgVertID) == static_cast<uint32_t>(vertID));
 
-    auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, vertID);
-    bool dependent = checkComputeViews(graphs, vertID, passID, PassType::RAYTRACE, node, pass.computeViews);
+        auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, vertID);
+        bool dependent = false;
+        for (const auto &pair : pass.copyPairs) {
+            auto sourceRange = Range{
+                TextureRange{
+                    pair.sourceFirstSlice,
+                    pair.sourcePlaneSlice,
+                    pair.mipLevels,
+                    pair.numSlices,
+                }};
+            auto targetRange = Range{
+                TextureRange{
+                    pair.targetFirstSlice,
+                    pair.targetPlaneSlice,
+                    pair.mipLevels,
+                    pair.numSlices,
+                }};
+            ResourceUsage srcUsage = gfx::TextureUsage::TRANSFER_SRC;
+            ViewStatus srcViewStatus{pair.source, PassType::COPY, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY, gfx::AccessFlags::TRANSFER_READ, srcUsage};
+            addCopyAccessStatus(resourceAccessGraph, resourceGraph, node, srcViewStatus, sourceRange);
+            ResourceUsage dstUsage = gfx::TextureUsage::TRANSFER_DST;
+            ViewStatus dstViewStatus{pair.target, PassType::COPY, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY, gfx::AccessFlags::TRANSFER_WRITE, dstUsage};
+            addCopyAccessStatus(resourceAccessGraph, resourceGraph, node, dstViewStatus, targetRange);
 
-    if (!dependent) {
-        tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
-        tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
+            uint32_t lastVertSrc = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, srcViewStatus);
+            if (lastVertSrc != INVALID_ID) {
+                tryAddEdge(lastVertSrc, vertID, resourceAccessGraph);
+                tryAddEdge(lastVertSrc, rlgVertID, relationGraph);
+                dependent = true;
+            }
+            uint32_t lastVertDst = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, dstViewStatus);
+            if (lastVertDst != INVALID_ID) {
+                tryAddEdge(lastVertDst, vertID, resourceAccessGraph);
+                tryAddEdge(lastVertDst, rlgVertID, relationGraph);
+                dependent = true;
+            }
+        }
+        if (!dependent) {
+            tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
+            tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
+        }
+        std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [](const AccessStatus &lhs, const AccessStatus &rhs) { return lhs.vertID < rhs.vertID; });
     }
-}
+
+    void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass) {
+        const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
+
+        auto vertID = add_vertex(resourceAccessGraph, passID);
+        auto rlgVertID = add_vertex(relationGraph, vertID);
+        CC_EXPECTS(static_cast<uint32_t>(rlgVertID) == static_cast<uint32_t>(vertID));
+
+        auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, vertID);
+        bool dependent = checkComputeViews(graphs, vertID, passID, PassType::RAYTRACE, node, pass.computeViews);
+
+        if (!dependent) {
+            tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
+            tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
+        }
+    }
 
 #pragma endregion assisstantFuncDefinition
 

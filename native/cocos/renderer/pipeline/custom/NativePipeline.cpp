@@ -92,7 +92,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
@@ -138,7 +138,7 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::STORAGE;
 
@@ -162,7 +162,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
@@ -186,7 +186,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
@@ -307,7 +307,7 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
 
@@ -336,7 +336,7 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = gfx::Format::R8UI;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
 
@@ -372,7 +372,7 @@ uint32_t NativePipeline::addCustomBuffer(
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = gfx::Format::UNKNOWN;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::NONE;
 
@@ -404,7 +404,7 @@ uint32_t NativePipeline::addCustomTexture(
     desc.depthOrArraySize = info.layerCount;
     desc.mipLevels = info.levelCount;
     desc.format = info.format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = info.flags;
     desc.flags = ResourceFlags::NONE;
 
@@ -638,7 +638,7 @@ void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePai
         pass.resolvePairs.emplace_back(pair);
     }
     std::string_view name("Resolve");
-    addVertex(
+    addVertex2(
         ResolveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -650,7 +650,7 @@ void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePai
 
 // NOLINTNEXTLINE
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &passName) {
-    auto passID = addVertex(
+    auto passID = addVertex2(
         ComputeTag{},
         std::forward_as_tuple(passName),
         std::forward_as_tuple(passName),
@@ -671,7 +671,7 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
         pass.movePairs.emplace_back(pair);
     }
     std::string_view name("Move");
-    addVertex(
+    addVertex2(
         MoveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -688,7 +688,7 @@ void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
         pass.copyPairs.emplace_back(pair);
     }
     std::string_view name("Copy");
-    addVertex(
+    addVertex2(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -706,7 +706,7 @@ void NativePipeline::addUploadPass(ccstd::vector<UploadPair> &uploadPairs) {
     }
     uploadPairs.clear();
     std::string_view name("Upload");
-    addVertex(
+    addVertex2(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),

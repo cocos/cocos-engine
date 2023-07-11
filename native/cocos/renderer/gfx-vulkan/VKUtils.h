@@ -58,7 +58,7 @@ VkAttachmentStoreOp mapVkStoreOp(StoreOp storeOp);
 VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage);
 VkImageType mapVkImageType(TextureType type);
 VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage);
-VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage);
+VkImageUsageFlags mapVkImageUsageFlags(TextureUsage usage, TextureFlags textureFlags);
 VkImageAspectFlags mapVkImageAspectFlags(Format format);
 VkImageCreateFlags mapVkImageCreateFlags(TextureType type);
 VkImageViewType mapVkImageViewType(TextureType viewType);
@@ -94,7 +94,6 @@ extern const VkPipelineBindPoint VK_PIPELINE_BIND_POINTS[];
 extern const VkResolveModeFlagBits VK_RESOLVE_MODES[];
 extern const VkImageLayout VK_IMAGE_LAYOUTS[];
 extern const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[];
-extern const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[];
 extern const VkAccessFlags FULL_ACCESS_FLAGS;
 
 } // namespace gfx

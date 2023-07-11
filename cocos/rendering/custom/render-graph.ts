@@ -114,7 +114,7 @@ export class ResourceDesc {
     depthOrArraySize = 0;
     mipLevels = 0;
     format: Format = Format.UNKNOWN;
-    sampleCount: SampleCount = SampleCount.ONE;
+    sampleCount: SampleCount = SampleCount.X1;
     textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
 }
@@ -1656,6 +1656,7 @@ export class RenderGraph implements BidirectionalGraph
     clear (): void {
         // Members
         this.index.clear();
+        this.sortedVertices.length = 0;
         // ComponentGraph
         this._names.length = 0;
         this._layoutNodes.length = 0;
@@ -2267,4 +2268,5 @@ export class RenderGraph implements BidirectionalGraph
     readonly _data: RenderData[] = [];
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
+    readonly sortedVertices: number[] = [];
 }

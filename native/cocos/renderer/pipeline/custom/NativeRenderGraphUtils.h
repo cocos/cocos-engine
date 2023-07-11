@@ -9,6 +9,24 @@ namespace cc {
 
 namespace render {
 
+template <class Component0, class Component1, class Component2, class Component3, class Tag, class ValueT>
+RenderGraph::vertex_descriptor
+addVertex2(Tag tag, Component0 &&c0, Component1 &&c1, Component2 &&c2, Component3 &&c3, ValueT &&val,
+           RenderGraph &g, RenderGraph::vertex_descriptor u = RenderGraph::null_vertex()) {
+    auto v = addVertex(
+        tag,
+        std::forward<Component0>(c0),
+        std::forward<Component1>(c1),
+        std::forward<Component2>(c2),
+        std::forward<Component3>(c3),
+        std::forward<ValueT>(val),
+        g,
+        u);
+    g.sortedVertices.emplace_back(v);
+    CC_EXPECTS(g.sortedVertices.size() == num_vertices(g));
+    return v;
+}
+
 inline LayoutGraphData::vertex_descriptor getSubpassOrPassID(
     RenderGraph::vertex_descriptor vertID,
     const RenderGraph &rg, const LayoutGraphData &lg) {
@@ -57,7 +75,7 @@ addRenderPassVertex(
     pass.count = count;
     pass.quality = quality;
 
-    auto passID = addVertex(
+    auto passID = addVertex2(
         RasterPassTag{},
         std::forward_as_tuple(passName),
         std::forward_as_tuple(passName),
@@ -98,7 +116,7 @@ addRenderSubpassVertex(
     subpass.viewport.width = pass.width;
     subpass.viewport.height = pass.height;
 
-    auto subpassID = addVertex(
+    auto subpassID = addVertex2(
         RasterSubpassTag{},
         std::forward_as_tuple(subpassName),
         std::forward_as_tuple(subpassName),

@@ -173,11 +173,13 @@ enum class Feature : uint32_t {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // @deprecated
-    INPUT_ATTACHMENT_BENEFIT,
+
+    INPUT_ATTACHMENT_BENEFIT, // @deprecated
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
     RASTERIZATION_ORDER_NOCOHERENT,
+
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -472,9 +474,10 @@ CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 enum class TextureFlagBit : uint32_t {
     NONE = 0,
     GEN_MIPMAP = 0x1,      // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
+    GENERAL_LAYOUT = 0x2,  // @deprecated, For inout framebuffer attachments
     EXTERNAL_OES = 0x4,    // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
+    LAZILY_ALLOCATED = 0x10 // Try lazily allocated mode.
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -492,10 +495,13 @@ using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
 
 enum class SampleCount : uint32_t {
-    ONE,                  // Single sample
-    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
-    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
-    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
+    X1  = 0x01,
+    X2  = 0x02,
+    X4  = 0x04,
+    X8  = 0x08,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40
 };
 CC_ENUM_CONVERSION_OPERATOR(SampleCount);
 
@@ -1064,7 +1070,7 @@ struct ALIGNAS(8) TextureInfo {
     TextureFlags flags{TextureFlagBit::NONE};
     uint32_t layerCount{1};
     uint32_t levelCount{1};
-    SampleCount samples{SampleCount::ONE};
+    SampleCount samples{SampleCount::X1};
     uint32_t depth{1};
     void *externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
@@ -1274,7 +1280,7 @@ struct InputAssemblerInfo {
 
 struct ALIGNAS(8) ColorAttachment {
     Format format{Format::UNKNOWN};
-    SampleCount sampleCount{SampleCount::ONE};
+    SampleCount sampleCount{SampleCount::X1};
     LoadOp loadOp{LoadOp::CLEAR};
     StoreOp storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
@@ -1286,7 +1292,7 @@ using ColorAttachmentList = ccstd::vector<ColorAttachment>;
 
 struct ALIGNAS(8) DepthStencilAttachment {
     Format format{Format::UNKNOWN};
-    SampleCount sampleCount{SampleCount::ONE};
+    SampleCount sampleCount{SampleCount::X1};
     LoadOp depthLoadOp{LoadOp::CLEAR};
     StoreOp depthStoreOp{StoreOp::STORE};
     LoadOp stencilLoadOp{LoadOp::CLEAR};
@@ -1329,6 +1335,7 @@ using SubpassDependencyList = ccstd::vector<SubpassDependency>;
 struct RenderPassInfo {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    DepthStencilAttachment depthStencilResolveAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
@@ -1388,6 +1395,7 @@ struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
     TextureList colorTextures;
     Texture *depthStencilTexture{nullptr}; // @ts-nullable
+    Texture *depthStencilResolveTexture{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(FramebufferInfo)
 };

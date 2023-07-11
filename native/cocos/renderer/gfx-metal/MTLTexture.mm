@@ -144,8 +144,10 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
         return;
     }
 
-    CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
-    CC_PROFILE_MEMORY_INC(Texture, _size);
+    if (_allocateMemory) {
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
+    }
 }
 
 void CCMTLTexture::doInit(const TextureViewInfo &info) {
@@ -229,27 +231,15 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.mipmapLevelCount = _info.levelCount;
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
-    if (hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
-#if MEMLESS_ON
-        // mac SDK mem_less unavailable before 11.0
-    #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_IOS
-        //xcode OS version warning
-        if (@available(macOS 11.0, *)) {
+    descriptor.storageMode = MTLStorageModePrivate;
+    if (@available(macos 11.0, ios 10.0, *)) {
+        bool memoryless = hasFlag(_info.flags, TextureFlagBit::LAZILY_ALLOCATED) &&
+            hasFlag(_info.usage, TextureUsageBit::COLOR_ATTACHMENT) &&
+            hasFlag(_info.usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT);
+        if (memoryless) {
             descriptor.storageMode = MTLStorageModeMemoryless;
-        } else {
-            descriptor.storageMode = MTLStorageModePrivate;
+            _allocateMemory = false;
         }
-    #else
-        descriptor.storageMode = MTLStorageModePrivate;
-    #endif
-#else
-        descriptor.storageMode = MTLStorageModePrivate;
-#endif
-    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::STORAGE)) {
-        descriptor.storageMode = MTLStorageModePrivate;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
@@ -268,8 +258,9 @@ const TextureInfo &CCMTLTexture::textureInfo() {
 
 void CCMTLTexture::doDestroy() {
     //decrease only non-swapchain tex and have had been inited.
-    if (!_swapchain && _mtlTexture) {
+    if (!_swapchain && _mtlTexture && _allocateMemory) {
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
 
     if (_swapchain) {
@@ -286,8 +277,6 @@ void CCMTLTexture::doDestroy() {
         mtlTexure = _mtlTexture;
         _mtlTexture = nil;
     }
-
-    CC_PROFILE_MEMORY_DEC(Texture, _size);
 
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
@@ -325,7 +314,7 @@ void CCMTLTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     // texture is a wrapper of drawable when _swapchain is active, drawable is not a resource alloc by gfx,
     // but the system so skip here.
-    if (!_swapchain) {
+    if (!_swapchain && _allocateMemory) {
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_DEC(Texture, oldSize);

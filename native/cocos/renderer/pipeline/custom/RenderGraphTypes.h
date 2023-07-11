@@ -166,7 +166,7 @@ struct ResourceDesc {
     uint16_t depthOrArraySize{0};
     uint16_t mipLevels{0};
     gfx::Format format{gfx::Format::UNKNOWN};
-    gfx::SampleCount sampleCount{gfx::SampleCount::ONE};
+    gfx::SampleCount sampleCount{gfx::SampleCount::X1};
     gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
     ResourceFlags flags{ResourceFlags::NONE};
 };
@@ -1124,6 +1124,7 @@ struct RenderGraph {
     ccstd::pmr::vector<gfx::Viewport> viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
+    ccstd::pmr::vector<vertex_descriptor> sortedVertices;
 };
 
 } // namespace render

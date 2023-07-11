@@ -58,6 +58,12 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
         GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
     }
 
+    if (_depthStencilResolveTexture) {
+        auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilResolveTexture);
+        _gpuFBO->gpuDepthStencilResolveView = depthTexture->gpuTextureView();
+        GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
+    }
+
     cmdFuncGLES3CreateFramebuffer(GLES3Device::getInstance(), _gpuFBO);
 }
 
@@ -71,6 +77,10 @@ void GLES3Framebuffer::doDestroy() {
         }
         if (_depthStencilTexture) {
             auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilTexture);
+            GLES3Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
+        }
+        if (_depthStencilResolveTexture) {
+            auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilResolveTexture);
             GLES3Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
         }
 

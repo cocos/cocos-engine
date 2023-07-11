@@ -334,7 +334,7 @@ bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
         }
     }
 
-    SampleCount sample = SampleCount::ONE;
+    SampleCount sample = SampleCount::X1;
     Format depthStencilFormat;
     if (depthStencilTexIndex != INVALID_BINDING && depthStencilTexIndex < _renderPass->getColorAttachments().size()) {
         sample = _renderPass->getColorAttachments()[depthStencilTexIndex].sampleCount;

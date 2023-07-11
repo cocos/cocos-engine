@@ -72,6 +72,8 @@ protected:
     bool _isArray = false;
     bool _isPVRTC = false;
 
+    bool _allocateMemory = true; // allocate device memory by metal driver.
+
     id<MTLTexture> _mtlTexture = nil;
     id<MTLTexture> _mtlTextureView = nil;
 };
