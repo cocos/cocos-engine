@@ -123,4 +123,6 @@ declare module 'pal/screen-adapter' {
     }
 
     export const screenAdapter: ScreenAdapter;
+
+    export {};
 }

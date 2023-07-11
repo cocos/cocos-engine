@@ -26,6 +26,7 @@ import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 import { Language } from '../system-info/enum-type';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 //taobao IDE language   ("Chinese")
 //taobao phone language (Andrond: "cn", iPad: 'zh_CN')
@@ -217,3 +218,5 @@ function adapterGL (gl): void {
 }
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./taobao')>());
