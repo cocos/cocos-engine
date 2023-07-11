@@ -60,40 +60,21 @@ struct LeafStatus {
     bool needCulling{false};
 };
 
-struct BufferRange {
-    uint32_t offset{0};
-    uint32_t size{0};
-};
-
-inline bool operator<(const BufferRange& lhs, const BufferRange& rhs) noexcept {
-    return std::forward_as_tuple(lhs.offset, lhs.size) <
-           std::forward_as_tuple(rhs.offset, rhs.size);
-}
-
-struct TextureRange {
+struct ResourceRange {
+    uint32_t width{0};
+    uint32_t height{0};
     uint32_t firstSlice{0};
-    uint32_t numSlices{1};
+    uint32_t numSlices{0};
     uint32_t mipLevel{0};
-    uint32_t levelCount{1};
+    uint32_t levelCount{0};
+    uint32_t basePlane{0};
+    uint32_t planeCount{0};
 };
-
-inline bool operator<(const TextureRange& lhs, const TextureRange& rhs) noexcept {
-    return std::forward_as_tuple(lhs.firstSlice, lhs.numSlices, lhs.mipLevel, lhs.levelCount) <
-           std::forward_as_tuple(rhs.firstSlice, rhs.numSlices, rhs.mipLevel, rhs.levelCount);
-}
-
-using Range = ccstd::variant<BufferRange, TextureRange>;
-
-using ResourceUsage = ccstd::variant<gfx::BufferUsageBit, gfx::TextureUsageBit>;
 
 struct AccessStatus {
-    uint32_t vertID{0xFFFFFFFF};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
-    gfx::PassType passType{gfx::PassType::RASTER};
     gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
-    ResourceUsage usage;
-    Range range;
+    AccessType accessType{AccessType::READ};
+    ResourceRange range;
 };
 
 struct ResourceTransition {
@@ -102,8 +83,22 @@ struct ResourceTransition {
 };
 
 struct ResourceAccessNode {
-    std::vector<AccessStatus> attachmentStatus;
-    struct ResourceAccessNode* nextSubpass{nullptr};
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {resourceStatus.get_allocator().resource()};
+    }
+
+    ResourceAccessNode(const allocator_type& alloc) noexcept; // NOLINT
+    ResourceAccessNode(ResourceAccessNode&& rhs, const allocator_type& alloc);
+    ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc);
+
+    ResourceAccessNode(ResourceAccessNode&& rhs) noexcept = default;
+    ResourceAccessNode(ResourceAccessNode const& rhs) = delete;
+    ResourceAccessNode& operator=(ResourceAccessNode&& rhs) = default;
+    ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
+
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
+    struct ResourceAccessNode* nextSubpass;
 };
 
 struct LayoutAccess {
@@ -114,8 +109,10 @@ struct LayoutAccess {
 struct FGRenderPassInfo {
     std::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
+    LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
-    std::vector<ccstd::pmr::string> orderedViews;
+    std::vector<std::string> orderedViews;
+    ccstd::map<std::string, uint32_t> viewIndex;
     bool needResolve{false};
 };
 
@@ -203,19 +200,8 @@ struct ResourceAccessGraph {
     using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceAccessGraph>;
     using edges_size_type = uint32_t;
 
-    ~ResourceAccessGraph() {
-        for (auto& node : access) {
-            auto* resNode = node.nextSubpass;
-            node.nextSubpass = nullptr;
-            while(resNode) {
-                auto* oldResNode = resNode;
-                resNode = resNode->nextSubpass;
-                oldResNode->nextSubpass = nullptr;
-                delete oldResNode;
-            }
-        }
-    }
-
+                    LayoutAccess getAccess(ccstd::pmr::string, RenderGraph::vertex_descriptor vertID);
+                
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -241,13 +227,15 @@ struct ResourceAccessGraph {
     };
 
     struct PassIDTag {};
-    struct AccessNodeTag {};
+    struct PassNodeTag {};
+    struct RenderPassInfoTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
-    ccstd::pmr::vector<ResourceAccessNode> access;
+    ccstd::pmr::vector<ResourceAccessNode> passResource;
+    ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
@@ -256,11 +244,11 @@ struct ResourceAccessGraph {
     vertex_descriptor presentPassID{0xFFFFFFFF};
     PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
     PmrFlatSet<vertex_descriptor> culledPasses;
-    PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
+    //PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
-    PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
     PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
+    PmrTransparentMap<ResourceGraph::vertex_descriptor, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
 };
 
 struct RelationGraph {

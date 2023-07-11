@@ -34,10 +34,22 @@ namespace cc {
 
 namespace render {
 
+ResourceAccessNode::ResourceAccessNode(const allocator_type& alloc) noexcept
+: resourceStatus(alloc) {}
+
+ResourceAccessNode::ResourceAccessNode(ResourceAccessNode&& rhs, const allocator_type& alloc)
+: resourceStatus(std::move(rhs.resourceStatus), alloc),
+  nextSubpass(rhs.nextSubpass) {}
+
+ResourceAccessNode::ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc)
+: resourceStatus(rhs.resourceStatus, alloc),
+  nextSubpass(rhs.nextSubpass) {}
+
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : _vertices(alloc),
   passID(alloc),
-  access(alloc),
+  passResource(alloc),
+  rpInfo(alloc),
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
@@ -46,14 +58,15 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   accessRecord(alloc),
   resourceLifeRecord(alloc),
   topologicalOrder(alloc),
-  rpInfos(alloc),
-  subpassIndex(alloc) {}
+  subpassIndex(alloc),
+  resourceAccess(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
     _vertices.reserve(sz);
     passID.reserve(sz);
-    access.reserve(sz);
+    passResource.reserve(sz);
+    rpInfo.reserve(sz);
 }
 
 ResourceAccessGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
