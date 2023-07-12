@@ -164,6 +164,7 @@ void SpineSkeletonInstance::collectMeshData() {
             color.g *= attachment->getColor().g;
             color.b *= attachment->getColor().b;
             color.a *= attachment->getColor().a;
+            currMesh.textureID = attachmentVertices->_textureId;
         } else if (slot->getAttachment()->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_MESH;
             auto *attachment = static_cast<spine::MeshAttachment *>(slot->getAttachment());
@@ -196,6 +197,7 @@ void SpineSkeletonInstance::collectMeshData() {
             color.g *= attachment->getColor().g;
             color.b *= attachment->getColor().b;
             color.a *= attachment->getColor().a;
+            currMesh.textureID = attachmentVertices->_textureId;
         } else if (slot->getAttachment()->getRTTI().isExactly(spine::ClippingAttachment::rtti)) {
             auto *clip = static_cast<spine::ClippingAttachment *>(slot->getAttachment());
             _clipper->clipStart(*slot, clip);
@@ -353,9 +355,10 @@ void SpineSkeletonInstance::collectMeshData() {
 
         currMesh.blendMode = static_cast<uint32_t>(slot->getData().getBlendMode());
         if (_userData.useSlotTexture) {
-            currMesh.textureID = findSlotTextureID(slot);
-        } else {
-            currMesh.textureID = slot->getData().hash;
+            auto iter = slotTextureSet.find(slot);
+            if (iter != slotTextureSet.end()) {
+                currMesh.textureID = iter->second;
+            }
         }
         _model->addSlotMesh(currMesh);
 
@@ -532,15 +535,6 @@ void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32
             vertices[i].texCoord.u = UVs[ii];
             vertices[i].texCoord.v = UVs[ii + 1];
         }
-    }
-}
-
-uint32_t SpineSkeletonInstance::findSlotTextureID(Slot* slot) {
-    auto iter = slotTextureSet.find(slot);
-    if (iter != slotTextureSet.end()) {
-        return iter->second;
-    } else {
-        return 0;
     }
 }
 
