@@ -337,7 +337,7 @@ static bool js_Skeleton_getBounds(se::State &s) {
         args[0].toObject()->setProperty("y", se::Value(offy));
         args[1].toObject()->setProperty("x", se::Value(sizex));
         args[1].toObject()->setProperty("y", se::Value(sizey));
-        if (!temp.isObject()) {
+        if (temp.isObject()) {
             for (int i = 0; i < outVertexBuffer.size(); ++i) {
                 temp.toObject()->setArrayElement(i, se::Value(outVertexBuffer[i]));
             }
