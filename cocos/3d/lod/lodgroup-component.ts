@@ -244,6 +244,8 @@ export class LODGroup extends Component {
 
     /**
      * @engineInternal
+     * This property can be accessed by interfaces outside the class and cannot be defined as private.
+     * When implementing forceLODs internally, this attribute needs to be changed to private.
      */
     protected _forceUsedLevels: number[] = [];
 
@@ -653,6 +655,7 @@ export class LODGroup extends Component {
 }
 
 if (EDITOR) {
+    // There is currently no switch for exporting functions in the editor, so we have to work around it using this method.
     // eslint-disable-next-line func-names
     LODGroup.prototype.forceLODs = function (this: LODGroup, lodIndexArray: number[]): void {
         this._forceUsedLevels = lodIndexArray.slice();
