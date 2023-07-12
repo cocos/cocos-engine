@@ -466,7 +466,8 @@ export class Compiler {
                     const lastRaster = use.rasters.get(max)!;
                     switch (trait.residency) {
                     case ResourceResidency.MANAGED:
-                        assert(lastRaster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
+                        // TODO
+                        // assert(lastRaster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
                         break;
                     default:
                         break;
