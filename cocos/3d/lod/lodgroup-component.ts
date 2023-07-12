@@ -242,9 +242,6 @@ export class LODGroup extends Component {
 
     private _eventRegistered = false;
 
-    /**
-     * @engineInternal
-     */
     private _forceUsedLevels: number[] = [];
 
     constructor () {
