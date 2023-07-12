@@ -27,7 +27,7 @@ exports.template = /* html */`
                     <ui-icon value="event" name="add_event"></ui-icon>
                 </div>
                 <div class="time flex toolbar f1">
-                    <ui-label value="Time"></ui-label>
+                    <ui-label value="Frame"></ui-label>
                     <ui-num-input id="currentTime"></ui-num-input>
                     <div class="duration"></div>
                 </div>
@@ -539,14 +539,17 @@ exports.methods = {
 
     updateEventInfo() {
         let eventInfos = [];
-        const events = this.curEditClipInfo.userData.events;
-        if (Array.isArray(events)) {
-            eventInfos = events.map((info) => {
-                return {
-                    ...info,
-                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-                };
-            });
+
+        if (this.curEditClipInfo && this.curEditClipInfo.userData) {
+            const events = this.curEditClipInfo.userData.events;
+            if (Array.isArray(events)) {
+                eventInfos = events.map((info) => {
+                    return {
+                        ...info,
+                        x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                    };
+                });
+            }
         }
 
         this.events.update.call(this, eventInfos);
@@ -633,22 +636,16 @@ exports.methods = {
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
+        this.curTotalFrames = 0;
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
-            this.$.animationTime.setConfig({
-                max: this.curTotalFrames,
-            });
-            this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
+
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
                 this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
-                this.updateEventInfo();
             }
 
-            if (this.$.animationTimeSlider) {
-                this.$.animationTimeSlider.max = this.curTotalFrames;
-            }
             await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
@@ -665,6 +662,12 @@ exports.methods = {
 
             await this.stopAnimation();
         }
+
+        this.$.animationTime.setConfig({
+            max: this.curTotalFrames,
+        });
+        this.$.duration.innerHTML = `Totals: ${this.curTotalFrames}`;
+        this.updateEventInfo();
     },
     onAnimationPlayStateChanged(state) {
         this.setCurPlayState(state);
@@ -757,7 +760,10 @@ exports.update = async function(assetList, metaList) {
         this.splitClipIndex = 0;
         const clipInfo = animation.methods.getCurClipInfo.call(this);
         await this.onEditClipInfoChanged(clipInfo);
+    } else {
+        await this.setCurEditClipInfo();
     }
+    this.eventEditorVm.show = false;
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
     this.refreshPreview();
