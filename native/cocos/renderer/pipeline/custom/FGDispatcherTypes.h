@@ -73,7 +73,6 @@ struct ResourceRange {
 
 struct AccessStatus {
     gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
-    AccessType accessType{AccessType::READ};
     ResourceRange range;
 };
 
