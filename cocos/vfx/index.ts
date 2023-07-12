@@ -36,6 +36,7 @@ import './modules';
 import './expressions';
 import './renderers';
 import './data';
+import './vfx-system';
 
 export {
     VFXEmitter,

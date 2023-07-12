@@ -30,6 +30,7 @@ import { VFXRenderer } from './vfx-renderer';
 import { VFXDynamicBuffer } from './vfx-dynamic-buffer';
 import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager, Attribute, FormatInfos } from '../gfx';
 import { meshPosition, meshUv, PlayingState } from './define';
+import { VFXSystem } from './vfx-system';
 
 export class VFXManager extends System {
     get totalFrames () {
@@ -48,7 +49,7 @@ export class VFXManager extends System {
         return this._sharedSpriteIndexCount;
     }
 
-    private _emitters: VFXEmitter[] = [];
+    private _systems: VFXSystem[] = [];
     private _renderers: VFXRenderer[] = [];
     private _sharedSpriteVertexBufferAttributes = [meshPosition, meshUv];
     private _sharedSpriteVertexBuffer: Buffer | null = null;
@@ -64,14 +65,14 @@ export class VFXManager extends System {
         director.on(Director.EVENT_UPLOAD_DYNAMIC_VBO, this.updateBuffer);
     }
 
-    addEmitter (particleSystem: VFXEmitter) {
-        this._emitters.push(particleSystem);
+    addSystem (vfxSystem: VFXSystem) {
+        this._systems.push(vfxSystem);
     }
 
-    removeEmitter (particleSystem: VFXEmitter) {
-        const index = this._emitters.indexOf(particleSystem);
+    removeSystem (vfxSystem: VFXSystem) {
+        const index = this._systems.indexOf(vfxSystem);
         if (index !== -1) {
-            js.array.fastRemoveAt(this._emitters, index);
+            js.array.fastRemoveAt(this._systems, index);
         }
     }
 
@@ -89,9 +90,9 @@ export class VFXManager extends System {
     tick () {
         this._totalFrames++;
         const dt = game.deltaTime;
-        const emitters = this._emitters;
-        for (let i = 0, length = emitters.length; i < length; i++) {
-            this.simulate(emitters[i], dt);
+        const systems = this._systems;
+        for (let i = 0, length = systems.length; i < length; i++) {
+            systems[i].tick(dt);
         }
     }
 
@@ -103,24 +104,6 @@ export class VFXManager extends System {
                 renderers[i].updateRenderData();
             }
         }
-    }
-
-    simulate (emitter: VFXEmitter, dt: number) {
-        if (!emitter.isValid) {
-            return;
-        }
-        if (emitter.lastSimulateFrame === this._totalFrames) {
-            return;
-        }
-        if (emitter.eventHandlerCount > 0) {
-            for (let i = 0, length = emitter.eventHandlerCount; i < length; i++) {
-                const parentEmitter = emitter.eventHandlers[i].target;
-                if (parentEmitter && parentEmitter.isValid && parentEmitter.playingState === PlayingState.PLAYING) {
-                    this.simulate(parentEmitter, dt);
-                }
-            }
-        }
-        emitter.tick(dt);
     }
 
     resetBuffer () {

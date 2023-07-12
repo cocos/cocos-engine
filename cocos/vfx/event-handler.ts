@@ -32,7 +32,7 @@ import { InheritedProperty, VFXEventType } from './define';
 export class EventHandler extends VFXStage {
     @visible(true)
     @serializable
-    public target: VFXEmitter | null = null;
+    public source = '';
 
     @type(Enum(VFXEventType))
     @visible(true)

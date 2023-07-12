@@ -30,11 +30,12 @@ import { VFXEmitter } from './vfx-emitter';
 import { vfxManager } from './vfx-manager';
 import { scene } from '../render-scene';
 import { Vec3 } from '../core';
+import { VFXSystem } from './vfx-system';
 
 @ccclass('cc.VFXRenderer')
 @menu('Effects/VFXRenderer')
 @executeInEditMode
-@requireComponent(VFXEmitter)
+@requireComponent(VFXSystem)
 export class VFXRenderer extends ModelRenderer {
     @override
     @visible(false)
