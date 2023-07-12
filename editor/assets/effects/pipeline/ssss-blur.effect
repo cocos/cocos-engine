@@ -52,7 +52,8 @@ CCProgram copy-fs %{
 
 CCProgram ssssBlur %{
   precision highp float;
-  #include <number>
+  #include <common/common-define>
+  #include <common/math/number>
   #include <common/data/packing>
   #include <common/color/gamma>
   #include <common/math/coordinates>
@@ -68,6 +69,14 @@ CCProgram ssssBlur %{
   uniform sampler2D colorTex;
   #pragma rate depthTex pass
   uniform sampler2D depthTex;
+
+
+  // force clamped sample
+  vec2 fixUV(vec2 uv)
+  {
+    return saturate(uv);
+  }
+
 
   /** 
    * @param texcoord The usual quad texture coordinates.
@@ -102,7 +111,7 @@ CCProgram ssssBlur %{
 
     // Fetch linear depth of current pixel:
     // Use Sample_Point_Clamp
-    float depthHS = unpackRGBAToDepth(texture(depthTex, texcoord));
+    float depthHS = unpackRGBAToDepth(texture(depthTex, texcoord)) * 2.0 - 1.0; // -1.0 ~ +1.0
     float depthM = -GetCameraDepthRH(depthHS, cc_matProj);
 
     // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the projection window):
@@ -125,7 +134,7 @@ CCProgram ssssBlur %{
       // Fetch color and depth for current sample:
       vec2 offset = texcoord + vec2(kernel[i].a) * finalStep;
       // Use Sample_Point_Clamp
-      vec4 color = texture(colorTex, offset);
+      vec4 color = texture(colorTex, fixUV(offset));
       #if !CC_USE_HDR
          color = vec4(LinearToSRGB(color.rgb), color.a);
       #endif
@@ -134,9 +143,9 @@ CCProgram ssssBlur %{
       //if (isnan(dot(color, color)) || isinf(dot(color, color))) continue;
 
       // If the difference in depth is huge, we lerp color back to "colorM":
-      float depthHS = unpackRGBAToDepth(texture(depthTex, offset));
+      float depthHS = unpackRGBAToDepth(texture(depthTex, fixUV(offset))) * 2.0 - 1.0;
       float depth = -GetCameraDepthRH(depthHS, cc_matProj);
-      float s = saturate(300.0 / depthUnitScale * distanceToProjectionWindow * ssssWidth * abs(depthM - depth));
+      float s = saturate(100.0 / depthUnitScale * distanceToProjectionWindow * ssssWidth * abs(depthM - depth));
       color.rgb = mix(color.rgb, colorM.rgb, s);
 
       colorBlurred.rgb += kernel[i].rgb * mix(colorM.rgb, color.rgb, SSSS_STRENGTH_SOURCE_INLOOP);

@@ -22,14 +22,15 @@
  THE SOFTWARE.
 */
 
-import { Vec4 } from '../../../core';
+import { Vec4, cclegacy } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
 import { SettingPass } from './setting-pass';
+import { Root } from '../../../root';
 
 export class ToneMappingPass extends SettingPass {
     name = 'ToneMappingPass'
@@ -39,7 +40,8 @@ export class ToneMappingPass extends SettingPass {
     enableInAllEditorCamera = true;
     enable = true;
     checkEnable (camera: Camera) {
-        return true;
+        const ppl = (cclegacy.director.root as Root).pipeline;
+        return ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     }
 
     public render (camera: Camera, ppl: Pipeline): void {

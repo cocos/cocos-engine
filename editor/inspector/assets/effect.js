@@ -10,7 +10,7 @@ exports.template = /* html */`
         <ui-select slot="content" class="shader-select"></ui-select>
     </ui-prop>
 
-    <ui-section expand class="config" cache-expand="effect-combinations">
+    <ui-section expand class="section" cache-expand="effect-combinations">
         <ui-label slot="header" value="i18n:ENGINE.assets.effect.combinations" tooltip="i18n:ENGINE.assets.effect.combinationsTip"></ui-label>
         <div class="description">
             <ui-label value="i18n:ENGINE.assets.effect.choose"></ui-label>
@@ -26,7 +26,9 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-    .asset-effect {  }
+    .asset-effect { 
+        padding-right: 4px;    
+    }
 
     .asset-effect[multiple-invalid] > *:not(.multiple-warn-tip) {
         display: none!important;
@@ -40,58 +42,52 @@ exports.style = /* css */`
         display: none;
         text-align: center;
         color: var(--color-focus-contrast-weakest);
+        margin-top: 8px;
     }
 
-    .asset-effect > * {
-        margin-bottom: 8px;
-    }
-    .asset-effect > .config > .description {
+    .asset-effect > .section > .description {
         text-align: center;
         color: var(--color-normal-fill-weakest);
     }
-    .asset-effect > .config > .combinations {
-        padding: 10px 0;
-    }
-    .asset-effect > .config > .combinations .tab {
-        line-height: 20px;
-        margin-left: 5px;
-        margin-right: 5px;
+    .asset-effect > .section > .combinations .tab {
+        margin-left: 4px;
         min-width: 60px;
+        width: calc(50% - 4px);
     }
-    .asset-effect > .config > .combinations .tab[checked="true"] {
-        background-color: var(--color-focus-fill-emphasis);
-        color: var(--color-focus-contrast-emphasis);
-    }
-    .asset-effect > .codes > * {
-        margin-bottom: 8px;
+    .asset-effect > .section > .combinations .tab[checked="true"] {
+        background-color: var(--color-info-fill-important);
+        border-color: var(--color-info-fill-important);
+        color: var(--color-info-contrast-important);
     }
     .asset-effect > .codes .tabs  {
-        margin: 10px auto;
-        text-align: center;
+        margin: 4px auto 6px auto;
     }
     .asset-effect > .codes .tabs > .tab  {
         padding: 0;
         width: 110px;
+        height: 20px;
+        box-sizing: border-box;
         text-align: center;
         cursor: pointer;
         display: inline-block;
-        background-color: var(--color-normal-fill-emphasis);
-        color: var(--color-default-contrast-emphasis);
-        border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
+        color: var(--color-normal-contrast-emphasis);
+        border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border);
     }
     .asset-effect > .codes .tabs > .tab:first-child  {
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-        border-right: 1px solid var(--color-normal-fill-emphasis);
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        border-right: 1px solid var(--color-default-border);
     }
     .asset-effect > .codes .tabs > .tab:last-child  {
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-        border-left: 1px solid var(--color-normal-fill-emphasis);
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+        border-left: 1px solid var(--color-default-border);
     }
+    .asset-effect > .codes .tabs > .tab:hover,
     .asset-effect > .codes .tabs > .tab[active="true"]  {
-        background-color: var(--color-normal-fill);
-        color: var(--color-focus-fill-emphasis);
+        background-color: var(--color-default-fill-normal);
+        background-color: var(--color-default-fill-important);
+        color: var(--color-normal-contrast);
     }
     .asset-effect > .codes ui-code  {
         max-height: 400px;
@@ -236,7 +232,7 @@ const Elements = {
             for (const glslKey in panel.glslNames) {
                 const section = document.createElement('ui-section');
                 panel.$.codes.appendChild(section);
-                section.setAttribute('class', 'config');
+                section.setAttribute('class', 'section');
                 section.setAttribute('expand', '');
                 section.setAttribute('cache-expand', `effect-${glslKey}`);
 

@@ -226,6 +226,14 @@ inline bool hasReadAccess(gfx::AccessFlagBit flag) {
     return (static_cast<uint32_t>(flag) & READ_ACCESS) != 0;
 }
 
+inline bool isAttachmentAccess(gfx::AccessFlagBit flag) {
+    return hasAnyFlags(flag, gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT |
+                                 gfx::AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT |
+                                 gfx::AccessFlagBit::COLOR_ATTACHMENT_READ |
+                                 gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE |
+                                 gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE);
+}
+
 inline bool isReadOnlyAccess(gfx::AccessFlagBit flag) {
     return flag < gfx::AccessFlagBit::PRESENT || flag == gfx::AccessFlagBit::SHADING_RATE;
 }
@@ -1158,42 +1166,61 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         }
     }
 
-    const auto &resDescs = get(ResourceGraph::DescTag{}, resourceGraph);
-    auto genGFXBarrier = [&resDescs](std::vector<Barrier> &barriers) {
-        for (auto &passBarrier : barriers) {
-            const auto &desc = get(resDescs, passBarrier.resourceID);
-            if (desc.dimension == ResourceDimension::BUFFER) {
-                gfx::BufferBarrierInfo info;
-                info.prevAccesses = passBarrier.beginStatus.accessFlag;
-                info.nextAccesses = passBarrier.endStatus.accessFlag;
-                const auto &range = ccstd::get<BufferRange>(passBarrier.endStatus.range);
-                info.offset = range.offset;
-                info.size = range.size;
-                info.type = passBarrier.type;
-                passBarrier.barrier = gfx::Device::getInstance()->getBufferBarrier(info);
-            } else {
-                gfx::TextureBarrierInfo info;
-                info.prevAccesses = passBarrier.beginStatus.accessFlag;
-                info.nextAccesses = passBarrier.endStatus.accessFlag;
-                const auto &range = ccstd::get<TextureRange>(passBarrier.beginStatus.range);
-                info.baseMipLevel = range.mipLevel;
-                info.levelCount = range.levelCount;
-                info.baseSlice = range.firstSlice;
-                info.sliceCount = range.numSlices;
-                info.type = passBarrier.type;
-                passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
+    {
+        const auto &resDescs = get(ResourceGraph::DescTag{}, resourceGraph);
+        auto genGFXBarrier = [&resDescs](std::vector<Barrier> &barriers) {
+            for (auto &passBarrier : barriers) {
+                const auto &desc = get(resDescs, passBarrier.resourceID);
+                if (desc.dimension == ResourceDimension::BUFFER) {
+                    gfx::BufferBarrierInfo info;
+                    info.prevAccesses = passBarrier.beginStatus.accessFlag;
+                    info.nextAccesses = passBarrier.endStatus.accessFlag;
+                    const auto &range = ccstd::get<BufferRange>(passBarrier.endStatus.range);
+                    info.offset = range.offset;
+                    info.size = range.size;
+                    info.type = passBarrier.type;
+                    passBarrier.barrier = gfx::Device::getInstance()->getBufferBarrier(info);
+                } else {
+                    gfx::TextureBarrierInfo info;
+                    info.prevAccesses = passBarrier.beginStatus.accessFlag;
+                    info.nextAccesses = passBarrier.endStatus.accessFlag;
+                    const auto &range = ccstd::get<TextureRange>(passBarrier.beginStatus.range);
+                    info.baseMipLevel = range.mipLevel;
+                    info.levelCount = range.levelCount;
+                    info.baseSlice = range.firstSlice;
+                    info.sliceCount = range.numSlices;
+                    info.type = passBarrier.type;
+                    passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
+                }
+            }
+        };
+
+        constexpr static bool USING_RENDERPASS_DEP_INSTEAD_OF_BARRIER{true};
+        if constexpr (USING_RENDERPASS_DEP_INSTEAD_OF_BARRIER) {
+            auto prune = [&rag, &renderGraph, &resourceGraph](std::vector<Barrier>& barriers) {
+                barriers.erase(std::remove_if(barriers.begin(), barriers.end(), [&rag, &renderGraph, &resourceGraph](Barrier &barrier) {
+                                   bool fromAttachment = isAttachmentAccess(barrier.beginStatus.accessFlag) || barrier.beginStatus.accessFlag == gfx::AccessFlagBit::NONE;
+                                   bool toAttachment = isAttachmentAccess(barrier.endStatus.accessFlag);
+                                   return toAttachment;
+                    }),
+                    barriers.end());
+            };
+            for (auto &passBarrierInfo : batchedBarriers) {
+                auto &passBarrierNode = passBarrierInfo.second;
+                prune(passBarrierNode.blockBarrier.frontBarriers);
+                prune(passBarrierNode.blockBarrier.rearBarriers);
             }
         }
-    };
 
-    // generate gfx barrier
-    for (auto &passBarrierInfo : batchedBarriers) {
-        auto &passBarrierNode = passBarrierInfo.second;
-        genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
-        genGFXBarrier(passBarrierNode.blockBarrier.rearBarriers);
-        for (auto &subpassBarrier : passBarrierNode.subpassBarriers) {
-            genGFXBarrier(subpassBarrier.frontBarriers);
-            genGFXBarrier(subpassBarrier.rearBarriers);
+        // generate gfx barrier
+        for (auto &passBarrierInfo : batchedBarriers) {
+            auto &passBarrierNode = passBarrierInfo.second;
+            genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
+            genGFXBarrier(passBarrierNode.blockBarrier.rearBarriers);
+            for (auto &subpassBarrier : passBarrierNode.subpassBarriers) {
+                genGFXBarrier(subpassBarrier.frontBarriers);
+                genGFXBarrier(subpassBarrier.rearBarriers);
+            }
         }
     }
 
@@ -1833,34 +1860,22 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         // can't find this resource in layoutdata, not in descriptor so either input or output attachment.
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
 
+
         // TODO(Zeqiang): visbility of slot name "_" not found
-        bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || gfx::hasFlag(visibility, gfx::ShaderStageFlags::FRAGMENT)) && rasterized;
-        if (isAttachment) {
-            vis = gfx::ShaderStageFlags::FRAGMENT;
-            bool outColorFlag = (desc.flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE;
-            bool inputFlag = (desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE;
-            bool depthStencilFlag = (desc.flags & ResourceFlags::DEPTH_STENCIL_ATTACHMENT) != ResourceFlags::NONE;
-            bool shadingRateAttachment = (desc.flags & ResourceFlags::SHADING_RATE) != ResourceFlags::NONE;
-
-            inputFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::READ_ONLY);
-
-            if (outColorFlag) texUsage |= gfx::TextureUsage::COLOR_ATTACHMENT;
-            if (inputFlag) texUsage |= gfx::TextureUsage::INPUT_ATTACHMENT;
-            if (depthStencilFlag) texUsage |= gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT;
-            if (shadingRateAttachment) texUsage |= gfx::TextureUsage::SHADING_RATE;
-        } else {
-            if (memAccess == gfx::MemoryAccess::READ_ONLY) {
-                if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE && rasterized) {
-                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::INPUT_ATTACHMENT));
-                } else {
-                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE));
-                }
+        if (memAccess == gfx::MemoryAccess::READ_ONLY) {
+            if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE && rasterized) {
+                texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::INPUT_ATTACHMENT));
             } else {
-                texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
+                texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
             }
-
-            CC_ASSERT(vis != gfx::ShaderStageFlags::NONE);
+        } else {
+            texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
         }
+
+        if (vis == gfx::ShaderStageFlags::NONE) {
+            vis = passType == gfx::PassType::RASTER ? gfx::ShaderStageFlags::FRAGMENT : gfx::ShaderStageFlags::COMPUTE;
+        }
+        
         usage = texUsage;
         accesFlag = gfx::getAccessFlags(texUsage, memAccess, vis);
     }

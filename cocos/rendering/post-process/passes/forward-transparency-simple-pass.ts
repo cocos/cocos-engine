@@ -22,15 +22,12 @@
  THE SOFTWARE.
 */
 
-import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { LightInfo, QueueHint, SceneFlags } from '../../custom';
-import { getCameraUniqueID } from '../../custom/define';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
 import { ForwardPass } from './forward-pass';
-import { ShadowPass } from './shadow-pass';
 
 export class ForwardTransparencySimplePass extends BasePass {
     name = 'ForwardTransparencySimplePass';

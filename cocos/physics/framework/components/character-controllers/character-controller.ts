@@ -34,6 +34,7 @@ import { ECharacterControllerType } from '../../physics-enum';
 import { CharacterCollisionEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
+import { Collider } from '../colliders/collider';
 
 const v3_0 = new Vec3(0, 0, 0);
 const scaledCenter = new Vec3(0, 0, 0);
@@ -45,6 +46,7 @@ const scaledCenter = new Vec3(0, 0, 0);
  * 角色控制器组件基类。
  */
 @ccclass('cc.CharacterController')
+@disallowMultiple
 export class CharacterController extends Eventify(Component) {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -131,20 +133,19 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the contact offset of the character controller.
-     * Contact offset is the character's collision skin width.
+     * Gets or sets the skin width of the character controller.
      * @zh
-     * 获取或设置角色控制器的接触间隙。
+     * 获取或设置角色控制器的皮肤宽度。
      */
-    @tooltip('i18n:physics3d.character_controller.contactOffset')
+    @tooltip('i18n:physics3d.character_controller.skinWidth')
     @type(CCFloat)
-    public get contactOffset () {
-        return this._contactOffset;
+    public get skinWidth () {
+        return this._skinWidth;
     }
 
-    public set contactOffset (value) {
-        if (this._contactOffset === value) return;
-        this._contactOffset = Math.abs(value);
+    public set skinWidth (value) {
+        if (this._skinWidth === value) return;
+        this._skinWidth = Math.abs(value);
         if (this._cct) {
             this._cct.setContactOffset(value);
         }
@@ -198,7 +199,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.center')
     @type(Vec3)
-    public get center () {
+    public get center (): Readonly<Vec3> {
         return this._center;
     }
 
@@ -237,7 +238,7 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _contactOffset = 0.01;
+    private _skinWidth = 0.01;
     // @serializable
     // private _detectCollisions = true;
     // @serializable
@@ -249,6 +250,7 @@ export class CharacterController extends Eventify(Component) {
     private _prevPos: Vec3 = new Vec3();
     private _currentPos: Vec3 = new Vec3();
     private _velocity: Vec3 = new Vec3();
+    private _centerWorldPosition: Vec3 = new Vec3();
 
     protected _needCollisionEvent = false;
 
@@ -295,23 +297,22 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets the position.
+     * Gets world position of center.
      * @zh
-     * 获取位置。
-     * @param out @zh 位置向量 @en The position vector
+     * 获取中心的世界坐标。
      */
-    public getPosition (out: Vec3) {
-        if (this._isInitialized) this._cct!.getPosition(out);
+    public get centerWorldPosition (): Readonly<Vec3> {
+        if (this._isInitialized) this._cct!.getPosition(this._centerWorldPosition);
+        return this._centerWorldPosition;
     }
 
     /**
      * @en
-     * Sets the position.
+     * Sets world position of center.
      * @zh
-     * 设置位置。
-     * @param value @zh 位置向量 @en The position vector
+     * 设置中心的世界坐标。
      */
-    public setPosition (value: Vec3): void {
+    public set centerWorldPosition (value: Vec3) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 
@@ -320,9 +321,8 @@ export class CharacterController extends Eventify(Component) {
      * Gets the velocity.
      * @zh
      * 获取速度。
-     * @param out @zh 速度向量 @en The velocity vector
      */
-    public getVelocity (): Vec3 {
+    public get velocity (): Readonly<Vec3> {
         return this._velocity;
     }
 
@@ -332,7 +332,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取是否在地面上。
      */
-    onGround (): boolean {
+    public get isGrounded (): boolean {
         return this._cct!.onGround();
     }
 
@@ -346,12 +346,12 @@ export class CharacterController extends Eventify(Component) {
     public move (movement: Vec3): void {
         if (!this._isInitialized) { return; }
 
-        this.getPosition(this._prevPos);
+        this._prevPos.set(this.centerWorldPosition);
 
         const elapsedTime = PhysicsSystem.instance.fixedTimeStep;
         this._cct!.move(movement, this._minMoveDistance, elapsedTime);
 
-        this.getPosition(this._currentPos);
+        this._currentPos.set(this.centerWorldPosition);
         this._velocity = this._currentPos.subtract(this._prevPos).multiplyScalar(1.0 / elapsedTime);
     }
 
@@ -361,7 +361,7 @@ export class CharacterController extends Eventify(Component) {
      * Registers callbacks associated with triggered or collision events.
      * @zh
      * 注册触发或碰撞事件相关的回调。
-     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param type - The event type, onControllerColliderHit;
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
@@ -376,7 +376,7 @@ export class CharacterController extends Eventify(Component) {
      * Unregisters callbacks associated with trigger or collision events that have been registered.
      * @zh
      * 取消已经注册的触发或碰撞事件相关的回调。
-     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param type - The event type, onControllerColliderHit;
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
@@ -390,7 +390,7 @@ export class CharacterController extends Eventify(Component) {
      * Registers a callback associated with a trigger or collision event, which is automatically unregistered once executed.
      * @zh
      * 注册触发或碰撞事件相关的回调，执行一次后会自动取消注册。
-     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param type - The event type, onControllerColliderHit;
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
@@ -500,10 +500,10 @@ export class CharacterController extends Eventify(Component) {
     private _updateNeedEvent (type?: string) {
         if (this.isValid) {
             if (type !== undefined) {
-                if (type === 'onColliderHit') {
+                if (type === 'onControllerColliderHit') {
                     this._needCollisionEvent = true;
                 }
-            } else if (!this.hasEventListener('onColliderHit')) {
+            } else if (!this.hasEventListener('onControllerColliderHit')) {
                 this._needCollisionEvent = false;
             }
             if (this._cct) this._cct.updateEventListener();

@@ -82,9 +82,7 @@ let progress = 0.0;
 let progressBarColor = [61 / 255, 197 / 255, 222 / 255, 1];
 let progressBackground = [100 / 255, 111 / 255, 118 / 255, 1];
 let afterTick = null;
-let enableScissorTest = false;
-let enableCullFaceTest = false;
-let enableDepthTest = false;
+let displayRatio = <%= displayRatio%>;
 
 function initShaders(vshader, fshader) {
     return createProgram(vshader, fshader);
@@ -182,9 +180,9 @@ function initProgressVertexBuffer() {
 
 function updateVertexBuffer() {
     // the ratio value may be adjusted according to the expected image display effect
-    const widthRatio = image.width / canvas.width * 1.35; 
-    const heightRatio = image.height / canvas.height * 1.35;
-    const heightOffset = 0.225;
+    const widthRatio = image.width / canvas.width * 1.35 * displayRatio; 
+    const heightRatio = image.height / canvas.height * 1.35 * displayRatio;
+    const heightOffset = 1/6; // canvas:(-1,1) -> (button, top); heightOffset = (5/12) * (-2) + 1 = 1/6
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1.0, 1.0,
         widthRatio, heightOffset + heightRatio, 1.0, 0.0,
@@ -199,8 +197,8 @@ function updateSloganVertexBuffer() {
     // the ratio value may be adjusted according to the image pixels
     const widthRatio = slogan.width / canvas.width * 0.75;
     const heightRatio = slogan.height / canvas.height * 0.75;
-    const h = image.height / canvas.height;
-    const heightOffset = 0.15 - h;
+    const logoHeightRatio = image.height / canvas.height * 1.35 * displayRatio;
+    const heightOffset = (5/12 + logoHeightRatio * 1/2 + heightRatio * 3/2)  * (-2) + 1; // 5/12 is ui design layout for logo
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1.0, 1.0,
         widthRatio, heightOffset + heightRatio, 1.0, 0.0,
@@ -364,9 +362,6 @@ function drawProgressBar(gl, program, vertexBuffer, vertexFormatLength, progress
 }
 
 function draw() {
-    enableScissorTest = gl.getParameter(gl.SCISSOR_TEST);
-    enableCullFaceTest = gl.getParameter(gl.CULL_FACE);
-    enableDepthTest = gl.getParameter(gl.DEPTH_TEST);
     gl.disable(gl.SCISSOR_TEST);
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.DEPTH_TEST);
@@ -383,16 +378,6 @@ function draw() {
     drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
     // draw progress bar
     drawProgressBar(gl, programProgress, vertexBufferProgress, 3, progress, progressBarColor, progressBackground);
-
-    if (enableScissorTest) {
-        gl.enable(gl.SCISSOR_TEST);
-    }
-    if (enableCullFaceTest) {
-        gl.enable(gl.CULL_FACE);
-    }
-    if (enableDepthTest) {
-        gl.enable(gl.DEPTH_TEST);
-    }
 }
 
 function tick() {

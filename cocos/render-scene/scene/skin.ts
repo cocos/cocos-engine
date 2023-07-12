@@ -64,9 +64,9 @@ export class Skin {
         return this._sssIntensity;
     }
 
-    protected _enabled = false;
+    protected _enabled = true;
     protected _blurRadius = 0.01;
-    protected _sssIntensity = 5.0;
+    protected _sssIntensity = 3.0;
 
     public initialize (skinInfo: SkinInfo) {
         this._enabled = skinInfo.enabled;

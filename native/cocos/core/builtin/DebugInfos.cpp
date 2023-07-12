@@ -231,6 +231,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
+{ 4601, "Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake." },
 { 4700, "The dom control is not created!" },
 { 4800, "unknown asset type" },
 { 4901, "loadRes: should not specify the extname in %s %s" },
@@ -415,6 +416,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
+{ 9101, "The length of the TypedArrayBuffer must be an integer." },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
 { 9300, "The current buffer beyond the limit in ui static component, please reduce the amount" },
@@ -444,6 +446,13 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 12011, "Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s" },
 { 12100, "The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size." },
 { 12101, "The asset %s has been destroyed!" },
+{ 12102, "Base pass cannot override states, please use pass instance instead." },
+{ 12103, "Custom pipeline create shader %s failed. Please restart editor." },
+{ 12104, "Create shader %s failed." },
+{ 12105, "Pass resources incomplete." },
+{ 12106, "Cannot patch non-builtin macros." },
+{ 12107, "Custom pipeline invalid render pass, program: %s. Please restart editor." },
+{ 12108, "Custom pipeline invalid render phase, program: %s. Please restart editor." },
 { 13100, "Incorrect CCON magic." },
 { 13101, "Unknown CCON version number: %d." },
 { 13102, "CCON Format error." },
@@ -470,6 +479,8 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
 { 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
+{ 16303, "Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro" },
+{ 16304, "Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component." },
 
 };
 }//namespace cc

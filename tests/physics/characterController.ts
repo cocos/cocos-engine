@@ -16,16 +16,16 @@ function testCharacterControllerAPIs(cct: physics.CharacterController){
     cct.slopeLimit = 60;
     expect(cct.slopeLimit === 60).toBe(true);
 
-    cct.contactOffset = 0.01;
-    expect(cct.contactOffset === 0.01).toBe(true);
+    cct.skinWidth = 0.01;
+    expect(cct.skinWidth === 0.01).toBe(true);
 
     cct.center = new Vec3(0, 0.5, 0);
     expect(Vec3.equals(cct.center, new Vec3(0, 0.5, 0))).toBe(true);
 
     let targetPos = new Vec3(0, 10, 0);
-    cct.setPosition(targetPos);
+    cct.centerWorldPosition = targetPos;
     let newPos = new Vec3();
-    cct.getPosition(newPos);
+    newPos.set(cct.centerWorldPosition);
     expect(Vec3.equals(newPos, targetPos)).toBe(true);
     
     {
@@ -33,7 +33,7 @@ function testCharacterControllerAPIs(cct: physics.CharacterController){
         const dt = physics.PhysicsSystem.instance.fixedTimeStep;
         director.tick(dt);
         let newPos = new Vec3();
-        cct.getPosition(newPos);
+        newPos.set(cct.centerWorldPosition);
         expect(Vec3.equals(newPos, targetPos)).toBe(true);
     }
     {
@@ -43,7 +43,7 @@ function testCharacterControllerAPIs(cct: physics.CharacterController){
         const dt = physics.PhysicsSystem.instance.fixedTimeStep;
         director.tick(dt);
         let newPos = new Vec3();
-        cct.getPosition(newPos);
+        newPos.set(cct.centerWorldPosition);
         expect(Vec3.equals(newPos, targetPos)).toBe(true);
     }
 }

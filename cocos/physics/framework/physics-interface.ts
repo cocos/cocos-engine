@@ -248,7 +248,7 @@ export type CollisionCallback = (event?: ICollisionEvent) => void;
  * @zh
  * 角色控制器碰撞事件的值类型定义。
  */
-export type CharacterCollisionEventType = 'onColliderHit';
+export type CharacterCollisionEventType = 'onControllerColliderHit';
 
 /**
  * @en
@@ -263,7 +263,7 @@ export class CharacterControllerContact {
      * @zh
      * 碰撞中的角色控制器。
      */
-    selfCCT: any = null;
+    declare controller: CharacterController;
 
     /**
      * @en
@@ -271,7 +271,7 @@ export class CharacterControllerContact {
      * @zh
      * 碰撞中的碰撞器。
      */
-    otherCollider: any = null;
+    declare collider: Collider;
 
     /**
      * @en

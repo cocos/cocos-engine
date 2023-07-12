@@ -1,14 +1,25 @@
-import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, slide } from '../../../core/data/decorators';
+import { CCFloat } from '../../../core';
+import { type } from '../../../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, serializable, slide, tooltip } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.FSR')
+@help('cc.FSR')
 @menu('PostProcess/FSR')
 @disallowMultiple
 @executeInEditMode
 export class FSR extends PostProcessSetting {
+    @serializable
+    _sharpness = 0.8
+
+    @tooltip('i18n:fsr.sharpness')
     @slide
-    @range([0.05, 1, 0.01])
-    @property
-    sharpness = 0.2
+    @range([0.0, 1, 0.01])
+    @type(CCFloat)
+    get sharpness () {
+        return this._sharpness;
+    }
+    set sharpness (v) {
+        this._sharpness = v;
+    }
 }

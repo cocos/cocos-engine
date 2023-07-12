@@ -22,6 +22,7 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "scene/Skin.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
@@ -58,6 +59,28 @@
 #include "bindings/auto/jsb_2d_auto.h"
 
 using namespace cc;
+%}
+
+%typemap(out, func_only=1) cc::MaterialProperty %{
+	ccstd::visit(
+        [&](auto &param) {
+            using ParamType = std::remove_reference_t<decltype(param)>;
+            if constexpr (std::is_same_v<ParamType, int32_t> || std::is_same_v<ParamType, float>) {
+                ok = nativevalue_to_se(param, s.rval());
+            } else {
+                auto *temp = ccnew ParamType(param);
+                ok = nativevalue_to_se(temp, s.rval());
+                if (ok) {
+                    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
+                } else {
+                    s.rval().setUndefined();
+                    delete temp;
+                }
+            }
+        },
+        result);
+    
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
 %}
 
 // ----- Ignore Section ------
@@ -207,6 +230,7 @@ using namespace cc;
 %rename(_activate) cc::Scene::activate;
 
 %rename(_updatePassHash) cc::scene::Pass::updatePassHash;
+%rename(_getUniform) cc::scene::Pass::getUniform;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -275,6 +299,7 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);
 %attribute(cc::scene::Pass, uint32_t, phase, getPhase);
+%attribute(cc::scene::Pass, uint32_t, phaseID, getPhaseID);
 %attribute(cc::scene::Pass, cc::gfx::RasterizerState *, rasterizerState, getRasterizerState);
 %attribute(cc::scene::Pass, cc::gfx::DepthStencilState *, depthStencilState, getDepthStencilState);
 %attribute(cc::scene::Pass, cc::gfx::BlendState *, blendState, getBlendState);
@@ -449,6 +474,10 @@ using namespace cc;
 %attribute(cc::scene::Fog, float, fogRange, getFogRange, setFogRange);
 %attribute(cc::scene::Fog, cc::Vec4&, colorArray, getColorArray);
 
+%attribute(cc::scene::Skin, bool, enabled, isEnabled, setEnabled);
+%attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
+%attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
+
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, subModels, getSubModels);
@@ -481,7 +510,7 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
 %attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
 
-%attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
+%attribute(cc::scene::SubModel, cc::scene::SharedPassArray &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
 %attribute(cc::scene::SubModel, cc::RenderingSubMesh*, subMesh, getSubMesh, setSubMesh);
 %attribute(cc::scene::SubModel, cc::pipeline::RenderPriority, priority, getPriority, setPriority);
@@ -648,6 +677,7 @@ using namespace cc;
 %include "scene/Fog.h"
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
+%include "scene/Skin.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"

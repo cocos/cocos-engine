@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { CCBoolean, cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { ReflectionProbeManager } from '../../rendering/reflection-probe-manager';
+import { ReflectionProbeManager } from './reflection-probe-manager';
 import { Component } from '../../scene-graph/component';
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
@@ -349,7 +349,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {

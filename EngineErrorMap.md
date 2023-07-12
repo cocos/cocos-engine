@@ -1975,6 +1975,10 @@ Graphics: There is no model in %s.
 
 Script attached to '%s' is missing or invalid.
 
+### 4601
+
+Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake.
+
 ### 4700
 
 The dom control is not created!
@@ -3137,6 +3141,10 @@ Since v3.6, Because mask changes the inheritance relationship, you can directly 
 
 texture size exceeds current device limits %d/%d
 
+### 9101
+
+The length of the TypedArrayBuffer must be an integer.
+
 ### 9200
 
 <!-- DEPRECATED -->
@@ -3263,6 +3271,34 @@ The font size is too big to be fitted into texture atlas. Please switch to other
 
 The asset %s has been destroyed!
 
+### 12102
+
+Base pass cannot override states, please use pass instance instead.
+
+### 12103
+
+Custom pipeline create shader %s failed. Please restart editor.
+
+### 12104
+
+Create shader %s failed.
+
+### 12105
+
+Pass resources incomplete.
+
+### 12106
+
+Cannot patch non-builtin macros.
+
+### 12107
+
+Custom pipeline invalid render pass, program: %s. Please restart editor.
+
+### 12108
+
+Custom pipeline invalid render phase, program: %s. Please restart editor.
+
 ### 13100
 
 Incorrect CCON magic.
@@ -3368,3 +3404,11 @@ node '%s' doesn't have any ModelRenderer component, this component will not work
 ### 16302
 
 There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.
+
+### 16303
+
+Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro
+
+### 16304
+
+Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component.

@@ -31,10 +31,80 @@
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, RenderPass, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
+
+export class ClearValue {
+    constructor (x = 0, y = 0, z = 0, w = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+}
+
+export class RasterView {
+    constructor (
+        slotName = '',
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
+        loadOp: LoadOp = LoadOp.LOAD,
+        storeOp: StoreOp = StoreOp.STORE,
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        clearColor: Color = new Color(),
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ) {
+        this.slotName = slotName;
+        this.accessType = accessType;
+        this.attachmentType = attachmentType;
+        this.loadOp = loadOp;
+        this.storeOp = storeOp;
+        this.clearFlags = clearFlags;
+        this.clearColor = clearColor;
+        this.shaderStageFlags = shaderStageFlags;
+    }
+    slotName: string;
+    slotName1 = '';
+    accessType: AccessType;
+    attachmentType: AttachmentType;
+    loadOp: LoadOp;
+    storeOp: StoreOp;
+    clearFlags: ClearFlagBit;
+    readonly clearColor: Color;
+    slotID = 0;
+    shaderStageFlags: ShaderStageFlagBit;
+}
+
+export class ComputeView {
+    constructor (
+        name = '',
+        accessType: AccessType = AccessType.READ,
+        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
+        clearValue: ClearValue = new ClearValue(),
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ) {
+        this.name = name;
+        this.accessType = accessType;
+        this.clearFlags = clearFlags;
+        this.clearValueType = clearValueType;
+        this.clearValue = clearValue;
+        this.shaderStageFlags = shaderStageFlags;
+    }
+    name: string;
+    accessType: AccessType;
+    plane = 0;
+    clearFlags: ClearFlagBit;
+    clearValueType: ClearValueType;
+    readonly clearValue: ClearValue;
+    shaderStageFlags: ShaderStageFlagBit;
+}
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -386,7 +456,7 @@ export class SubpassGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getSubpass (v: number): Subpass {
@@ -428,6 +498,7 @@ export class RasterPass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
+    readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
     width = 0;
     height = 0;
@@ -791,7 +862,7 @@ export class ResourceGraph implements BidirectionalGraph
         { // UuidGraph
             const key = this._names[u];
             this._valueIndex.delete(key);
-            this._valueIndex.forEach((v) => {
+            this._valueIndex.forEach((v): void => {
                 if (v > u) { --v; }
             });
         }
@@ -925,7 +996,7 @@ export class ResourceGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getDesc (v: number): ResourceDesc {
@@ -1220,6 +1291,7 @@ export class ResourceGraph implements BidirectionalGraph
 
 export class ComputePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
 }
 
 export class ResolvePass {
@@ -1261,16 +1333,16 @@ export class RenderQueue {
 }
 
 export class SceneData {
-    constructor (name = '', flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
-        this.name = name;
+    constructor (scene: RenderScene | null = null, camera: Camera | null = null, flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
+        this.scene = scene;
+        this.camera = camera;
         this.light = light;
         this.flags = flags;
     }
-    name: string;
-    /*pointer*/ camera: Camera | null = null;
+    /*pointer*/ scene: RenderScene | null;
+    /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
-    readonly scenes: RenderScene[] = [];
 }
 
 export class Dispatch {
@@ -1799,13 +1871,13 @@ export class RenderGraph implements BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
-    setName (v: number, value: string) {
+    setName (v: number, value: string): void {
         this._names[v] = value;
     }
     getLayout (v: number): string {
         return this._layoutNodes[v];
     }
-    setLayout (v: number, value: string) {
+    setLayout (v: number, value: string): void {
         this._layoutNodes[v] = value;
     }
     getData (v: number): RenderData {
@@ -1814,7 +1886,7 @@ export class RenderGraph implements BidirectionalGraph
     getValid (v: number): boolean {
         return this._valid[v];
     }
-    setValid (v: number, value: boolean) {
+    setValid (v: number, value: boolean): void {
         this._valid[v] = value;
     }
     //-----------------------------------------------------------------

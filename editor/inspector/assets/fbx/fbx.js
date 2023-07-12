@@ -41,10 +41,9 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
-}
+ui-prop { margin-right: 4px; }
+ui-section.config { margin-right: 0; }
+
 .warn-words {
     color: var(--color-warn-fill);
 }
@@ -58,12 +57,8 @@ ui-section {
 
 .smart-material-prop[readonly] .warn-words {
     display: block;
-    margin-top: 5px;
+    margin-top: 4px;
     line-height: 20px;
-}
-.smart-material-prop[readonly] .smartMaterialEnabled-checkbox {
-    pointer-events: none;
-    opacity: 0.3;
 }
 `;
 

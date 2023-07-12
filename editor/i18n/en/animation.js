@@ -24,7 +24,7 @@ module.exports = {
                 },
                 'PoseNodeUseStashedPose': {
                     displayName: 'Use Stashed Pose',
-                    title: 'Use Stashed Pose {stashName}',
+                    title: 'Use Stash {stashName}',
                 },
                 'PoseNodeStateMachine': {
                     displayName: 'State Machine',
@@ -62,6 +62,11 @@ module.exports = {
                         },
                     },
                     inputs: {
+                        'startTime': {
+                            displayName: 'Start Time',
+                            tooltip: 'Specify where to begin playing the motion. ' +
+                                'The time\'s unit is seconds and the value would be clamped into [0, motion\'s duration].',
+                        },
                         'speedMultiplier': {
                             displayName: 'Speed Multiplier',
                         },
@@ -137,6 +142,9 @@ module.exports = {
                         'additivePose': {
                             displayName: 'Additive Pose',
                         },
+                        'ratio': {
+                            displayName: 'Ratio',
+                        },
                     },
                 },
                 'PoseNodeChoosePoseByBoolean': {
@@ -205,7 +213,7 @@ module.exports = {
                         'rotation': {
                             displayName: 'Rotation',
                         },
-                        'intensity': {
+                        'intensityValue': {
                             displayName: 'Intensity',
                         },
                     },

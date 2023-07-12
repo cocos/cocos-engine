@@ -37,6 +37,7 @@
 #include "base/Macros.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
+#include "platform/java/jni/glue/JniNativeGlue.h"
 
 namespace {
 #ifndef JCLS_COCOSACTIVITY

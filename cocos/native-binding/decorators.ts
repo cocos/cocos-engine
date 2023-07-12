@@ -53,6 +53,7 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
     return true;
   }
 })(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'visible', 'skyLightingColor');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 100])(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'range', 'skyIllum');
   apply(() => { $.tooltip('i18n:ambient.skyIllum')(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'tooltip', 'skyIllum');
   apply(() => { $.type(CCFloat)(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'type', 'skyIllum');
   apply(() => { $.editable(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'editable', 'skyIllum');
@@ -172,7 +173,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowFar',  () => { return 10.0; }); }, 'serializable', '_shadowFar');
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowOrthoSize',  () => { return 5; }); }, 'serializable', '_shadowOrthoSize');
   apply(() => { $.type(CCInteger)(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'type', 'illuminance');
-  apply(() => { $$.rangeMin(0)(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 10])(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'range', 'illuminance');
   apply(() => { $.editable(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
   apply(() => { $.tooltip('i18n:lights.illuminance')(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'tooltip', 'illuminance');
   apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'type', 'shadowEnabled');
@@ -768,17 +769,15 @@ export function patch_cc_PointLight(ctx: cc_PointLight_Context_Args, apply = def
   apply(() => { $.serializable(PointLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(PointLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
   apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'type', 'luminousFlux');
-  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 100])(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'range', 'luminousFlux');
   apply(() => { $.editable(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
   apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'type', 'luminance');
-  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 10])(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'range', 'luminance');
   apply(() => { $.editable(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
-  apply(() => { $.type(CCInteger)(PointLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
-  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
   apply(() => { $.editable(PointLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
   apply(() => { $.tooltip('i18n:lights.term')(PointLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(PointLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
@@ -806,7 +805,7 @@ export function patch_cc_RangedDirectionalLight(ctx: cc_RangedDirectionalLight_C
   apply(() => { $.property(RangedDirectionalLight.prototype, '_illuminanceHDR',  () => { return 65000; }); }, 'property', '_illuminanceHDR');
   apply(() => { $.serializable(RangedDirectionalLight.prototype, '_illuminanceLDR',  () => { return 65000 * Camera.standardExposureValue; }); }, 'serializable', '_illuminanceLDR');
   apply(() => { $.type(CCInteger)(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'type', 'illuminance');
-  apply(() => { $$.rangeMin(0)(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 10])(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'range', 'illuminance');
   apply(() => { $.editable(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
   apply(() => { $.tooltip('i18n:lights.illuminance')(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'tooltip', 'illuminance');
   apply(() => { $.executeInEditMode(RangedDirectionalLight); }, 'executeInEditMode', null);
@@ -984,6 +983,36 @@ export function patch_cc_Skeleton(ctx: cc_Skeleton_Context_Args, apply = default
   apply(() => { $.ccclass('cc.Skeleton')(Skeleton); }, 'ccclass', null);
 } // end of patch_cc_Skeleton
 
+//---- class cc_SkinInfo
+interface cc_SkinInfo_Context_Args {
+   SkinInfo: any;
+   CCFloat: any;
+}
+export function patch_cc_SkinInfo(ctx: cc_SkinInfo_Context_Args, apply = defaultExec) {
+  const { SkinInfo, CCFloat } = { ...ctx };
+  const enabledDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'enabled');
+  const blurRadiusDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'blurRadius');
+  const sssIntensityDescriptor = Object.getOwnPropertyDescriptor(SkinInfo.prototype, 'sssIntensity');
+  apply(() => { $.tooltip('i18n:skin.enabled')(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'tooltip', 'enabled');
+  apply(() => { $$.readOnly(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'readOnly', 'enabled');
+  apply(() => { $.editable(SkinInfo.prototype, 'enabled',  enabledDescriptor); }, 'editable', 'enabled');
+  apply(() => { $.tooltip('i18n:skin.blurRadius')(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'tooltip', 'blurRadius');
+  apply(() => { $.type(CCFloat)(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'type', 'blurRadius');
+  apply(() => { $.slide(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'slide', 'blurRadius');
+  apply(() => { $.range([0.0, 0.1, 0.001])(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'range', 'blurRadius');
+  apply(() => { $.editable(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'editable', 'blurRadius');
+  apply(() => { $.visible(false)(SkinInfo.prototype, 'blurRadius',  blurRadiusDescriptor); }, 'visible', 'blurRadius');
+  apply(() => { $.tooltip('i18n:skin.sssIntensity')(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'tooltip', 'sssIntensity');
+  apply(() => { $.type(CCFloat)(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'type', 'sssIntensity');
+  apply(() => { $.slide(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'slide', 'sssIntensity');
+  apply(() => { $.range([0.0, 10.0, 0.1])(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'range', 'sssIntensity');
+  apply(() => { $.editable(SkinInfo.prototype, 'sssIntensity',  sssIntensityDescriptor); }, 'editable', 'sssIntensity');
+  apply(() => { $.serializable(SkinInfo.prototype, '_enabled',  () => { return true; }); }, 'serializable', '_enabled');
+  apply(() => { $.serializable(SkinInfo.prototype, '_blurRadius',  () => { return 0.01; }); }, 'serializable', '_blurRadius');
+  apply(() => { $.serializable(SkinInfo.prototype, '_sssIntensity',  () => { return 3.0; }); }, 'serializable', '_sssIntensity');
+  apply(() => { $.ccclass('cc.SkinInfo')(SkinInfo); }, 'ccclass', null);
+} // end of patch_cc_SkinInfo
+
 //---- class cc_SkyboxInfo
 interface cc_SkyboxInfo_Context_Args {
    SkyboxInfo: any;
@@ -1087,17 +1116,15 @@ export function patch_cc_SphereLight(ctx: cc_SphereLight_Context_Args, apply = d
   apply(() => { $.serializable(SphereLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(SphereLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
   apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'type', 'luminousFlux');
-  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 100])(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'range', 'luminousFlux');
   apply(() => { $.editable(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
   apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'type', 'luminance');
-  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 10])(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'range', 'luminance');
   apply(() => { $.editable(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
-  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
-  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
   apply(() => { $.editable(SphereLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
   apply(() => { $.tooltip('i18n:lights.term')(SphereLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(SphereLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
@@ -1153,8 +1180,10 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
   apply(() => { $.serializable(SpotLight.prototype, '_shadowPcf',  () => { return PCFType.HARD; }); }, 'serializable', '_shadowPcf');
   apply(() => { $.serializable(SpotLight.prototype, '_shadowBias',  () => { return 0.00001; }); }, 'serializable', '_shadowBias');
   apply(() => { $.serializable(SpotLight.prototype, '_shadowNormalBias',  () => { return 0.0; }); }, 'serializable', '_shadowNormalBias');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 100])(SpotLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'range', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(SpotLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(SpotLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
+  apply(() => { $.range([0, Number.POSITIVE_INFINITY, 10])(SpotLight.prototype, 'luminance',  luminanceDescriptor); }, 'range', 'luminance');
   apply(() => { $.displayOrder(-1)(SpotLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(SpotLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.tooltip('i18n:lights.term')(SpotLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');

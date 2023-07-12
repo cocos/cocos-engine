@@ -1,65 +1,88 @@
 'use strict';
 
-const { materialTechniquePolyfill } = require('../utils/material');
-const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+module.paths.push(join(Editor.App.path, 'node_modules'));
+
+const { materialTechniquePolyfill } = require('../utils/material');
+const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
+const { escape } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
 const effectDirRE = /^effects\//i;
 
 /**
+ * @param {string} label
+ */
+function formatOptionLabel(label) {
+    // 1. remove group name if matched
+    // 2. remove prefix 'effects'(after 'db://' prefix removed)
+    // 3. escape label string because it will be used as html template string
+    return escape(label.replace(effectGroupNameRE, '').replace(effectDirRE, ''));
+}
+
+/**
  * 
- * @param {{name: string; uuid: string; assetPath: string}[]} sortedEffects 
+ * @param {{name: string; uuid: string; assetPath: string}[]} effects 
  * @returns html template
  */
-function renderGroupEffectOptions(sortedEffects) {
-    const groupNames = new Set();
+function renderGroupEffectOptions(effects) {
+    // group effects by group name, and no longer rely on the ordering of the input `effects`.
+    const groups = {};
 
-    let htmlTemplate = '';
-    let currGroup = '';
+    /**
+     * ungrouped options. html template string.
+     * @type {string[]} 
+     */
+    const extras = [];
 
-    for (const effect of sortedEffects) {
+    for (const effect of effects) {
         const groupName = effectGroupNameRE.exec(effect.assetPath)?.[1] ?? '';
-        let optionLabel = effect.assetPath;
 
         if (groupName !== '') {
-            // complete prev group
-            if (currGroup !== '' && currGroup !== groupName) {
-                htmlTemplate += '</optgroup>';
+            let group = groups[groupName];
+            // group not found yet, init it
+            if (!Array.isArray(group)) {
+                group = [];
+                groups[groupName] = group;
             }
 
-            if (!groupNames.has(groupName)) {
-                groupNames.add(groupName);
+            const label = formatOptionLabel(effect.assetPath);
 
-                currGroup = groupName;
+            group.push(`<option value="${effect.name}" data-uuid="${effect.uuid}">${label}</option>`);
 
-                htmlTemplate += `<optgroup label="${groupName}">`;
-            }
-
-            // for option label, remove group name if matched
-            optionLabel = optionLabel.replace(effectGroupNameRE, '');
+            continue;
         }
 
-        // remove prefix 'effects'(after 'db://' prefix removed)
-        if (effectDirRE.test(optionLabel)) {
-            optionLabel = optionLabel.replace(effectDirRE, '');
-        }
-
-        // use full name as option value
-        htmlTemplate += `<option value="${effect.name}" data-uuid="${effect.uuid}">${optionLabel}</option>`;
+        // no group name, add to extras and render as ungrouped(before grouped options)
+        const label = formatOptionLabel(effect.name);
+        extras.push(`<option value="${effect.name}" data-uuid="${effect.uuid}">${label}</option>`);
     }
 
-    if (currGroup !== '') {
-        htmlTemplate += '</optgroup>';
+    let htmlTemplate = '';
+
+    for (const extra of extras) {
+        htmlTemplate += extra;
+    }
+
+    for (const name in groups) {
+        const options = groups[name];
+        htmlTemplate += `<optgroup label="${name}">${options.join('')}</optgroup>`;
     }
 
     return htmlTemplate;
 }
 
 exports.style = `
-.invalid { display: none; }
+.invalid { display: none; text-align: center; margin-top: 8px; }
 .invalid[active] { display: block; }
 .invalid[active] ~ * { display: none; }
+
+:host > .header {
+    padding-right: 4px;
+}
+:host > .default > .section {
+    padding-right: 4px;
+}
 
 .custom[src] + .default { display: none; }
 
@@ -198,6 +221,7 @@ exports.methods = {
 
                 const filePath = join(packagePath, relatePath.split(name)[1]);
                 if (this.$.custom.getAttribute('src') !== filePath) {
+                    this.$.custom.injectionStyle(injectionStyle);
                     this.$.custom.setAttribute('src', filePath);
                 }
 
@@ -295,12 +319,13 @@ exports.methods = {
                 $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {
                     const dump = $prop.dump;
                     if (dump && dump.childMap && dump.children.length) {
-                        if (!$prop.$children) {
-                            $prop.$children = document.createElement('section');
-                            $prop.$children.setAttribute(
+                        if (!$prop.$childMap) {
+                            $prop.$childMap = document.createElement('section');
+                            $prop.$childMap.setAttribute(
                                 'style',
-                                'border: 1px dashed var(--color-normal-border); padding: 10px; margin: 5px 0;',
+                                'margin-left: var(--ui-prop-margin-left, unset);',
                             );
+                            $prop.$childMap.$props = {};
 
                             for (const childName in dump.childMap) {
                                 if (dump.childMap[childName].value === undefined) {
@@ -311,29 +336,29 @@ exports.methods = {
                                     loopSetAssetDumpDataReadonly(dump.childMap[childName]);
                                 }
 
-                                $prop.$children[childName] = document.createElement('ui-prop');
-                                $prop.$children[childName].setAttribute('type', 'dump');
-                                $prop.$children[childName].render(dump.childMap[childName]);
-                                $prop.$children.appendChild($prop.$children[childName]);
+                                $prop.$childMap.$props[childName] = document.createElement('ui-prop');
+                                $prop.$childMap.$props[childName].setAttribute('type', 'dump');
+                                $prop.$childMap.$props[childName].render(dump.childMap[childName]);
+                                $prop.$childMap.appendChild($prop.$childMap.$props[childName]);
                             }
 
-                            if (Array.from($prop.$children.children).length) {
-                                $prop.after($prop.$children);
+                            if (Array.from($prop.$childMap.children).length) {
+                                $prop.after($prop.$childMap);
                             }
 
                             $prop.addEventListener('change-dump', (e) => {
                                 if (e.target.dump.value) {
-                                    $prop.$children.removeAttribute('hidden');
+                                    $prop.$childMap.removeAttribute('hidden');
                                 } else {
-                                    $prop.$children.setAttribute('hidden', '');
+                                    $prop.$childMap.setAttribute('hidden', '');
                                 }
                             });
                         }
 
                         if (dump.value) {
-                            $prop.$children.removeAttribute('hidden');
+                            $prop.$childMap.removeAttribute('hidden');
                         } else {
-                            $prop.$children.setAttribute('hidden', '');
+                            $prop.$childMap.setAttribute('hidden', '');
                         }
                     }
                 });
@@ -342,7 +367,11 @@ exports.methods = {
             // when passes length more than one, the ui-section of pipeline state collapse
             if (technique.passes.length > 1) {
                 $container.querySelectorAll('[cache-expand$="PassStates"]').forEach(($pipelineState) => {
-                    $pipelineState.removeAttribute('expand');
+                    const cacheExpand = $pipelineState.getAttribute('cache-expand');
+                    if (!this.defaultCollapsePasses[cacheExpand]) {
+                        $pipelineState.expand = false;
+                        this.defaultCollapsePasses[cacheExpand] = true;
+                    }
                 });
             }
         }
@@ -386,7 +415,6 @@ exports.methods = {
             'children',
             'defines',
             'extends',
-            'pipelineStates',
         ];
 
         const cacheData = this.cacheData;
@@ -410,7 +438,7 @@ exports.methods = {
                         cacheData[name] = {};
                     }
 
-                    const { type, value } = prop[name];
+                    const { type, value, isObject } = prop[name];
                     if (type && value !== undefined) {
                         if (!cacheData[name][passIndex]) {
                             if (name === 'USE_INSTANCING' && passIndex !== 0) {
@@ -425,7 +453,9 @@ exports.methods = {
                         }
                     }
 
-                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                    if (isObject) {
+                        cacheProperty(value, passIndex);
+                    } else if (prop[name].childMap && typeof prop[name].childMap === 'object') {
                         cacheProperty(prop[name].childMap, passIndex);
                     }
                 }
@@ -479,7 +509,9 @@ exports.methods = {
                         }
                     }
 
-                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                    if (prop[name].isObject) {
+                        updateProperty(prop[name].value, passIndex);
+                    } else if (prop[name].childMap && typeof prop[name].childMap === 'object') {
                         updateProperty(prop[name].childMap, passIndex);
                     }
                 }
@@ -554,6 +586,7 @@ exports.update = async function(assetList, metaList) {
  * Method of initializing the panel
  */
 exports.ready = function() {
+    this.defaultCollapsePasses = {};
     this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {

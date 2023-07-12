@@ -50,17 +50,6 @@ export interface IRenderData {
 
 const DEFAULT_STRIDE = getAttributeStride(vfmtPosUvColor) >> 2;
 
-const _dataPool = new Pool(() => ({
-    x: 0,
-    y: 0,
-    z: 0,
-    u: 0,
-    v: 0,
-    color: Color.WHITE.clone(),
-}), 128);
-
-const _pool: RecyclePool<RenderData> = null!;
-
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
@@ -127,7 +116,7 @@ export class BaseRenderData {
     protected _ic = 0;
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
-    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _multiOwner = false;
     get multiOwner () { return this._multiOwner; }
     set multiOwner (val) {
@@ -249,15 +238,15 @@ export class RenderData extends BaseRenderData {
     set dataLength (length: number) {
         const data: IRenderData[] = this._data;
         if (data.length !== length) {
-            // // Free extra data
-            const value = data.length;
-            let i = 0;
-            for (i = length; i < value; i++) {
-                _dataPool.free(data[i]);
-            }
-
-            for (i = value; i < length; i++) {
-                data[i] = _dataPool.alloc();
+            for (let i = data.length; i < length; i++) {
+                data.push({
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    u: 0,
+                    v: 0,
+                    color: Color.WHITE.clone(),
+                });
             }
 
             data.length = length;

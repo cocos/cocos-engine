@@ -1,9 +1,10 @@
 const { getName, setHidden, isMultipleInvalid } = require('../utils/prop');
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 const fontStyles = ['isBold', 'isItalic', 'isUnderline'];
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 exports.style = /* css */`
 ui-tab {
     flex: none;
@@ -23,8 +24,7 @@ ui-tab {
     width: 42px;
     text-align: center;
     line-height: 20px;
-    border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
-    background-color: var(--color-default-fill);
+    border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border-weaker);
     border-radius: calc(var(--size-normal-radius) * 1px);
 }
 
@@ -33,7 +33,8 @@ ui-tab {
 }
 
 .fontStyle.select {
-    background-color: var(--color-default-fill-emphasis);
+    background-color: var(--color-info-fill-important);
+    border-color: var(--color-focus-border-emphasis);
 }
 
 .fontStyle.italic {
@@ -60,9 +61,9 @@ ui-tab {
  */
 function createRadioGroup(options) {
     const { enumList, getIconName, onChange, tooltip: rawTooltip } = options;
-    const $radioGorup = document.createElement('ui-radio-group');
-    $radioGorup.setAttribute('slot', 'content');
-    $radioGorup.addEventListener('change', (e) => {
+    const $radioGroup = document.createElement('ui-radio-group');
+    $radioGroup.setAttribute('slot', 'content');
+    $radioGroup.addEventListener('change', (e) => {
         onChange(e);
     });
 
@@ -79,10 +80,10 @@ function createRadioGroup(options) {
         button.value = element.value;
         button.setAttribute('tooltip', tooltip);
 
-        $radioGorup.appendChild(button);
+        $radioGroup.appendChild(button);
     }
 
-    return $radioGorup;
+    return $radioGroup;
 }
 
 exports.ready = function() {

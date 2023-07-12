@@ -41,7 +41,8 @@ import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
-import { CC_QUAT_0 } from '../bullet/bullet-cache';
+
+const CC_QUAT_0 = new Quat();
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
@@ -496,13 +497,13 @@ const PhysXCallback = {
             const cct = data.PhysXCharacterController.characterController;
             const collider = data.PhysXShape.collider;
             if (cct && cct.isValid && collider && collider.isValid) {
-                emitHit.selfCCT = cct;
-                emitHit.otherCollider = collider;
+                emitHit.controller = cct;
+                emitHit.collider = collider;
                 emitHit.worldPosition.set(data.worldPos);
                 emitHit.worldNormal.set(data.worldNormal);
                 emitHit.motionDirection.set(data.motionDir);
                 emitHit.motionLength = data.motionLength;
-                cct.emit('onColliderHit', cct, collider, emitHit);
+                cct.emit('onControllerColliderHit', emitHit);
             }
         }
         cctShapeEventDic.reset();

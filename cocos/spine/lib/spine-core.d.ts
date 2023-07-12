@@ -267,8 +267,6 @@ declare namespace spine {
         setFrame(frameIndex: number, time: number, rotateMix: number, translateMix: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
-}
-declare namespace spine {
     class AnimationState {
         static emptyAnimation: Animation;
         static SUBSEQUENT: number;
@@ -393,8 +391,6 @@ declare namespace spine {
         complete(entry: TrackEntry): void;
         event(entry: TrackEntry, event: Event): void;
     }
-}
-declare namespace spine {
     class AnimationStateData {
         skeletonData: SkeletonData;
         animationToMixTime: Map<number>;
@@ -404,8 +400,6 @@ declare namespace spine {
         setMixWith(from: Animation, to: Animation, duration: number): void;
         getMix(from: Animation, to: Animation): number;
     }
-}
-declare namespace spine {
     class AssetManager implements Disposable {
         private pathPrefix;
         private textureLoader;
@@ -432,8 +426,6 @@ declare namespace spine {
         hasErrors(): boolean;
         getErrors(): Map<string>;
     }
-}
-declare namespace spine {
     class AtlasAttachmentLoader implements AttachmentLoader {
         atlas: TextureAtlas;
         constructor(atlas: TextureAtlas);
@@ -444,16 +436,12 @@ declare namespace spine {
         newPointAttachment(skin: Skin, name: string): PointAttachment;
         newClippingAttachment(skin: Skin, name: string): ClippingAttachment;
     }
-}
-declare namespace spine {
     enum BlendMode {
         Normal = 0,
         Additive = 1,
         Multiply = 2,
         Screen = 3
     }
-}
-declare namespace spine {
     class Bone implements Updatable {
         data: BoneData;
         skeleton: Skeleton;
@@ -499,8 +487,6 @@ declare namespace spine {
         localToWorldRotation(localRotation: number): number;
         rotateWorld(degrees: number): void;
     }
-}
-declare namespace spine {
     class BoneData {
         index: number;
         name: string;
@@ -525,16 +511,12 @@ declare namespace spine {
         NoScale = 3,
         NoScaleOrReflection = 4
     }
-}
-declare namespace spine {
     abstract class ConstraintData {
         name: string;
         order: number;
         skinRequired: boolean;
         constructor(name: string, order: number, skinRequired: boolean);
     }
-}
-declare namespace spine {
     class Event {
         data: EventData;
         intValue: number;
@@ -545,8 +527,6 @@ declare namespace spine {
         balance: number;
         constructor(time: number, data: EventData);
     }
-}
-declare namespace spine {
     class EventData {
         name: string;
         intValue: number;
@@ -557,8 +537,6 @@ declare namespace spine {
         balance: number;
         constructor(name: string);
     }
-}
-declare namespace spine {
     class IkConstraint implements Updatable {
         data: IkConstraintData;
         bones: Array<Bone>;
@@ -576,8 +554,6 @@ declare namespace spine {
         apply1(bone: Bone, targetX: number, targetY: number, compress: boolean, stretch: boolean, uniform: boolean, alpha: number): void;
         apply2(parent: Bone, child: Bone, targetX: number, targetY: number, bendDir: number, stretch: boolean, softness: number, alpha: number): void;
     }
-}
-declare namespace spine {
     class IkConstraintData extends ConstraintData {
         bones: BoneData[];
         target: BoneData;
@@ -589,8 +565,6 @@ declare namespace spine {
         softness: number;
         constructor(name: string);
     }
-}
-declare namespace spine {
     class PathConstraint implements Updatable {
         static NONE: number;
         static BEFORE: number;
@@ -619,8 +593,6 @@ declare namespace spine {
         addAfterPosition(p: number, temp: Array<number>, i: number, out: Array<number>, o: number): void;
         addCurvePosition(p: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, o: number, tangents: boolean): void;
     }
-}
-declare namespace spine {
     class PathConstraintData extends ConstraintData {
         bones: BoneData[];
         target: SlotData;
@@ -648,8 +620,6 @@ declare namespace spine {
         Chain = 1,
         ChainScale = 2
     }
-}
-declare namespace spine {
     class SharedAssetManager implements Disposable {
         private pathPrefix;
         private clientAssets;
@@ -668,8 +638,6 @@ declare namespace spine {
         hasErrors(): boolean;
         getErrors(): Map<string>;
     }
-}
-declare namespace spine {
     class Skeleton {
         data: SkeletonData;
         bones: Array<Bone>;
@@ -716,8 +684,6 @@ declare namespace spine {
         getBounds(offset: Vector2, size: Vector2, temp?: Array<number>): void;
         update(delta: number): void;
     }
-}
-declare namespace spine {
     class SkeletonBinary {
         static AttachmentTypeValues: number[];
         static TransformModeValues: TransformMode[];
@@ -752,8 +718,6 @@ declare namespace spine {
         private readCurve;
         setCurve(timeline: CurveTimeline, frameIndex: number, cx1: number, cy1: number, cx2: number, cy2: number): void;
     }
-}
-declare namespace spine {
     class SkeletonBounds {
         minX: number;
         minY: number;
@@ -775,8 +739,6 @@ declare namespace spine {
         getWidth(): number;
         getHeight(): number;
     }
-}
-declare namespace spine {
     class SkeletonClipping {
         private triangulator;
         private clippingPolygon;
@@ -794,8 +756,6 @@ declare namespace spine {
         clip(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, clippingArea: Array<number>, output: Array<number>): boolean;
         static makeClockwise(polygon: ArrayLike<number>): void;
     }
-}
-declare namespace spine {
     class SkeletonData {
         name: string;
         bones: BoneData[];
@@ -828,8 +788,6 @@ declare namespace spine {
         findPathConstraint(constraintName: string): PathConstraintData;
         findPathConstraintIndex(pathConstraintName: string): number;
     }
-}
-declare namespace spine {
     class SkeletonJson {
         attachmentLoader: AttachmentLoader;
         scale: number;
@@ -847,8 +805,6 @@ declare namespace spine {
         static rotateModeFromString(str: string): RotateMode;
         static transformModeFromString(str: string): TransformMode;
     }
-}
-declare namespace spine {
     class SkinEntry {
         slotIndex: number;
         name: string;
@@ -871,8 +827,6 @@ declare namespace spine {
         clear(): void;
         attachAll(skeleton: Skeleton, oldSkin: Skin): void;
     }
-}
-declare namespace spine {
     class Slot {
         data: SlotData;
         bone: Bone;
@@ -890,8 +844,6 @@ declare namespace spine {
         getAttachmentTime(): number;
         setToSetupPose(): void;
     }
-}
-declare namespace spine {
     class SlotData {
         index: number;
         name: string;
@@ -902,8 +854,6 @@ declare namespace spine {
         blendMode: BlendMode;
         constructor(index: number, name: string, boneData: BoneData);
     }
-}
-declare namespace spine {
     abstract class Texture {
         protected _image: HTMLImageElement | ImageBitmap;
         constructor(image: HTMLImageElement | ImageBitmap);
@@ -947,8 +897,6 @@ declare namespace spine {
         setWraps(uWrap: TextureWrap, vWrap: TextureWrap): void;
         dispose(): void;
     }
-}
-declare namespace spine {
     class TextureAtlas implements Disposable {
         pages: TextureAtlasPage[];
         regions: TextureAtlasRegion[];
@@ -977,8 +925,6 @@ declare namespace spine {
         degrees: number;
         texture: Texture;
     }
-}
-declare namespace spine {
     class TransformConstraint implements Updatable {
         data: TransformConstraintData;
         bones: Array<Bone>;
@@ -998,8 +944,6 @@ declare namespace spine {
         applyAbsoluteLocal(): void;
         applyRelativeLocal(): void;
     }
-}
-declare namespace spine {
     class TransformConstraintData extends ConstraintData {
         bones: BoneData[];
         target: BoneData;
@@ -1017,8 +961,6 @@ declare namespace spine {
         local: boolean;
         constructor(name: string);
     }
-}
-declare namespace spine {
     class Triangulator {
         private convexPolygons;
         private convexPolygonsIndices;
@@ -1033,14 +975,10 @@ declare namespace spine {
         private static positiveArea;
         private static winding;
     }
-}
-declare namespace spine {
-    interface Updatable {
+    abstract class Updatable {
         update(): void;
         isActive(): boolean;
     }
-}
-declare namespace spine {
     interface Map<T> {
         [key: string]: T;
     }
@@ -1163,18 +1101,14 @@ declare namespace spine {
         addValue(value: number): void;
         getMean(): number;
     }
-}
-declare namespace spine {
-    interface VertexEffect {
+    abstract class VertexEffect {
         begin(skeleton: Skeleton): void;
         transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
         end(): void;
     }
-}
-interface Math {
-    fround(n: number): number;
-}
-declare namespace spine {
+    // interface Math {
+    //     fround(n: number): number;
+    // }
     abstract class Attachment {
         name: string;
         constructor(name: string);
@@ -1191,8 +1125,6 @@ declare namespace spine {
         computeWorldVertices(slot: Slot, start: number, count: number, worldVertices: ArrayLike<number>, offset: number, stride: number): void;
         copyTo(attachment: VertexAttachment): void;
     }
-}
-declare namespace spine {
     interface AttachmentLoader {
         newRegionAttachment(skin: Skin, name: string, path: string): RegionAttachment;
         newMeshAttachment(skin: Skin, name: string, path: string): MeshAttachment;
@@ -1201,8 +1133,6 @@ declare namespace spine {
         newPointAttachment(skin: Skin, name: string): PointAttachment;
         newClippingAttachment(skin: Skin, name: string): ClippingAttachment;
     }
-}
-declare namespace spine {
     enum AttachmentType {
         Region = 0,
         BoundingBox = 1,
@@ -1212,23 +1142,17 @@ declare namespace spine {
         Point = 5,
         Clipping = 6
     }
-}
-declare namespace spine {
     class BoundingBoxAttachment extends VertexAttachment {
         color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
-}
-declare namespace spine {
     class ClippingAttachment extends VertexAttachment {
         endSlot: SlotData;
         color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
-}
-declare namespace spine {
     class MeshAttachment extends VertexAttachment {
         region: TextureRegion;
         path: string;
@@ -1249,8 +1173,6 @@ declare namespace spine {
         copy(): Attachment;
         newLinkedMesh(): MeshAttachment;
     }
-}
-declare namespace spine {
     class PathAttachment extends VertexAttachment {
         lengths: Array<number>;
         closed: boolean;
@@ -1259,8 +1181,6 @@ declare namespace spine {
         constructor(name: string);
         copy(): Attachment;
     }
-}
-declare namespace spine {
     class PointAttachment extends VertexAttachment {
         x: number;
         y: number;
@@ -1271,8 +1191,6 @@ declare namespace spine {
         computeWorldRotation(bone: Bone): number;
         copy(): Attachment;
     }
-}
-declare namespace spine {
     class RegionAttachment extends Attachment {
         static OX1: number;
         static OY1: number;
@@ -1334,8 +1252,6 @@ declare namespace spine {
         computeWorldVertices(bone: Bone, worldVertices: ArrayLike<number>, offset: number, stride: number): void;
         copy(): Attachment;
     }
-}
-declare namespace spine {
     class JitterEffect implements VertexEffect {
         jitterX: number;
         jitterY: number;
@@ -1344,8 +1260,6 @@ declare namespace spine {
         transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
         end(): void;
     }
-}
-declare namespace spine {
     class SwirlEffect implements VertexEffect {
         static interpolation: PowOut;
         centerX: number;
@@ -1358,6 +1272,44 @@ declare namespace spine {
         begin(skeleton: Skeleton): void;
         transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
         end(): void;
+    }
+
+    class SkeletonInstance {
+        initSkeleton(data: SkeletonData);
+        getAnimationState();
+        setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
+        setSkin(name: string);
+        setPremultipliedAlpha(usePremultipliedAlpha: boolean);
+        setColor(r: number, g: number, b: number, a: number);
+        setMix(fromName: string, toName: string, duration: number);
+        updateAnimation(dt: number);
+        setUseTint(useTint: boolean);
+        clearEffect();
+        setJitterEffect(jitter: spine.VertexEffect);
+        setSwirlEffect(swirl: spine.VertexEffect);
+        updateRenderData();
+        setListener(id: number, type: number);
+        setDebugMode(debug: boolean);
+        getDebugShapes();
+        resizeSlotRegion(slotName: string, width: number, height: number, createNew: boolean);
+        setSlotTexture(slotName: string, index: number);
+    }
+
+    class wasmUtil {
+        static spineWasmInit(): void;
+        static spineWasmDestroy(): void;
+        static queryStoreMemory(size: number): number;
+        static querySpineSkeletonDataByUUID(uuid: string): SkeletonData;
+        static createSpineSkeletonDataWithJson(jsonStr: string, atlasText: string): SkeletonData;
+        static createSpineSkeletonDataWithBinary(byteSize: number, atlasText: string): SkeletonData;
+        static registerSpineSkeletonDataWithUUID(data: SkeletonData, uuid: string);
+        static destroySpineSkeletonDataWithUUID(uuid: string);
+        static destroySpineInstance(instance: SkeletonInstance);
+        static getCurrentListenerID(): number;
+        static getCurrentEventType(): EventType;
+        static getCurrentTrackEntry(): TrackEntry;
+        static getCurrentEvent(): Event;
+        static wasm: any;
     }
 }
 

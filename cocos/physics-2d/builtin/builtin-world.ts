@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
-import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, cclegacy, js } from '../../core';
+import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, js } from '../../core';
 import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
@@ -151,8 +151,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!debugDrawer) {
             return;
         }
-
         debugDrawer.clear();
+        debugDrawer.lineWidth = 3;
 
         const shapes = this._shapes;
 
@@ -203,7 +203,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     private _checkDebugDrawValid () {
-        if (EDITOR && !cclegacy.GAME_VIEW) return;
+        if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
@@ -266,8 +266,5 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics () { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
-    }
-    finalizeContactEvent () {
-
     }
 }

@@ -45,6 +45,7 @@ import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
 import { AuxiliaryCurveEntry } from './auxiliary-curve-entry';
 import { removeIf } from '../core/utils/array';
+import { invokeComponentMethodsEngagedInAnimationEvent } from './event/event-emitter';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -239,7 +240,16 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Gets if this animation clip contains additive animation.
+     * @experimental
+     */
+    get isAdditive_experimental () {
+        return this._additiveSettings.enabled;
+    }
+
+    /**
      * Accesses the additive animation settings.
+     * @internal
      */
     get [additiveSettingsTag] () {
         return this._additiveSettings;
@@ -1009,7 +1019,10 @@ export class AnimationClip extends Asset {
 @ccclass('cc.AnimationClipAdditiveSettings')
 class AdditiveSettings {
     @serializable
-    base: AnimationClip | null = null;
+    public enabled = false;
+
+    @serializable
+    public refClip: AnimationClip | null = null;
 }
 
 export { AdditiveSettings as AnimationClipAdditiveSettings };
@@ -1516,7 +1529,19 @@ class EventEvaluator {
         }
     }
 
+    public reset () {
+        this._lastFrameIndex = -1;
+        this._lastIterations = 0.0;
+        this._lastDirection = 0;
+        this._ignoreIndex = InvalidIndex;
+        this._sampled = false;
+    }
+
     public sample (ratio: number, direction: number, iterations: number) {
+        if (this._eventGroups.length === 0) {
+            return;
+        }
+
         const length = this._eventGroups.length;
         let eventIndex = getEventGroupIndexAtRatio(ratio, this._ratios);
         if (eventIndex < 0) {
@@ -1615,19 +1640,10 @@ class EventEvaluator {
         }
 
         const eventGroup = eventGroups[eventIndex];
-        const components = this._targetNode.components;
         const nEvents = eventGroup.events.length;
         for (let iEvent = 0; iEvent < nEvents; ++iEvent) {
             const event = eventGroup.events[iEvent];
-            const { functionName } = event;
-            const nComponents = components.length;
-            for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
-                const component = components[iComponent];
-                const fx = component[functionName];
-                if (typeof fx === 'function') {
-                    fx.apply(component, event.parameters);
-                }
-            }
+            invokeComponentMethodsEngagedInAnimationEvent(this._targetNode, event.functionName, event.parameters);
         }
     }
 }

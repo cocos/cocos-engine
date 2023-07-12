@@ -67,6 +67,7 @@ jest.mock(
     'external:emscripten/webgpu/webgpu_wasm.wasm',
     'external:emscripten/webgpu/glslang.wasm',
     'external:emscripten/physx/physx.release.wasm.wasm',
+    'external:emscripten/spine/spine.wasm',
 ].forEach(moduleId => {
     jest.mock(moduleId, 
         () => ({
@@ -83,6 +84,7 @@ jest.mock(
     'external:emscripten/webgpu/webgpu_wasm.js',
     'external:emscripten/webgpu/glslang.js',
     'external:emscripten/physx/physx.release.wasm.js',
+    'external:emscripten/spine/spine.js',
 ].forEach(moduleId => {
     jest.mock(moduleId, 
         () => ({
@@ -103,6 +105,12 @@ jest.mock(
 jest.mock(
     'external:emscripten/bullet/bullet.asm.js', 
     () => jest.requireActual('../native/external/emscripten/bullet/bullet.asm.js'),
+    { virtual: true },
+);
+
+jest.mock(
+    'external:emscripten/spine/spine.asm.js', 
+    () => jest.requireActual('../native/external/emscripten/spine/spine.asm.js'),
     { virtual: true },
 );
 

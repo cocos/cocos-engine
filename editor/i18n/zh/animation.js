@@ -4,7 +4,7 @@
 module.exports = {
     animation_graph: {
         pose_graph_node_sub_categories: {
-            pose_nodes: '姿势结点',
+            pose_nodes: '姿态结点',
             pose_nodes_blend: '混合',
             pose_nodes_ik: '反向动力学',
             pose_nodes_choose: '选择',
@@ -20,17 +20,17 @@ module.exports = {
         'cc': {
             'animation': {
                 'PoseGraphOutputNode': {
-                    displayName: '输出姿势',
+                    displayName: '输出姿态',
                 },
                 'PoseNodeUseStashedPose': {
-                    displayName: '使用暂存的姿势',
-                    title: '使用暂存的姿势 {stashName}',
+                    displayName: '使用暂存',
+                    title: '使用暂存 {stashName}',
                 },
                 'PoseNodeStateMachine': {
                     displayName: '状态机',
                     inputs: {
                         'emptyStatePose': {
-                            displayName: '空状态姿势',
+                            displayName: '空状态姿态',
                         },
                     },
                 },
@@ -62,6 +62,10 @@ module.exports = {
                         },
                     },
                     inputs: {
+                        'startTime': {
+                            displayName: '起始时间',
+                            tooltip: '指定从何时开始播放该动作。其单位为秒，其值会被限制在 [0, 动作周期] 范围内。',
+                        },
                         'speedMultiplier': {
                             displayName: '速度乘数',
                         },
@@ -96,20 +100,20 @@ module.exports = {
                     displayName: '按占比混合',
                     inputs: {
                         'poses': {
-                            displayName: '姿势 {elementIndex}',
+                            displayName: '姿态 {elementIndex}',
                         },
                         'proportions': {
-                            displayName: '姿势 {elementIndex} 占比',
+                            displayName: '姿态 {elementIndex} 占比',
                         },
                     },
                 },
                 'PoseNodeBlendTwoPoseBase': {
                     inputs: {
                         'pose0': {
-                            displayName: '姿势 1',
+                            displayName: '姿态 1',
                         },
                         'pose1': {
-                            displayName: '姿势 2',
+                            displayName: '姿态 2',
                         },
                         'ratio': {
                             displayName: '比例',
@@ -117,7 +121,7 @@ module.exports = {
                     },
                 },
                 'PoseNodeBlendTwoPose': {
-                    displayName: '混合双姿势',
+                    displayName: '混合双姿态',
                     inputs: {
                         __extends__: 'classes.cc.animation.PoseNodeBlendTwoPoseBase.inputs',
                     },
@@ -129,13 +133,16 @@ module.exports = {
                     },
                 },
                 'PoseNodeAdditivelyBlend': {
-                    displayName: '加性混合',
+                    displayName: '叠加混合',
                     inputs: {
                         'basePose': {
-                            displayName: '基础姿势',
+                            displayName: '基础姿态',
                         },
                         'additivePose': {
-                            displayName: '累加姿势',
+                            displayName: '叠加姿态',
+                        },
+                        'ratio': {
+                            displayName: '比例',
                         },
                     },
                 },
@@ -143,16 +150,16 @@ module.exports = {
                     displayName: '按布尔选择',
                     inputs: {
                         'truePose': {
-                            displayName: '为真时姿势',
+                            displayName: '为真时姿态',
                         },
                         'falsePose': {
-                            displayName: '为假时姿势',
+                            displayName: '为假时姿态',
                         },
                         'trueFadeInDuration': {
-                            displayName: '为真时姿势淡入时长',
+                            displayName: '为真时姿态淡入时长',
                         },
                         'falseFadeInDuration': {
-                            displayName: '为假时姿势淡入时长',
+                            displayName: '为假时姿态淡入时长',
                         },
                         'choice': {
                             displayName: '选择',
@@ -163,10 +170,10 @@ module.exports = {
                     displayName: '按索引选择',
                     inputs: {
                         poses: {
-                            displayName: '姿势 {elementIndex}',
+                            displayName: '姿态 {elementIndex}',
                         },
                         fadeInDurations: {
-                            displayName: '姿势 {elementIndex} 淡入时长',
+                            displayName: '姿态 {elementIndex} 淡入时长',
                         },
                         'choice': {
                             displayName: '选择',
@@ -176,7 +183,7 @@ module.exports = {
                 'PoseNodeModifyPoseBase': {
                     inputs: {
                         'pose': {
-                            displayName: '姿势',
+                            displayName: '姿态',
                         },
                     },
                 },

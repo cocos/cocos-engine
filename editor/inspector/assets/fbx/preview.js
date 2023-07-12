@@ -76,6 +76,10 @@ exports.style = /* css*/`
     min-height: 200px;
     border-top: 1px solid var(--color-normal-border);
 }
+.preview-container > .animation-info {
+    padding-right: 4px;
+}
+
 .preview[hoving] > .preview-container {
     outline: 2px solid var(--color-focus-fill-weaker);
     outline-offset: -1px;
@@ -85,8 +89,8 @@ exports.style = /* css*/`
     outline-offset: -2px;
 }
 .preview-container > .model-info {
-    padding-top: 4px;
     display: none;
+    padding: 2px 4px;
 }
 .preview-container > .model-info > ui-label {
     margin-right: 6px;
@@ -96,7 +100,6 @@ exports.style = /* css*/`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 4px;
 }
 .preview-container >.image > .canvas {
     flex: 1;
@@ -104,7 +107,6 @@ exports.style = /* css*/`
 .preview-container .toolbar {
     display: flex;
     margin-top: 4px;
-    margin-right: 4px;
     justify-content: space-between;
 }
 
@@ -127,7 +129,8 @@ ui-icon {
 
 .time-line .events {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
+    z-index: 1;
     box-sizing: border-box;
     padding: 0 8px;
     width: 100%;
@@ -138,7 +141,7 @@ ui-icon {
 
 .events ui-icon {
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
 }
 
 .events ui-icon:hover {
@@ -165,7 +168,7 @@ ui-icon {
     background: var(--color-normal-fill);
 }
 #event-editor {
-    line-height: 24px;
+    line-height: 20px;
     width: 100%;
     height: 70%;
     overflow: hidden;
@@ -179,19 +182,19 @@ ui-icon {
   #event-editor > header {
     display: flex;
     justify-content: space-between;
-    height: 24px;
+    height: 20px;
     background: var(--color-normal-fill-emphasis);
-    padding: 5px;
+    padding: 2px 4px;
   }
   #event-editor > .header .name {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor > .header .dirty {
     color: var(--color-focus-fill);
     margin: 0 2px;
   }
   #event-editor > .functions {
-    padding: 10px;
+    padding: 4px;
     overflow-y: auto;
     flex: 1;
     height: 100%;
@@ -203,18 +206,16 @@ ui-icon {
   #event-editor > .functions .line {
     display: flex;
     justify-content: space-between;
-    padding: 0 8px;
     flex: 1;
     background: unset;
-  }
-  #event-editor > .functions .line {
-    margin-bottom: 4px;
+    margin: 4px 0;
   }
   #event-editor > .functions .line .name {
-    min-width: 8px;
+    width: 40px;
+    text-align: center;
   }
-  #event-editor > .functions .line > * {
-    margin-right: 5px;
+  #event-editor > .functions .line ui-select {
+    margin-right: 8px;
   }
   #event-editor > .functions .line .operate {
     visibility: hidden;
@@ -225,19 +226,14 @@ ui-icon {
   #event-editor > .functions .header ui-input {
     background-color: transparent;
     border-color: transparent;
-    line-height: 18px;
   }
   #event-editor > .functions .header ui-input:hover {
     background-color: var(--color-normal-fill-emphasis);
   }
-  #event-editor > .functions > * {
-    margin-top: 10px;
-  }
   #event-editor ui-input,
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
-    width: 100%;
-    height: 25px;
+    flex: 1;
   }
   #event-editor ui-section {
     width: 100%;
@@ -248,15 +244,12 @@ ui-icon {
   }
   #event-editor .tools {
     display: flex;
-    border-bottom: 1px solid;
-    padding: 10px 0;
+    padding: 4px 0;
   }
   #event-editor .tools ui-icon {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor .params {
-    border: 1px rgba(136, 136, 136, 0.35) dashed;
-    border-radius: calc(var(--size-normal-radius) * 1px);
   }
   #event-editor .header ui-icon,
   #event-editor .params ui-icon {
@@ -679,16 +672,16 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.__protected__.removeBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.__protected__.addBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onAssetChange(uuids) {
-        if (uuids.includes(this.asset.uuid)) {
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
             // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);

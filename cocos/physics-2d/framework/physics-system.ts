@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
-import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy, warnID } from '../../core';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';
 import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup, Contact2DType } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
 import { director, Director } from '../../game';
 
@@ -61,7 +61,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -77,7 +77,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -300,8 +300,6 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this.physicsWorld.syncPhysicsToScene();
 
-        this.physicsWorld.finalizeContactEvent();
-
         if (this.debugDrawFlags) {
             this.physicsWorld.drawDebug();
         }
@@ -374,13 +372,6 @@ export class PhysicsSystem2D extends Eventify(System) {
      */
     testAABB (rect: Rect): readonly Collider2D[] {
         return this.physicsWorld.testAABB(rect);
-    }
-
-    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
-        if (type === Contact2DType.PRE_SOLVE || type === Contact2DType.POST_SOLVE) {
-            warnID(16002, type, '3.7.1');
-        }
-        return super.on(type, callback, thisArg, once);
     }
 }
 

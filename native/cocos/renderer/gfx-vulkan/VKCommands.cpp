@@ -120,7 +120,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
     gpuTexture->aspectMask = mapVkImageAspectFlags(gpuTexture->format);
     // storage images has to be in general layout
-    if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
+    // if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
     // remove stencil aspect for depth textures with sampled usage
     if (hasFlag(gpuTexture->usage, TextureUsageBit::SAMPLED)) gpuTexture->aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
 

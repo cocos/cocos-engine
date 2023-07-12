@@ -63,7 +63,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     constructor () {
-        this._filterData = { word0: 1, word1: 1, word2: 10000, word3: 0 };
+        this._filterData = { word0: 1, word1: 1, word2: 1, word3: 0 };
     }
 
     // virtual
@@ -203,7 +203,12 @@ export class PhysXCharacterController implements IBaseCharacterController {
     // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
     static queryCallback = {
         preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
-            const collider = getWrapShape<PhysXShape>(shape).collider;
+            const pxShape = getWrapShape<PhysXShape>(shape);
+            if (!pxShape) {
+                return PX.QueryHitType.eNONE;
+            }
+
+            const collider = pxShape.collider;
             if (!(filterData.word0 & collider.getMask()) || !(filterData.word1 & collider.getGroup())) {
                 return PX.QueryHitType.eNONE;
             }

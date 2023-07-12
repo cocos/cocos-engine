@@ -35,16 +35,19 @@ namespace cc {
 namespace render {
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
-: batches(alloc),
-  sortedBatches(alloc) {}
+: sortedBatches(alloc),
+  passInstances(alloc),
+  instanceBuffers(alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue&& rhs, const allocator_type& alloc)
-: batches(std::move(rhs.batches), alloc),
-  sortedBatches(std::move(rhs.sortedBatches), alloc) {}
+: sortedBatches(std::move(rhs.sortedBatches), alloc),
+  passInstances(std::move(rhs.passInstances), alloc),
+  instanceBuffers(std::move(rhs.instanceBuffers), alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, const allocator_type& alloc)
-: batches(rhs.batches, alloc),
-  sortedBatches(rhs.sortedBatches, alloc) {}
+: sortedBatches(rhs.sortedBatches, alloc),
+  passInstances(rhs.passInstances, alloc),
+  instanceBuffers(rhs.instanceBuffers, alloc) {}
 
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
@@ -61,13 +64,13 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
   sceneFlags(sceneFlagsIn),
-  layoutPassID(layoutPassIDIn) {}
+  subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
@@ -75,7 +78,7 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
-  layoutPassID(rhs.layoutPassID) {}
+  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}
@@ -162,11 +165,35 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageBuffers(std::move(rhs.storageBuffers), alloc),
   storageImages(std::move(rhs.storageImages), alloc) {}
 
+CullingQueries::CullingQueries(const allocator_type& alloc) noexcept
+: culledResultIndex(alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc)
+: culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
+: culledResultIndex(rhs.culledResultIndex, alloc) {}
+
+SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
+: sceneQueries(alloc),
+  culledResults(alloc),
+  renderQueues(alloc),
+  sceneQueryIndex(alloc) {}
+
+SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
+: sceneQueries(std::move(rhs.sceneQueries), alloc),
+  culledResults(std::move(rhs.culledResults), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
+  numCullingQueries(rhs.numCullingQueries),
+  numRenderQueues(rhs.numRenderQueues) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc) {}
+  renderSceneResources(alloc),
+  sceneCulling(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

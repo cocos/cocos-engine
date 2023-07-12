@@ -10,6 +10,7 @@ import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE_BLEND } from './menu-common';
 import { PoseGraphType } from '../foundation/type-system';
+import { isIgnorableWeight } from '../utils';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeBlendInProportion`)
 @poseGraphNodeCategory(POSE_GRAPH_NODE_MENU_PREFIX_POSE_BLEND)
@@ -55,6 +56,9 @@ export class PoseNodeBlendInProportion extends PoseNode {
         const nInputPoses = this.poses.length;
         for (let iInputPose = 0; iInputPose < nInputPoses; ++iInputPose) {
             const inputPoseWeight = this.proportions[iInputPose];
+            if (isIgnorableWeight(inputPoseWeight)) {
+                continue;
+            }
             const inputPoseUpdateContext = updateContextGenerator.generate(
                 context.deltaTime,
                 context.indicativeWeight * inputPoseWeight,
@@ -69,7 +73,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
         let finalPose: Pose | null = null;
         for (let iInputPose = 0; iInputPose < nInputPoses; ++iInputPose) {
             const inputPoseWeight = this.proportions[iInputPose];
-            if (!inputPoseWeight) {
+            if (isIgnorableWeight(inputPoseWeight)) {
                 continue;
             }
             const inputPose = this.poses[iInputPose]?.evaluate(context, PoseTransformSpaceRequirement.LOCAL);

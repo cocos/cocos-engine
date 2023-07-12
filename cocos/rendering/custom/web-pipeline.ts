@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
+import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
@@ -38,7 +38,7 @@ import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16FloatTexture, UBOSkinning } from '../define';
+import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -53,6 +53,7 @@ import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
+import { Root } from '../../root';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -139,10 +140,15 @@ export class WebSetter {
         return layout.uniformBlocks.get(nameID);
     }
 
-    protected _getCurrDescriptorBlock (block: string) {
+    protected _getCurrDescSetLayoutData () {
         const nodeId = this._lg.locateChild(0xFFFFFFFF, this._currStage);
         const ppl = this._lg.getLayout(nodeId);
         const layout = ppl.descriptorSets.get(UpdateFrequency.PER_PASS)!.descriptorSetLayoutData;
+        return layout;
+    }
+
+    protected _getCurrDescriptorBlock (block: string) {
+        const layout = this._getCurrDescSetLayoutData();
         const nameID: number = this._lg.attributeIndex.get(block)!;
         for (const block of layout.descriptorBlocks) {
             for (let i = 0; i !== block.descriptors.length; ++i) {
@@ -243,8 +249,18 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
-    public setCamera (camera: Camera): void {
-    }
+    // public setCameraConstants (camera: Camera): void {
+
+    // }
+    // public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
+
+    // }
+    // public setSpotLightProjectionConstants (light: SpotLight): void {
+
+    // }
+    // public setShadowMapConstants (light: Light, numLevels?: number): void {
+
+    // }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
         if (id === undefined) {
@@ -278,7 +294,7 @@ function setShadowUBOLightView (setter: WebSetter,
     level: number,
     layout = 'default') {
     const director = cclegacy.director;
-    const pipeline = director.root.pipeline;
+    const pipeline = (director.root as Root).pipeline;
     const device = pipeline.device;
     const sceneData = pipeline.pipelineSceneData;
     const shadowInfo = sceneData.shadows;
@@ -322,7 +338,7 @@ function setShadowUBOLightView (setter: WebSetter,
                     }
                     uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                     if (setter.hasUniform(uniformOffset)) {
-                        _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                        _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, 0);
                         setter.offsetVec4(_uboVec, uniformOffset);
                     }
                 } else {
@@ -360,7 +376,7 @@ function setShadowUBOLightView (setter: WebSetter,
                 }
                 uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                 if (setter.hasUniform(uniformOffset)) {
-                    _uboVec.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
+                    _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, levelCount);
                     setter.offsetVec4(_uboVec, uniformOffset);
                 }
                 uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
@@ -399,7 +415,7 @@ function setShadowUBOLightView (setter: WebSetter,
             }
             uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
             if (setter.hasUniform(uniformOffset)) {
-                _uboVec.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                _uboVec.set(LightType.SPOT, packing, spotLight.shadowNormalBias, 0.0);
                 setter.offsetVec4(_uboVec, uniformOffset);
             }
         }
@@ -409,7 +425,7 @@ function setShadowUBOLightView (setter: WebSetter,
     }
     uniformOffset = setter.getUniformOffset('cc_shadowColor', Type.FLOAT4);
     if (setter.hasUniform(uniformOffset)) {
-        _uboCol.copy(shadowInfo.shadowColor);
+        _uboCol.set(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y, shadowInfo.shadowColor.z, shadowInfo.shadowColor.w);
         setter.offsetColor(_uboCol, uniformOffset);
     }
 }
@@ -420,11 +436,11 @@ function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number
     case PCFType.HARD:
         return 0.0;
     case PCFType.SOFT:
-        return 1.0  / (shadowMapSize * 0.5);
+        return 1.0 / (shadowMapSize * 0.5);
     case PCFType.SOFT_2X:
-        return 2.0  / (shadowMapSize * 0.5);
-    // case PCFType.SOFT_4X:
-    //     return 3.0  / (shadowMapSize * 0.5);
+        return 2.0 / (shadowMapSize * 0.5);
+    case PCFType.SOFT_4X:
+        return 3.0 / (shadowMapSize * 0.5);
     default:
     }
     return 0.0;
@@ -479,7 +495,7 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         }
                         uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                         if (setter.hasUniform(uniformOffset)) {
-                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                            _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, 0);
                             setter.offsetVec4(_uboVec, uniformOffset);
                         }
                     }
@@ -488,7 +504,8 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         const layerThreshold = getPCFRadius(shadowInfo, mainLight);
                         setter.setCurrConstant('CCCSM', layout);
                         for (let i = 0; i < mainLight.csmLevel; i++) {
-                            const matShadowView = csmLayers.layers[i].matShadowView;
+                            const layer = csmLayers.layers[i];
+                            const matShadowView = layer.matShadowView;
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir0', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
                                 _uboVec.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
@@ -496,29 +513,25 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir1', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                _uboVec.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, 0.0);
+                                _uboVec.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, layer.splitCameraNear);
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmViewDir2', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                _uboVec.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
+                                _uboVec.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, layer.splitCameraFar);
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_csmAtlas', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                const csmAtlas = csmLayers.layers[i].csmAtlas;
+                                const csmAtlas = layer.csmAtlas;
                                 setter.offsetVec4(csmAtlas, uniformOffset);
-                            }
-                            uniformOffset = setter.getUniformOffset('cc_csmSplitsInfo', Type.FLOAT, i);
-                            if (setter.hasUniform(uniformOffset)) {
-                                setter.offsetFloat(csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance, uniformOffset);
                             }
                             uniformOffset = setter.getUniformOffset('cc_matCSMViewProj', Type.MAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
-                                const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                                const matShadowViewProj = layer.matShadowViewProj;
                                 setter.offsetMat4(matShadowViewProj, uniformOffset);
                             }
-                            const matShadowProj = csmLayers.layers[i].matShadowProj;
+                            const matShadowProj = layer.matShadowProj;
                             uniformOffset = setter.getUniformOffset('cc_csmProjDepthInfo', Type.FLOAT4, i);
                             if (setter.hasUniform(uniformOffset)) {
                                 _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
@@ -530,6 +543,11 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                                 setter.offsetVec4(_uboVec, uniformOffset);
                             }
                         }
+                        uniformOffset = setter.getUniformOffset('cc_csmSplitsInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(mainLight.csmTransitionRange, 0, 0, 0);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
                     }
                     if (hasCCShadow) {
                         setter.setCurrConstant('CCShadow', layout);
@@ -540,7 +558,7 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                         }
                         uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
                         if (setter.hasUniform(uniformOffset)) {
-                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
+                            _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
                             setter.offsetVec4(_uboVec, uniformOffset);
                         }
                     }
@@ -612,7 +630,7 @@ function setCameraUBOValues (setter: WebSetter,
         }
         uniformOffset = setter.getUniformOffset('cc_surfaceTransform', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
-            _uboVec.set(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle())));
+            _uboVec.set(camera.surfaceTransform, camera.cameraUsage, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle())));
             setter.offsetVec4(_uboVec, uniformOffset);
         }
         uniformOffset = setter.getUniformOffset('cc_exposure', Type.FLOAT4);
@@ -706,7 +724,7 @@ function setCameraUBOValues (setter: WebSetter,
     if (camera) {
         uniformOffset = setter.getUniformOffset('cc_nearFar', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
-            _uboVec.set(camera.nearClip, camera.farClip, 0.0, 0.0);
+            _uboVec.set(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0.0);
             setter.offsetVec4(_uboVec, uniformOffset);
         }
         uniformOffset = setter.getUniformOffset('cc_viewPort', Type.FLOAT4);
@@ -793,8 +811,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(name, sceneFlags, light);
-        sceneData.camera = camera;
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
@@ -811,13 +828,24 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData('Scene', sceneFlags);
-        sceneData.scenes.push(scene);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-        );
-    }
+    // addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags);
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
@@ -912,12 +940,6 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
     }
-    addRasterView (name: string, view: RasterView): void {
-        throw new Error('Method not implemented.');
-    }
-    addComputeView (name: string, view: ComputeView): void {
-        throw new Error('Method not implemented.');
-    }
     setViewport (viewport: Viewport): void {
         throw new Error('Method not implemented.');
     }
@@ -965,23 +987,6 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
         throw new Error('Method not implemented.');
-    }
-    addRasterView (name: string, view: RasterView) {
-        this._pass.rasterViews.set(name, view);
-    }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(view.name);
-            assert(name && this._resourceGraph.contains(name));
-            const descriptorName = view.name;
-            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
-            assert(descriptorID !== undefined);
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
     }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
@@ -1042,6 +1047,10 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         this._addComputeResource(name, AccessType.READ, slotName);
+        if (sampler) {
+            const descriptorID = this._layoutGraph.attributeIndex.get(slotName)!;
+            this._data.samplers.set(descriptorID, sampler);
+        }
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
         this._addComputeResource(name, accessType, slotName);
@@ -1189,15 +1198,8 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
     }
-    addComputeView (name: string, view: ComputeView) {
-        if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
-        }
-        if (this._pass.computeViews.has(name)) {
-            this._pass.computeViews.get(name)?.push(view);
-        } else {
-            this._pass.computeViews.set(name, [view]);
-        }
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
+        throw new Error('Method not implemented.');
     }
     addQueue (layoutName = 'default') {
         if (DEBUG) {
@@ -1286,9 +1288,6 @@ export class WebPipeline implements BasicPipeline {
     }
     addCustomTexture (name: string, info: TextureInfo, type: string): number {
         throw new Error('Method not implemented.');
-    }
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
-        return this.addRenderWindow(name, format, width, height, renderWindow);
     }
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         const desc = new ResourceDesc();
@@ -1461,7 +1460,7 @@ export class WebPipeline implements BasicPipeline {
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this._compileMaterial();
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
-        this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16FloatTexture(this._device));
+        this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16HalfFloatTexture(this._device));
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
@@ -1700,6 +1699,9 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     beginFrame () {
+        // noop
+    }
+    update (camera: Camera) {
         // noop
     }
     endFrame () {

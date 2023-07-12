@@ -38,10 +38,27 @@ import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { settings, Settings } from '../../core/settings';
-import { ReflectionProbeType } from './reflection-probe-enum';
+import { ReflectionProbeType } from '../reflection-probe/reflection-probe-enum';
+import { getPhaseID } from '../../rendering/pass-phase';
+import { SubModel } from '../../render-scene/scene';
+import { isEnableEffect } from '../../rendering/define';
 
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
+
+let _phaseID = getPhaseID('specular-pass');
+function getSkinPassIndex (subModel: SubModel): number {
+    const passes = subModel.passes;
+    const r = cclegacy.rendering;
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('specular-pass'), 'default');
+    for (let k = 0; k < passes.length; k++) {
+        if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
+            || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
+            return k;
+        }
+    }
+    return -1;
+}
 
 /**
  * @en Shadow projection mode.
@@ -134,7 +151,7 @@ class ModelBakeSettings extends EventTarget {
      * @zh 模型是否是静态的并可以烘培光照贴图。
      * 注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0 })
+    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0, style: 'section' })
     @editable
     get bakeable () {
         return this._bakeable;
@@ -192,7 +209,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether to use light probe which provides indirect light to dynamic objects.
      * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
      */
-    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1 })
+    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1, style: 'section' })
     @editable
     @type(CCBoolean)
     get useLightProbe () {
@@ -223,7 +240,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
-    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2 })
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2, style: 'section' })
     @type(Enum(ReflectionProbeType))
     get reflectionProbe () {
         return this._reflectionProbeType;
@@ -307,6 +324,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _reflectionProbeBlendWeight = 0;
 
+    @serializable
+    protected _enabledGlobalStandardSkinObject = false;
+
     protected _reflectionProbeDataMap: Texture2D | null = null;
 
     // @serializable
@@ -318,7 +338,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2, style: 'section' })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -480,6 +500,29 @@ export class MeshRenderer extends ModelRenderer {
 
     set enableMorph (value) {
         this._enableMorph = value;
+    }
+
+    /**
+     * @en Set the Separable-SSS skin standard model component.
+     * @zh 设置是否是全局的4s标准模型组件
+     */
+    @type(CCBoolean)
+    @tooltip('i18n:model.standard_skin_model')
+    @disallowAnimation
+    get isGlobalStandardSkinObject () {
+        return this._enabledGlobalStandardSkinObject;
+    }
+
+    set isGlobalStandardSkinObject (val) {
+        (cclegacy.director.root as Root).pipeline.pipelineSceneData.standardSkinMeshRenderer = val ? this : null;
+        this._enabledGlobalStandardSkinObject = val;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public clearGlobalStandardSkinObjectFlag () {
+        this._enabledGlobalStandardSkinObject = false;
     }
 
     protected _modelType: typeof scene.Model;
@@ -876,7 +919,7 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        
+
         if (mainLight.node.mobility === MobilityMode.Static) {
             let forceClose = false;
             if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
@@ -885,7 +928,7 @@ export class MeshRenderer extends ModelRenderer {
             if (this.node.scene.globals.lightProbeInfo.data
                 && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
                 && this._model.useLightProbe) {
-                    forceClose = true;
+                forceClose = true;
             }
 
             this.onUpdateReceiveDirLight(visibility, forceClose);
@@ -1009,6 +1052,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+        this._updateStandardSkin();
     }
 
     /**
@@ -1224,6 +1268,24 @@ export class MeshRenderer extends ModelRenderer {
 
     private _uploadSubMeshShapesWeights (subMeshIndex: number) {
         this._morphInstance?.setWeights(subMeshIndex, this._subMeshShapesWeights[subMeshIndex]);
+    }
+
+    private _updateStandardSkin () {
+        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
+        if (this._enabledGlobalStandardSkinObject) {
+            pipelineSceneData.standardSkinMeshRenderer = this;
+            pipelineSceneData.standardSkinModel = this.model;
+        }
+        if (!pipelineSceneData.skinMaterialModel && this._model) {
+            const subModels = this._model.subModels;
+            for (let j = 0; j < subModels.length; j++) {
+                const subModel = subModels[j];
+                const skinPassIdx = getSkinPassIndex(subModel);
+                if (skinPassIdx < 0) { continue; }
+                pipelineSceneData.skinMaterialModel = this._model;
+                return;
+            }
+        }
     }
 }
 

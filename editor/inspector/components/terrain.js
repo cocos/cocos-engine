@@ -1,8 +1,9 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 const { setHidden } = require('../utils/prop');
 
@@ -14,7 +15,7 @@ exports.ready = function() {
                     // Editor.Message.send('scene', 'snapshot');
                     const uuid = this.dump.value.uuid.value;
                     const dump = event.target.dump;
-                    const undoID = await Editor.Message.request('scene', 'begin-recording',uuid);
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuid);
                     Editor.Message.request('scene', 'execute-component-method', {
                         uuid: this.dump.value.uuid.value,
                         name: 'manager.addAssetToComp',

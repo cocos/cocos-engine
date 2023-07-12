@@ -45,7 +45,6 @@ import spine from './lib/spine-core';
 
 export * from './skeleton';
 export * from './skeleton-data';
-export * from './skeleton-texture';
 export * from './vertex-effect-delegate';
 export * from './assembler';
 

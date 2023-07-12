@@ -19,7 +19,7 @@ test(`Additivity inheritance`, () => {
 
         const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
         const poseNodeMock = proceduralPoseState.graph.addNode(new additivityCheckMock.PoseNodeMock());
-        connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, poseNodeMock);
+        connectOutputNode(proceduralPoseState.graph, poseNodeMock);
         layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
 
         void new AnimationGraphEvalMock(new Node(), graph);

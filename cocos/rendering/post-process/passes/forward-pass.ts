@@ -1,14 +1,12 @@
-import { EDITOR } from 'internal:constants';
 import { Vec4 } from '../../../core';
-import { director } from '../../../game';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom';
+import { Camera } from '../../../render-scene/scene';
+import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass, getRTFormatBeforeToneMapping } from './base-pass';
+import { BasePass, getRTFormatBeforeToneMapping, getShadowMapSampler } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardPass extends BasePass {
@@ -62,16 +60,15 @@ export class ForwardPass extends BasePass {
         if (shadowPass) {
             for (const dirShadowName of shadowPass.mainLightShadows) {
                 if (ppl.containsResource(dirShadowName)) {
-                    pass.addTexture(dirShadowName, 'cc_shadowMap');
+                    pass.addTexture(dirShadowName, 'cc_shadowMap', getShadowMapSampler());
                 }
             }
             for (const spotShadowName of shadowPass.spotLightShadows) {
                 if (ppl.containsResource(spotShadowName)) {
-                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
+                    pass.addTexture(spotShadowName, 'cc_spotShadowMap', getShadowMapSampler());
                 }
             }
         }
-
         pass.addQueue(QueueHint.RENDER_OPAQUE)
             .addSceneOfCamera(camera,
                 new LightInfo(),

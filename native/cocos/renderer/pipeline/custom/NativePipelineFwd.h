@@ -29,6 +29,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
@@ -65,6 +66,10 @@ struct QuadResource;
 enum class ResourceType;
 
 struct SceneResource;
+struct CullingKey;
+struct CullingQueries;
+struct NativeRenderQueueDesc;
+struct SceneCulling;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;
@@ -75,5 +80,14 @@ class NativeRenderingModule;
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::CullingKey> {
+    hash_t operator()(const cc::render::CullingKey& val) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on

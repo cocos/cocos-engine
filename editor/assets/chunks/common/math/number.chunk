@@ -39,19 +39,10 @@ bool isinfs(vec4 val) {
   vec4 round(vec4 value) { return vec4(round(value.x), round(value.y), round(value.z), round(value.w)); }
 #endif
 
-float rsqrt(float value) {
-    return 1.0 / sqrt(value);
-}
-vec2 rsqrt(vec2 value) { return vec2(rsqrt(value.x), rsqrt(value.y)); }
-vec3 rsqrt(vec3 value) { return vec3(rsqrt(value.x), rsqrt(value.y), rsqrt(value.z)); }
-vec4 rsqrt(vec4 value) { return vec4(rsqrt(value.x), rsqrt(value.y), rsqrt(value.z), rsqrt(value.w)); }
-
-float saturate(float value) {
-    return min(max(value, 0.0), 1.0);
-}
-vec2 saturate(vec2 value) { return vec2(saturate(value.x), saturate(value.y)); }
-vec3 saturate(vec3 value) { return vec3(saturate(value.x), saturate(value.y), saturate(value.z)); }
-vec4 saturate(vec4 value) { return vec4(saturate(value.x), saturate(value.y), saturate(value.z), saturate(value.w)); }
+float rsqrt(float value) { return 1.0 / sqrt(value); }
+vec2 rsqrt(vec2 value) { return vec2(1.0) / sqrt(value); }
+vec3 rsqrt(vec3 value) { return vec3(1.0) / sqrt(value); }
+vec4 rsqrt(vec4 value) { return vec4(1.0) / sqrt(value); }
 
 
 // random number

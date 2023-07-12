@@ -23,11 +23,11 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { EDITOR, DEBUG, TEST } from 'internal:constants';
+import { EDITOR, DEBUG, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, cclegacy } from '../../core';
+import { errorID } from '../../core';
 import { ECollider2DType, EJoint2DType  } from './physics-types';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
     IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
@@ -52,7 +52,7 @@ interface IPhysicsWrapperObject {
     HingeJoint?: any,
 }
 
-type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
+interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
 export interface IPhysicsSelector {
     /**
@@ -164,11 +164,10 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     testPoint: FUNC,
     testAABB: FUNC,
     drawDebug: FUNC,
-    finalizeContactEvent: FUNC,
 };
 
 export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && (!EDITOR || cclegacy.GAME_VIEW) && obj == null) {
+    if (DEBUG && !TEST && !EDITOR_NOT_IN_PREVIEW && obj == null) {
         errorID(9600);
         return true;
     }

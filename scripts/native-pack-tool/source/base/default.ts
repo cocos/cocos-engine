@@ -364,6 +364,10 @@ export abstract class NativePackTool {
         }
     }
 
+    protected projectNameASCII(): string {
+        return /^[0-9a-zA-Z_-]+$/.test(this.params.projectName) ? this.params.projectName : 'CocosGame';
+    }
+
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
@@ -388,6 +392,21 @@ export abstract class NativePackTool {
                 });
             });
             delete tasks.projectReplaceProjectName;
+        }
+
+        if (tasks.projectReplaceProjectNameASCII) {
+            const cmd = tasks.projectReplaceProjectNameASCII;
+            if (cmd.srcProjectName !== this.projectNameASCII()) {
+                cmd.files.forEach((file) => {
+                    const fp = cchelper.join(this.paths.buildDir, file);
+                    replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
+                    replaceFilesDelay[fp].push({
+                        reg: cmd.srcProjectName,
+                        content: this.projectNameASCII(),
+                    });
+                });
+            }
+            delete tasks.projectReplaceProjectNameASCII;
         }
 
         if (tasks.projectReplacePackageName) {
@@ -430,7 +449,11 @@ export abstract class NativePackTool {
             }
         });
         Object.keys(config).forEach((key: string) => {
-            content += config[key] + '\n';
+            if(typeof config[key] !== 'string')  {
+                console.error(`cMakeConfig.${key} is not a string, "${config[key]}"`);
+            } else {
+                content += config[key] + '\n';
+            }
         });
         console.debug(`generateCMakeConfig, ${JSON.stringify(config)}`);
         await fs.outputFile(file, content);

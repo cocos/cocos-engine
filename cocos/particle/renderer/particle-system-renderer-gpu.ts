@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../scene-graph';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec4, Quat, Vec3, cclegacy } from '../../core';
+import { Mat4, Vec2, Vec4, Quat, Vec3, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -271,7 +271,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -305,7 +305,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
@@ -611,7 +611,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         } else if (renderMode === RenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
+            warn(`particle system renderMode ${renderMode} not support.`);
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {

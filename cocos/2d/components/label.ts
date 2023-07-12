@@ -785,10 +785,11 @@ export class Label extends UIRenderer {
             this._ttfSpriteFrame = null;
         }
 
-        this._textStyle = null;
-        this._textLayout = null;
-        this._textRenderData = null;
-        this._textLayoutData = null;
+        // Don't set null for properties which are init in constructor.
+        // this._textStyle = null;
+        // this._textLayout = null;
+        // this._textRenderData = null;
+        // this._textLayoutData = null;
 
         // texture cannot be destroyed in here, lettertexture image source is public.
         this._letterTexture = null;

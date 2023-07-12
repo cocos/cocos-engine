@@ -49,12 +49,11 @@ import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData
 import { BasicPipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
-    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
-import { AttachmentType, ComputeView, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView, ComputeView, RasterView } from './render-graph';
+import { AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
-import { stringify } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
@@ -62,9 +61,46 @@ import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
+
+class ResourceVisitor implements ResourceGraphVisitor {
+    name: string;
+    constructor (resName = '') {
+        this.name = resName;
+    }
+    set resName (value: string) {
+        this.name = value;
+    }
+    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
+        const deviceTex = new DeviceTexture(this.name, value);
+        context.deviceTextures.set(this.name, deviceTex);
+    }
+    managed (value: ManagedResource) {
+        this.createDeviceTex(value);
+    }
+    managedBuffer (value: ManagedBuffer) {
+        // noop
+    }
+    managedTexture (value: ManagedTexture) {
+        // noop
+    }
+    persistentBuffer (value: Buffer) {
+    }
+    persistentTexture (value: Texture) {
+        this.createDeviceTex(value);
+    }
+    framebuffer (value: Framebuffer) {
+        this.createDeviceTex(value);
+    }
+    swapchain (value: RenderSwapchain) {
+        this.createDeviceTex(value);
+    }
+    formatView (value: FormatView) {
+    }
+    subresourceView (value: SubresourceView) {
+    }
+}
 
 let context: ExecutorContext;
 class DeviceResource {
@@ -464,13 +500,30 @@ class SubmitInfo {
     public shadowMap: Map<number, RenderShadowMapBatchedQueue> = new Map<number, RenderShadowMapBatchedQueue>();
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
-    reset () {
+
+    private _clearInstances () {
+        const it = this.instances.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
         this.instances.clear();
+    }
+
+    private _clearShadowMap () {
+        for (const shadowMap of this.shadowMap) {
+            shadowMap[1].clear();
+        }
+        this.shadowMap.clear();
+    }
+
+    reset () {
+        this._clearInstances();
         this.renderInstanceQueue.length = 0;
         this.opaqueList.length = 0;
         this.transparentList.length = 0;
         this.planarQueue = null;
-        this.shadowMap.clear();
+        this._clearShadowMap();
         this.additiveLight = null;
         this.reflectionProbe = null;
     }
@@ -589,6 +642,7 @@ class RasterPassInfo {
 
 const profilerViewport = new Viewport();
 const renderPassArea = new Rect();
+const resourceVisitor = new ResourceVisitor();
 class DeviceRenderPass {
     protected _renderPass: RenderPass;
     protected _framebuffer: Framebuffer;
@@ -628,10 +682,7 @@ class DeviceRenderPass {
         for (const [resName, rasterV] of passInfo.pass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (!resTex) {
-                const resourceGraph = context.resourceGraph;
-                const vertId = resourceGraph.vertex(resName);
-                const resourceVisitor = new ResourceVisitor(resName);
-                resourceGraph.visitVertex(resourceVisitor, vertId);
+                this.visitResource(resName);
                 resTex = context.deviceTextures.get(resName)!;
             } else {
                 const resGraph = context.resourceGraph;
@@ -639,6 +690,11 @@ class DeviceRenderPass {
                 const resFbo = resGraph._vertices[resId]._object;
                 if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
                     resTex.framebuffer = resFbo;
+                } else if (resTex.texture) {
+                    const desc = resGraph.getDesc(resId);
+                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                        resTex.texture.resize(desc.width, desc.height);
+                    }
                 }
             }
             if (!swapchain) swapchain = resTex.swapchain;
@@ -713,6 +769,12 @@ class DeviceRenderPass {
     get deviceQueues () { return this._deviceQueues; }
     get rasterPassInfo () { return this._rasterInfo; }
     get viewport () { return this._viewport; }
+    visitResource (resName: string) {
+        const resourceGraph = context.resourceGraph;
+        const vertId = resourceGraph.vertex(resName);
+        resourceVisitor.resName = resName;
+        resourceGraph.visitVertex(resourceVisitor, vertId);
+    }
     addQueue (queue: DeviceRenderQueue) { this._deviceQueues.push(queue); }
     prePass () {
         for (const queue of this._deviceQueues) {
@@ -826,10 +888,12 @@ class DeviceRenderPass {
     }
     resetResource (id: number, pass: RasterPass) {
         this._rasterInfo.applyInfo(id, pass);
+        this._layoutName = context.renderGraph.getLayout(id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.length = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
-        let depTexture = this._framebuffer.depthStencilTexture;
+        let depTexture = this._framebuffer ? this._framebuffer.depthStencilTexture : null;
         for (const cv of this._rasterInfo.pass.computeViews) {
             this._applyRenderLayout(cv);
         }
@@ -838,22 +902,28 @@ class DeviceRenderPass {
             this.renderLayout.descriptorSet.update();
         }
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
-            const deviceTex = context.deviceTextures.get(resName)!;
+            let deviceTex = context.deviceTextures.get(resName)!;
+            const currTex = deviceTex;
+            if (!deviceTex) {
+                this.visitResource(resName);
+                deviceTex = context.deviceTextures.get(resName)!;
+            }
             const resGraph = context.resourceGraph;
             const resId = resGraph.vertex(resName);
             const resFbo = resGraph._vertices[resId]._object;
             const resDesc = resGraph.getDesc(resId);
             if (deviceTex.framebuffer && resFbo instanceof Framebuffer && deviceTex.framebuffer !== resFbo) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
-            } else if (deviceTex.texture
-                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height)) {
-                deviceTex.texture.resize(resDesc.width, resDesc.height);
+            } else if (!currTex || (deviceTex.texture
+                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height))) {
+                const gfxTex = deviceTex.texture!;
+                if (currTex) gfxTex.resize(resDesc.width, resDesc.height);
                 switch (rasterV.attachmentType) {
                 case AttachmentType.RENDER_TARGET:
-                    colTextures.push(deviceTex.texture);
+                    colTextures.push(gfxTex);
                     break;
                 case AttachmentType.DEPTH_STENCIL:
-                    depTexture = deviceTex.texture;
+                    depTexture = gfxTex;
                     break;
                 case AttachmentType.SHADING_RATE:
                     // noop
@@ -922,15 +992,11 @@ class GraphScene {
             if (!this.scene) {
                 this.scene = new SceneData();
             }
-            this.scene.name = scene.name;
+            this.scene.scene = scene.scene;
             this.scene.light.level = scene.light.level;
             this.scene.light.light = scene.light.light;
             this.scene.flags = scene.flags;
             this.scene.camera = scene.camera;
-            this.scene.scenes.length = 0;
-            for (let i = 0; i < scene.scenes.length; i++) {
-                this.scene.scenes[i] = scene.scenes[i];
-            }
             return;
         }
         this.scene = null;
@@ -1026,11 +1092,13 @@ class DevicePreSceneTask extends WebSceneTask {
         if (this.graphScene.scene!.flags & SceneFlags.REFLECTION_PROBE && !this._submitInfo.reflectionProbe) {
             this._submitInfo.reflectionProbe = context.pools.addReflectionProbe();
             this._submitInfo.reflectionProbe.clear();
-            const probes = ReflectionProbeManager.probeManager.getProbes();
-            for (let i = 0; i < probes.length; i++) {
-                if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
-                    this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera, this._cmdBuff);
-                    break;
+            if (cclegacy.internal.reflectionProbeManager) {
+                const probes = cclegacy.internal.reflectionProbeManager.getProbes();
+                for (let i = 0; i < probes.length; i++) {
+                    if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
+                        this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera, this._cmdBuff);
+                        break;
+                    }
                 }
             }
             return;
@@ -1498,6 +1566,9 @@ class ExecutorPools {
 
 const vbData = new Float32Array(4 * 4);
 const quadRect = new Rect();
+// The attribute length of the volume light
+const volLightAttrCount = 5;
+
 class BlitInfo {
     private _pipelineIAData: PipelineInputAssemblerData;
     private _context: ExecutorContext;
@@ -1554,7 +1625,7 @@ class BlitInfo {
 
     private _createLightVolumes () {
         const device = this._context.root.device;
-        let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * UBODeferredLight.LIGHTS_PER_PASS;
+        let totalSize = Float32Array.BYTES_PER_ELEMENT * volLightAttrCount * 4 * UBODeferredLight.LIGHTS_PER_PASS;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
         this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
@@ -1730,40 +1801,6 @@ class ExecutorContext {
     width: number;
     height: number;
     cullCamera;
-}
-class ResourceVisitor implements ResourceGraphVisitor {
-    name: string;
-    constructor (resName: string) {
-        this.name = resName;
-    }
-    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
-        const deviceTex = new DeviceTexture(this.name, value);
-        context.deviceTextures.set(this.name, deviceTex);
-    }
-    managed (value: ManagedResource) {
-        this.createDeviceTex(value);
-    }
-    managedBuffer (value: ManagedBuffer) {
-        // noop
-    }
-    managedTexture (value: ManagedTexture) {
-        // noop
-    }
-    persistentBuffer (value: Buffer) {
-    }
-    persistentTexture (value: Texture) {
-        this.createDeviceTex(value);
-    }
-    framebuffer (value: Framebuffer) {
-        this.createDeviceTex(value);
-    }
-    swapchain (value: RenderSwapchain) {
-        this.createDeviceTex(value);
-    }
-    formatView (value: FormatView) {
-    }
-    subresourceView (value: SubresourceView) {
-    }
 }
 
 export class Executor {

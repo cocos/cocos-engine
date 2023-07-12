@@ -131,7 +131,8 @@ exports.template = /* html */`
             <ui-label value="LODS" tooltip="To import LODs, please make sure the LOD mesh names are ending with _LOD#"></ui-label>
         </div>
         <div class="lod-items"></div>
-        <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
+        <div class="not-lod-mesh-label" hidden></div>
+        <div class="no-lod-label" hidden>There is no LOD group found in the source file. If you want to generate LODs for this model, please use above settings.</div>
         <div class="load-mask">
             <ui-loading></ui-loading>
         </div>
@@ -140,22 +141,13 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
-}
+ui-prop { margin-right: 4px; }
+ui-section.config { margin-right: 0; }
+
 .warn-words {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    line-height: 1.7;
     color: var(--color-warn-fill);
 }
-.mesh-optimizer ui-section > ui-prop,
-.lods ui-section > ui-prop {
-    padding-left: 10px;
-}
-.mesh-optimizer .gltfpack-options .warn-words {
-    padding-left: 10px;
+.lods {
     margin-top: 0;
 }
 
@@ -224,9 +216,11 @@ ui-section {
     background: var(--color-hover-fill-weaker);
     color: var(--color-focus-contrast-emphasis);
 }
+.lods .not-lod-mesh-label,
 .lods .no-lod-label {
     color: var(--color-default-fill-weakest)
 }
+.lods .not-lod-mesh-label[hidden],
 .lods .no-lod-label[hidden] {
     display: none;
 }
@@ -283,6 +277,7 @@ exports.$ = {
     lodsCheckbox: '.lods-checkbox',
     lodItems: '.lod-items',
     noLodLabel: '.no-lod-label',
+    notLodMeshLabel: '.not-lod-mesh-label',
     loadMask: '.load-mask',
 };
 
@@ -823,6 +818,13 @@ const Elements = {
             const hasBuiltinLOD = panel.meta.userData.lods && panel.meta.userData.lods.hasBuiltinLOD || false;
             panel.$.lodItems.innerHTML = getLodItemHTML(lodOptions, panel.LODTriangleCounts, hasBuiltinLOD);
             hasBuiltinLOD ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
+            if (panel.notLODTriangleCounts && panel.notLODTriangleCounts.length > 0) {
+                const totalNotLODTriangleCounts = panel.notLODTriangleCounts.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+                panel.$.notLodMeshLabel.innerHTML = `There are ${panel.notLODTriangleCounts.length} non-LOD mesh(es) in the FBX, and the total triangles count is ${totalNotLODTriangleCounts}.`;
+                panel.$.notLodMeshLabel.removeAttribute('hidden');
+            } else {
+                panel.$.notLodMeshLabel.setAttribute('hidden', '');
+            }
             if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
                 panel.$.loadMask.style.display = 'none';
             }
@@ -921,7 +923,9 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-    this.LODTriangleCounts = handleLODTriangleCounts(this.meta);
+    const { LODTriangleCounts, notLODTriangleCounts } = handleLODTriangleCounts(this.meta);
+    this.LODTriangleCounts = LODTriangleCounts;
+    this.notLODTriangleCounts = notLODTriangleCounts;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -947,15 +951,24 @@ function handleLODTriangleCounts(meta) {
         return [];
     }
     let LODTriangleCounts = new Array(meta.userData.lods.options.length).fill(0);
+    let notLODTriangleCounts = new Array();
     for (const key in meta.subMetas) {
         const subMeta = meta.subMetas[key];
         if (subMeta.importer === 'gltf-mesh') {
             const { lodOptions, triangleCount, lodLevel } = subMeta.userData;
             const index = !meta.userData.lods.hasBuiltinLOD ? (lodOptions ? lodLevel : 0) : lodLevel;
+            // When an FBX comes with LOD, there may be non-LOD meshes, and the count of these meshes should be calculated separately.
+            if (index === undefined) {
+                notLODTriangleCounts.push(triangleCount || 0);
+                continue;
+            }
             LODTriangleCounts[index] = (LODTriangleCounts[index] || 0) + (triangleCount || 0);
         }
     }
-    return LODTriangleCounts;
+    return {
+        LODTriangleCounts,
+        notLODTriangleCounts,
+    };
 }
 
 function getLodItemHTML(lodOptions, LODTriangleCounts, hasBuiltinLOD = false) {

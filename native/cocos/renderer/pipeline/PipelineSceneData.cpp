@@ -36,6 +36,8 @@
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "scene/Skin.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
@@ -48,6 +50,7 @@ PipelineSceneData::PipelineSceneData() {
     _csmLayers = ccnew CSMLayers();
     _octree = ccnew scene::Octree();
     _lightProbes = ccnew gi::LightProbes();
+    _skin = ccnew scene::Skin();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -58,6 +61,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_octree);
     CC_SAFE_DELETE(_csmLayers);
     CC_SAFE_DELETE(_lightProbes);
+    CC_SAFE_DELETE(_skin);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
@@ -83,6 +87,8 @@ void PipelineSceneData::destroy() {
     _occlusionQueryInputAssembler = nullptr;
     _occlusionQueryVertexBuffer = nullptr;
     _occlusionQueryIndicesBuffer = nullptr;
+    _standardSkinModel = nullptr;
+    _skinMaterialModel = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
@@ -164,6 +170,14 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create cube input assembler
     gfx::InputAssemblerInfo info{attributes, {_occlusionQueryVertexBuffer}, _occlusionQueryIndicesBuffer};
     return _device->createInputAssembler(info);
+}
+
+void PipelineSceneData::setStandardSkinModel(scene::Model* val) {
+    _standardSkinModel = val;
+}
+
+void PipelineSceneData::setSkinMaterialModel(scene::Model* val) {
+    _skinMaterialModel = val;
 }
 
 } // namespace pipeline

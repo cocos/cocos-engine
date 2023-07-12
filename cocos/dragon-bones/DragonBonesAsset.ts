@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Asset } from '../asset/assets';
 import { ArmatureCache } from './ArmatureCache';
 import { Enum, cclegacy, _decorator } from '../core';
@@ -84,7 +84,7 @@ export class DragonBonesAsset extends Asset {
      */
     reset () {
         this._clear();
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this._armaturesEnum = null;
         }
     }

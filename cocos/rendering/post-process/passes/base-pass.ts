@@ -3,29 +3,52 @@ import { EDITOR } from 'internal:constants';
 import { Material } from '../../../asset/assets';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
-import { BasicPipeline, Pipeline } from '../../custom/pipeline';
+import { BasicPipeline, Pipeline, PipelineRuntime } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { Format } from '../../../gfx';
-import { supportsRGBA16FloatTexture } from '../../define';
+import { Address, Filter, Format, Sampler, SamplerInfo } from '../../../gfx';
+import { supportsRGBA16HalfFloatTexture } from '../../define';
 import { cclegacy, macro } from '../../../core';
 
 let _BasePassID = 0;
+let _pointSampler: Sampler| null = null;
+const _samplerPointInfo = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+);
 
 export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
-    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
+    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16HalfFloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-export function forceEnableFloatOutput (ppl: BasicPipeline) {
-    if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-        const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
+export function forceEnableFloatOutput (ppl: PipelineRuntime) {
+    let enabled = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    if (ppl.pipelineSceneData.isHDR && !enabled) {
+        const supportFloatOutput = supportsRGBA16HalfFloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
         macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
+        enabled = supportFloatOutput;
     }
+
+    return enabled;
 }
 
 export function disablePostProcessForDebugView () {
     const debugView = cclegacy.director.root.debugView;
     return debugView.singleMode as number > 0;
+}
+
+export function getShadowMapSampler () {
+    if (!_pointSampler) {
+        const director = cclegacy.director;
+        const pipeline = director.root.pipeline;
+        const device = pipeline.device;
+        _pointSampler = device.getSampler(_samplerPointInfo);
+    }
+    return _pointSampler;
 }
 
 export abstract class BasePass {

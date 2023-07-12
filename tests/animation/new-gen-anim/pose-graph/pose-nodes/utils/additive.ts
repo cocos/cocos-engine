@@ -36,8 +36,6 @@ export function createPoseNodeBindContextMock_WithAdditive(additive: boolean): A
         poseLayoutMaintainer,
         varRegistry,
         controller,
-        // @ts-expect-error HACK here
-        controller._customEventTarget,
     );
     result._pushAdditiveFlag(additive);
     return result;
