@@ -549,7 +549,7 @@ export class LODGroup extends Component {
      */
     public forceLOD (lodLevel: number): void {
         this._forceUsedLevels = lodLevel < 0 ? [] : [lodLevel];
-        this._updateLockedLODLevels();
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
     }
 
     /**
@@ -600,7 +600,7 @@ export class LODGroup extends Component {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
-        this._updateLockedLODLevels();
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -640,17 +640,6 @@ export class LODGroup extends Component {
         if (this._lodGroup.scene) { this._lodGroup.scene.removeLODGroup(this._lodGroup); }
     }
 
-    /**
-     * @engineInternal
-     */
-    protected _updateLockedLODLevels (): void {
-        if (this._forceUsedLevels.length > 0) {
-            this.lodGroup.lockLODLevels(this._forceUsedLevels);
-        } else {
-            this.lodGroup.clearLockedLODLevels();
-        }
-    }
-
     private _emitChangeNode (node: Node): void {
         if (EDITOR) {
             EditorExtends.Node.emit('change', node.uuid, node);
@@ -667,6 +656,6 @@ if (EDITOR) {
     // eslint-disable-next-line func-names
     LODGroup.prototype.forceLODs = function (this: LODGroup, lodIndexArray: number[]): void {
         this._forceUsedLevels = lodIndexArray.slice();
-        this._updateLockedLODLevels();
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
     };
 }

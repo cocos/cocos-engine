@@ -129,13 +129,6 @@ export class LODGroup {
         this._lockedLODLevelVec = lockLev.slice();
     }
 
-    clearLockedLODLevels (): void {
-        if (this._lockedLODLevelVec.length > 0) {
-            this._isLockLevelChanged = true;
-            this._lockedLODLevelVec.length = 0;
-        }
-    }
-
     isLockLevelChanged (): boolean {
         return this._isLockLevelChanged;
     }
