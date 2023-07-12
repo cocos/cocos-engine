@@ -861,13 +861,12 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
     gpuTexture->glFormat = mapGLFormat(gpuTexture->format);
     gpuTexture->glType = formatToGLType(gpuTexture->format);
-    gpuTexture->glSamples = static_cast<GLint>(gpuTexture->samples);
 
     bool supportRenderBufferMS = device->constantRegistry()->mMSRT > MSRTSupportLevel::NONE;
     gpuTexture->useRenderBuffer = useRenderBuffer(device, gpuTexture->format, gpuTexture->usage) &&
-        (gpuTexture->samples <= SampleCount::X1 || supportRenderBufferMS);
+        (gpuTexture->glSamples <= 1 || supportRenderBufferMS);
 
-    if (gpuTexture->samples > SampleCount::X1) {
+    if (gpuTexture->glSamples > 1) {
         // Allocate render buffer when binding a framebuffer if the MSRT extension is not present.
         if (gpuTexture->useRenderBuffer &&
             hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
@@ -1576,7 +1575,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         CC_ASSERT(view != nullptr);
 
         // need to resolve
-        if (view->gpuTexture->glSamples != 1 && resolveIndex != INVALID_BINDING) {
+        if (view->gpuTexture->glSamples > 1 && resolveIndex != INVALID_BINDING) {
             const auto &resolveDesc = renderPass->colorAttachments[resolveIndex];
             const auto *resolveView = gpuFBO->gpuColorViews[resolveIndex];
             CC_ASSERT(resolveView != nullptr);
@@ -1602,7 +1601,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         const auto *view = gpuFBO->gpuDepthStencilView;
         CC_ASSERT(view != nullptr);
 
-        if (view->gpuTexture->glSamples != 1 && depthStencilResolve != INVALID_BINDING) {
+        if (view->gpuTexture->glSamples > 1 && depthStencilResolve != INVALID_BINDING) {
             const auto &resolveDesc = renderPass->depthStencilResolveAttachment;
             const auto *resolveView = gpuFBO->gpuDepthStencilResolveView;
             bool lazilyAllocated = hasFlag(view->gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED);
@@ -3091,7 +3090,7 @@ void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
         drawBuffers[i] =att;
 
         auto *texture = view->gpuTexture;
-        if (samples != 1) {
+        if (samples > 1) {
             CC_ASSERT(view->gpuTexture->glTexture != 0);
             GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                 att,
@@ -3117,16 +3116,20 @@ void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
         const auto &[view, samples] = depthStencil;
 
         auto *texture = view->gpuTexture;
-        if (samples != 1) {
+        if (samples > 1) {
             CC_ASSERT(view->gpuTexture->glTexture != 0);
             GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                 dsAttachment,
-                texture->glTexture,
+                GL_TEXTURE_2D,
                 view->gpuTexture->glTexture,
                 view->baseLevel,
                 static_cast<GLsizei>(samples)));
         } else {
             if (texture->useRenderBuffer) {
+                if (view->gpuTexture->glRenderbuffer == 0) {
+                    GL_CHECK(glGenRenderbuffers(1, &view->gpuTexture->glRenderbuffer));
+                    renderBufferStorage(GLES3Device::getInstance(), texture);
+                }
                 GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glRenderbuffer));
             } else {
                 GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glTexture, view->baseLevel));

@@ -130,7 +130,6 @@ struct GLES3GPUTexture {
     uint32_t size{0};
     uint32_t arrayLayer{1};
     uint32_t mipLevel{1};
-    SampleCount samples{SampleCount::X1};
     TextureFlags flags{TextureFlagBit::NONE};
     bool immutable{true};
     bool isPowerOf2{false};
