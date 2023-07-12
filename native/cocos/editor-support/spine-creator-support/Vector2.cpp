@@ -1,6 +1,6 @@
 #include "Vector2.h"
 #include <Math.h>
-using namespace spine;
+namespace spine {
 
 Vector2::Vector2(): x(0), y(0) {
 
@@ -40,6 +40,7 @@ float Vector2::length() {
 }
 
 Vector2& Vector2::normalize() {
-    float invLen = 1.0 / length();
+    float invLen = 1.F / length();
     return Vector2(x * invLen, y * invLen);
+}
 }

@@ -603,7 +603,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
-bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/);
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 #endif
 

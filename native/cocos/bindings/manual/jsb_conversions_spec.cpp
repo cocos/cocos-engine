@@ -50,6 +50,10 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 
+#if CC_USE_SPINE
+#include "cocos/editor-support/spine-creator-support/Vector2.h"
+#endif
+
 ///////////////////////// utils /////////////////////////
 
 #define CHECK_ASSIGN_PRVOBJ_RET(jsObj, nativeObj)                            \
@@ -1127,8 +1131,6 @@ bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ct
 }
 
 #if CC_USE_SPINE
-
-#include "cocos/editor-support/spine-creator-support/Vector2.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &val, spine::String *obj, se::Object * /*unused*/) {

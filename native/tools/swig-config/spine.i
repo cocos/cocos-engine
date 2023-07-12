@@ -47,7 +47,7 @@ using namespace spine;
 %ignore spine::SkeletonCache::BoneData;
 %ignore spine::SkeletonCache::FrameData;
 %ignore spine::SkeletonCache::AnimationData;
-%ignore spine::Skin::AttachmentMap;
+%ignore spine::Skin::AttachmentMap::getEntries;
 
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
@@ -123,7 +123,7 @@ using namespace spine;
 %ignore spine::PointAttachment::computeWorldRotation(Bone&);
 %ignore spine::RegionAttachment::computeWorldVertices;
 %ignore spine::Slot::Slot(SlotData&, Bone&);
-%ignore spine::VertexEffect::begin;
+%ignore spine::VertexEffect::begin(Skeleton &);
 %ignore spine::TransformConstraint::TransformConstraint(TransformConstraintData&, Skeleton&);
 %ignore spine::SkeletonBounds::update(Skeleton&, bool);
 %ignore spine::SlotData::SlotData(int, const String&, BoneData&);
@@ -695,6 +695,12 @@ using namespace spine;
     }
 }
 
+%extend spine::VertexEffect {
+    void begin(spine::Skeleton *skeleton) {
+        $self->begin(*skeleton);
+    }
+}
+
 %extend spine::SwirlVertexEffect {
     SwirlVertexEffect(float radius, spine::Interpolation *interpolation) {
         return new SwirlVertexEffect(radius, *interpolation);
@@ -714,6 +720,7 @@ using namespace spine;
 %extend spine::DrawOrderTimeline {
     void setFrame(size_t frameIndex, float time, const ccstd::vector<int>& drawOrder) {
         spine::Vector<int> spDrawOrder;
+        spDrawOrder.ensureCapacity(drawOrder.size());
         for (int i = 0; i < drawOrder.size(); ++i) {
             spDrawOrder.add(drawOrder[i]);
         }
