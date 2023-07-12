@@ -871,9 +871,9 @@ export class Skeleton extends UIRenderer {
      * @param dt @en delta time. @zh 时间差。
      */
     public updateAnimation (dt: number) {
+        this.markForUpdateRenderData();
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (this.paused) return;
-
         dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
             if (this._isAniComplete) {
@@ -901,7 +901,6 @@ export class Skeleton extends UIRenderer {
         } else {
             this._instance.updateAnimation(dt);
         }
-        this.markForUpdateRenderData();
     }
 
     protected _updateCache (dt: number) {
