@@ -511,7 +511,7 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
     
     se::HandleObject array(se::Object::createArrayObject(entries.size()));
     for (int i = 0; i < entries.size(); ++i) {
-        array.get()->setArrayElement(i, entries[i]);
+        array->setArrayElement(i, entries[i]);
     }
     s.rval().setObject(array.get());
     
