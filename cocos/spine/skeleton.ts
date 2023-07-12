@@ -743,7 +743,7 @@ export class Skeleton extends UIRenderer {
      */
     public setAnimation (trackIndex: number, name: string, loop?: boolean): spine.TrackEntry | null {
         if (!(typeof name === 'string')) {
-            logID(7509, 'null.');
+            logID(7511);
             return null;
         }
         const animation = this._skeleton.data.findAnimation(name);
@@ -759,7 +759,7 @@ export class Skeleton extends UIRenderer {
                 warn('Track index can not greater than 0 in cached mode.');
             }
             if (!this._skeletonCache) return null;
-            let cache = this._skeletonCache.getAnimationCache(this._skeletonData!._uuid, name);
+            let cache = this._skeletonCache.getAnimationCache(this._skeletonData!.uuid, name);
             if (!cache) {
                 cache = this._skeletonCache.initAnimationCache(this._skeletonData!, name);
             }
