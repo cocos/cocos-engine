@@ -513,7 +513,7 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
     for (int i = 0; i < entries.size(); ++i) {
         array->setArrayElement(i, entries[i]);
     }
-    s.rval().setObject(array.get());
+    s.rval().setObject(array);
     
     return true;
 }
