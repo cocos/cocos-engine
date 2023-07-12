@@ -623,7 +623,7 @@ export class LODGroup extends Component {
 
     onDisable (): void {
         this._detachFromScene();
-        this.lodGroup.clearLockedLODLevels();
+        this.lodGroup.lockLODLevels([]);
     }
 
     private _attachToScene (): void {
