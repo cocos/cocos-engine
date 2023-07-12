@@ -92,9 +92,10 @@ exports.methods = {
     },
 };
 
-exports.ready = async function() {
+exports.ready = async function () {
     const panel = this;
 
+    callMaterialPreviewFunction('resetCamera');
     callMaterialPreviewFunction('setLightEnable', true);
     panel.$.light.addEventListener('confirm', async () => {
         await callMaterialPreviewFunction('setLightEnable', this.$.light.checked);
@@ -168,8 +169,9 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     const panel = this;
+    callMaterialPreviewFunction('resetCamera');
 
     panel.assetList = assetList;
     panel.metaList = metaList;
@@ -190,7 +192,7 @@ exports.update = async function(assetList, metaList) {
     panel.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
