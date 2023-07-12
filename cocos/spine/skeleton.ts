@@ -742,7 +742,7 @@ export class Skeleton extends UIRenderer {
      * @param loop @en Use loop mode or not. @zh 是否使用循环播放模式。
      */
     public setAnimation (trackIndex: number, name: string, loop?: boolean): spine.TrackEntry | null {
-        if(!(typeof name === 'string')) {
+        if (!(typeof name === 'string')) {
             logID(7509, 'null.');
             return null;
         }
@@ -800,7 +800,7 @@ export class Skeleton extends UIRenderer {
             if (trackIndex !== 0) {
                 warn('Track index can not greater than 0 in cached mode.');
             }
-            this._animationQueue.push( { animationName:name, loop, delay } );
+            this._animationQueue.push({ animationName: name, loop, delay });
             return null;
         } else if (this._skeleton) {
             const animation = this._skeleton.data.findAnimation(name);
@@ -879,7 +879,7 @@ export class Skeleton extends UIRenderer {
             if (this._isAniComplete) {
                 if (this._animationQueue.length === 0 && !this._headAniInfo) {
                     const frameCache = this._animCache;
-                    if(frameCache && frameCache.isInvalid()) {
+                    if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame(0);
                         const frames = frameCache.frames;
                         this._curFrame = frames[frames.length - 1];
@@ -890,7 +890,7 @@ export class Skeleton extends UIRenderer {
                     this._headAniInfo = this._animationQueue.shift()!;
                 }
                 this._accTime += dt;
-                if(this._accTime > this._headAniInfo?.delay) {
+                if (this._accTime > this._headAniInfo?.delay) {
                     const aniInfo = this._headAniInfo;
                     this._headAniInfo = null;
                     this.setAnimation(0, aniInfo?.animationName, aniInfo?.loop);
