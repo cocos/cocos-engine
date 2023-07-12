@@ -129,7 +129,6 @@ export class AnimationCache {
                 animation = element;
             }
         });
-        //const animation = this._skeletonData.findAnimation(animationName);
         if (!animation) {
             warn(`find no animation named ${animationName} !!!`);
             return;
@@ -155,24 +154,11 @@ export class AnimationCache {
             const model = this._instance.updateRenderData();
             this.updateRenderData(this._frameIdx, model);
             if (this._frameIdx >= this._maxFrameIdex) {
-                //this._isCompleted = true;
                 this.isCompleted = true;
             }
 
         } while (this.needToUpdate(frameIdx));
-        
-        /*
-        if (this._isCompleted) return;
-        while (this._curIndex < frameIdx) {
-            this._instance.updateAnimation(FrameTime);
-            this._curIndex++;
-            const model = this._instance.updateRenderData();
-            this.updateRenderData(this._curIndex, model);
-            if (this._curIndex >= this._maxFrameIdex) {
-                this._isCompleted = true;
-            }
-        }
-        */
+         
     }
 
     public getFrame (frameIdx: number) {
@@ -386,8 +372,6 @@ class SkeletonCache {
             const stateData = new spine.AnimationStateData(skeleton.data);
             const state = new spine.AnimationState(stateData);
             const listener = new TrackEntryListeners();
-            
-            //state.addListener(listener as any);
 
             this._skeletonCache[uuid] = skeletonInfo = {
                 skeleton,
