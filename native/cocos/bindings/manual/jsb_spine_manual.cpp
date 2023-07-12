@@ -435,7 +435,7 @@ static bool js_Skin_findAttachmentsForSlot(se::State &s) {
         spine::Skin::AttachmentMap::Entry &entry = entries.next();
         if (entry._slotIndex == slotIndex) {
             se::Value entryVal;
-            ok = nativevalue_to_se(entry, entryVal);
+            ok = nativevalue_to_se(&entry, entryVal);
             SE_PRECONDITION2(ok, false, "Error processing arguments");
             attachmentsVal.toObject()->setArrayElement(index++, entryVal);
         }
@@ -504,7 +504,7 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
     while (attachments.hasNext()) {
         spine::Skin::AttachmentMap::Entry &entry = attachments.next();
         se::Value entryVal;
-        ok = nativevalue_to_se(entry, entryVal);
+        ok = nativevalue_to_se(&entry, entryVal);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         entries.push_back(entryVal);
     }
