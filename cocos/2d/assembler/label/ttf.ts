@@ -60,8 +60,6 @@ export const ttf: IAssembler = {
             Color.toArray(vData, WHITE, offset);
             offset += 9;
         }
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
