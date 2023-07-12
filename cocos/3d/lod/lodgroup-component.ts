@@ -244,10 +244,8 @@ export class LODGroup extends Component {
 
     /**
      * @engineInternal
-     * This property can be accessed by interfaces outside the class and cannot be defined as private.
-     * When implementing forceLODs internally, this attribute needs to be changed to private.
      */
-    protected _forceUsedLevels: number[] = [];
+    private _forceUsedLevels: number[] = [];
 
     constructor () {
         super();
@@ -559,7 +557,12 @@ export class LODGroup extends Component {
      * @zh 强制使用某几级的LOD,该接口只会在编辑器下调用。
      * lodIndexArray @en The LOD level array. Passing [] will return to standard LOD processing. @zh 要使用的LOD层级数组，传[]时将使用标准的处理流程。
      */
-    public declare forceLODs?: ((lodIndexArray: number[]) => void);
+    public forceLODs (lodIndexArray: number[]): void {
+        if (EDITOR) {
+            this._forceUsedLevels = lodIndexArray.slice();
+            this.lodGroup.lockLODLevels(this._forceUsedLevels);
+        }
+    }
 
     onLoad (): void {
         this._lodGroup.node = this.node;
@@ -652,13 +655,4 @@ export class LODGroup extends Component {
         this._detachFromScene();
         this._attachToScene();
     }
-}
-
-if (EDITOR) {
-    // There is currently no switch for exporting functions in the editor, so we have to work around it using this method.
-    // eslint-disable-next-line func-names
-    LODGroup.prototype.forceLODs = function (this: LODGroup, lodIndexArray: number[]): void {
-        this._forceUsedLevels = lodIndexArray.slice();
-        this.lodGroup.lockLODLevels(this._forceUsedLevels);
-    };
 }
