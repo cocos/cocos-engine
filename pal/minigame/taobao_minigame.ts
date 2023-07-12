@@ -226,4 +226,6 @@ function adapterGL (gl): void {
     }
 }
 
+minigame.loadSubpackage = my.loadSubPackage.bind(my);
+
 export { minigame };
