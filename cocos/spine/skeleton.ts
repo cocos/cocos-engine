@@ -253,11 +253,11 @@ export class Skeleton extends UIRenderer {
     /**
      * @internal
      */
-    public _startEntry;
+    public _startEntry:spine.TrackEntry;
     /**
      * @internal
      */
-    public _endEntry;
+    public _endEntry:spine.TrackEntry;
     // Paused or playing state
     protected _paused = false;
 
@@ -294,8 +294,8 @@ export class Skeleton extends UIRenderer {
     constructor () {
         super();
         this._useVertexOpacity = true;
-        this._startEntry = { animation: { name: '' }, trackIndex: 0 } as any;
-        this._endEntry = { animation: { name: '' }, trackIndex: 0 } as any;
+        this._startEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
+        this._endEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
 
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
