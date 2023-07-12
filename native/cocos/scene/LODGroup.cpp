@@ -101,6 +101,13 @@ void LODGroup::lockLODLevels(ccstd::vector<int> &levels) {
     _vecLockedLevels.insert(_vecLockedLevels.begin(), levels.begin(), levels.end());
 }
 
+void LODGroup::clearLockedLODLevels() {
+    if (!_vecLockedLevels.empty()) {
+        _isLockLevelChanged = true;
+        _vecLockedLevels.clear();
+    }
+}
+
 void LODGroup::insertLOD(uint8_t index, LODData *data) {
     if (index >= _vecLODData.size()) {
         _vecLODData.emplace_back(data);

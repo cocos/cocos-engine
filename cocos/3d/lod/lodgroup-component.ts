@@ -242,7 +242,10 @@ export class LODGroup extends Component {
 
     private _eventRegistered = false;
 
-    private _forceUsedLevel: number = -1;
+    /**
+     * @engineInternal
+     */
+    protected _forceUsedLevels: number[] = [];
 
     constructor () {
         super();
@@ -545,9 +548,16 @@ export class LODGroup extends Component {
      * lodLevel @en The LOD level to use. Passing lodLevel < 0 will return to standard LOD processing. @zh 要使用的LOD层级，为负数时使用标准的处理流程
      */
     public forceLOD (lodLevel: number): void {
-        this._forceUsedLevel = lodLevel;
-        this._updateLockedLODLevels(lodLevel);
+        this._forceUsedLevels = lodLevel < 0 ? [] : [lodLevel];
+        this._updateLockedLODLevels();
     }
+
+    /**
+     * @en Force multi LOD level to use, This function is only called in editor.<br/>
+     * @zh 强制使用某几级的LOD,该接口只会在编辑器下调用。
+     * lodIndexArray @en The LOD level array. Passing [] will return to standard LOD processing. @zh 要使用的LOD层级数组，传[]时将使用标准的处理流程。
+     */
+    public declare forceLODs?: ((lodIndexArray: number[]) => void);
 
     onLoad (): void {
         this._lodGroup.node = this.node;
@@ -590,7 +600,7 @@ export class LODGroup extends Component {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
-        this._updateLockedLODLevels(this._forceUsedLevel);
+        this._updateLockedLODLevels();
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -613,12 +623,7 @@ export class LODGroup extends Component {
 
     onDisable (): void {
         this._detachFromScene();
-        //reset lockedLevel
-        this._updateLockedLODLevels(-1);
-    }
-
-    private _updateLockedLODLevels (level: number): void {
-        this.lodGroup.lockLODLevels(level < 0 ? [] : [level]);
+        this.lodGroup.clearLockedLODLevels();
     }
 
     private _attachToScene (): void {
@@ -638,6 +643,14 @@ export class LODGroup extends Component {
     /**
      * @engineInternal
      */
+    protected _updateLockedLODLevels (): void {
+        if (this._forceUsedLevels.length > 0) {
+            this.lodGroup.lockLODLevels(this._forceUsedLevels);
+        } else {
+            this.lodGroup.clearLockedLODLevels();
+        }
+    }
+
     private _emitChangeNode (node: Node): void {
         if (EDITOR) {
             EditorExtends.Node.emit('change', node.uuid, node);
@@ -648,4 +661,12 @@ export class LODGroup extends Component {
         this._detachFromScene();
         this._attachToScene();
     }
+}
+
+if (EDITOR) {
+    // eslint-disable-next-line func-names
+    LODGroup.prototype.forceLODs = function (this: LODGroup, lodIndexArray: number[]): void {
+        this._forceUsedLevels = lodIndexArray;
+        this._updateLockedLODLevels();
+    };
 }
