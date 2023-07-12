@@ -78,7 +78,6 @@ export class AnimationCache {
     protected _state: spine.AnimationState = null!;
     protected _skeletonData: spine.SkeletonData = null!;
     protected _skeleton: spine.Skeleton = null!;
-   
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -95,7 +94,6 @@ export class AnimationCache {
     public isCompleted = false;
     public totalTime = 0;
     public frames: AnimationFrame[] = [];
-
 
     constructor (data: spine.SkeletonData) {
         this._privateMode = false;
@@ -139,13 +137,9 @@ export class AnimationCache {
     }
 
     public updateToFrame (frameIdx: number) {
-
-        if(!this._inited) return;
-
+        if (!this._inited) return;
         this.begin();
-
-        if(!this.needToUpdate(frameIdx)) return;
-
+        if (!this.needToUpdate(frameIdx)) return;
         do {
             // Solid update frame rate 1/60.
             this._frameIdx++;
@@ -156,9 +150,7 @@ export class AnimationCache {
             if (this._frameIdx >= this._maxFrameIdex) {
                 this.isCompleted = true;
             }
-
         } while (this.needToUpdate(frameIdx));
-         
     }
 
     public getFrame (frameIdx: number) {
@@ -394,15 +386,14 @@ class SkeletonCache {
     }
 
     public initAnimationCache (data: SkeletonData, animationName: string) {
-
         const uuid = data.uuid;
         const poolKey = `${uuid}#${animationName}`;
         const spData = data.getRuntimeData();
 
         let animCache = this._animationPool[poolKey];
-        if(animCache) {
+        if (animCache) {
             delete this._animationPool[poolKey];
-        }else{
+        } else {
             animCache = new AnimationCache(spData!);
             this._animationPool[poolKey] = animCache;
         }

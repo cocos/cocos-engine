@@ -686,18 +686,13 @@ export class Skeleton extends UIRenderer {
             return;
         }
         this._textures = skeletonData.textures;
-
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
-
         this._refreshInspector();
-       
         if (this.defaultAnimation) this.animation = this.defaultAnimation;
         if (this.defaultSkin) this.setSkin(this.defaultSkin);
-
         this._updateUseTint();
-
         this._indexBoneSockets();
         this._updateSocketBindings();
         this.attachUtil.init(this);
@@ -765,7 +760,7 @@ export class Skeleton extends UIRenderer {
             }
             if (!this._skeletonCache) return null;
             let cache = this._skeletonCache.getAnimationCache(this._skeletonData!._uuid, name);
-            if(!cache){
+            if (!cache) {
                 cache = this._skeletonCache.initAnimationCache(this._skeletonData!, name);
             }
             if (cache) {
@@ -774,7 +769,7 @@ export class Skeleton extends UIRenderer {
                 this._accTime = 0;
                 this._playCount = 0;
                 this._animCache = cache;
-                if(this._socketNodes.size > 0) {
+                if (this._socketNodes.size > 0) {
                     this._animCache.enableCacheAttachedInfo();
                 }
                 this._animCache.updateToFrame(0);
@@ -805,7 +800,7 @@ export class Skeleton extends UIRenderer {
             if (trackIndex !== 0) {
                 warn('Track index can not greater than 0 in cached mode.');
             }
-            this._animationQueue.push({animationName:name, loop, delay })
+            this._animationQueue.push( { animationName:name, loop, delay } );
             return null;
         } else if (this._skeleton) {
             const animation = this._skeleton.data.findAnimation(name);
@@ -881,8 +876,8 @@ export class Skeleton extends UIRenderer {
 
         dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
-            if(this._isAniComplete){
-                if(this._animationQueue.length === 0 && !this._headAniInfo) {
+            if (this._isAniComplete) {
+                if (this._animationQueue.length === 0 && !this._headAniInfo) {
                     const frameCache = this._animCache;
                     if(frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame(0);
@@ -891,36 +886,25 @@ export class Skeleton extends UIRenderer {
                     }
                     return;
                 }
-                if(!this._headAniInfo){
+                if (!this._headAniInfo) {
                     this._headAniInfo = this._animationQueue.shift()!;
                 }
-
                 this._accTime += dt;
                 if(this._accTime > this._headAniInfo?.delay) {
                     const aniInfo = this._headAniInfo;
                     this._headAniInfo = null;
                     this.setAnimation(0, aniInfo?.animationName, aniInfo?.loop);
                 }
-
-                /*
-                const frameIdx = Math.floor(this._accTime / CachedFrameTime);
-                if (this._animCache) {
-                    this._animCache.updateToFrame(frameIdx);
-                    this._curFrame = this._animCache.getFrame(frameIdx);
-                }
-                */
                 return;
             }
-
             this._updateCache(dt);
-            
         } else {
             this._instance.updateAnimation(dt);
         }
         this.markForUpdateRenderData();
     }
 
-    protected _updateCache(dt: number) {
+    protected _updateCache (dt: number) {
         const frameCache = this._animCache!;
         if (!frameCache.isInited()) {
             return;
@@ -956,9 +940,7 @@ export class Skeleton extends UIRenderer {
             frameIdx = 0;
             this._emitCacheCompleteEvent();
         }
-        
         this._curFrame = frames[frameIdx];
-
     }
 
     protected _emitCacheCompleteEvent () {
