@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-export function blend1D (weights: number[], thresholds: readonly number[], value: number) {
+export function blend1D (weights: number[], thresholds: readonly number[], value: number): void {
     weights.fill(0.0);
     if (thresholds.length === 0) {
         // Do nothing

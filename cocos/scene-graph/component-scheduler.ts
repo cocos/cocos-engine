@@ -28,6 +28,7 @@ import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
 import { error, assert } from '../core/platform/debug';
+import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
 
@@ -39,7 +40,7 @@ const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
 const callOnEnableInTryCatch: any = EDITOR && callerFunctor('onEnable');
 const callOnDisableInTryCatch: any = EDITOR && callerFunctor('onDisable');
 
-function sortedIndex (array, comp) {
+function sortedIndex (array, comp): number {
     const order = comp.constructor._executionOrder;
     const id = comp._id;
     let l = 0;
@@ -68,7 +69,7 @@ function sortedIndex (array, comp) {
 }
 
 // remove disabled and not invoked component from array
-function stableRemoveInactive (iterator, flagToClear) {
+function stableRemoveInactive (iterator, flagToClear): void {
     const array = iterator.array;
     let next = iterator.i + 1;
     while (next < array.length) {
@@ -84,21 +85,41 @@ function stableRemoveInactive (iterator, flagToClear) {
     }
 }
 
+type InvokeFunc = (...args: unknown[]) => void;
+
 // This class contains some queues used to invoke life-cycle methods by script execution order
 export class LifeCycleInvoker {
     public static stableRemoveInactive = stableRemoveInactive;
 
+    /**
+     * @engineInternal `_zero` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get zero (): js.array.MutableForwardIterator<any> {
+        return this._zero;
+    }
+    /**
+     * @engineInternal `_neg` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get neg (): js.array.MutableForwardIterator<any> {
+        return this._neg;
+    }
+    /**
+     * @engineInternal `_pos` is a protected property, we provide this public property for engine internal usage.
+     */
+    public get pos (): js.array.MutableForwardIterator<any> {
+        return this._pos;
+    }
+    // components which priority === 0 (default)
     protected _zero: js.array.MutableForwardIterator<any>;
+    // components which priority < 0
     protected _neg: js.array.MutableForwardIterator<any>;
+    // components which priority > 0
     protected _pos: js.array.MutableForwardIterator<any>;
-    protected _invoke: any;
-    constructor (invokeFunc) {
+    protected _invoke: InvokeFunc;
+    constructor (invokeFunc: InvokeFunc) {
         const Iterator = js.array.MutableForwardIterator;
-        // components which priority === 0 (default)
         this._zero = new Iterator([]);
-        // components which priority < 0
         this._neg = new Iterator([]);
-        // components which priority > 0
         this._pos = new Iterator([]);
 
         if (TEST) {
@@ -108,29 +129,29 @@ export class LifeCycleInvoker {
     }
 }
 
-function compareOrder (a, b) {
+function compareOrder (a, b): number {
     return a.constructor._executionOrder - b.constructor._executionOrder;
 }
 
 // for onLoad: sort once all components registered, invoke once
 export class OneOffInvoker extends LifeCycleInvoker {
-    public add (comp) {
-        const order = comp.constructor._executionOrder;
+    public add (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).array.push(comp);
     }
 
-    public remove (comp) {
-        const order = comp.constructor._executionOrder;
+    public remove (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
     }
 
-    public cancelInactive (flagToClear) {
+    public cancelInactive (flagToClear: number): void {
         stableRemoveInactive(this._zero, flagToClear);
         stableRemoveInactive(this._neg, flagToClear);
         stableRemoveInactive(this._pos, flagToClear);
     }
 
-    public invoke () {
+    public invoke (): void {
         const compsNeg = this._neg;
         if (compsNeg.array.length > 0) {
             compsNeg.array.sort(compareOrder);
@@ -152,8 +173,8 @@ export class OneOffInvoker extends LifeCycleInvoker {
 
 // for update: sort every time new component registered, invoke many times
 class ReusableInvoker extends LifeCycleInvoker {
-    public add (comp) {
-        const order = comp.constructor._executionOrder;
+    public add (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         if (order === 0) {
             this._zero.array.push(comp);
         } else {
@@ -167,8 +188,8 @@ class ReusableInvoker extends LifeCycleInvoker {
         }
     }
 
-    public remove (comp) {
-        const order = comp.constructor._executionOrder;
+    public remove (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         if (order === 0) {
             this._zero.fastRemove(comp);
         } else {
@@ -180,7 +201,7 @@ class ReusableInvoker extends LifeCycleInvoker {
         }
     }
 
-    public invoke (dt) {
+    public invoke (dt: number): void {
         if (this._neg.array.length > 0) {
             this._invoke(this._neg, dt);
         }
@@ -193,7 +214,7 @@ class ReusableInvoker extends LifeCycleInvoker {
     }
 }
 
-function enableInEditor (comp) {
+function enableInEditor (comp): void {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
         if (!legacyCC.GAME_VIEW) {
@@ -203,7 +224,7 @@ function enableInEditor (comp) {
 }
 
 // return function to simply call each component with try catch protection
-export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
+export function createInvokeImplJit (code: string, useDt?, ensureFlag?): (iterator: any, dt: any) => void {
     // function (it) {
     //     let a = it.array;
     //     for (it.i = 0; it.i < a.length; ++it.i) {
@@ -220,8 +241,8 @@ export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
     const singleInvoke = Function('c', 'dt', code);
     return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
-export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
-    return (iterator, dt) => {
+export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?): (iterator: any, dt: any) => void {
+    return (iterator, dt: number): void => {
         try {
             fastPath(iterator, dt);
         } catch (e) {
@@ -248,11 +269,11 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
 
 const invokeStart = SUPPORT_JIT ? createInvokeImplJit(`c.start();c._objFlags|=${IsStartCalled}`, false, IsStartCalled)
     : createInvokeImpl(
-        (c) => {
+        (c): void => {
             c.start();
             c._objFlags |= IsStartCalled;
         },
-        (iterator) => {
+        (iterator): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 const comp = array[iterator.i];
@@ -265,10 +286,10 @@ const invokeStart = SUPPORT_JIT ? createInvokeImplJit(`c.start();c._objFlags|=${
 
 const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true)
     : createInvokeImpl(
-        (c, dt) => {
+        (c, dt: number): void => {
             c.update(dt);
         },
-        (iterator, dt) => {
+        (iterator, dt: number): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].update(dt);
@@ -278,10 +299,10 @@ const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true)
 
 const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', true)
     : createInvokeImpl(
-        (c, dt) => {
+        (c, dt: number): void => {
             c.lateUpdate(dt);
         },
-        (iterator, dt) => {
+        (iterator, dt: number): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].lateUpdate(dt);
@@ -289,7 +310,7 @@ const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', t
         },
     );
 
-export const invokeOnEnable = EDITOR ? (iterator) => {
+export const invokeOnEnable = EDITOR ? (iterator): void => {
     const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -302,7 +323,7 @@ export const invokeOnEnable = EDITOR ? (iterator) => {
             }
         }
     }
-} : (iterator) => {
+} : (iterator): void => {
     const compScheduler = legacyCC.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -351,7 +372,7 @@ export class ComponentScheduler {
      * @en Cancel all future callbacks, including `start`, `update` and `lateUpdate`
      * @zh 取消所有未来的函数调度，包括 `start`，`update` 和 `lateUpdate`
      */
-    public unscheduleAll () {
+    public unscheduleAll (): void {
         // invokers
         this.startInvoker = new OneOffInvoker(invokeStart);
         this.updateInvoker = new ReusableInvoker(invokeUpdate);
@@ -364,7 +385,7 @@ export class ComponentScheduler {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onEnabled (comp) {
+    public _onEnabled (comp: Component): void {
         legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
 
@@ -379,7 +400,7 @@ export class ComponentScheduler {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onDisabled (comp) {
+    public _onDisabled (comp: Component): void {
         legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
 
@@ -391,13 +412,13 @@ export class ComponentScheduler {
         }
 
         // unschedule
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+        if (comp.internalStart && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.remove(comp);
         }
-        if (comp.update) {
+        if (comp.internalUpdate) {
             this.updateInvoker.remove(comp);
         }
-        if (comp.lateUpdate) {
+        if (comp.internalLateUpdate) {
             this.lateUpdateInvoker.remove(comp);
         }
     }
@@ -408,16 +429,16 @@ export class ComponentScheduler {
      * @param comp The component to be enabled
      * @param invoker The invoker which is responsible to schedule the `onEnable` call
      */
-    public enableComp (comp, invoker?) {
+    public enableComp (comp: Component, invoker?: OneOffInvoker): void {
         if (!(comp._objFlags & IsOnEnableCalled)) {
-            if (comp.onEnable) {
+            if (comp.internalOnEnable) {
                 if (invoker) {
                     invoker.add(comp);
                     return;
                 } else {
-                    comp.onEnable();
+                    comp.internalOnEnable();
 
-                    const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                    const deactivatedDuringOnEnable = !comp.node.activeInHierarchy;
                     if (deactivatedDuringOnEnable) {
                         return;
                     }
@@ -432,10 +453,10 @@ export class ComponentScheduler {
      * @zh 禁用一个组件
      * @param comp The component to be disabled
      */
-    public disableComp (comp) {
+    public disableComp (comp: Component): void {
         if (comp._objFlags & IsOnEnableCalled) {
-            if (comp.onDisable) {
-                comp.onDisable();
+            if (comp.internalOnDisable) {
+                comp.internalOnDisable();
             }
             this._onDisabled(comp);
         }
@@ -445,7 +466,7 @@ export class ComponentScheduler {
      * @en Process start phase for registered components
      * @zh 为当前注册的组件执行 start 阶段任务
      */
-    public startPhase () {
+    public startPhase (): void {
         // Start of this frame
         this._updating = true;
 
@@ -475,7 +496,7 @@ export class ComponentScheduler {
      * @zh 为当前注册的组件执行 update 阶段任务
      * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
-    public updatePhase (dt:number) {
+    public updatePhase (dt: number): void {
         this.updateInvoker.invoke(dt);
     }
 
@@ -484,7 +505,7 @@ export class ComponentScheduler {
      * @zh 为当前注册的组件执行 late update 阶段任务
      * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
-    public lateUpdatePhase (dt:number) {
+    public lateUpdatePhase (dt: number): void {
         this.lateUpdateInvoker.invoke(dt);
 
         // End of this frame
@@ -497,26 +518,26 @@ export class ComponentScheduler {
 
     // Call new registered start schedule immediately since last time start phase calling in this frame
     // See cocos-creator/2d-tasks/issues/256
-    private _startForNewComps () {
+    private _startForNewComps (): void {
         if (this._deferredComps.length > 0) {
             this._deferredSchedule();
             this.startInvoker.invoke();
         }
     }
 
-    private _scheduleImmediate (comp) {
-        if (typeof comp.start === 'function' && !(comp._objFlags & IsStartCalled)) {
+    private _scheduleImmediate (comp: Component): void {
+        if (typeof comp.internalStart === 'function' && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.add(comp);
         }
-        if (typeof comp.update === 'function') {
+        if (typeof comp.internalUpdate === 'function') {
             this.updateInvoker.add(comp);
         }
-        if (typeof comp.lateUpdate === 'function') {
+        if (typeof comp.internalLateUpdate === 'function') {
             this.lateUpdateInvoker.add(comp);
         }
     }
 
-    private _deferredSchedule () {
+    private _deferredSchedule (): void {
         const comps = this._deferredComps;
         for (let i = 0, len = comps.length; i < len; i++) {
             this._scheduleImmediate(comps[i]);
@@ -526,10 +547,11 @@ export class ComponentScheduler {
 }
 
 if (EDITOR) {
-    ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+    ComponentScheduler.prototype.enableComp = function (comp, invoker): void {
+        // NOTE: _executeInEditMode is dynamically injected on Editor environment
+        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
-                if (comp.onEnable) {
+                if (comp.internalOnEnable) {
                     if (invoker) {
                         invoker.add(comp);
                         enableInEditor(comp);
@@ -537,7 +559,7 @@ if (EDITOR) {
                     } else {
                         callOnEnableInTryCatch(comp);
 
-                        const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                        const deactivatedDuringOnEnable = !comp.node.activeInHierarchy;
                         if (deactivatedDuringOnEnable) {
                             return;
                         }
@@ -549,10 +571,11 @@ if (EDITOR) {
         enableInEditor(comp);
     };
 
-    ComponentScheduler.prototype.disableComp = function (comp) {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+    ComponentScheduler.prototype.disableComp = function (comp): void {
+        // NOTE: _executeInEditMode is dynamically injected on Editor environment
+        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
-                if (comp.onDisable) {
+                if (comp.internalOnDisable) {
                     callOnDisableInTryCatch(comp);
                 }
                 this._onDisabled(comp);

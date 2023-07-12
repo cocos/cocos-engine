@@ -37,7 +37,7 @@ export class WebGL2Framebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
-    public initialize (info: Readonly<FramebufferInfo>) {
+    public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -63,7 +63,7 @@ export class WebGL2Framebuffer extends Framebuffer {
             gpuDepthStencilView,
             glFramebuffer: null,
             isOffscreen: true,
-            get width () {
+            get width (): number {
                 if (this.isOffscreen) {
                     return width;
                 } else if (this.gpuColorViews.length > 0) {
@@ -75,7 +75,7 @@ export class WebGL2Framebuffer extends Framebuffer {
             set width (val) {
                 width = val;
             },
-            get height () {
+            get height (): number {
                 if (this.isOffscreen) {
                     return width;
                 } else if (this.gpuColorViews.length > 0) {
@@ -92,7 +92,7 @@ export class WebGL2Framebuffer extends Framebuffer {
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuFramebuffer) {
             WebGL2CmdFuncDestroyFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;

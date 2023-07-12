@@ -14,7 +14,7 @@ const SCALE_OFFSET = ROTATION_OFFSET + 4;
  * Array-buffer-based transform array.
  */
 export class TransformArray {
-    public static get BYTES_PER_ELEMENT () {
+    public static get BYTES_PER_ELEMENT (): number {
         return TRANSFORM_STRIDE_IN_BYTES;
     }
 
@@ -36,23 +36,23 @@ export class TransformArray {
         }
     }
 
-    get buffer () {
+    get buffer (): ArrayBufferLike {
         return this._data.buffer;
     }
 
-    get byteLength () {
+    get byteLength (): number {
         return this._data.byteLength;
     }
 
-    get byteOffset () {
+    get byteOffset (): number {
         return this._data.byteOffset;
     }
 
-    get length () {
+    get length (): number {
         return this._data.length / TRANSFORM_STRIDE_IN_FLOATS;
     }
 
-    public getTransform (index: number, out: Transform) {
+    public getTransform (index: number, out: Transform): Transform {
         const {
             _data: data,
         } = this;
@@ -68,7 +68,7 @@ export class TransformArray {
         return out;
     }
 
-    public getPosition (index: number, out: Vec3) {
+    public getPosition (index: number, out: Vec3): Vec3 {
         const {
             _data: data,
         } = this;
@@ -77,7 +77,7 @@ export class TransformArray {
         return out;
     }
 
-    public getRotation (index: number, out: Quat) {
+    public getRotation (index: number, out: Quat): Quat {
         const {
             _data: data,
         } = this;
@@ -86,7 +86,7 @@ export class TransformArray {
         return out;
     }
 
-    public getScale (index: number, out: Vec3) {
+    public getScale (index: number, out: Vec3): Vec3 {
         const {
             _data: data,
         } = this;
@@ -95,7 +95,7 @@ export class TransformArray {
         return out;
     }
 
-    public setTransform (index: number, value: Readonly<Transform>) {
+    public setTransform (index: number, value: Readonly<Transform>): void {
         const {
             _data: data,
         } = this;
@@ -110,7 +110,7 @@ export class TransformArray {
         Vec3.toArray(data, scale, baseOffset + SCALE_OFFSET);
     }
 
-    public setPosition (index: number, value: Readonly<Vec3>) {
+    public setPosition (index: number, value: Readonly<Vec3>): void {
         const {
             _data: data,
         } = this;
@@ -118,7 +118,7 @@ export class TransformArray {
         Vec3.toArray(data, value, baseOffset);
     }
 
-    public setRotation (index: number, value: Readonly<Quat>) {
+    public setRotation (index: number, value: Readonly<Quat>): void {
         const {
             _data: data,
         } = this;
@@ -126,7 +126,7 @@ export class TransformArray {
         Quat.toArray(data, value, baseOffset + ROTATION_OFFSET);
     }
 
-    public setScale (index: number, value: Readonly<Vec3>) {
+    public setScale (index: number, value: Readonly<Vec3>): void {
         const {
             _data: data,
         } = this;
@@ -138,7 +138,7 @@ export class TransformArray {
      * Same algorithm as https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/copyWithin
      * except for the the operating objects are transforms.
      */
-    public copyWithin (target: number, start: number, end?: number) {
+    public copyWithin (target: number, start: number, end?: number): void {
         this._data.copyWithin(
             target * TRANSFORM_STRIDE_IN_FLOATS,
             start * TRANSFORM_STRIDE_IN_FLOATS,
@@ -150,7 +150,7 @@ export class TransformArray {
      * Same algorithm as https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/fill
      * except for the the operating objects are transforms.
      */
-    public fill (value: Readonly<Transform>, start?: number, end?: number) {
+    public fill (value: Readonly<Transform>, start?: number, end?: number): void {
         const { length } = this;
         start ??= 0;
         end ??= length;
@@ -166,7 +166,7 @@ export class TransformArray {
     /**
      * Same as `this.fill(Transform.ZERO, start, end)`.
      */
-    public fillZero (start?: number, end?: number) {
+    public fillZero (start?: number, end?: number): void {
         this._data.fill(
             0.0,
             typeof start === 'number' ? start * TRANSFORM_STRIDE_IN_FLOATS : undefined,
@@ -180,7 +180,7 @@ export class TransformArray {
      * - the the operating objects are transforms,
      * - plain array is not allowed.
      */
-    public set (transformArray: Readonly<TransformArray>, targetOffset?: number) {
+    public set (transformArray: Readonly<TransformArray>, targetOffset?: number): void {
         this._data.set(
             (transformArray as TransformArray)._data,
             typeof targetOffset === 'number' ? targetOffset * TRANSFORM_STRIDE_IN_FLOATS : undefined,
@@ -191,7 +191,7 @@ export class TransformArray {
      * Same algorithm as https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/slice
      * except for the the operating objects are transforms.
      */
-    public slice (start?: number, end?: number) {
+    public slice (start?: number, end?: number): TransformArray {
         const dataSliced = this._data.slice(
             typeof start === 'number' ? start * TRANSFORM_STRIDE_IN_FLOATS : undefined,
             typeof end === 'number' ? end * TRANSFORM_STRIDE_IN_FLOATS : undefined,
@@ -209,7 +209,7 @@ export class TransformArray {
         source: Readonly<TransformArray>,
         sourceOffset: number,
         size: number,
-    ) {
+    ): void {
         const sizeInFloats = TRANSFORM_STRIDE_IN_FLOATS * size;
 
         const targetFloats = this._data;

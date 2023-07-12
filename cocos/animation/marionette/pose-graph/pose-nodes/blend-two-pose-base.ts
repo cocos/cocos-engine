@@ -24,7 +24,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
     @input({ type: PoseGraphType.FLOAT })
     ratio = 1.0;
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         this.pose0?.bind(context);
         this.pose1?.bind(context);
     }
@@ -34,7 +34,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
         this.pose1?.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this.pose0?.reenter();
         this.pose1?.reenter();
     }
@@ -62,7 +62,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
         }
     }
 
-    public doEvaluate (context: AnimationGraphEvaluationContext) {
+    public doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const spaceRequirement = PoseTransformSpaceRequirement.LOCAL;
         if (!this.pose0 || !this.pose1) {
             return PoseNodeBlendTwoPoseBase.evaluateDefaultPose(context, spaceRequirement);

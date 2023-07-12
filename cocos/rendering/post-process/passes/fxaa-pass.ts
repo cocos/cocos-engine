@@ -9,7 +9,7 @@ import { getSetting, SettingPass } from './setting-pass';
 import { Fxaa } from '../components/fxaa';
 
 export class FxaaPass extends SettingPass {
-    get setting () { return getSetting(Fxaa); }
+    get setting (): Fxaa { return getSetting(Fxaa); }
 
     name = 'FxaaPass'
     effectName = 'pipeline/post-process/fxaa-hq';

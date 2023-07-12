@@ -115,7 +115,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this.updateFrames();
     }
 
-    updateFrames () {
+    updateFrames (): void {
         const cs = this.constraint;
         const cb = cs.connectedBody;
         const pos = _trans.translation;
@@ -163,11 +163,11 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this._impl.setLocalPose(1, getTempTransform(pos, quat_0));
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.updateFrames();
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.updateFrames();
     }
 }

@@ -1,8 +1,8 @@
 #ifndef __SPINE_ATLAS_ATTACHMENT_LOADER_EXT_H
 #define __SPINE_ATLAS_ATTACHMENT_LOADER_EXT_H
 
-#include "spine/spine.h"
 #include "mesh-type-define.h"
+#include "spine/spine.h"
 
 class AttachmentVertices {
 public:
@@ -18,8 +18,9 @@ public:
     AtlasAttachmentLoaderExtension(spine::Atlas *atlas);
     virtual ~AtlasAttachmentLoaderExtension();
     virtual void configureAttachment(spine::Attachment *attachment);
+
 private:
-    spine::Atlas* _atlasCache;
+    spine::Atlas *_atlasCache;
 };
 
 #endif

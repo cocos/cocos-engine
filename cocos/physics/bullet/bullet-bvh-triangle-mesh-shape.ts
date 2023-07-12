@@ -29,7 +29,7 @@ import { cocos2BulletTriMesh } from './bullet-utils';
 export class BulletBvhTriangleMeshShape {
     private static readonly BulletBvhTriangleMeshShapeMap = new Map<number, BulletBvhTriangleMeshShape>();
 
-    public static getBulletBvhTriangleMeshShape (key: number, mesh: Mesh) {
+    public static getBulletBvhTriangleMeshShape (key: number, mesh: Mesh): BulletBvhTriangleMeshShape {
         let newBulletBvhTriangleMeshShape!: BulletBvhTriangleMeshShape;
         if (BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.has(key)) { //can be improved
             newBulletBvhTriangleMeshShape = BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.get(key)!;
@@ -60,7 +60,7 @@ export class BulletBvhTriangleMeshShape {
         this.bulletBvhTriangleMeshShapePtr = bt.BvhTriangleMeshShape_new(this.btTriangleMeshPtr, true, true);
     }
 
-    private destroy () {
+    private destroy (): void {
         if (this.bulletBvhTriangleMeshShapePtr) {
             bt._safe_delete(EBulletType.EBulletTypeCollisionShape, this.bulletBvhTriangleMeshShapePtr);
         }

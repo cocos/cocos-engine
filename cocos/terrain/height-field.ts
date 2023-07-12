@@ -39,22 +39,22 @@ export class HeightField {
         }
     }
 
-    public set (i: number, j: number, value: number) {
+    public set (i: number, j: number, value: number): void {
         this.data[j * this.w + i] = value;
     }
 
-    public get (i: number, j: number) {
+    public get (i: number, j: number): number {
         return this.data[j * this.w + i];
     }
 
-    public getClamp (i: number, j: number) {
+    public getClamp (i: number, j: number): number {
         i = clamp(i, 0, this.w - 1);
         j = clamp(j, 0, this.h  - 1);
 
         return this.get(i, j);
     }
 
-    public getAt (x: number, y: number) {
+    public getAt (x: number, y: number): number {
         const fx = x;
         const fy = y;
 

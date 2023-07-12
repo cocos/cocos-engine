@@ -39,7 +39,7 @@ const profilerScissor = new Rect();
  * @param out Output color object
  * @param gamma Gamma value in SRGB space
  */
-export function SRGBToLinear (out: IVec4Like, gamma: IVec4Like) {
+export function SRGBToLinear (out: IVec4Like, gamma: IVec4Like): void {
     // out.x = Math.pow(gamma.x, 2.2);
     // out.y = Math.pow(gamma.y, 2.2);
     // out.z = Math.pow(gamma.z, 2.2);
@@ -54,7 +54,7 @@ export function SRGBToLinear (out: IVec4Like, gamma: IVec4Like) {
  * @param out Output color object
  * @param linear Color value in linear space
  */
-export function LinearToSRGB (out: IVec4Like, linear: IVec4Like) {
+export function LinearToSRGB (out: IVec4Like, linear: IVec4Like): void {
     // out.x = Math.pow(linear.x, 0.454545);
     // out.y = Math.pow(linear.y, 0.454545);
     // out.z = Math.pow(linear.z, 0.454545);
@@ -69,7 +69,7 @@ export function getProfilerCamera (): Camera | null {
     return profilerCamera;
 }
 
-export function decideProfilerCamera (cameras: Camera[]) {
+export function decideProfilerCamera (cameras: Camera[]): void {
     for (let i = cameras.length - 1; i >= 0; --i) {
         const camera = cameras[i];
         if (camera.window.swapchain) {
@@ -80,7 +80,7 @@ export function decideProfilerCamera (cameras: Camera[]) {
     profilerCamera = null;
 }
 
-export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
+export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera): void {
     if (isEnableEffect()) {
         return;
     }

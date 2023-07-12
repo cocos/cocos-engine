@@ -34,15 +34,15 @@ const v3_0 = new Vec3();
 const v3_1 = new Vec3();
 
 export class CannonConeShape extends CannonShape implements IConeShape {
-    get collider () {
+    get collider (): ConeCollider {
         return this._collider as ConeCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Cylinder {
         return this._shape as CANNON.Cylinder;
     }
 
-    setRadius (v: number) {
+    setRadius (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -54,7 +54,7 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
-    setHeight (v: number) {
+    setHeight (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -66,7 +66,7 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
-    setDirection (v: number) {
+    setDirection (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -83,7 +83,7 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         this._shape = new CANNON.Cylinder(0, radius, height, (CANNON as any).CC_CONFIG.numSegmentsCone, direction === EAxisDirection.Y_AXIS);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setRadius(this.collider.radius);
     }
@@ -93,7 +93,7 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         this.setRadius(this.collider.radius);
     }
 
-    updateProperties (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like): void {
         let wh = height;
         let wr = radius;
         const cos = Math.cos;

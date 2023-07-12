@@ -113,7 +113,7 @@ void SceneGlobals::setBakedWithHighpLightmap(bool value) {
     _bakedWithHighpLightmap = value;
 }
 
-void SceneGlobals::setSkinInfo(scene::SkinInfo* info) {
+void SceneGlobals::setSkinInfo(scene::SkinInfo *info) {
     _skinInfo = info;
 }
 

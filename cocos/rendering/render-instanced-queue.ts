@@ -44,7 +44,7 @@ export class RenderInstancedQueue {
      * @en Clear the render queue
      * @zh 清空渲染队列。
      */
-    public clear () {
+    public clear (): void {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             res.value.clear();
@@ -54,7 +54,7 @@ export class RenderInstancedQueue {
         this.queue.clear();
     }
 
-    public sort () {
+    public sort (): void {
         let it = this.queue.values();
         let res = it.next();
         while (!res.done) {
@@ -73,7 +73,7 @@ export class RenderInstancedQueue {
         }
     }
 
-    public uploadBuffers (cmdBuff: CommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer): void {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
@@ -87,7 +87,7 @@ export class RenderInstancedQueue {
      * @param cmdBuff The command buffer to store the result
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
-        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
+        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>): void {
         const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue[Symbol.iterator]();
         let res = it.next();
 

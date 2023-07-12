@@ -10,9 +10,9 @@ import { ColorGrading } from '../components';
 import { disablePostProcessForDebugView } from './base-pass';
 
 export class ColorGradingPass extends SettingPass {
-    get setting () { return getSetting(ColorGrading); }
+    get setting (): ColorGrading { return getSetting(ColorGrading); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;

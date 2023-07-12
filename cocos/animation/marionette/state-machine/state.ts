@@ -51,7 +51,7 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
         super();
     }
 
-    public copyTo (that: State) {
+    public copyTo (that: State): void {
         that.name = this.name;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }
@@ -65,25 +65,25 @@ export class InteractiveState extends State {
         return this._components;
     }
 
-    public addComponent<T extends StateMachineComponent> (constructor: StateMachineComponentConstructor<T>) {
+    public addComponent<T extends StateMachineComponent> (constructor: StateMachineComponentConstructor<T>): T {
         const component = new constructor();
         this._components.push(component);
         return component;
     }
 
-    public removeComponent (component: StateMachineComponent) {
+    public removeComponent (component: StateMachineComponent): void {
         js.array.remove(this._components, component);
     }
 
     public instantiateComponents (): StateMachineComponent[] {
-        const instantiatedComponents = this._components.map((component) => {
+        const instantiatedComponents = this._components.map((component): StateMachineComponent => {
             const instantiated = instantiate(component) as unknown as StateMachineComponent;
             return instantiated;
         });
         return instantiatedComponents;
     }
 
-    public copyTo (that: InteractiveState) {
+    public copyTo (that: InteractiveState): void {
         super.copyTo(that);
         that._components = this.instantiateComponents();
     }

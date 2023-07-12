@@ -32,12 +32,12 @@
 #include "gi/light-probe/LightProbe.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
+#include "scene/Model.h"
 #include "scene/Octree.h"
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
-#include "scene/Skybox.h"
 #include "scene/Skin.h"
-#include "scene/Model.h"
+#include "scene/Skybox.h"
 
 namespace cc {
 namespace pipeline {
@@ -172,11 +172,11 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     return _device->createInputAssembler(info);
 }
 
-void PipelineSceneData::setStandardSkinModel(scene::Model* val) {
+void PipelineSceneData::setStandardSkinModel(scene::Model *val) {
     _standardSkinModel = val;
 }
 
-void PipelineSceneData::setSkinMaterialModel(scene::Model* val) {
+void PipelineSceneData::setSkinMaterialModel(scene::Model *val) {
     _skinMaterialModel = val;
 }
 

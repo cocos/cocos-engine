@@ -55,21 +55,21 @@ export class GlobalDSManager {
     private _linearSampler: Sampler;
     private _pointSampler: Sampler;
 
-    get descriptorSetMap () {
+    get descriptorSetMap (): Map<Light, DescriptorSet> {
         return this._descriptorSetMap;
     }
 
     // TODO: Future extensions of PCSS require search depth to compute the penumbra, which requires linear sampling
-    get linearSampler () {
+    get linearSampler (): Sampler {
         return this._linearSampler;
     }
 
     // TODO: For the use of hard and soft, point sampling is required
-    get pointSampler () {
+    get pointSampler (): Sampler {
         return this._pointSampler;
     }
 
-    get descriptorSetLayout () {
+    get descriptorSetLayout (): DescriptorSetLayout {
         return this._descriptorSetLayout;
     }
 
@@ -78,7 +78,7 @@ export class GlobalDSManager {
         this._globalDescriptorSet = val;
     }
 
-    get globalDescriptorSet () {
+    get globalDescriptorSet (): DescriptorSet {
         return this._globalDescriptorSet;
     }
 
@@ -94,7 +94,7 @@ export class GlobalDSManager {
         this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
     }
 
-    regenLayout () {
+    regenLayout (): void {
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
@@ -107,7 +107,7 @@ export class GlobalDSManager {
      * @param binding The target binding.
      * @param buffer The buffer to be bound.
      */
-    public bindBuffer (binding: number, buffer: Buffer) {
+    public bindBuffer (binding: number, buffer: Buffer): void {
         this._globalDescriptorSet.bindBuffer(binding, buffer);
         const it = this._descriptorSetMap.values();
         let res = it.next();
@@ -124,7 +124,7 @@ export class GlobalDSManager {
      * @param binding The target binding.
      * @param sampler The sampler to be bound.
      */
-    public bindSampler (binding: number, sampler: Sampler) {
+    public bindSampler (binding: number, sampler: Sampler): void {
         this._globalDescriptorSet.bindSampler(binding, sampler);
         const it = this._descriptorSetMap.values();
         let res = it.next();
@@ -141,7 +141,7 @@ export class GlobalDSManager {
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: Texture) {
+    public bindTexture (binding: number, texture: Texture): void {
         this._globalDescriptorSet.bindTexture(binding, texture);
         const it = this._descriptorSetMap.values();
         let res = it.next();
@@ -156,7 +156,7 @@ export class GlobalDSManager {
      * @en Update all descriptorSet
      * @zh 更新所有的 descriptorSet
      */
-    public update () {
+    public update (): void {
         this._globalDescriptorSet.update();
         const it = this._descriptorSetMap.values();
         let res = it.next();
@@ -173,7 +173,7 @@ export class GlobalDSManager {
      * @param idx Specify index creation
      * @return descriptorSet
      */
-    public getOrCreateDescriptorSet (light: Light) {
+    public getOrCreateDescriptorSet (light: Light): DescriptorSet | undefined {
         const device = this._device;
 
         // The global descriptorSet is managed by the pipeline and binds the buffer
@@ -205,7 +205,7 @@ export class GlobalDSManager {
         return this._descriptorSetMap.get(light);
     }
 
-    public destroy () {
+    public destroy (): void {
         this._descriptorSetLayout.destroy();
     }
 }

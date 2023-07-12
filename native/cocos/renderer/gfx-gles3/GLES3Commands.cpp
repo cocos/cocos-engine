@@ -1417,7 +1417,6 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
 }
 
 void cmdFuncGLES3DestroyRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *gpuRenderPass) {
-
 }
 
 void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler) {
@@ -1952,11 +1951,11 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
         gpuFramebuffer->framebuffer.processStore(GL_DRAW_FRAMEBUFFER);
     }
 
-//    if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
-//        GL_CHECK(glFramebufferFetchBarrierEXT());
-//    } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
-//        GL_CHECK(glFramebufferFetchBarrierQCOM());
-//    }
+    //    if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
+    //        GL_CHECK(glFramebufferFetchBarrierEXT());
+    //    } else if (device->constantRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
+    //        GL_CHECK(glFramebufferFetchBarrierQCOM());
+    //    }
 }
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)

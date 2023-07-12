@@ -31,15 +31,15 @@ interface IWrapped<T> {
     __cc_wrapper__: T;
 }
 
-export function setWrap<Wrapper> (object: any, wrapper: Wrapper) {
+export function setWrap<Wrapper> (object: any, wrapper: Wrapper): void {
     (object as IWrapped<Wrapper>).__cc_wrapper__ = wrapper;
 }
 
-export function getWrap<Wrapper> (object: any) {
+export function getWrap<Wrapper> (object: any): Wrapper {
     return (object as IWrapped<Wrapper>).__cc_wrapper__;
 }
 
-export function maxComponent (v: IVec3Like) {
+export function maxComponent (v: IVec3Like): number {
     return Math.max(v.x, Math.max(v.y, v.z));
 }
 
@@ -86,7 +86,7 @@ export function shrinkPositions (buffer: Float32Array | number[]): number[] {
     return pos;
 }
 
-export function absolute (v: Vec3) {
+export function absolute (v: Vec3): Vec3 {
     v.x = Math.abs(v.x);
     v.y = Math.abs(v.y);
     v.z = Math.abs(v.z);

@@ -50,7 +50,7 @@ export class ClipMotion extends Motion {
         context: AnimationGraphBindingContext,
         overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-    ) {
+    ): ClipMotionEval | null {
         if (!this.clip) {
             return null;
         }
@@ -61,7 +61,7 @@ export class ClipMotion extends Motion {
         return clipMotionEval;
     }
 
-    public clone () {
+    public clone (): ClipMotion {
         const that = new ClipMotion();
         that.clip = this.clip;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
@@ -91,7 +91,7 @@ class ClipMotionEval implements MotionEval {
         this._setClip(overriding, context);
     }
 
-    get duration () {
+    get duration (): number {
         return this._duration;
     }
 
@@ -99,10 +99,10 @@ class ClipMotionEval implements MotionEval {
         return new ClipMotionPort(this);
     }
 
-    public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
+    public getClipStatuses (baseWeight: number): Iterator<ClipStatus> {
         let got = false;
         return {
-            next: () => {
+            next: (): IteratorResult<ClipStatus, any> => {
                 if (got) {
                     return {
                         done: true,
@@ -112,18 +112,20 @@ class ClipMotionEval implements MotionEval {
                     got = true;
                     return {
                         done: false,
+                        // TODO: `__DEBUG_ID__` does not exist on ClipStatus, please fix it @Leslie Leigh
+                        // tracking issue: https://github.com/cocos/cocos-engine/issues/15307
                         value: {
                             __DEBUG_ID__: this.__DEBUG__ID__,
                             clip: this._clip,
                             weight: baseWeight,
-                        },
+                        } as any,
                     };
                 }
             },
         };
     }
 
-    public [evaluatePortTag] (progress: number, context: AnimationGraphEvaluationContext) {
+    public [evaluatePortTag] (progress: number, context: AnimationGraphEvaluationContext): Pose {
         const {
             _duration: duration,
             _clip: { duration: clipDuration },
@@ -185,7 +187,7 @@ class ClipMotionEval implements MotionEval {
     private _duration = 0.0;
     private _ignoreEmbeddedPlayers: boolean;
 
-    private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext) {
+    private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext): void {
         this._clipEval?.destroy();
         this._frameEventEval = null;
         if (this._clipEmbeddedPlayerEval) {

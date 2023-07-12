@@ -66,7 +66,7 @@ export class RenderTexture extends TextureBase {
      * @en The render window for the render pipeline, it's created internally and cannot be modified.
      * @zh 渲染管线所使用的渲染窗口，内部逻辑创建，无法被修改。
      */
-    get window () {
+    get window (): RenderWindow | null {
         return this._window;
     }
 
@@ -75,7 +75,7 @@ export class RenderTexture extends TextureBase {
      * @zh 初始化渲染贴图。设置渲染贴图的名称、尺寸、渲染通道信息。
      * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      */
-    public initialize (info: IRenderTextureCreateInfo) {
+    public initialize (info: IRenderTextureCreateInfo): void {
         this._name = info.name || '';
         this._width = info.width;
         this._height = info.height;
@@ -87,7 +87,7 @@ export class RenderTexture extends TextureBase {
      * @zh 重新初始化渲染贴图。用户可以更改渲染贴图的名称、尺寸、渲染通道信息。
      * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      */
-    public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
+    public reset (info: IRenderTextureCreateInfo): void { // to be consistent with other assets
         this.initialize(info);
     }
 
@@ -95,7 +95,7 @@ export class RenderTexture extends TextureBase {
      * @en Destroy the render texture.
      * @zh 销毁渲染贴图。
      */
-    public destroy () {
+    public destroy (): boolean {
         if (this._window) {
             const root = cclegacy.director.root as Root;
             root?.destroyWindow(this._window);
@@ -111,7 +111,7 @@ export class RenderTexture extends TextureBase {
      * @param width @en The pixel width to resize to, the range is from 1 to 2048. @zh 需要调整到的像素宽度，范围为 1-2048。
      * @param height @en The pixel height to resize to, the range is from 1 to 2048. @zh 需要调整到的像素高度，范围为 1-2048。
      */
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number): void {
         this._width = Math.floor(clamp(width, 1, 2048));
         this._height = Math.floor(clamp(height, 1, 2048));
         if (this._window) {
@@ -133,7 +133,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _deserialize (serializedData: any, handle: any) {
+    public _deserialize (serializedData: any, handle: any): void {
         const data = serializedData;
         this._width = data.w;
         this._height = data.h;
@@ -155,7 +155,7 @@ export class RenderTexture extends TextureBase {
      * @en Callback function after render texture is loaded in [[AssetManager]]. Initialize the render texture.
      * @zh 通过 [[AssetManager]] 加载完成时的回调，初始化渲染贴图。
      */
-    public onLoaded () {
+    public onLoaded (): void {
         this._initWindow();
     }
 
@@ -165,7 +165,7 @@ export class RenderTexture extends TextureBase {
      * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      * @engineInternal
      */
-    protected _initWindow (info?: IRenderTextureCreateInfo) {
+    protected _initWindow (info?: IRenderTextureCreateInfo): void {
         const root = cclegacy.director.root as Root;
 
         _windowInfo.title = this._name;
@@ -195,7 +195,7 @@ export class RenderTexture extends TextureBase {
      * @param uuid @en asset uuid. @zh 资源 uuid。
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         this._width = this._height = 1;
         this._initWindow();
@@ -206,7 +206,7 @@ export class RenderTexture extends TextureBase {
      * @zh 验证渲染贴图的正确性。
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
-    public validate () {
+    public validate (): boolean {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
 

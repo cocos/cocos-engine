@@ -23,7 +23,7 @@
 */
 
 import { UIRenderable } from '../../2d';
-import { IAssembler, IAssemblerManager } from '../../2d/renderer/base';
+import { IAssembler } from '../../2d/renderer/base';
 
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
@@ -35,6 +35,7 @@ import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
 import { Color, Vec3 } from '../../core';
+import { MaterialInstance } from '../../render-scene';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -57,7 +58,7 @@ const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
 
-function _getSlotMaterial (blendMode: number, comp: Skeleton) {
+function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance {
     let src: BlendFactor;
     let dst: BlendFactor;
     switch (blendMode) {
@@ -127,7 +128,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     comp.drawList.reset();
     if (comp.color.a === 0) return;
     _premultipliedAlpha = comp.premultipliedAlpha;
@@ -142,7 +143,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (rd.vertexCount > 0 || rd.indexCount > 0) accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 
-function realTimeTraverse (comp: Skeleton) {
+function realTimeTraverse (comp: Skeleton): void {
     const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
     if (!model) return;
@@ -272,7 +273,7 @@ function realTimeTraverse (comp: Skeleton) {
     }
 }
 
-function cacheTraverse (comp: Skeleton) {
+function cacheTraverse (comp: Skeleton): void {
     const model = comp.updateRenderData();
     if (!model) return;
 

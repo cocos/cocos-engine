@@ -25,7 +25,7 @@
 import { cclegacy } from '../core';
 import type { AnimationManager } from './animation-manager';
 
-export function getGlobalAnimationManager () {
+export function getGlobalAnimationManager (): AnimationManager {
     const animationManager = cclegacy.director.getAnimationManager() as AnimationManager;
     return animationManager;
 }

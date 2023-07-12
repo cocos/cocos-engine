@@ -43,12 +43,12 @@ export class SceneAsset extends Asset {
     @serializable
     public scene: Scene | null = null;
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         this.scene = new Scene('New Scene');
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this.scene;
     }
 }

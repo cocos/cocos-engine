@@ -31,7 +31,7 @@ export class TriggerCondition implements Condition {
     @serializable
     public trigger = '';
 
-    public clone () {
+    public clone (): TriggerCondition {
         const that = new TriggerCondition();
         that.trigger = this.trigger;
         return that;
@@ -56,7 +56,7 @@ class TriggerConditionEval implements ConditionEval {
         this._triggered = triggered;
     }
 
-    public setTrigger (trigger: boolean) {
+    public setTrigger (trigger: boolean): void {
         this._triggered = trigger;
     }
 

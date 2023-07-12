@@ -53,7 +53,7 @@ const _col = new Color();
 const _qt = new Quat();
 
 // Normalize HDR color
-const normalizeHDRColor = (color: Vec4) => {
+const normalizeHDRColor = (color: Vec4): void => {
     const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
     if (intensity < 1.0) {
         color.x *= intensity;
@@ -87,7 +87,7 @@ export class AmbientInfo {
      * @en Sky illuminance in HDR mode
      * @zh HDR 模式下的天空亮度
      */
-    get skyIllumHDR () {
+    get skyIllumHDR (): number {
         return this._skyIllumHDR;
     }
 
@@ -111,7 +111,7 @@ export class AmbientInfo {
      * @en Sky illuminance in LDR mode
      * @zh LDR 模式下的天空亮度
      */
-    get skyIllumLDR () {
+    get skyIllumLDR (): number {
         return this._skyIllumLDR;
     }
 
@@ -139,7 +139,7 @@ export class AmbientInfo {
         }
         if (this._resource) { this._resource.skyColor.set(_v4); }
     }
-    get skyLightingColor () {
+    get skyLightingColor (): Color {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         _v4.set(isHDR ? this._skyColorHDR : this._skyColorLDR);
         normalizeHDRColor(_v4);
@@ -175,7 +175,7 @@ export class AmbientInfo {
 
         if (this._resource) { this._resource.skyIllum = val; }
     }
-    get skyIllum () {
+    get skyIllum (): number {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             return this._skyIllumHDR;
         } else {
@@ -207,7 +207,7 @@ export class AmbientInfo {
         }
         if (this._resource) { this._resource.groundAlbedo.set(_v4); }
     }
-    get groundLightingColor () {
+    get groundLightingColor (): Color {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
         normalizeHDRColor(_v4);
@@ -250,7 +250,7 @@ export class AmbientInfo {
      * @zh 在渲染场景中启用环境光照设置，不需要手动调用
      * @param resource The ambient configuration object in the render scene
      */
-    public activate (resource: Ambient) {
+    public activate (resource: Ambient): void {
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -272,7 +272,7 @@ export class SkyboxInfo {
             this._resource.useDiffuseMap = val;
         }
     }
-    get applyDiffuseMap () {
+    get applyDiffuseMap (): boolean {
         if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === this._envLightingType) {
             return true;
         }
@@ -292,7 +292,7 @@ export class SkyboxInfo {
             this._resource.enabled = this._enabled;
         }
     }
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -323,7 +323,7 @@ export class SkyboxInfo {
             this._envLightingType = val;
         }
     }
-    get envLightingType () {
+    get envLightingType (): number {
         return this._envLightingType;
     }
     /**
@@ -335,7 +335,7 @@ export class SkyboxInfo {
             this._resource.useIBL = val;
         }
     }
-    get useIBL () {
+    get useIBL (): boolean {
         if (EnvironmentLightingType.HEMISPHERE_DIFFUSE !== this._envLightingType) {
             return true;
         }
@@ -369,7 +369,7 @@ export class SkyboxInfo {
             this._resource.updateMaterialRenderInfo();
         }
     }
-    get useHDR () {
+    get useHDR (): boolean {
         (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
         return this._useHDR;
     }
@@ -410,7 +410,7 @@ export class SkyboxInfo {
             this._resource.envmap = val;
         }
     }
-    get envmap () {
+    get envmap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._envmapHDR;
@@ -431,7 +431,7 @@ export class SkyboxInfo {
         this._rotationAngle = val;
         if (this._resource) { this._resource.setRotationAngle(this._rotationAngle); }
     }
-    get rotationAngle () {
+    get rotationAngle (): number {
         return this._rotationAngle;
     }
 
@@ -439,7 +439,7 @@ export class SkyboxInfo {
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
      */
-    @visible(function (this: SkyboxInfo) {
+    @visible(function (this: SkyboxInfo): boolean {
         if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
@@ -461,7 +461,7 @@ export class SkyboxInfo {
             this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         }
     }
-    get diffuseMap () {
+    get diffuseMap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._diffuseMapHDR;
@@ -495,7 +495,7 @@ export class SkyboxInfo {
             this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
         }
     }
-    get reflectionMap () {
+    get reflectionMap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._reflectionHDR;
@@ -517,7 +517,7 @@ export class SkyboxInfo {
             this._resource.setSkyboxMaterial(this._editableMaterial);
         }
     }
-    get skyboxMaterial () {
+    get skyboxMaterial (): Material | null {
         return this._editableMaterial;
     }
 
@@ -559,7 +559,7 @@ export class SkyboxInfo {
      * @zh 在渲染场景中启用天空盒设置，不需要手动调用
      * @param resource The skybox configuration object in the render scene
      */
-    public activate (resource: Skybox) {
+    public activate (resource: Skybox): void {
         this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
@@ -576,7 +576,7 @@ export class SkyboxInfo {
      * @zh 环境贴图发生变化时，会调用此函数更新场景。
      * @param val environment map
      */
-    public updateEnvMap (val: TextureCube) {
+    public updateEnvMap (val: TextureCube): void {
         if (!val) {
             this.applyDiffuseMap = false;
             this.useIBL = false;
@@ -603,7 +603,7 @@ export class SkyboxInfo {
      * @en The pass to apply to. Will apply to all passes if not specified.
      * @zh 设置此属性的 pass 索引，如果没有指定，则会设置此属性到所有 pass 上。
      */
-    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number): void {
         if (!this._resource) return;
         if (this._resource.enabled && this._resource.editableMaterial) {
             this._resource.editableMaterial.setProperty(name, val, passIdx);
@@ -641,7 +641,7 @@ export class FogInfo {
         }
     }
 
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -663,7 +663,7 @@ export class FogInfo {
         }
     }
 
-    get accurate () {
+    get accurate (): boolean {
         return this._accurate;
     }
 
@@ -690,7 +690,7 @@ export class FogInfo {
     @type(FogType)
     @displayOrder(1)
     @tooltip('i18n:fog.type')
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -710,7 +710,7 @@ export class FogInfo {
     @range([0, 1, 0.01])
     @slide
     @tooltip('i18n:fog.fogDensity')
-    get fogDensity () {
+    get fogDensity (): number {
         return this._fogDensity;
     }
 
@@ -727,7 +727,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @tooltip('i18n:fog.fogStart')
-    get fogStart () {
+    get fogStart (): number {
         return this._fogStart;
     }
 
@@ -744,7 +744,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @tooltip('i18n:fog.fogEnd')
-    get fogEnd () {
+    get fogEnd (): number {
         return this._fogEnd;
     }
 
@@ -762,7 +762,7 @@ export class FogInfo {
     @rangeMin(0.01)
     @rangeStep(0.01)
     @tooltip('i18n:fog.fogAtten')
-    get fogAtten () {
+    get fogAtten (): number {
         return this._fogAtten;
     }
 
@@ -779,7 +779,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @tooltip('i18n:fog.fogTop')
-    get fogTop () {
+    get fogTop (): number {
         return this._fogTop;
     }
 
@@ -796,7 +796,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @tooltip('i18n:fog.fogRange')
-    get fogRange () {
+    get fogRange (): number {
         return this._fogRange;
     }
 
@@ -832,7 +832,7 @@ export class FogInfo {
      * @zh 在渲染场景中启用雾效设置，不需要手动调用
      * @param resource The fog configuration object in the render scene
      */
-    public activate (resource: Fog) {
+    public activate (resource: Fog): void {
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.activate();
@@ -861,7 +861,7 @@ export class ShadowsInfo {
             }
         }
     }
-    get enabled () {
+    get enabled (): boolean {
         if (BAIDU) {
             if (this._type !== ShadowType.Planar) {
                 this._enabled = false;
@@ -881,7 +881,7 @@ export class ShadowsInfo {
         this._type = val;
         if (this._resource) { this._resource.type = val; }
     }
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -925,7 +925,7 @@ export class ShadowsInfo {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
     }
-    get planeHeight () {
+    get planeHeight (): number {
         return this._distance;
     }
 
@@ -940,7 +940,7 @@ export class ShadowsInfo {
         this._maxReceived = val;
         if (this._resource) { this._resource.maxReceived = val; }
     }
-    get maxReceived () {
+    get maxReceived (): number {
         return this._maxReceived;
     }
 
@@ -958,7 +958,7 @@ export class ShadowsInfo {
             this._resource.shadowMapDirty = true;
         }
     }
-    get shadowMapSize () {
+    get shadowMapSize (): number {
         return this._size.x;
     }
 
@@ -984,7 +984,7 @@ export class ShadowsInfo {
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
      */
-    public setPlaneFromNode (node: Node) {
+    public setPlaneFromNode (node: Node): void {
         node.getWorldRotation(_qt);
         this.planeDirection = Vec3.transformQuat(_v3, _up, _qt);
         node.getWorldPosition(_v3);
@@ -996,7 +996,7 @@ export class ShadowsInfo {
      * @zh 在渲染场景中启用阴影设置，不需要手动调用
      * @param resource The shadow configuration object in the render scene
      */
-    public activate (resource: Shadows) {
+    public activate (resource: Shadows): void {
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.activate();
@@ -1027,7 +1027,7 @@ export class OctreeInfo {
             this._resource.enabled = val;
         }
     }
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -1043,7 +1043,7 @@ export class OctreeInfo {
         this._minPos = val;
         if (this._resource) { this._resource.minPos = val; }
     }
-    get minPos () {
+    get minPos (): Vec3 {
         return this._minPos;
     }
 
@@ -1059,7 +1059,7 @@ export class OctreeInfo {
         this._maxPos = val;
         if (this._resource) { this._resource.maxPos = val; }
     }
-    get maxPos () {
+    get maxPos (): Vec3 {
         return this._maxPos;
     }
 
@@ -1076,7 +1076,7 @@ export class OctreeInfo {
         this._depth = val;
         if (this._resource) { this._resource.depth = val; }
     }
-    get depth () {
+    get depth (): number {
         return this._depth;
     }
 
@@ -1096,7 +1096,7 @@ export class OctreeInfo {
      * @zh 在渲染场景中启用八叉树设置，不需要手动调用
      * @param resource The octree configuration object in the render scene
      */
-    public activate (resource: Octree) {
+    public activate (resource: Octree): void {
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -1123,7 +1123,7 @@ export class SkinInfo {
             this._resource.enabled = val;
         }
     }
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -1141,7 +1141,7 @@ export class SkinInfo {
         this._blurRadius = val;
         if (this._resource) { this._resource.blurRadius = val; }
     }
-    get blurRadius () {
+    get blurRadius (): number {
         return this._blurRadius;
     }
 
@@ -1158,7 +1158,7 @@ export class SkinInfo {
         this._sssIntensity = val;
         if (this._resource) { this._resource.sssIntensity = val; }
     }
-    get sssIntensity () {
+    get sssIntensity (): number {
         return this._sssIntensity;
     }
 
@@ -1176,7 +1176,7 @@ export class SkinInfo {
      * @zh 在渲染场景中启用皮肤设置，不需要手动调用
      * @param resource The skin configuration object in the render scene
      */
-    public activate (resource: Skin) {
+    public activate (resource: Skin): void {
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -1381,22 +1381,22 @@ export class LightProbeInfo {
     protected _scene: Scene | null = null;
     protected _resource: LightProbes | null = null;
 
-    public activate (scene: Scene, resource: LightProbes) {
+    public activate (scene: Scene, resource: LightProbes): void {
         this._scene = scene;
         this._resource = resource;
         this._resource.initialize(this);
     }
 
-    public onProbeBakeFinished () {
+    public onProbeBakeFinished (): void {
         this.onProbeBakingChanged(this._scene);
     }
 
-    public onProbeBakeCleared () {
+    public onProbeBakeCleared (): void {
         this.clearSHCoefficients();
         this.onProbeBakingChanged(this._scene);
     }
 
-    private onProbeBakingChanged (node: Node | null) {
+    private onProbeBakingChanged (node: Node | null): void {
         if (!node) {
             return;
         }
@@ -1409,7 +1409,7 @@ export class LightProbeInfo {
         }
     }
 
-    public clearSHCoefficients () {
+    public clearSHCoefficients (): void {
         if (!this._data) {
             return;
         }
@@ -1457,7 +1457,7 @@ export class LightProbeInfo {
         return true;
     }
 
-    public syncData (node: Node, probes: Vec3[]) {
+    public syncData (node: Node, probes: Vec3[]): void {
         for (let i = 0; i < this._nodes.length; i++) {
             if (this._nodes[i].node === node) {
                 this._nodes[i].probes = probes;
@@ -1466,7 +1466,7 @@ export class LightProbeInfo {
         }
     }
 
-    public update (updateTet = true) {
+    public update (updateTet = true): void {
         if (!cclegacy.internal.LightProbesData) {
             return;
         }
@@ -1510,7 +1510,7 @@ export class LightProbeInfo {
         }
     }
 
-    private clearAllSHUBOs () {
+    private clearAllSHUBOs (): void {
         if (!this._scene) {
             return;
         }
@@ -1526,7 +1526,7 @@ export class LightProbeInfo {
         }
     }
 
-    private resetAllTetraIndices () {
+    private resetAllTetraIndices (): void {
         if (!this._scene) {
             return;
         }
@@ -1582,7 +1582,7 @@ export class SceneGlobals {
      */
     @editable
     @type(SkyboxInfo)
-    get skybox () {
+    get skybox (): SkyboxInfo {
         return this._skybox;
     }
     set skybox (value) {
@@ -1639,7 +1639,7 @@ export class SceneGlobals {
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */
-    public activate (scene: Scene) {
+    public activate (scene: Scene): void {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);

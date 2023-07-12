@@ -42,7 +42,7 @@ export default class Burst {
      *  @zh 粒子系统开始运行到触发此次 Brust 的时间。
      */
     @editable
-    get time () {
+    get time (): number {
         return this._time;
     }
 
@@ -59,7 +59,7 @@ export default class Burst {
      * @zh Burst 的触发次数。
      */
     @editable
-    get repeatCount () {
+    get repeatCount (): number {
         return this._repeatCount;
     }
 
@@ -100,7 +100,7 @@ export default class Burst {
      * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
-    public update (psys, dt: number) {
+    public update (psys, dt: number): void {
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             this._curTime = this._time;
@@ -121,7 +121,7 @@ export default class Burst {
      * @en Reset remaining burst count and burst time to zero.
      * @zh 重置触发时间和留存的触发次数为零。
      */
-    public reset () {
+    public reset (): void {
         this._remainingCount = 0;
         this._curTime = 0.0;
     }
@@ -132,7 +132,7 @@ export default class Burst {
      * @param psys @en Particle system to burst. @zh 要触发的粒子系统。
      * @returns @en burst max particle count. @zh 一次最多触发的粒子个数。
      */
-    public getMaxCount (psys) {
+    public getMaxCount (psys): number {
         return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
     }
 }

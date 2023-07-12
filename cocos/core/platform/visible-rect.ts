@@ -105,7 +105,7 @@ export const visibleRect = {
      * @param visibleRect_ @zh 当前视图的实际可见区域。@en The actual visible area of the current view.
      * @NOTE: @zh 必须是有效的区域。例如区域大小不能为负数。@en It must be a valid region. For example, the region size cannot be negative.
      */
-    init (visibleRect_: Rect) {
+    init (visibleRect_: Rect): void {
         const w = this.width = visibleRect_.width;
         const h = this.height = visibleRect_.height;
         const l = visibleRect_.x;

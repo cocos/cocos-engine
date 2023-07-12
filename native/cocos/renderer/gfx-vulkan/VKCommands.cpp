@@ -345,8 +345,7 @@ private:
 };
 
 std::pair<VkImageLayout, VkImageLayout> getInitialFinalLayout(CCVKDevice *device, CCVKGeneralBarrier *barrier, bool depthSetncil) {
-    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() :
-        (depthSetncil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
+    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() : (depthSetncil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
 
     ThsvsImageBarrier imageBarrier = {};
     imageBarrier.prevAccessCount = utils::toUint(gpuBarrier->prevAccesses.size());
@@ -499,7 +498,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     depthStencilResolves.resize(subpassCount, {VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE});
     const VkPhysicalDeviceDepthStencilResolveProperties &prop{device->gpuContext()->physicalDeviceDepthStencilResolveProperties};
     for (uint32_t i = 0U; i < gpuRenderPass->subpasses.size(); ++i) {
-        const SubpassInfo& subpassInfo = gpuRenderPass->subpasses[i];
+        const SubpassInfo &subpassInfo = gpuRenderPass->subpasses[i];
 
         VkSubpassDescription2 &desc = subpassDescriptions[i];
         desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -592,7 +591,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 gpuRenderPass->hasSelfDependency[dependency.srcSubpass] = true;
             }
 
-            auto addStageAccessMask = [&vkDependency](const SubpassDependency& deps) {
+            auto addStageAccessMask = [&vkDependency](const SubpassDependency &deps) {
                 ccstd::vector<ThsvsAccessType> prevAccesses;
                 ccstd::vector<ThsvsAccessType> nextAccesses;
                 getAccessTypes(deps.prevAccesses, prevAccesses);

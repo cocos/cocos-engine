@@ -50,7 +50,7 @@ export class RangedDirectionalLight extends Light {
     @editable
     @range([0, Number.POSITIVE_INFINITY, 10])
     @type(CCInteger)
-    get illuminance () {
+    get illuminance (): number {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._illuminanceHDR;
@@ -74,7 +74,7 @@ export class RangedDirectionalLight extends Light {
         this._lightType = scene.RangedDirectionalLight;
     }
 
-    protected _createLight () {
+    protected _createLight (): void {
         super._createLight();
         this._type = LightType.RANGED_DIRECTIONAL;
         if (this._light) {

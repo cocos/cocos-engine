@@ -33,7 +33,7 @@ import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 export class DrawBatch2D {
-    public get inputAssembler () {
+    public get inputAssembler (): InputAssembler | null {
         return this._inputAssembler;
     }
 
@@ -41,7 +41,7 @@ export class DrawBatch2D {
         this._inputAssembler = ia;
     }
 
-    public get descriptorSet () {
+    public get descriptorSet (): DescriptorSet | null {
         return this._descriptorSet;
     }
 
@@ -49,18 +49,18 @@ export class DrawBatch2D {
         this._descriptorSet = ds;
     }
 
-    public get visFlags () {
+    public get visFlags (): number {
         return this._visFlags;
     }
     public set visFlags (vis) {
         this._visFlags = vis;
     }
 
-    get passes () {
+    get passes (): Pass[] {
         return this._passes;
     }
 
-    public get shaders () {
+    public get shaders (): Shader[] {
         return this._shaders;
     }
 
@@ -81,11 +81,11 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     //private declare _nativeObj: any;
 
-    public destroy (ui: IBatcher) {
+    public destroy (ui: IBatcher): void {
         this._passes = [];
     }
 
-    public clear () {
+    public clear (): void {
         // this.bufferBatch = null;
         this._inputAssembler = null;
         this._descriptorSet = null;
@@ -102,7 +102,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, patches): void {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }

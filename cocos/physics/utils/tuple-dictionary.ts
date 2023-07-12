@@ -87,14 +87,14 @@ export class TupleDictionary {
     /**
      * @method reset
      */
-    public reset () {
+    public reset (): void {
         this.data = { keys: [] };
     }
 
     /**
      * @method getLength
      */
-    public getLength () {
+    public getLength (): number {
         return this.data.keys.length;
     }
 
@@ -102,7 +102,7 @@ export class TupleDictionary {
      * @method getKeyByIndex
      * @param {number} index
      */
-    public getKeyByIndex (index: number) {
+    public getKeyByIndex (index: number): string {
         return this.data.keys[index];
     }
 

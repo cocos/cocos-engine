@@ -52,12 +52,12 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
     get characterController (): CharacterController { return this._comp; }
 
-    get filterData () {
+    get filterData (): any {
         /* eslint-disable @typescript-eslint/no-unsafe-return */
         return this._filterData;
     }
 
-    get queryFilterCB () {
+    get queryFilterCB (): any {
         /* eslint-disable @typescript-eslint/no-unsafe-return */
         return this._queryFilterCB;
     }
@@ -189,11 +189,11 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this._comp.node.setWorldPosition(v3_0);
     }
 
-    syncScale () {
+    syncScale (): void {
         this.updateScale();
     }
 
-    get scaledCenter () {
+    get scaledCenter (): Vec3 {
         Vec3.multiply(v3_1, this._comp.center, this._comp.node.worldScale);
         return v3_1;
     }
@@ -225,7 +225,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
         },
     };
 
-    move (movement: IVec3Like, minDist: number, elapsedTime: number) {
+    move (movement: IVec3Like, minDist: number, elapsedTime: number): void {
         if (!this._isEnabled) { return; }
         (PhysicsSystem.instance.physicsWorld as PhysXWorld).controllerManager.setOverlapRecoveryModule(this._overlapRecovery);
         this._pxCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData, this.queryFilterCB);
@@ -275,11 +275,11 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this.updateFilterData();
     }
 
-    updateEventListener () {
+    updateEventListener (): void {
         this.updateFilterData();
     }
 
-    updateFilterData () {
+    updateFilterData (): void {
         if (!this._impl) return;
         // this._impl.setQueryFilterData(filterData);//set inside move()
         this._impl.setSimulationFilterData(this.filterData);

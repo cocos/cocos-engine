@@ -33,7 +33,7 @@ import { IGeometry } from './define';
  * @param geometry @zh 几何体信息。@en The geometry to be translated
  * @param offset @zh 偏移量。@en The translation
  */
-export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }) {
+export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }): IGeometry {
     const x = offset.x || 0;
     const y = offset.y || 0;
     const z = offset.z || 0;
@@ -67,7 +67,7 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
  * @param geometry @zh 几何体信息。 @en The geometry to be scaled
  * @param value @zh 缩放量。@en The scaling size
  */
-export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }) {
+export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }): IGeometry {
     const x = value.x ?? 1.0;
     const y = value.y ?? 1.0;
     const z = value.z ?? 1.0;
@@ -119,7 +119,7 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
  * 将几何体转换为线框模式，仅支持三角形拓扑的几何体。
  * @param geometry @zh 几何体信息。@en The geometry to be converted to wireframe
  */
-export function wireframed (geometry: IGeometry) {
+export function wireframed (geometry: IGeometry): IGeometry {
     const { indices } = geometry;
     if (!indices) {
         return geometry;

@@ -30,7 +30,7 @@ export const RUNTIME_ID_ENABLED = EDITOR;
 
 export type RuntimeID = number;
 
-export function getMotionRuntimeID (motion: Motion) {
+export function getMotionRuntimeID (motion: Motion): number | undefined {
     return (motion[editorExtrasTag] as undefined | { id?: RuntimeID })?.id;
 }
 

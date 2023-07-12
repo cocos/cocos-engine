@@ -28,7 +28,7 @@ import { IGeometry } from './define';
 /**
  * @deprecated
  */
-export function wireframe (indices: number[]) {
+export function wireframe (indices: number[]): number[] {
     const offsets = [[0, 1], [1, 2], [2, 0]];
     const lines: number[] = [];
     const lineIDs = {};
@@ -53,7 +53,7 @@ export function wireframe (indices: number[]) {
 /**
  * @deprecated
  */
-export function invWinding (indices: number[]) {
+export function invWinding (indices: number[]): number[] {
     const newIB: number[] = [];
     for (let i = 0; i < indices.length; i += 3) {
         newIB.push(indices[i], indices[i + 2], indices[i + 1]);
@@ -64,7 +64,7 @@ export function invWinding (indices: number[]) {
 /**
  * @deprecated
  */
-export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
+export function toWavefrontOBJ (primitive: IGeometry, scale = 1): string {
     if (!primitive.indices
         || !primitive.uvs
         || !primitive.normals
@@ -75,7 +75,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
     const t = primitive.uvs;
     const n = primitive.normals;
     const IB = primitive.indices;
-    const V = (i) => `${IB[i] + 1}/${IB[i] + 1}/${IB[i] + 1}`;
+    const V = (i): string => `${IB[i] + 1}/${IB[i] + 1}/${IB[i] + 1}`;
     let content = '';
     for (let i = 0; i < v.length; i += 3) {
         content += `v ${v[i] * scale} ${v[i + 1] * scale} ${v[i + 2] * scale}\n`;
@@ -95,7 +95,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
 /**
  * @deprecated
  */
-export function normals (positions: number[], nms: number[], length = 1) {
+export function normals (positions: number[], nms: number[], length = 1): number[] {
     const verts: number[] = new Array(2 * positions.length);
 
     for (let i = 0; i < positions.length / 3; ++i) {

@@ -120,7 +120,7 @@ export class Fog {
         SRGBToLinear(this._colorArray, _v4);
     }
 
-    get fogColor () {
+    get fogColor (): Color {
         return this._fogColor;
     }
 
@@ -229,7 +229,7 @@ export class Fog {
     protected _fogRange = 1.2;
     protected _activated = false;
 
-    public initialize (fogInfo : FogInfo) {
+    public initialize (fogInfo : FogInfo): void {
         this._activated = false;
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;
@@ -243,12 +243,12 @@ export class Fog {
         this.fogRange = fogInfo.fogRange;
     }
 
-    public activate () {
+    public activate (): void {
         this._updatePipeline();
         this._activated = true;
     }
 
-    protected _updatePipeline () {
+    protected _updatePipeline (): void {
         const root = cclegacy.director.root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const accurateValue = this.accurate ? 1 : 0;

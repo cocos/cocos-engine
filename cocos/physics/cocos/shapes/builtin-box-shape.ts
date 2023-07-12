@@ -28,15 +28,15 @@ import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider } from '../../../../exports/physics-framework';
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
-    get localObb () {
+    get localObb (): geometry.OBB {
         return this._localShape as geometry.OBB;
     }
 
-    get worldObb () {
+    get worldObb (): geometry.OBB {
         return this._worldShape as geometry.OBB;
     }
 
-    get collider () {
+    get collider (): BoxCollider {
         return this._collider as BoxCollider;
     }
 
@@ -46,12 +46,12 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
         this._worldShape = new geometry.OBB();
     }
 
-    updateSize () {
+    updateSize (): void {
         Vec3.multiplyScalar(this.localObb.halfExtents, this.collider.size, 0.5);
         Vec3.multiply(this.worldObb.halfExtents, this.localObb.halfExtents, this.collider.node.worldScale);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.updateSize();
     }

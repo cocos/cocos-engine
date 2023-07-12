@@ -48,7 +48,7 @@ export class SkeletonSystem extends System {
      * @zh
      * 获取 Spine 骨骼系统的单例。
      */
-    public static getInstance () {
+    public static getInstance (): SkeletonSystem {
         if (!SkeletonSystem._instance) {
             SkeletonSystem._instance = new SkeletonSystem();
             director.registerSystem(SkeletonSystem.ID, SkeletonSystem._instance, System.Priority.HIGH);
@@ -58,21 +58,21 @@ export class SkeletonSystem extends System {
 
     private _skeletons = new Set<Skeleton>();
 
-    public add (skeleton: Skeleton | null) {
+    public add (skeleton: Skeleton | null): void {
         if (!skeleton) return;
         if (!this._skeletons.has(skeleton)) {
             this._skeletons.add(skeleton);
         }
     }
 
-    public remove (skeleton: Skeleton | null) {
+    public remove (skeleton: Skeleton | null): void {
         if (!skeleton) return;
         if (this._skeletons.has(skeleton)) {
             this._skeletons.delete(skeleton);
         }
     }
 
-    postUpdate (dt: number) {
+    postUpdate (dt: number): void {
         if (!this._skeletons) {
             return;
         }
@@ -82,7 +82,7 @@ export class SkeletonSystem extends System {
         });
     }
 
-    public prepareRenderData () {
+    public prepareRenderData (): void {
         if (!this._skeletons) {
             return;
         }

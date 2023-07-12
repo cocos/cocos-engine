@@ -94,7 +94,7 @@ export class LabelShadow extends Component {
      * ```
      */
     @tooltip('i18n:labelShadow.offset')
-    get offset () {
+    get offset (): Vec2 {
         return this._offset;
     }
 
@@ -116,7 +116,7 @@ export class LabelShadow extends Component {
      * ```
      */
     @tooltip('i18n:labelShadow.blur')
-    get blur () {
+    get blur (): number {
         return this._blur;
     }
 
@@ -125,15 +125,15 @@ export class LabelShadow extends Component {
         this._updateRenderData();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this._updateRenderData();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this._updateRenderData();
     }
 
-    protected _updateRenderData () {
+    protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
         if (label) {
             label.updateRenderData(true);

@@ -95,30 +95,30 @@ interface IAxisValue {
 type NativeButtonState = Record<Button, number>
 
 export class HandleInputDevice {
-    public get buttonNorth () { return this._buttonNorth; }
-    public get buttonEast () { return this._buttonEast; }
-    public get buttonWest () { return this._buttonWest; }
-    public get buttonSouth () { return this._buttonSouth; }
-    public get buttonTriggerLeft () { return this._buttonTriggerLeft; }
-    public get buttonTriggerRight () { return this._buttonTriggerRight; }
-    public get triggerLeft () { return this._triggerLeft; }
-    public get triggerRight () { return this._triggerRight; }
-    public get gripLeft () { return this._gripLeft; }
-    public get gripRight () { return this._gripRight; }
-    public get leftStick () { return this._leftStick; }
-    public get rightStick () { return this._rightStick; }
-    public get buttonLeftStick () { return this._buttonLeftStick; }
-    public get buttonRightStick () { return this._buttonRightStick; }
-    public get buttonOptions () { return this._buttonOptions; }
-    public get buttonStart () { return this._buttonStart; }
-    public get handLeftPosition () { return this._handLeftPosition; }
-    public get handLeftOrientation () { return this._handLeftOrientation; }
-    public get handRightPosition () { return this._handRightPosition; }
-    public get handRightOrientation () { return this._handRightOrientation; }
-    public get aimLeftPosition () { return this._aimLeftPosition; }
-    public get aimLeftOrientation () { return this._aimLeftOrientation; }
-    public get aimRightPosition () { return this._aimRightPosition; }
-    public get aimRightOrientation () { return this._aimRightOrientation; }
+    public get buttonNorth (): InputSourceButton { return this._buttonNorth; }
+    public get buttonEast (): InputSourceButton { return this._buttonEast; }
+    public get buttonWest (): InputSourceButton { return this._buttonWest; }
+    public get buttonSouth (): InputSourceButton { return this._buttonSouth; }
+    public get buttonTriggerLeft (): InputSourceButton { return this._buttonTriggerLeft; }
+    public get buttonTriggerRight (): InputSourceButton { return this._buttonTriggerRight; }
+    public get triggerLeft (): InputSourceButton { return this._triggerLeft; }
+    public get triggerRight (): InputSourceButton { return this._triggerRight; }
+    public get gripLeft (): InputSourceButton { return this._gripLeft; }
+    public get gripRight (): InputSourceButton { return this._gripRight; }
+    public get leftStick (): InputSourceStick { return this._leftStick; }
+    public get rightStick (): InputSourceStick { return this._rightStick; }
+    public get buttonLeftStick (): InputSourceButton { return this._buttonLeftStick; }
+    public get buttonRightStick (): InputSourceButton { return this._buttonRightStick; }
+    public get buttonOptions (): InputSourceButton { return this._buttonOptions; }
+    public get buttonStart (): InputSourceButton { return this._buttonStart; }
+    public get handLeftPosition (): InputSourcePosition { return this._handLeftPosition; }
+    public get handLeftOrientation (): InputSourceOrientation { return this._handLeftOrientation; }
+    public get handRightPosition (): InputSourcePosition { return this._handRightPosition; }
+    public get handRightOrientation (): InputSourceOrientation { return this._handRightOrientation; }
+    public get aimLeftPosition (): InputSourcePosition { return this._aimLeftPosition; }
+    public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
+    public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
+    public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -251,43 +251,43 @@ export class HandleInputDevice {
     /**
      * @engineInternal
      */
-    public _on (eventType: InputEventType, callback: HandleCallback, target?: any) {
+    public _on (eventType: InputEventType, callback: HandleCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 
-    private _initInputSource () {
+    private _initInputSource (): void {
         this._buttonNorth = new InputSourceButton();
-        this._buttonNorth.getValue = () => this._nativeButtonState[Button.BUTTON_NORTH];
+        this._buttonNorth.getValue = (): number => this._nativeButtonState[Button.BUTTON_NORTH];
         this._buttonEast = new InputSourceButton();
-        this._buttonEast.getValue = () => this._nativeButtonState[Button.BUTTON_EAST];
+        this._buttonEast.getValue = (): number => this._nativeButtonState[Button.BUTTON_EAST];
         this._buttonWest = new InputSourceButton();
-        this._buttonWest.getValue = () => this._nativeButtonState[Button.BUTTON_WEST];
+        this._buttonWest.getValue = (): number => this._nativeButtonState[Button.BUTTON_WEST];
         this._buttonSouth = new InputSourceButton();
-        this._buttonSouth.getValue = () => this._nativeButtonState[Button.BUTTON_SOUTH];
+        this._buttonSouth.getValue = (): number => this._nativeButtonState[Button.BUTTON_SOUTH];
 
         this._buttonTriggerLeft = new InputSourceButton();
-        this._buttonTriggerLeft.getValue = () => this._nativeButtonState[Button.BUTTON_TRIGGER_LEFT];
+        this._buttonTriggerLeft.getValue = (): number => this._nativeButtonState[Button.BUTTON_TRIGGER_LEFT];
         this._buttonTriggerRight = new InputSourceButton();
-        this._buttonTriggerRight.getValue = () => this._nativeButtonState[Button.BUTTON_TRIGGER_RIGHT];
+        this._buttonTriggerRight.getValue = (): number => this._nativeButtonState[Button.BUTTON_TRIGGER_RIGHT];
         this._triggerLeft = new InputSourceButton();
-        this._triggerLeft.getValue = () => this._nativeButtonState[Button.TRIGGER_LEFT];
+        this._triggerLeft.getValue = (): number => this._nativeButtonState[Button.TRIGGER_LEFT];
         this._triggerRight = new InputSourceButton();
-        this._triggerRight.getValue = () => this._nativeButtonState[Button.TRIGGER_RIGHT];
+        this._triggerRight.getValue = (): number => this._nativeButtonState[Button.TRIGGER_RIGHT];
         this._gripLeft = new InputSourceButton();
-        this._gripLeft.getValue = () => this._nativeButtonState[Button.GRIP_LEFT];
+        this._gripLeft.getValue = (): number => this._nativeButtonState[Button.GRIP_LEFT];
         this._gripRight = new InputSourceButton();
-        this._gripRight.getValue = () => this._nativeButtonState[Button.GRIP_RIGHT];
+        this._gripRight.getValue = (): number => this._nativeButtonState[Button.GRIP_RIGHT];
 
         this._buttonLeftStick = new InputSourceButton();
-        this._buttonLeftStick.getValue = () => this._nativeButtonState[Button.BUTTON_LEFT_STICK];
+        this._buttonLeftStick.getValue = (): number => this._nativeButtonState[Button.BUTTON_LEFT_STICK];
         const leftStickUp = new InputSourceButton();
-        leftStickUp.getValue = () => this._nativeButtonState[Button.LEFT_STICK_UP];
+        leftStickUp.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_UP];
         const leftStickDown = new InputSourceButton();
-        leftStickDown.getValue = () => this._nativeButtonState[Button.LEFT_STICK_DOWN];
+        leftStickDown.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_DOWN];
         const leftStickLeft = new InputSourceButton();
-        leftStickLeft.getValue = () => this._nativeButtonState[Button.LEFT_STICK_LEFT];
+        leftStickLeft.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_LEFT];
         const leftStickRight = new InputSourceButton();
-        leftStickRight.getValue = () => this._nativeButtonState[Button.LEFT_STICK_RIGHT];
+        leftStickRight.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_RIGHT];
         this._leftStick = new InputSourceStick({
             up: leftStickUp,
             down: leftStickDown,
@@ -296,15 +296,15 @@ export class HandleInputDevice {
         });
 
         this._buttonRightStick = new InputSourceButton();
-        this._buttonRightStick.getValue = () => this._nativeButtonState[Button.BUTTON_RIGHT_STICK];
+        this._buttonRightStick.getValue = (): number => this._nativeButtonState[Button.BUTTON_RIGHT_STICK];
         const rightStickUp = new InputSourceButton();
-        rightStickUp.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_UP];
+        rightStickUp.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_UP];
         const rightStickDown = new InputSourceButton();
-        rightStickDown.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_DOWN];
+        rightStickDown.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_DOWN];
         const rightStickLeft = new InputSourceButton();
-        rightStickLeft.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_LEFT];
+        rightStickLeft.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_LEFT];
         const rightStickRight = new InputSourceButton();
-        rightStickRight.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
+        rightStickRight.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
         this._rightStick = new InputSourceStick({
             up: rightStickUp,
             down: rightStickDown,
@@ -313,28 +313,28 @@ export class HandleInputDevice {
         });
 
         this._buttonOptions = new InputSourceButton();
-        this._buttonOptions.getValue = () => this._nativeButtonState[Button.ROKID_MENU];
+        this._buttonOptions.getValue = (): number => this._nativeButtonState[Button.ROKID_MENU];
         this._buttonStart = new InputSourceButton();
-        this._buttonStart.getValue = () => this._nativeButtonState[Button.ROKID_START];
+        this._buttonStart.getValue = (): number => this._nativeButtonState[Button.ROKID_START];
 
         this._handLeftPosition = new InputSourcePosition();
-        this._handLeftPosition.getValue = () => Vec3.ZERO;
+        this._handLeftPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._handLeftOrientation = new InputSourceOrientation();
-        this._handLeftOrientation.getValue = () => Quat.IDENTITY;
+        this._handLeftOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._handRightPosition = new InputSourcePosition();
-        this._handRightPosition.getValue = () => Vec3.ZERO;
+        this._handRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._handRightOrientation = new InputSourceOrientation();
-        this._handRightOrientation.getValue = () => Quat.IDENTITY;
+        this._handRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._aimLeftPosition = new InputSourcePosition();
-        this._aimLeftPosition.getValue = () => Vec3.ZERO;
+        this._aimLeftPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimLeftOrientation = new InputSourceOrientation();
-        this._aimLeftOrientation.getValue = () => Quat.IDENTITY;
+        this._aimLeftOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._aimRightPosition = new InputSourcePosition();
-        this._aimRightPosition.getValue = () => Vec3.ZERO;
+        this._aimRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimRightOrientation = new InputSourceOrientation();
-        this._aimRightOrientation.getValue = () => Quat.IDENTITY;
+        this._aimRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
     }
 }

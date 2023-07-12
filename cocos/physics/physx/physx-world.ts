@@ -93,14 +93,14 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         }
     }
 
-    private _simulate (dt: number) {
+    private _simulate (dt: number): void {
         if (!this._isNeedFetch) {
             simulateScene(this.scene, dt);
             this._isNeedFetch = true;
         }
     }
 
-    private _fetchResults () {
+    private _fetchResults (): void {
         if (this._isNeedFetch) {
             this.scene.fetchResults(true);
             this._isNeedFetch = false;
@@ -353,7 +353,7 @@ const PhysXCallback = {
         }
     },
 
-    emitTriggerEvent () {
+    emitTriggerEvent (): void {
         let len = triggerEventEndDic.getLength();
         while (len--) {
             const key = triggerEventEndDic.getKeyByIndex(len);

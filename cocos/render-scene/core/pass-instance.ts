@@ -36,7 +36,7 @@ export class PassInstance extends Pass {
      * @en The parent pass
      * @zh 相关联的原始 Pass
      */
-    get parent () { return this._parent; }
+    get parent (): Pass { return this._parent; }
 
     private _parent: Pass;
 
@@ -86,7 +86,7 @@ export class PassInstance extends Pass {
         this._onStateChange();
     }
 
-    public tryCompile (defineOverrides?: MacroRecord) {
+    public tryCompile (defineOverrides?: MacroRecord): boolean {
         if (defineOverrides) {
             if (!overrideMacros(this._defines, defineOverrides)) {
                 return false;
@@ -101,7 +101,7 @@ export class PassInstance extends Pass {
      * @en Prepare to change states of the pass and do not notify the material to rebuild the pipeline state object
      * @zh 开始静默修改 Pass 相关状态，不会通知材质去重新构建管线状态对象。
      */
-    public beginChangeStatesSilently () {
+    public beginChangeStatesSilently (): void {
         this._dontNotify = true;
     }
 
@@ -109,16 +109,16 @@ export class PassInstance extends Pass {
      * @en End the silent states changing process, all state changes will be notified.
      * @zh 结束静默状态修改，所有修改将会开始通知材质。
      */
-    public endChangeStatesSilently () {
+    public endChangeStatesSilently (): void {
         this._dontNotify = false;
     }
 
-    protected _syncBatchingScheme () {
+    protected _syncBatchingScheme (): void {
         this._defines.USE_INSTANCING = false;
         this._batchingScheme = BatchingSchemes.NONE;
     }
 
-    protected _onStateChange () {
+    protected _onStateChange (): void {
         this._hash = Pass.getPassHash(this);
         this._owner.onPassStateChange(this._dontNotify);
     }

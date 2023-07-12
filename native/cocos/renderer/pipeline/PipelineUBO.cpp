@@ -34,11 +34,11 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Fog.h"
+#include "scene/ReflectionProbeManager.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/SpotLight.h"
-#include "scene/ReflectionProbeManager.h"
 
 namespace cc {
 
@@ -80,10 +80,10 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
     uboGlobalView[UBOGlobal::PROBE_INFO_OFFSET + 0] = scene::ReflectionProbeManager::getInstance()->getMaxProbeId() + 1;
-    
+
     auto *debugView = root->getDebugView();
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = static_cast<float>(debugView->getSingleMode());
-    
+
     for (int i = 1; i <= 3; ++i) {
         uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + i] = 0.0F;
     }
@@ -92,7 +92,7 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
         int bit = i % 8;
         uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1 + offset] += (debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F) * pow(10.0F, static_cast<float>(bit));
     }
-    
+
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 3] += (debugView->isLightingWithAlbedo() ? 1.0F : 0.0F) * pow(10.0F, 6.0F);
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 3] += (debugView->isCsmLayerColoration() ? 1.0F : 0.0F) * pow(10.0F, 7.0F);
 }

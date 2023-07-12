@@ -511,11 +511,11 @@ localDescriptorSetLayout.bindings[UBOSkinningAnimation.BINDING] = UBOSkinningAni
 export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
     private static _jointUniformCapacity = 0;
-    public static get JOINT_UNIFORM_CAPACITY () { return UBOSkinning._jointUniformCapacity; }
+    public static get JOINT_UNIFORM_CAPACITY (): number { return UBOSkinning._jointUniformCapacity; }
     private static _count = 0;
-    public static get COUNT () { return UBOSkinning._count; }
+    public static get COUNT (): number { return UBOSkinning._count; }
     private static _size = 0;
-    public static get SIZE () { return UBOSkinning._size; }
+    public static get SIZE (): number { return UBOSkinning._size; }
 
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
@@ -527,7 +527,7 @@ export class UBOSkinning {
     /**
      * @internal This method only used init UBOSkinning configure.
     */
-    public static initLayout (capacity: number) {
+    public static initLayout (capacity: number): void {
         UBOSkinning._jointUniformCapacity = capacity;
         UBOSkinning._count = capacity * 12;
         UBOSkinning._size = UBOSkinning._count * 4;
@@ -538,7 +538,7 @@ export class UBOSkinning {
 /**
  * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
 */
-export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number) {
+export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number): void {
     UBOSkinning.initLayout(maxCount);
     localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
     localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
@@ -772,7 +772,7 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @en Does the device support single-channeled half float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持单通道半浮点贴图？（颜色输出和采样）
  */
-export function supportsR16HalfFloatTexture (device: Device) {
+export function supportsR16HalfFloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
@@ -781,7 +781,7 @@ export function supportsR16HalfFloatTexture (device: Device) {
  * @en Does the device support single-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持单通道浮点贴图？（颜色输出和采样）
  */
-export function supportsR32FloatTexture (device: Device) {
+export function supportsR32FloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
@@ -791,7 +791,7 @@ export function supportsR32FloatTexture (device: Device) {
  * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
-export function supportsRGBA16HalfFloatTexture (device: Device) {
+export function supportsRGBA16HalfFloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
@@ -801,7 +801,7 @@ export function supportsRGBA16HalfFloatTexture (device: Device) {
  * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
-export function supportsRGBA32FloatTexture (device: Device) {
+export function supportsRGBA32FloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded

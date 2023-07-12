@@ -54,14 +54,14 @@ export class AnimationManager extends System {
     private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
 
-    public addCrossFade (crossFade: CrossFade) {
+    public addCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
         if (index === -1) {
             this._crossFades.push(crossFade);
         }
     }
 
-    public removeCrossFade (crossFade: CrossFade) {
+    public removeCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
         if (index >= 0) {
             this._crossFades.fastRemoveAt(index);
@@ -70,7 +70,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         const { _delayEvents, _crossFades: crossFadesIter, _sockets } = this;
 
         { // Update cross fades
@@ -104,18 +104,18 @@ export class AnimationManager extends System {
         _delayEvents.length = 0;
     }
 
-    public destruct () {
+    public destruct (): void {
 
     }
 
-    public addAnimation (anim: AnimationState) {
+    public addAnimation (anim: AnimationState): void {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
             this._anims.push(anim);
         }
     }
 
-    public removeAnimation (anim: AnimationState) {
+    public removeAnimation (anim: AnimationState): void {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
             this._anims.fastRemoveAt(index);
@@ -124,7 +124,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]) {
+    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]): void {
         this._delayEvents.push({
             fn,
             thisArg,
@@ -132,7 +132,7 @@ export class AnimationManager extends System {
         });
     }
 
-    public addSockets (root: Node, sockets: Socket[]) {
+    public addSockets (root: Node, sockets: Socket[]): void {
         for (let i = 0; i < sockets.length; ++i) {
             const socket = sockets[i];
             if (this._sockets.find((s) => s.target === socket.target)) { continue; }
@@ -144,7 +144,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public removeSockets (root: Node, sockets: Socket[]) {
+    public removeSockets (root: Node, sockets: Socket[]): void {
         for (let i = 0; i < sockets.length; ++i) {
             const socketToRemove = sockets[i];
             for (let j = 0; j < this._sockets.length; ++j) {
@@ -160,7 +160,7 @@ export class AnimationManager extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, () => {
+director.on(Director.EVENT_INIT, (): void => {
     const animationManager = new AnimationManager();
     director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });

@@ -29,12 +29,12 @@
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLSampler.h>
 #import <QuartzCore/CAMetalLayer.h>
+#include <array>
 #import "../../base/Utils.h"
 #import "MTLConfig.h"
 #import "MTLDevice.h"
 #import "MTLUtils.h"
 #include "base/std/container/queue.h"
-#include <array>
 
 namespace cc {
 namespace gfx {
@@ -325,7 +325,7 @@ struct CCMTLGPUCommandBufferObject {
 };
 
 struct CCMTLGPUDeviceObject {
-    CCMTLCommandBuffer* _transferCmdBuffer{nullptr};
+    CCMTLCommandBuffer *_transferCmdBuffer{nullptr};
 };
 
 struct CCMTLGPUQueryPool {

@@ -37,7 +37,7 @@ interface AudioBufferDataMap {
 class AudioBufferManager {
     private _audioBufferDataMap: AudioBufferDataMap = {};
 
-    public addCache (url: string, audioBuffer: AudioBuffer) {
+    public addCache (url: string, audioBuffer: AudioBuffer): void {
         const audioBufferData = this._audioBufferDataMap[url];
         if (audioBufferData) {
             console.warn(`Audio buffer ${url} has been cached`);
@@ -49,7 +49,7 @@ class AudioBufferManager {
         };
     }
 
-    public retainCache (url: string) {
+    public retainCache (url: string): void {
         const audioBufferData = this._audioBufferDataMap[url];
         if (!audioBufferData) {
             console.warn(`Audio buffer cache ${url} has not been added.`);
@@ -63,7 +63,7 @@ class AudioBufferManager {
         return audioBufferData?.audioBuffer;
     }
 
-    public tryReleasingCache (url: string) {
+    public tryReleasingCache (url: string): void {
         const audioBufferData = this._audioBufferDataMap[url];
         if (!audioBufferData) {
             console.warn(`Audio buffer cache ${url} has not been added.`);

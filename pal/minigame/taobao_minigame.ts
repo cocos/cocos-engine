@@ -43,7 +43,7 @@ cloneObject(minigame, my);
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 systemInfo.language = languageMap[systemInfo.language] || systemInfo.language;
-minigame.getSystemInfoSync = () => systemInfo;
+minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
 
 minigame.isDevTool = my.isIDE;
 
@@ -75,7 +75,7 @@ Object.defineProperty(minigame, 'orientation', {
 // #endregion SystemInfo
 
 // eslint-disable-next-line func-names
-function detectLandscapeSupport () {
+function detectLandscapeSupport (): void {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
         if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
@@ -105,7 +105,7 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
 
 // #region Font
 // eslint-disable-next-line func-names
-minigame.loadFont = function (url) {
+minigame.loadFont = function (url): string {
     // my.loadFont crash when url is not in user data path
     return 'Arial';
 };
@@ -114,11 +114,11 @@ minigame.loadFont = function (url) {
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
 // eslint-disable-next-line func-names
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
-    _accelerometerCb = (res: any) => {
+    _accelerometerCb = (res: any): void => {
         let x: number = res.x;
         let y: number = res.y;
         if (minigame.isLandscape) {
@@ -136,14 +136,14 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
     };
 };
 // eslint-disable-next-line func-names
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
     if (_accelerometerCb) {
         my.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
 // eslint-disable-next-line func-names
-minigame.startAccelerometer = function (res: any) {
+minigame.startAccelerometer = function (res: any): void {
     if (_accelerometerCb) {
         my.onAccelerometerChange(_accelerometerCb);
     } else {
@@ -152,7 +152,7 @@ minigame.startAccelerometer = function (res: any) {
     }
 };
 // eslint-disable-next-line func-names
-minigame.stopAccelerometer = function (res: any) {
+minigame.stopAccelerometer = function (res: any): void {
     // my.stopAccelerometer() is not implemented.
     minigame.offAccelerometerChange();
 };
@@ -160,7 +160,7 @@ minigame.stopAccelerometer = function (res: any) {
 
 // #region SafeArea
 // It should be a value that is not multiplied by dpr
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): any {
     const systemInfo = my.getWindowInfoSync();
     if (typeof systemInfo.safeArea !== 'undefined') {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -186,7 +186,7 @@ if (!my.isIDE) {
     if (locCanvas) {
         const originalGetContext = locCanvas.getContext.bind(locCanvas);
         // eslint-disable-next-line func-names
-        locCanvas.getContext = function (name, param) {
+        locCanvas.getContext = function (name, param): any {
             if (typeof name === 'string' && typeof param === 'object' && name.startsWith('webgl')) {
                 Object.assign(param, { enable_flip_y_after_read_pixels: false });
                 const gl = originalGetContext(name, param);
@@ -201,7 +201,7 @@ if (!my.isIDE) {
 }
 
 let hasAdapter = false;
-function adapterGL (gl) {
+function adapterGL (gl): void {
     if (hasAdapter) { return; }
     hasAdapter = true;
 
@@ -214,7 +214,7 @@ function adapterGL (gl) {
         if (my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') {
             const originalGetUniformLocation = gl.getUniformLocation.bind(gl);
             // eslint-disable-next-line func-names
-            gl.getUniformLocation = function (program, name) {
+            gl.getUniformLocation = function (program, name): any {
                 const glLoc = originalGetUniformLocation(program, name);
                 if (glLoc && glLoc.ID === -1) {
                     return undefined;

@@ -40,7 +40,7 @@ import { Camera } from '../render-scene/scene/camera';
 import { Root } from '../root';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE } from './terrain-lod';
+import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE, TerrainIndexData } from './terrain-lod';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
@@ -93,7 +93,7 @@ export class TerrainInfo {
      * @en terrain size
      * @zh 地形大小
      */
-    public get size () {
+    public get size (): Size {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
@@ -104,7 +104,7 @@ export class TerrainInfo {
      * @en tile count
      * @zh 栅格数量
      */
-    public get tileCount () {
+    public get tileCount (): number[] {
         const _tileCount = [0, 0];
         _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         _tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
@@ -115,7 +115,7 @@ export class TerrainInfo {
      * @en vertex count
      * @zh 顶点数量
      */
-    public get vertexCount () {
+    public get vertexCount (): number[] {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
@@ -204,7 +204,7 @@ class TerrainRenderable extends ModelRenderer {
      */
     public _lightmap: Texture2D|null = null;
 
-    public destroy () {
+    public destroy (): boolean {
         // this._invalidMaterial();
         if (this._model != null) {
             legacyCC.director.root.destroyModel(this._model);
@@ -217,7 +217,7 @@ class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _destroyModel () {
+    public _destroyModel (): void {
         // this._invalidMaterial();
         if (this._model != null) {
             legacyCC.director.root.destroyModel(this._model);
@@ -233,7 +233,7 @@ class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _invalidMaterial () {
+    public _invalidMaterial (): void {
         if (this._currentMaterial == null) {
             return;
         }
@@ -250,7 +250,7 @@ class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateMaterial (block: TerrainBlock, init: boolean) {
+    public _updateMaterial (block: TerrainBlock, init: boolean): boolean {
         if (this._meshData == null || this._model == null) {
             return false;
         }
@@ -296,7 +296,7 @@ class TerrainRenderable extends ModelRenderer {
      /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+    public _updateLightingmap (texture: Texture2D | null, uvParam: Vec4): void {
         if (this._model == null) {
             return;
         }
@@ -309,7 +309,7 @@ class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onMaterialModified (idx: number, mtl: Material|null) {
+    public _onMaterialModified (idx: number, mtl: Material|null): void {
         if (this._model == null) {
             return;
         }
@@ -319,13 +319,13 @@ class TerrainRenderable extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public _onRebuildPSO (idx: number, material: Material) {
+    public _onRebuildPSO (idx: number, material: Material): void {
         if (this._model) {
             this._model.setSubModelMaterial(idx, material);
         }
     }
 
-    protected _clearMaterials () {
+    protected _clearMaterials (): void {
         if (this._model == null) {
             return;
         }
@@ -333,7 +333,7 @@ class TerrainRenderable extends ModelRenderer {
         this._onMaterialModified(0, null);
     }
 
-    protected _onUpdateReceiveDirLight (visibility: number, forceClose = false) {
+    protected _onUpdateReceiveDirLight (visibility: number, forceClose = false): void {
         if (!this._model) { return; }
         if (forceClose) {
             this._model.receiveDirLight = false;
@@ -347,7 +347,7 @@ class TerrainRenderable extends ModelRenderer {
         }
     }
 
-    protected _updateReceiveDirLight () {
+    protected _updateReceiveDirLight (): void {
         const scene = this.node.scene;
         if (!scene || !scene.renderScene) { return; }
         const mainLight = scene.renderScene.mainLight;
@@ -361,7 +361,7 @@ class TerrainRenderable extends ModelRenderer {
         }
     }
 
-    private _getBuiltinMaterial () {
+    private _getBuiltinMaterial (): Material {
         return builtinResMgr.get<Material>('missing-material');
     }
 }
@@ -421,7 +421,7 @@ export class TerrainBlock {
         this._renderable = this._node.addComponent(TerrainRenderable);
     }
 
-    public build () {
+    public build (): void {
         const gfxDevice = director.root!.device;
 
         // vertex buffer
@@ -469,7 +469,7 @@ export class TerrainBlock {
         }
     }
 
-    public rebuild () {
+    public rebuild (): void {
         this._updateHeight();
         this._updateWeightMap();
 
@@ -477,7 +477,7 @@ export class TerrainBlock {
         this._updateMaterial(false);
     }
 
-    public destroy () {
+    public destroy (): void {
         this.visible = false;
         this._renderable._destroyModel();
 
@@ -489,7 +489,7 @@ export class TerrainBlock {
         }
     }
 
-    public update () {
+    public update (): void {
         this._updateMaterial(false);
 
         if (this.lightmap !== this._renderable._lightmap) {
@@ -500,11 +500,11 @@ export class TerrainBlock {
         const usePBR = this._terrain.usePBR;
 
         // eslint-disable-next-line arrow-body-style
-        const getDetailTex = (layer: TerrainLayer|null) => {
+        const getDetailTex = (layer: TerrainLayer|null): Texture2D | null => {
             return layer !== null ? layer.detailMap : null;
         };
 
-        const getNormalTex = (layer: TerrainLayer|null) => {
+        const getNormalTex = (layer: TerrainLayer|null): Texture2D | null => {
             let normalTex = layer !== null ? layer.normalMap : null;
             if (normalTex === null) {
                 normalTex = legacyCC.builtinResMgr.get('normal-texture');
@@ -643,7 +643,7 @@ export class TerrainBlock {
     /**
      * @engineInternal
      */
-    public _buildLodInfo () {
+    public _buildLodInfo (): void {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         this._buildVertexData(vertexData);
         // update lod
@@ -655,7 +655,7 @@ export class TerrainBlock {
     /**
      * @engineInternal
      */
-    public _updateLevel (camPos: Vec3) {
+    public _updateLevel (camPos: Vec3): void {
         const maxLevel = TERRAIN_LOD_LEVELS - 1;
 
         const bbMin = new Vec3();
@@ -680,18 +680,18 @@ export class TerrainBlock {
         }
     }
 
-    public setBrushMaterial (mtl: Material|null) {
+    public setBrushMaterial (mtl: Material|null): void {
         if (this._renderable._brushMaterial !== mtl) {
             this._renderable._invalidMaterial();
             this._renderable._brushMaterial = mtl;
         }
     }
 
-    public _getBrushMaterial () {
+    public _getBrushMaterial (): Material | null {
         return this._renderable ? this._renderable._brushMaterial : null;
     }
 
-    public _getBrushPass () {
+    public _getBrushPass (): Pass | null {
         return this._renderable ? this._renderable._brushPass : null;
     }
 
@@ -699,7 +699,7 @@ export class TerrainBlock {
      * @en valid
      * @zh 是否有效
      */
-    get valid () {
+    get valid (): boolean {
         if (this._terrain === null) {
             return false;
         }
@@ -718,7 +718,7 @@ export class TerrainBlock {
      * @en get current material
      * @zh 获得当前的材质
      */
-    get material () {
+    get material (): Material | null {
         return this._renderable ? this._renderable._currentMaterial : null;
     }
 
@@ -726,7 +726,7 @@ export class TerrainBlock {
      * @en get layers
      * @zh 获得纹理层索引
      */
-    get layers () {
+    get layers (): number[] {
         return this._terrain.getBlockLayers(this._index[0], this._index[1]);
     }
 
@@ -734,7 +734,7 @@ export class TerrainBlock {
      * @en get weight map
      * @zh 获得权重图
      */
-    get weightmap () {
+    get weightmap (): Texture2D | null {
         return this._weightMap;
     }
 
@@ -742,7 +742,7 @@ export class TerrainBlock {
      * @en get light map
      * @zh 获得光照图
      */
-    get lightmap () {
+    get lightmap (): Texture2D | null {
         return this._lightmapInfo ? this._lightmapInfo.texture : null;
     }
 
@@ -750,7 +750,7 @@ export class TerrainBlock {
      * @en get light map uv parameter
      * @zh 获得光照图纹理坐标参数
      */
-    get lightmapUVParam () {
+    get lightmapUVParam (): Vec4 {
         if (this._lightmapInfo != null) {
             return new Vec4(this._lightmapInfo.UOff, this._lightmapInfo.VOff, this._lightmapInfo.UScale, this._lightmapInfo.VScale);
         }
@@ -777,7 +777,7 @@ export class TerrainBlock {
         }
     }
 
-    get visible () {
+    get visible (): boolean {
         if (this._renderable._model !== null) {
             return this._renderable._model.scene !== null;
         }
@@ -789,7 +789,7 @@ export class TerrainBlock {
      * @en get terrain owner
      * @zh 获得地形对象
      */
-    public getTerrain () {
+    public getTerrain (): Terrain {
         return this._terrain;
     }
 
@@ -797,7 +797,7 @@ export class TerrainBlock {
      * @en get index
      * @zh 获得地形索引
      */
-    public getIndex () {
+    public getIndex (): number[] {
         return this._index;
     }
 
@@ -805,7 +805,7 @@ export class TerrainBlock {
      * @en get rect bound
      * @zh 获得地形矩形包围体
      */
-    public getRect () {
+    public getRect (): Rect {
         const rect = new Rect();
         rect.x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         rect.y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
@@ -819,7 +819,7 @@ export class TerrainBlock {
      * @en set layer
      * @zh 设置纹理层
      */
-    public setLayer (index: number, layerId: number) {
+    public setLayer (index: number, layerId: number): void {
         if (this.layers[index] !== layerId) {
             this._terrain.setBlockLayer(this._index[0], this._index[1], index, layerId);
             this._renderable._invalidMaterial();
@@ -831,7 +831,7 @@ export class TerrainBlock {
      * @en get layer
      * @zh 获得纹理层
      */
-    public getLayer (index: number) {
+    public getLayer (index: number): number {
         return this.layers[index];
     }
 
@@ -839,7 +839,7 @@ export class TerrainBlock {
      * @en get max layer index
      * @zh 获得最大纹理索引
      */
-    public getMaxLayer () {
+    public getMaxLayer (): number {
         if (this.layers[3] >= 0) {
             return 3;
         }
@@ -869,11 +869,11 @@ export class TerrainBlock {
         };
     }
 
-    public _invalidMaterial () {
+    public _invalidMaterial (): void {
         this._renderable._invalidMaterial();
     }
 
-    public _updateMaterial (init: boolean) {
+    public _updateMaterial (init: boolean): void {
         if (this._renderable._updateMaterial(this, init)) {
             // Need set wrap mode clamp to border
             if (this.lightmap !== null) {
@@ -884,7 +884,7 @@ export class TerrainBlock {
         }
     }
 
-    public _updateHeight () {
+    public _updateHeight (): void {
         if (this._renderable._meshData == null) {
             return;
         }
@@ -902,7 +902,7 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
-    public _updateWeightMap () {
+    public _updateWeightMap (): void {
         const nlayers = this.getMaxLayer();
 
         if (nlayers === 0) {
@@ -943,7 +943,7 @@ export class TerrainBlock {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLightmap (info: TerrainBlockLightmapInfo) {
+    public _updateLightmap (info: TerrainBlockLightmapInfo): void {
         this._lightmapInfo = info;
         this._invalidMaterial();
     }
@@ -951,7 +951,7 @@ export class TerrainBlock {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLod () {
+    public _updateLod (): void {
         const key = new TerrainLodKey();
         key.level = this._lodLevel;
         key.north = this._lodLevel;
@@ -1002,7 +1002,7 @@ export class TerrainBlock {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _resetLod () {
+    public _resetLod (): void {
         const key = new TerrainLodKey();
         key.level = 0;
         key.north = 0;
@@ -1021,7 +1021,7 @@ export class TerrainBlock {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateIndexBuffer () {
+    public _updateIndexBuffer (): void {
         if (this._renderable._meshData === null) {
             return;
         }
@@ -1042,19 +1042,19 @@ export class TerrainBlock {
         model.inputAssembler.indexCount = indexData.size;
     }
 
-    private _getHeight (x: number, y: number, verts: Float32Array) {
+    private _getHeight (x: number, y: number, verts: Float32Array): number {
         const idx = TERRAIN_BLOCK_VERTEX_COMPLEXITY * y + x;
         return verts[idx * TERRAIN_BLOCK_VERTEX_SIZE + 1];
     }
 
-    private _updateLodBuffer (vertecs: Float32Array)  {
+    private _updateLodBuffer (vertecs: Float32Array): void  {
         this._lodLevel = 0;
         this._lodKey = new TerrainLodKey();
         this._calcErrorMetrics(vertecs);
         this._calcLevelDistances(vertecs);
     }
 
-    private _calcErrorMetrics (vertecs: Float32Array) {
+    private _calcErrorMetrics (vertecs: Float32Array): void {
         this._errorMetrics[0] = 0;
 
         for (let i = 1; i < TERRAIN_LOD_LEVELS; ++i) {
@@ -1066,7 +1066,7 @@ export class TerrainBlock {
         }
     }
 
-    private _calcErrorMetric (level: number, vertecs: Float32Array) {
+    private _calcErrorMetric (level: number, vertecs: Float32Array): number {
         let err = 0.0;
         const step = 1 << level;
         const xSectionVerts = TERRAIN_BLOCK_VERTEX_COMPLEXITY;
@@ -1132,7 +1132,7 @@ export class TerrainBlock {
         return err;
     }
 
-    private _calcLevelDistances (vertecs: Float32Array)  {
+    private _calcLevelDistances (vertecs: Float32Array): void  {
         const pixelerr = 4;
         const resolution = 768;
         const c = 1.0 / (2 * pixelerr / resolution);
@@ -1144,7 +1144,7 @@ export class TerrainBlock {
         }
     }
 
-    private _buildVertexData (vertexData: Float32Array) {
+    private _buildVertexData (vertexData: Float32Array): void {
         let index = 0;
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
@@ -1165,7 +1165,7 @@ export class TerrainBlock {
         }
     }
 
-    private _buildBoundingBox () {
+    private _buildBoundingBox (): void {
         this._bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
         this._bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
@@ -1300,7 +1300,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public get _asset () {
+    public get _asset (): TerrainAsset | null {
         return this.__asset;
     }
 
@@ -1321,7 +1321,7 @@ export class Terrain extends Component {
         }
     }
 
-    public get effectAsset () {
+    public get effectAsset (): EffectAsset | null {
         return this._effectAsset;
     }
 
@@ -1330,7 +1330,7 @@ export class Terrain extends Component {
      * @zh 是否接受阴影
      */
     @editable
-    get receiveShadow () {
+    get receiveShadow (): boolean {
         return this._receiveShadow;
     }
 
@@ -1346,7 +1346,7 @@ export class Terrain extends Component {
      * @zh 是否使用法线贴图
      */
     @editable
-    get useNormalMap () {
+    get useNormalMap (): boolean {
         return this._useNormalmap;
     }
 
@@ -1362,7 +1362,7 @@ export class Terrain extends Component {
      * @zh 是否使用物理材质
      */
     @editable
-    get usePBR () {
+    get usePBR (): boolean {
         return this._usePBR;
     }
 
@@ -1378,7 +1378,7 @@ export class Terrain extends Component {
      * @zh 是否允许lod
      */
     @editable
-    get lodEnable () {
+    get lodEnable (): boolean {
         return this._lodEnable;
     }
 
@@ -1421,7 +1421,7 @@ export class Terrain extends Component {
      * @zh Lod偏移距离
      */
     @editable
-    get LodBias () {
+    get LodBias (): number {
         return this._lodBias;
     }
 
@@ -1433,7 +1433,7 @@ export class Terrain extends Component {
      * @en get terrain size
      * @zh 获得地形大小
      */
-    public get size () {
+    public get size (): Size {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
@@ -1444,7 +1444,7 @@ export class Terrain extends Component {
      * @en get tile size
      * @zh 获得栅格大小
      */
-    get tileSize () {
+    get tileSize (): number {
         return this._tileSize;
     }
 
@@ -1452,7 +1452,7 @@ export class Terrain extends Component {
      * @en get tile count
      * @zh 获得栅格数量
      */
-    public get tileCount () {
+    public get tileCount (): number[] {
         return [this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY, this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY];
     }
 
@@ -1460,7 +1460,7 @@ export class Terrain extends Component {
      * @en get vertex count
      * @zh 获得顶点数量
      */
-    public get vertexCount () {
+    public get vertexCount (): number[] {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
@@ -1472,7 +1472,7 @@ export class Terrain extends Component {
      * @en get block count
      * @zh 获得地形块数量
      */
-    get blockCount () {
+    get blockCount (): number[] {
         return this._blockCount;
     }
 
@@ -1480,7 +1480,7 @@ export class Terrain extends Component {
      * @en get light map size
      * @zh 获得光照图大小
      */
-    get lightMapSize () {
+    get lightMapSize (): number {
         return this._lightMapSize;
     }
 
@@ -1488,7 +1488,7 @@ export class Terrain extends Component {
      * @en get weight map size
      * @zh 获得权重图大小
      */
-    get weightMapSize () {
+    get weightMapSize (): number {
         return this._weightMapSize;
     }
 
@@ -1496,7 +1496,7 @@ export class Terrain extends Component {
      * @en get height buffer
      * @zh 获得高度缓存
      */
-    get heights () {
+    get heights (): Uint16Array {
         return this._heights;
     }
 
@@ -1504,7 +1504,7 @@ export class Terrain extends Component {
      * @en get weight buffer
      * @zh 获得权重缓存
      */
-    get weights () {
+    get weights (): Uint8Array {
         return this._weights;
     }
 
@@ -1512,7 +1512,7 @@ export class Terrain extends Component {
      * @en check valid
      * @zh 检测是否有效
      */
-    get valid () {
+    get valid (): boolean {
         return this._blocks.length > 0;
     }
 
@@ -1521,7 +1521,7 @@ export class Terrain extends Component {
      * @zh 获得地形信息
      */
     @type(TerrainInfo)
-    public get info () {
+    public get info (): TerrainInfo {
         const ti = new TerrainInfo();
         ti.tileSize = this.tileSize;
         ti.blockCount[0] = this.blockCount[0];
@@ -1536,7 +1536,7 @@ export class Terrain extends Component {
      * @en build
      * @zh 构建地形
      */
-    public build (info: TerrainInfo) {
+    public build (info: TerrainInfo): void {
         this._tileSize = info.tileSize;
         this._blockCount[0] = info.blockCount[0];
         this._blockCount[1] = info.blockCount[1];
@@ -1550,7 +1550,7 @@ export class Terrain extends Component {
      * @en rebuild
      * @zh 重建地形
      */
-    public rebuild (info: TerrainInfo) {
+    public rebuild (info: TerrainInfo): void {
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].destroy();
         }
@@ -1597,7 +1597,7 @@ export class Terrain extends Component {
      * @en import height field
      * @zh 导入高度图
      */
-    public importHeightField (hf: HeightField, heightScale: number) {
+    public importHeightField (hf: HeightField, heightScale: number): void {
         let index = 0;
         for (let j = 0; j < this.vertexCount[1]; ++j) {
             for (let i = 0; i < this.vertexCount[0]; ++i) {
@@ -1622,7 +1622,7 @@ export class Terrain extends Component {
      * @en export height field
      * @zh 导出高度图
      */
-    public exportHeightField (hf: HeightField, heightScale: number) {
+    public exportHeightField (hf: HeightField, heightScale: number): void {
         let index = 0;
         for (let j = 0; j < hf.h; ++j) {
             for (let i = 0; i < hf.w; ++i) {
@@ -1640,7 +1640,7 @@ export class Terrain extends Component {
         }
     }
 
-    public exportAsset () {
+    public exportAsset (): TerrainAsset {
         const asset = new TerrainAsset();
 
         asset.tileSize = this.tileSize;
@@ -1663,7 +1663,7 @@ export class Terrain extends Component {
         return asset;
     }
 
-    public exportLayerListToAsset (asset: TerrainAsset) {
+    public exportLayerListToAsset (asset: TerrainAsset): void {
         asset.layerInfos.length = 0;
         for (let i = 0; i < this._layerList.length; ++i) {
             const temp = this._layerList[i];
@@ -1680,7 +1680,7 @@ export class Terrain extends Component {
         }
     }
 
-    public getEffectAsset () {
+    public getEffectAsset (): EffectAsset {
         if (this._effectAsset === null) {
             return legacyCC.EffectAsset.get(TERRAIN_EFFECT_UUID) as EffectAsset;
         }
@@ -1688,7 +1688,7 @@ export class Terrain extends Component {
         return this._effectAsset;
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (this._blocks.length === 0) {
             this._buildImp();
         }
@@ -1700,7 +1700,7 @@ export class Terrain extends Component {
         (legacyCC.director.root as Root).pipelineEvent.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         (legacyCC.director.root as Root).pipelineEvent.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
 
         for (let i = 0; i < this._blocks.length; ++i) {
@@ -1708,7 +1708,7 @@ export class Terrain extends Component {
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].destroy();
         }
@@ -1726,12 +1726,12 @@ export class Terrain extends Component {
         }
     }
 
-    public onRestore () {
+    public onRestore (): void {
         this.onEnable();
         this._buildImp(true);
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].update();
         }
@@ -1758,7 +1758,7 @@ export class Terrain extends Component {
      * @en add layer
      * @zh 添加纹理层
      */
-    public addLayer (layer: TerrainLayer) {
+    public addLayer (layer: TerrainLayer): number {
         for (let i = 0; i < this._layerList.length; ++i) {
             if (this._layerList[i] === null || (this._layerList[i] && this._layerList[i]?.detailMap === null)) {
                 this._layerList[i] = layer;
@@ -1776,7 +1776,7 @@ export class Terrain extends Component {
      * @en set layer
      * @zh 设置纹理层
      */
-    public setLayer (i: number, layer: TerrainLayer) {
+    public setLayer (i: number, layer: TerrainLayer): void {
         this._layerList[i] = layer;
         if (this._asset) {
             this.exportLayerListToAsset(this._asset);
@@ -1787,7 +1787,7 @@ export class Terrain extends Component {
      * @en remove layer
      * @zh 移除纹理层
      */
-    public removeLayer (id: number) {
+    public removeLayer (id: number): void {
         this._layerList[id] = null;
         if (this._asset) {
             this.exportLayerListToAsset(this._asset);
@@ -1798,7 +1798,7 @@ export class Terrain extends Component {
      * @en get layer
      * @zh 获得纹理层
      */
-    public getLayer (id: number) {
+    public getLayer (id: number): TerrainLayer | null {
         if (id === -1) {
             return null;
         }
@@ -1810,7 +1810,7 @@ export class Terrain extends Component {
      * @en get position
      * @zh 获得地形上的位置
      */
-    public getPosition (i: number, j: number) {
+    public getPosition (i: number, j: number): Vec3 {
         const x = i * this._tileSize;
         const z = j * this._tileSize;
         const y = this.getHeight(i, j);
@@ -1818,7 +1818,7 @@ export class Terrain extends Component {
         return new Vec3(x, y, z);
     }
 
-    public getHeightField () {
+    public getHeightField (): Uint16Array {
         return this._heights;
     }
 
@@ -1826,7 +1826,7 @@ export class Terrain extends Component {
      * @en set height
      * @zh 设置地形上的高度
      */
-    public setHeight (i: number, j: number, h: number) {
+    public setHeight (i: number, j: number, h: number): void {
         h = clamp(h, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX);
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
     }
@@ -1835,7 +1835,7 @@ export class Terrain extends Component {
      * @en get height
      * @zh 获得地形上的高度
      */
-    public getHeight (i: number, j: number) {
+    public getHeight (i: number, j: number): number {
         return (this._heights[j * this.vertexCount[0] + i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
     }
 
@@ -1843,7 +1843,7 @@ export class Terrain extends Component {
      * @en set height
      * @zh 设置高度
      */
-    public getHeightClamp (i: number, j: number) {
+    public getHeightClamp (i: number, j: number): number {
         i = clamp(i, 0, this.vertexCount[0] - 1);
         j = clamp(j, 0, this.vertexCount[1] - 1);
 
@@ -1854,7 +1854,7 @@ export class Terrain extends Component {
      * @en get height by point
      * @zh 根据点的坐标获得高度
      */
-    public getHeightAt (x: number, y: number) {
+    public getHeightAt (x: number, y: number): number | null {
         const fx = x / this.tileSize;
         const fy = y / this.tileSize;
 
@@ -1897,7 +1897,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _setNormal (i: number, j: number, n: Vec3) {
+    public _setNormal (i: number, j: number, n: Vec3): void {
         const index = j * this.vertexCount[0] + i;
 
         this._normals[index * 3 + 0] = n.x;
@@ -1909,7 +1909,7 @@ export class Terrain extends Component {
      * @en get normal
      * @zh 获得法线
      */
-    public getNormal (i: number, j: number) {
+    public getNormal (i: number, j: number): Vec3 {
         const index = j * this.vertexCount[0] + i;
 
         const n = new Vec3();
@@ -1924,7 +1924,7 @@ export class Terrain extends Component {
      * @en get normal by point
      * @zh 根据点的坐标获得法线
      */
-    public getNormalAt (x: number, y: number) {
+    public getNormalAt (x: number, y: number): Vec3 | null {
         const fx = x / this.tileSize;
         const fy = y / this.tileSize;
 
@@ -1977,7 +1977,7 @@ export class Terrain extends Component {
      * @en set weight
      * @zh 设置权重
      */
-    public setWeight (i: number, j: number, w: Vec4) {
+    public setWeight (i: number, j: number, w: Vec4): void {
         const index = j * this._weightMapSize * this._blockCount[0] + i;
 
         this._weights[index * 4 + 0] = w.x * 255;
@@ -1990,7 +1990,7 @@ export class Terrain extends Component {
      * @en get weight
      * @zh 获得权重
      */
-    public getWeight (i: number, j: number) {
+    public getWeight (i: number, j: number): Vec4 {
         const index = j * this._weightMapSize * this._blockCount[0] + i;
 
         const w = new Vec4();
@@ -2006,7 +2006,7 @@ export class Terrain extends Component {
      * @en get normal by point
      * @zh 根据点的坐标获得权重
      */
-    public getWeightAt (x: number, y: number) {
+    public getWeightAt (x: number, y: number): Vec4 | null {
         const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
         const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
         if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
@@ -2061,7 +2061,7 @@ export class Terrain extends Component {
      * @en get max weight layer by point
      * @zh 根据点的坐标获得权重最大的纹理层
      */
-    public getMaxWeightLayerAt (x: number, y: number) {
+    public getMaxWeightLayerAt (x: number, y: number): TerrainLayer | null {
         const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
         const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
         if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
@@ -2102,7 +2102,7 @@ export class Terrain extends Component {
      * @en get block layers
      * @zh 获得地形块纹理层
      */
-    public getBlockLayers (i: number, j: number) {
+    public getBlockLayers (i: number, j: number): number[] {
         const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
 
         return [
@@ -2117,7 +2117,7 @@ export class Terrain extends Component {
      * @en get block layer
      * @zh 获得地形块纹理层
      */
-    public getBlockLayer (i: number, j: number, index: number) {
+    public getBlockLayer (i: number, j: number, index: number): number {
         const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
         return this._layerBuffer[layerIndex + index];
     }
@@ -2126,7 +2126,7 @@ export class Terrain extends Component {
      * @en set block layer
      * @zh 获得地形块层
      */
-    public setBlockLayer (i: number, j: number, index: number, layerId: number) {
+    public setBlockLayer (i: number, j: number, index: number, layerId: number): void {
         const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
         this._layerBuffer[layerIndex + index] = layerId;
     }
@@ -2135,7 +2135,7 @@ export class Terrain extends Component {
      * @en get block
      * @zh 获得地形块对象
      */
-    public getBlock (i: number, j: number) {
+    public getBlock (i: number, j: number): TerrainBlock {
         return this._blocks[j * this._blockCount[0] + i];
     }
 
@@ -2143,7 +2143,7 @@ export class Terrain extends Component {
      * @en get all blocks
      * @zh 获得地形块缓存
      */
-    public getBlocks () {
+    public getBlocks (): TerrainBlock[] {
         return this._blocks;
     }
 
@@ -2155,7 +2155,7 @@ export class Terrain extends Component {
      * @param step ray step
      * @param worldSpace is world space
      */
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace = true) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace = true): Vec3 | null {
         const MAX_COUNT = 2000;
 
         const trace = start;
@@ -2210,7 +2210,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
      */
-    public _createSharedIndexBuffer () {
+    public _createSharedIndexBuffer (): Buffer {
         // initialize shared index buffer
         const gfxDevice = deviceManager.gfxDevice;
 
@@ -2259,7 +2259,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _getSharedIndexBuffer () {
+    public _getSharedIndexBuffer (): Buffer {
         if (this._sharedLodIndexBuffer !== null) {
             return this._sharedLodIndexBuffer;
         }
@@ -2284,7 +2284,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _getIndexData (key: TerrainLodKey) {
+    public _getIndexData (key: TerrainLodKey): TerrainIndexData | null {
         if (this._sharedLodIndexBuffer !== null && this._lod !== null) {
             return this._lod.getIndexData(key);
         }
@@ -2295,7 +2295,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _resetLightmap (enble: boolean) {
+    public _resetLightmap (enble: boolean): void {
         this._lightmapInfos.length = 0;
         if (enble) {
             for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
@@ -2307,7 +2307,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+    public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number): void {
         if (tex) {
             // ensure the lightmap infos is initialized
             if (this._lightmapInfos.length == 0) {
@@ -2330,7 +2330,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _getLightmapInfo (i: number, j: number) {
+    public _getLightmapInfo (i: number, j: number): TerrainBlockLightmapInfo | null {
         const index = j * this._blockCount[0] + i;
         return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
@@ -2338,7 +2338,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _calcNormal (x: number, z: number) {
+    public _calcNormal (x: number, z: number): Vec3 {
         let flip = 1;
         const here = this.getPosition(x, z);
         let right: Vec3;
@@ -2373,7 +2373,7 @@ export class Terrain extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _buildNormals () {
+    public _buildNormals (): void {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {
             for (let x = 0; x < this.vertexCount[0]; ++x) {
@@ -2387,7 +2387,7 @@ export class Terrain extends Component {
         }
     }
 
-    private _buildImp (restore = false) {
+    private _buildImp (restore = false): void {
         if (this.valid) {
             return;
         }
@@ -2503,7 +2503,7 @@ export class Terrain extends Component {
         }
     }
 
-    private _rebuildHeights (info: TerrainInfo) {
+    private _rebuildHeights (info: TerrainInfo): boolean {
         if (this.vertexCount[0] === info.vertexCount[0] && this.vertexCount[1] === info.vertexCount[1]) {
             return false;
         }
@@ -2530,7 +2530,7 @@ export class Terrain extends Component {
         return true;
     }
 
-    private _rebuildLayerBuffer (info: TerrainInfo) {
+    private _rebuildLayerBuffer (info: TerrainInfo): boolean {
         if (this.blockCount[0] === info.blockCount[0] && this.blockCount[1] === info.blockCount[1]) {
             return false;
         }
@@ -2559,7 +2559,7 @@ export class Terrain extends Component {
         return true;
     }
 
-    private _rebuildWeights (info: TerrainInfo) {
+    private _rebuildWeights (info: TerrainInfo): boolean {
         const oldWeightMapSize = this._weightMapSize;
         const oldWeightMapComplexityU = this._weightMapSize * this._blockCount[0];
         const oldWeightMapComplexityV = this._weightMapSize * this._blockCount[1];
@@ -2584,7 +2584,7 @@ export class Terrain extends Component {
         const h = Math.min(info.blockCount[1], this._blockCount[1]);
 
         // get weight
-        const getOldWeight = (_i: number, _j: number, _weights: Uint8Array) => {
+        const getOldWeight = (_i: number, _j: number, _weights: Uint8Array): Vec4 => {
             const index = _j * oldWeightMapComplexityU + _i;
 
             const weight = new Vec4();
@@ -2597,7 +2597,7 @@ export class Terrain extends Component {
         };
 
         // sample weight
-        const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array) => {
+        const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array): Vec4 => {
             const ix0 = Math.floor(_x);
             const iz0 = Math.floor(_y);
             const ix1 = Math.min(ix0 + 1, oldWeightMapSize - 1);

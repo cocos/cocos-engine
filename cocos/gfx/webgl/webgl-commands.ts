@@ -294,7 +294,7 @@ function GFXTypeToWebGLType (type: Type, gl: WebGLRenderingContext): GLenum {
     }
 }
 
-function GFXTypeToTypedArrayCtor (type: Type) {
+function GFXTypeToTypedArrayCtor (type: Type): Int32ArrayConstructor | Float32ArrayConstructor {
     switch (type) {
     case Type.BOOL:
     case Type.BOOL2:
@@ -469,7 +469,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
         super(WebGLCmd.BEGIN_RENDER_PASS);
     }
 
-    public clear () {
+    public clear (): void {
         this.gpuFramebuffer = null;
         this.clearColors.length = 0;
     }
@@ -486,7 +486,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
         super(WebGLCmd.BIND_STATES);
     }
 
-    public clear () {
+    public clear (): void {
         this.gpuPipelineState = null;
         this.gpuDescriptorSets.length = 0;
         this.gpuInputAssembler = null;
@@ -501,7 +501,7 @@ export class WebGLCmdDraw extends WebGLCmdObject {
         super(WebGLCmd.DRAW);
     }
 
-    public clear () {
+    public clear (): void {
     }
 }
 
@@ -515,7 +515,7 @@ export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
         super(WebGLCmd.UPDATE_BUFFER);
     }
 
-    public clear () {
+    public clear (): void {
         this.gpuBuffer = null;
         this.buffer = null;
     }
@@ -530,7 +530,7 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
         super(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
     }
 
-    public clear () {
+    public clear (): void {
         this.gpuTexture = null;
         this.buffers.length = 0;
         this.regions.length = 0;
@@ -547,7 +547,7 @@ export class WebGLCmdBlitTexture extends WebGLCmdObject {
         super(WebGLCmd.BLIT_TEXTURE);
     }
 
-    public clear () {
+    public clear (): void {
         this.srcTexture = null;
         this.dstTexture = null;
         this.regions.length = 0;
@@ -563,7 +563,7 @@ export class WebGLCmdPackage {
     public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
     public blitTextureCmds: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
 
-    public clearCmds (allocator: WebGLCommandAllocator) {
+    public clearCmds (allocator: WebGLCommandAllocator): void {
         if (this.beginRenderPassCmds.length) {
             allocator.beginRenderPassCmdPool.freeCmds(this.beginRenderPassCmds);
             this.beginRenderPassCmds.clear();
@@ -598,7 +598,7 @@ export class WebGLCmdPackage {
     }
 }
 
-export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer) {
+export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;
     const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
@@ -670,7 +670,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     }
 }
 
-export function WebGLCmdFuncDestroyBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer) {
+export function WebGLCmdFuncDestroyBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;
 
@@ -710,7 +710,7 @@ export function WebGLCmdFuncDestroyBuffer (device: WebGLDevice, gpuBuffer: IWebG
     }
 }
 
-export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer) {
+export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;
     const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
@@ -770,7 +770,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
 }
 
 export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: Readonly<BufferSource>,
-    offset: number, size: number) {
+    offset: number, size: number): void {
     if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         if (ArrayBuffer.isView(buffer)) {
             gpuBuffer.vf32!.set(buffer as Float32Array, offset / Float32Array.BYTES_PER_ELEMENT);
@@ -833,7 +833,7 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     }
 }
 
-export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
+export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture): void {
     const { gl } = device;
 
     gpuTexture.glFormat = gpuTexture.glInternalFmt = GFXFormatToWebGLFormat(gpuTexture.format, gl);
@@ -974,7 +974,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
     }
 }
 
-export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
+export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture): void {
     const { gl } = device;
     if (gpuTexture.glTexture) {
         const glTexUnits = device.stateCache.glTexUnits;
@@ -1003,7 +1003,7 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWe
     }
 }
 
-export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
+export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture): void {
     if (!gpuTexture.size) return;
 
     const { gl } = device;
@@ -1101,7 +1101,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
     }
 }
 
-export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
+export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer): void {
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
         if (tex.isSwapchainTexture) {
@@ -1203,7 +1203,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
     }
 }
 
-export function WebGLCmdFuncDestroyFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
+export function WebGLCmdFuncDestroyFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer): void {
     if (gpuFramebuffer.glFramebuffer) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         if (device.stateCache.glFramebuffer === gpuFramebuffer.glFramebuffer) {
@@ -1214,7 +1214,7 @@ export function WebGLCmdFuncDestroyFramebuffer (device: WebGLDevice, gpuFramebuf
     }
 }
 
-export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGLGPUShader) {
+export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGLGPUShader): void {
     const { gl } = device;
 
     for (let k = 0; k < gpuShader.gpuStages.length; k++) {
@@ -1249,7 +1249,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
             if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
                 error(`${shaderTypeStr} in '${gpuShader.name}' compilation failed.`);
-                error('Shader source dump:', gpuStage.source.replace(/^|\n/g, () => `\n${lineNumber++} `));
+                error('Shader source dump:', gpuStage.source.replace(/^|\n/g, (): string => `\n${lineNumber++} `));
                 error(gl.getShaderInfoLog(gpuStage.glShader));
 
                 for (let l = 0; l < gpuShader.gpuStages.length; l++) {
@@ -1563,7 +1563,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     gpuShader.glSamplerTextures = glActiveSamplers;
 }
 
-export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebGLGPUShader) {
+export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebGLGPUShader): void {
     if (gpuShader.glProgram) {
         const { gl } = device;
         if (!device.extensions.destroyShadersImmediately) {
@@ -1585,7 +1585,7 @@ export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebG
     }
 }
 
-export function WebGLCmdFuncCreateInputAssember (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler) {
+export function WebGLCmdFuncCreateInputAssember (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler): void {
     const { gl } = device;
 
     gpuInputAssembler.glAttribs = new Array<IWebGLAttrib>(gpuInputAssembler.attributes.length);
@@ -1619,7 +1619,7 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLDevice, gpuInputAs
     }
 }
 
-export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler) {
+export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler): void {
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
     const OES_vertex_array_object = device.extensions.OES_vertex_array_object!;
@@ -1656,7 +1656,7 @@ export function WebGLCmdFuncBeginRenderPass (
     clearColors: Readonly<Color[]>,
     clearDepth: number,
     clearStencil: number,
-) {
+): void {
     const { gl } = device;
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
@@ -1826,7 +1826,7 @@ export function WebGLCmdFuncBindStates (
     gpuDescriptorSets: Readonly<IWebGLGPUDescriptorSet[]>,
     dynamicOffsets: Readonly<number[]>,
     dynamicStates: Readonly<DynamicStates>,
-) {
+): void {
     const { gl } = device;
     const cache = device.stateCache;
     const gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
@@ -2560,7 +2560,7 @@ export function WebGLCmdFuncBindStates (
     } // update dynamic states
 }
 
-export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawInfo>) {
+export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawInfo>): void {
     const { gl } = device;
     const { ANGLE_instanced_arrays: ia, WEBGL_multi_draw: md } = device.extensions;
     const { gpuInputAssembler, glPrimitive } = gfxStateCache;
@@ -2642,7 +2642,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
 }
 
 const cmdIds = new Array<number>(WebGLCmd.COUNT);
-export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLCmdPackage) {
+export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLCmdPackage): void {
     cmdIds.fill(0);
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
@@ -2699,7 +2699,7 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     texImages: Readonly<TexImageSource[]>,
     gpuTexture: IWebGLGPUTexture,
     regions: Readonly<BufferTextureCopy[]>,
-) {
+): void {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
@@ -2787,7 +2787,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     buffers: Readonly<ArrayBufferView[]>,
     gpuTexture: IWebGLGPUTexture,
     regions: Readonly<BufferTextureCopy[]>,
-) {
+): void {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
@@ -2920,7 +2920,7 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     gpuTexture: IWebGLGPUTexture,
     buffers: Readonly<ArrayBufferView[]>,
     regions: Readonly<BufferTextureCopy[]>,
-) {
+): void {
     const { gl } = device;
     const cache = device.stateCache;
 
@@ -2954,7 +2954,7 @@ export function WebGLCmdFuncCopyTextureToBuffers (
 }
 
 export function WebGLCmdFuncBlitTexture (device: WebGLDevice,
-    srcTexture: Readonly<IWebGLGPUTexture>, dstTexture: IWebGLGPUTexture, regions: Readonly<TextureBlit []>, filter: Filter) {
+    srcTexture: Readonly<IWebGLGPUTexture>, dstTexture: IWebGLGPUTexture, regions: Readonly<TextureBlit []>, filter: Filter): void {
     // logic different from native, because framebuffer map is not implemented in webgl
     device.blitManager.draw(srcTexture, dstTexture, regions as TextureBlit[], filter);
 }

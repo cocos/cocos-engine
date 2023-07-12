@@ -45,11 +45,11 @@ export class EffectSettings {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', path);
                 xhr.responseType = 'arraybuffer';
-                xhr.onload = () => {
+                xhr.onload = (): void => {
                     this._data = xhr.response;
                     resolve();
                 };
-                xhr.onerror = () => {
+                xhr.onerror = (): void => {
                     reject(new Error('request effect settings failed!'));
                 };
                 xhr.send(null);

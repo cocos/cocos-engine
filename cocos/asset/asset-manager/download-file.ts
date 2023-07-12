@@ -46,29 +46,29 @@ export default function downloadFile (
         }
     }
 
-    xhr.onload = () => {
+    xhr.onload = (): void => {
         if (xhr.status === 200 || xhr.status === 0) {
             if (onComplete) { onComplete(null, xhr.response); }
         } else if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(no response)`)); }
     };
 
     if (onProgress) {
-        xhr.onprogress = (e) => {
+        xhr.onprogress = (e): void => {
             if (e.lengthComputable) {
                 onProgress(e.loaded, e.total);
             }
         };
     }
 
-    xhr.onerror = () => {
+    xhr.onerror = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(error)`)); }
     };
 
-    xhr.ontimeout = () => {
+    xhr.ontimeout = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(time out)`)); }
     };
 
-    xhr.onabort = () => {
+    xhr.onabort = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(abort)`)); }
     };
 

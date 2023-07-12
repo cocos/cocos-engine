@@ -852,10 +852,8 @@ void overwriteShaderSourceBinding(
     const gfx::ShaderInfo &shaderInfo,
     ccstd::string &source,
     boost::container::pmr::memory_resource *scratch) {
-
-    const char* keyWords[] = {
-        " uniform ", " buffer "
-    };
+    const char *keyWords[] = {
+        " uniform ", " buffer "};
 
     for (auto &keyword : keyWords) {
         // find first uniform

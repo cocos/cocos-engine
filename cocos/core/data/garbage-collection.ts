@@ -38,7 +38,7 @@ class GarbageCollectionManager {
         if (EDITOR && this._finalizationRegistry) {
             const token = {};
             const proxy = new Proxy(gcObject, {
-                get (target, property, receiver) {
+                get (target, property, receiver): unknown {
                     if (property === targetSymbol) {
                         return target;
                     }
@@ -46,13 +46,13 @@ class GarbageCollectionManager {
                     if (typeof val === 'function' && property !== 'constructor') {
                         const original = val;
                         // NOTE: fix error - 'this' implicitly has type 'any' because it does not have a type annotation.
-                        val = function newFunc (this: any) {
+                        val = function newFunc (this: any): unknown {
                             return original.apply(this[targetSymbol], arguments) as unknown;
                         };
                     }
                     return val as unknown;
                 },
-                set (target, prop, value, receiver) {
+                set (target, prop, value, receiver): true {
                     target[prop] = value;
                     return true;
                 },
@@ -65,10 +65,10 @@ class GarbageCollectionManager {
         }
     }
 
-    public init () {
+    public init (): void {
     }
 
-    private finalizationRegistryCallback (token: any) {
+    private finalizationRegistryCallback (token: any): void {
         const gcObject = this._gcObjects.get(token);
         if (gcObject) {
             this._gcObjects.delete(token);
@@ -77,7 +77,7 @@ class GarbageCollectionManager {
         this._finalizationRegistry!.unregister(token);
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 }
 

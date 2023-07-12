@@ -163,7 +163,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
-        fbfLevelStr                += "_DEPTH_STENCIL";
+        fbfLevelStr += "_DEPTH_STENCIL";
     }
 #endif
 

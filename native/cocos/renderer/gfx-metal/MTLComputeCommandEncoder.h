@@ -76,7 +76,7 @@ public:
         MTLSize threadsPerThreadgroup = MTLSizeMake(w, h, 1);
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
     }
-    
+
     inline void dispatch(MTLSize groupsPerGrid, MTLSize workGroupSize) {
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:workGroupSize];
     }

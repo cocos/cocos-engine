@@ -428,6 +428,7 @@ class RigidBody {
         this._com = v;
         this._impl.initialize(v.node, v.type, v._group);
         bookNode(v.node);
+        this._impl.setSleepThreshold(cc.PhysicsSystem.instance.sleepThreshold);
     }
 
     onEnable () {
