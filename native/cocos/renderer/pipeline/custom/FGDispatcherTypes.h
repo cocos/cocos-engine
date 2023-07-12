@@ -77,11 +77,6 @@ struct AccessStatus {
     ResourceRange range;
 };
 
-struct ResourceTransition {
-    AccessStatus lastStatus;
-    AccessStatus currStatus;
-};
-
 struct ResourceAccessNode {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -98,7 +93,6 @@ struct ResourceAccessNode {
     ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
 
     PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
-    struct ResourceAccessNode* nextSubpass;
 };
 
 struct LayoutAccess {
@@ -112,8 +106,8 @@ struct FGRenderPassInfo {
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
     std::vector<std::string> orderedViews;
-    ccstd::map<std::string, uint32_t> viewIndex;
-    bool needResolve{false};
+    ccstd::map<std::string, std::pair<uint32_t, uint32_t>> viewIndex;
+    bool hasResolve{false};
 };
 
 struct ResourceAccessGraph {
@@ -236,7 +230,6 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
     ccstd::pmr::vector<ResourceAccessNode> passResource;
     ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
-    ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
@@ -245,11 +238,10 @@ struct ResourceAccessGraph {
     vertex_descriptor presentPassID{0xFFFFFFFF};
     PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
     PmrFlatSet<vertex_descriptor> culledPasses;
-    //PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
-    PmrTransparentMap<ResourceGraph::vertex_descriptor, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
+    PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
     PmrTransparentMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
@@ -377,18 +369,15 @@ struct Barrier {
     ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
     gfx::BarrierType type{gfx::BarrierType::FULL};
     gfx::GFXObject* barrier{nullptr};
+    RenderGraph::vertex_descriptor beginVert;
+    RenderGraph::vertex_descriptor endVert;
     AccessStatus beginStatus;
     AccessStatus endStatus;
 };
 
-struct BarrierPair {
+struct BarrierNode {
     std::vector<Barrier> frontBarriers;
     std::vector<Barrier> rearBarriers;
-};
-
-struct BarrierNode {
-    BarrierPair blockBarrier;
-    std::vector<BarrierPair> subpassBarriers;
 };
 
 struct FrameGraphDispatcher {
@@ -403,7 +392,7 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = PmrMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
+    using BarrierMap = PmrMap<RenderGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 
@@ -427,7 +416,6 @@ struct FrameGraphDispatcher {
     const RenderGraph& graph;
     const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
-    PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
     RelationGraph relationGraph;
     bool _enablePassReorder{false};
     bool _enableAutoBarrier{true};
