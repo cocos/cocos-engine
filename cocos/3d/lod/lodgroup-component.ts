@@ -666,7 +666,7 @@ export class LODGroup extends Component {
 if (EDITOR) {
     // eslint-disable-next-line func-names
     LODGroup.prototype.forceLODs = function (this: LODGroup, lodIndexArray: number[]): void {
-        this._forceUsedLevels = lodIndexArray;
+        this._forceUsedLevels = lodIndexArray.slice();
         this._updateLockedLODLevels();
     };
 }
