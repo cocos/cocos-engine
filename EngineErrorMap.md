@@ -1975,6 +1975,10 @@ Graphics: There is no model in %s.
 
 Script attached to '%s' is missing or invalid.
 
+### 4601
+
+Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake.
+
 ### 4700
 
 The dom control is not created!
@@ -3266,6 +3270,34 @@ The font size is too big to be fitted into texture atlas. Please switch to other
 ### 12101
 
 The asset %s has been destroyed!
+
+### 12102
+
+Base pass cannot override states, please use pass instance instead.
+
+### 12103
+
+Custom pipeline create shader %s failed. Please restart editor.
+
+### 12104
+
+Create shader %s failed.
+
+### 12105
+
+Pass resources incomplete.
+
+### 12106
+
+Cannot patch non-builtin macros.
+
+### 12107
+
+Custom pipeline invalid render pass, program: %s. Please restart editor.
+
+### 12108
+
+Custom pipeline invalid render phase, program: %s. Please restart editor.
 
 ### 13100
 

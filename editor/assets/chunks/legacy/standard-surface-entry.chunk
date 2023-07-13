@@ -45,15 +45,15 @@
 #elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \
   #include <common/math/octahedron-transform>                      \
                                                                    \
-  layout(location = 0) out vec4 fragColor0;                        \
-  layout(location = 1) out vec4 fragColor1;                        \
-  layout(location = 2) out vec4 fragColor2;                        \
+  layout(location = 0) out vec4 albedoOut;                         \
+  layout(location = 1) out vec4 emissiveOut;                       \
+  layout(location = 2) out vec4 normalOut;                         \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
-    fragColor0 = s.albedo;                                         \
-    fragColor1 = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
-    fragColor2 = vec4(s.emissive, s.occlusion);                    \
+    albedoOut = s.albedo;                                          \
+    normalOut = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
+    emissiveOut = vec4(s.emissive, s.occlusion);                   \
   }                                                                \
                                                                    \
 #endif                                                             \

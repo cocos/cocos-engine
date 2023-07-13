@@ -23,11 +23,12 @@
 */
 
 import { CCBoolean, CCFloat, CCInteger } from '../../../core';
-import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range,
+import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range,
     serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.HBAO')
+@help('cc.HBAO')
 @menu('PostProcess/HBAO')
 @disallowMultiple
 @executeInEditMode

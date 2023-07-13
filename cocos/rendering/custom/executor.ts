@@ -49,12 +49,11 @@ import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData
 import { BasicPipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
-    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
-import { AttachmentType, ComputeView, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView, ComputeView, RasterView } from './render-graph';
+import { AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
-import { stringify } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
@@ -501,13 +500,30 @@ class SubmitInfo {
     public shadowMap: Map<number, RenderShadowMapBatchedQueue> = new Map<number, RenderShadowMapBatchedQueue>();
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
-    reset (): void {
+
+    private _clearInstances (): void {
+        const it = this.instances.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
         this.instances.clear();
+    }
+
+    private _clearShadowMap (): void {
+        for (const shadowMap of this.shadowMap) {
+            shadowMap[1].clear();
+        }
+        this.shadowMap.clear();
+    }
+
+    reset (): void {
+        this._clearInstances();
         this.renderInstanceQueue.length = 0;
         this.opaqueList.length = 0;
         this.transparentList.length = 0;
         this.planarQueue = null;
-        this.shadowMap.clear();
+        this._clearShadowMap();
         this.additiveLight = null;
         this.reflectionProbe = null;
     }
@@ -674,6 +690,11 @@ class DeviceRenderPass {
                 const resFbo = resGraph._vertices[resId]._object;
                 if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
                     resTex.framebuffer = resFbo;
+                } else if (resTex.texture) {
+                    const desc = resGraph.getDesc(resId);
+                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                        resTex.texture.resize(desc.width, desc.height);
+                    }
                 }
             }
             if (!swapchain) swapchain = resTex.swapchain;
@@ -867,6 +888,8 @@ class DeviceRenderPass {
     }
     resetResource (id: number, pass: RasterPass): void {
         this._rasterInfo.applyInfo(id, pass);
+        this._layoutName = context.renderGraph.getLayout(id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.length = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];

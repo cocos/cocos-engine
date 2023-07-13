@@ -84,4 +84,6 @@ export abstract class Motion extends EditorExtendable {
 
 export interface MotionPort {
     evaluate(progress: number, context: AnimationGraphEvaluationContext): Pose;
+
+    reenter(): void;
 }

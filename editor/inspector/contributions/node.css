@@ -4,11 +4,33 @@
     overflow: hidden;
 }
 
+:host([type="node"][sub-type='scene']) > .container > .body > .node,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-header,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-body,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-footer,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-missing,
+:host([type="node"][sub-type='scene']) > .container > .body > .footer,
+:host([type="node"][sub-type='scene']) > .container > .body > .section-asset {
+    display: none;
+}
+
+:host([type="node"][sub-type='scene']) > .container > .body > .scene {
+    display: block;
+}
+
+:host([type="node"][sub-type='node']) > .container > .body > .node {
+    display: block;
+}
+
 .container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: auto;
+    overflow: hidden;
+}
+
+.container[hidden] {
+    display: none;
 }
 
 .container[hoving] {
@@ -16,203 +38,214 @@
     outline-offset: -2px;
 }
 
-.prefab {
+.container > .header {
+    display: flex;
+    flex-direction: column;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+    margin-bottom: -1px;
+}
+
+.container > .header > .prefab {
     display: flex;
     padding: 4px 4px 0 4px;
 }
 
-.prefab[hidden] {
+.container > .header > .prefab[hidden] {
     display: none;
 }
 
-.prefab > ui-label {
+.container > .header > .prefab > ui-label {
     flex: 1;
     color: var(--color-success-fill);
 }
 
-.prefab > ui-button {
+.container > .header > .prefab > ui-button {
     padding: 0 8px;
     margin-left: 4px;
 }
 
-.prefab[missing] > ui-label {
+.container > .header > .prefab[missing] > ui-label {
     color: var(--color-danger-fill);
 }
 
-.header {
-    display: none;
-    margin-top: 4px;
-    margin-bottom: 4px;
+.container > .header > .node {
+    display: flex;
+    flex: 1;
+    margin: 4px 4px 4px 0;
 }
 
-.header > .active {
+.container > .header > .node > .active {
     width: 20px;
 }
 
-.header > .name,
-.component-header .name {
+.container > .header > .node > .name {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.scene {
+.container > .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding-bottom: 8px;
+}
+
+.container > .body .component .component-header {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    margin-right: 2px;
+}
+
+.container > .body .component .component-header .active {
+    margin-right: 4px;
+}
+
+.container > .body .component .component-header ui-drag-item {
+    flex: 1;
+}
+
+.container > .body .component .component-header .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.container > .body .component .component-header > .menu,
+.container > .body .component .component-header > .link {
+    padding: 0 2px;
+}
+
+.container > .body .component .component-header > .menu {
+    opacity: 0.8;
+}
+
+.container > .body .component .component-header > .menu:hover {
+    opacity: 1;
+}
+
+.container > .body .component .component-header > .link {
+    display: none;
+}
+
+.container > .body .component .component-header > .link[value] {
+    display: inline-block;
+}
+
+.container > .body .component ui-prop {
+    margin-top: 4px;
+}
+
+.container > .body .component ui-prop [slot='label'] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.container > .body > .scene {
     display: none;
     border-top: solid 1px var(--color-normal-border);
 }
 
-.scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
-    flex: 1;
-    justify-content: space-between;
+.container > .body > .scene ui-prop[ui-section-config],
+.container > .body > .scene ui-section.config {
+    margin-top: 0;
 }
 
-.scene .envmap .envmap-prop ui-prop {
+.container > .body > .scene ui-prop[ui-section-config]:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+.container > .body > .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
+    flex: 1;
+    justify-content: space-between;
+    margin-right: 2px;
+}
+
+.container > .body > .scene .envmap .envmap-prop ui-prop {
     margin-top: 0;
     margin-left: 0;
 }
 
-:host([type="node"][sub-type='scene']) > .container > .scene {
-    display: block;
+.container > .body > .scene > .skybox {
+    margin-top: 4px;
 }
 
-:host([sub-type='scene']) > .container > .prefab,
-:host([sub-type='scene']) > .container > .node,
-:host([sub-type='scene']) > .container > .section-header,
-:host([sub-type='scene']) > .container > .section-body,
-:host([sub-type='scene']) > .container > .section-footer,
-:host([sub-type='scene']) > .container > .section-missing,
-:host([sub-type='scene']) > .container > .footer {
-    display: none;
+.container > .body > .scene > .skybox > [slot="header"] {
+    justify-content: space-between;
 }
 
-.section-missing:not(:empty) {
+.container > .body > .node .layer-content {
+    display: flex;
+}
+
+.container > .body > .node .layer-content > .layer-select {
+    flex: 1;
+    margin: 0;
+}
+
+.container > .body > .node .layer-content > .layer-edit {
+    margin-left: 4px;
+}
+
+.container > .body > .section-body ui-section.config:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+.container > .body > .section-missing:not(:empty) {
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
 
-.section-missing > section {
+.container > .body > .section-missing > section {
     display: flex;
     padding: 0 10px;
 }
 
-.section-missing > section:hover {
+.container > .body > .section-missing > section:hover {
     background-color: var(--color-hover-fill-normal);
 }
 
-.section-missing .name {
+.container > .body > .section-missing .name {
     flex: 1;
     color: var(--color-normal-contrast-emphasis);
 }
 
-.section-missing .name span {
+.container > .body > .section-missing .name span {
     text-decoration: line-through;
 }
 
-.section-missing > section > ui-icon {
+.container > .body > .section-missing > section > ui-icon {
     margin: 0 0 0 10px;
     cursor: pointer;
     display: none;
 }
 
-.section-missing > section:hover > ui-icon {
+.container > .body > .section-missing > section:hover > ui-icon {
     display: inline-block;
 }
 
-.section-missing > section > ui-icon:hover {
+.container > .body > .section-missing > section > ui-icon:hover {
     color: var(--color-focus-fill-weakest);
 }
 
-.node {
-    display: none;
-}
-
-.node .layer-content {
-    display: flex;
-}
-
-.node .layer-content > .layer-select {
-    flex: 1;
-    margin: 0;
-}
-
-.node .layer-content > .layer-edit {
-    margin-left: 4px;
-}
-
-.node .node-section {
-    margin-top: 4px;
-}
-
-:host([sub-type='node']) > .container > .node {
-    display: block;
-}
-
-.component .component-header {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-}
-
-.component .component-header ui-drag-item {
-    flex: 1;
-}
-
-.component .component-header > .menu,
-.component .component-header > .link {
-    padding: 0 2px;
-}
-
-.component .component-header > .menu {
-    opacity: 0.8;
-}
-
-.component .component-header > .menu:hover {
-    opacity: 1;
-}
-
-.component .component-header > .link {
-    display: none;
-}
-
-.component .component-header > .link[value] {
-    display: inline-block;
-}
-
-.scene .skybox,
-.component ui-prop {
-    margin-top: 4px;
-}
-
-.scene .skybox > [slot="header"] {
-    justify-content: space-between;
-}
-
-.component ui-prop [slot='label'] {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.footer {
-    display: none;
+.container > .body > .footer {
     margin: 20px 0;
     text-align: center;
 }
 
-.footer .add-component {
+.container > .body > .footer .add-component {
     padding: 0 24px;
 }
 
-.section-asset {
+.container > .body > .section-asset {
     margin-bottom: 16px;
 }
 
-.section-asset:empty {
+.container > .body > .section-asset:empty {
     display: none;
-}
-
-.section-asset > ui-panel[type="asset"] {
-    --asset-container-margin-top: 0;
-    --asset-container-content-section-overflow: visible;
 }

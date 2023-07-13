@@ -12,6 +12,7 @@ module.exports = {
     'cc.SafeArea': join(__dirname, './components/safe-area.js'),
     'cc.ScrollView': join(__dirname, './components/scroll-view.js'),
     'cc.SkinnedMeshBatchRenderer': join(__dirname, './components/batched-skinning-model.js'),
+    'cc.SkeletalAnimation': join(__dirname, './components/skeletal-animation.js'),
     'cc.SphereLight': join(__dirname, './components/sphere-light.js'),
     'cc.SpotLight': join(__dirname, './components/spot-light.js'),
     'cc.PointLight': join(__dirname, './components/point-light.js'),

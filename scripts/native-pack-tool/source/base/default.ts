@@ -368,6 +368,11 @@ export abstract class NativePackTool {
         return /^[0-9a-zA-Z_-]+$/.test(this.params.projectName) ? this.params.projectName : 'CocosGame';
     }
 
+    protected getExcutableNameOrDefault(): string {
+        const en = this.params.executableName;
+        return en ? en : this.projectNameASCII(); 
+    }
+
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
@@ -449,7 +454,11 @@ export abstract class NativePackTool {
             }
         });
         Object.keys(config).forEach((key: string) => {
-            content += config[key] + '\n';
+            if(typeof config[key] !== 'string')  {
+                console.error(`cMakeConfig.${key} is not a string, "${config[key]}"`);
+            } else {
+                content += config[key] + '\n';
+            }
         });
         console.debug(`generateCMakeConfig, ${JSON.stringify(config)}`);
         await fs.outputFile(file, content);

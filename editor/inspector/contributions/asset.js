@@ -10,18 +10,18 @@ exports.listeners = {};
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole scrollable="false" class="container config">
-    <header class="header" slot="header">
+<div class="container">
+    <header class="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
+        <ui-button class="save tiny green" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
-            <ui-icon value="reset"></ui-icon>
+        <ui-button class="reset tiny" tooltip="i18n:ENGINE.assets.reset">
+            <ui-icon value="reset" color></ui-icon>
         </ui-button>
-        <ui-button class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+        <ui-button class="copy transparent" icon tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
         <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
@@ -33,7 +33,7 @@ exports.template = `
         <section class="content-section"></section>
         <section class="content-footer"></section>
     </section>
-</ui-section>
+</div>
 `;
 
 exports.$ = {
@@ -236,8 +236,8 @@ const Elements = {
                 panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
                 panel.$.name.setAttribute('readonly', '');
 
-                if (panel.asset.source) {
-                    panel.$.copy.style.display = 'inline-block';
+                if (panel.asset.source && panel.asset.importer !== 'database') {
+                    panel.$.copy.style.display = 'inline-flex';
                 } else {
                     panel.$.copy.style.display = 'none';
                 }
@@ -332,7 +332,6 @@ const Elements = {
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
-                            $panel.injectionStyle(injectionStyle);
                             return $panel.update(panel.assetList, panel.metaList);
                         }),
                     );
@@ -367,11 +366,16 @@ exports.methods = {
             renderData[renderName] = [];
 
             for (let i = 0; i < contentRender.__panels__.length; i++) {
-                if (contentRender.__panels__[i].panelObject.record) {
-                    const data = await contentRender.__panels__[i].callMethod('record');
-                    renderData[renderName].push(data);
-                } else {
+                try {
+                    if (contentRender.__panels__[i].panelObject.record) {
+                        const data = await contentRender.__panels__[i].callMethod('record');
+                        renderData[renderName].push(data);
+                    } else {
+                        renderData[renderName].push(null);
+                    }
+                } catch (error) {
                     renderData[renderName].push(null);
+                    console.debug(error);
                 }
             }
         }
@@ -577,6 +581,24 @@ exports.methods = {
         } else {
             panel.$.help.style.display = 'none';
         }
+    },
+    replaceContainerWithUISection(params) {
+        const panel = this;
+        const $containerDiv = panel.$.container;
+        const $header = panel.$.container.querySelector('.header');
+        $header.setAttribute('slot', 'header');
+
+        const $content = panel.$.container.querySelector('.content');
+
+        const $containerUISection = document.createElement('ui-section');
+        $containerUISection.setAttribute('class', 'container config no-padding');
+        $containerUISection.setAttribute('cache-expand', params.uuid);
+
+        $containerUISection.appendChild($header);
+        $containerUISection.appendChild($content);
+
+        $containerDiv.replaceWith($containerUISection);
+
     },
 };
 

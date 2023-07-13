@@ -1533,7 +1533,19 @@ class EventEvaluator {
         }
     }
 
+    public reset () {
+        this._lastFrameIndex = -1;
+        this._lastIterations = 0.0;
+        this._lastDirection = 0;
+        this._ignoreIndex = InvalidIndex;
+        this._sampled = false;
+    }
+
     public sample (ratio: number, direction: number, iterations: number): void {
+        if (this._eventGroups.length === 0) {
+            return;
+        }
+
         const length = this._eventGroups.length;
         let eventIndex = getEventGroupIndexAtRatio(ratio, this._ratios);
         if (eventIndex < 0) {

@@ -279,9 +279,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         const transform = node._uiProps.uiTransformComp;
         if (transform) {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
+            Mat4.transform(_matrix, _matrix, _vec3);
         }
-
-        Mat4.transform(_matrix, _matrix, _vec3);
 
         if (!node._uiProps.uiTransformComp) {
             return;
@@ -290,7 +289,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         const camera = director.root!.batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
-        // camera.getWorldToCameraMatrix(_matrix_temp);
         camera.node.getWorldRT(_matrix_temp);
         const m12 = _matrix_temp.m12;
         const m13 = _matrix_temp.m13;
@@ -298,22 +296,29 @@ export class EditBoxImpl extends EditBoxImplBase {
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
-        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = game.container;
-        const a = _matrix_temp.m00 * scaleX;
-        const b = _matrix.m01;
-        const c = _matrix.m04;
-        const d = _matrix_temp.m05 * scaleY;
+        Vec3.set(_vec3, scaleX, scaleY, 1);
+        Mat4.scale(_matrix_temp, _matrix_temp, _vec3);
 
+        const container = game.container;
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
         offsetX += viewport.x / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
-        const tx = _matrix_temp.m12 * scaleX + offsetX;
-        const ty = _matrix_temp.m13 * scaleY + offsetY;
+        _matrix_temp.m12 += offsetX;
+        _matrix_temp.m13 += offsetY;
+
+        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
+
+        const a = _matrix_temp.m00;
+        const b = _matrix_temp.m01;
+        const c = _matrix_temp.m04;
+        const d = _matrix_temp.m05;
+
+        const tx = _matrix_temp.m12;
+        const ty = _matrix_temp.m13;
 
         const matrix = `matrix(${a},${-b},${-c},${d},${tx},${-ty})`;
         this._edTxt.style.transform = matrix;

@@ -189,7 +189,6 @@ const legacyBuiltinEffectNames = [
     'post-process',
     'profiler',
     'splash-screen',
-    'standard',
     'unlit',
     'sprite',
     'particle',

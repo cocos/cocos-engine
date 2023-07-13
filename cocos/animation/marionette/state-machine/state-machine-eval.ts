@@ -196,7 +196,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    public getCurrentClipStatuses (): Iterable<ClipStatus> {
+    public getCurrentClipStatuses (): Iterable<Readonly<ClipStatus>> {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getClipStatuses(currentNode.absoluteWeight);
@@ -237,7 +237,7 @@ class TopLevelStateMachineEvaluation {
         return null;
     }
 
-    public getNextClipStatuses (): Iterable<ClipStatus> {
+    public getNextClipStatuses (): Iterable<Readonly<ClipStatus>> {
         const { _activatedTransitions: activatedTransitions } = this;
         if (activatedTransitions.length === 0) {
             return emptyClipStatusesIterable;
@@ -986,20 +986,21 @@ function createStateStatusCache (): MotionStateStatus {
     };
 }
 
-const emptyClipStatusesIterator: Readonly<Iterator<ClipStatus>> = Object.freeze({
-    next (..._args: [] | [undefined]): IteratorResult<ClipStatus> {
+type ReadonlyClipStatus = Readonly<ClipStatus>;
+const emptyClipStatusesIterator: Iterator<ReadonlyClipStatus> = {
+    next (..._args: [] | [undefined]): IteratorResult<ReadonlyClipStatus> {
         return {
             done: true,
             value: undefined,
         };
     },
-});
+};
 
-const emptyClipStatusesIterable: Iterable<ClipStatus> = Object.freeze({
+const emptyClipStatusesIterable: Iterable<ReadonlyClipStatus> = {
     [Symbol.iterator] () {
         return emptyClipStatusesIterator;
     },
-});
+};
 
 enum NodeKind {
     entry, exit, any, animation,
@@ -1286,7 +1287,7 @@ class VMSMEval {
         this._privateState.addTransition(transition);
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Iterable<Readonly<ClipStatus>> {
         const { _source: source } = this;
         if (!source) {
             return emptyClipStatusesIterable;
@@ -1345,6 +1346,7 @@ class VMSMInternalState extends EventifiedStateEval {
 
     public reenter (initialTimeNormalized: number): void {
         this._progress = initialTimeNormalized;
+        this._port?.reenter();
     }
 
     public getStatus (): MotionStateStatus {
@@ -1356,7 +1358,7 @@ class VMSMInternalState extends EventifiedStateEval {
         return stateStatus;
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Iterable<Readonly<ClipStatus>> {
         return this._container.getClipStatuses(baseWeight);
     }
 

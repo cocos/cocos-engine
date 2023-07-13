@@ -132,7 +132,7 @@ exports.template = /* html */`
         </div>
         <div class="lod-items"></div>
         <div class="not-lod-mesh-label" hidden></div>
-        <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
+        <div class="no-lod-label" hidden>There is no LOD group found in the source file. If you want to generate LODs for this model, please use above settings.</div>
         <div class="load-mask">
             <ui-loading></ui-loading>
         </div>
@@ -141,6 +141,9 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+ui-prop { margin-right: 4px; }
+ui-section.config { margin-right: 0; }
+
 .warn-words {
     color: var(--color-warn-fill);
 }

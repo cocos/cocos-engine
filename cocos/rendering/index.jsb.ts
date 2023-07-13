@@ -25,6 +25,7 @@
 declare const nr: any;
 declare const jsb: any;
 
+import { OPEN_HARMONY } from 'internal:constants'
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
@@ -116,31 +117,6 @@ nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shade
     return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
 };
 
-
-
-const pipelineSceneDataProto: any = nr.PipelineSceneData.prototype;
-pipelineSceneDataProto._ctor = function () {
-    this.skin = new Skin();
-};
-
-Object.defineProperty(pipelineSceneDataProto, 'standardSkinModel', {
-    get (): any {
-        return this._standardSkinModel;
-    },
-    set (obj: any | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== obj) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
-        this._standardSkinModel = obj;
-    }
-});
-
-Object.defineProperty(pipelineSceneDataProto, 'skinMaterialModel', {
-    get (): any {
-        return this._skinMaterialModel;
-    },
-    set (obj: any) {
-        this._skinMaterialModel = obj;
-    }
-});
 
 // ForwardPipeline
 // TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
@@ -472,9 +448,11 @@ function proxyArrayAttributeImpl(proto: any, attr: string): void {
 
 let proxyArrayAttribute = proxyArrayAttributeImpl;
 
-proxyArrayAttribute(RenderFlow.prototype, '_stages');
-
-proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+if (!OPEN_HARMONY) {
+    // WORKAROUND: the proxy array getLength crashed on OH platform
+    proxyArrayAttribute(RenderFlow.prototype, '_stages');
+    proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+}
 
 //-------------------- register types -------------------- 
 

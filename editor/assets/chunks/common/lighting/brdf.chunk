@@ -1,5 +1,28 @@
 #include <common/math/number>
 
+float F0ToIor(float F0)
+{
+	return 2.0f / (1.0f - sqrt(F0)) - 1.0f;
+}
+
+float IorToF0(float ior)
+{
+	float F0_sqrt = (ior-1.0) / (ior+1.0);
+	return F0_sqrt * F0_sqrt;
+}
+
+float V_Kelemen(float LoH)
+{
+    return 0.25 / (LoH * LoH);
+}
+
+vec3 F_Schlick( vec3 specularColor, float VoH )
+{
+	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
+  float selfShadowTerm = saturate(50.0 * specularColor.g);
+  return specularColor * (1.0 - Fc) + vec3(selfShadowTerm * Fc);
+}
+
 float D_GGX(float roughness, float NoH)
 {
     float m = roughness * roughness;

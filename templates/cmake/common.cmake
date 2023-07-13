@@ -133,7 +133,7 @@ macro(cc_common_after_target target_name)
     endif()
 
     target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
+        GAME_NAME="${CC_EXECUTABLE_NAME}"
     )
     if(XXTEAKEY)
         target_compile_definitions(${target_name} PRIVATE

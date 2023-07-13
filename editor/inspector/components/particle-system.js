@@ -38,8 +38,7 @@ exports.template = /* html*/`
 
         <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" no-label class="header" empty="true" labelflag="renderCulling" key="renderCulling">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="cullingMode" disableflag="!renderCulling"></ui-prop>
             <ui-prop type="dump" key="aabbHalfX" disableflag="!renderCulling"></ui-prop>
@@ -53,8 +52,7 @@ exports.template = /* html*/`
         </ui-section>
         <ui-section key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
             <ui-prop slot="header" no-label class="header" empty="true" key="noiseModule.value.enable">
-                <ui-checkbox></ui-checkbox>
-                <ui-label value="Noise Module"></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label value="Noise Module"></ui-label>
             </ui-prop>
             <ui-prop>
                 <ui-label slot="label" value="Noise Preview"></ui-label>
@@ -80,8 +78,7 @@ exports.template = /* html*/`
         <ui-section key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="shapeModule.value.shapeType"></ui-prop>
             <ui-prop empty="true" labelflag="shapeModule.value.emitFrom" type="dump" key="shapeModule.value.emitFrom">
@@ -111,8 +108,7 @@ exports.template = /* html*/`
             cache-expand="particle-system-sizeOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="sizeOvertimeModule.value.enable"
                 labelflag="sizeOvertimeModule" empty="true">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.separateAxes"></ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.size"></ui-prop>
@@ -124,8 +120,7 @@ exports.template = /* html*/`
             cache-expand="particle-system-rotationOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.separateAxes"></ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.x"></ui-prop>
@@ -140,8 +135,7 @@ exports.template = /* html*/`
             cache-expand="particle-system-limitVelocityOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="limitVelocityOvertimeModule.value.enable"
                 labelflag="limitVelocityOvertimeModule" empty="true">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.space"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.dampen"></ui-prop>
@@ -155,8 +149,7 @@ exports.template = /* html*/`
             cache-expand="particle-system-trailModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
-                <ui-checkbox></ui-checkbox>
-                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox><ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="trailModule.value.mode"></ui-prop>
             <ui-prop type="dump" key="trailModule.value.lifeTime"></ui-prop>
@@ -662,8 +655,11 @@ exports.update = function(dump) {
     }
 };
 exports.style = /* css */`
-    .particle-system-component > .content >.indent {
-        margin-left: 10px;
+    .particle-system-component > .content > .indent {
+        margin-left: calc(var(--ui-prop-margin-left) + 8px);
+    }
+    .particle-system-component ui-section .header ui-checkbox {
+        margin-right: 4px;
     }
 `;
 

@@ -76,6 +76,10 @@ exports.style = /* css*/`
     min-height: 200px;
     border-top: 1px solid var(--color-normal-border);
 }
+.preview-container > .animation-info {
+    padding-right: 4px;
+}
+
 .preview[hoving] > .preview-container {
     outline: 2px solid var(--color-focus-fill-weaker);
     outline-offset: -1px;
@@ -86,6 +90,7 @@ exports.style = /* css*/`
 }
 .preview-container > .model-info {
     display: none;
+    padding: 2px 4px;
 }
 .preview-container > .model-info > ui-label {
     margin-right: 6px;
@@ -124,7 +129,8 @@ ui-icon {
 
 .time-line .events {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
+    z-index: 1;
     box-sizing: border-box;
     padding: 0 8px;
     width: 100%;
@@ -135,7 +141,7 @@ ui-icon {
 
 .events ui-icon {
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
 }
 
 .events ui-icon:hover {
@@ -202,12 +208,14 @@ ui-icon {
     justify-content: space-between;
     flex: 1;
     background: unset;
-  }
-  #event-editor > .functions .line {
-    margin-bottom: 4px;
+    margin: 4px 0;
   }
   #event-editor > .functions .line .name {
-    min-width: 8px;
+    width: 40px;
+    text-align: center;
+  }
+  #event-editor > .functions .line ui-select {
+    margin-right: 8px;
   }
   #event-editor > .functions .line .operate {
     visibility: hidden;
@@ -225,7 +233,7 @@ ui-icon {
   #event-editor ui-input,
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
-    width: 100%;
+    flex: 1;
   }
   #event-editor ui-section {
     width: 100%;
@@ -242,8 +250,6 @@ ui-icon {
     margin: 0 4px;
   }
   #event-editor .params {
-    border: 1px rgba(136, 136, 136, 0.35) dashed;
-    border-radius: calc(var(--size-normal-radius) * 1px);
   }
   #event-editor .header ui-icon,
   #event-editor .params ui-icon {
@@ -666,16 +672,16 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.__protected__.removeBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.__protected__.addBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onAssetChange(uuids) {
-        if (uuids.includes(this.asset.uuid)) {
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
             // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);

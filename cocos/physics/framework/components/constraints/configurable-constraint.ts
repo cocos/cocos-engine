@@ -39,6 +39,10 @@ import { Vec3, CCFloat, CCBoolean } from '../../../../core';
 import { EConstraintType, EConstraintMode, EDriverMode } from '../../physics-enum';
 import { IConfigurableConstraint } from '../../../spec/i-physics-constraint';
 
+/**
+ * @en The linear limit settings of the configurable constraint.
+ * @zh 可配置约束的线性限制设置。
+ */
 @ccclass('cc.LinearLimitSettings')
 export class LinearLimitSettings  {
     @type(EConstraintMode)
@@ -121,7 +125,7 @@ export class LinearLimitSettings  {
 
     @type(CCBoolean)
     @tooltip('i18n:physics3d.constraint.linearLimit.enableSoftConstraint')
-    @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
+    @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings', style: 'section' })
     get enableSoftConstraint (): boolean {
         return this._enableSoftConstraint;
     }
@@ -190,6 +194,10 @@ export class LinearLimitSettings  {
     }
 }
 
+/**
+ * @en The angular limit settings of the configurable constraint.
+ * @zh 可配置约束的角度限制设置。
+ */
 @ccclass('cc.AngularLimitSettings')
 export class AngularLimitSettings {
     @type(EConstraintMode)
@@ -409,6 +417,10 @@ export class AngularLimitSettings {
     }
 }
 
+/**
+ * @en The linear driver settings of the configurable constraint.
+ * @zh 可配置约束的线性驱动器设置。
+ */
 @ccclass('cc.LinearDriverSettings')
 export class LinearDriverSettings {
     @type(EDriverMode)
@@ -511,6 +523,10 @@ export class LinearDriverSettings {
     }
 }
 
+/**
+ * @en The angular driver settings of the configurable constraint.
+ * @zh 可配置约束的角度驱动器设置。
+ */
 @ccclass('cc.AngularDriverSettings')
 export class AngularDriverSettings {
     @type(EDriverMode)
@@ -613,6 +629,12 @@ export class AngularDriverSettings {
     }
 }
 
+/**
+ * @en The configurable constraint component.
+ * The configurable constraint provides all the functionality of other constraints, and provides comprehensive configurable options.
+ * @zh 可配置约束组件。
+ * 可配置约束提供了其他约束的所有功能支持，提供了全面的可配置选项。
+ */
 @ccclass('cc.ConfigurableConstraint')
 @help('i18n:cc.ConfigurableConstraint')
 @menu('Physics/ConfigurableConstraint(beta)')
