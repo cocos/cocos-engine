@@ -63,6 +63,7 @@ struct LeafStatus {
 struct ResourceRange {
     uint32_t width{0};
     uint32_t height{0};
+    uint32_t depthOrArraySize{0};
     uint32_t firstSlice{0};
     uint32_t numSlices{0};
     uint32_t mipLevel{0};
@@ -99,14 +100,34 @@ struct LayoutAccess {
     gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
 };
 
+struct AttachmentInfo {
+    uint32_t index{0};
+    uint32_t isResolveView{0};
+};
+
 struct FGRenderPassInfo {
     std::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
     std::vector<std::string> orderedViews;
-    ccstd::map<std::string, std::pair<uint32_t, uint32_t>> viewIndex;
+    ccstd::map<std::string, AttachmentInfo> viewIndex;
     bool hasResolve{false};
+};
+
+struct Barrier {
+    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    gfx::BarrierType type{gfx::BarrierType::FULL};
+    gfx::GFXObject* barrier{nullptr};
+    RenderGraph::vertex_descriptor beginVert;
+    RenderGraph::vertex_descriptor endVert;
+    AccessStatus beginStatus;
+    AccessStatus endStatus;
+};
+
+struct BarrierNode {
+    std::vector<Barrier> frontBarriers;
+    std::vector<Barrier> rearBarriers;
 };
 
 struct ResourceAccessGraph {
@@ -222,6 +243,7 @@ struct ResourceAccessGraph {
     struct PassIDTag {};
     struct PassNodeTag {};
     struct RenderPassInfoTag {};
+    struct BarrierTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -229,6 +251,7 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
     ccstd::pmr::vector<ResourceAccessNode> passResource;
     ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
+    ccstd::pmr::vector<BarrierNode> barrier;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
@@ -241,10 +264,9 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
     PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
-
-    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
-    PmrTransparentMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
-    PmrTransparentMap<ccstd::pmr::string, AccessStatus> movedTargetStatus;
+    PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> movedTargetStatus;
 };
 
 struct RelationGraph {
@@ -364,21 +386,6 @@ struct RelationGraph {
     PmrUnorderedMap<ResourceAccessGraph::vertex_descriptor, vertex_descriptor> vertexMap;
 };
 
-struct Barrier {
-    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    gfx::BarrierType type{gfx::BarrierType::FULL};
-    gfx::GFXObject* barrier{nullptr};
-    RenderGraph::vertex_descriptor beginVert;
-    RenderGraph::vertex_descriptor endVert;
-    AccessStatus beginStatus;
-    AccessStatus endStatus;
-};
-
-struct BarrierNode {
-    std::vector<Barrier> frontBarriers;
-    std::vector<Barrier> rearBarriers;
-};
-
 struct FrameGraphDispatcher {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -391,7 +398,6 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = PmrMap<RenderGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 
@@ -404,11 +410,13 @@ struct FrameGraphDispatcher {
 
     void run();
 
-    const ResourceAccessNode& getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const;
+    const BarrierNode& getBarrier(RenderGraph::vertex_descriptor u) const;
 
-    inline const BarrierMap& getBarriers() const { return barrierMap; }
+    const ResourceAccessNode& getResourceAccess(RenderGraph::vertex_descriptor u) const;
 
-    BarrierMap barrierMap;
+    const RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
+
+    const RenderPassInfo& getOrderedViews(RenderGraph::vertex_descriptor u) const;
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;

@@ -38,28 +38,29 @@ ResourceAccessNode::ResourceAccessNode(const allocator_type& alloc) noexcept
 : resourceStatus(alloc) {}
 
 ResourceAccessNode::ResourceAccessNode(ResourceAccessNode&& rhs, const allocator_type& alloc)
-: resourceStatus(std::move(rhs.resourceStatus), alloc),
-  nextSubpass(rhs.nextSubpass) {}
+: resourceStatus(std::move(rhs.resourceStatus), alloc) {}
 
 ResourceAccessNode::ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc)
-: resourceStatus(rhs.resourceStatus, alloc),
-  nextSubpass(rhs.nextSubpass) {}
+: resourceStatus(rhs.resourceStatus, alloc) {}
 
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : _vertices(alloc),
   passID(alloc),
   passResource(alloc),
   rpInfo(alloc),
+  barrier(alloc),
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
   leafPasses(alloc),
   culledPasses(alloc),
-  accessRecord(alloc),
   resourceLifeRecord(alloc),
   topologicalOrder(alloc),
   subpassIndex(alloc),
-  resourceAccess(alloc) {}
+  resourceAccess(alloc),
+  movedResource(alloc),
+  movedSourceStatus(alloc),
+  movedTargetStatus(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
@@ -67,6 +68,7 @@ void ResourceAccessGraph::reserve(vertices_size_type sz) {
     passID.reserve(sz);
     passResource.reserve(sz);
     rpInfo.reserve(sz);
+    barrier.reserve(sz);
 }
 
 ResourceAccessGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
@@ -110,7 +112,6 @@ FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const
   graph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
-  externalResMap(alloc),
   relationGraph(alloc) {}
 
 } // namespace render

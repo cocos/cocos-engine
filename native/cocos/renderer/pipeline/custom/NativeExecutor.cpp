@@ -70,7 +70,6 @@ struct RenderGraphVisitorContext {
     const RenderGraph& g;
     ResourceGraph& resourceGraph;
     const FrameGraphDispatcher& fgd;
-    const FrameGraphDispatcher::BarrierMap& barrierMap;
     const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
     gfx::CommandBuffer* cmdBuff = nullptr;
@@ -283,7 +282,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     };
 
     const auto passID = ctx.currentInFlightPassID;
-    const auto ragVertID = ctx.fgd.resourceAccessGraph.passIndex.at(passID);
     if (pass.subpassGraph.subpasses.empty()) {
         const auto numInputs = getRasterPassInputCount(pass);
         const auto numColors = getRasterPassOutputCount(pass);
@@ -291,7 +289,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         // persistent cache
         data.clearColors.reserve(numColors);
         const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
-        rpInfo = fgdRpInfo.rpInfo;
+        rpInfo = ctx.fgd.getRenderPassInfo(passID);
         fillFrameBufferInfo(fgdRpInfo.orderedViews, false);
     } else {
         const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
@@ -665,12 +663,8 @@ gfx::DescriptorSet* initDescriptorSet(
                     gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
                     auto resourceID = resID;
                     if (accessNode != nullptr) {
-                        auto accIter = std::find_if(
-                            accessNode->attachmentStatus.begin(), accessNode->attachmentStatus.end(),
-                            [resourceID](const AccessStatus& status) {
-                                return status.vertID == resourceID;
-                            });
-                        access = accIter != accessNode->attachmentStatus.end() ? accIter->accessFlag : gfx::AccessFlagBit::NONE;
+                        const auto& resName = get(ResourceGraph::NameTag{}, resg, resID);
+                        access = accessNode->resourceStatus.at(resName).accessFlag;
                     }
 
                     CC_ENSURES(texture);
@@ -1225,7 +1219,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
-            const auto& accessNode = ctx.fgd.getAttachmentStatus(vertID);
+            const auto& accessNode = ctx.fgd.getResourceAccess(vertID);
 
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
@@ -1286,25 +1280,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
     void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
-        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
-            return;
-        }
-        const auto& nodeID = iter->second;
-        auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end()) {
-            submitBarriers(iter2->second.blockBarrier.frontBarriers);
+        const auto& barrier = ctx.fgd.getBarrier(vertID);
+        if (!barrier.frontBarriers.empty()) {
+            submitBarriers(barrier.frontBarriers);
         }
     }
     void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
-        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
-            return;
-        }
-        const auto& nodeID = iter->second;
-        auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end()) {
-            submitBarriers(iter2->second.blockBarrier.rearBarriers);
+        const auto& barrier = ctx.fgd.getBarrier(vertID);
+        if (!barrier.rearBarriers.empty()) {
+            submitBarriers(barrier.rearBarriers);
         }
     }
     void tryBindPerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
@@ -2261,7 +2245,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitorContext ctx{
             ppl.nativeContext,
             lg, rg, ppl.resourceGraph,
-            fgd, fgd.barrierMap,
+            fgd,
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
             &ppl,
