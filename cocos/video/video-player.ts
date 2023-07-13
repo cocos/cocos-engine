@@ -374,14 +374,8 @@ export class VideoPlayer extends Component {
         } else {
             this._impl.syncClip(this._clip);
         }
-    }
+        this._cachedCurrentTime = 0;
 
-    public __preload (): void {
-        if (EDITOR_NOT_IN_PREVIEW) {
-            return;
-        }
-        this._impl = VideoPlayerImplManager.getImpl(this);
-        this.syncSource();
         this._impl.syncLoop(this._loop);
         this._impl.syncVolume(this._volume);
         this._impl.syncMute(this._mute);
@@ -390,7 +384,15 @@ export class VideoPlayer extends Component {
         this._impl.syncStayOnBottom(this._stayOnBottom);
         this._impl.syncKeepAspectRatio(this._keepAspectRatio);
         this._impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
-        //
+    }
+
+    public __preload (): void {
+        if (EDITOR_NOT_IN_PREVIEW) {
+            return;
+        }
+        this._impl = VideoPlayerImplManager.getImpl(this);
+        this.syncSource();
+
         this._impl.componentEventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
         this._impl.componentEventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
         this._impl.componentEventList.set(EventType.PLAYING, this.onPlaying.bind(this));
