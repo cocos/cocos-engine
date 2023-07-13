@@ -27,7 +27,7 @@
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
-#include "details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
@@ -82,19 +82,57 @@ void RenderDrawQueue::recordCommandBuffer(
     }
 }
 
-void RenderInstancingQueue::add(pipeline::InstancedBuffer &instancedBuffer) {
-    batches.emplace(&instancedBuffer);
+bool RenderInstancingQueue::empty() const noexcept {
+    CC_EXPECTS(!passInstances.empty() || sortedBatches.empty());
+    return passInstances.empty();
+}
+
+void RenderInstancingQueue::clear() {
+    sortedBatches.clear();
+    passInstances.clear();
+    for (auto &buffer : instanceBuffers) {
+        buffer->clear();
+    }
+}
+
+void RenderInstancingQueue::add(
+    const scene::Pass &pass,
+    scene::SubModel &submodel, uint32_t passID) {
+    auto iter = passInstances.find(&pass);
+    if (iter == passInstances.end()) {
+        const auto instanceBufferID = static_cast<uint32_t>(passInstances.size());
+        if (instanceBufferID >= instanceBuffers.size()) {
+            CC_EXPECTS(instanceBufferID == instanceBuffers.size());
+            instanceBuffers.emplace_back(ccnew pipeline::InstancedBuffer(nullptr));
+        }
+        bool added = false;
+        std::tie(iter, added) = passInstances.emplace(&pass, instanceBufferID);
+        CC_ENSURES(added);
+
+        CC_ENSURES(iter->second < instanceBuffers.size());
+        const auto &instanceBuffer = instanceBuffers[iter->second];
+        instanceBuffer->setPass(&pass);
+        const auto &instances = instanceBuffer->getInstances();
+        for (const auto &item : instances) {
+            CC_EXPECTS(item.count == 0);
+        }
+    }
+    auto &instancedBuffer = *instanceBuffers[iter->second];
+    instancedBuffer.merge(&submodel, passID);
 }
 
 void RenderInstancingQueue::sort() {
-    sortedBatches.reserve(batches.size());
-    std::copy(batches.begin(), batches.end(), std::back_inserter(sortedBatches));
+    sortedBatches.reserve(passInstances.size());
+    for (const auto &[pass, bufferID] : passInstances) {
+        sortedBatches.emplace_back(instanceBuffers[bufferID]);
+    }
 }
 
 void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {
-    for (const auto *instanceBuffer : batches) {
-        if (instanceBuffer->hasPendingModels()) {
-            instanceBuffer->uploadBuffers(cmdBuffer);
+    for (const auto &[pass, bufferID] : passInstances) {
+        const auto &ib = instanceBuffers[bufferID];
+        if (ib->hasPendingModels()) {
+            ib->uploadBuffers(cmdBuffer);
         }
     }
 }

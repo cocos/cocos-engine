@@ -497,8 +497,8 @@ const PhysXCallback = {
             const cct = data.PhysXCharacterController.characterController;
             const collider = data.PhysXShape.collider;
             if (cct && cct.isValid && collider && collider.isValid) {
-                emitHit.selfController = cct;
-                emitHit.otherCollider = collider;
+                emitHit.controller = cct;
+                emitHit.collider = collider;
                 emitHit.worldPosition.set(data.worldPos);
                 emitHit.worldNormal.set(data.worldNormal);
                 emitHit.motionDirection.set(data.motionDir);

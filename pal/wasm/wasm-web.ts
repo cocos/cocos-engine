@@ -23,6 +23,7 @@
 */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 declare const require: any;
 
@@ -60,3 +61,9 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
         }
     });
 }
+
+export function ensureWasmModuleReady (): Promise<void> {
+    return Promise.resolve();
+}
+
+checkPalIntegrity<typeof import('pal/wasm')>(withImpl<typeof import('./wasm-web')>());

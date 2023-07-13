@@ -28,6 +28,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prefer-const */
 
+import { DEBUG } from 'internal:constants';
 import { error, errorID, warn, warnID } from '../platform/debug';
 
 let defaultLogTimes = 10;
@@ -224,7 +225,7 @@ markAsWarningLog = (n: string, dp: string, f: Function, id: number, s: string): 
 };
 
 markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]): void => {
-    if (owner == null) return;
+    if (!DEBUG || owner == null) return;
 
     const _defaultGetSet = (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s: string): void => {
         if (d.get) {

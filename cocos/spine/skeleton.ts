@@ -47,7 +47,8 @@ import { setPropertyEnumType } from '../core/internal-index';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
-let _slotTextureID = 0;
+const CUSTOM_SLOT_TEXTURE_BEGIN = 10000;
+let _slotTextureID = CUSTOM_SLOT_TEXTURE_BEGIN;
 
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
@@ -595,6 +596,16 @@ export class Skeleton extends UIRenderer {
 
     }
     /**
+     * @en Gets the animation state object.
+     * @zh 获取动画状态。
+     * @method getState
+     * @return {sp.spine.AnimationState} state
+     */
+    public getState (): spine.AnimationState | undefined {
+        return this._state;
+    }
+
+    /**
      * @en Be called when component state becomes available.
      * @zh 组件状态变为可用时调用。
      */
@@ -638,6 +649,7 @@ export class Skeleton extends UIRenderer {
             this._state = null!;
             this._skeleton = null!;
             this._textures = [];
+            this._refreshInspector();
             return;
         }
         this._textures = skeletonData.textures;
@@ -817,8 +829,10 @@ export class Skeleton extends UIRenderer {
         if (this.isAnimationCached()) {
             this._accTime += dt;
             const frameIdx = Math.floor(this._accTime / CachedFrameTime);
-            this._animCache!.updateToFrame(frameIdx);
-            this._curFrame = this._animCache!.getFrame(frameIdx);
+            if (this._animCache) {
+                this._animCache.updateToFrame(frameIdx);
+                this._curFrame = this._animCache.getFrame(frameIdx);
+            }
         } else {
             this._instance.updateAnimation(dt);
         }
@@ -870,21 +884,21 @@ export class Skeleton extends UIRenderer {
             }
             const subIndices = rd.indices!.subarray(0, indicesCount);
             accessor.appendIndices(chunk.bufferId, subIndices);
+            accessor.getMeshBuffer(chunk.bufferId).setDirty();
         }
     }
 
     /**
      * @engineInternal
      */
-    public requestDrawData (material: Material, texureID: number, indexOffset: number, indexCount: number): SkeletonDrawData {
+    public requestDrawData (material: Material, textureID: number, indexOffset: number, indexCount: number): SkeletonDrawData {
         const draw = this._drawList.add();
         draw.material = material;
-        if (texureID === 0) {
-            draw.texture = this._textures[0];
+        if (textureID < CUSTOM_SLOT_TEXTURE_BEGIN) {
+            draw.texture = this._textures[textureID];
         } else {
-            const texture = this._slotTextures?.get(texureID);
+            const texture = this._slotTextures?.get(textureID);
             if (texture) draw.texture = texture;
-            else draw.texture = this._textures[0];
         }
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
