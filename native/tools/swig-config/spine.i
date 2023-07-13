@@ -254,7 +254,7 @@ using namespace spine;
 %attribute(spine::DeformTimeline, spine::Vector<float>&, frameVertices, getVertices);
 %attribute(spine::DeformTimeline, spine::VertexAttachment*, attachment, getAttachment);
 
-%attribute(spine::EventTimeline, spine::Vector<float>&, frames, getFrames);
+%attribute(spine::EventTimeline, spine::Vector<float>, frames, getFrames);
 %attribute(spine::EventTimeline, spine::Vector<spine::Event*>&, events, getEvents);
 
 %attribute(spine::DrawOrderTimeline, spine::Vector<float>&, frames, getFrames);
