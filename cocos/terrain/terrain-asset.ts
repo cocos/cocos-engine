@@ -32,7 +32,8 @@ export const TERRAIN_BLOCK_TILE_COMPLEXITY = 32;
 export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
 export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
 export const TERRAIN_HEIGHT_BASE = 32768;
-export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
+export const TERRAIN_HEIGHT_FACTORY = 1.0 / 128.0;
+export const TERRAIN_HEIGHT_FACTORY_V7 = 1.0 / 512.0;
 export const TERRAIN_HEIGHT_FMIN = (-TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
 export const TERRAIN_HEIGHT_FMAX = (65535 - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
 export const TERRAIN_NORTH_INDEX = 0;
@@ -47,6 +48,7 @@ export const TERRAIN_DATA_VERSION4 = 0x01010004;
 export const TERRAIN_DATA_VERSION5 = 0x01010005;
 export const TERRAIN_DATA_VERSION6 = 0x01010006;
 export const TERRAIN_DATA_VERSION7 = 0x01010007;
+export const TERRAIN_DATA_VERSION8 = 0x01010008;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 class TerrainBuffer {
@@ -475,7 +477,8 @@ export class TerrainAsset extends Asset {
             && this._version !== TERRAIN_DATA_VERSION4
             && this._version !== TERRAIN_DATA_VERSION5
             && this._version !== TERRAIN_DATA_VERSION6
-            && this._version !== TERRAIN_DATA_VERSION7) {
+            && this._version !== TERRAIN_DATA_VERSION7
+            && this._version !== TERRAIN_DATA_VERSION8) {
             return false;
         }
 
@@ -496,6 +499,14 @@ export class TerrainAsset extends Asset {
         this.heights = new Uint16Array(heightBufferSize);
         for (let i = 0; i < this.heights.length; ++i) {
             this.heights[i] = stream.readInt16();
+        }
+
+        if (this._version < TERRAIN_DATA_VERSION8) {
+            for (let i = 0; i < this.heights.length; ++i) {
+                const h = (this._heights[i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY_V7;
+                const ch = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY
+                this.heights[i] = ch;
+            }
         }
 
         // normals
@@ -560,7 +571,7 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
 
         // version
-        stream.writeInt32(TERRAIN_DATA_VERSION7);
+        stream.writeInt32(TERRAIN_DATA_VERSION8);
 
         // geometry info
         stream.writeDouble(this.tileSize);
