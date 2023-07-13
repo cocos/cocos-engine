@@ -113,6 +113,7 @@ export class AnimationCache {
     }
 
     public setSkin (skinName: string) {
+        if (this._skeleton) this._skeleton.setSkinByName(skinName);
         this._instance.setSkin(skinName);
     }
 
@@ -379,9 +380,10 @@ class SkeletonCache {
     }
 
     public getAnimationCache (uuid: string, animationName: string): null | AnimationCache {
-        const poolKey = `${uuid}#${animationName}`;
-        const animCache = this._animationPool[poolKey];
-        return animCache;
+        const skeletonInfo = this._skeletonCache[uuid];
+        if (!skeletonInfo) return null;
+        const animationsCache = skeletonInfo.animationsCache;
+        return animationsCache[animationName];
     }
 
     public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string): null | AnimationCache {

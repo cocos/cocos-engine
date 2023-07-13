@@ -212,6 +212,8 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _timeScale = 1;
     @serializable
+    protected _preCacheMode = -1;
+    @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
     @serializable
     protected _defaultCacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
@@ -380,7 +382,7 @@ export class Skeleton extends UIRenderer {
 
         const skinName = skinsEnum[value];
         if (skinName !== undefined) {
-            this.defaultSkin = skinName;
+            this.defaultSkin = String(skinName);
             this.setSkin(this.defaultSkin);
             this._refreshInspector();
             this.markForUpdateRenderData();
@@ -685,6 +687,11 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             return;
         }
+        this._needUpdateSkeltonData = false;
+        const data = this.skeletonData?.getRuntimeData();
+        if (!data) return;
+        this.setSkeletonData(data);
+        if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._textures = skeletonData.textures;
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
@@ -696,6 +703,7 @@ export class Skeleton extends UIRenderer {
         this._indexBoneSockets();
         this._updateSocketBindings();
         this.attachUtil.init(this);
+        this._preCacheMode = this._cacheMode;
     }
 
     /**
@@ -719,7 +727,6 @@ export class Skeleton extends UIRenderer {
                 this._skeletonCache.enablePrivateMode();
             }
         }
-
         if (this.isAnimationCached()) {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
@@ -856,13 +863,14 @@ export class Skeleton extends UIRenderer {
      * @param skinName @en The name of skin. @zh 皮肤名称。
      */
     public setSkin (name: string) {
+        if (this._skeleton) this._skeleton.setSkinByName(name);
+        this._instance.setSkin(name);
         if (this.isAnimationCached()) {
             if (this._animCache) {
                 this._animCache.setSkin(name);
-                this.invalidAnimationCache();
             }
         }
-        this._instance.setSkin(name);
+        this.invalidAnimationCache();
     }
 
     /**
@@ -910,7 +918,6 @@ export class Skeleton extends UIRenderer {
         }
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
-
         // Animation Start, the event different from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
@@ -1175,9 +1182,11 @@ export class Skeleton extends UIRenderer {
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
-        if (this._cacheMode !== cacheMode) {
+        if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
+            //this.setSkin(this.defaultSkin);
             this._updateSkeletonData();
+            this.setSkin(this.defaultSkin);
             this._updateUseTint();
             this._updateSocketBindings();
             this.markForUpdateRenderData();
