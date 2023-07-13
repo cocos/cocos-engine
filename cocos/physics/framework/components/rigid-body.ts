@@ -36,6 +36,7 @@ import {
     visible,
     type,
     serializable,
+    override,
 } from 'cc.decorator';
 import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3, error, warn, CCClass } from '../../../core';
@@ -67,6 +68,12 @@ export class RigidBody extends Component {
     static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    @override
+    @visible(false)
+    get enabled() {
+        return this._enabled;
+    }
 
     /**
      * @en
@@ -684,10 +691,6 @@ export class RigidBody extends Component {
     public removeMask (v: number): void {
         if (this._isInitialized) this._body!.removeMask(v);
     }
-}
-
-if (EDITOR) {
-    CCClass.Attr.setClassAttr(RigidBody, 'enabled', 'visible', false);
 }
 
 function isDynamicBody (this: RigidBody): boolean { return this.isDynamic; }
