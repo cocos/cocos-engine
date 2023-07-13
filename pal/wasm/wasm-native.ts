@@ -23,6 +23,7 @@
 */
 import { EDITOR } from 'internal:constants';
 import { native } from '../../cocos/native-binding/index';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return fetchBuffer(wasmUrl).then((arrayBuffer) => WebAssembly.instantiate(arrayBuffer, importObject));
@@ -53,3 +54,5 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
 export function ensureWasmModuleReady (): Promise<void> {
     return Promise.resolve();
 }
+
+checkPalIntegrity<typeof import('pal/wasm')>(withImpl<typeof import('./wasm-native')>());

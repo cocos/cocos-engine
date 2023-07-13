@@ -31,6 +31,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const my: any;
 
@@ -174,3 +175,5 @@ class ScreenAdapter extends EventTarget {
 }
 
 export const screenAdapter = new ScreenAdapter();
+
+checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

@@ -24,6 +24,7 @@
 
 import { minigame } from 'pal/minigame';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 export class Pacer {
     private _rafHandle = 0;
@@ -79,3 +80,5 @@ export class Pacer {
         this._isPlaying = false;
     }
 }
+
+checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-minigame')>());
