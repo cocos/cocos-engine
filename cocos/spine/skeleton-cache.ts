@@ -378,13 +378,13 @@ class SkeletonCache {
         return skeletonInfo;
     }
 
-    public getAnimationCache (uuid: string, animationName: string) {
+    public getAnimationCache (uuid: string, animationName: string): null | AnimationCache {
         const poolKey = `${uuid}#${animationName}`;
         const animCache = this._animationPool[poolKey];
         return animCache;
     }
 
-    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string) {
+    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string): null | AnimationCache {
         const spData = data.getRuntimeData();
         if (!spData) return null;
         const skeletonInfo = this._skeletonCache[uuid];
