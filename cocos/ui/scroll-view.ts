@@ -1458,7 +1458,7 @@ export class ScrollView extends ViewGroup {
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
         if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
-            if (uiTrans.height < viewTrans.height) {
+            if (uiTrans.height <= viewTrans.height) {
                 this._verticalScrollBar.hide();
             } else {
                 this._verticalScrollBar.show();
@@ -1466,7 +1466,7 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
-            if (uiTrans.width < viewTrans.width) {
+            if (uiTrans.width <= viewTrans.width) {
                 this._horizontalScrollBar.hide();
             } else {
                 this._horizontalScrollBar.show();
