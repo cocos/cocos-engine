@@ -41,6 +41,8 @@ float Vector2::length() {
 
 Vector2& Vector2::normalize() {
     float invLen = 1.F / length();
-    return Vector2(x * invLen, y * invLen);
+    this->setX(x * invLen);
+    this->setY(y * invLen);
+    return *this;
 }
 }
