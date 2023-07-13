@@ -24,7 +24,7 @@
 #include "bindings/auto/jsb_spine_auto.h"
 using namespace spine;
 
-#define SWIGINTERN static;
+#define SWIGINTERN static
 %}
 
 // ----- Ignore Section ------
