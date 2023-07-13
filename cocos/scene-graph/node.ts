@@ -466,10 +466,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3821);
         }
 
+        // Should set it before invoking `this._onSetParent()` as `this._onSetParent` will use new parent.
         this._parent = newParent;
-        // Reset sibling index
-        this._siblingIndex = 0;
-
         this._onSetParent(oldParent, keepWorldTransform);
 
         if (this.emit) {
@@ -478,7 +476,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
-                const removeAt = oldParent._children.indexOf(this);
+                const removeAt = this._siblingIndex;
                 if (DEV && removeAt < 0) {
                     errorID(1633);
                     return;
@@ -491,6 +489,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             }
         }
 
+        // Reset sibling index
+        this._siblingIndex = 0;
         if (newParent) {
             if (DEBUG && (newParent._objFlags & Deactivating)) {
                 errorID(3821);
