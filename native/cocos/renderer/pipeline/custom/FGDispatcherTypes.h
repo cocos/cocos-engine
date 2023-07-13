@@ -112,7 +112,7 @@ struct FGRenderPassInfo {
     gfx::RenderPassInfo rpInfo;
     std::vector<std::string> orderedViews;
     ccstd::map<std::string, AttachmentInfo> viewIndex;
-    bool hasResolve{false};
+    uint32_t resolveCount{false};
 };
 
 struct Barrier {
@@ -412,11 +412,11 @@ struct FrameGraphDispatcher {
 
     const BarrierNode& getBarrier(RenderGraph::vertex_descriptor u) const;
 
-    const ResourceAccessNode& getResourceAccess(RenderGraph::vertex_descriptor u) const;
+    const ResourceAccessNode& getAccessNode(RenderGraph::vertex_descriptor u) const;
 
-    const RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
+    const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
 
-    const RenderPassInfo& getOrderedViews(RenderGraph::vertex_descriptor u) const;
+    const ccstd::vector<std::string>& getOrderedViews(RenderGraph::vertex_descriptor u) const;
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;

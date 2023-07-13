@@ -177,8 +177,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     PmrFlatSet<ccstd::pmr::string> set(scratch);
-    auto fillFrameBufferInfo = [&](const ccstd::vector<std::string>& passViews, bool hasResolve) {
-        std::ignore = hasResolve;
+    auto fillFrameBufferInfo = [&](const ccstd::vector<std::string>& passViews) {
         const auto& uberPass = pass;
         auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
 
@@ -198,7 +197,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 // resolves
                 const auto resID = vertex(name, ctx.resourceGraph);
                 const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
-                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::X1);
                 colorLikeView = desc.format != gfx::Format::DEPTH_STENCIL && desc.format != gfx::Format::DEPTH;
                 dsResolveAttachment = !colorLikeView;
             }
@@ -289,13 +287,13 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
         // persistent cache
         data.clearColors.reserve(numColors);
-        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
         rpInfo = ctx.fgd.getRenderPassInfo(passID);
-        fillFrameBufferInfo(fgdRpInfo.orderedViews, false);
+        const auto& orderedViews = ctx.fgd.getOrderedViews(passID);
+        fillFrameBufferInfo(orderedViews);
     } else {
-        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
-        rpInfo = fgdRpInfo.rpInfo;
-        fillFrameBufferInfo(fgdRpInfo.orderedViews, fgdRpInfo.needResolve);
+        rpInfo = ctx.fgd.getRenderPassInfo(passID);
+        const auto& orderedViews = ctx.fgd.getOrderedViews(passID);
+        fillFrameBufferInfo(orderedViews);
     }
     // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
@@ -1178,7 +1176,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             for (const auto& [keyPair, resourceName] : orderMap) {
                 const auto& rasterView = subpass.rasterViews.at(resourceName.data());
                 auto resID = vertex(resourceName.data(), ctx.resourceGraph);
-                auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
                 if (rasterView.accessType != AccessType::WRITE) {
                     if (rasterView.attachmentType == AttachmentType::DEPTH_STENCIL) {
                         if (rasterView.slotName != "_" && !rasterView.slotName.empty()) {
@@ -1220,7 +1217,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
-            const auto& accessNode = ctx.fgd.getResourceAccess(vertID);
+            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
 
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
