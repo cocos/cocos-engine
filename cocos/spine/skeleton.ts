@@ -863,7 +863,6 @@ export class Skeleton extends UIRenderer {
             }
         }
         this._instance.setSkin(name);
-        this._updateSkeletonData();
     }
 
     /**
