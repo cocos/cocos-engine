@@ -687,20 +687,11 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             return;
         }
-
         this._needUpdateSkeltonData = false;
         const data = this.skeletonData?.getRuntimeData();
-
-        if (!data) {
-            return;
-        }
-
-        try {
-            this.setSkeletonData(data);
-            if (this.defaultSkin) this.setSkin(this.defaultSkin);
-        } catch (e) {
-            warn(e);
-        }
+        if (!data) return;
+        this.setSkeletonData(data);
+        if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._textures = skeletonData.textures;
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
