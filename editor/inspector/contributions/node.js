@@ -879,10 +879,6 @@ const Elements = {
             panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.dump._globals.skin.displayName = 'Skin';
-            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
-            panel.$.sceneSkin.render(panel.dump._globals.skin);
-
             // skyBox 逻辑 start
             let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
             const oldSkyboxProps = Object.keys(panel.$skyboxProps);
@@ -948,6 +944,10 @@ const Elements = {
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
+
+            panel.dump._globals.skin.displayName = 'Skin';
+            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
