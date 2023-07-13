@@ -77,9 +77,9 @@ inline const char* getName(ResourceResidency e) noexcept {
 inline const char* getName(QueueHint e) noexcept {
     switch (e) {
         case QueueHint::NONE: return "NONE";
-        case QueueHint::RENDER_OPAQUE: return "RENDER_OPAQUE";
-        case QueueHint::RENDER_CUTOUT: return "RENDER_CUTOUT";
-        case QueueHint::RENDER_TRANSPARENT: return "RENDER_TRANSPARENT";
+        case QueueHint::OPAQUE: return "OPAQUE";
+        case QueueHint::MASK: return "MASK";
+        case QueueHint::BLEND: return "BLEND";
     }
     return "";
 }
@@ -125,7 +125,6 @@ inline const char* getName(AccessType e) noexcept {
     }
     return "";
 }
-inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
 inline const char* getName(ClearValueType e) noexcept {
     switch (e) {
         case ClearValueType::NONE: return "NONE";
@@ -134,8 +133,6 @@ inline const char* getName(ClearValueType e) noexcept {
     }
     return "";
 }
-inline const char* getName(const ClearValue& /*v*/) noexcept { return "ClearValue"; }
-inline const char* getName(const ComputeView& /*v*/) noexcept { return "ComputeView"; }
 inline const char* getName(const LightInfo& /*v*/) noexcept { return "LightInfo"; }
 inline const char* getName(DescriptorTypeOrder e) noexcept {
     switch (e) {

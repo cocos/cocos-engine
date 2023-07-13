@@ -21,12 +21,12 @@ exports.template = /* html */`
 exports.style = /* css */`
 :host > .section {
     height: 200px;
-    padding: 4px 0;
+    padding: 4px 0 4px 4px;
     box-sizing: border-box;
     display: flex;
     background: var(--color-normal-fill);
     border-bottom: 1px solid var(--color-normal-border);
- }
+}
 :host > .section > canvas { flex: 1; min-width: 0; }
 :host > .section > .tools { display: flex; flex-direction: column; padding: 0 4px; }
 `;

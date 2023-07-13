@@ -1,10 +1,16 @@
+// for specular-gloss workflow which support by legacy compatible lighting
+float RoughnessToPerceptualRoughness(float roughness)
+{
+  return sqrt(roughness);
+}
+
 // for legacy only
 #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
   vec3 EnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
     #if CC_USE_IBL
       // simulate GGX convolution
       #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
-        roughness = pow(roughness, 0.5);
+        roughness = RoughnessToPerceptualRoughness(roughness);
       #endif
 
       //#todo: add GL400 calcmip
@@ -33,7 +39,7 @@
   vec3 EnvReflection(samplerCube tex, vec3 R, float roughness, float mipCount) {
     // simulate GGX convolution
     #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
-      roughness = pow(roughness, 0.5);
+      roughness = RoughnessToPerceptualRoughness(roughness);
     #endif
 
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
@@ -49,7 +55,7 @@
   vec3 EnvReflectionOfReflectionProbe(samplerCube tex, vec3 R, float roughness, float mipCount, bool isRGBE) {
     // simulate GGX convolution
     #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
-      roughness = pow(roughness, 0.5);
+      roughness = RoughnessToPerceptualRoughness(roughness);
     #endif
 
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);

@@ -28,15 +28,15 @@ CCEffect %{
         normalMap:                        { value: normal, editor : { parent: USE_NORMAL_MAP } }
         normalMapDetailed:                { value: normal, editor : { parent: USE_NORMAL_MAP, tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
         baseTiling:                       { value: 100.0, target: pbrParams.x, editor: { parent: USE_NORMAL_MAP, range: [1.0, 10000.0] } }
-        waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
-        detailedSpeed:                    { value: 0.2, target: waterParam.y, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 2.0], step: 0.001 } }
+        detailedSpeed:                    { value: 0.2, target: waterParam.y, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 2.0], step: 0.001 } }
         detailedTiling:                   { value: 0.2, target: waterParam.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedIntensity:                { value: 0.5, target: waterParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         waterInScatterColor:              { value: [0.07, 0.13, 0.087, 1.0], target: waterColor, linear: true, editor: { parent: USE_WATER_SCATTERING, type: color } }
         waterScatterCoef:                 { value: 3.0, target: waterColor.w, editor: { parent: USE_WATER_SCATTERING, range: [0, 10.0] } }
         vatPositionMap:                   { value: grey, target: vatPositionTexture, editor: { displayName: PositionMap } }
         vatNormalMap:                     { value: grey, target: vatNormalTexture }
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: none
     - &forward-add
       vert: standard-vs
@@ -73,15 +73,21 @@ CCEffect %{
       frag: reflect-map-fs
       phase: reflect-map
       propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      rasterizerState: *r1
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -90,6 +96,14 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -156,7 +170,7 @@ CCProgram surface-vertex %{
     // pos is normalized 0-1 from texture and expanding to bounding box range
     vec3 posNormalized = SampleTextureExr(vatPositionTexture, thisFrameUV);
     In.position.xyz = posNormalized * (vatBBMax.xyz - vatBBMin.xyz) + vatBBMin.xyz;
-	
+
     vec3 normal = texture(vatNormalTexture, thisFrameUV).rgb * 2.0 - 1.0;
     In.normal.xyz = normalize(normal);
   }
@@ -253,7 +267,7 @@ CCProgram surface-fragment %{
   {
       return vatAnimParams.w;
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
   vec4 SurfacesFragmentModifyTransmitScatteringParams()
   {
@@ -264,7 +278,7 @@ CCProgram surface-fragment %{
       return vec4(0.0, 0.0, 0.0, 0.0);
     #endif
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitInScatteringColor()
   {
@@ -284,7 +298,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
@@ -306,7 +320,7 @@ CCProgram surface-fragment %{
       #if USE_VERTEX_COLOR
         alpha *= FSInput_vertexColor.a;
       #endif
-  
+
       if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
   }
@@ -331,7 +345,7 @@ void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingI
     float multiplier = 1.0 + pow(1.0 - curve, 0.3) * vatLUTParams.w;
     result.environmentSpecular *= multiplier;
   #endif
-  
+
   #if CC_SURFACES_LIGHTING_USE_FRESNEL
     result.fresnel = GetFresnel(result.fresnel);
   #endif

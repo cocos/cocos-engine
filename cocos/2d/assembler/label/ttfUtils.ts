@@ -134,7 +134,7 @@ export const ttfUtils =  {
             this._calDynamicAtlas(comp, outputLayoutData);
 
             comp.actualFontSize = style.actualFontSize;
-            trans.setContentSize(outputLayoutData.canvasSize);
+            trans.setContentSize(outputLayoutData.nodeContentSize);
 
             const datalist = renderData.data;
             datalist[0] = outputRenderData.vertexBuffer[0];
@@ -157,8 +157,8 @@ export const ttfUtils =  {
     generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData): void {
         const data = outputRenderData.vertexBuffer;
 
-        const width = outputLayoutData.canvasSize.width;
-        const height = outputLayoutData.canvasSize.height;
+        const width = outputLayoutData.nodeContentSize.width;
+        const height = outputLayoutData.nodeContentSize.height;
         const appX = outputRenderData.uiTransAnchorX * width;
         const appY = outputRenderData.uiTransAnchorY * height;
 

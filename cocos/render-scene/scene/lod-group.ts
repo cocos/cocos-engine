@@ -126,7 +126,7 @@ export class LODGroup {
                 }
             }
         }
-        this._lockedLODLevelVec = lockLev;
+        this._lockedLODLevelVec = lockLev.slice();
     }
 
     isLockLevelChanged (): boolean {

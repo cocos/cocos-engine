@@ -151,8 +151,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!debugDrawer) {
             return;
         }
-
         debugDrawer.clear();
+        debugDrawer.lineWidth = 3;
 
         const shapes = this._shapes;
 
@@ -266,8 +266,5 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics (): void { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
-    }
-    finalizeContactEvent (): void {
-
     }
 }

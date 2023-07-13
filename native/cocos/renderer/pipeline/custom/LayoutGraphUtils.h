@@ -59,8 +59,7 @@ gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
 
 void generateConstantMacros(
     gfx::Device* device,
-    ccstd::string& constantMacros,
-    bool clusterEnabled);
+    ccstd::string& constantMacros);
 
 void printLayoutGraphData(
     const LayoutGraphData& lg, std::ostream& oss,

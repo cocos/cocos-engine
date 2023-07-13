@@ -3,12 +3,17 @@ import { Mat4, Vec2, Vec4 } from '../../../core';
 import { game } from '../../../game';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { Pipeline, ResourceResidency } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
+import { ResourceResidency } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
+import { TAAMask } from '../components/taa-mask';
 import { passContext } from '../utils/pass-context';
 import { disablePostProcessForDebugView } from './base-pass';
 import { getSetting, SettingPass } from './setting-pass';
+import { builtinResMgr } from '../../../asset/asset-manager';
+import { Material, RenderTexture, Texture2D } from '../../../asset/assets';
+import { MaterialInstance } from '../../../render-scene';
 
 const tempVec4 = new Vec4();
 
@@ -94,6 +99,8 @@ export class TAAPass extends SettingPass {
     forceRender = true;
     dirty = false;
 
+    taaMaskMaterial: Material | undefined;
+
     checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
@@ -155,8 +162,6 @@ export class TAAPass extends SettingPass {
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
 
-        passContext.material = this.material;
-
         const firstRender = this.firstRender;
         if (firstRender) {
             this.prevMatViewProj.set(camera.matViewProj);
@@ -169,10 +174,36 @@ export class TAAPass extends SettingPass {
         const width = passContext.passViewport.width;
         const height = passContext.passViewport.height;
 
-        this.material.setProperty('taaParams1', tempVec4.set(this.sampleOffset.x, this.sampleOffset.y, setting.feedback, 0));
-        this.material.setProperty('taaTextureSize', tempVec4.set(1 / width, 1 / height, 1 / width, 1 / height));
-        this.material.setProperty('taaPrevViewProj', this.prevMatViewProj);
+        let material: Material = this.material;
+        const taaMask = camera.node.getComponent(TAAMask);
+        let maskTex: Texture2D | RenderTexture | undefined;
+        if (taaMask! && taaMask.enabledInHierarchy) {
+            maskTex = taaMask.mask;
+        }
+        if (maskTex) {
+            if (!this.taaMaskMaterial) {
+                const mi = new MaterialInstance({
+                    parent: material,
+                });
+                mi.recompileShaders({
+                    USE_TAA_MASK: !EDITOR,
+                });
+                this.taaMaskMaterial = mi;
+            }
+            material = this.taaMaskMaterial;
+            material.setProperty('motionMaskTex', maskTex);
+        } else {
+            const black = builtinResMgr.get('black-texture');
+            maskTex = black as Texture2D;
+            material.setProperty('motionMaskTex', maskTex);
+        }
+
+        material.setProperty('taaParams1', tempVec4.set(this.sampleOffset.x, this.sampleOffset.y, setting.feedback, 0));
+        material.setProperty('taaTextureSize', tempVec4.set(1 / width, 1 / height, 1 / width, 1 / height));
+        material.setProperty('taaPrevViewProj', this.prevMatViewProj);
         this.prevMatViewProj.set(camera.matViewProj);
+
+        passContext.material = material;
 
         // input output
         const input0 = this.lastPass!.slotName(camera, 0);

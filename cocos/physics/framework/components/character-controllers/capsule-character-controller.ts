@@ -43,10 +43,9 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.CapsuleCharacterController')
-//@help('i18n:cc.CapsuleCharacterController')
+@help('i18n:cc.CapsuleCharacterController')
 @menu('Physics/CapsuleCharacterController')
 @executeInEditMode
-@disallowMultiple
 @executionOrder(-1)
 export class CapsuleCharacterController extends CharacterController {
     constructor () {

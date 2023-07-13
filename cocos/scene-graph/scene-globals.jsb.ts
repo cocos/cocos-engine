@@ -28,7 +28,6 @@ import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
-import type { Skin } from '../render-scene/scene/skin';
 import type {
     AmbientInfo as JsbAmbientInfo,
     SkyboxInfo as JsbSkyboxInfo,
@@ -39,8 +38,6 @@ import type {
     LightProbeInfo as JsbLightProbeInfo,
     SkinInfo as JsbSkinInfo,
 } from './scene-globals';
-import { ccclass, editable, range, serializable, slide, tooltip, type, visible } from '../core/data/decorators';
-import { macro } from '../core';
 
 declare const jsb: any;
 
@@ -180,97 +177,9 @@ export const SceneGlobals: typeof JsbSceneGlobals = jsb.SceneGlobals;
 export type SceneGlobals = JsbSceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
-
-/**
- * @en Global skin in the render scene.
- * @zh 渲染场景中的全局皮肤后处理设置。
- */
-@ccclass('cc.SkinInfo')
-class SkinInfoLocal {
-    /**
-     * @en Enable skip.
-     * @zh 是否开启皮肤后效。
-     */
-    @editable
-    @tooltip('i18n:skin.enabled')
-    set enabled (val: boolean) {
-        if (this._enabled === val) return;
-        this._enabled = val;
-        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
-            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
-        }
-        if (this._resource) {
-            this._resource.enabled = val;
-        }
-    }
-    get enabled () {
-        return this._enabled;
-    }
-
-    /**
-     * @en Getter/Setter sampler width.
-     * @zh 设置或者获取采样宽度。
-     */
-    @visible(false)
-    @editable
-    @range([0.0, 0.1, 0.001])
-    @slide
-    @type(CCFloat)
-    @tooltip('i18n:skin.blurRadius')
-    set blurRadius (val: number) {
-        if ((legacyCC.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
-        this._blurRadius = val;
-        if (this._resource) { this._resource.blurRadius = val; }
-    }
-    get blurRadius () {
-        return this._blurRadius;
-    }
-
-    /**
-     * @en Getter/Setter depth unit scale.
-     * @zh 设置或者获取深度单位比例。
-     */
-    @editable
-    @range([0.0, 10.0, 0.1])
-    @slide
-    @type(CCFloat)
-    @tooltip('i18n:skin.sssIntensity')
-    set sssIntensity (val: number) {
-        if ((legacyCC.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
-        this._sssIntensity = val;
-        if (this._resource) { this._resource.sssIntensity = val; }
-    }
-    get sssIntensity () { 
-        return this._sssIntensity;
-    }
-
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _blurRadius = 0.01;
-    @serializable
-    protected _sssIntensity = 3.0;
-
-    protected _resource: Skin | null = null;
-
-    /**
-     * @en Activate the skin configuration in the render scene, no need to invoke manually.
-     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
-     * @param resource The skin configuration object in the render scene
-     */
-    public activate (resource: Skin) {
-        this._resource = resource;
-        this._resource.initialize(this as any);
-    }
-}
+export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
 export type SkinInfo = JsbSkinInfo;
-legacyCC.SkinInfo = SkinInfoLocal;
+legacyCC.SkinInfo = SkinInfo;
 
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
@@ -282,6 +191,7 @@ legacyCC.SkinInfo = SkinInfoLocal;
         this._fogRef = this.getFogInfo();
         this._octreeRef = this.getOctreeInfo();
         this._lightProbeRef = this.getLightProbeInfo();
+        this._skinRef = this.getSkinInfo();
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
@@ -367,13 +277,26 @@ legacyCC.SkinInfo = SkinInfoLocal;
             this.setLightProbeInfo(v);
         },
     });
+
+    Object.defineProperty(sceneGlobalsProto, 'skin', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            return this._skinRef;
+        },
+        set(v) {
+            this._skinRef = v;
+            this.setSkinInfo(v);
+        },
+    });
+
 })();
 
 
 
 // handle meta data, it is generated automatically
 
-decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo: SkinInfoLocal});
+decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo});
 
 decros.patch_cc_OctreeInfo({OctreeInfo, CCInteger, Vec3, DEFAULT_WORLD_MAX_POS, DEFAULT_WORLD_MIN_POS, DEFAULT_OCTREE_DEPTH});
 
@@ -386,3 +309,5 @@ decros.patch_cc_SkyboxInfo({SkyboxInfo, EnvironmentLightingType, TextureCube, CC
 decros.patch_cc_AmbientInfo({AmbientInfo, Vec4, Ambient, CCFloat, legacyCC});
 
 decros.patch_cc_LightProbeInfo({LightProbeInfo, CCFloat, CCInteger});
+
+decros.patch_cc_SkinInfo({SkinInfo, CCFloat});

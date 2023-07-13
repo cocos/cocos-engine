@@ -1277,7 +1277,7 @@ declare namespace spine {
     class SkeletonInstance {
         initSkeleton(data: SkeletonData);
         getAnimationState();
-        setAnimation(trackIndex: number, name: string, loop: boolean);
+        setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
         setSkin(name: string);
         setPremultipliedAlpha(usePremultipliedAlpha: boolean);
         setColor(r: number, g: number, b: number, a: number);
@@ -1289,7 +1289,10 @@ declare namespace spine {
         setSwirlEffect(swirl: spine.VertexEffect);
         updateRenderData();
         setListener(id: number, type: number);
-        static getCurrentEvent(): Event;
+        setDebugMode(debug: boolean);
+        getDebugShapes();
+        resizeSlotRegion(slotName: string, width: number, height: number, createNew: boolean);
+        setSlotTexture(slotName: string, index: number);
     }
 
     class wasmUtil {
@@ -1306,7 +1309,7 @@ declare namespace spine {
         static getCurrentEventType(): EventType;
         static getCurrentTrackEntry(): TrackEntry;
         static getCurrentEvent(): Event;
-        static HEAPU8: Uint8Array;
+        static wasm: any;
     }
 }
 

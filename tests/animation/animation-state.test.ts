@@ -1,9 +1,10 @@
 import { LegacyBlendStateBuffer } from "../../cocos/3d/skeletal-animation/skeletal-animation-blending";
 import { lerp, Vec3 } from "../../cocos/core";
-import { AnimationClip, AnimationState } from "../../cocos/animation";
+import { AnimationClip, AnimationManager, AnimationState } from "../../cocos/animation";
 import { VectorTrack } from "../../cocos/animation/animation";
 import { WrappedInfo } from "../../cocos/animation/types";
-import { Node } from "../../cocos/scene-graph";
+import { Component, Node } from "../../cocos/scene-graph";
+import { Director, director } from "../../cocos/game";
 
 describe('Animation state', () => {
     test('Zero duration animation clip', () => {
@@ -130,5 +131,37 @@ describe('Animation state', () => {
                 node.position = new Vec3(1.0);
             }
         }
+    });
+
+    test(`Frame event`, () => {
+        const clip = new AnimationClip();
+        clip.duration = 1.0;
+        clip.events = [{
+            frame: 0.2,
+            func: 'method1',
+            params: ['3.14', 'str666', 'true'],
+        }];
+
+        class FrameEventReceiver extends Component {
+            method1 = jest.fn();
+        }
+
+        const state = new AnimationState(clip);
+        const blendStateBuffer = new LegacyBlendStateBuffer();
+        const node = new Node();
+        const frameEventReceiver = node.addComponent(FrameEventReceiver) as FrameEventReceiver;
+        state.initialize(node, blendStateBuffer);
+
+        state.play();
+
+        const update = (dt: number) => {
+            director.getSystem(AnimationManager.ID)?.update(dt);
+        };
+
+        update(0.0); // Perfect first frame.
+        update(0.1);
+        expect(frameEventReceiver.method1).not.toBeCalled();
+        update(0.11);
+        expect(frameEventReceiver.method1.mock.calls[0]).toEqual(clip.events[0].params);
     });
 });

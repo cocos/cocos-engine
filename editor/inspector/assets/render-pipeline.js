@@ -8,18 +8,23 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+.asset-render-pipeline {
+    padding-right: 4px;
+}
+
 .asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
- }
+}
 
  .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
     display: block;
- }
+}
 
 .asset-render-pipeline .multiple-warn-tip {
     display: none;
     text-align: center;
     color: var(--color-focus-contrast-weakest);
+    margin-top: 8px;
 }
 `;
 

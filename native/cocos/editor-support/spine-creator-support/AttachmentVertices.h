@@ -40,6 +40,7 @@ class AttachmentVertices {
 public:
     AttachmentVertices(cc::middleware::Texture2D *texture, int verticesCount, uint16_t *triangles, int trianglesCount);
     virtual ~AttachmentVertices();
+    AttachmentVertices *copy();
 
     cc::middleware::Texture2D *_texture = nullptr;
     cc::middleware::Triangles *_triangles = nullptr;

@@ -1,8 +1,8 @@
 import { EDITOR } from 'internal:constants';
-import { Vec4 } from '../../../core';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { clamp, Vec4 } from '../../../core';
+import { Format } from '../../../gfx';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { Pipeline } from '../../custom';
+import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
@@ -39,7 +39,7 @@ export class FSRPass extends SettingPass {
         const outHeight = Math.floor(game.canvas!.height);
 
         const setting = this.setting;
-        this.material.setProperty('fsrParams', new Vec4(setting.sharpness, 0, 0, 0));
+        this.material.setProperty('fsrParams', new Vec4(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
         this.material.setProperty('texSize',
             new Vec4(
                 inputWidth, inputHeight,

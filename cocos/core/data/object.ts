@@ -68,7 +68,7 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
 // all the hideFlags
 const AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
-const objectsToDestroy: any = [];
+const objectsToDestroy: CCObject[] = [];
 let deferredDestroyTimer: number | null = null;
 
 function compileDestruct (obj, ctor): Function {
@@ -620,7 +620,7 @@ declare namespace CCObject {
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
  * @engineInternal
  */
-export function isCCObject (object: any): boolean {
+export function isCCObject (object: any): object is CCObject {
     return object instanceof CCObject;
 }
 

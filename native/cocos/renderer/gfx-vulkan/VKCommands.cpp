@@ -120,7 +120,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 
     gpuTexture->aspectMask = mapVkImageAspectFlags(gpuTexture->format);
     // storage images has to be in general layout
-    if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
+    // if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
     // remove stencil aspect for depth textures with sampled usage
     if (hasFlag(gpuTexture->usage, TextureUsageBit::SAMPLED)) gpuTexture->aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
 
@@ -351,8 +351,7 @@ private:
 };
 
 std::pair<VkImageLayout, VkImageLayout> getInitialFinalLayout(CCVKDevice *device, CCVKGeneralBarrier *barrier, bool depthSetncil) {
-    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() :
-        (depthSetncil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
+    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() : (depthSetncil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
 
     ThsvsImageBarrier imageBarrier = {};
     imageBarrier.prevAccessCount = utils::toUint(gpuBarrier->prevAccesses.size());
@@ -510,7 +509,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     depthStencilResolves.resize(subpassCount, {VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE});
     const VkPhysicalDeviceDepthStencilResolveProperties &prop{device->gpuContext()->physicalDeviceDepthStencilResolveProperties};
     for (uint32_t i = 0U; i < gpuRenderPass->subpasses.size(); ++i) {
-        const SubpassInfo& subpassInfo = gpuRenderPass->subpasses[i];
+        const SubpassInfo &subpassInfo = gpuRenderPass->subpasses[i];
 
         VkSubpassDescription2 &desc = subpassDescriptions[i];
         desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -598,7 +597,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 gpuRenderPass->hasSelfDependency[dependency.srcSubpass] = true;
             }
 
-            auto addStageAccessMask = [&vkDependency](const SubpassDependency& deps) {
+            auto addStageAccessMask = [&vkDependency](const SubpassDependency &deps) {
                 ccstd::vector<ThsvsAccessType> prevAccesses;
                 ccstd::vector<ThsvsAccessType> nextAccesses;
                 getAccessTypes(deps.prevAccesses, prevAccesses);
