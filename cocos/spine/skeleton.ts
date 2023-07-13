@@ -382,7 +382,7 @@ export class Skeleton extends UIRenderer {
 
         const skinName = skinsEnum[value];
         if (skinName !== undefined) {
-            this.defaultSkin = skinName;
+            this.defaultSkin = String(skinName);
             this.setSkin(this.defaultSkin);
             this._refreshInspector();
             this.markForUpdateRenderData();
