@@ -1,9 +1,10 @@
 {
-  "license": "ISC",
+  "license": "",
   "devDependencies": {},
+  "author": "",
   "name": "entry",
   "description": "example description",
-  "repository": {},
+  "main": "",
   "version": "1.0.0",
   "dependencies": {}
 }
