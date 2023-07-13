@@ -1413,7 +1413,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // internal function
-    private _emit (dt): void {
+    private _emit (dt: number): void {
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {

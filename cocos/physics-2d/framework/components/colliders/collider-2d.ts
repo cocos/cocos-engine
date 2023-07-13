@@ -24,12 +24,12 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 
-import { Vec2, Rect, _decorator, Eventify, tooltip, serializable, CCFloat, CCBoolean, warnID } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip, CCInteger, serializable, CCFloat, CCBoolean } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../physics-selector';
-import { Contact2DType, ECollider2DType } from '../../physics-types';
+import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { Component } from '../../../../scene-graph';
 
@@ -210,13 +210,6 @@ export class Collider2D extends Eventify(Component) {
         }
 
         return new Rect();
-    }
-
-    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
-        if (type === Contact2DType.PRE_SOLVE || type === Contact2DType.POST_SOLVE) {
-            warnID(16002, type, '3.7.1');
-        }
-        return super.on(type, callback, thisArg, once);
     }
 
     // protected properties

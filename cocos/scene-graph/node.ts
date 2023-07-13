@@ -40,6 +40,7 @@ import type { Scene } from './scene';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
+import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -240,8 +241,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *
      * @deprecated since v3.4.0
      */
-    get eventProcessor (): any {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    get eventProcessor (): NodeEventProcessor {
         return this._eventProcessor;
     }
 
@@ -376,7 +376,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _name: string;
 
-    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
@@ -1140,7 +1140,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         default:
             break;
         }
-        this._eventProcessor.on(type, callback, target, useCapture);
+        this._eventProcessor.on(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
@@ -1160,7 +1160,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * ```
      */
     public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
-        this._eventProcessor.off(type, callback, target, useCapture);
+        this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
         // All listener removed
@@ -1188,7 +1188,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param target - The target (this object) to invoke the callback, can be null
      */
     public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
-        this._eventProcessor.once(type, callback, target, useCapture);
+        this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 
     /**

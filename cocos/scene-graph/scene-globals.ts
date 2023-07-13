@@ -165,6 +165,7 @@ export class AmbientInfo {
     @editable
     @type(CCFloat)
     @tooltip('i18n:ambient.skyIllum')
+    @range([0, Number.POSITIVE_INFINITY, 100])
     set skyIllum (val: number) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._skyIllumHDR = val;

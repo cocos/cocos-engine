@@ -8,14 +8,15 @@ using namespace spine;
 class SlotMesh {
 public:
     SlotMesh() {}
-    SlotMesh(uint8_t* vb, uint16_t* ib, uint32_t vc, uint32_t ic, BlendMode blend)
-    : vBuf(vb), iBuf(ib), vCount(vc), iCount(ic), blendMode(blend) {}
+    SlotMesh(uint8_t* vb, uint16_t* ib, uint32_t vc, uint32_t ic)
+    : vBuf(vb), iBuf(ib), vCount(vc), iCount(ic) {}
     ~SlotMesh() {}
     uint8_t* vBuf;
     uint16_t* iBuf;
     uint32_t vCount;
     uint32_t iCount;
-    BlendMode blendMode;
+    uint32_t blendMode;
+    uint32_t textureID;
 };
 
 class SpineModel {

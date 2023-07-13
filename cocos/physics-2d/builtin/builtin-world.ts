@@ -267,7 +267,4 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
     }
-    finalizeContactEvent (): void {
-
-    }
 }

@@ -22,10 +22,8 @@
  THE SOFTWARE.
 */
 
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
-import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
-import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
 import { debug, error, getError, log, sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
@@ -77,19 +75,21 @@ function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<
     });
 }
 
-function initAsm (resolve, reject): void {
-    if (CULL_ASM_JS_MODULE) {
-        reject(getError(4601));
-        return;
-    }
-    debug('[Physics][Bullet]: Using asmjs Bullet libs.');
-    const env: any = importFunc;
-    const wasmMemory: any = {};
-    wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
-    env.memory = wasmMemory;
-    const btInstance = asmFactory(env, wasmMemory);
-    Object.assign(bt, btInstance);
-    resolve();
+function initAsmJS (asmFactory): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        if (CULL_ASM_JS_MODULE) {
+            reject(getError(4601));
+            return;
+        }
+        debug('[Physics][Bullet]: Using asmjs Bullet libs.');
+        const env: any = importFunc;
+        const wasmMemory: any = {};
+        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+        env.memory = wasmMemory;
+        const btInstance = asmFactory(env, wasmMemory);
+        Object.assign(bt, btInstance);
+        resolve();
+    });
 }
 
 function getImportObject (): WebAssembly.Imports {
@@ -117,23 +117,33 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
+function shouldUseWasmModule (): boolean {
+    if (FORCE_BANNING_BULLET_WASM) {
+        return false;
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 export function waitForAmmoInstantiation (): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        const errorReport = (msg: any): void => { error(msg); };
-        if (FORCE_BANNING_BULLET_WASM) {
-            initAsm(resolve, reject);
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
-            } else {
-                initAsm(resolve, reject);
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-            initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
+    const errorReport = (msg: any): void => { error(msg); };
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/bullet/bullet.wasm'),
+        import('external:emscripten/bullet/bullet.asm.js'),
+    ]).then(([
+        { default: bulletWasmUrl },
+        { default: asmFactory  },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initWasm(bulletWasmUrl, importObject);
         } else {
-            initAsm(resolve, reject);
+            return initAsmJS(asmFactory);
         }
-    });
+    })).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

@@ -1,6 +1,11 @@
 module.exports = {
     components: {
         add_component: '添加组件',
+
+        animation: {
+            use_baked_animation_tips: '使用预烘焙动画，骨骼在运行时不会实时移动，如需将某些外部节点挂到指定的骨骼关节上，请使用 <ui-link value="https://docs.cocos.com/creator/manual/zh/animation/skeletal-animation.html#socket-system">Sockets 挂点系统</ui-link>。',
+        },
+
         safe_area: {
             brief_help:
                 '该组件会将所在节点的布局适配到 iPhone X 等异形屏手机的安全区域内，通常用于 UI 交互区域的顶层节点。该组件将在真机上将自动生效，在编辑器下没有效果。',

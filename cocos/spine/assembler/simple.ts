@@ -55,6 +55,9 @@ let _useTint = false;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
+const DEBUG_TYPE_REGION = 0;
+const DEBUG_TYPE_MESH = 1;
+
 function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance {
     let src: BlendFactor;
     let dst: BlendFactor;
@@ -137,7 +140,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     }
     const rd = comp.renderData!;
     const accessor = _useTint ? _tintAccessor : _accessor;
-    accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
+    if (rd.vertexCount > 0 || rd.indexCount > 0) accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 
 function realTimeTraverse (comp: Skeleton): void {
@@ -152,6 +155,8 @@ function realTimeTraverse (comp: Skeleton): void {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
     }
+    if (vc < 1 || ic < 1) return;
+
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
 
@@ -180,8 +185,9 @@ function realTimeTraverse (comp: Skeleton): void {
     for (let i = 0; i < count; i++) {
         const mesh = meshes.get(i);
         const material = _getSlotMaterial(mesh.blendMode, comp);
+        const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
     // if enableBatch apply worldMatrix
@@ -212,8 +218,7 @@ function realTimeTraverse (comp: Skeleton): void {
         const shapeCount = debugShapes.size();
         for (let i = 0; i < shapeCount; i++) {
             const shape = debugShapes.get(i);
-            const type = shape.type;
-            if (type.value === 0 && comp.debugSlots) {
+            if (shape.type === DEBUG_TYPE_REGION && comp.debugSlots) {
                 graphics.strokeColor = _slotColor;
                 const vertexFloatOffset = shape.vOffset * floatStride;
                 const vertexFloatCount = shape.vCount * floatStride;
@@ -223,7 +228,7 @@ function realTimeTraverse (comp: Skeleton): void {
                 }
                 graphics.close();
                 graphics.stroke();
-            } else if (type.value === 1 && comp.debugMesh) {
+            } else if (shape.type === DEBUG_TYPE_MESH && comp.debugMesh) {
                 // draw debug mesh if enabled graphics
                 graphics.strokeColor = _meshColor;
                 const iCount = shape.iCount as number;
@@ -270,6 +275,7 @@ function realTimeTraverse (comp: Skeleton): void {
 
 function cacheTraverse (comp: Skeleton): void {
     const model = comp.updateRenderData();
+    if (!model) return;
 
     const vc = model.vCount;
     const ic = model.iCount;
@@ -278,6 +284,8 @@ function cacheTraverse (comp: Skeleton): void {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
     }
+    if (vc < 1 || ic < 1) return;
+
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);
@@ -322,8 +330,9 @@ function cacheTraverse (comp: Skeleton): void {
     for (let i = 0; i < count; i++) {
         const mesh = meshes[i];
         const material = _getSlotMaterial(mesh.blendMode, comp);
+        const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 
