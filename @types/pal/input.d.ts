@@ -52,7 +52,7 @@ declare module 'pal/input' {
      * Class designed for gamepad input
      */
     export class GamepadInputDevice {
-        private constructor(...args: any[]);
+        private constructor(deviceId: number);
         /**
          * @engineInternal
          */
