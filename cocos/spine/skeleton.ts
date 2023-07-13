@@ -716,6 +716,7 @@ export class Skeleton extends UIRenderer {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache();
+                this._skeletonCache.enablePrivateMode();
             }
         }
 
@@ -723,7 +724,7 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache((this.skeletonData as any)._uuid, skeletonData);
+            const skeletonInfo = this._skeletonCache!.getSkeletonCache((this.skeletonData as any).uuid, skeletonData);
             this._skeleton = skeletonInfo.skeleton;
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
@@ -761,7 +762,7 @@ export class Skeleton extends UIRenderer {
             if (!this._skeletonCache) return null;
             let cache = this._skeletonCache.getAnimationCache(this._skeletonData!.uuid, name);
             if (!cache) {
-                cache = this._skeletonCache.initAnimationCache(this._skeletonData!, name);
+                cache = this._skeletonCache.initAnimationCache(this.skeletonData!.uuid, this._skeletonData!, name);
             }
             if (cache) {
                 this._animationName = name;
@@ -854,15 +855,14 @@ export class Skeleton extends UIRenderer {
      *
      * @param skinName @en The name of skin. @zh 皮肤名称。
      */
-    public setSkin (name: string) {
-        this._skinName = name;
+    public setSkin (name: string) {        
         if (this.isAnimationCached()) {
             if (this._animCache) {
                 this._animCache.setSkin(name);
+                this.invalidAnimationCache(); 
             }
-        } else {
-            this._instance.setSkin(name);
         }
+        this._instance.setSkin(name);
     }
 
     /**
@@ -882,7 +882,7 @@ export class Skeleton extends UIRenderer {
                     if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame(0);
                         const frames = frameCache.frames;
-                        this._curFrame = frames[frames.length - 1];
+                        this._curFrame = frames[1];
                     }
                     return;
                 }
@@ -933,7 +933,6 @@ export class Skeleton extends UIRenderer {
                 this._playCount = 0;
                 this._isAniComplete = true;
                 this._emitCacheCompleteEvent();
-                return;
             }
             this._accTime = 0;
             frameIdx = 0;
@@ -1222,6 +1221,20 @@ export class Skeleton extends UIRenderer {
             this._skeleton.setSlotsToSetupPose();
         }
     }
+
+    /**
+     * @en
+     * Invalidates the animation cache, which is then recomputed on each frame.
+     * @zh
+     * 使动画缓存失效，之后会在每帧重新计算。
+     * @method invalidAnimationCache
+     */
+        public invalidAnimationCache () {
+            if (!this.isAnimationCached()) return;
+            if (this._skeletonCache) {
+                this._skeletonCache.invalidAnimationCache(this._skeletonData!.uuid);
+            }
+        }
 
     /**
      * @en

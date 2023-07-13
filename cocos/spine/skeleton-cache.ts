@@ -214,7 +214,6 @@ export class AnimationCache {
             boneInfo.worldY = bone.worldY;
             boneInfosArray.push(boneInfo);
         });
-
         this.frames[index] = {
             model: modelData,
             boneInfos: boneInfosArray,
@@ -235,14 +234,9 @@ export class AnimationCache {
                 // If pre animation not finished, play it to the end.
                 preAnimationCache.updateToFrame(0);
             }
-        }
-
-        const skeleton = skeletonInfo?.skeleton;
+        } 
         const listener = skeletonInfo?.listener;
-        const state = skeletonInfo?.state;
-
-        const animation = skeleton?.data.findAnimation(this._animationName!);
-        state?.setAnimationWith(0, animation!, false);
+        this._instance.setAnimation(0, this._animationName!, false);
         this.bind(listener!);
 
         // record cur animation cache
@@ -336,6 +330,18 @@ class SkeletonCache {
         this._skeletonCache = {};
     }
 
+    public invalidAnimationCache (uuid: string) {
+        const skeletonInfo = this._skeletonCache[uuid];
+        const skeleton = skeletonInfo && skeletonInfo.skeleton;
+        if (!skeleton) return;
+
+        const animationsCache = skeletonInfo.animationsCache;
+        for (const aniKey in animationsCache) {
+            const animationCache = animationsCache[aniKey];
+            animationCache.invalidAllFrame();
+        }
+    }
+
     public removeSkeleton (uuid: string) {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return;
@@ -381,23 +387,30 @@ class SkeletonCache {
         return animCache;
     }
 
-    public initAnimationCache (data: SkeletonData, animationName: string) {
-        const uuid = data.uuid;
-        const poolKey = `${uuid}#${animationName}`;
+    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string) {
         const spData = data.getRuntimeData();
-
-        let animCache = this._animationPool[poolKey];
-        if (animCache) {
-            delete this._animationPool[poolKey];
-        } else {
-            animCache = new AnimationCache(spData!);
-            this._animationPool[poolKey] = animCache;
-        }
-
+        if(!spData) return null;
         const skeletonInfo = this._skeletonCache[uuid];
-        animCache.init(skeletonInfo, animationName);
-        animCache.setAnimation(animationName);
-        return animCache;
+        const skeleton = skeletonInfo && skeletonInfo.skeleton;
+        if (!skeleton) return null;
+        const animationsCache = skeletonInfo.animationsCache;
+        let animationCache = animationsCache[animationName];
+        if (!animationCache) {
+            // If cache exist in pool, then just use it.
+            const poolKey = `${uuid}#${animationName}`;
+            animationCache = this._animationPool[poolKey];
+            if (animationCache) {
+                delete this._animationPool[poolKey];
+            } else {
+                animationCache = new AnimationCache(spData);
+                animationCache._privateMode = this._privateMode;
+            }
+            animationCache.init(skeletonInfo, animationName);
+            animationsCache[animationName] = animationCache;
+        }
+        animationCache.init(skeletonInfo, animationName);
+        animationCache.setAnimation(animationName);
+        return animationCache;
     }
 
     public destroyCachedAnimations (uuid?: string) {
