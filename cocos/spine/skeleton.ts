@@ -882,7 +882,7 @@ export class Skeleton extends UIRenderer {
                     if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame(0);
                         const frames = frameCache.frames;
-                        this._curFrame = frames[1];
+                        this._curFrame = frames[frames.length - 1];
                     }
                     return;
                 }
