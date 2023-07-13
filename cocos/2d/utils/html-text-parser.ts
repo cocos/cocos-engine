@@ -131,7 +131,7 @@ export class HtmlTextParser {
         let header = /^(color|size)(\s)*=/.exec(attribute);
         let tagName = '';
         let nextSpace = 0;
-        let eventHanlderString = '';
+        let eventHandlerString = '';
         if (header) {
             tagName = header[0];
             attribute = attribute.substring(tagName.length).trim();
@@ -158,8 +158,8 @@ export class HtmlTextParser {
 
             // tag has event arguments
             if (nextSpace > -1) {
-                eventHanlderString = attribute.substring(nextSpace + 1).trim();
-                obj.event = this._processEventHandler(eventHanlderString);
+                eventHandlerString = attribute.substring(nextSpace + 1).trim();
+                obj.event = this._processEventHandler(eventHandlerString);
             }
             return obj;
         }
