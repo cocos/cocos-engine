@@ -17,7 +17,7 @@ import { PoseGraphType } from '../foundation/type-system';
 import { TransformSpace } from './transform-space';
 import { Transform } from '../../../core/transform';
 
-enum TransformOperation {
+export enum TransformOperation {
     LEAVE_UNCHANGED,
 
     REPLACE,
