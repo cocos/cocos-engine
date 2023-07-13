@@ -30,6 +30,7 @@ import { ClearFlagBit, Filter, Format, Framebuffer, Texture, TextureBlit, Textur
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 import { canGenerateMipmap, getMipLevel } from '../../asset/assets/simple-texture';
+import { legacyCC } from '../../core/global-exports';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -290,10 +291,10 @@ export class ReflectionProbe {
         this._boundingBox = geometry.AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         this._createCamera(cameraNode);
 
-        const canvasSize = cclegacy.view.getDesignResolutionSize();
-        this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
-        const width = canvasSize.width;
-        const height = canvasSize.height;
+        const width = legacyCC.view.getViewportRect().width;
+        const height = legacyCC.view.getViewportRect().height;
+        this.realtimePlanarTexture = this._createTargetTexture(width, height);
+
         if (canGenerateMipmap(deviceManager.gfxDevice, width, height)) {
             this._mipmapCount = 1;
             this._mipmapCount = getMipLevel(width, height);
