@@ -253,11 +253,11 @@ export class Skeleton extends UIRenderer {
     /**
      * @internal
      */
-    public _startEntry:spine.TrackEntry;
+    public _startEntry: spine.TrackEntry;
     /**
      * @internal
      */
-    public _endEntry:spine.TrackEntry;
+    public _endEntry: spine.TrackEntry;
     // Paused or playing state
     protected _paused = false;
 
@@ -855,14 +855,15 @@ export class Skeleton extends UIRenderer {
      *
      * @param skinName @en The name of skin. @zh 皮肤名称。
      */
-    public setSkin (name: string) {        
+    public setSkin (name: string) {
         if (this.isAnimationCached()) {
             if (this._animCache) {
                 this._animCache.setSkin(name);
-                this.invalidAnimationCache(); 
+                this.invalidAnimationCache();
             }
         }
         this._instance.setSkin(name);
+        this._updateSkeletonData();
     }
 
     /**
@@ -1229,12 +1230,12 @@ export class Skeleton extends UIRenderer {
      * 使动画缓存失效，之后会在每帧重新计算。
      * @method invalidAnimationCache
      */
-        public invalidAnimationCache () {
-            if (!this.isAnimationCached()) return;
-            if (this._skeletonCache) {
-                this._skeletonCache.invalidAnimationCache(this._skeletonData!.uuid);
-            }
+    public invalidAnimationCache () {
+        if (!this.isAnimationCached()) return;
+        if (this._skeletonCache) {
+            this._skeletonCache.invalidAnimationCache(this._skeletonData!.uuid);
         }
+    }
 
     /**
      * @en

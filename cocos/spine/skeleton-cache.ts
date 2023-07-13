@@ -231,7 +231,7 @@ export class AnimationCache {
                 // If pre animation not finished, play it to the end.
                 preAnimationCache.updateToFrame(0);
             }
-        } 
+        }
         const listener = skeletonInfo?.listener;
         this._instance.setAnimation(0, this._animationName!, false);
         this.bind(listener!);
@@ -386,7 +386,7 @@ class SkeletonCache {
 
     public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string) {
         const spData = data.getRuntimeData();
-        if(!spData) return null;
+        if (!spData) return null;
         const skeletonInfo = this._skeletonCache[uuid];
         const skeleton = skeletonInfo && skeletonInfo.skeleton;
         if (!skeleton) return null;
