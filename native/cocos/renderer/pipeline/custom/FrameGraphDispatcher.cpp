@@ -767,7 +767,7 @@ void startRenderPass(const Graphs &graphs, uint32_t passID, const RasterPass &pa
     } else {
         const auto &subpasses = pass.subpassGraph.subpasses;
         uint32_t initVal{0};
-        auto count = std::accumulate(subpasses.begin(), subpasses.end(), initVal, [](uint32_t ct, const Subpass &subpass) {
+        fgRenderPassInfo.resolveCount = std::accumulate(subpasses.begin(), subpasses.end(), initVal, [](uint32_t ct, const Subpass &subpass) {
             return ct + subpass.resolvePairs.size();
         });
     }
@@ -837,12 +837,12 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
                 return strcmp(resolve.target.c_str(), name.data()) == 0;
             });
             if (desc.format == gfx::Format::DEPTH_STENCIL) {
-                subpassInfo.depthStencilResolve = uberPass->rasterViews.size();
+                subpassInfo.depthStencilResolve = uberPass->rasterViews.size() - hasDS + fgRenderpassInfo.resolveCount + 1;
                 subpassInfo.depthResolveMode = resolveIter->mode;
                 subpassInfo.stencilResolveMode = resolveIter->mode1;
             } else {
                 if (subpassInfo.resolves.empty()) {
-                    subpassInfo.resolves.resize(pass.rasterViews.size() + 1, gfx::INVALID_BINDING);
+                    subpassInfo.resolves.resize(pass.rasterViews.size() - hasDS, gfx::INVALID_BINDING);
                 }
                 const auto &resolveSrc = resolveIter->source;
                 const auto& [srcIndex, ignored] = fgRenderpassInfo.viewIndex.at(resolveSrc.c_str());
@@ -1220,16 +1220,17 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         auto iter = accessRecord.begin();
         for (auto nextIter = iter + 1; nextIter != accessRecord.end(); ++iter, ++nextIter) {
             auto srcRagVertID = iter->first;
-            auto dstRagVertID = iter->first;
-            auto srcPassID = rag.passID.at(iter->first);
-            auto dstPassID = rag.passID.at(nextIter->first);
+            auto dstRagVertID = nextIter->first;
+            auto srcPassID = rag.passID.at(srcRagVertID);
+            auto dstPassID = rag.passID.at(dstRagVertID);
 
-            if (srcRagVertID == 0 || holds<RasterPassTag>(dstPassID, renderGraph) || holds<RasterSubpassTag>(dstPassID, renderGraph)) {
+            if (holds<RasterPassTag>(dstPassID, renderGraph) || holds<RasterSubpassTag>(dstPassID, renderGraph)) {
                 // renderpass info instead
                 continue;
             }
 
-            if (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph)) {
+            // subpass layout transition
+            if ((srcRagVertID != 0) && (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph))) {
                 auto ragVertID = srcRagVertID;
                 if (holds<RasterSubpassTag>(srcPassID, renderGraph)) {
                     auto parentID = parent(srcPassID, renderGraph);
@@ -1262,6 +1263,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 continue;
             }
 
+            // undefined access
             if (iter == accessRecord.begin()) {
                 auto &dstBarrierNode = get(ResourceAccessGraph::BarrierTag{}, rag, dstRagVertID);
                 auto &firstMeetBarrier = dstBarrierNode.frontBarriers.emplace_back();
