@@ -11,7 +11,7 @@ exports.$ = {
 };
 
 exports.update = function(dump) {
-    updatePropByDump(this, dump);
+    updatePropByDump(this, dump, ['name', 'enabled']);
 };
 
 exports.close = function() {

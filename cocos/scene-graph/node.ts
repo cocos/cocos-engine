@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable, type } from 'cc.decorator';
+import { ccclass, editable, serializable, type, visible } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
@@ -152,6 +152,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @readOnly
      */
+    @visible(false)
     get uuid (): string {
         return this._id;
     }

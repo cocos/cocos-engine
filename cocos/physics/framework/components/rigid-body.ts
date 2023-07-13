@@ -37,8 +37,8 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn } from '../../../core';
+import { DEBUG, EDITOR } from 'internal:constants';
+import { Vec3, error, warn, CCClass } from '../../../core';
 import { Component } from '../../../scene-graph';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { selector, createRigidBody } from '../physics-selector';
@@ -684,6 +684,10 @@ export class RigidBody extends Component {
     public removeMask (v: number): void {
         if (this._isInitialized) this._body!.removeMask(v);
     }
+}
+
+if (EDITOR) {
+    CCClass.Attr.setClassAttr(RigidBody, 'enabled', 'visible', false);
 }
 
 function isDynamicBody (this: RigidBody): boolean { return this.isDynamic; }
