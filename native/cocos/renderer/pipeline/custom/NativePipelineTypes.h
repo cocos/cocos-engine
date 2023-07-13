@@ -606,7 +606,7 @@ public:
 struct RenderInstancingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {batches.get_allocator().resource()};
+        return {sortedBatches.get_allocator().resource()};
     }
 
     RenderInstancingQueue(const allocator_type& alloc) noexcept; // NOLINT
@@ -618,7 +618,9 @@ struct RenderInstancingQueue {
     RenderInstancingQueue& operator=(RenderInstancingQueue&& rhs) = default;
     RenderInstancingQueue& operator=(RenderInstancingQueue const& rhs) = default;
 
-    void add(pipeline::InstancedBuffer &instancedBuffer);
+    bool empty() const noexcept;
+    void clear();
+    void add(const scene::Pass& pass, scene::SubModel& submodel, uint32_t passID);
     void sort();
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
     void recordCommandBuffer(
@@ -626,8 +628,9 @@ struct RenderInstancingQueue {
         gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0,
         const ccstd::vector<uint32_t> *dynamicOffsets = nullptr) const;
 
-    PmrUnorderedSet<pipeline::InstancedBuffer*> batches;
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
+    PmrUnorderedMap<const scene::Pass*, uint32_t> passInstances;
+    ccstd::pmr::vector<IntrusivePtr<pipeline::InstancedBuffer>> instanceBuffers;
 };
 
 struct RenderBatchingQueue {

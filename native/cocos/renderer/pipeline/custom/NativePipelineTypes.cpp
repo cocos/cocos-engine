@@ -35,16 +35,19 @@ namespace cc {
 namespace render {
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
-: batches(alloc),
-  sortedBatches(alloc) {}
+: sortedBatches(alloc),
+  passInstances(alloc),
+  instanceBuffers(alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue&& rhs, const allocator_type& alloc)
-: batches(std::move(rhs.batches), alloc),
-  sortedBatches(std::move(rhs.sortedBatches), alloc) {}
+: sortedBatches(std::move(rhs.sortedBatches), alloc),
+  passInstances(std::move(rhs.passInstances), alloc),
+  instanceBuffers(std::move(rhs.instanceBuffers), alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, const allocator_type& alloc)
-: batches(rhs.batches, alloc),
-  sortedBatches(rhs.sortedBatches, alloc) {}
+: sortedBatches(rhs.sortedBatches, alloc),
+  passInstances(rhs.passInstances, alloc),
+  instanceBuffers(rhs.instanceBuffers, alloc) {}
 
 RenderBatchingQueue::RenderBatchingQueue(const allocator_type& alloc) noexcept
 {}

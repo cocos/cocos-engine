@@ -23,18 +23,16 @@
 */
 
 import {
-    ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
-    tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
+    ccclass, disallowMultiple,
+    tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat, Eventify, CCBoolean } from '../../../../core';
+import { Vec3, warn, CCFloat, Eventify } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
-import { VEC3_0 } from '../../../utils/util';
 import { ECharacterControllerType } from '../../physics-enum';
 import { CharacterCollisionEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
-import { Collider } from '../colliders/collider';
 
 const v3_0 = new Vec3(0, 0, 0);
 const scaledCenter = new Vec3(0, 0, 0);
@@ -133,20 +131,19 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the contact offset of the character controller.
-     * Contact offset is the character's collision skin width.
+     * Gets or sets the skin width of the character controller.
      * @zh
-     * 获取或设置角色控制器的接触间隙。
+     * 获取或设置角色控制器的皮肤宽度。
      */
-    @tooltip('i18n:physics3d.character_controller.contactOffset')
+    @tooltip('i18n:physics3d.character_controller.skinWidth')
     @type(CCFloat)
-    public get contactOffset (): number {
-        return this._contactOffset;
+    public get skinWidth (): number {
+        return this._skinWidth;
     }
 
-    public set contactOffset (value) {
-        if (this._contactOffset === value) return;
-        this._contactOffset = Math.abs(value);
+    public set skinWidth (value) {
+        if (this._skinWidth === value) return;
+        this._skinWidth = Math.abs(value);
         if (this._cct) {
             this._cct.setContactOffset(value);
         }
@@ -204,7 +201,7 @@ export class CharacterController extends Eventify(Component) {
         return this._center;
     }
 
-    public set center (value: Vec3) {
+    public set center (value: Readonly<Vec3>) {
         if (Vec3.equals(this._center, value)) return;
         Vec3.copy(this._center, value);
         // if (this._cct) { //update cct position
@@ -239,7 +236,7 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _contactOffset = 0.01;
+    private _skinWidth = 0.01;
     // @serializable
     // private _detectCollisions = true;
     // @serializable
@@ -313,7 +310,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 设置中心的世界坐标。
      */
-    public set centerWorldPosition (value: Vec3) {
+    public set centerWorldPosition (value: Readonly<Vec3>) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 

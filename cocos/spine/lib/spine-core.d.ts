@@ -1277,7 +1277,7 @@ declare namespace spine {
     class SkeletonInstance {
         initSkeleton(data: SkeletonData);
         getAnimationState();
-        setAnimation(trackIndex: number, name: string, loop: boolean);
+        setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
         setSkin(name: string);
         setPremultipliedAlpha(usePremultipliedAlpha: boolean);
         setColor(r: number, g: number, b: number, a: number);
@@ -1291,6 +1291,8 @@ declare namespace spine {
         setListener(id: number, type: number);
         setDebugMode(debug: boolean);
         getDebugShapes();
+        resizeSlotRegion(slotName: string, width: number, height: number, createNew: boolean);
+        setSlotTexture(slotName: string, index: number);
     }
 
     class wasmUtil {

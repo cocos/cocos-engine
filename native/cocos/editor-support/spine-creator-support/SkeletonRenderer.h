@@ -36,6 +36,7 @@
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "base/RefMap.h"
+#include "core/assets/Texture2D.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/VertexEffectDelegate.h"
 #include "spine/spine.h"
@@ -44,7 +45,7 @@ namespace cc {
 class RenderEntity;
 class RenderDrawInfo;
 class Material;
-};
+}; // namespace cc
 
 namespace spine {
 
@@ -145,11 +146,12 @@ public:
     void initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     virtual void initialize();
- 
+
     cc::RenderDrawInfo *requestDrawInfo(int idx);
     cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
     void setMaterial(cc::Material *material);
-    void setRenderEntity(cc::RenderEntity* entity);
+    void setRenderEntity(cc::RenderEntity *entity);
+    void setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment);
 
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
@@ -184,7 +186,7 @@ protected:
     cc::RenderEntity *_entity = nullptr;
     cc::Material *_material = nullptr;
     ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
-    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
+    ccstd::unordered_map<uint32_t, cc::Material *> _materialCaches;
 };
 
 } // namespace spine

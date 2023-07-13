@@ -121,8 +121,7 @@ void PhysXRigidBody::setAngularFactor(float x, float y, float z) {
 
 void PhysXRigidBody::setAllowSleep(bool v) {
     if (!getSharedBody().isDynamic()) return;
-    PxReal st = getSharedBody().getImpl().rigidDynamic->getSleepThreshold();
-    PxReal wc = v ? std::max(0.F, st - 0.001F) : FLT_MAX;
+    PxReal wc = v ? 0.0001F : FLT_MAX;
     getSharedBody().getImpl().rigidDynamic->setWakeCounter(wc);
 }
 
@@ -153,11 +152,15 @@ void PhysXRigidBody::clearVelocity() {
 
 void PhysXRigidBody::setSleepThreshold(float v) {
     if (getSharedBody().isStatic()) return;
-    getSharedBody().getImpl().rigidDynamic->setSleepThreshold(v);
+    //(approximated) mass-normalized kinetic energy
+    float ke = 0.5F * v * v;
+    getSharedBody().getImpl().rigidDynamic->setSleepThreshold(ke);
 }
 
 float PhysXRigidBody::getSleepThreshold() {
-    return getSharedBody().getImpl().rigidDynamic->getSleepThreshold();
+    float ke = getSharedBody().getImpl().rigidDynamic->getSleepThreshold();
+    float v = sqrtf(2.F * ke);
+    return v;
 }
 
 cc::Vec3 PhysXRigidBody::getLinearVelocity() {

@@ -704,7 +704,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_r_unsafe (red): Color {
+    public _set_r_unsafe (red: number): Color {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
@@ -712,7 +712,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_g_unsafe (green): Color {
+    public _set_g_unsafe (green: number): Color {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
@@ -720,7 +720,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_b_unsafe (blue): Color {
+    public _set_b_unsafe (blue: number): Color {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
@@ -728,7 +728,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_a_unsafe (alpha): Color {
+    public _set_a_unsafe (alpha: number): Color {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     }

@@ -2382,7 +2382,7 @@ if(USE_MIDDLEWARE)
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                                      cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
-                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h                                  
 
         )
         cocos_source_files(

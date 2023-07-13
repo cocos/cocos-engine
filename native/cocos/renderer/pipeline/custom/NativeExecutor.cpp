@@ -2065,10 +2065,10 @@ struct CommandSubmitter {
 
 void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group) {
     // keep instanceBuffers
-    for (const auto& batch : queue.opaqueInstancingQueue.batches) {
+    for (const auto& batch : queue.opaqueInstancingQueue.sortedBatches) {
         group.instancingBuffers.emplace(batch);
     }
-    for (const auto& batch : queue.transparentInstancingQueue.batches) {
+    for (const auto& batch : queue.transparentInstancingQueue.sortedBatches) {
         group.instancingBuffers.emplace(batch);
     }
 }

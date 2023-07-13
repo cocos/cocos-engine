@@ -18,7 +18,7 @@
 #define EPSILON           1e-6
 #define EPSILON_LOWP      1e-4
 #define LOG2              1.442695
-#define EXP_VALUE         2.71828183f
+#define EXP_VALUE         2.71828183
 #define FP_MAX            65504.0
 #define FP_SCALE          0.0009765625
 #define FP_SCALE_INV      1024.0
@@ -84,3 +84,11 @@ vec4 saturate(vec4 value) { return clamp(value, vec4(0.0), vec4(1.0)); }
 
 // Material
 #define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0
+
+// CC_USE_DEBUG_VIEW Values
+#ifndef CC_SURFACES_DEBUG_VIEW_SINGLE
+  #define CC_SURFACES_DEBUG_VIEW_SINGLE 1
+#endif
+#ifndef CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  #define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC 2
+#endif

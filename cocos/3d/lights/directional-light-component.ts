@@ -29,10 +29,9 @@ import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Sett
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { MeshRenderer } from '../framework/mesh-renderer';
-import { director } from '../../game/director';
-import { rangeMin } from '../../core/data/decorators';
 
-const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
+const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help,
+    visible, type, editable, slide, range } = _decorator;
 
 /**
  * @en The directional light component, only one real time directional light is permitted in one scene, it act as the main light of the scene.
@@ -97,7 +96,7 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.illuminance')
     @editable
-    @rangeMin(0)
+    @range([0, Number.POSITIVE_INFINITY, 10])
     @type(CCInteger)
     get illuminance (): number {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
