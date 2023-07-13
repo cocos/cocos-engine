@@ -38,8 +38,8 @@ import {
     serializable,
     override,
 } from 'cc.decorator';
-import { DEBUG, EDITOR } from 'internal:constants';
-import { Vec3, error, warn, CCClass } from '../../../core';
+import { DEBUG } from 'internal:constants';
+import { Vec3, error, warn } from '../../../core';
 import { Component } from '../../../scene-graph';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { selector, createRigidBody } from '../physics-selector';
