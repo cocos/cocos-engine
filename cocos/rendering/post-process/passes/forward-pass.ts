@@ -16,7 +16,7 @@ export class ForwardPass extends BasePass {
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
 
-    calcDepthSlot (camera: Camera) {
+    calcDepthSlot (camera: Camera): void {
         let canUsePrevDepth = !!passContext.depthSlotName;
         canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
         canUsePrevDepth = canUsePrevDepth && passContext.shadingScale === this.depthBufferShadingScale;
@@ -28,7 +28,7 @@ export class ForwardPass extends BasePass {
         passContext.depthSlotName = super.slotName(camera, 1);
     }
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         if (index === 1) {
             return passContext.depthSlotName;
         }
@@ -36,7 +36,7 @@ export class ForwardPass extends BasePass {
         return super.slotName(camera, index);
     }
 
-    public render (camera: Camera, ppl: Pipeline) {
+    public render (camera: Camera, ppl: Pipeline): void {
         passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
         Vec4.set(passContext.clearColor, 0, 0, 0, 0);
         Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);

@@ -42,7 +42,6 @@ void SkinInfo::setBlurRadius(float val) {
     if (_resource != nullptr) {
         _resource->setBlurRadius(val);
     }
-
 }
 
 void SkinInfo::setSSSIntensity(float val) {

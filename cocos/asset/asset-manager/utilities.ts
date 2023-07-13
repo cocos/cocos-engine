@@ -39,11 +39,11 @@ declare class WeakRef {
     constructor (obj: any);
 }
 
-export function setDefaultProgressCallback (onProgress: (finished: number, total: number, item: RequestItem) => void) {
+export function setDefaultProgressCallback (onProgress: (finished: number, total: number, item: RequestItem) => void): void {
     defaultProgressCallback = onProgress;
 }
 
-export function clear (task: Task, clearRef: boolean) {
+export function clear (task: Task, clearRef: boolean): void {
     for (let i = 0, l = task.input.length; i < l; i++) {
         const item = task.input[i] as RequestItem;
         if (clearRef) {
@@ -69,15 +69,15 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
 
 export type RetryFunction = (times: number, done: ((err: Error | null, data?: any | null) => void)) => void;
 
-export function retry (process: RetryFunction, times: number, wait: number, onComplete: ((err: Error | null, data?: any | null) => void), index = 0) {
-    process(index, (err, result) => {
+export function retry (process: RetryFunction, times: number, wait: number, onComplete: ((err: Error | null, data?: any | null) => void), index = 0): void {
+    process(index, (err, result): void => {
         index++;
         if (!err || index > times) {
             if (onComplete) {
                 onComplete(err, result);
             }
         } else {
-            setTimeout(() => {
+            setTimeout((): void => {
                 retry(process, times, wait, onComplete, index);
             }, wait);
         }
@@ -106,7 +106,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
     }
 }
 
-export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
+export function cache (id: string, asset: Asset, cacheAsset?: boolean): void {
     if (!asset) { return; }
     cacheAsset = cacheAsset !== undefined ? cacheAsset : cclegacy.assetManager.cacheAsset;
     if (!isScene(asset) && cacheAsset && !asset.isDefault) {
@@ -114,7 +114,7 @@ export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     }
 }
 
-export function setProperties (uuid: string, asset: Asset, assetsMap: Record<string, any>) {
+export function setProperties (uuid: string, asset: Asset, assetsMap: Record<string, any>): boolean {
     let missingAsset = false;
     const depends = dependMap.get(asset);
     if (depends) {
@@ -171,7 +171,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
     return missingAsset;
 }
 
-export function gatherAsset (task: Task) {
+export function gatherAsset (task: Task): void {
     const source = task.source;
     if (!task.options!.__outputAsArray__ && source.length === 1) {
         task.output = source[0].content;
@@ -185,14 +185,14 @@ export function gatherAsset (task: Task) {
 
 type ForEachFunction<T> = (item: T, done: ((err?: Error | null) => void)) => void;
 
-export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onComplete: (errs: Error[]) => void) {
+export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onComplete: (errs: Error[]) => void): void {
     let count = 0;
     const errs: Error[] = [];
     const length = array.length;
     if (length === 0 && onComplete) {
         onComplete(errs);
     }
-    const cb = (err) => {
+    const cb = (err): void => {
         if (err) {
             errs.push(err);
         }
@@ -297,16 +297,16 @@ export function checkCircleReference (owner: string, uuid: string, map: Record<s
 }
 
 export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any, p2?: any) => void {
-    return (p1, p2) => {
+    return (p1, p2): void => {
         if (!cb) { return; }
         const refs: Asset[] = [];
         if (Array.isArray(p2)) {
-            p2.forEach((x) => x instanceof Asset && refs.push(x.addRef()));
+            p2.forEach((x): number | boolean => x instanceof Asset && refs.push(x.addRef()));
         } else if (p2 instanceof Asset) {
             refs.push(p2.addRef());
         }
-        misc.callInNextTick(() => {
-            refs.forEach((x) => x.decRef(false));
+        misc.callInNextTick((): void => {
+            refs.forEach((x): Asset => x.decRef(false));
             cb(p1, p2);
         });
     };

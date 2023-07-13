@@ -29,6 +29,7 @@ import { DrawBatch2D } from '../renderer/draw-batch';
 import { Color, warnID } from '../../core';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 import { director } from '../../game';
+import type { Batcher2D } from '../renderer/batcher-2d';
 
 /**
  * @en
@@ -68,7 +69,7 @@ export class UIStaticBatch extends UIRenderer {
         this._color.set(value);
     }
 
-    get drawBatchList () {
+    get drawBatchList (): DrawBatch2D[] {
         return this._uiDrawBatchList;
     }
 
@@ -77,7 +78,7 @@ export class UIStaticBatch extends UIRenderer {
     protected _dirty = true;
     private _uiDrawBatchList: DrawBatch2D[] = [];
 
-    public postUpdateAssembler (render: IBatcher) {
+    public postUpdateAssembler (render: IBatcher): void {
         // if (this._dirty) {
         //     this._dirty = false;
         //     this._init = true;
@@ -98,7 +99,7 @@ export class UIStaticBatch extends UIRenderer {
      * 重新采集数据标记，会在当前帧的渲染阶段重新采集渲染数据，下一帧开始将会使用固定数据进行渲染。
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
-    public markAsDirty () {
+    public markAsDirty (): void {
 
         // this.node._static = false;
         // this._dirty = true;
@@ -109,14 +110,14 @@ export class UIStaticBatch extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _requireDrawBatch () {
+    public _requireDrawBatch (): DrawBatch2D {
         const batch = new DrawBatch2D();
         batch.isStatic = true;
         this._uiDrawBatchList.push(batch);
         return batch;
     }
 
-    protected _clearData () {
+    protected _clearData (): void {
         if (this._bufferAccessor) {
             this._bufferAccessor.reset();
 
@@ -131,7 +132,7 @@ export class UIStaticBatch extends UIRenderer {
         this._init = false;
     }
 
-    protected _getBatcher () {
+    protected _getBatcher (): Batcher2D | null {
         if (director.root && director.root.batcher2D) {
             return director.root.batcher2D;
         }

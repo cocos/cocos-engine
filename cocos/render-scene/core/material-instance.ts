@@ -39,11 +39,11 @@ export interface IMaterialInstanceInfo {
  * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
  */
 export class MaterialInstance extends Material {
-    get parent () {
+    get parent (): Material {
         return this._parent;
     }
 
-    get owner () {
+    get owner (): Renderer | null {
         return this._owner;
     }
 
@@ -89,19 +89,19 @@ export class MaterialInstance extends Material {
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         this._doDestroy();
         return true;
     }
 
-    public onPassStateChange (dontNotify: boolean) {
+    public onPassStateChange (dontNotify: boolean): void {
         this._hash = Material.getHash(this);
         if (!dontNotify && this._owner) {
             this._owner._onRebuildPSO(this._subModelIdx, this);
         }
     }
 
-    protected _createPasses () {
+    protected _createPasses (): PassInstance[] {
         const passes: PassInstance[] = [];
         const parentPasses = this._parent.passes;
         if (!parentPasses) { return passes; }

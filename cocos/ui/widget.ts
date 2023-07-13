@@ -27,7 +27,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { EDITOR, DEV, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
-import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, cclegacy } from '../core';
+import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, cclegacy, Rect } from '../core';
 import { View } from './view';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
@@ -37,7 +37,20 @@ import { NodeEventType } from '../scene-graph/node-event';
 const _tempScale = new Vec2();
 
 // returns a readonly size of the node
-export function getReadonlyNodeSize (parent: Node | Scene) {
+export function getReadonlyNodeSize (parent: Node | Scene): {
+    topLeft: any;
+    topRight: any;
+    top: any;
+    bottomLeft: any;
+    bottomRight: any;
+    bottom: any;
+    center: any;
+    left: any;
+    right: any;
+    width: number;
+    height: number;
+    init(visibleRect_: Rect): void;
+} | Readonly<Size> {
     if (parent instanceof Scene) {
         if (EDITOR) {
             // const canvasComp = parent.getComponentInChildren(Canvas);
@@ -56,7 +69,7 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2) {
+export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2): void {
     if (widgetNode.parent) {
         _tempScale.set(widgetNode.parent.getScale().x, widgetNode.parent.getScale().y);
     } else {
@@ -221,7 +234,7 @@ export class Widget extends Component {
      */
     @type(Node)
     @tooltip('i18n:widget.target')
-    get target () {
+    get target (): Node | null {
         return this._target;
     }
 
@@ -251,7 +264,7 @@ export class Widget extends Component {
      * 是否对齐上边。
      */
     @tooltip('i18n:widget.align_top')
-    get isAlignTop () {
+    get isAlignTop (): boolean {
         return (this._alignFlags & AlignFlags.TOP) > 0;
     }
     set isAlignTop (value) {
@@ -267,7 +280,7 @@ export class Widget extends Component {
      * 是否对齐下边。
      */
     @tooltip('i18n:widget.align_bottom')
-    get isAlignBottom () {
+    get isAlignBottom (): boolean {
         return (this._alignFlags & AlignFlags.BOT) > 0;
     }
     set isAlignBottom (value) {
@@ -283,7 +296,7 @@ export class Widget extends Component {
      * 是否对齐左边。
      */
     @tooltip('i18n:widget.align_left')
-    get isAlignLeft () {
+    get isAlignLeft (): boolean {
         return (this._alignFlags & AlignFlags.LEFT) > 0;
     }
     set isAlignLeft (value) {
@@ -299,7 +312,7 @@ export class Widget extends Component {
      * 是否对齐右边。
      */
     @tooltip('i18n:widget.align_right')
-    get isAlignRight () {
+    get isAlignRight (): boolean {
         return (this._alignFlags & AlignFlags.RIGHT) > 0;
     }
     set isAlignRight (value) {
@@ -315,7 +328,7 @@ export class Widget extends Component {
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
      */
     @tooltip('i18n:widget.align_h_center')
-    get isAlignVerticalCenter () {
+    get isAlignVerticalCenter (): boolean {
         return (this._alignFlags & AlignFlags.MID) > 0;
     }
     set isAlignVerticalCenter (value) {
@@ -338,7 +351,7 @@ export class Widget extends Component {
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
      */
     @tooltip('i18n:widget.align_v_center')
-    get isAlignHorizontalCenter () {
+    get isAlignHorizontalCenter (): boolean {
         return (this._alignFlags & AlignFlags.CENTER) > 0;
     }
     set isAlignHorizontalCenter (value) {
@@ -361,7 +374,7 @@ export class Widget extends Component {
      * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸。此时节点的宽度（只读）。
      */
     @visible(false)
-    get isStretchWidth () {
+    get isStretchWidth (): boolean {
         return (this._alignFlags & LEFT_RIGHT) === LEFT_RIGHT;
     }
 
@@ -374,7 +387,7 @@ export class Widget extends Component {
      * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度（只读）。
      */
     @visible(false)
-    get isStretchHeight () {
+    get isStretchHeight (): boolean {
         return (this._alignFlags & TOP_BOT) === TOP_BOT;
     }
 
@@ -389,7 +402,7 @@ export class Widget extends Component {
      * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
      */
     @tooltip('i18n:widget.top')
-    get top () {
+    get top (): number {
         return this._top;
     }
     set top (value) {
@@ -401,7 +414,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorTop () {
+    get editorTop (): number {
         return this._isAbsTop ? this._top : (this._top * 100);
     }
     set editorTop (value) {
@@ -418,7 +431,7 @@ export class Widget extends Component {
      * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
      */
     @tooltip('i18n:widget.bottom')
-    get bottom () {
+    get bottom (): number {
         return this._bottom;
     }
     set bottom (value) {
@@ -430,7 +443,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorBottom () {
+    get editorBottom (): number {
         return this._isAbsBottom ? this._bottom : (this._bottom * 100);
     }
     set editorBottom (value) {
@@ -447,7 +460,7 @@ export class Widget extends Component {
      * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
      */
     @tooltip('i18n:widget.left')
-    get left () {
+    get left (): number {
         return this._left;
     }
     set left (value) {
@@ -459,7 +472,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorLeft () {
+    get editorLeft (): number {
         return this._isAbsLeft ? this._left : (this._left * 100);
     }
     set editorLeft (value) {
@@ -476,7 +489,7 @@ export class Widget extends Component {
      * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
      */
     @tooltip('i18n:widget.right')
-    get right () {
+    get right (): number {
         return this._right;
     }
     set right (value) {
@@ -488,7 +501,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorRight () {
+    get editorRight (): number {
         return this._isAbsRight ? this._right : (this._right * 100);
     }
     set editorRight (value) {
@@ -505,7 +518,7 @@ export class Widget extends Component {
      * 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
      */
     @tooltip('i18n:widget.horizontal_center')
-    get horizontalCenter () {
+    get horizontalCenter (): number {
         return this._horizontalCenter;
     }
     set horizontalCenter (value) {
@@ -517,7 +530,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorHorizontalCenter () {
+    get editorHorizontalCenter (): number {
         return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
     }
     set editorHorizontalCenter (value) {
@@ -534,7 +547,7 @@ export class Widget extends Component {
      * 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
      */
     @tooltip('i18n:widget.vertical_center')
-    get verticalCenter () {
+    get verticalCenter (): number {
         return this._verticalCenter;
     }
     set verticalCenter (value) {
@@ -546,7 +559,7 @@ export class Widget extends Component {
      * @EditorOnly Not for user
      */
     @editable
-    get editorVerticalCenter () {
+    get editorVerticalCenter (): number {
         return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
     }
     set editorVerticalCenter (value) {
@@ -562,7 +575,7 @@ export class Widget extends Component {
      * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @editable
-    get isAbsoluteTop () {
+    get isAbsoluteTop (): boolean {
         return this._isAbsTop;
     }
     set isAbsoluteTop (value) {
@@ -582,7 +595,7 @@ export class Widget extends Component {
      * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @editable
-    get isAbsoluteBottom () {
+    get isAbsoluteBottom (): boolean {
         return this._isAbsBottom;
     }
     set isAbsoluteBottom (value) {
@@ -602,7 +615,7 @@ export class Widget extends Component {
      * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @editable
-    get isAbsoluteLeft () {
+    get isAbsoluteLeft (): boolean {
         return this._isAbsLeft;
     }
     set isAbsoluteLeft (value) {
@@ -622,7 +635,7 @@ export class Widget extends Component {
      * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @editable
-    get isAbsoluteRight () {
+    get isAbsoluteRight (): boolean {
         return this._isAbsRight;
     }
     set isAbsoluteRight (value) {
@@ -642,7 +655,7 @@ export class Widget extends Component {
      * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @editable
-    get isAbsoluteHorizontalCenter () {
+    get isAbsoluteHorizontalCenter (): boolean {
         return this._isAbsHorizontalCenter;
     }
     set isAbsoluteHorizontalCenter (value) {
@@ -662,7 +675,7 @@ export class Widget extends Component {
      * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @editable
-    get isAbsoluteVerticalCenter () {
+    get isAbsoluteVerticalCenter (): boolean {
         return this._isAbsVerticalCenter;
     }
     set isAbsoluteVerticalCenter (value) {
@@ -689,7 +702,7 @@ export class Widget extends Component {
      */
     @type(AlignMode)
     @tooltip('i18n:widget.align_mode')
-    get alignMode () {
+    get alignMode (): AlignMode {
         return this._alignMode;
     }
     set alignMode (value) {
@@ -704,7 +717,7 @@ export class Widget extends Component {
      * Align flags.
      */
     @editable
-    get alignFlags () {
+    get alignFlags (): number {
         return this._alignFlags;
     }
     set alignFlags (value) {
@@ -792,14 +805,14 @@ export class Widget extends Component {
      * log(widget.node.y); // changed
      * ```
      */
-    public updateAlignment () {
+    public updateAlignment (): void {
         cclegacy._widgetManager.updateAlignment(this.node);
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _validateTargetInDEV () {
+    public _validateTargetInDEV (): void {
         if (!DEV) {
             return;
         }
@@ -814,11 +827,11 @@ export class Widget extends Component {
         }
     }
 
-    public setDirty () {
+    public setDirty (): void {
         this._recursiveDirty();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this.node.getPosition(this._lastPos);
         this._lastSize.set(this.node._uiProps.uiTransformComp!.contentSize);
         cclegacy._widgetManager.add(this);
@@ -827,36 +840,36 @@ export class Widget extends Component {
         this._registerTargetEvents();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         cclegacy._widgetManager.remove(this);
         this._unregisterEvent();
         this._unregisterTargetEvents();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._removeParentEvent();
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {}
+    public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit): void {}
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _adjustWidgetToAllowResizingInEditor () {}
+    public _adjustWidgetToAllowResizingInEditor (): void {}
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _adjustWidgetToAnchorChanged () {
+    public _adjustWidgetToAnchorChanged (): void {
         this.setDirty();
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _adjustTargetToParentChanged (oldParent: Node) {
+    public _adjustTargetToParentChanged (oldParent: Node): void {
         if (oldParent) {
             this._unregisterOldParentEvents(oldParent);
         }
@@ -866,7 +879,7 @@ export class Widget extends Component {
         this._setDirtyByMode();
     }
 
-    protected _registerEvent () {
+    protected _registerEvent (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.on(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
@@ -878,7 +891,7 @@ export class Widget extends Component {
         this.node.on(NodeEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _unregisterEvent () {
+    protected _unregisterEvent (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
             this.node.off(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.off(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
@@ -889,11 +902,11 @@ export class Widget extends Component {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
     }
 
-    protected _removeParentEvent () {
+    protected _removeParentEvent (): void {
         this.node.off(NodeEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean): void {
         const current = (this._alignFlags & flag) > 0;
         if (!current) {
             return;
@@ -919,7 +932,7 @@ export class Widget extends Component {
         this._recursiveDirty();
     }
 
-    protected _registerTargetEvents () {
+    protected _registerTargetEvents (): void {
         const target = this._target || this.node.parent;
         if (target) {
             if (target.getComponent(UITransform)) {
@@ -930,7 +943,7 @@ export class Widget extends Component {
         }
     }
 
-    protected _unregisterTargetEvents () {
+    protected _unregisterTargetEvents (): void {
         const target = this._target || this.node.parent;
         if (target) {
             target.off(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
@@ -939,21 +952,20 @@ export class Widget extends Component {
         }
     }
 
-    protected _unregisterOldParentEvents (oldParent: Node) {
+    protected _unregisterOldParentEvents (oldParent: Node): void {
         const target = this._target || oldParent;
         if (target) {
             target.off(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
             target.off(NodeEventType.SIZE_CHANGED, this._setDirtyByMode, this);
         }
     }
-
-    protected _setDirtyByMode () {
+    protected _setDirtyByMode (): void {
         if (this.alignMode === AlignMode.ALWAYS || (EDITOR_NOT_IN_PREVIEW)) {
             this._recursiveDirty();
         }
     }
 
-    private _setAlign (flag: AlignFlags, isAlign: boolean) {
+    private _setAlign (flag: AlignFlags, isAlign: boolean): void {
         const current = (this._alignFlags & flag) > 0;
         if (isAlign === current) {
             return;
@@ -1006,7 +1018,7 @@ export class Widget extends Component {
         }
     }
 
-    private _recursiveDirty () {
+    private _recursiveDirty (): void {
         if (this._dirty) {
             return;
         }

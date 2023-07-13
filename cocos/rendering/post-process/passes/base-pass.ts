@@ -20,11 +20,11 @@ const _samplerPointInfo = new SamplerInfo(
     Address.CLAMP,
 );
 
-export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+export function getRTFormatBeforeToneMapping (ppl: BasicPipeline): Format {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16HalfFloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-export function forceEnableFloatOutput (ppl: PipelineRuntime) {
+export function forceEnableFloatOutput (ppl: PipelineRuntime): boolean {
     let enabled = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     if (ppl.pipelineSceneData.isHDR && !enabled) {
         const supportFloatOutput = supportsRGBA16HalfFloatTexture(ppl.device);
@@ -36,12 +36,12 @@ export function forceEnableFloatOutput (ppl: PipelineRuntime) {
     return enabled;
 }
 
-export function disablePostProcessForDebugView () {
+export function disablePostProcessForDebugView (): boolean {
     const debugView = cclegacy.director.root.debugView;
     return debugView.singleMode as number > 0;
 }
 
-export function getShadowMapSampler () {
+export function getShadowMapSampler (): Sampler | null {
     if (!_pointSampler) {
         const director = cclegacy.director;
         const pipeline = director.root.pipeline;
@@ -66,7 +66,7 @@ export abstract class BasePass {
     // private _materialMap: Map<Camera, Material> = new Map()
 
     _material: Material | undefined
-    get material () {
+    get material (): Material {
         const effectReloaded = false;
         // if (EDITOR && this._material) {
         //     const effect = builtinResMgr.get(this.effectName);
@@ -101,21 +101,21 @@ export abstract class BasePass {
 
     lastPass: BasePass | undefined;
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         const name = this.outputNames[index] + this.name;
         return `${name}_${this._id}_${getCameraUniqueID(camera)}`;
     }
 
     enableInAllEditorCamera = false;
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         return this.enable;
     }
 
-    renderProfiler (camera) {
+    renderProfiler (camera): void {
         if (passContext.isFinalCamera && !EDITOR) {
             passContext.pass!.showStatistics = true;
         }
     }
 
-    abstract render (camera: Camera, ppl: Pipeline);
+    abstract render (camera: Camera, ppl: Pipeline): any;
 }

@@ -33,23 +33,23 @@ export class PhysicsContactListener extends b2.ContactListener {
     _PreSolve: Function | null = null;
     _PostSolve: Function | null = null;
 
-    setBeginContact (cb) {
+    setBeginContact (cb): void {
         this._BeginContact = cb;
     }
 
-    setEndContact (cb) {
+    setEndContact (cb): void {
         this._EndContact = cb;
     }
 
-    setPreSolve (cb) {
+    setPreSolve (cb): void {
         this._PreSolve = cb;
     }
 
-    setPostSolve (cb) {
+    setPostSolve (cb): void {
         this._PostSolve = cb;
     }
 
-    BeginContact (contact: b2.Contact) {
+    BeginContact (contact: b2.Contact): void {
         if (!this._BeginContact) return;
 
         const fixtureA = contact.GetFixtureA();
@@ -64,30 +64,30 @@ export class PhysicsContactListener extends b2.ContactListener {
         }
     }
 
-    EndContact (contact: b2.Contact) {
+    EndContact (contact: b2.Contact): void {
         if (this._EndContact && (contact as any)._shouldReport) {
             (contact as any)._shouldReport = false;
             this._EndContact(contact);
         }
     }
 
-    PreSolve (contact: b2.Contact, oldManifold: b2.Manifold) {
+    PreSolve (contact: b2.Contact, oldManifold: b2.Manifold): void {
         if (this._PreSolve && (contact as any)._shouldReport) {
             this._PreSolve(contact, oldManifold);
         }
     }
 
-    PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse) {
+    PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse): void {
         if (this._PostSolve && (contact as any)._shouldReport) {
             this._PostSolve(contact, impulse);
         }
     }
 
-    registerContactFixture (fixture) {
+    registerContactFixture (fixture): void {
         this._contactFixtures.push(fixture);
     }
 
-    unregisterContactFixture (fixture) {
+    unregisterContactFixture (fixture): void {
         js.array.remove(this._contactFixtures, fixture);
     }
 }

@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { warnID, error, errorID } from '../platform/debug';
+import { warnID, error, errorID, StringSubstitution } from '../platform/debug';
 import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
@@ -49,7 +49,7 @@ const classIdTag = '__cid__';
  * isNumber(obj); // returns true
  * ```
  */
-export function isNumber (object: any) {
+export function isNumber (object: any): boolean {
     return typeof object === 'number' || object instanceof Number;
 }
 
@@ -70,7 +70,7 @@ export function isNumber (object: any) {
  * isString(obj); // returns true
  * ```
  */
-export function isString (object: any) {
+export function isString (object: any): boolean {
     return typeof object === 'string' || object instanceof String;
 }
 
@@ -84,7 +84,7 @@ export function isString (object: any) {
  * @returns @en True if it is not an empty object or not an object, false else.
  * @zh 如果不是空对象或者不是一个对象，返回 `true`；否则返回 `false`。
  */
-export function isEmptyObject (obj: any) {
+export function isEmptyObject (obj: any): boolean {
     for (const key in obj) {
         return false;
     }
@@ -102,14 +102,14 @@ export function isEmptyObject (obj: any) {
  * @param writable @en If the property is writable. @zh 属性是否可写。
  * @param enumerable @en If the property is enumerable. @zh 属性是否可枚举。
  */
-export const value = (() => {
+export const value = ((): (object: Record<string | number, any>, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         value: undefined,
         enumerable: false,
         writable: false,
         configurable: true,
     };
-    return (object: Record<string | number, any>, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean): void => {
         descriptor.value = value_;
         descriptor.writable = writable;
         descriptor.enumerable = enumerable;
@@ -128,13 +128,13 @@ export const value = (() => {
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const getset = (() => {
+export const getset = ((): (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         get: undefined,
         set: undefined,
         enumerable: false,
     };
-    return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false): void => {
         if (typeof setter === 'boolean') {
             console.log('Set `setter` to boolean is deprecated. Please don not use like this again.');
             enumerable = setter;
@@ -160,13 +160,13 @@ export const getset = (() => {
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const get = (() => {
+export const get = ((): (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         get: undefined,
         enumerable: false,
         configurable: false,
     };
-    return (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean): void => {
         descriptor.get = getter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -184,13 +184,13 @@ export const get = (() => {
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const set = (() => {
+export const set = ((): (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         set: undefined,
         enumerable: false,
         configurable: false,
     };
-    return (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean): void => {
         descriptor.set = setter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -286,17 +286,17 @@ export function getClassName (objOrCtor: any): string {
  * @zh 新的属性名。可以直接传属性名或者是 `类名.属性名` 的形式。
  * @param writable @en Whether the property is writable. Default is false. @zh 该属性是否可写。默认不可写。
  */
-export function obsolete (object: any, obsoleted: string, newExpr: string, writable?: boolean) {
+export function obsolete (object: any, obsoleted: string, newExpr: string, writable?: boolean): void {
     const extractPropName = /([^.]+)$/;
     const oldProp = extractPropName.exec(obsoleted)![0];
     const newProp = extractPropName.exec(newExpr)![0];
-    function getter (this: any) {
+    function getter (this: any): unknown {
         if (DEV) {
             warnID(5400, obsoleted, newExpr);
         }
         return this[newProp] as unknown;
     }
-    function setter (this: any, value_: any) {
+    function setter (this: any, value_: any): void {
         if (DEV) {
             warnID(5401, obsoleted, newExpr);
         }
@@ -321,7 +321,7 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
  * @param props @en The property names to deprecate. @zh 被废弃的一组属性名。
  * @param writable @en Whether these properties are writable. @zh 被废弃的属性是否可写。
  */
-export function obsoletes (obj, objName, props, writable) {
+export function obsoletes (obj, objName, props, writable): void {
     for (const obsoleted in props) {
         const newName = props[obsoleted];
         obsolete(obj, `${objName}.${obsoleted}`, newName, writable);
@@ -348,7 +348,21 @@ const REGEXP_STR = /%s/;
  * js.formatStr(a, b, c);
  * ```
  */
-export function formatStr (msg: string, ...subst: any[]): string {
+export function formatStr (msg: string, ...subst: StringSubstitution[]): string;
+/**
+ * @en
+ * A string tool to constructs a string from an arbitrary sequence of js object arguments.
+ * @zh
+ * 根据任意 js 对象参数序列构造一个字符串。
+ * @returns @en A new formatted string. @zh 格式化后的新字符串。
+ * @example
+ * ```
+ * import { js } from 'cc';
+ * js.formatStr({}, null, undefined);  // [object Object] null undefined
+ * ```
+ */
+export function formatStr (...data: unknown[]): string;
+export function formatStr (msg: unknown, ...subst: unknown[]): string {
     if (arguments.length === 0) {
         return '';
     }
@@ -360,9 +374,9 @@ export function formatStr (msg: string, ...subst: any[]): string {
     if (hasSubstitution) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
-            if (regExpToTest.test(msg)) {
+            if (regExpToTest.test(msg as string)) {
                 const notReplaceFunction = `${arg}`;
-                msg = msg.replace(regExpToTest, notReplaceFunction);
+                msg = (msg as string).replace(regExpToTest, notReplaceFunction);
             } else {
                 msg += ` ${arg}`;
             }
@@ -372,7 +386,7 @@ export function formatStr (msg: string, ...subst: any[]): string {
             msg += ` ${arg}`;
         }
     }
-    return msg;
+    return msg as string;
 }
 
 // see https://github.com/petkaantonov/bluebird/issues/1389
@@ -381,7 +395,7 @@ export function formatStr (msg: string, ...subst: any[]): string {
  * @returns @en An Array that contains all arguments except the first one.
  * @zh 新的参数数组，该数组不包含第一个参数。
  */
-export function shiftArguments () {
+export function shiftArguments (): any[] {
     const len = arguments.length - 1;
     const args = new Array(len);
     for (let i = 0; i < len; ++i) {
@@ -411,7 +425,7 @@ export function getPropertyDescriptor (object: any, propertyName: string): Prope
     return null;
 }
 
-function _copyProp (name: string, source: any, target: any) {
+function _copyProp (name: string, source: any, target: any): void {
     const pd = getPropertyDescriptor(source, name);
     if (pd) {
         Object.defineProperty(target, name, pd);
@@ -425,7 +439,7 @@ function _copyProp (name: string, source: any, target: any) {
  * @param target @en Target object to copy to. @zh 拷贝到目标对象。
  * @param excepts @en Properties are not copied. @zh 不拷贝到属性。
  */
-export function copyAllProperties (source: any, target: any, excepts: Array<string>) {
+export function copyAllProperties (source: any, target: any, excepts: Array<string>): void {
     const propertyNames: Array<string> = Object.getOwnPropertyNames(source);
     for (let i = 0, len = propertyNames.length; i < len; ++i) {
         const propertyName: string = propertyNames[i];
@@ -445,7 +459,7 @@ export function copyAllProperties (source: any, target: any, excepts: Array<stri
  * @return @en The passing `object` or a new object if passing object is not valid.
  * @zh 传入的对象。如果传入的对象无效或者没传入，将返回一个新对象。
  */
-export function addon (object?: Record<string | number, any>, ...sources: any[]) {
+export function addon (object?: Record<string | number, any>, ...sources: any[]): Record<string | number, any> {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -471,7 +485,7 @@ export function addon (object?: Record<string | number, any>, ...sources: any[])
  * @return @en The passing `object` or a new object if passing object is not valid.
  * @zh 传入的对象。如果传入的对象无效或者没传入，将返回一个新对象。
  */
-export function mixin (object?: Record<string | number, any>, ...sources: any[]) {
+export function mixin (object?: Record<string | number, any>, ...sources: any[]): Record<string | number, any> {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -497,7 +511,7 @@ export function mixin (object?: Record<string | number, any>, ...sources: any[])
  * @returns @en Passed in `cls`. @zh 传入的 `cls`。
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function extend (cls: Function, base: Function) {
+export function extend (cls: Function, base: Function): Function | undefined {
     if (DEV) {
         if (!base) {
             errorID(5404);
@@ -532,7 +546,7 @@ export function extend (cls: Function, base: Function) {
  * @returns @en Super class. @zh 父类。
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function getSuper (constructor: Function) {
+export function getSuper (constructor: Function): any {
     const proto = constructor.prototype; // bound function do not have prototype
     const dunderProto = proto && Object.getPrototypeOf(proto);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -550,14 +564,14 @@ export function getSuper (constructor: Function) {
  */
 export function isChildClassOf<T extends Constructor>(subclass: unknown, superclass: T): subclass is T;
 export function isChildClassOf(subclass: unknown, superclass: unknown): boolean;
-export function isChildClassOf (subclass: unknown, superclass: unknown) {
+export function isChildClassOf (subclass: unknown, superclass: unknown): boolean {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;
         }
         if (typeof superclass !== 'function') {
             if (DEV) {
-                warnID(3625, superclass);
+                warnID(3625, superclass as string);
             }
             return false;
         }
@@ -584,13 +598,13 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
  * @param object @en The object to remove enumerable properties from.
  * @zh 要删除可枚举属性的对象。
  */
-export function clear (object: Record<string | number, any>) {
+export function clear (object: Record<string | number, any>): void {
     for (const key of Object.keys(object)) {
         delete object[key];
     }
 }
 
-function isTempClassId (id) {
+function isTempClassId (id): boolean {
     return typeof id !== 'string' || id.startsWith(tempCIDGenerator.prefix);
 }
 
@@ -604,8 +618,8 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>, allowExist: boolean) {
-    return function (id: string, constructor: Constructor) {
+function setup (tag: string, table: Record<string | number, any>, allowExist: boolean): (id: string, constructor: Constructor) => void {
+    return function (id: string, constructor: Constructor): void {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
         if (constructor.prototype.hasOwnProperty(tag)) {
@@ -654,7 +668,7 @@ const doSetClassName = setup('__classname__', _nameToClass, true);
  * @param className @en Class name to register. @zh 注册的类名。
  * @param constructor @en Constructor to register. @zh 注册的构造函数。
  */
-export function setClassName (className: string, constructor: Constructor) {
+export function setClassName (className: string, constructor: Constructor): void {
     doSetClassName(className, constructor);
     // auto set class id
     // eslint-disable-next-line no-prototype-builtins
@@ -678,7 +692,7 @@ export function setClassName (className: string, constructor: Constructor) {
  * @param alias @en Alias to set. The name shall not have been set as class name or alias of another class.
  * @zh 类的别名。别名不能重复，也不能是已有类的名字。
  */
-export function setClassAlias (target: Constructor, alias: string) {
+export function setClassAlias (target: Constructor, alias: string): void {
     const nameRegistry = _nameToClass[alias];
     const idRegistry = _idToClass[alias];
     let ok = true;
@@ -714,7 +728,7 @@ export function setClassAlias (target: Constructor, alias: string) {
  * @param ...constructor @en The classes to unregister. @zh 取消注册的类型列表。
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function unregisterClass (...constructors: Function[]) {
+export function unregisterClass (...constructors: Function[]): void {
     for (const constructor of constructors) {
         const p = constructor.prototype;
         const classId = p[classIdTag];
@@ -744,7 +758,7 @@ export function unregisterClass (...constructors: Function[]) {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  * Please use `getClassById()` instead.
  */
-export function _getClassById (classId) {
+export function _getClassById (classId): Constructor<unknown> {
     return getClassById(classId);
 }
 
@@ -754,7 +768,7 @@ export function _getClassById (classId) {
  * @param classId @en The class id used to get class. @zh 获取类的 id。
  * @returns @en The constructor of the registered class. @zh 注册的类构造函数。
  */
-export function getClassById (classId) {
+export function getClassById (classId): Constructor<unknown> {
     return _idToClass[classId];
 }
 
@@ -766,7 +780,7 @@ export function getClassById (classId) {
  * @param classname @en The class name used to get class. @zh 获取类的类名。
  * @returns @en The constructor of the registered class. @zh 注册的类构造函数。
  */
-export function getClassByName (classname) {
+export function getClassByName (classname): Constructor<unknown> {
     return _nameToClass[classname];
 }
 
@@ -781,7 +795,7 @@ export function getClassByName (classname) {
  * @deprecated since v3.5.0. this is an engine private interface that will be removed in the future.
  * Please use `getClassId()` instead.
  */
-export function _getClassId (obj, allowTempId?: boolean) {
+export function _getClassId (obj, allowTempId?: boolean): string {
     return getClassId(obj, allowTempId);
 }
 
@@ -796,7 +810,7 @@ export function _getClassId (obj, allowTempId?: boolean) {
  * @returns @en Class id if found, empty string else.
  * @zh 找到的类标识。如果没找到的话，返回空字符串。
  */
-export function getClassId (obj, allowTempId?: boolean) {
+export function getClassId (obj, allowTempId?: boolean): string {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

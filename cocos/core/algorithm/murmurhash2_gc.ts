@@ -36,7 +36,7 @@
  */
 
 const getUint8ForString = String.prototype.charCodeAt;
-function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }
+function getUint8ForArray (this: Uint8Array, idx: number): number { return this[idx]; }
 
 /**
  * @en JS Implementation of MurmurHash2. Original implementation is http://github.com/garycourt/murmurhash-js.
@@ -45,7 +45,7 @@ function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }
  * @param seed @en Hash seed. Should be a positive integer. @zh 哈希种子。必须是个正整数。
  * @returns @en 32-bit positive integer hash. @zh 32位正整数哈希值。
  */
-export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
+export function murmurhash2_32_gc (input: string | Uint8Array, seed: number): number {
     let l = input.length;
     let h = seed ^ l;
     let i = 0;

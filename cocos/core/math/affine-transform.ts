@@ -40,7 +40,7 @@ export class AffineTransform {
      * @en Create an identity transformation matrix.
      * @zh 创建单位二维仿射变换矩阵，它不进行任何变换。
      */
-    public static identity () {
+    public static identity (): AffineTransform {
         return new AffineTransform();
     }
 
@@ -49,7 +49,7 @@ export class AffineTransform {
      * @zh 克隆指定的二维仿射变换矩阵。
      * @param affineTransform Specified `AffineTransform` objects
      */
-    public static clone (affineTransform: AffineTransform) {
+    public static clone (affineTransform: AffineTransform): AffineTransform {
         return new AffineTransform(
             affineTransform.a, affineTransform.b,
             affineTransform.c, affineTransform.d,
@@ -65,7 +65,7 @@ export class AffineTransform {
      * @param t1 The first transform object.
      * @param t2 The transform object to concatenate.
      */
-    public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform) {
+    public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform): void {
         const a = t1.a;
         const b = t1.b;
         const c = t1.c;
@@ -86,7 +86,7 @@ export class AffineTransform {
      * @param out Out object to store the invert result
      * @param t the input `AffineTransform` object
      */
-    public static invert (out: AffineTransform, t: AffineTransform) {
+    public static invert (out: AffineTransform, t: AffineTransform): void {
         const determinant = 1 / (t.a * t.d - t.b * t.c);
         out.a = determinant * t.d;
         out.b = -determinant * t.b;
@@ -102,7 +102,7 @@ export class AffineTransform {
      * @param out The output matrix to store the result
      * @param mat transform matrix.
      */
-    public static fromMat4 (out: AffineTransform, mat: Mat4) {
+    public static fromMat4 (out: AffineTransform, mat: Mat4): void {
         out.a = mat.m00;
         out.b = mat.m01;
         out.c = mat.m04;
@@ -118,7 +118,7 @@ export class AffineTransform {
      * @param point Vector to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform);
+    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform): any;
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
@@ -128,9 +128,9 @@ export class AffineTransform {
      * @param y y to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform);
+    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform): any;
 
-    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform) {
+    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform): any {
         let x: number;
         let y: number;
         if (!t) {
@@ -152,7 +152,7 @@ export class AffineTransform {
      * @param size The size to apply transform.
      * @param t transform matrix.
      */
-    public static transformSize (out: Size, size: Size, t: AffineTransform) {
+    public static transformSize (out: Size, size: Size, t: AffineTransform): void {
         out.width = t.a * size.width + t.c * size.height;
         out.height = t.b * size.width + t.d * size.height;
     }
@@ -164,7 +164,7 @@ export class AffineTransform {
      * @param rect The rect object to apply transform.
      * @param t transform matrix.
      */
-    public static transformRect (out: Rect, rect: Rect, t: AffineTransform) {
+    public static transformRect (out: Rect, rect: Rect, t: AffineTransform): void {
         const or = rect.x + rect.width;
         const ot = rect.y + rect.height;
         const lbx = t.a * rect.x + t.c * rect.y + t.tx;
@@ -200,7 +200,7 @@ export class AffineTransform {
      * @param anAffineTransform transform matrix.
      */
     public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect,
-        anAffineTransform: AffineTransform, flipY = true) {
+        anAffineTransform: AffineTransform, flipY = true): void {
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;

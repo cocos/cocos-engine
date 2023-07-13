@@ -56,7 +56,7 @@ export class EmbeddedAnimationClipPlayable extends EmbeddedPlayable {
     @serializable
     public clip: AnimationClip | null = null;
 
-    public instantiate (root: Node) {
+    public instantiate (root: Node): EmbeddedAnimationClipPlayableState | null {
         const { clip, path } = this;
         if (!clip) {
             return null;

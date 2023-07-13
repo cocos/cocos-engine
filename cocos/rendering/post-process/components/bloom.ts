@@ -21,7 +21,7 @@ export class Bloom extends PostProcessSetting {
     set threshold (value: number) {
         this._threshold = value;
     }
-    get threshold () {
+    get threshold (): number {
         return this._threshold;
     }
 
@@ -32,7 +32,7 @@ export class Bloom extends PostProcessSetting {
     set iterations (value: number) {
         this._iterations = value;
     }
-    get iterations () {
+    get iterations (): number {
         return this._iterations;
     }
 
@@ -42,7 +42,7 @@ export class Bloom extends PostProcessSetting {
     set intensity (value: number) {
         this._intensity = value;
     }
-    get intensity () {
+    get intensity (): number {
         return this._intensity;
     }
 }

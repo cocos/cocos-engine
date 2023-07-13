@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC, ccwindow } from '../global-exports';
@@ -30,6 +29,8 @@ import { legacyCC, ccwindow } from '../global-exports';
 const ccdocument = ccwindow.document;
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
+
+export type StringSubstitution = number | string;
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;
@@ -40,7 +41,7 @@ let ccWarn = ccLog;
 
 let ccError = ccLog;
 
-let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+let ccAssert = (condition: boolean, message?: string, ...optionalParams: StringSubstitution[]): void => {
     if (!condition) {
         console.log(`ASSERT: ${formatString(message, ...optionalParams)}`);
     }
@@ -49,58 +50,46 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
 let ccDebug = ccLog;
 
 /**
- * @en Format a string.
- * @zh 格式化字符串。
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
- * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
+ * Constructs a string from a sequence of js object arguments.
  */
-function formatString (message?: any, ...optionalParams: any[]) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
+function formatString (...data: unknown[]): string {
+    return legacyCC.js.formatStr.apply(null, data) as string;
 }
 
 /**
- * @en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime). This gives you additional control over the format of the output.
- * @zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。这为你提供了对输出格式的额外控制。
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
- * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
+ * @en Outputs a log message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
+ * @zh 向控制台输出一条日志信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
  */
-export function log (message?: any, ...optionalParams: any[]) {
-    return ccLog(message, ...optionalParams);
+export function log (...data: unknown[]): void {
+    return ccLog(...data);
 }
 
 /**
  * @en
- * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
+ * Outputs a warning message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
  * - In Cocos Creator, warning is yellow.
  * - In Chrome, warning have a yellow warning icon with the message text.
  * @zh
- * 输出警告消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。<br/>
+ * 向控制台输出一条警告信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
  * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
  * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
- * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
- * This gives you additional control over the format of the output.
  */
-export function warn (message?: any, ...optionalParams: any[]) {
-    return ccWarn(message, ...optionalParams);
+export function warn (...data: unknown[]): void {
+    return ccWarn(...data);
 }
 
 /**
  * @en
- * Outputs an error message to the Cocos Creator Console (editor) or Web Console (runtime).<br/>
+ * Outputs an error message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
  * - In Cocos Creator, error is red.<br/>
  * - In Chrome, error have a red icon along with red message text.<br/>
  * @zh
- * 输出错误消息到 Cocos Creator 编辑器的 Console 或运行时页面端的 Console 中。<br/>
+ * 向控制台输出一条错误信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
  * - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
  * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
- * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
- * This gives you additional control over the format of the output.
  */
-export function error (message?: any, ...optionalParams: any[]) {
-    return ccError(message, ...optionalParams);
+export function error (...data: unknown[]): void {
+    return ccError(...data);
 }
 
 /**
@@ -108,13 +97,13 @@ export function error (message?: any, ...optionalParams: any[]) {
  * Assert the condition and output error messages if the condition is not true.
  * @zh
  * 对检查测试条件进行检查，如果条件不为 true 则输出错误消息
- * @param value @zh 需要检查的条件。 @en The condition to check on.
+ * @param condition @zh 需要检查的条件。 @en The condition to check on.
  * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function assert (value: any, message?: string, ...optionalParams: any[]): asserts value {
-    return ccAssert(value, message, ...optionalParams);
+export function assert (condition: boolean, message?: string, ...optionalParams: StringSubstitution[]): asserts condition {
+    return ccAssert(condition, message, ...optionalParams);
 }
 
 /**
@@ -122,16 +111,16 @@ export function assert (value: any, message?: string, ...optionalParams: any[]):
  * @zh 输出一条“调试”日志等级的消息。
  * @param data @zh 输出的消息对象。 @en The output message object.
  */
-export function debug (...data: any[]) {
+export function debug (...data: unknown[]): void {
     return ccDebug(...data);
 }
 
 /**
  * @engineInternal
  */
-export function _resetDebugSetting (mode: DebugMode) {
+export function _resetDebugSetting (mode: DebugMode): void {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {
     };
 
     if (mode === DebugMode.NONE) {
@@ -140,7 +129,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (mode > DebugMode.ERROR) {
         // Log to web page.
-        const logToWebPage = (msg: string) => {
+        const logToWebPage = (msg: string): void => {
             if (!legacyCC.game.canvas) {
                 return;
             }
@@ -175,22 +164,22 @@ export function _resetDebugSetting (mode: DebugMode) {
             logList.scrollTop = logList.scrollHeight;
         };
 
-        ccError = (message?: any, ...optionalParams: any[]) => {
-            logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
+        ccError = (...data: unknown[]): void => {
+            logToWebPage(`ERROR :  ${formatString(...data)}`);
         };
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        ccAssert = (condition: boolean, message?: unknown, ...optionalParams: unknown[]): void => {
             if (!condition) {
                 logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
             }
         };
         if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
-            ccWarn = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
+            ccWarn = (...data: unknown[]): void => {
+                logToWebPage(`WARN :  ${formatString(...data)}`);
             };
         }
         if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
-            ccLog = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage(formatString(message, ...optionalParams));
+            ccLog = (...data: unknown[]): void => {
+                logToWebPage(formatString(...data));
             };
         }
     } else if (console) {
@@ -208,9 +197,9 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
         } else {
-            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
+            ccError = JSB ? console.error : (...data: unknown[]): void => console.error.apply(console, data);
         }
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        ccAssert = (condition: boolean, message?: unknown, ...optionalParams: unknown[]): void => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
@@ -230,7 +219,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccWarn = console.warn.bind(console);
         } else {
-            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
+            ccWarn = JSB ? console.warn : (...data: unknown[]): void => console.warn.apply(console, data);
         }
     }
 
@@ -243,19 +232,19 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccLog = console.log.bind(console);
         } else {
-            ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
+            ccLog = (...data: unknown[]): void => console.log.apply(console, data);
         }
     }
 
     if (mode <= DebugMode.VERBOSE) {
         if (typeof console.debug === 'function') {
             const vendorDebug = console.debug.bind(console);
-            ccDebug = (...data: any[]) => vendorDebug(...data);
+            ccDebug = (...data: unknown[]): any => vendorDebug(...data);
         }
     }
 }
 
-export function _throw (error_: any) {
+export function _throw (error_: any): any {
     if (EDITOR) {
         return error(error_);
     } else {
@@ -269,34 +258,33 @@ export function _throw (error_: any) {
     }
 }
 
-function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
-    return (id: number, ...args: any[]) => {
+function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert'): (id: number, ...args: StringSubstitution[]) => string {
+    return (id: number, ...args: StringSubstitution[]): string => {
         const msg = DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (args.length === 0) {
             return msg;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return DEBUG ? formatString(msg, ...args) : `${msg} Arguments: ${args.join(', ')}`;
     };
 }
 
 const logFormatter = getTypedFormatter('Log');
-export function logID (id: number, ...optionalParams: any[]) {
+export function logID (id: number, ...optionalParams: StringSubstitution[]): void {
     log(logFormatter(id, ...optionalParams));
 }
 
 const warnFormatter = getTypedFormatter('Warning');
-export function warnID (id: number, ...optionalParams: any[]) {
+export function warnID (id: number, ...optionalParams: StringSubstitution[]): void {
     warn(warnFormatter(id, ...optionalParams));
 }
 
 const errorFormatter = getTypedFormatter('Error');
-export function errorID (id: number, ...optionalParams: any[]) {
+export function errorID (id: number, ...optionalParams: StringSubstitution[]): void {
     error(errorFormatter(id, ...optionalParams));
 }
 
 const assertFormatter = getTypedFormatter('Assert');
-export function assertID (condition: any, id: number, ...optionalParams: any[]) {
+export function assertID (condition: boolean, id: number, ...optionalParams: StringSubstitution[]): void {
     if (condition) {
         return;
     }
@@ -363,8 +351,7 @@ export enum DebugMode {
  * @param errorId @zh 错误的ID。@en Error id.
  * @param param @zh 输出日志。@en Output log.
  */
-export function getError (errorId: number, ...param: any[]): string {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+export function getError (errorId: number, ...param: StringSubstitution[]): string {
     return errorFormatter(errorId, ...param);
 }
 
@@ -374,8 +361,7 @@ export function getError (errorId: number, ...param: any[]): string {
  * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.isShowingStates。@en Since v3.6, Please use profiler.isShowingStates instead.
  */
 export function isDisplayStats (): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
+    return legacyCC.profiler ? legacyCC.profiler.isShowingStats() as boolean : false;
 }
 
 /**
@@ -383,7 +369,7 @@ export function isDisplayStats (): boolean {
  * @zh 设置是否在左下角显示 FPS 和部分调试。
  * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.showStats。@en Since v3.6, Please use profiler.showStats instead.
  */
-export function setDisplayStats (displayStats: boolean) {
+export function setDisplayStats (displayStats: boolean): void {
     if (legacyCC.profiler) {
         displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
     }

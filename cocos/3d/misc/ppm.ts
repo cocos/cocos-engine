@@ -31,6 +31,6 @@
  * @param w width
  * @param h height
  */
-export function toPPM (buffer: Uint8Array, w: number, h: number) {
+export function toPPM (buffer: Uint8Array, w: number, h: number): string {
     return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
 }

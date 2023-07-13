@@ -39,26 +39,26 @@ export class KeyboardInputSource {
         this._registerEvent();
     }
 
-    public dispatchKeyboardDownEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
-    public dispatchKeyboardUpEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: KeyboardEvent): void { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: KeyboardEvent): void { this._handleKeyboardUp(nativeKeyboardEvent); }
 
-    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
+    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any): void {
         this._eventTarget.on(eventType, callback,  target);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
         canvas?.addEventListener('keydown', this._handleKeyboardDown.bind(this));
         canvas?.addEventListener('keyup', this._handleKeyboardUp.bind(this));
     }
 
-    private _getInputEvent (event: any, eventType: InputEventType) {
+    private _getInputEvent (event: any, eventType: InputEventType): EventKeyboard {
         const keyCode = getKeyCode(event.code);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
         return eventKeyboard;
     }
 
-    private _handleKeyboardDown (event: KeyboardEvent) {
+    private _handleKeyboardDown (event: KeyboardEvent): void {
         event.stopPropagation();
         event.preventDefault();
         if (!event.repeat) {
@@ -70,7 +70,7 @@ export class KeyboardInputSource {
         }
     }
 
-    private _handleKeyboardUp (event: KeyboardEvent) {
+    private _handleKeyboardUp (event: KeyboardEvent): void {
         const inputEvent = this._getInputEvent(event, InputEventType.KEY_UP);
         event.stopPropagation();
         event.preventDefault();

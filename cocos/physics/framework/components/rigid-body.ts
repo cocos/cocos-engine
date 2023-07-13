@@ -118,7 +118,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(0)
     @tooltip('i18n:physics3d.rigidbody.mass')
-    public get mass () {
+    public get mass (): number {
         return this._mass;
     }
 
@@ -157,7 +157,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(1)
     @tooltip('i18n:physics3d.rigidbody.linearDamping')
-    public get linearDamping () {
+    public get linearDamping (): number {
         return this._linearDamping;
     }
 
@@ -176,7 +176,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(2)
     @tooltip('i18n:physics3d.rigidbody.angularDamping')
-    public get angularDamping () {
+    public get angularDamping (): number {
         return this._angularDamping;
     }
 
@@ -195,7 +195,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(4)
     @tooltip('i18n:physics3d.rigidbody.useGravity')
-    public get useGravity () {
+    public get useGravity (): boolean {
         return this._useGravity;
     }
 
@@ -213,7 +213,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(6)
     @tooltip('i18n:physics3d.rigidbody.linearFactor')
-    public get linearFactor () {
+    public get linearFactor (): Vec3 {
         return this._linearFactor;
     }
 
@@ -233,7 +233,7 @@ export class RigidBody extends Component {
     @visible(isDynamicBody)
     @displayOrder(7)
     @tooltip('i18n:physics3d.rigidbody.angularFactor')
-    public get angularFactor () {
+    public get angularFactor (): Vec3 {
         return this._angularFactor;
     }
 
@@ -351,7 +351,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体是否是运动态类型的（将由用户来控制运动）。
      */
-    public get isKinematic () {
+    public get isKinematic (): boolean {
         return this._type === ERigidBodyType.KINEMATIC;
     }
 
@@ -366,7 +366,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get body () {
+    public get body (): IRigidBody | null {
         return this._body;
     }
 
@@ -409,21 +409,21 @@ export class RigidBody extends Component {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!selector.runInEditor) return;
         this._body = createRigidBody();
         this._body.initialize(this);
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._body) this._body.onEnable!();
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._body) this._body.onDisable!();
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._body) this._body.onDestroy!();
     }
 
@@ -437,7 +437,7 @@ export class RigidBody extends Component {
      * @param force @zh 作用力 @en The force applied
      * @param relativePoint @zh 作用点，相对于刚体的质心 @en The point to apply the force on, relative to the center of mass of the rigid body
      */
-    public applyForce (force: Vec3, relativePoint?: Vec3) {
+    public applyForce (force: Vec3, relativePoint?: Vec3): void {
         if (this._isInitialized) this._body!.applyForce(force, relativePoint);
     }
 
@@ -449,7 +449,7 @@ export class RigidBody extends Component {
      * @param force @zh 作用力 @en The force applied
      * @param localPoint @zh 作用点 @en The point to apply the force on
      */
-    public applyLocalForce (force: Vec3, localPoint?: Vec3) {
+    public applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         if (this._isInitialized) this._body!.applyLocalForce(force, localPoint);
     }
 
@@ -461,7 +461,7 @@ export class RigidBody extends Component {
      * @param impulse @zh 冲量 @en The impulse applied
      * @param relativePoint @zh 作用点，相对于刚体的中心点 @en The point to apply the impulse, relative to the center of mass of the rigid body
      */
-    public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
+    public applyImpulse (impulse: Vec3, relativePoint?: Vec3): void {
         if (this._isInitialized) this._body!.applyImpulse(impulse, relativePoint);
     }
 
@@ -473,7 +473,7 @@ export class RigidBody extends Component {
      * @param impulse @zh 冲量 @en The impulse applied
      * @param localPoint @zh 作用点 @en The point to apply the impulse
      */
-    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
+    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         if (this._isInitialized) this._body!.applyLocalImpulse(impulse, localPoint);
     }
 
@@ -484,7 +484,7 @@ export class RigidBody extends Component {
      * 在世界空间中，对刚体施加扭矩。
      * @param torque @zh 扭矩 @en The torque applied
      */
-    public applyTorque (torque: Vec3) {
+    public applyTorque (torque: Vec3): void {
         if (this._isInitialized) this._body!.applyTorque(torque);
     }
 
@@ -495,7 +495,7 @@ export class RigidBody extends Component {
      * In local space, torque is applied to the rigid body.
      * @param torque @zh 扭矩 @en The torque applied
      */
-    public applyLocalTorque (torque: Vec3) {
+    public applyLocalTorque (torque: Vec3): void {
         if (this._isInitialized) this._body!.applyLocalTorque(torque);
     }
 
@@ -505,7 +505,7 @@ export class RigidBody extends Component {
      * @zh
      * 唤醒刚体。
      */
-    public wakeUp () {
+    public wakeUp (): void {
         if (this._isInitialized) this._body!.wakeUp();
     }
 
@@ -515,7 +515,7 @@ export class RigidBody extends Component {
      * @zh
      * 休眠刚体。
      */
-    public sleep () {
+    public sleep (): void {
         if (this._isInitialized) this._body!.sleep();
     }
 
@@ -525,7 +525,7 @@ export class RigidBody extends Component {
      * @zh
      * 清除刚体受到的力和速度。
      */
-    public clearState () {
+    public clearState (): void {
         if (this._isInitialized) this._body!.clearState();
     }
 
@@ -535,7 +535,7 @@ export class RigidBody extends Component {
      * @zh
      * 清除刚体受到的力。
      */
-    public clearForces () {
+    public clearForces (): void {
         if (this._isInitialized) this._body!.clearForces();
     }
 
@@ -545,7 +545,7 @@ export class RigidBody extends Component {
      * @zh
      * 清除刚体的速度。
      */
-    public clearVelocity () {
+    public clearVelocity (): void {
         if (this._isInitialized) this._body!.clearVelocity();
     }
 
@@ -556,7 +556,7 @@ export class RigidBody extends Component {
      * 获取线性速度。
      * @param out @zh 速度向量 @en The velocity vector
      */
-    public getLinearVelocity (out: Vec3) {
+    public getLinearVelocity (out: Vec3): void {
         if (this._isInitialized) this._body!.getLinearVelocity(out);
     }
 
@@ -578,7 +578,7 @@ export class RigidBody extends Component {
      * 获取旋转速度。
      * @param out @zh 角速度向量 @en The angular velocity vector
      */
-    public getAngularVelocity (out: Vec3) {
+    public getAngularVelocity (out: Vec3): void {
         if (this._isInitialized) this._body!.getAngularVelocity(out);
     }
 
@@ -625,7 +625,7 @@ export class RigidBody extends Component {
      * 添加分组值，可填要加入的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addGroup (v: number) {
+    public addGroup (v: number): void {
         if (this._isInitialized) this._body!.addGroup(v);
     }
 
@@ -636,7 +636,7 @@ export class RigidBody extends Component {
      * 减去分组值，可填要移除的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeGroup (v: number) {
+    public removeGroup (v: number): void {
         if (this._isInitialized) this._body!.removeGroup(v);
     }
 
@@ -659,7 +659,7 @@ export class RigidBody extends Component {
      * 设置掩码值。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public setMask (v: number) {
+    public setMask (v: number): void {
         if (this._isInitialized) this._body!.setMask(v);
     }
 
@@ -670,7 +670,7 @@ export class RigidBody extends Component {
      * 添加掩码值，可填入需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addMask (v: number) {
+    public addMask (v: number): void {
         if (this._isInitialized) this._body!.addMask(v);
     }
 
@@ -681,12 +681,12 @@ export class RigidBody extends Component {
      * 减去掩码值，可填入不需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeMask (v: number) {
+    public removeMask (v: number): void {
         if (this._isInitialized) this._body!.removeMask(v);
     }
 }
 
-function isDynamicBody (this: RigidBody) { return this.isDynamic; }
+function isDynamicBody (this: RigidBody): boolean { return this.isDynamic; }
 
 export namespace RigidBody {
     export type Type = EnumAlias<typeof ERigidBodyType>;

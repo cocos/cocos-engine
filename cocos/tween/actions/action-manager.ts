@@ -30,6 +30,7 @@ import { Action } from './action';
 import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
+import type { ActionInterval } from './action-interval';
 
 let ID_COUNTER = 0;
 
@@ -39,10 +40,10 @@ let ID_COUNTER = 0;
  * @private
  */
 class HashElement {
-    actions = [];
+    actions: Action[] = [];
     target: Record<string, unknown> | null = null; // ccobject
     actionIndex = 0;
-    currentAction = null; // CCAction
+    currentAction: Action | null = null; // CCAction
     paused = false;
     lock = false;
 }
@@ -72,14 +73,14 @@ export class ActionManager {
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
 
-    private _searchElementByTarget (arr: HashElement[], target: Record<string, unknown>) {
+    private _searchElementByTarget (arr: HashElement[], target: Record<string, unknown>): HashElement | null {
         for (let k = 0; k < arr.length; k++) {
             if (target === arr[k].target) return arr[k];
         }
         return null;
     }
 
-    private _getElement (target: Record<string, unknown>, paused: boolean) {
+    private _getElement (target: Record<string, unknown>, paused: boolean): HashElement {
         let element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
@@ -89,7 +90,7 @@ export class ActionManager {
         return element;
     }
 
-    private _putElement (element: HashElement) {
+    private _putElement (element: HashElement): void {
         element.actions.length = 0;
         element.actionIndex = 0;
         element.currentAction = null;
@@ -117,7 +118,7 @@ export class ActionManager {
      * @param {object} target
      * @param {Boolean} paused
      */
-    addAction (action: Action, target: Node, paused: boolean) {
+    addAction (action: Action, target: Node, paused: boolean): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -148,7 +149,7 @@ export class ActionManager {
      * @zh 移除所有对象的所有动作。
      * @method removeAllActions
      */
-    removeAllActions () {
+    removeAllActions (): void {
         const locTargets = this._arrayTargets;
         for (let i = 0; i < locTargets.length; i++) {
             const element = locTargets[i];
@@ -167,7 +168,7 @@ export class ActionManager {
      * @method removeAllActionsFromTarget
      * @param {Node} target
      */
-    removeAllActionsFromTarget (target: Node) {
+    removeAllActionsFromTarget (target: Node): void {
         // explicit null handling
         if (target == null) return;
         const element = this._hashTargets.get(target);
@@ -182,7 +183,7 @@ export class ActionManager {
      * @method removeAction
      * @param {Action} action
      */
-    removeAction (action: Action) {
+    removeAction (action: Action): void {
         // explicit null handling
         if (action == null) return;
         const target = action.getOriginalTarget()!;
@@ -203,7 +204,7 @@ export class ActionManager {
     /**
      * @internal
      */
-    _removeActionByTag (tag: number, element: any, target?: Node) {
+    _removeActionByTag (tag: number, element: any, target?: Node): void {
         for (let i = 0, l = element.actions.length; i < l; ++i) {
             const action = element.actions[i];
             if (action && action.getTag() === tag) {
@@ -219,7 +220,7 @@ export class ActionManager {
     /**
      * @internal
      */
-    _removeAllActionsByTag (tag: number, element: any, target?: Node) {
+    _removeAllActionsByTag (tag: number, element: any, target?: Node): void {
         for (let i = element.actions.length - 1; i >= 0; --i) {
             const action = element.actions[i];
             if (action && action.getTag() === tag) {
@@ -238,7 +239,7 @@ export class ActionManager {
      * @param {Number} tag
      * @param {Node} target
      */
-    removeActionByTag (tag: number, target?: Node) {
+    removeActionByTag (tag: number, target?: Node): void {
         if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
@@ -261,7 +262,7 @@ export class ActionManager {
      * @param {Number} tag
      * @param {Node} target
      */
-    removeAllActionsByTag (tag: number, target?: Node) {
+    removeAllActionsByTag (tag: number, target?: Node): void {
         if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
@@ -335,7 +336,7 @@ export class ActionManager {
      * @method pauseTarget
      * @param {Node} target
      */
-    pauseTarget (target: Node) {
+    pauseTarget (target: Node): void {
         const element = this._hashTargets.get(target);
         if (element) element.paused = true;
     }
@@ -345,7 +346,7 @@ export class ActionManager {
      * @method resumeTarget
      * @param {Node} target
      */
-    resumeTarget (target: Node) {
+    resumeTarget (target: Node): void {
         const element = this._hashTargets.get(target);
         if (element) element.paused = false;
     }
@@ -375,7 +376,7 @@ export class ActionManager {
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
-    resumeTargets (targetsToResume: Array<any>) {
+    resumeTargets (targetsToResume: Array<any>): void {
         if (!targetsToResume) return;
 
         for (let i = 0; i < targetsToResume.length; i++) {
@@ -389,7 +390,7 @@ export class ActionManager {
      * @method pauseTargets
      * @param {Array} targetsToPause
      */
-    pauseTargets (targetsToPause: Array<any>) {
+    pauseTargets (targetsToPause: Array<any>): void {
         if (!targetsToPause) return;
 
         for (let i = 0; i < targetsToPause.length; i++) {
@@ -406,12 +407,12 @@ export class ActionManager {
      * 因为它使用 this，因此它不能是静态的。
      * @method purgeSharedManager
      */
-    purgeSharedManager () {
+    purgeSharedManager (): void {
         legacyCC.director.getScheduler().unscheduleUpdate(this);
     }
 
     // protected
-    private _removeActionAtIndex (index, element) {
+    private _removeActionAtIndex (index, element): void {
         const action = element.actions[index];
 
         element.actions.splice(index, 1);
@@ -424,7 +425,7 @@ export class ActionManager {
         }
     }
 
-    private _deleteHashElement (element) {
+    private _deleteHashElement (element): boolean {
         let ret = false;
         if (element && !element.lock) {
             if (this._hashTargets.get(element.target)) {
@@ -449,16 +450,16 @@ export class ActionManager {
      * @method update
      * @param {Number} dt delta time in seconds
      */
-    update (dt: number) {
+    update (dt: number): void {
         const locTargets = this._arrayTargets;
-        let locCurrTarget;
+        let locCurrTarget: HashElement;
         for (let elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
 
             const target = locCurrTarget.target;
             if (isCCObject(target) && !target.isValid) {
-                this.removeAllActionsFromTarget(target);
+                this.removeAllActionsFromTarget(target as unknown as Node);
                 elt--;
                 continue;
             }
@@ -471,7 +472,7 @@ export class ActionManager {
                     if (!locCurrTarget.currentAction) continue;
 
                     // use for speed
-                    locCurrTarget.currentAction.step(dt * (locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1));
+                    locCurrTarget.currentAction.step(dt * (this._isActionInternal(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1));
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -492,5 +493,9 @@ export class ActionManager {
                 }
             }
         }
+    }
+
+    private _isActionInternal (action: any): action is ActionInterval {
+        return typeof action._speedMethod !== 'undefined';
     }
 }

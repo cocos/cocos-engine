@@ -56,22 +56,22 @@ export class TiffReader {
     constructor () {
     }
 
-    public getUint8 (offset) {
+    public getUint8 (offset): any {
         return this._tiffData[offset];
     }
 
-    public getUint16 (offset) {
+    public getUint16 (offset): number {
         if (this._littleEndian) return (this._tiffData[offset + 1] << 8) | (this._tiffData[offset]);
         else return (this._tiffData[offset] << 8) | (this._tiffData[offset + 1]);
     }
 
-    public getUint32 (offset) {
+    public getUint32 (offset): number {
         const a = this._tiffData;
         if (this._littleEndian) return (a[offset + 3] << 24) | (a[offset + 2] << 16) | (a[offset + 1] << 8) | (a[offset]);
         else return (a[offset] << 24) | (a[offset + 1] << 16) | (a[offset + 2] << 8) | (a[offset + 3]);
     }
 
-    public checkLittleEndian () {
+    public checkLittleEndian (): boolean {
         const BOM = this.getUint16(0);
 
         if (BOM === 0x4949) {
@@ -86,7 +86,7 @@ export class TiffReader {
         return this._littleEndian;
     }
 
-    public hasTowel () {
+    public hasTowel (): boolean {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
             throw RangeError(getError(6020));
@@ -95,7 +95,7 @@ export class TiffReader {
         return true;
     }
 
-    public getFieldTypeName (fieldType) {
+    public getFieldTypeName (fieldType): any {
         const typeNames = fieldTypeNames;
         if (fieldType in typeNames) {
             return typeNames[fieldType];
@@ -103,7 +103,7 @@ export class TiffReader {
         return null;
     }
 
-    public getFieldTagName (fieldTag) {
+    public getFieldTagName (fieldTag): any {
         const tagNames = fieldTagNames;
 
         if (fieldTag in tagNames) {
@@ -114,7 +114,7 @@ export class TiffReader {
         }
     }
 
-    public getFieldTypeLength (fieldTypeName) {
+    public getFieldTypeLength (fieldTypeName): number {
         if (['BYTE', 'ASCII', 'SBYTE', 'UNDEFINED'].indexOf(fieldTypeName) !== -1) {
             return 1;
         } else if (['SHORT', 'SSHORT'].indexOf(fieldTypeName) !== -1) {
@@ -128,7 +128,7 @@ export class TiffReader {
         return 0;
     }
 
-    public getFieldValues (fieldTagName, fieldTypeName, typeCount, valueOffset) {
+    public getFieldValues (fieldTagName, fieldTypeName, typeCount, valueOffset): any[] {
         const fieldValues: any[] = [];
         const fieldTypeLength = this.getFieldTypeLength(fieldTypeName);
         const fieldValueSize = fieldTypeLength * typeCount;
@@ -156,14 +156,14 @@ export class TiffReader {
         }
 
         if (fieldTypeName === 'ASCII') {
-            fieldValues.forEach((e, i, a) => {
+            fieldValues.forEach((e, i, a): void => {
                 a[i] = String.fromCharCode(e);
             });
         }
         return fieldValues;
     }
 
-    public getBytes (numBytes, offset) {
+    public getBytes (numBytes, offset): any {
         if (numBytes <= 0) {
             logID(8001);
         } else if (numBytes <= 1) {
@@ -181,7 +181,7 @@ export class TiffReader {
         return 0;
     }
 
-    getBits (numBits, byteOffset, bitOffset) {
+    getBits (numBits, byteOffset, bitOffset): { bits: number; byteOffset: any; bitOffset: number; } {
         bitOffset = bitOffset || 0;
         const extraBytes = Math.floor(bitOffset / 8);
         const newByteOffset = byteOffset + extraBytes;
@@ -212,7 +212,7 @@ export class TiffReader {
         };
     }
 
-    parseFileDirectory (offset) {
+    parseFileDirectory (offset): void {
         const numDirEntries = this.getUint16(offset);
         const tiffFields: IFile[] = [];
         let i = 0;
@@ -239,7 +239,7 @@ export class TiffReader {
         }
     }
 
-    clampColorSample (colorSample, bitsPerSample) {
+    clampColorSample (colorSample, bitsPerSample): number {
         const multiplier = Math.pow(2, 8 - bitsPerSample);
 
         return Math.floor((colorSample * multiplier) + (multiplier - 1));
@@ -251,7 +251,7 @@ export class TiffReader {
      * @param {HTMLCanvasElement} canvas
      * @returns {*}
      */
-    parseTIFF (tiffData, canvas) {
+    parseTIFF (tiffData, canvas): any {
         canvas = canvas || ccwindow.document.createElement('canvas');
 
         this._tiffData = tiffData;
@@ -287,7 +287,7 @@ export class TiffReader {
         let bitsPerPixel = 0;
         let hasBytesPerPixel = false;
 
-        fileDirectory.BitsPerSample.values.forEach((bitsPerSample, i, bitsPerSampleValues) => {
+        fileDirectory.BitsPerSample.values.forEach((bitsPerSample, i, bitsPerSampleValues): void => {
             sampleProperties[i] = {
                 bitsPerSample,
                 hasBytesPerSample: false,
@@ -536,7 +536,7 @@ export class TiffReader {
                             }
 
                             // Invert samples.
-                            pixelSamples.forEach((sample, index, samples) => {
+                            pixelSamples.forEach((sample, index, samples): void => {
                                 samples[index] = invertValue - sample;
                             });
 

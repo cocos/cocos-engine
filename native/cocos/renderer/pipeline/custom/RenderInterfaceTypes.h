@@ -1478,6 +1478,8 @@ public:
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
+    virtual void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) = 0;
+    virtual void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) = 0;
     /**
      * @experimental
      */
@@ -1500,6 +1502,12 @@ public:
     }
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
+    }
+    void addBuiltinGpuCullingPass(const scene::Camera *camera) {
+        addBuiltinGpuCullingPass(camera, "", nullptr);
+    }
+    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName) {
+        addBuiltinGpuCullingPass(camera, hzbName, nullptr);
     }
 };
 

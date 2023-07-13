@@ -810,6 +810,11 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
                 dependency.prevAccesses = lastIter->second.accessFlag;
                 dependency.nextAccesses = pair.second.access.nextAccess;
             }
+            auto &dsResolveAttachment = fgRenderpassInfo.rpInfo.depthStencilResolveAttachment;
+            if (dsResolveAttachment.format != gfx::Format::UNKNOWN) {
+                const auto &dsAccess = fgRenderpassInfo.dsResolveAccess;
+                dsResolveAttachment.barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), dsAccess.prevAccess, dsAccess.nextAccess);
+            }
         }
         ++localIndex;
     }
@@ -1999,17 +2004,17 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
             attachmentType = viewDesc.format == gfx::Format::DEPTH_STENCIL ? AttachmentType::DEPTH_STENCIL : AttachmentType::RENDER_TARGET;
             if (attachmentType == AttachmentType::DEPTH_STENCIL) {
                 subpassInfo.depthStencilResolve = slot;
-                subpassInfo.depthResolveMode = gfx::ResolveMode::AVERAGE;   // resolveiter->mode;
-                subpassInfo.stencilResolveMode = gfx::ResolveMode::AVERAGE; // resolveiter->mode1;
+                subpassInfo.depthResolveMode = gfx::ResolveMode::SAMPLE_ZERO;   // resolveiter->mode;
+                subpassInfo.stencilResolveMode = gfx::ResolveMode::SAMPLE_ZERO; // resolveiter->mode1;
+                fgRenderpassInfo.dsResolveAccess.nextAccess = nextAccess;
             } else {
-                auto indexIter = std::find(fgRenderpassInfo.orderedViews.begin(), fgRenderpassInfo.orderedViews.end(), resolveIter->source);
+                auto indexIter = std::find(fgRenderpassInfo.orderedViews.begin(), fgRenderpassInfo.orderedViews.end(), resolveIter->source.c_str());
                 auto srcIndex = indexIter == fgRenderpassInfo.orderedViews.end() ? fgRenderpassInfo.orderedViews.size()
                                                                                  : std::distance(fgRenderpassInfo.orderedViews.begin(), indexIter);
                 subpassInfo.resolves[srcIndex] = slot;
+                fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
             }
             accessType = AccessType::WRITE;
-
-            fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
         } else {
             const auto &view = pass.rasterViews.at(resName);
             attachmentType = view.attachmentType;

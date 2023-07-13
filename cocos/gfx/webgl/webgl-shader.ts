@@ -38,7 +38,7 @@ export class WebGLShader extends Shader {
 
     private _gpuShader: IWebGLGPUShader | null = null;
 
-    public initialize (info: Readonly<ShaderInfo>) {
+    public initialize (info: Readonly<ShaderInfo>): void {
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;
@@ -69,7 +69,7 @@ export class WebGLShader extends Shader {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuShader) {
             WebGLCmdFuncDestroyShader(WebGLDeviceManager.instance, this._gpuShader);
             this._gpuShader = null;

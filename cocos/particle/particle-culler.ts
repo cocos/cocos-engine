@@ -73,12 +73,12 @@ export class ParticleCuller {
         this._initModuleList();
     }
 
-    private _updateBoundingNode () {
+    private _updateBoundingNode (): void {
         this._nodeSize.set(this.maxPos.x - this.minPos.x, this.maxPos.y - this.minPos.y, this.maxPos.z - this.minPos.z);
         this._nodePos.set(this.minPos.x + this._nodeSize.x * 0.5, this.minPos.y + this._nodeSize.y * 0.5, this.minPos.z + this._nodeSize.z * 0.5);
     }
 
-    public setBoundingBoxSize (halfExt: Vec3) {
+    public setBoundingBoxSize (halfExt: Vec3): void {
         this.maxPos.x = this._nodePos.x + halfExt.x;
         this.maxPos.y = this._nodePos.y + halfExt.y;
         this.maxPos.z = this._nodePos.z + halfExt.z;
@@ -88,7 +88,7 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    public setBoundingBoxCenter (px: number, py: number, pz: number) {
+    public setBoundingBoxCenter (px: number, py: number, pz: number): void {
         this.maxPos.x = px + this._nodeSize.x * 0.5;
         this.maxPos.y = py + this._nodeSize.y * 0.5;
         this.maxPos.z = pz + this._nodeSize.z * 0.5;
@@ -98,8 +98,8 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    private _initModuleList () {
-        _anim_module.forEach((val) => {
+    private _initModuleList (): void {
+        _anim_module.forEach((val): void => {
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
@@ -122,7 +122,7 @@ export class ParticleCuller {
         }
     }
 
-    private _emit (count: number, dt: number, particleLst: Particle[]) {
+    private _emit (count: number, dt: number, particleLst: Particle[]): void {
         const ps = this._particleSystem;
         const node = this._node;
         const loopDelta = (ps.time % ps.duration) / ps.duration; // loop delta value
@@ -183,7 +183,7 @@ export class ParticleCuller {
         }
     }
 
-    private _updateParticles (dt: number, particleLst: Particle[]) {
+    private _updateParticles (dt: number, particleLst: Particle[]): void {
         const ps = this._particleSystem;
         ps.node.getWorldMatrix(_node_mat);
 
@@ -198,7 +198,7 @@ export class ParticleCuller {
             break;
         }
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
+        this._updateList.forEach((value: IParticleModule, key: string): void => {
             value.update(ps.simulationSpace, _node_mat);
         });
 
@@ -246,7 +246,7 @@ export class ParticleCuller {
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach((value) => {
+            this._runAnimateList.forEach((value): void => {
                 value.animate(p, dt);
             });
 
@@ -254,7 +254,7 @@ export class ParticleCuller {
         }
     }
 
-    private _calculateBounding (isInit: boolean) {
+    private _calculateBounding (isInit: boolean): void {
         const size: Vec3 = new Vec3();
         const position: Vec3 = new Vec3();
         const subPos: Vec3 = new Vec3();
@@ -292,7 +292,7 @@ export class ParticleCuller {
         }
     }
 
-    public calculatePositions () {
+    public calculatePositions (): void {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
         const rand = isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
         this._updateParticles(0, this._particlesAll);
@@ -302,11 +302,11 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    public clear () {
+    public clear (): void {
         this._particlesAll.length = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
 
     }
 }

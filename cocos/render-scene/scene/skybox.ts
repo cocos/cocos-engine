@@ -209,7 +209,7 @@ export class Skybox {
         }
     }
 
-    get editableMaterial () {
+    get editableMaterial (): MaterialInstance | null {
         return this._editableMaterial;
     }
 
@@ -230,7 +230,7 @@ export class Skybox {
     protected _reflectionLDR: TextureCube | null = null;
     protected _rotationAngle = 0;
 
-    public initialize (skyboxInfo: SkyboxInfo) {
+    public initialize (skyboxInfo: SkyboxInfo): void {
         this._activated = false;
         this._enabled = skyboxInfo.enabled;
         this._useIBL = skyboxInfo.useIBL;
@@ -244,7 +244,7 @@ export class Skybox {
      * @param envmapHDR @en Environment map for HDR mode @zh HDR 模式下的环境贴图
      * @param envmapLDR @en Environment map for LDR mode @zh LDR 模式下的环境贴图
      */
-    public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
+    public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null): void {
         this._envmapHDR = envmapHDR;
         this._envmapLDR = envmapLDR;
 
@@ -258,7 +258,7 @@ export class Skybox {
      * @param diffuseMapHDR @en Diffuse map for HDR mode @zh HDR 模式下的漫反射贴图
      * @param diffuseMapLDR  @en Diffuse map for LDR mode @zh LDR 模式下的漫反射贴图
      */
-    public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
+    public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null): void {
         this._diffuseMapHDR = diffuseMapHDR;
         this._diffuseMapLDR = diffuseMapLDR;
         this._updateGlobalBinding();
@@ -270,7 +270,7 @@ export class Skybox {
      * @zh 设置自定义的天空盒材质
      * @param skyboxMat  @en Skybox material @zh 天空盒材质
      */
-    public setSkyboxMaterial (skyboxMat: Material | null) {
+    public setSkyboxMaterial (skyboxMat: Material | null): void {
         if (skyboxMat) {
             this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
             this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
@@ -286,7 +286,7 @@ export class Skybox {
      * @param reflectionHDR  @en Reflection convolution map for HDR mode @zh HDR 模式下的反射卷积图
      * @param reflectionLDR  @en Reflection convolution map for LDR mode @zh LDR 模式下的反射卷积图
      */
-    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
+    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null): void {
         this._reflectionHDR = reflectionHDR;
         this._reflectionLDR = reflectionLDR;
         this._updateGlobalBinding();
@@ -298,20 +298,20 @@ export class Skybox {
      * @zh 设置天空盒旋转角度
      * @param angle  @en rotation angle @zh 旋转角度
      */
-    public setRotationAngle (angle: number) {
+    public setRotationAngle (angle: number): void {
         this._rotationAngle = angle;
     }
 
-    public getRotationAngle () {
+    public getRotationAngle (): number {
         return this._rotationAngle;
     }
 
-    public updateMaterialRenderInfo () {
+    public updateMaterialRenderInfo (): void {
         this._updateGlobalBinding();
         this._updatePipeline();
     }
 
-    public activate () {
+    public activate (): void {
         const pipeline = cclegacy.director.root.pipeline;
         this._globalDSManager = pipeline.globalDSManager;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
@@ -360,7 +360,7 @@ export class Skybox {
         this._activated = true;
     }
 
-    protected _updatePipeline () {
+    protected _updatePipeline (): void {
         const root = cclegacy.director.root as Root;
         const pipeline = root.pipeline;
 
@@ -397,7 +397,7 @@ export class Skybox {
         }
     }
 
-    protected _updateGlobalBinding () {
+    protected _updateGlobalBinding (): void {
         if (this._globalDSManager) {
             const device = deviceManager.gfxDevice;
             if (this.reflectionMap) {
@@ -427,7 +427,7 @@ export class Skybox {
         }
     }
 
-    protected _updateSubModes () {
+    protected _updateSubModes (): void {
         if (this._model) {
             const subModels = this._model.subModels;
             for (let i = 0; i < subModels.length; i++) {

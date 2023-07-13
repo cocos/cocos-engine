@@ -37,13 +37,13 @@ class AnimationBlendDirectItem extends AnimationBlendItem {
     @serializable
     public weight = new BindableNumber(0.0);
 
-    public clone () {
+    public clone (): AnimationBlendDirectItem {
         const that = new AnimationBlendDirectItem();
         this._copyTo(that);
         return that;
     }
 
-    protected _copyTo (that: AnimationBlendDirectItem) {
+    protected _copyTo (that: AnimationBlendDirectItem): AnimationBlendDirectItem {
         super._copyTo(that);
         that.weight = this.weight;
         return that;
@@ -57,7 +57,7 @@ export class AnimationBlendDirect extends AnimationBlend {
     @serializable
     private _items: AnimationBlendDirectItem[] = [];
 
-    get items () {
+    get items (): AnimationBlendDirectItem[] {
         return this._items;
     }
 
@@ -65,7 +65,7 @@ export class AnimationBlendDirect extends AnimationBlend {
         this._items = Array.from(value);
     }
 
-    public clone () {
+    public clone (): AnimationBlendDirect {
         const that = new AnimationBlendDirect();
         this.copyTo(that);
         that._items = this._items.map((item) => item?.clone() ?? null);
@@ -76,7 +76,7 @@ export class AnimationBlendDirect extends AnimationBlend {
         context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-    ) {
+    ): AnimationBlendDirectEval {
         const myEval: AnimationBlendDirectEval = new AnimationBlendDirectEval(
             context,
             clipOverrides,
@@ -111,7 +111,7 @@ class AnimationBlendDirectEval extends AnimationBlendEval {
         this.doEval();
     }
 
-    protected eval (weights: number[], inputs: readonly number[]) {
+    protected eval (weights: number[], inputs: readonly number[]): void {
         const nChildren = weights.length;
         for (let iChild = 0; iChild < nChildren; ++iChild) {
             weights[iChild] = inputs[iChild];

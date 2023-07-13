@@ -14,6 +14,7 @@ module.exports = {
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
         'node_modules/(?!(@cocos/dragonbones-js)/)',
+        'native/external/emscripten/',
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",

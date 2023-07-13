@@ -72,7 +72,7 @@ export class AnimationMask extends Asset {
      * @param path @zh 关节的路径。 @en The joint's path.
      * @param enabled @zh 是否启用该关节。 @en Whether to enable the joint.
      */
-    public addJoint (path: string, enabled: boolean) {
+    public addJoint (path: string, enabled: boolean): void {
         this.removeJoint(path);
         const info = new JointMask();
         info.path = path;
@@ -80,15 +80,15 @@ export class AnimationMask extends Asset {
         this._jointMasks.push(info);
     }
 
-    public removeJoint (removal: string) {
+    public removeJoint (removal: string): void {
         js.array.removeIf(this._jointMasks, ({ path }) => path === removal);
     }
 
-    public clear () {
+    public clear (): void {
         this._jointMasks.length = 0;
     }
 
-    public filterDisabledNodes (root: Node) {
+    public filterDisabledNodes (root: Node): Set<Node> {
         const { _jointMasks: jointMasks } = this;
         const nJointMasks = jointMasks.length;
         const disabledNodes = new Set<Node>();
@@ -105,7 +105,7 @@ export class AnimationMask extends Asset {
         return disabledNodes;
     }
 
-    public isExcluded (path: string) {
+    public isExcluded (path: string): boolean {
         return !(this._jointMasks.find(({ path: p }) => p === path)?.enabled ?? true);
     }
 }

@@ -88,11 +88,14 @@ export class BinaryInputArchive implements InputArchive {
     }
     readString (): string {
         const length = this.readNumber();
-        const value = new Uint8Array(this.dataView.buffer, this.offset, length);
+        // we only support ascii string now, so we can use String.fromCharCode
+        // see https://stackoverflow.com/questions/67057689/typscript-type-uint8array-is-missing-the-following-properties-from-type-numb
+        // answer on stackoverflow might be wrong.
+        // [[wrong]] const str =  String.fromCharCode.apply(null, [...new Uint8Array(this.dataView.buffer, this.offset, length)]);
+        const str =  String.fromCharCode.apply(null, Array.from(new Uint8Array(this.dataView.buffer, this.offset, length)));
         this.offset += length;
-        return this.textDecoder.decode(value);
+        return str;
     }
     offset = 0;
     dataView: DataView;
-    textDecoder = new TextDecoder('utf-8');
 }

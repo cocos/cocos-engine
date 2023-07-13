@@ -29,15 +29,15 @@ import { Vec4 } from './vec4';
 import { Quat } from './quat';
 import { Color } from './color';
 
-const defineAttr = (proto, name, offset) => {
+const defineAttr = (proto, name, offset): void => {
     Object.defineProperty(proto, name, {
         configurable: true,
         enumerable: true,
-        get () {
+        get (): any {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this._data()[offset];
         },
-        set (v: number) {
+        set (v: number): void {
             this._data()[offset] = v;
         },
     });
@@ -55,8 +55,8 @@ export enum MathType {
     COLOR,
 }
 
-function extendType (proto: any, parentProto: any, typ: MathType) {
-    proto._data = function () {
+function extendType (proto: any, parentProto: any, typ: MathType): void {
+    proto._data = function (): Float32Array {
         if (!this.__data) {
             this.__data = new Float32Array(this.underlyingData());
         }
@@ -66,7 +66,7 @@ function extendType (proto: any, parentProto: any, typ: MathType) {
     Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
 }
 
-function inheritCCClass (ctor: Constructor, parentCtor: Constructor) {
+function inheritCCClass (ctor: Constructor, parentCtor: Constructor): void {
     for (const attrName of ['__cid__', '__classname__']) {
         Object.defineProperty(ctor.prototype, attrName, {
             value: parentCtor.prototype[attrName],

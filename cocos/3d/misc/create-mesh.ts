@@ -41,7 +41,7 @@ const v3_1 = new Vec3();
 /**
  * @deprecated
  */
-export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions): Mesh {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: Attribute[] = [];
@@ -276,7 +276,7 @@ function getPadding (length: number, align: number): number {
     return 0;
 }
 
-function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
     options = options || { maxSubMeshes: 1, maxSubMeshVertices: 1024, maxSubMeshIndices: 1024 };
 
     const attributes: Attribute[] = [];
@@ -418,7 +418,7 @@ export class MeshUtils {
      * @param options @en options of creating @zh 创建选项
      * @return @en The created static mesh, which is same as out @zh 新创建的静态网格，同 out 参数
      */
-    static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+    static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions): Mesh {
         return createMesh(geometry, out, options);
     }
 
@@ -431,7 +431,7 @@ export class MeshUtils {
      * @param options @en options of creating @zh 创建选项
      * @return @en The created dynamic mesh, which is same as out @zh 新创建的动态网格，同 out 参数
      */
-    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
         return createDynamicMesh(primitiveIndex, geometry, out, options);
     }
 }

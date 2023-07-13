@@ -34,7 +34,7 @@ const tempFilter = new b2.Filter();
 const lowerBound = new b2.Vec2();
 const upperBound = new b2.Vec2();
 
-function getFilter (shape: b2Shape2D) {
+function getFilter (shape: b2Shape2D): any {
     const comp = shape.collider;
     if (comp.body) {
         tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body.group : comp.group;
@@ -56,41 +56,41 @@ export class b2Shape2D implements IBaseShape {
 
     private _rect = new Rect();
 
-    get impl () {
+    get impl (): b2.Shape[] {
         return this._shapes;
     }
 
-    get collider () {
+    get collider (): Collider2D {
         return this._collider!;
     }
 
-    initialize (comp: Collider2D) {
+    initialize (comp: Collider2D): void {
         this._collider = comp;
     }
 
-    onLoad () {
+    onLoad (): void {
     }
 
-    onEnable () {
+    onEnable (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
     }
 
-    onDisable () {
+    onDisable (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
     }
 
-    start () {
+    start (): void {
 
     }
 
-    onGroupChanged () {
+    onGroupChanged (): void {
         const filter = getFilter(this);
-        this._fixtures.forEach((f) => {
+        this._fixtures.forEach((f): void => {
             f.SetFilterData(filter);
         });
     }
 
-    apply () {
+    apply (): void {
         this._destroy();
         if (this.collider.enabledInHierarchy) {
             this._init();
@@ -137,7 +137,7 @@ export class b2Shape2D implements IBaseShape {
         return r;
     }
 
-    getFixtureIndex (fixture: b2.Fixture) {
+    getFixtureIndex (fixture: b2.Fixture): number {
         return this._fixtures.indexOf(fixture);
     }
 
@@ -146,7 +146,7 @@ export class b2Shape2D implements IBaseShape {
         return [];
     }
 
-    _init () {
+    _init (): void {
         if (this._inited) return;
 
         const comp = this.collider;
@@ -195,7 +195,7 @@ export class b2Shape2D implements IBaseShape {
         this._inited = true;
     }
 
-    _destroy () {
+    _destroy (): void {
         if (!this._inited) return;
 
         const fixtures = this._fixtures;

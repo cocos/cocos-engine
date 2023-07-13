@@ -52,7 +52,7 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
     _gpuTexture->mipLevel = _info.levelCount;
-    _gpuTexture->samples = _info.samples;
+    _gpuTexture->glSamples = static_cast<GLint>(_info.samples);
     _gpuTexture->flags = _info.flags;
     _gpuTexture->size = _size;
     _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
@@ -166,7 +166,7 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
     _gpuTexture->mipLevel = _info.levelCount;
-    _gpuTexture->samples = _info.samples;
+    _gpuTexture->glSamples = static_cast<GLint>(_info.samples);
     _gpuTexture->flags = _info.flags;
     _gpuTexture->size = _size;
     _gpuTexture->allocateMemory = false;

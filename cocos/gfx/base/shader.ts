@@ -33,15 +33,15 @@ export abstract class Shader extends GFXObject {
         return this._name;
     }
 
-    get attributes () {
+    get attributes (): Attribute[] {
         return this._attributes;
     }
 
-    get blocks () {
+    get blocks (): UniformBlock[] {
         return this._blocks;
     }
 
-    get samplers () {
+    get samplers (): UniformSampler[] {
         return this._samplers;
     }
 

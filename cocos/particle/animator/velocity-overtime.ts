@@ -54,7 +54,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -134,7 +134,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @param worldTransform @en Particle system world transform @zh 粒子系统的世界变换矩阵
      * @internal
      */
-    public update (space: number, worldTransform: Mat4) {
+    public update (space: number, worldTransform: Mat4): void {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
@@ -145,7 +145,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
      * @internal
      */
-    public animate (p: Particle, dt: number) {
+    public animate (p: Particle, dt: number): void {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET) : 0;
         const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET) : 0;

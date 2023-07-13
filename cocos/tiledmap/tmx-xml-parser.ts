@@ -183,9 +183,9 @@ export class TMXMapInfo {
     protected _objectGroups: TMXObjectGroupInfo[] = [];
     protected _allChildren: (TMXLayerInfo | TMXImageLayerInfo | TMXObjectGroupInfo)[] = [];
     protected _mapSize = new Size(0, 0);
-    get mapSize () { return this._mapSize; }
+    get mapSize (): Size { return this._mapSize; }
     protected _tileSize = new Size(0, 0);
-    get tileSize () { return this._tileSize; }
+    get tileSize (): Size { return this._tileSize; }
     protected _layers: TMXLayerInfo[] = [];
     protected _tilesets: TMXTilesetInfo[] = [];
     protected _imageLayers: TMXImageLayerInfo[] = [];
@@ -212,7 +212,7 @@ export class TMXMapInfo {
     /* Gets Map orientation.
      * @return {Number}
      */
-    getOrientation () {
+    getOrientation (): Orientation | null {
         return this.orientation;
     }
 
@@ -220,14 +220,14 @@ export class TMXMapInfo {
      * Set the Map orientation.
      * @param {Number} value
      */
-    setOrientation (value: Orientation) {
+    setOrientation (value: Orientation): void {
         this.orientation = value;
     }
     /**
      * Gets the staggerAxis of map.
      * @return {TiledMap.StaggerAxis}
      */
-    getStaggerAxis () {
+    getStaggerAxis (): StaggerAxis | null {
         return this._staggerAxis;
     }
 
@@ -235,7 +235,7 @@ export class TMXMapInfo {
      * Set the staggerAxis of map.
      * @param {TiledMap.StaggerAxis} value
      */
-    setStaggerAxis (value: StaggerAxis) {
+    setStaggerAxis (value: StaggerAxis): void {
         this._staggerAxis = value;
     }
 
@@ -243,7 +243,7 @@ export class TMXMapInfo {
      * Gets stagger index
      * @return {TiledMap.StaggerIndex}
      */
-    getStaggerIndex () {
+    getStaggerIndex (): StaggerIndex | null {
         return this._staggerIndex;
     }
 
@@ -251,7 +251,7 @@ export class TMXMapInfo {
      * Set the stagger index.
      * @param {TiledMap.StaggerIndex} value
      */
-    setStaggerIndex (value) {
+    setStaggerIndex (value): void {
         this._staggerIndex = value;
     }
 
@@ -259,7 +259,7 @@ export class TMXMapInfo {
      * Gets Hex side length.
      * @return {Number}
      */
-    getHexSideLength () {
+    getHexSideLength (): number {
         return this._hexSideLength;
     }
 
@@ -267,7 +267,7 @@ export class TMXMapInfo {
      * Set the Hex side length.
      * @param {Number} value
      */
-    setHexSideLength (value: number) {
+    setHexSideLength (value: number): void {
         this._hexSideLength = value;
     }
 
@@ -275,7 +275,7 @@ export class TMXMapInfo {
      * Map width & height
      * @return {Size}
      */
-    getMapSize () {
+    getMapSize (): Size {
         return new Size(this._mapSize.width, this._mapSize.height);
     }
 
@@ -283,19 +283,19 @@ export class TMXMapInfo {
      * Map width & height
      * @param {Size} value
      */
-    setMapSize (value: Size) {
+    setMapSize (value: Size): void {
         this._mapSize.width = value.width;
         this._mapSize.height = value.height;
     }
 
-    get mapWidth () {
+    get mapWidth (): number {
         return this._mapSize.width;
     }
     set mapWidth (width: number) {
         this._mapSize.width = width;
     }
 
-    get mapHeight () {
+    get mapHeight (): number {
         return this._mapSize.height;
     }
     set mapHeight (height: number) {
@@ -306,7 +306,7 @@ export class TMXMapInfo {
      * Tiles width & height
      * @return {Size}
      */
-    getTileSize () {
+    getTileSize (): Size {
         return new Size(this._tileSize.width, this._tileSize.height);
     }
 
@@ -314,12 +314,12 @@ export class TMXMapInfo {
      * Tiles width & height
      * @param {Size} value
      */
-    setTileSize (value: Size) {
+    setTileSize (value: Size): void {
         this._tileSize.width = value.width;
         this._tileSize.height = value.height;
     }
 
-    get tileWidth () {
+    get tileWidth (): number {
         return this._tileSize.width;
     }
 
@@ -330,7 +330,7 @@ export class TMXMapInfo {
     /**
      * Height of a tile
      */
-    get tileHeight () {
+    get tileHeight (): number {
         return this._tileSize.height;
     }
 
@@ -342,7 +342,7 @@ export class TMXMapInfo {
      * Layers
      * @return {Array}
      */
-    getLayers () {
+    getLayers (): TMXLayerInfo[] {
         return this._layers;
     }
 
@@ -350,7 +350,7 @@ export class TMXMapInfo {
      * Layers
      * @param {cc.TMXLayerInfo} value
      */
-    setLayers (value: TMXLayerInfo) {
+    setLayers (value: TMXLayerInfo): void {
         this._allChildren.push(value);
         this._layers.push(value);
     }
@@ -359,7 +359,7 @@ export class TMXMapInfo {
      * ImageLayers
      * @return {Array}
      */
-    getImageLayers () {
+    getImageLayers (): TMXImageLayerInfo[] {
         return this._imageLayers;
     }
 
@@ -367,7 +367,7 @@ export class TMXMapInfo {
      * ImageLayers
      * @param {cc.TMXImageLayerInfo} value
      */
-    setImageLayers (value: TMXImageLayerInfo) {
+    setImageLayers (value: TMXImageLayerInfo): void {
         this._allChildren.push(value);
         this._imageLayers.push(value);
     }
@@ -376,7 +376,7 @@ export class TMXMapInfo {
      * tilesets
      * @return {Array}
      */
-    getTilesets () {
+    getTilesets (): TMXTilesetInfo[] {
         return this._tilesets;
     }
 
@@ -384,7 +384,7 @@ export class TMXMapInfo {
      * tilesets
      * @param {cc.TMXTilesetInfo} value
      */
-    setTilesets (value: TMXTilesetInfo) {
+    setTilesets (value: TMXTilesetInfo): void {
         this._tilesets.push(value);
     }
 
@@ -392,7 +392,7 @@ export class TMXMapInfo {
      * ObjectGroups
      * @return {Array}
      */
-    getObjectGroups () {
+    getObjectGroups (): TMXObjectGroupInfo[] {
         return this._objectGroups;
     }
 
@@ -400,12 +400,12 @@ export class TMXMapInfo {
      * ObjectGroups
      * @param {cc.TMXObjectGroup} value
      */
-    setObjectGroups (value: TMXObjectGroupInfo) {
+    setObjectGroups (value: TMXObjectGroupInfo): void {
         this._allChildren.push(value);
         this._objectGroups.push(value);
     }
 
-    getAllChildren () {
+    getAllChildren (): (TMXObjectGroupInfo | TMXLayerInfo | TMXImageLayerInfo)[] {
         return this._allChildren;
     }
 
@@ -413,7 +413,7 @@ export class TMXMapInfo {
      * parent element
      * @return {Object}
      */
-    getParentElement () {
+    getParentElement (): Record<string, unknown> | null {
         return this.parentElement;
     }
 
@@ -421,7 +421,7 @@ export class TMXMapInfo {
      * parent element
      * @param {Object} value
      */
-    setParentElement (value) {
+    setParentElement (value): void {
         this.parentElement = value;
     }
 
@@ -429,7 +429,7 @@ export class TMXMapInfo {
      * parent GID
      * @return {Number}
      */
-    getParentGID () {
+    getParentGID (): number {
         return this.parentGID;
     }
 
@@ -437,7 +437,7 @@ export class TMXMapInfo {
      * parent GID
      * @param {Number} value
      */
-    setParentGID (value) {
+    setParentGID (value): void {
         this.parentGID = value;
     }
 
@@ -445,7 +445,7 @@ export class TMXMapInfo {
      * Layer attribute
      * @return {Object}
      */
-    getLayerAttribs () {
+    getLayerAttribs (): number {
         return this.layerAttrs;
     }
 
@@ -453,7 +453,7 @@ export class TMXMapInfo {
      * Layer attribute
      * @param {Object} value
      */
-    setLayerAttribs (value) {
+    setLayerAttribs (value): void {
         this.layerAttrs = value;
     }
 
@@ -461,7 +461,7 @@ export class TMXMapInfo {
      * Is reading storing characters stream
      * @return {Boolean}
      */
-    getStoringCharacters () {
+    getStoringCharacters (): boolean {
         return this.storingCharacters;
     }
 
@@ -469,7 +469,7 @@ export class TMXMapInfo {
      * Is reading storing characters stream
      * @param {Boolean} value
      */
-    setStoringCharacters (value) {
+    setStoringCharacters (value): void {
         this.storingCharacters = value;
     }
 
@@ -477,7 +477,7 @@ export class TMXMapInfo {
      * Properties
      * @return {Array}
      */
-    getProperties () {
+    getProperties (): PropertiesInfo {
         return this.properties;
     }
 
@@ -485,7 +485,7 @@ export class TMXMapInfo {
      * Properties
      * @param {object} value
      */
-    setProperties (value) {
+    setProperties (value): void {
         this.properties = value;
     }
 
@@ -497,7 +497,7 @@ export class TMXMapInfo {
      * @return {Boolean}
      */
     initWithXML (tmxString: string, tsxMap: { [key: string]: string }, spfTextureMap: { [key: string]: SpriteFrame },
-        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
+        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }): HTMLElement {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -528,7 +528,7 @@ export class TMXMapInfo {
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLString (xmlStr: string, tilesetFirstGid?: number) {
+    parseXMLString (xmlStr: string, tilesetFirstGid?: number): HTMLElement {
         const parser = new SAXParser();
         const mapXML: Document = parser.parse(xmlStr);
         let i: number;
@@ -792,7 +792,7 @@ export class TMXMapInfo {
             || node.nodeType === 4;  // cdata
     }
 
-    protected _parseImageLayer (selLayer: Element) {
+    protected _parseImageLayer (selLayer: Element): TMXImageLayerInfo | null {
         const datas = selLayer.getElementsByTagName('image');
         if (!datas || datas.length === 0) return null;
 
@@ -817,14 +817,14 @@ export class TMXMapInfo {
         imageLayer.trans = strToColor(data.getAttribute('trans')!);
 
         if (!imageLayer.sourceImage) {
-            errorID(7221, source);
+            errorID(7221, source!);
             console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
         return imageLayer;
     }
 
-    protected _parseLayer (selLayer: Element) {
+    protected _parseLayer (selLayer: Element): TMXLayerInfo | null {
         const data = selLayer.getElementsByTagName('data')[0];
 
         const layer = new TMXLayerInfo();
@@ -898,7 +898,7 @@ export class TMXMapInfo {
         return layer;
     }
 
-    protected _parseObjectGroup (selGroup: Element) {
+    protected _parseObjectGroup (selGroup: Element): TMXObjectGroupInfo {
         const objectGroup = new TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
         objectGroup.offset = new Vec2(parseFloat(selGroup.getAttribute('offsetx')!), parseFloat(selGroup.getAttribute('offsety')!));
@@ -1008,7 +1008,10 @@ export class TMXMapInfo {
         return objectGroup;
     }
 
-    protected _parsePointsString (pointsString?: string) {
+    protected _parsePointsString (pointsString?: string): {
+        x: number;
+        y: number;
+    }[] | null {
         if (!pointsString) return null;
 
         const points: { x: number, y: number }[] = [];
@@ -1024,7 +1027,7 @@ export class TMXMapInfo {
      * Sets the tile animations.
      * @return {Object}
      */
-    setTileAnimations (animations: TiledAnimationType) {
+    setTileAnimations (animations: TiledAnimationType): void {
         this._tileAnimations = animations;
     }
 
@@ -1040,7 +1043,7 @@ export class TMXMapInfo {
      * Gets the tile properties.
      * @return {Object}
      */
-    getTileProperties () {
+    getTileProperties (): Map<number, PropertiesInfo> {
         return this._tileProperties;
     }
 
@@ -1048,7 +1051,7 @@ export class TMXMapInfo {
      * Set the tile properties.
      * @param {Object} tileProperties
      */
-    setTileProperties (tileProperties: Map<GID, PropertiesInfo>) {
+    setTileProperties (tileProperties: Map<GID, PropertiesInfo>): void {
         this._tileProperties = tileProperties;
     }
 
@@ -1056,7 +1059,7 @@ export class TMXMapInfo {
      * Gets the currentString
      * @return {String}
      */
-    getCurrentString () {
+    getCurrentString (): string | null {
         return this.currentString;
     }
 
@@ -1064,18 +1067,18 @@ export class TMXMapInfo {
      * Set the currentString
      * @param {String} currentString
      */
-    setCurrentString (currentString: string) {
+    setCurrentString (currentString: string): void {
         this.currentString = currentString;
     }
 
-    static getNameWithPostfix (name: string) {
+    static getNameWithPostfix (name: string): string {
         name = name.replace(/\\/g, '/');
         const slashIndex = name.lastIndexOf('/') + 1;
         const strLen = name.length;
         return name.substring(slashIndex, strLen);
     }
 
-    static getShortName (name: string) {
+    static getShortName (name: string): string {
         name = name.replace(/\\/g, '/');
         const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');

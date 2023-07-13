@@ -30,7 +30,7 @@ import { BulletCache } from '../bullet-cache';
 import { bt } from '../instantiated';
 
 export class BulletCylinderShape extends BulletShape implements ICylinderShape {
-    setHeight (v: number) {
+    setHeight (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -39,7 +39,7 @@ export class BulletCylinderShape extends BulletShape implements ICylinderShape {
         );
     }
 
-    setDirection (v: number) {
+    setDirection (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -48,7 +48,7 @@ export class BulletCylinderShape extends BulletShape implements ICylinderShape {
         );
     }
 
-    setRadius (v: number) {
+    setRadius (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
@@ -57,23 +57,23 @@ export class BulletCylinderShape extends BulletShape implements ICylinderShape {
         );
     }
 
-    get collider () {
+    get collider (): CylinderCollider {
         return this._collider as CylinderCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const bt_v3 = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(bt_v3, 0.5, 1, 0.5);
         this._impl = bt.CylinderShape_new(bt_v3);
         this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         this.setRadius(this.collider.radius);
     }
 
-    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like): void {
         const ws = scale;
         const upAxis = direction;
         let wr: number; let wh: number;

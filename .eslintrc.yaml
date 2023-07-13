@@ -112,6 +112,9 @@ rules:
     # TODO: this is just too much work
     '@typescript-eslint/explicit-module-boundary-types': off
 
+    # NOTE: We don't want to rely on TS automatic type inference
+    '@typescript-eslint/no-inferrable-types': off
+
     # TODO: sadly we still rely heavily on legacyCC
     '@typescript-eslint/no-unsafe-assignment': off
     '@typescript-eslint/no-unsafe-call': off
@@ -143,3 +146,4 @@ rules:
 
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
+    '@typescript-eslint/explicit-function-return-type': [error]

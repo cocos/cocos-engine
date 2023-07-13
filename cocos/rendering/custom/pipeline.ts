@@ -39,7 +39,7 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Model } from '../../render-scene/scene';
+import { Light, Model } from '../../render-scene/scene';
 import { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
@@ -1376,6 +1376,11 @@ export interface Pipeline extends BasicPipeline {
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     addMovePass (movePairs: MovePair[]): void;
+    addBuiltinGpuCullingPass (
+        camera: Camera,
+        hzbName?: string,
+        light?: Light | null): void;
+    addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental
      */

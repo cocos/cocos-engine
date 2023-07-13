@@ -1,11 +1,11 @@
 #include "spine-wasm.h"
-#include "wasmSpineExtension.h"
-#include "util-function.h"
-#include "spine-mesh-data.h"
-#include "AtlasAttachmentLoaderExtension.h"
 #include <map>
+#include "AtlasAttachmentLoaderExtension.h"
+#include "spine-mesh-data.h"
+#include "util-function.h"
+#include "wasmSpineExtension.h"
 
-std::map<std::string, SkeletonData*> skeletonDataMap {};
+std::map<std::string, SkeletonData*> skeletonDataMap{};
 
 uint32_t SpineWasmUtil::s_listenerID = 0;
 EventType SpineWasmUtil::s_currentType = EventType_Event;
@@ -42,30 +42,27 @@ SkeletonData* SpineWasmUtil::querySpineSkeletonDataByUUID(const std::string& uui
 }
 
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const std::string& jsonStr, const std::string& altasStr) {
-    auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
+    auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(), "", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
-    AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
+    AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonJson json(attachmentLoader);
     json.setScale(1.0F);
-    SkeletonData *skeletonData = json.readSkeletonData(jsonStr.c_str());
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SkeletonData* skeletonData = json.readSkeletonData(jsonStr.c_str());
+
     return skeletonData;
 }
 
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize, const std::string& altasStr) {
-    auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(),"", nullptr, false);
+    auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(), "", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
-    AttachmentLoader *attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
+    AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonBinary binary(attachmentLoader);
     binary.setScale(1.0F);
-    SkeletonData *skeletonData = binary.readSkeletonData(s_mem, byteSize);
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+    SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
     return skeletonData;
 }
 
@@ -79,7 +76,7 @@ void SpineWasmUtil::registerSpineSkeletonDataWithUUID(SkeletonData* data, const 
 void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const std::string& uuid) {
     auto iter = skeletonDataMap.find(uuid);
     if (iter != skeletonDataMap.end()) {
-        auto *data = skeletonDataMap[uuid];
+        auto* data = skeletonDataMap[uuid];
         delete data;
         skeletonDataMap.erase(iter);
     }
@@ -95,7 +92,7 @@ void SpineWasmUtil::destroySpineInstance(SpineSkeletonInstance* instance) {
 uint32_t SpineWasmUtil::queryStoreMemory(uint32_t size) {
     if (s_mem) {
         if (s_memSize < size) {
-            delete[]s_mem;
+            delete[] s_mem;
             s_mem = new uint8_t[size];
             s_memSize = size;
         }

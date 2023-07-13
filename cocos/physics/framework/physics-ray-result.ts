@@ -85,7 +85,7 @@ export class PhysicsRayResult {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like): void {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
@@ -98,7 +98,7 @@ export class PhysicsRayResult {
      * @zh
      * 克隆。
      */
-    public clone () {
+    public clone (): PhysicsRayResult {
         const c = new PhysicsRayResult();
         Vec3.copy(c._hitPoint, this._hitPoint);
         Vec3.copy(c._hitNormal, this._hitNormal);
@@ -134,7 +134,7 @@ export class PhysicsLineStripCastResult extends PhysicsRayResult {
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
      * @engineInternal
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0): void {
         super._assign(hitPoint, distance, collider, hitNormal);
         this._id = id;
     }
@@ -145,7 +145,7 @@ export class PhysicsLineStripCastResult extends PhysicsRayResult {
      * @zh
      * 克隆。
      */
-    public clone () {
+    public clone (): PhysicsLineStripCastResult {
         const c = new PhysicsLineStripCastResult();
         Vec3.copy(c._hitPoint, this._hitPoint);
         Vec3.copy(c._hitNormal, this._hitNormal);

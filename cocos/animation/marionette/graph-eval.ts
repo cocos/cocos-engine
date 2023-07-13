@@ -105,11 +105,11 @@ export class AnimationGraphEval {
         this._initializeContexts();
     }
 
-    public destroy () {
+    public destroy (): void {
         this._evaluationContext.destroy();
     }
 
-    public _destroyAfterException_debugging () {
+    public _destroyAfterException_debugging (): void {
         const stackSize = this._evaluationContext._stackSize_debugging;
         if (stackSize !== 0) { // Should only caused by exception.
             for (let i = 0; i < stackSize; ++i) {
@@ -120,11 +120,11 @@ export class AnimationGraphEval {
         this._evaluationContext.destroy();
     }
 
-    public get layerCount () {
+    public get layerCount (): number {
         return this._rootPoseNode.layerCount;
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         const {
             _evaluationContext: evaluationContext,
             _poseLayoutMaintainer: poseLayoutMaintainer,
@@ -189,7 +189,7 @@ export class AnimationGraphEval {
         return this._rootPoseNode.getLayerTopLevelStateMachineEvaluation(layer).getNextClipStatuses();
     }
 
-    public getValue (name: string) {
+    public getValue (name: string): Value | undefined {
         const varInstance = this._varInstances[name];
         if (!varInstance) {
             return undefined;
@@ -198,7 +198,7 @@ export class AnimationGraphEval {
         }
     }
 
-    public setValue (name: string, value: Value) {
+    public setValue (name: string, value: Value): void {
         const varInstance = this._varInstances[name];
         if (!varInstance) {
             return;
@@ -206,15 +206,15 @@ export class AnimationGraphEval {
         varInstance.value = value;
     }
 
-    public getLayerWeight (layerIndex: number) {
+    public getLayerWeight (layerIndex: number): number {
         return this._rootPoseNode.getLayerWeight(layerIndex);
     }
 
-    public setLayerWeight (layerIndex: number, weight: number) {
+    public setLayerWeight (layerIndex: number, weight: number): void {
         this._rootPoseNode.setLayerWeight(layerIndex, weight);
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap) {
+    public overrideClips (overrides: ReadonlyClipOverrideMap): void {
         const {
             _poseLayoutMaintainer: poseLayoutMaintainer,
         } = this;
@@ -226,7 +226,7 @@ export class AnimationGraphEval {
         this._updateAfterPossiblePoseLayoutChange();
     }
 
-    public getAuxiliaryCurveValue (curveName: string) {
+    public getAuxiliaryCurveValue (curveName: string): number {
         return this._auxiliaryCurveRegistry.get(curveName);
     }
 
@@ -245,7 +245,7 @@ export class AnimationGraphEval {
     private declare _poseStashAllocator: DeferredPoseStashAllocator;
     private _rootUpdateContextGenerator = new AnimationGraphUpdateContextGenerator();
 
-    private _initializeContexts () {
+    private _initializeContexts (): void {
         const {
             _poseLayoutMaintainer: poseLayoutMaintainer,
         } = this;
@@ -265,7 +265,7 @@ export class AnimationGraphEval {
         poseLayoutMaintainer.resetPoseStashAllocator(this._poseStashAllocator);
     }
 
-    private _updateAfterPossiblePoseLayoutChange () {
+    private _updateAfterPossiblePoseLayoutChange (): void {
         const {
             _poseLayoutMaintainer: poseLayoutMaintainer,
         } = this;
@@ -302,7 +302,7 @@ export class AnimationGraphEval {
         }
     }
 
-    private _createOrUpdateTransformFilters () {
+    private _createOrUpdateTransformFilters (): void {
         this._rootPoseNode.settle(this._settleContext);
     }
 }

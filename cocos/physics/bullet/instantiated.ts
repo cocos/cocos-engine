@@ -22,10 +22,8 @@
  THE SOFTWARE.
 */
 
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
-import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
-import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
 import { debug, error, getError, sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
@@ -69,7 +67,7 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 bt.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
+function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<void> {
     debug('[Physics][Bullet]: Using wasm Bullet libs.');
     return instantiateWasm(wasmUrl, importObject).then((results) => {
         const btInstance = results.instance.exports as Bullet.instance;
@@ -77,23 +75,25 @@ function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
     });
 }
 
-function initAsm (resolve, reject) {
-    if (CULL_ASM_JS_MODULE) {
-        reject(getError(4601));
-        return;
-    }
-    debug('[Physics][Bullet]: Using asmjs Bullet libs.');
-    const env: any = importFunc;
-    const wasmMemory: any = {};
-    wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
-    env.memory = wasmMemory;
-    const btInstance = asmFactory(env, wasmMemory);
-    Object.assign(bt, btInstance);
-    resolve();
+function initAsmJS (asmFactory): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        if (CULL_ASM_JS_MODULE) {
+            reject(getError(4601));
+            return;
+        }
+        debug('[Physics][Bullet]: Using asmjs Bullet libs.');
+        const env: any = importFunc;
+        const wasmMemory: any = {};
+        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+        env.memory = wasmMemory;
+        const btInstance = asmFactory(env, wasmMemory);
+        Object.assign(bt, btInstance);
+        resolve();
+    });
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any) => { debug(msg); };
+    const infoReport = (msg: any): void => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,
@@ -117,23 +117,33 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
-export function waitForAmmoInstantiation () {
-    return new Promise<void>((resolve, reject) => {
-        const errorReport = (msg: any) => { error(msg); };
-        if (FORCE_BANNING_BULLET_WASM) {
-            initAsm(resolve, reject);
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
-            } else {
-                initAsm(resolve, reject);
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-            initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
+function shouldUseWasmModule (): boolean {
+    if (FORCE_BANNING_BULLET_WASM) {
+        return false;
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function waitForAmmoInstantiation (): Promise<void> {
+    const errorReport = (msg: any): void => { error(msg); };
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/bullet/bullet.wasm'),
+        import('external:emscripten/bullet/bullet.asm.js'),
+    ]).then(([
+        { default: bulletWasmUrl },
+        { default: asmFactory  },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initWasm(bulletWasmUrl, importObject);
         } else {
-            initAsm(resolve, reject);
+            return initAsmJS(asmFactory);
         }
-    });
+    })).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

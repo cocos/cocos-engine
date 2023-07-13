@@ -82,7 +82,7 @@ export class OptimizedKey {
         this.coefficient = new Float32Array(4);
     }
 
-    public evaluate (T: number) {
+    public evaluate (T: number): number {
         const t = T - this.time;
         return evalOptCurve(t, this.coefficient);
     }
@@ -91,7 +91,7 @@ export class OptimizedKey {
 /**
  * @engineInternal
  */
-export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
+export function evalOptCurve (t: number, coefs: Float32Array | number[]): number {
     return (t * (t * (t * coefs[0] + coefs[1]) + coefs[2])) + coefs[3];
 }
 
@@ -120,7 +120,7 @@ export class AnimationCurve {
      * For internal usage only.
      * @internal
      */
-    get _internalCurve () {
+    get _internalCurve (): RealCurve {
         return this._curve;
     }
 
@@ -130,7 +130,7 @@ export class AnimationCurve {
      * @zh
      * 曲线的关键帧。
      */
-    get keyFrames () {
+    get keyFrames (): Keyframe[] {
         return Array.from(this._curve.keyframes()).map(([time, value]) => {
             const legacyKeyframe = new Keyframe();
             legacyKeyframe.time = time;
@@ -159,7 +159,7 @@ export class AnimationCurve {
      * @zh
      * 当采样时间超出左端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
-    get preWrapMode () {
+    get preWrapMode (): WrapModeMask {
         return toLegacyWrapMode(this._curve.preExtrapolation);
     }
 
@@ -173,7 +173,7 @@ export class AnimationCurve {
      * @zh
      * 当采样时间超出右端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
-    get postWrapMode () {
+    get postWrapMode (): WrapModeMask {
         return toLegacyWrapMode(this._curve.postExtrapolation);
     }
 
@@ -220,7 +220,7 @@ export class AnimationCurve {
      * 添加一个关键帧。
      * @param keyFrame @en A keyframe. @zh 关键帧。
      */
-    public addKey (keyFrame: Keyframe | null) {
+    public addKey (keyFrame: Keyframe | null): void {
         if (!keyFrame) {
             this._curve.clear();
         } else {
@@ -237,7 +237,7 @@ export class AnimationCurve {
      * @ignore
      * @param time
      */
-    public evaluate_slow (time: number) {
+    public evaluate_slow (time: number): number {
         return this._curve.evaluate(time);
     }
 
@@ -248,7 +248,7 @@ export class AnimationCurve {
      * 计算给定时间点的曲线插值。
      * @param time @en The time. @zh 时间。
      */
-    public evaluate (time: number) {
+    public evaluate (time: number): number {
         const { cachedKey, _curve: curve } = this;
         const nKeyframes = curve.keyFramesCount;
         const lastKeyframeIndex = nKeyframes - 1;
@@ -283,7 +283,7 @@ export class AnimationCurve {
      * @param leftIndex
      * @param rightIndex
      */
-    public calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number) {
+    public calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number): void {
         const lhsTime = this._curve.getKeyframeTime(leftIndex);
         const rhsTime = this._curve.getKeyframeTime(rightIndex);
         const { value: lhsValue, leftTangent: lhsOutTangent } = this._curve.getKeyframeValue(leftIndex);
@@ -309,7 +309,7 @@ export class AnimationCurve {
      * @param optKey
      * @param t
      */
-    private findIndex (optKey: OptimizedKey, t: number) {
+    private findIndex (optKey: OptimizedKey, t: number): number {
         const { _curve: curve } = this;
         const nKeyframes = curve.keyFramesCount;
         const cachedIndex = optKey.index;
@@ -388,7 +388,7 @@ function toLegacyWrapMode (extrapolationMode: ExtrapolationMode): WrapModeMask {
  * Same as but more effective than `new LegacyCurve()._internalCurve`.
  * @engineInternal
  */
-export function constructLegacyCurveAndConvert () {
+export function constructLegacyCurveAndConvert (): RealCurve {
     const curve = new RealCurve();
     curve.assignSorted([
         [0.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],

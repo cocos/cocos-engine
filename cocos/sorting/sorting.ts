@@ -50,7 +50,7 @@ export class Sorting extends Component {
      */
     @editable
     @type(SortingLayers.Enum)
-    get sortingLayer () {
+    get sortingLayer (): number {
         return this._sortingLayer;
     }
     set sortingLayer (val) {
@@ -64,7 +64,7 @@ export class Sorting extends Component {
      * @en Model Renderer's order within a sorting layer. In the default sorting rule, smaller values are rendered first.
      */
     @range([MIN_INT16, MAX_INT16, 1])
-    get sortingOrder () {
+    get sortingOrder (): number {
         return this._sortingOrder;
     }
     set sortingOrder (val) {
@@ -80,7 +80,7 @@ export class Sorting extends Component {
 
     private _modelRenderer: ModelRenderer | null = null;
 
-    protected __preload () {
+    protected __preload (): void {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
             warnID(16301, this.node.name);
@@ -88,7 +88,7 @@ export class Sorting extends Component {
         this._updateSortingPriority();
     }
 
-    protected _updateSortingPriority () {
+    protected _updateSortingPriority (): void {
         const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
         if (this._modelRenderer && this._modelRenderer.isValid) {

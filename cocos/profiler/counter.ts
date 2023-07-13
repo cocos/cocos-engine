@@ -35,7 +35,7 @@ export interface ICounterOption {
 }
 
 export class Counter {
-    get value () {
+    get value (): number {
         return this._value;
     }
 
@@ -58,24 +58,24 @@ export class Counter {
         this._accumStart = now;
     }
 
-    public sample (now: number) {
+    public sample (now: number): void {
         this._average(this._value, now);
     }
 
-    public human () {
+    public human (): number {
         const { average, isInteger } = this._opts;
         const v = average ? this._averageValue : this._value;
         return isInteger ? Math.round(v) : Math.round(v * 100) / 100;
     }
 
-    public alarm () {
+    public alarm (): boolean | number | undefined {
         return (
             (this._opts.below && this._value < this._opts.below)
             || (this._opts.over && this._value > this._opts.over)
         );
     }
 
-    protected _average (v: number, now = 0) {
+    protected _average (v: number, now = 0): void {
         if (this._opts.average) {
             this._accumValue += v;
             ++this._accumSamples;

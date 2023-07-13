@@ -33,11 +33,11 @@ const v3_0 = new Vec3();
 const quat_0 = new Quat();
 
 export class CannonHingeConstraint extends CannonConstraint implements IHingeConstraint {
-    public get impl () {
+    public get impl (): CANNON.HingeConstraint {
         return this._impl as CANNON.HingeConstraint;
     }
 
-    public get constraint () {
+    public get constraint (): HingeConstraint {
         return this._com as HingeConstraint;
     }
 
@@ -101,7 +101,7 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         warnID(9613);
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
         const cb = this.constraint.connectedBody;
         let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
@@ -114,11 +114,11 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         this.setAxis(this.constraint.axis);
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.setPivotA(this.constraint.pivotA);
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.setPivotB(this.constraint.pivotB);
     }
 }

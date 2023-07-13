@@ -371,7 +371,7 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 }
 
 void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
-	CC_ASSERT(out);
+    CC_ASSERT(out);
     float m00 = m.m[0];
     float m01 = m.m[1];
     float m02 = m.m[2];
@@ -403,39 +403,39 @@ void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
     }
 
     float biggestVal = std::sqrt(fourBiggestSquaredMinus1 + 1) * 0.5F;
-	float mult = 0.25F / biggestVal;
-    switch(biggestIndex) {
-    case 0:
-        out->w =  biggestVal;
-        out->x = (m12 - m21) * mult;
-        out->y = (m20 - m02) * mult;
-        out->z = (m01 - m10) * mult;
-        break;
-    case 1:
-        out->w =  (m12 - m21) * mult;
-        out->x = biggestVal;
-        out->y = (m01 + m10) * mult;
-        out->z = (m20 + m02) * mult;
-        break;
-    case 2:
-        out->w = (m20 - m02) * mult;
-        out->x = (m01 + m10) * mult;
-        out->y = biggestVal;
-        out->z = (m12 + m21) * mult;
-        break;
-    case 3:
-        out->w = (m01 - m10) * mult;
-        out->x = (m20 + m02) * mult;
-        out->y = (m12 + m21) * mult;
-        out->z = biggestVal;
-        break;
-    default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
-        CC_ASSERT(false);
-        out->w = 1.F;
-        out->x = 0.F;
-        out->y = 0.F;
-        out->z = 0.F;
-        break;
+    float mult = 0.25F / biggestVal;
+    switch (biggestIndex) {
+        case 0:
+            out->w = biggestVal;
+            out->x = (m12 - m21) * mult;
+            out->y = (m20 - m02) * mult;
+            out->z = (m01 - m10) * mult;
+            break;
+        case 1:
+            out->w = (m12 - m21) * mult;
+            out->x = biggestVal;
+            out->y = (m01 + m10) * mult;
+            out->z = (m20 + m02) * mult;
+            break;
+        case 2:
+            out->w = (m20 - m02) * mult;
+            out->x = (m01 + m10) * mult;
+            out->y = biggestVal;
+            out->z = (m12 + m21) * mult;
+            break;
+        case 3:
+            out->w = (m01 - m10) * mult;
+            out->x = (m20 + m02) * mult;
+            out->y = (m12 + m21) * mult;
+            out->z = biggestVal;
+            break;
+        default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
+            CC_ASSERT(false);
+            out->w = 1.F;
+            out->x = 0.F;
+            out->y = 0.F;
+            out->z = 0.F;
+            break;
     }
 }
 

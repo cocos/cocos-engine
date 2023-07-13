@@ -23,18 +23,16 @@
 */
 
 import {
-    ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
-    tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
+    ccclass, disallowMultiple,
+    tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat, Eventify, CCBoolean } from '../../../../core';
+import { Vec3, warn, CCFloat, Eventify } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
-import { VEC3_0 } from '../../../utils/util';
 import { ECharacterControllerType } from '../../physics-enum';
 import { CharacterCollisionEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
-import { Collider } from '../colliders/collider';
 
 const v3_0 = new Vec3(0, 0, 0);
 const scaledCenter = new Vec3(0, 0, 0);
@@ -82,7 +80,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.minMoveDistance')
     @type(CCFloat)
-    public get minMoveDistance () {
+    public get minMoveDistance (): number {
         return this._minMoveDistance;
     }
 
@@ -99,7 +97,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
-    public get stepOffset () {
+    public get stepOffset (): number {
         return this._stepOffset;
     }
 
@@ -119,7 +117,7 @@ export class CharacterController extends Eventify(Component) {
     */
     @tooltip('i18n:physics3d.character_controller.slopeLimit')
     @type(CCFloat)
-    public get slopeLimit () {
+    public get slopeLimit (): number {
         return this._slopeLimit;
     }
 
@@ -133,20 +131,19 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the contact offset of the character controller.
-     * Contact offset is the character's collision skin width.
+     * Gets or sets the skin width of the character controller.
      * @zh
-     * 获取或设置角色控制器的接触间隙。
+     * 获取或设置角色控制器的皮肤宽度。
      */
-    @tooltip('i18n:physics3d.character_controller.contactOffset')
+    @tooltip('i18n:physics3d.character_controller.skinWidth')
     @type(CCFloat)
-    public get contactOffset () {
-        return this._contactOffset;
+    public get skinWidth (): number {
+        return this._skinWidth;
     }
 
-    public set contactOffset (value) {
-        if (this._contactOffset === value) return;
-        this._contactOffset = Math.abs(value);
+    public set skinWidth (value) {
+        if (this._skinWidth === value) return;
+        this._skinWidth = Math.abs(value);
         if (this._cct) {
             this._cct.setContactOffset(value);
         }
@@ -204,7 +201,7 @@ export class CharacterController extends Eventify(Component) {
         return this._center;
     }
 
-    public set center (value: Vec3) {
+    public set center (value: Readonly<Vec3>) {
         if (Vec3.equals(this._center, value)) return;
         Vec3.copy(this._center, value);
         // if (this._cct) { //update cct position
@@ -239,7 +236,7 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _contactOffset = 0.01;
+    private _skinWidth = 0.01;
     // @serializable
     // private _detectCollisions = true;
     // @serializable
@@ -266,26 +263,26 @@ export class CharacterController extends Eventify(Component) {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!selector.runInEditor) return;
         this._cct = createCharacterController(this.type);
         this._initialized = this._cct.initialize(this);
         this._cct.onLoad!();
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._cct) {
             this._cct.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._cct) {
             this._cct.onDisable!();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._cct) {
             this._needCollisionEvent = false;
             this._cct.updateEventListener();
@@ -313,7 +310,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 设置中心的世界坐标。
      */
-    public set centerWorldPosition (value: Vec3) {
+    public set centerWorldPosition (value: Readonly<Vec3>) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 
@@ -381,7 +378,7 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?) {
+    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -434,7 +431,7 @@ export class CharacterController extends Eventify(Component) {
      * 添加分组值，可填要加入的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addGroup (v: number) {
+    public addGroup (v: number): void {
         if (this._isInitialized) this._cct!.addGroup(v);
     }
 
@@ -445,7 +442,7 @@ export class CharacterController extends Eventify(Component) {
      * 减去分组值，可填要移除的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeGroup (v: number) {
+    public removeGroup (v: number): void {
         if (this._isInitialized) this._cct!.removeGroup(v);
     }
 
@@ -468,7 +465,7 @@ export class CharacterController extends Eventify(Component) {
      * 设置掩码值。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public setMask (v: number) {
+    public setMask (v: number): void {
         if (this._isInitialized) this._cct!.setMask(v);
     }
 
@@ -479,7 +476,7 @@ export class CharacterController extends Eventify(Component) {
      * 添加掩码值，可填入需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addMask (v: number) {
+    public addMask (v: number): void {
         if (this._isInitialized) this._cct!.addMask(v);
     }
 
@@ -490,15 +487,15 @@ export class CharacterController extends Eventify(Component) {
      * 减去掩码值，可填入不需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeMask (v: number) {
+    public removeMask (v: number): void {
         if (this._isInitialized) this._cct!.removeMask(v);
     }
 
-    public get needCollisionEvent () {
+    public get needCollisionEvent (): boolean {
         return this._needCollisionEvent;
     }
 
-    private _updateNeedEvent (type?: string) {
+    private _updateNeedEvent (type?: string): void {
         if (this.isValid) {
             if (type !== undefined) {
                 if (type === 'onControllerColliderHit') {

@@ -58,7 +58,7 @@ export const emptyDecorator: ClassDecorator & LegacyPropertyDecorator = () => {}
  * @zh
  * 一个忽略所有参数并且返回 `emptyDecorator` 的函数。
  */
-export const emptyDecoratorFn = () => emptyDecorator;
+export const emptyDecoratorFn = (): ClassDecorator & LegacyPropertyDecorator => emptyDecorator;
 
 /**
  * @en
@@ -96,14 +96,14 @@ export function makeSmartClassDecorator<TArg> (
             // If no parameter specified
             return decorate(target);
         } else {
-            return function <TFunction extends AnyFunction> (constructor: TFunction) {
+            return function <TFunction extends AnyFunction> (constructor: TFunction): void | Function {
                 return decorate(constructor, target);
             };
         }
     }
 }
 
-function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue) {
+function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue): void {
     const cache = getClassCache(constructor, propertyName);
     if (cache) {
         const proto = getSubDict(cache, 'proto');
@@ -121,7 +121,7 @@ function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyNam
  * @param propertyName The editor property.
  */
 export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => <TFunction extends AnyFunction>(constructor: TFunction) => {
+    return (value: TValue) => <TFunction extends AnyFunction>(constructor: TFunction): void => {
         writeEditorClassProperty(constructor, propertyName, value);
     };
 }
@@ -138,8 +138,8 @@ export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (valu
  * - 如果该装饰器是以一个参数的形式，即 `@x(arg0)` 的形式调用的，该属性将被设置为传入的参数值。
  * @param propertyName The editor property.
  */
-export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue) {
-    return makeSmartClassDecorator<TValue>((constructor, decoratedValue?: TValue) => {
+export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue): ClassDecorator & ((arg?: TValue | undefined) => ClassDecorator) {
+    return makeSmartClassDecorator<TValue>((constructor, decoratedValue?: TValue): void => {
         writeEditorClassProperty(constructor, propertyName, (defaultValue !== undefined) ? defaultValue : decoratedValue);
     });
 }
@@ -147,7 +147,7 @@ export function makeSmartEditorClassDecorator<TValue> (propertyName: string, def
 // caches for class construction
 export const CACHE_KEY = '__ccclassCache__';
 
-export function getClassCache (ctor, decoratorName?) {
+export function getClassCache (ctor, decoratorName?): any {
     if (DEV && CCClass._isCCClass(ctor)) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
         return null;

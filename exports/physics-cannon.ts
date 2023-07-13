@@ -37,12 +37,12 @@ if (globalThis) globalThis.CANNON = CANNON;
 };
 
 // overwrite
-(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset () {
+(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset (): void {
     for (const key in this.matrix) {
         delete this.matrix[key];
     }
 };
 
-(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body) {
+(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body): boolean {
     return ((r as any).collisionFilterMask & b.collisionFilterGroup) !== 0;
 };

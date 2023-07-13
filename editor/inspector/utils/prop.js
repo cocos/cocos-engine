@@ -546,4 +546,8 @@ ui-prop[ui-section-config] + ui-section.config,
 ui-prop[ui-section-config] + ui-prop[ui-section-config],
 ui-section.config + ui-prop[ui-section-config],
 ui-section.config + ui-section.config { margin-top: 0; }
+
+ui-prop[ui-section-config]:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
 `;

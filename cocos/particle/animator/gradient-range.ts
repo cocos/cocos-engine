@@ -79,7 +79,7 @@ export default class GradientRange {
      * @zh 使用的渐变色类型 参考 [[Mode]]。
      */
     @type(Mode)
-    get mode () {
+    get mode (): number {
         return this._mode;
     }
 
@@ -162,7 +162,7 @@ export default class GradientRange {
      *                 @zh 当模式为双色或双渐变色时，使用的插值比例，通常粒子系统会传入一个随机数以获得一个随机结果。
      * @returns @en Gradient value. @zh 颜色渐变曲线的值。
      */
-    public evaluate (time: number, rndRatio: number) {
+    public evaluate (time: number, rndRatio: number): Color {
         switch (this._mode) {
         case Mode.Color:
             return this.color;
@@ -184,12 +184,12 @@ export default class GradientRange {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props: any) {
+    public _onBeforeSerialize (props: any): any {
         return SerializableTable[this._mode];
     }
 }
 
-function evaluateGradient (gr: GradientRange, time: number, index: number) {
+function evaluateGradient (gr: GradientRange, time: number, index: number): Color {
     switch (gr.mode) {
     case Mode.Color:
         return gr.color;
@@ -205,7 +205,7 @@ function evaluateGradient (gr: GradientRange, time: number, index: number) {
         return gr.color;
     }
 }
-function evaluateHeight (gr: GradientRange) {
+function evaluateHeight (gr: GradientRange): number {
     switch (gr.mode) {
     case Mode.TwoColors:
         return 2;
@@ -215,7 +215,7 @@ function evaluateHeight (gr: GradientRange) {
         return 1;
     }
 }
-export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange) {
+export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange): { texture: Texture2D; texdata: Uint8Array; } {
     const height = evaluateHeight(gr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {

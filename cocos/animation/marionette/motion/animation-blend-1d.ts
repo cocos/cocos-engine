@@ -38,13 +38,13 @@ class AnimationBlend1DItem extends AnimationBlendItem {
     @serializable
     public threshold = 0.0;
 
-    public clone () {
+    public clone (): AnimationBlend1DItem {
         const that = new AnimationBlend1DItem();
         this._copyTo(that);
         return that;
     }
 
-    protected _copyTo (that: AnimationBlend1DItem) {
+    protected _copyTo (that: AnimationBlend1DItem): AnimationBlend1DItem {
         super._copyTo(that);
         that.threshold = this.threshold;
         return that;
@@ -70,7 +70,7 @@ export class AnimationBlend1D extends AnimationBlend {
             .sort(({ threshold: lhs }, { threshold: rhs }) => lhs - rhs);
     }
 
-    public clone () {
+    public clone (): AnimationBlend1D {
         const that = new AnimationBlend1D();
         this.copyTo(that);
         that._items = this._items.map((item) => item.clone());
@@ -82,7 +82,7 @@ export class AnimationBlend1D extends AnimationBlend {
         context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-    ) {
+    ): any {
         const evaluation = new AnimationBlend1DEval(
             context, clipOverrides, ignoreEmbeddedPlayers,
             this, this._items, this._items.map(({ threshold }) => threshold), 0.0,
@@ -118,7 +118,7 @@ class AnimationBlend1DEval extends AnimationBlendEval {
         this.doEval();
     }
 
-    protected eval (weights: number[], [value]: readonly [number]) {
+    protected eval (weights: number[], [value]: readonly [number]): void {
         blend1D(weights, this._thresholds, value);
     }
 }

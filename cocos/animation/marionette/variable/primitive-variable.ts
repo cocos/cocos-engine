@@ -3,7 +3,7 @@ import { assertIsTrue } from '../../../core';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { BasicVariableDescription, VariableType, createInstanceTag, VarInstanceBase, Value } from './basic';
 
-type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
+export type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
 
 @ccclass('cc.animation.PlainVariable')
 export class PlainVariable {
@@ -37,11 +37,11 @@ export class PlainVariable {
         }
     }
 
-    get type () {
+    get type (): PlainVariableType {
         return this._type;
     }
 
-    get value () {
+    get value (): Value {
         return this._value;
     }
 
@@ -64,7 +64,7 @@ export class PlainVariable {
         this._value = value;
     }
 
-    public [createInstanceTag] () {
+    public [createInstanceTag] (): VarInstancePrimitive {
         return new VarInstancePrimitive(this._type, this._value);
     }
 }

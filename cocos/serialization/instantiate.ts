@@ -27,11 +27,12 @@ import { DEV, JSB } from 'internal:constants';
 import { CCObject, isCCObject, js, ValueType, jsbUtils, isCCClassOrFastDefined, getError, warn, misc, cclegacy } from '../core';
 import { Prefab } from '../scene-graph/prefab';
 import { Node } from '../scene-graph/node';
+import { Component } from '../scene-graph/component';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
 
-const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
+const objsToClearTmpVar: any[] = [];   // used to reset _iN$t variable
 
 /**
  * Invoke _instantiate method if supplied.
@@ -40,6 +41,10 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * @returns The instantiated object.
  */
 type CustomInstantiation = <T>(this: T, instantiated?: T) => T;
+
+function hasImplementedInstantiate (original: any): original is { _instantiate (...args: unknown[]): unknown } {
+    return typeof original._instantiate === 'function';
+}
 
 /**
  * @zh 从 Prefab 实例化出新节点。
@@ -75,7 +80,7 @@ export function instantiate (prefab: Prefab): Node;
  */
 export function instantiate<T> (original: T): T;
 
-export function instantiate (original: any, internalForce?: boolean) {
+export function instantiate (original: any, internalForce?: boolean): any {
     if (!internalForce) {
         if (DEV) {
             if (typeof original !== 'object' || Array.isArray(original)) {
@@ -87,7 +92,7 @@ export function instantiate (original: any, internalForce?: boolean) {
             if (!cclegacy.isValid(original)) {
                 throw new TypeError(getError(6901));
             }
-            if (original instanceof cclegacy.Component) {
+            if (original instanceof Component) {
                 warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
             }
         }
@@ -96,7 +101,7 @@ export function instantiate (original: any, internalForce?: boolean) {
     let clone;
 
     if (isCCObject(original)) {
-        if (original._instantiate) {
+        if (hasImplementedInstantiate(original)) {
             cclegacy.game._isCloning = true;
             clone = original._instantiate(null, true);
             cclegacy.game._isCloning = false;
@@ -132,7 +137,7 @@ export function instantiate (original: any, internalForce?: boolean) {
  * @return {Object}
  * @private
  */
-function doInstantiate (obj, parent?) {
+function doInstantiate (obj, parent?): any {
     if (DEV) {
         if (Array.isArray(obj)) {
             throw new TypeError(getError(6904));
@@ -167,7 +172,7 @@ function doInstantiate (obj, parent?) {
 
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
-function enumerateCCClass (klass, obj, clone, parent) {
+function enumerateCCClass (klass, obj, clone, parent): void {
     const props = klass.__values__;
 
     for (let p = 0; p < props.length; p++) {
@@ -187,7 +192,7 @@ function enumerateCCClass (klass, obj, clone, parent) {
     }
 }
 
-function enumerateObject (obj, clone, parent) {
+function enumerateObject (obj, clone, parent): void {
     // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
     js.value(obj, '_iN$t', clone, true);
@@ -226,7 +231,7 @@ function enumerateObject (obj, clone, parent) {
  * @param {Object|Array} obj - the original non-nil object, typeof must be 'object'
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
-function instantiateObj (obj, parent) {
+function instantiateObj (obj: TypedArray | any[] | CCObject, parent: any): any {
     if (obj instanceof ValueType) {
         return obj.clone();
     }
@@ -235,10 +240,10 @@ function instantiateObj (obj, parent) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
     }
-    let clone;
+    let clone: any;
     if (ArrayBuffer.isView(obj)) {
-        const len = (obj as any).length;
-        clone = new ((obj as any).constructor)(len);
+        const len = obj.length;
+        clone = new (obj.constructor as TypedArrayConstructor)(len);
         // NOTE: unknown  injected property `_iN$t`
         (obj as any)._iN$t = clone;
         objsToClearTmpVar.push(obj);
@@ -269,22 +274,22 @@ function instantiateObj (obj, parent) {
         return null;
     }
 
-    const ctor = obj.constructor;
+    const ctor = obj.constructor as Constructor;
     if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
-            if (parent instanceof cclegacy.Component) {
-                if (obj instanceof cclegacy.Node || obj instanceof cclegacy.Component) {
+            if (parent instanceof Component) {
+                if (obj instanceof Node || obj instanceof Component) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
-            } else if (parent instanceof cclegacy.Node) {
-                if (obj instanceof cclegacy.Node) {
+            } else if (parent instanceof Node) {
+                if (obj instanceof Node) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return obj;
                     }
-                } else if (obj instanceof cclegacy.Component) {
+                } else if (obj instanceof Component) {
                     if (obj.node && !obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -301,11 +306,9 @@ function instantiateObj (obj, parent) {
         clone = Object.create(null);
     } else {
         // unknown type
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
     }
     enumerateObject(obj, clone, parent);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return clone;
 }
 

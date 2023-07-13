@@ -23,7 +23,7 @@
 */
 
 import { ccclass, disallowMultiple, executeInEditMode,
-    executionOrder, menu, requireComponent } from 'cc.decorator';
+    executionOrder, help, menu, requireComponent } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
 import { cclegacy } from '../../core';
 import { UITransform } from './ui-transform';
@@ -33,21 +33,22 @@ import { UITransform } from './ui-transform';
  * @zh 2D 对象数据收集的入口节点，所有的 2D渲染对象需在 RenderRoot 节点下才可以被渲染。
  */
 @ccclass('cc.RenderRoot2D')
+@help('i18n:cc.RenderRoot2D')
 @executionOrder(100)
 @menu('2D/RenderRoot2D')
 @requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode
 export class RenderRoot2D extends Component {
-    public onEnable () {
+    public onEnable (): void {
         cclegacy.director.root!.batcher2D.addScreen(this);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         cclegacy.director.root!.batcher2D.removeScreen(this);
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         cclegacy.director.root!.batcher2D.removeScreen(this);
     }
 }

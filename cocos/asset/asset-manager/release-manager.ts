@@ -30,7 +30,7 @@ import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
 
-function visitAsset (asset: Asset, deps: string[]) {
+function visitAsset (asset: Asset, deps: string[]): void {
     // Skip assets generated programmatically or by user (e.g. label texture)
     if (!asset._uuid) {
         return;
@@ -38,7 +38,7 @@ function visitAsset (asset: Asset, deps: string[]) {
     deps.push(asset._uuid);
 }
 
-function visitComponent (comp: any, deps: string[]) {
+function visitComponent (comp: any, deps: string[]): void {
     const props = Object.getOwnPropertyNames(comp);
     for (let i = 0; i < props.length; i++) {
         const propName = props[i];
@@ -67,7 +67,7 @@ function visitComponent (comp: any, deps: string[]) {
     }
 }
 
-function visitNode (node: any, deps: string[]) {
+function visitNode (node: any, deps: string[]): void {
     for (let i = 0; i < node._components.length; i++) {
         visitComponent(node._components[i], deps);
     }
@@ -76,7 +76,7 @@ function visitNode (node: any, deps: string[]) {
     }
 }
 
-function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: string[], op: number) {
+function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: string[], op: number): void {
     exclude.push(asset._uuid);
     const depends = dependUtil.getDeps(asset._uuid);
     for (let i = 0, l = depends.length; i < l; i++) {
@@ -118,7 +118,7 @@ class ReleaseManager {
     private _eventListener = false;
     private _dontDestroyAssets: string[] = [];
 
-    public addIgnoredAsset (asset: Asset) {
+    public addIgnoredAsset (asset: Asset): void {
         this._dontDestroyAssets.push(asset._uuid);
     }
 
@@ -130,7 +130,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _addPersistNodeRef (node: Node) {
+    public _addPersistNodeRef (node: Node): void {
         const deps = [];
         visitNode(node, deps);
         for (let i = 0, l = deps.length; i < l; i++) {
@@ -145,7 +145,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _removePersistNodeRef (node: Node) {
+    public _removePersistNodeRef (node: Node): void {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
 
         const deps = this._persistNodeDeps.get(node.uuid) as string[];
@@ -162,7 +162,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
+    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>): void {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);
             for (let i = 0, l = childs.length; i < l; i++) {
@@ -220,15 +220,15 @@ class ReleaseManager {
         }
     }
 
-    private _freeAssets () {
+    private _freeAssets (): void {
         this._eventListener = false;
-        this._toDelete.forEach((asset) => {
+        this._toDelete.forEach((asset): void => {
             this._free(asset);
         });
         this._toDelete.clear();
     }
 
-    private _free (asset: Asset, force = false) {
+    private _free (asset: Asset, force = false): void {
         const uuid = asset._uuid;
         this._toDelete.remove(uuid);
 
@@ -263,7 +263,7 @@ class ReleaseManager {
             if (dependant && dependant.length === 0) {
                 references!.remove(uuid);
             }
-            references!.forEach((dependance, key) => {
+            references!.forEach((dependance, key): void => {
                 for (let i = dependance.length - 1; i >= 0; i--) {
                     if (dependance[i][0].deref() === asset) {
                         js.array.fastRemoveAt(dependance, i);

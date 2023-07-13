@@ -64,7 +64,7 @@ export class WebView extends Component {
      * 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串。
      */
     @tooltip('i18n:webview.url')
-    get url () {
+    get url (): string {
         return this._url;
     }
     set url (val: string) {
@@ -92,7 +92,7 @@ export class WebView extends Component {
      * @zh
      * 原始网页对象，用于用户定制。
      */
-    get nativeWebView () {
+    get nativeWebView (): HTMLIFrameElement | null {
         return (this._impl && this._impl.webview) || null;
     }
 
@@ -102,7 +102,7 @@ export class WebView extends Component {
      * @zh
      * 获取当前网页视图状态。
      */
-    get state () {
+    get state (): EventType {
         if (!this._impl) { return EventType.NONE; }
         return this._impl.state;
     }
@@ -119,7 +119,7 @@ export class WebView extends Component {
      * @method setJavascriptInterfaceScheme
      * @param {String} scheme
      */
-    public setJavascriptInterfaceScheme (scheme: string) {
+    public setJavascriptInterfaceScheme (scheme: string): void {
         if (this._impl) {
             this._impl.setJavascriptInterfaceScheme(scheme);
         }
@@ -138,7 +138,7 @@ export class WebView extends Component {
      * @method setOnJSCallback
      * @param {Function} callback
      */
-    public setOnJSCallback (callback: () => void) {
+    public setOnJSCallback (callback: () => void): void {
         if (this._impl) {
             this._impl.setOnJSCallback(callback);
         }
@@ -155,13 +155,13 @@ export class WebView extends Component {
      * @method evaluateJS
      * @param {String} str
      */
-    public evaluateJS (str: string) {
+    public evaluateJS (str: string): void {
         if (this._impl) {
             this._impl.evaluateJS(str);
         }
     }
 
-    public __preload () {
+    public __preload (): void {
         if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
@@ -173,41 +173,41 @@ export class WebView extends Component {
         this._impl.loadURL(this._url);
     }
 
-    onLoading () {
+    onLoading (): void {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
         this.node.emit(EventType.LOADING, this);
     }
 
-    onLoaded () {
+    onLoaded (): void {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
         this.node.emit(EventType.LOADED, this);
     }
 
-    onError (...args: any[any]) {
+    onError (...args: any[any]): void {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR, args);
         this.node.emit(EventType.ERROR, this, args);
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (this._impl) {
             this._impl.enable();
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this._impl) {
             this._impl.disable();
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._impl) {
             this._impl.destroy();
             this._impl = null;
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         if (this._impl) {
             this._impl.syncMatrix();
         }

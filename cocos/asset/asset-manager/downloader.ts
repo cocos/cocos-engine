@@ -46,36 +46,36 @@ interface IDownloadRequest {
 
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
-const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
+const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
-const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
+const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
     options.xhrResponseType = 'blob';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadJson = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)) => {
+const downloadJson = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)): void => {
     options.xhrResponseType = 'json';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
+const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
     options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
-    downloadJson(url, options, (err, json) => {
+const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
+    downloadJson(url, options, (err, json): void => {
         if (err) {
             onComplete(err);
             return;
         }
         const cconPreface = parseCCONJson(json);
-        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
-            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk): Promise<Uint8Array> => new Promise<Uint8Array>((resolve, reject): void => {
+            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer): void => {
                 if (err) {
                     reject(err);
                 } else {
@@ -83,17 +83,17 @@ const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((e
                 }
             });
         })));
-        chunkPromises.then((chunks) => {
+        chunkPromises.then((chunks): void => {
             const ccon = new CCON(cconPreface.document, chunks);
             onComplete(null, ccon);
-        }).catch((err) => {
+        }).catch((err): void => {
             onComplete(err);
         });
     });
 };
 
-const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
-    downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer) => {
+const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
         if (err) {
             onComplete(err);
             return;
@@ -107,12 +107,12 @@ const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((
     });
 };
 
-const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
+const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
     options.xhrResponseType = 'text';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
+const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
     const bundleName = path.basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) {
@@ -127,7 +127,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
     const config = `${url}/config.${version ? `${version}.` : ''}json`;
     let out: IConfigOption | null = null;
     let error: Error | null = null;
-    downloadJson(config, options, (err, response) => {
+    downloadJson(config, options, (err, response): void => {
         error = err || error;
         out = response as IConfigOption;
         if (out) { out.base = `${url}/`; }
@@ -137,7 +137,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
     });
 
     const jspath = `${url}/index.${version ? `${version}.` : ''}js`;
-    downloadScript(jspath, options, (err) => {
+    downloadScript(jspath, options, (err): void => {
         error = err || error;
         if (++count === 2) {
             onComplete(error, out);
@@ -159,7 +159,7 @@ export class Downloader {
      * @en Global singleton for [[Downloader]]. You can access it via [[AssetManager.downloader]].
      * @zh [[Downloader]] 的全局单例. 你可以通过 [[AssetManager.downloader]] 访问.
      */
-    public static get instance () {
+    public static get instance (): Downloader {
         if (!Downloader._instance) {
             Downloader._instance = new Downloader();
         }
@@ -193,7 +193,7 @@ export class Downloader {
      * 远程服务器地址。
      *
      */
-    public get remoteServerAddress () {
+    public get remoteServerAddress (): string {
         return this._remoteServerAddress;
     }
 
@@ -328,7 +328,7 @@ export class Downloader {
     /**
      * @engineInternal
      */
-    public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
+    public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []): void {
         this._downloading.clear();
         this._queue.length = 0;
         this._remoteServerAddress = remoteServerAddress;
@@ -365,7 +365,7 @@ export class Downloader {
     public register (
         type: string | Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
         handler?: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
-    ) {
+    ): void {
         if (typeof type === 'object') {
             js.mixin(this._downloaders, type);
         } else {
@@ -408,7 +408,7 @@ export class Downloader {
         const downloadCallbacks = this._downloading.get(id);
         if (downloadCallbacks) {
             downloadCallbacks.push(onComplete);
-            const request = this._queue.find((x) => x.id === id);
+            const request = this._queue.find((x): boolean => x.id === id);
             if (!request) { return; }
             const priority: number = options.priority || 0;
             if (request.priority < priority) {
@@ -424,7 +424,7 @@ export class Downloader {
         const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
-        const process: RetryFunction = (index, callback) => {
+        const process: RetryFunction = (index, callback): void => {
             if (index === 0) {
                 this._downloading.add(id, [onComplete]);
             }
@@ -437,7 +437,7 @@ export class Downloader {
             // refresh
             this._updateTime();
 
-            const done: ((err: Error | null, data?: any | null) => void) = (err, data) => {
+            const done: ((err: Error | null, data?: any | null) => void) = (err, data): void => {
                 // when finish downloading, update _totalNum
                 this._totalNum--;
                 this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
@@ -458,7 +458,7 @@ export class Downloader {
         };
 
         // when retry finished, invoke callbacks
-        const finale = (err, result) => {
+        const finale = (err, result): void => {
             if (!err) { files.add(id, result); }
             const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any | null) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
@@ -478,13 +478,13 @@ export class Downloader {
      *
      * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead.
      */
-    public loadSubpackage (name: string, completeCallback?: ((err?: Error | null) => void)) {
+    public loadSubpackage (name: string, completeCallback?: ((err?: Error | null) => void)): void {
         cclegacy.assetManager.loadBundle(name, null, completeCallback);
     }
 
     private constructor () {}
 
-    private _updateTime () {
+    private _updateTime (): void {
         const now = performance.now();
         // use deltaTime as interval
         const deltaTime = cclegacy.game.deltaTime;
@@ -496,12 +496,12 @@ export class Downloader {
     }
 
     // handle the rest request in next period
-    private _handleQueue (maxConcurrency: number, maxRequestsPerFrame: number) {
+    private _handleQueue (maxConcurrency: number, maxRequestsPerFrame: number): void {
         this._checkNextPeriod = false;
         this._updateTime();
         while (this._queue.length > 0 && this._totalNum < maxConcurrency && this._totalNumThisPeriod < maxRequestsPerFrame) {
             if (this._queueDirty) {
-                this._queue.sort((a, b) => a.priority - b.priority);
+                this._queue.sort((a, b): number => a.priority - b.priority);
                 this._queueDirty = false;
             }
             const request = this._queue.pop();
@@ -516,7 +516,7 @@ export class Downloader {
         this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
     }
 
-    private _handleQueueInNextFrame (maxConcurrency: number, maxRequestsPerFrame: number) {
+    private _handleQueueInNextFrame (maxConcurrency: number, maxRequestsPerFrame: number): void {
         if (!this._checkNextPeriod && this._queue.length > 0) {
             misc.callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
             this._checkNextPeriod = true;

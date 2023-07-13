@@ -59,7 +59,7 @@ export class Renderer extends Component {
      * @en Get the default shared material
      * @zh 获取默认的共享材质
      */
-    get sharedMaterial () {
+    get sharedMaterial (): Material |null {
         return this.getSharedMaterial(0);
     }
 
@@ -70,7 +70,7 @@ export class Renderer extends Component {
     @type(Material)
     @displayOrder(0)
     @displayName('Materials')
-    get sharedMaterials () {
+    get sharedMaterials (): (Material | null)[] {
         // if we don't create an array copy, the editor will modify the original array directly.
         return (EDITOR && this._materials.slice()) || this._materials;
     }
@@ -161,7 +161,7 @@ export class Renderer extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setMaterial (material: Material | null, index: number) {
+    public setMaterial (material: Material | null, index: number): void {
         if (material && material instanceof MaterialInstance) {
             console.error('Can\'t set a material instance to a sharedMaterial slot');
         }
@@ -201,7 +201,7 @@ export class Renderer extends Component {
      * @en Set the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
-    public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number) {
+    public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number): void {
         if (typeof matInst === 'number') {
             warnID(12007);
             const temp: any = matInst;
@@ -236,15 +236,15 @@ export class Renderer extends Component {
         return this._materialInstances[index] || this._materials[index];
     }
 
-    protected _onMaterialModified (index: number, material: Material | null) {
+    protected _onMaterialModified (index: number, material: Material | null): void {
     }
 
     /**
      * @engineInternal
      */
-    public _onRebuildPSO (index: number, material: Material | null) {
+    public _onRebuildPSO (index: number, material: Material | null): void {
     }
 
-    protected _clearMaterials () {
+    protected _clearMaterials (): void {
     }
 }

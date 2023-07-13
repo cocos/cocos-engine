@@ -70,7 +70,7 @@ export class TextStyle {
 
     public fontScale = 1;
 
-    public reset () {
+    public reset (): void {
         this.isBold = false;
         this.isItalic = false;
         this.isUnderline = false;

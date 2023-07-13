@@ -45,7 +45,7 @@ export class RealArrayTrack extends Track {
      * @zh 此轨道产生的数组元素的数量。
      * 当你增加数量时，会增加新的空实数通道；当你减少数量时，最后几个指定数量的通道会被移除。
      */
-    get elementCount () {
+    get elementCount (): number {
         return this._channels.length;
     }
 
@@ -57,7 +57,7 @@ export class RealArrayTrack extends Track {
         } else if (value > nChannels) {
             this._channels.push(
                 ...Array.from({ length: value - nChannels },
-                    () => new Channel<RealCurve>(new RealCurve())),
+                    (): Channel<RealCurve> => new Channel<RealCurve>(new RealCurve())),
             );
         }
     }
@@ -66,15 +66,15 @@ export class RealArrayTrack extends Track {
      * @en The channels of the track.
      * @zh 返回此轨道的所有通道的数组。
      */
-    public channels () {
+    public channels (): RealChannel[] {
         return this._channels;
     }
 
     /**
      * @internal
      */
-    public [createEvalSymbol] () {
-        return new RealArrayTrackEval(this._channels.map(({ curve }) => curve));
+    public [createEvalSymbol] (): RealArrayTrackEval {
+        return new RealArrayTrackEval(this._channels.map(({ curve }): RealCurve => curve));
     }
 
     @serializable
@@ -88,11 +88,11 @@ export class RealArrayTrackEval implements TrackEval<readonly number[]> {
         this._result = new Array(_curves.length).fill(0.0);
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return false;
     }
 
-    public evaluate (time: number) {
+    public evaluate (time: number): number[] {
         const {
             _result: result,
         } = this;

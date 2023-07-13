@@ -10,9 +10,9 @@ import { ColorGrading } from '../components';
 import { disablePostProcessForDebugView } from './base-pass';
 
 export class ColorGradingPass extends SettingPass {
-    get setting () { return getSetting(ColorGrading); }
+    get setting (): ColorGrading { return getSetting(ColorGrading); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;
@@ -36,7 +36,7 @@ export class ColorGradingPass extends SettingPass {
         this.material.setProperty('colorGradingMap', setting.colorGradingMap);
         this.material.setProperty('contribute', setting.contribute);
         const textureSize = setting.colorGradingMap ? new Vec2(setting.colorGradingMap.width, setting.colorGradingMap.height) : new Vec2(1.0, 1.0);
-        this.material.setProperty('textureSize', textureSize);
+        this.material.setProperty('lutTextureSize', textureSize);
 
         const input = this.lastPass!.slotName(camera, 0);
         const slot = this.slotName(camera, 0);

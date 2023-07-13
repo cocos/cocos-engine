@@ -25,6 +25,7 @@
 declare const nr: any;
 declare const jsb: any;
 
+import { OPEN_HARMONY } from 'internal:constants'
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
@@ -279,7 +280,7 @@ export class RenderQueueDesc {
         this.stages = [];
     }
 
-    public init() {
+    public init(): any {
         return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
     }
 }
@@ -416,14 +417,14 @@ class RenderTextureConfig {
 }
 
 
-function proxyArrayAttributeImpl(proto: any, attr: string) {
+function proxyArrayAttributeImpl(proto: any, attr: string): void {
     const proxyTarget = `_${attr}_target`;
-    let arrayProxy = (self, targetArrayAttr: string) => {
+    let arrayProxy = (self, targetArrayAttr: string): any => {
         return new Proxy(self[targetArrayAttr], {
-            get(targetArray, prop, receiver) {
+            get(targetArray, prop, receiver): any {
                 return Reflect.get(targetArray, prop, receiver);
             },
-            set(targetArray, prop, receiver) {
+            set(targetArray, prop, receiver): boolean {
                 const ret = Reflect.set(targetArray, prop, receiver);
                 self[targetArrayAttr] = targetArray;
                 return ret;
@@ -447,9 +448,11 @@ function proxyArrayAttributeImpl(proto: any, attr: string) {
 
 let proxyArrayAttribute = proxyArrayAttributeImpl;
 
-proxyArrayAttribute(RenderFlow.prototype, '_stages');
-
-proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+if (!OPEN_HARMONY) {
+    // WORKAROUND: the proxy array getLength crashed on OH platform
+    proxyArrayAttribute(RenderFlow.prototype, '_stages');
+    proxyArrayAttribute(RenderPipeline.prototype, '_flows');
+}
 
 //-------------------- register types -------------------- 
 

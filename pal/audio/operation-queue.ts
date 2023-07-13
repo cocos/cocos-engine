@@ -38,7 +38,7 @@ export interface OperationQueueable {
 }
 
 let operationId = 0;
-function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo: OperationInfo) {
+function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo: OperationInfo): void {
     if (opInfo.invoking) {
         return;
     }

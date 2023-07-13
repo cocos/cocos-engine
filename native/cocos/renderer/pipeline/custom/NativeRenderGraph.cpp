@@ -47,6 +47,17 @@ void NativeRenderNode::setCustomBehavior(const ccstd::string &name) { // NOLINT(
     get(RenderGraph::DataTag{}, *renderGraph, nodeID).custom = std::string_view{name};
 }
 
+RenderGraph::vertex_descriptor RenderGraph::getPassID(vertex_descriptor nodeID) const {
+    CC_EXPECTS(nodeID != null_vertex());
+    for (auto parentID = nodeID;
+        parentID != RenderGraph::null_vertex();
+        parentID = parent(nodeID, *this)) {
+        nodeID = parentID;
+    }
+    CC_ENSURES(nodeID != null_vertex());
+    return nodeID;
+}
+
 namespace {
 
 template <class Tag>
@@ -741,6 +752,42 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
         std::forward_as_tuple(std::move(data)),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+
+    if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
+        const auto passID = renderGraph->getPassID(nodeID);
+        const auto cullingID = dynamic_cast<const NativePipeline*>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
+        CC_EXPECTS(cullingID != 0xFFFFFFFF);
+        if (holds<RasterPassTag>(passID, *renderGraph)) {
+            ccstd::pmr::string drawIndirectBuffer("CCDrawIndirectBuffer");
+            drawIndirectBuffer.append(std::to_string(cullingID));
+            ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
+            drawInstanceBuffer.append(std::to_string(cullingID));
+
+            auto& rasterPass = get(RasterPassTag{}, passID, *renderGraph);
+            if (rasterPass.computeViews.find(drawIndirectBuffer) != rasterPass.computeViews.end()) {
+                auto res = rasterPass.computeViews.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(drawIndirectBuffer),
+                    std::forward_as_tuple());
+                CC_ENSURES(res.second);
+                auto& view = res.first->second.emplace_back();
+                view.name = "CCDrawIndirectBuffer";
+                view.accessType = AccessType::READ;
+                view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
+            }
+            if (rasterPass.computeViews.find(drawInstanceBuffer) != rasterPass.computeViews.end()) {
+                auto res = rasterPass.computeViews.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(drawInstanceBuffer),
+                    std::forward_as_tuple());
+                CC_ENSURES(res.second);
+                auto& view = res.first->second.emplace_back();
+                view.name = "CCDrawInstanceBuffer";
+                view.accessType = AccessType::READ;
+                view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
+            }
+        }
+    }
 }
 
 void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(

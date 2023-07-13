@@ -38,7 +38,7 @@ export class TrackEntryListeners {
     complete?: ((entry: spine.TrackEntry) => void);
     event?: ((entry: spine.TrackEntry, event: spine.Event) => void);
 
-    static getListeners (entry: spine.TrackEntry) {
+    static getListeners (entry: spine.TrackEntry): spine.AnimationStateListener {
         if (!entry.listener) {
             entry.listener = new TrackEntryListeners() as any;
         }

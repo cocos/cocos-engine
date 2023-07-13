@@ -41,7 +41,7 @@ export class TextAsset extends Asset {
     @editable
     public text = '';
 
-    public toString () {
+    public toString (): string {
         return this.text;
     }
 }

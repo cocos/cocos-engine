@@ -29,12 +29,12 @@ import type { AnimationGraphRunTime } from './animation-graph';
 import { EventTarget, _decorator, assertIsNonNullable, assertIsTrue, warn } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './state-machine/state-machine-eval';
-import { PrimitiveValue, Value } from './variable';
+import { PrimitiveValue, Value, VariableType } from './variable';
 import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
 import { AnimationGraphLike } from './animation-graph-like';
 import type { ReadonlyClipOverrideMap } from './clip-overriding';
 
-const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
+const { ccclass, menu, help, type, serializable, editable, formerlySerializedAs } = _decorator;
 
 export type {
     MotionStateStatus,
@@ -55,6 +55,7 @@ export type {
  */
 @ccclass('cc.animation.AnimationController')
 @menu('Animation/Animation Controller')
+@help('i18n:cc.animation.AnimationController')
 export class AnimationController extends Component {
     /**
      * @zh
@@ -64,7 +65,7 @@ export class AnimationController extends Component {
      */
     @type(AnimationGraphLike)
     @editable
-    public get graph () {
+    public get graph (): AnimationGraphRunTime | AnimationGraphVariantRunTime | null {
         return this._graph;
     }
 
@@ -83,11 +84,11 @@ export class AnimationController extends Component {
      * @en Gets the count of layers in the animation graph.
      * If no animation graph is specified, 0 is returned.
      */
-    public get layerCount () {
+    public get layerCount (): number {
         return this._graphEval?.layerCount ?? 0;
     }
 
-    public __preload () {
+    public __preload (): void {
         const { graph } = this;
         if (graph) {
             let originalGraph: AnimationGraph;
@@ -112,11 +113,11 @@ export class AnimationController extends Component {
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._graphEval?.destroy();
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         this._graphEval?.update(deltaTime);
     }
 
@@ -131,7 +132,9 @@ export class AnimationController extends Component {
      * }
      * ```
      */
-    public getVariables () {
+    public getVariables (): Iterable<readonly [string, Readonly<{
+        type: VariableType;
+    }>]> {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getVariables();
@@ -149,7 +152,7 @@ export class AnimationController extends Component {
      * animationController.setValue('attack', true);
      * ```
      */
-    public setValue (name: string, value: PrimitiveValue) {
+    public setValue (name: string, value: PrimitiveValue): void {
         return this.setValue_experimental(name, value);
     }
 
@@ -166,7 +169,7 @@ export class AnimationController extends Component {
      * ```
      * @experimental
      */
-    public setValue_experimental (name: string, value: Value) {
+    public setValue_experimental (name: string, value: Value): void {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         graphEval.setValue(name, value);
@@ -210,7 +213,7 @@ export class AnimationController extends Component {
      * @returns @en The running status of the current state. `null` is returned if current state is not a motion state.
      *          @zh 当前的状态运作状态对象。如果当前的状态不是动作状态，则返回 `null`。
      */
-    public getCurrentStateStatus (layer: number) {
+    public getCurrentStateStatus (layer: number): Readonly<MotionStateStatus> | null {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getCurrentStateStatus(layer);
@@ -224,7 +227,7 @@ export class AnimationController extends Component {
      *              An empty iterable is returned if current state is not a motion state.
      *          @zh 到动画剪辑运作状态的迭代器。若当前状态不是动画状态，则返回一个空的迭代器。
      */
-    public getCurrentClipStatuses (layer: number) {
+    public getCurrentClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getCurrentClipStatuses(layer);
@@ -237,7 +240,7 @@ export class AnimationController extends Component {
      * @returns @en Current transition status. `null` is returned in case of no transition.
      *          @zh 当前正在进行的过渡，若没有进行任何过渡，则返回 `null`。
      */
-    public getCurrentTransition (layer: number) {
+    public getCurrentTransition (layer: number): Readonly<TransitionStatus> | null {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getCurrentTransition(layer);
@@ -250,7 +253,7 @@ export class AnimationController extends Component {
      * @returns @en The running status of the next state. `null` is returned in case of no transition or if next state is not a motion state.
      *          @zh 下一状态运作状态对象，若未在进行过渡或下一状态不是动画状态，则返回 `null`。
      */
-    public getNextStateStatus (layer: number) {
+    public getNextStateStatus (layer: number): Readonly<MotionStateStatus> | null {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getNextStateStatus(layer);
@@ -264,7 +267,7 @@ export class AnimationController extends Component {
      *              An empty iterable is returned in case of no transition or next state is not a motion state.
      *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡或下一状态不是动画状态，则返回一个空的迭代器。
      */
-    public getNextClipStatuses (layer: number) {
+    public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getNextClipStatuses(layer);
@@ -275,7 +278,7 @@ export class AnimationController extends Component {
      * @en Gets the weight of specified layer.
      * @param layer @en Index of the layer. @zh 层级索引。
      */
-    public getLayerWeight (layer: number) {
+    public getLayerWeight (layer: number): number {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getLayerWeight(layer);
@@ -286,7 +289,7 @@ export class AnimationController extends Component {
      * @en Sets the weight of specified layer.
      * @param layer @en Index of the layer. @zh 层级索引。
      */
-    public setLayerWeight (layer: number, weight: number) {
+    public setLayerWeight (layer: number, weight: number): void {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.setLayerWeight(layer, weight);
@@ -314,7 +317,7 @@ export class AnimationController extends Component {
      * TODO
      * @experimental
      */
-    public overrideClips_experimental (overrides: ReadonlyClipOverrideMap) {
+    public overrideClips_experimental (overrides: ReadonlyClipOverrideMap): void {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         graphEval.overrideClips(overrides);
@@ -329,7 +332,7 @@ export class AnimationController extends Component {
      * or 0 if specified adjoint curve does not exist or if the animation graph is null.
      * @experimental
      */
-    public getAuxiliaryCurveValue_experimental (curveName: string) {
+    public getAuxiliaryCurveValue_experimental (curveName: string): number {
         const { _graphEval: graphEval } = this;
         if (!graphEval) {
             return 0.0;

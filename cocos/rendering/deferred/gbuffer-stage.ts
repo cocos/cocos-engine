@@ -91,17 +91,17 @@ export class GbufferStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow): void {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
         }
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         this._instancedQueue.clear();
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;

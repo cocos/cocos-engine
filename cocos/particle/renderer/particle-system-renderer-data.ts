@@ -32,7 +32,7 @@ import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
 import { errorID, warnID, cclegacy } from '../../core';
 
-function isSupportGPUParticle () {
+function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;
     if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
         & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
@@ -51,7 +51,7 @@ export default class ParticleSystemRenderer {
     @type(RenderMode)
     @displayOrder(0)
     @tooltip('i18n:particleSystemRenderer.renderMode')
-    public get renderMode () {
+    public get renderMode (): number {
         return this._renderMode;
     }
 
@@ -70,7 +70,7 @@ export default class ParticleSystemRenderer {
      */
     @displayOrder(1)
     @tooltip('i18n:particleSystemRenderer.velocityScale')
-    public get velocityScale () {
+    public get velocityScale (): number {
         return this._velocityScale;
     }
 
@@ -87,7 +87,7 @@ export default class ParticleSystemRenderer {
      */
     @displayOrder(2)
     @tooltip('i18n:particleSystemRenderer.lengthScale')
-    public get lengthScale () {
+    public get lengthScale (): number {
         return this._lengthScale;
     }
 
@@ -118,7 +118,7 @@ export default class ParticleSystemRenderer {
     @type(Mesh)
     @displayOrder(7)
     @tooltip('i18n:particleSystemRenderer.mesh')
-    public get mesh () {
+    public get mesh (): Mesh | null {
         return this._mesh;
     }
 
@@ -137,7 +137,7 @@ export default class ParticleSystemRenderer {
     @disallowAnimation
     @visible(false)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
-    public get particleMaterial () {
+    public get particleMaterial (): Material | null {
         if (!this._particleSystem) {
             return null;
         }
@@ -158,7 +158,7 @@ export default class ParticleSystemRenderer {
     @displayOrder(8)
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
-    public get cpuMaterial () {
+    public get cpuMaterial (): Material | null {
         return this._cpuMaterial;
     }
 
@@ -187,7 +187,7 @@ export default class ParticleSystemRenderer {
     @displayOrder(8)
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return this._useGPU; })
-    public get gpuMaterial () {
+    public get gpuMaterial (): Material | null {
         return this._gpuMaterial;
     }
 
@@ -217,7 +217,7 @@ export default class ParticleSystemRenderer {
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
-    public get trailMaterial () {
+    public get trailMaterial (): Material | null {
         if (!this._particleSystem) {
             return null;
         }
@@ -233,7 +233,7 @@ export default class ParticleSystemRenderer {
     @serializable
     private _mainTexture: Texture2D | null = null;
 
-    public get mainTexture () {
+    public get mainTexture (): Texture2D | null {
         return this._mainTexture;
     }
 
@@ -246,7 +246,7 @@ export default class ParticleSystemRenderer {
 
     @displayOrder(10)
     @tooltip('i18n:particleSystemRenderer.useGPU')
-    public get useGPU () {
+    public get useGPU (): boolean {
         return this._useGPU;
     }
 
@@ -271,7 +271,7 @@ export default class ParticleSystemRenderer {
     @type(AlignmentSpace)
     @displayOrder(10)
     @tooltip('i18n:particle_system.alignSpace')
-    public get alignSpace () {
+    public get alignSpace (): number {
         return this._alignSpace;
     }
 
@@ -287,7 +287,7 @@ export default class ParticleSystemRenderer {
 
     private _particleSystem: any = null!; // ParticleSystem
 
-    create (ps) {
+    create (ps): void {
         // if particle system is null we run the old routine
         // else if particle system is not null we do nothing
         if (this._particleSystem === null) {
@@ -297,7 +297,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    onInit (ps) {
+    onInit (ps): void {
         this.create(ps);
         const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
@@ -318,7 +318,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    private _switchProcessor () {
+    private _switchProcessor (): void {
         if (!this._particleSystem) {
             return;
         }

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -65,7 +65,7 @@ class ScreenAdapter extends EventTarget {
         return false;
     }
 
-    public get devicePixelRatio () {
+    public get devicePixelRatio (): number {
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
@@ -90,12 +90,12 @@ class ScreenAdapter extends EventTarget {
         warnID(1221);
     }
 
-    public get resolution () {
+    public get resolution (): Size {
         const windowSize = this.windowSize;
         const resolutionScale = this.resolutionScale;
         return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
-    public get resolutionScale () {
+    public get resolutionScale (): number {
         return this._resolutionScale;
     }
     public set resolutionScale (value: number) {
@@ -155,15 +155,12 @@ class ScreenAdapter extends EventTarget {
 
     constructor () {
         super();
-        // TODO: onResize or onOrientationChange is not supported well
-        if (WECHAT || WECHAT_MINI_PROGRAM || RUNTIME_BASED) {
-            minigame.onWindowResize?.(() => {
-                this.emit('window-resize', this.windowSize.width, this.windowSize.height);
-            });
-        }
+        minigame.onWindowResize?.(() => {
+            this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+        });
     }
 
-    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._cbToUpdateFrameBuffer();
     }

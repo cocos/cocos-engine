@@ -1,13 +1,13 @@
-#include <vector>
-#include <spine/spine.h>
 #include "spine-skeleton-instance.h"
+#include <spine/spine.h>
+#include <vector>
 #include "AtlasAttachmentLoaderExtension.h"
-#include "util-function.h"
 #include "spine-mesh-data.h"
 #include "spine-wasm.h"
+#include "util-function.h"
 
 extern "C" {
-    extern void spineListenerCallBackFromJS();
+extern void spineListenerCallBackFromJS();
 }
 using namespace spine;
 
@@ -16,13 +16,11 @@ static void animationCallback(AnimationState *state, EventType type, TrackEntry 
     instance->onAnimationStateEvent(entry, type, event);
 }
 
-SpineSkeletonInstance::SpineSkeletonInstance()
-{
+SpineSkeletonInstance::SpineSkeletonInstance() {
     _model = new SpineModel();
 }
 
-SpineSkeletonInstance::~SpineSkeletonInstance()
-{
+SpineSkeletonInstance::~SpineSkeletonInstance() {
     if (_clipper) delete _clipper;
     if (_animState) delete _animState;
     if (_animStateData) delete _animStateData;
@@ -30,13 +28,12 @@ SpineSkeletonInstance::~SpineSkeletonInstance()
     if (_model) delete _model;
 }
 
-Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData* data) {
-    
+Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData *data) {
     if (_clipper) delete _clipper;
     if (_animState) delete _animState;
     if (_animStateData) delete _animStateData;
     if (_skeleton) delete _skeleton;
-    
+
     _skeletonData = data;
     _skeleton = new Skeleton(_skeletonData);
     _animStateData = new AnimationStateData(_skeletonData);
@@ -46,13 +43,12 @@ Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData* data) {
     _skeleton->updateWorldTransform();
     //LogUtil::PrintToJs("initSkeleton ok.");
 
-
     _animState->setRendererObject(this);
     _animState->setListener(animationCallback);
     return _skeleton;
 }
 
-TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::string& name, bool loop) {
+TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::string &name, bool loop) {
     if (!_skeleton) return nullptr;
     spine::Animation *animation = _skeleton->getData()->findAnimation(name.c_str());
     if (!animation) {
@@ -63,13 +59,16 @@ TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::str
     }
     auto *trackEntry = _animState->setAnimation(0, animation, loop);
     _animState->apply(*_skeleton);
+    _skeleton->updateWorldTransform();
     return trackEntry;
 }
 
-void SpineSkeletonInstance::setSkin(const std::string& name) {
+void SpineSkeletonInstance::setSkin(const std::string &name) {
     if (!_skeleton) return;
     _skeleton->setSkin(name.c_str());
     _skeleton->setSlotsToSetupPose();
+    _animState->apply(*_skeleton);
+    _skeleton->updateWorldTransform();
     //LogUtil::PrintToJs(name.c_str());
 }
 
@@ -81,7 +80,7 @@ void SpineSkeletonInstance::updateAnimation(float dltTime) {
     _skeleton->updateWorldTransform();
 }
 
-SpineModel* SpineSkeletonInstance::updateRenderData() {
+SpineModel *SpineSkeletonInstance::updateRenderData() {
     if (_userData.debugMode) {
         _debugShapes.clear();
     }
@@ -98,7 +97,6 @@ SpineModel* SpineSkeletonInstance::updateRenderData() {
     _model->setBufferPtr(SpineMeshData::vb(), SpineMeshData::ib());
     return _model;
 }
-
 
 void SpineSkeletonInstance::collectMeshData() {
     uint32_t byteStrideOneColor = sizeof(V3F_T2F_C4B);
@@ -143,29 +141,30 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto *indices = SpineMeshData::queryIBuffer(indexCount);
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
-                attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
+                attachment->computeWorldVertices(slot->getBone(), (float *)vertices, 0, byteStrideOneColor / sizeof(float));
+                currMesh = SlotMesh((uint8_t *)vertices, indices, vertCount, indexCount);
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
                 auto *indices = SpineMeshData::queryIBuffer(indexCount);
-                V3F_T2F_C4B_C4B* verts = (V3F_T2F_C4B_C4B*)vertices;
+                V3F_T2F_C4B_C4B *verts = (V3F_T2F_C4B_C4B *)vertices;
                 for (int ii = 0; ii < vertCount; ii++) {
                     verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
-                attachment->computeWorldVertices(slot->getBone(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
+                attachment->computeWorldVertices(slot->getBone(), (float *)vertices, 0, byteStrideTwoColor / sizeof(float));
+                currMesh = SlotMesh((uint8_t *)vertices, indices, vertCount, indexCount);
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
             color.b *= attachment->getColor().b;
             color.a *= attachment->getColor().a;
+            currMesh.textureID = attachmentVertices->_textureId;
         } else if (slot->getAttachment()->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
             debugShapeType = DEBUG_SHAPE_TYPE::DEBUG_MESH;
             auto *attachment = static_cast<spine::MeshAttachment *>(slot->getAttachment());
             auto *attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
-   
+
             auto vertCount = attachmentVertices->_triangles->vertCount;
             auto indexCount = attachmentVertices->_triangles->indexCount;
             auto ibSize = indexCount * sizeof(uint16_t);
@@ -175,24 +174,25 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto *indices = SpineMeshData::queryIBuffer(indexCount);
                 memcpy(static_cast<void *>(vertices), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
-                attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideOneColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
+                attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float *)vertices, 0, byteStrideOneColor / sizeof(float));
+                currMesh = SlotMesh((uint8_t *)vertices, indices, vertCount, indexCount);
             } else {
                 auto vbSize = vertCount * byteStrideTwoColor;
                 auto *vertices = SpineMeshData::queryVBuffer(vbSize);
                 auto *indices = SpineMeshData::queryIBuffer(indexCount);
-                V3F_T2F_C4B_C4B* verts = (V3F_T2F_C4B_C4B*)vertices;
+                V3F_T2F_C4B_C4B *verts = (V3F_T2F_C4B_C4B *)vertices;
                 for (int ii = 0; ii < vertCount; ii++) {
                     verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
                 memcpy(indices, attachmentVertices->_triangles->indices, ibSize);
-                attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float*)vertices, 0, byteStrideTwoColor / sizeof(float));
-                currMesh = SlotMesh((uint8_t*)vertices, indices, vertCount, indexCount);
+                attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float *)vertices, 0, byteStrideTwoColor / sizeof(float));
+                currMesh = SlotMesh((uint8_t *)vertices, indices, vertCount, indexCount);
             }
             color.r *= attachment->getColor().r;
             color.g *= attachment->getColor().g;
             color.b *= attachment->getColor().b;
             color.a *= attachment->getColor().a;
+            currMesh.textureID = attachmentVertices->_textureId;
         } else if (slot->getAttachment()->getRTTI().isExactly(spine::ClippingAttachment::rtti)) {
             auto *clip = static_cast<spine::ClippingAttachment *>(slot->getAttachment());
             _clipper->clipStart(*slot, clip);
@@ -209,7 +209,6 @@ void SpineSkeletonInstance::collectMeshData() {
         uint32_t uintB = (uint32_t)(_skeleton->getColor().b * slot->getColor().b * color.b * multiplier);
         uint32_t light = (uintA << 24) + (uintB << 16) + (uintG << 8) + uintR;
 
-
         if (slot->hasDarkColor()) {
             uintR = (uint32_t)(_skeleton->getColor().r * slot->getDarkColor().r * color.r * multiplier);
             uintG = (uint32_t)(_skeleton->getColor().g * slot->getDarkColor().g * color.g * multiplier);
@@ -224,7 +223,7 @@ void SpineSkeletonInstance::collectMeshData() {
 
         if (!_userData.useTint) {
             if (_clipper->isClipping()) {
-                _clipper->clipTriangles(reinterpret_cast<float *>(currMesh.vBuf), currMesh.iBuf, currMesh.iCount, (float*)(&currMesh.vBuf[3*4]), byteStrideOneColor / sizeof(float));
+                _clipper->clipTriangles(reinterpret_cast<float *>(currMesh.vBuf), currMesh.iBuf, currMesh.iCount, (float *)(&currMesh.vBuf[3 * 4]), byteStrideOneColor / sizeof(float));
 
                 if (_clipper->getClippedTriangles().size() == 0) {
                     _clipper->clipEnd(*slot);
@@ -233,11 +232,11 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
                 auto indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
                 auto vbSize = vertCount * byteStrideOneColor;
-                uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
-                uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
+                uint8_t *vPtr = SpineMeshData::queryVBuffer(vbSize);
+                uint16_t *iPtr = SpineMeshData::queryIBuffer(indexCount);
                 currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount);
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
-                
+
                 float *verts = _clipper->getClippedVertices().buffer();
                 float *uvs = _clipper->getClippedUVs().buffer();
                 V3F_T2F_C4B *vertices = (V3F_T2F_C4B *)currMesh.vBuf;
@@ -248,7 +247,7 @@ void SpineSkeletonInstance::collectMeshData() {
                         vertices[v].texCoord.u = uvs[vv];
                         vertices[v].texCoord.v = uvs[vv + 1];
                         _effect->transform(vertices[v].vertex.x, vertices[v].vertex.y);
-                        *((uint32_t*)&vertices[v].color) = light;
+                        *((uint32_t *)&vertices[v].color) = light;
                     }
                 } else {
                     for (int v = 0, vn = vertCount, vv = 0; v < vn; ++v, vv += 2) {
@@ -256,28 +255,28 @@ void SpineSkeletonInstance::collectMeshData() {
                         vertices[v].vertex.y = verts[vv + 1];
                         vertices[v].texCoord.u = uvs[vv];
                         vertices[v].texCoord.v = uvs[vv + 1];
-                        *((uint32_t*)&vertices[v].color) = light;
+                        *((uint32_t *)&vertices[v].color) = light;
                     }
                 }
             } else {
                 auto vertCount = currMesh.vCount;
                 V3F_T2F_C4B *vertex = (V3F_T2F_C4B *)currMesh.vBuf;
-                uint32_t* uPtr = (uint32_t*)currMesh.vBuf;
+                uint32_t *uPtr = (uint32_t *)currMesh.vBuf;
                 auto stride = byteStrideOneColor / sizeof(float);
                 if (_effect) {
                     for (int v = 0; v < vertCount; ++v) {
                         _effect->transform(vertex[v].vertex.x, vertex[v].vertex.y);
-                        *((uint32_t*)&vertex[v].color) = light;
+                        *((uint32_t *)&vertex[v].color) = light;
                     }
                 } else {
                     for (int v = 0; v < vertCount; ++v) {
-                        *((uint32_t*)&vertex[v].color) = light;
+                        *((uint32_t *)&vertex[v].color) = light;
                     }
                 }
             }
         } else {
             if (_clipper->isClipping()) {
-                _clipper->clipTriangles(reinterpret_cast<float *>(currMesh.vBuf), currMesh.iBuf, currMesh.iCount, (float*)(&currMesh.vBuf[3*4]), byteStrideTwoColor / sizeof(float));
+                _clipper->clipTriangles(reinterpret_cast<float *>(currMesh.vBuf), currMesh.iBuf, currMesh.iCount, (float *)(&currMesh.vBuf[3 * 4]), byteStrideTwoColor / sizeof(float));
 
                 if (_clipper->getClippedTriangles().size() == 0) {
                     _clipper->clipEnd(*slot);
@@ -286,11 +285,11 @@ void SpineSkeletonInstance::collectMeshData() {
                 auto vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
                 auto indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
                 auto vbSize = vertCount * byteStrideTwoColor;
-                uint8_t* vPtr = SpineMeshData::queryVBuffer(vbSize);
-                uint16_t* iPtr = SpineMeshData::queryIBuffer(indexCount);
+                uint8_t *vPtr = SpineMeshData::queryVBuffer(vbSize);
+                uint16_t *iPtr = SpineMeshData::queryIBuffer(indexCount);
                 currMesh = SlotMesh(vPtr, iPtr, vertCount, indexCount);
                 memcpy(iPtr, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * indexCount);
-                
+
                 float *verts = _clipper->getClippedVertices().buffer();
                 float *uvs = _clipper->getClippedUVs().buffer();
                 V3F_T2F_C4B_C4B *vertices = (V3F_T2F_C4B_C4B *)currMesh.vBuf;
@@ -301,8 +300,8 @@ void SpineSkeletonInstance::collectMeshData() {
                         vertices[v].texCoord.u = uvs[vv];
                         vertices[v].texCoord.v = uvs[vv + 1];
                         _effect->transform(vertices[v].vertex.x, vertices[v].vertex.y);
-                        *((uint32_t*)&vertices[v].color) = light;
-                        *((uint32_t*)&vertices[v].color2) = dark;
+                        *((uint32_t *)&vertices[v].color) = light;
+                        *((uint32_t *)&vertices[v].color2) = dark;
                     }
                 } else {
                     for (int v = 0, vn = vertCount, vv = 0; v < vn; ++v, vv += 2) {
@@ -310,25 +309,25 @@ void SpineSkeletonInstance::collectMeshData() {
                         vertices[v].vertex.y = verts[vv + 1];
                         vertices[v].texCoord.u = uvs[vv];
                         vertices[v].texCoord.v = uvs[vv + 1];
-                        *((uint32_t*)&vertices[v].color) = light;
-                        *((uint32_t*)&vertices[v].color2) = dark;
+                        *((uint32_t *)&vertices[v].color) = light;
+                        *((uint32_t *)&vertices[v].color2) = dark;
                     }
                 }
             } else {
                 auto vertCount = currMesh.vCount;
                 V3F_T2F_C4B_C4B *vertex = (V3F_T2F_C4B_C4B *)currMesh.vBuf;
-                uint32_t* uPtr = (uint32_t*)currMesh.vBuf;
+                uint32_t *uPtr = (uint32_t *)currMesh.vBuf;
                 auto stride = byteStrideTwoColor / sizeof(float);
                 if (_effect) {
                     for (int v = 0; v < vertCount; ++v) {
                         _effect->transform(vertex[v].vertex.x, vertex[v].vertex.y);
-                        *((uint32_t*)&vertex[v].color) = light;
-                        *((uint32_t*)&vertex[v].color2) = dark;
+                        *((uint32_t *)&vertex[v].color) = light;
+                        *((uint32_t *)&vertex[v].color2) = dark;
                     }
                 } else {
                     for (int v = 0; v < vertCount; ++v) {
-                        *((uint32_t*)&vertex[v].color) = light;
-                        *((uint32_t*)&vertex[v].color2) = dark;
+                        *((uint32_t *)&vertex[v].color) = light;
+                        *((uint32_t *)&vertex[v].color2) = dark;
                     }
                 }
             }
@@ -337,7 +336,7 @@ void SpineSkeletonInstance::collectMeshData() {
         auto stride = _userData.useTint ? byteStrideTwoColor : byteStrideOneColor;
         SpineMeshData::moveVB(currMesh.vCount * stride);
         SpineMeshData::moveIB(currMesh.iCount);
-        // record debug shape info        
+        // record debug shape info
         if (_userData.debugMode) {
             SpineDebugShape debugShape;
             debugShape.type = static_cast<uint32_t>(debugShapeType);
@@ -350,9 +349,10 @@ void SpineSkeletonInstance::collectMeshData() {
 
         currMesh.blendMode = static_cast<uint32_t>(slot->getData().getBlendMode());
         if (_userData.useSlotTexture) {
-            currMesh.textureID = findSlotTextureID(slot);
-        } else {
-            currMesh.textureID = 0;
+            auto iter = slotTextureSet.find(slot);
+            if (iter != slotTextureSet.end()) {
+                currMesh.textureID = iter->second;
+            }
         }
         _model->addSlotMesh(currMesh);
 
@@ -385,16 +385,16 @@ void SpineSkeletonInstance::clearEffect() {
     _effect = nullptr;
 }
 
-AnimationState* SpineSkeletonInstance::getAnimationState() {
+AnimationState *SpineSkeletonInstance::getAnimationState() {
     return _animState;
 }
 
-void SpineSkeletonInstance::setMix(const std::string& from, const std::string& to, float duration) {
+void SpineSkeletonInstance::setMix(const std::string &from, const std::string &to, float duration) {
     _animStateData->setMix(from.c_str(), to.c_str(), duration);
 }
 
 void SpineSkeletonInstance::setListener(uint32_t listenerID, uint32_t type) {
-        switch (type) {
+    switch (type) {
         case EventType_Start:
             _startListenerID = listenerID;
             break;
@@ -468,11 +468,11 @@ void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType t
     }
 }
 
-std::vector<SpineDebugShape>& SpineSkeletonInstance::getDebugShapes() {
+std::vector<SpineDebugShape> &SpineSkeletonInstance::getDebugShapes() {
     return this->_debugShapes;
 }
 
-void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32_t width, uint32_t height, bool createNew) {
+void SpineSkeletonInstance::resizeSlotRegion(const std::string &slotName, uint32_t width, uint32_t height, bool createNew) {
     if (!_skeleton) return;
     auto slot = _skeleton->findSlot(slotName.c_str());
     if (!slot) return;
@@ -492,7 +492,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32
         region->setHeight(height);
         region->setUVs(0, 0, 1.0f, 1.0f, false);
         region->updateOffset();
-        auto attachmentVertices = static_cast<AttachmentVertices*>(region->getRendererObject());
+        auto attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
         if (createNew) {
             attachmentVertices = attachmentVertices->copy();
             region->setRendererObject(attachmentVertices);
@@ -532,16 +532,7 @@ void SpineSkeletonInstance::resizeSlotRegion(const std::string& slotName, uint32
     }
 }
 
-uint32_t SpineSkeletonInstance::findSlotTextureID(Slot* slot) {
-    auto iter = slotTextureSet.find(slot);
-    if (iter != slotTextureSet.end()) {
-        return iter->second;
-    } else {
-        return 0;
-    }
-}
-
-void SpineSkeletonInstance::setSlotTexture(const std::string& slotName, uint32_t textureID) {
+void SpineSkeletonInstance::setSlotTexture(const std::string &slotName, uint32_t textureID) {
     if (!_skeleton) return;
     auto slot = _skeleton->findSlot(slotName.c_str());
     if (!slot) return;

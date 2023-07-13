@@ -67,7 +67,7 @@ export class PNGReader {
 
         while (true) {
             chunkSize = this.readUInt32();
-            const section = ((() => {
+            const section = (((): any[] => {
                 const _results: any[] = [];
                 for (i = _i = 0; _i < 4; i = ++_i) {
                     _results.push(String.fromCharCode(this.data[this.pos++]));
@@ -152,7 +152,7 @@ export class PNGReader {
                 if (frame) {
                     this.animation.frames.push(frame);
                 }
-                this.colors = (() => {
+                this.colors = ((): number | undefined => {
                     switch (this.colorType) {
                     case 0:
                     case 3:
@@ -167,7 +167,7 @@ export class PNGReader {
                 this.hasAlphaChannel = _ref === 4 || _ref === 6;
                 const colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
                 this.pixelBitlength = this.bits * colors;
-                this.colorSpace = (() => {
+                this.colorSpace = ((): string | undefined => {
                     switch (this.colors) {
                     case 1:
                         return 'DeviceGray';
@@ -189,7 +189,7 @@ export class PNGReader {
         }
     }
 
-    public read (bytes) {
+    public read (bytes): any[] {
         let i = 0; let _i = 0;
         const _results: any[] = [];
         for (i = _i = 0; bytes >= 0 ? _i < bytes : _i > bytes; i = bytes >= 0 ? ++_i : --_i) {
@@ -198,7 +198,7 @@ export class PNGReader {
         return _results;
     }
 
-    public readUInt32 () {
+    public readUInt32 (): number {
         const b1 = this.data[this.pos++] << 24;
         const b2 = this.data[this.pos++] << 16;
         const b3 = this.data[this.pos++] << 8;
@@ -206,13 +206,13 @@ export class PNGReader {
         return b1 | b2 | b3 | b4;
     }
 
-    public readUInt16 () {
+    public readUInt16 (): number {
         const b1 = this.data[this.pos++] << 8;
         const b2 = this.data[this.pos++];
         return b1 | b2;
     }
 
-    public decodePixels (data) {
+    public decodePixels (data): Uint8Array {
         if (data == null) {
             data = this.imgData;
         }
@@ -292,7 +292,7 @@ export class PNGReader {
         return pixels;
     }
 
-    public copyToImageData (imageData, pixels) {
+    public copyToImageData (imageData, pixels): void {
         let alpha = this.hasAlphaChannel;
         let palette: any;
         let colors = this.colors;
@@ -327,7 +327,7 @@ export class PNGReader {
         }
     }
 
-    decodePalette () {
+    decodePalette (): Uint8Array {
         const palette = this.palette;
         const transparency = this.transparency.indexed || [];
         const ret = new Uint8Array((transparency.length || 0) + palette.length);
@@ -344,7 +344,7 @@ export class PNGReader {
         return ret;
     }
 
-    render (canvas) {
+    render (canvas): any {
         canvas.width = this.width;
         canvas.height = this.height;
         const ctx = canvas.getContext('2d');

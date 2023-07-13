@@ -72,7 +72,7 @@ class Edge {
         }
     }
 
-    public set (tet: number, i: number, v0: number, v1: number) {
+    public set (tet: number, i: number, v0: number, v1: number): void {
         this.tetrahedron = tet;
         this.index = i;
 
@@ -85,7 +85,7 @@ class Edge {
         }
     }
 
-    public isSame (other: Edge) {
+    public isSame (other: Edge): boolean {
         return (this.vertex0 === other.vertex0 && this.vertex1 === other.vertex1);
     }
 }
@@ -143,7 +143,7 @@ class Triangle {
         }
     }
 
-    public set (tet: number, i: number, v0: number, v1: number, v2: number, v3: number) {
+    public set (tet: number, i: number, v0: number, v1: number, v2: number, v3: number): void {
         this.invalid = false;
         this.isOuterFace = true;
 
@@ -181,7 +181,7 @@ class Triangle {
         }
     }
 
-    public isSame (other: Triangle) {
+    public isSame (other: Triangle): boolean {
         return (this.vertex0 === other.vertex0 && this.vertex1 === other.vertex1 && this.vertex2 === other.vertex2);
     }
 }
@@ -193,7 +193,7 @@ export class CircumSphere {
     @serializable
     public radiusSquared = 0.0;
 
-    public init (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3) {
+    public init (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3): void {
         // calculate circumsphere of 4 points in R^3 space.
         _mat.set(
             p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
@@ -258,20 +258,20 @@ export class Tetrahedron {
         }
     }
 
-    public isInCircumSphere (point: Vec3) {
+    public isInCircumSphere (point: Vec3): boolean {
         return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - EPSILON;
     }
 
-    public contain (vertexIndex: number) {
+    public contain (vertexIndex: number): boolean {
         return (this.vertex0 === vertexIndex || this.vertex1 === vertexIndex
             || this.vertex2 === vertexIndex || this.vertex3 === vertexIndex);
     }
 
-    public isInnerTetrahedron () {
+    public isInnerTetrahedron (): boolean {
         return this.vertex3 >= 0;
     }
 
-    public isOuterCell () {
+    public isOuterCell (): boolean {
         return this.vertex3 < 0;    // -1 or -2
     }
 }
@@ -287,7 +287,7 @@ export class Delaunay {
         this._probes = probes;
     }
 
-    public build () {
+    public build (): Tetrahedron[] {
         this.reset();
         this.tetrahedralize();
         this.computeAdjacency();
@@ -296,7 +296,7 @@ export class Delaunay {
         return this._tetrahedrons;
     }
 
-    private reset () {
+    private reset (): void {
         this._tetrahedrons.length = 0;
         this._triangles.length = 0;
         this._edges.length = 0;
@@ -305,7 +305,7 @@ export class Delaunay {
     /**
      * Bowyer-Watson algorithm
      */
-    private tetrahedralize () {
+    private tetrahedralize (): void {
         // get probe count first
         const probeCount = this._probes.length;
 
@@ -317,7 +317,7 @@ export class Delaunay {
         }
 
         // remove all tetrahedrons which contain the super tetrahedron's vertices
-        this._tetrahedrons = this._tetrahedrons.filter((tetrahedron) => {
+        this._tetrahedrons = this._tetrahedrons.filter((tetrahedron): boolean => {
             const vertexIndex = probeCount;
             const isSuperTetrahedron = (
                 tetrahedron.contain(vertexIndex)
@@ -334,7 +334,7 @@ export class Delaunay {
         this.reorder(center);
     }
 
-    private initTetrahedron () {
+    private initTetrahedron (): Vec3 {
         const minPos = new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
         const maxPos = new Vec3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
 
@@ -374,7 +374,7 @@ export class Delaunay {
         return center;
     }
 
-    private addTriangle (index: number, tet: number, i: number, v0: number, v1: number, v2: number, v3: number) {
+    private addTriangle (index: number, tet: number, i: number, v0: number, v1: number, v2: number, v3: number): void {
         if (index < this._triangles.length) {
             this._triangles[index].set(tet, i, v0, v1, v2, v3);
         } else {
@@ -382,7 +382,7 @@ export class Delaunay {
         }
     }
 
-    private addEdge (index: number, tet: number, i: number, v0: number, v1: number) {
+    private addEdge (index: number, tet: number, i: number, v0: number, v1: number): void {
         if (index < this._edges.length) {
             this._edges[index].set(tet, i, v0, v1);
         } else {
@@ -390,7 +390,7 @@ export class Delaunay {
         }
     }
 
-    private addProbe (vertexIndex: number) {
+    private addProbe (vertexIndex: number): void {
         const probe = this._probes[vertexIndex];
         const position = probe.position;
 
@@ -423,7 +423,7 @@ export class Delaunay {
         }
 
         // remove containing tetrahedron
-        this._tetrahedrons = this._tetrahedrons.filter((tetrahedron) => !tetrahedron.invalid);
+        this._tetrahedrons = this._tetrahedrons.filter((tetrahedron): boolean => !tetrahedron.invalid);
 
         for (let i = 0; i < triangleIndex; i++) {
             const triangle = this._triangles[i];
@@ -433,12 +433,12 @@ export class Delaunay {
         }
     }
 
-    private reorder (center: Vec3) {
+    private reorder (center: Vec3): void {
         // The tetrahedron in the middle is placed at the front of the vector
-        this._tetrahedrons.sort((a, b) => Vec3.squaredDistance(a.sphere.center, center) - Vec3.squaredDistance(b.sphere.center, center));
+        this._tetrahedrons.sort((a, b): number => Vec3.squaredDistance(a.sphere.center, center) - Vec3.squaredDistance(b.sphere.center, center));
     }
 
-    private computeAdjacency () {
+    private computeAdjacency (): void {
         const normal = new Vec3(0.0, 0.0, 0.0);
         const edge1 = new Vec3(0.0, 0.0, 0.0);
         const edge2 = new Vec3(0.0, 0.0, 0.0);
@@ -534,7 +534,7 @@ export class Delaunay {
         }
     }
 
-    private computeMatrices () {
+    private computeMatrices (): void {
         for (let i = 0; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
 
@@ -546,7 +546,7 @@ export class Delaunay {
         }
     }
 
-    private computeTetrahedronMatrix (tetrahedron: Tetrahedron) {
+    private computeTetrahedronMatrix (tetrahedron: Tetrahedron): void {
         const p0 = this._probes[tetrahedron.vertex0].position;
         const p1 = this._probes[tetrahedron.vertex1].position;
         const p2 = this._probes[tetrahedron.vertex2].position;
@@ -561,7 +561,7 @@ export class Delaunay {
         tetrahedron.matrix.transpose();
     }
 
-    private computeOuterCellMatrix (tetrahedron: Tetrahedron) {
+    private computeOuterCellMatrix (tetrahedron: Tetrahedron): void {
         const v: Vec3[] = [];
         const p: Vec3[] = [];
 

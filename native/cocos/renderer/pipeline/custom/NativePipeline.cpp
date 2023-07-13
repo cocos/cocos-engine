@@ -94,7 +94,8 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(renderWindow);
 
@@ -140,7 +141,7 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::STORAGE;
+    desc.flags = ResourceFlags::STORAGE | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     return addVertex(
         ManagedBufferTag{},
@@ -164,7 +165,8 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     return addVertex(
         ManagedTextureTag{},
@@ -188,7 +190,8 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -250,7 +253,7 @@ uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimensio
         static_cast<uint16_t>(mipLevels),
         format,
         sampleCount,
-        gfx::TextureFlagBit::NONE,
+        residency == ResourceResidency::MEMORYLESS ? gfx::TextureFlagBit::LAZILY_ALLOCATED : gfx::TextureFlagBit::NONE,
         flags,
     };
     return addVertex(
@@ -309,7 +312,7 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -338,7 +341,7 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
     desc.format = gfx::Format::R8UI;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -681,6 +684,180 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
         renderGraph);
 }
 
+namespace {
+
+void setupGpuDrivenResources(
+    NativePipeline& ppl, uint32_t cullingID, ResourceGraph& resg, const std::string &hzbName) {
+    ccstd::pmr::string name(resg.get_allocator());
+    { // init resource
+        name = "_GpuInit";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = addVertex(
+                PersistentBufferTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(/*xxx*/),
+                resg);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            // get(PersistentBufferTag{}, resID, resg) = xxx;
+        }
+    }
+    {
+        name = "CCObjectBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCInstanceBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCDrawIndirectBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCDrawInstanceBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCVisibilityBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    if (!hzbName.empty()) {
+
+    }
+}
+
+} // namespace
+
+void NativePipeline::addBuiltinGpuCullingPass(
+    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
+    std::ignore = camera;
+    const uint32_t cullingID = ++nativeContext.sceneCulling.gpuCullingPassID;
+    setupGpuDrivenResources(*this, cullingID, resourceGraph, hzbName);
+
+    if (light) {
+        // build light culling pass
+        return;
+    }
+
+    const std::string objectBuffer = "CCObjectBuffer" + std::to_string(cullingID);
+    const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(cullingID);
+    const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
+    const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
+    const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
+
+    // init indirected buffers
+    {
+        CopyPass copyPass{renderGraph.get_allocator()};
+        {
+            CopyPair copyPair{renderGraph.get_allocator()};
+            copyPair.source = "xxx";
+            copyPair.target = drawIndirectBuffer;
+            copyPair.mipLevels = 1;
+            copyPair.numSlices = 1;
+            copyPass.copyPairs.emplace_back(std::move(copyPair));
+        }
+
+        auto copyID = addVertex2(CopyTag{},
+            std::forward_as_tuple("CopyInitialIndirectBuffer"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(std::move(copyPass)),
+            renderGraph);
+        CC_ENSURES(copyID != RenderGraph::null_vertex());
+    }
+    // run compute cullling pass
+    {
+        ComputePass computePass{renderGraph.get_allocator()};
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(drawIndirectBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCDrawIndirectBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(drawInstanceBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCDrawInstanceBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(visibilityBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCVisibilityBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+
+        auto computePassID = addVertex2(ComputeTag{},
+            std::forward_as_tuple("Scene"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(std::move(computePass)),
+            renderGraph);
+        CC_ENSURES(computePassID != RenderGraph::null_vertex());
+    }
+}
+
+void NativePipeline::addBuiltinHzbGenerationPass(
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    const std::string &sourceDepthStencilName, const std::string &targetHzbName) {
+}
+
 void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
     CopyPass pass(renderGraph.get_allocator());
     pass.copyPairs.reserve(copyPairs.size());
@@ -918,6 +1095,9 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
 }
 
 bool NativePipeline::destroy() noexcept {
+#if CC_USE_DEBUG_RENDERER
+    DebugRenderer::getInstance()->destroy();
+#endif
     if (globalDSManager) {
         globalDSManager->destroy();
         globalDSManager.reset();

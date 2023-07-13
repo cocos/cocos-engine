@@ -62,6 +62,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._rigidBody = v;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node, this);
         this._sharedBody.reference = true;
+        this.setSleepThreshold(PhysicsSystem.instance.sleepThreshold);
     }
 
     onEnable (): void {
@@ -116,7 +117,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._isUsingCCD = v;
     }
 
-    isUsingCCD () { return this._isUsingCCD; }
+    isUsingCCD (): boolean { return this._isUsingCCD; }
 
     setLinearFactor (v: IVec3Like): void {
         if (this.isStatic) return;
@@ -134,8 +135,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean): void {
         if (this.isStaticOrKinematic) return;
-        const st = this.impl.getSleepThreshold() as number;
-        const wc = v ? Math.max(0.0, st - 0.001) : st + 0xffffffff;
+        const wc = v ? 0.0001 : 0xffffffff;
         this.impl.setWakeCounter(wc);
     }
 
@@ -167,12 +167,16 @@ export class PhysXRigidBody implements IRigidBody {
 
     setSleepThreshold (v: number): void {
         if (this.isStatic) return;
-        this.impl.setSleepThreshold(v);
+        //(approximated) mass-normalized kinetic energy
+        const ke = 0.5 * v * v;
+        this.impl.setSleepThreshold(ke);
     }
 
     getSleepThreshold (): number {
         if (this.isStatic) return 0;
-        return this.impl.getSleepThreshold();
+        const ke = this.impl.getSleepThreshold();
+        const v = Math.sqrt(2 * ke);
+        return v;
     }
 
     getLinearVelocity (out: IVec3Like): void {

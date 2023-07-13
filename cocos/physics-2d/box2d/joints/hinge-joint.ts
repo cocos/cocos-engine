@@ -30,18 +30,18 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { toRadian } from '../../../core';
 
 export class b2HingeJoint extends b2Joint implements IHingeJoint {
-    enableLimit (v: boolean) {
+    enableLimit (v: boolean): void {
         if (this._b2joint) {
             (this._b2joint as b2.RevoluteJoint).EnableLimit(v);
         }
     }
-    setLowerAngle (v: number) {
+    setLowerAngle (v: number): void {
         this.updateLimits();
     }
-    setUpperAngle (v: number) {
+    setUpperAngle (v: number): void {
         this.updateLimits();
     }
-    updateLimits () {
+    updateLimits (): void {
         if (this._b2joint) {
             const comp = this._jointComp as HingeJoint2D;
             (this._b2joint as b2.RevoluteJoint).SetLimits(toRadian(comp.lowerAngle), toRadian(comp.upperAngle));
@@ -49,23 +49,23 @@ export class b2HingeJoint extends b2Joint implements IHingeJoint {
     }
 
     // motor
-    enableMotor (v: boolean) {
+    enableMotor (v: boolean): void {
         if (this._b2joint) {
             (this._b2joint as b2.RevoluteJoint).EnableMotor(v);
         }
     }
-    setMaxMotorTorque (v: number) {
+    setMaxMotorTorque (v: number): void {
         if (this._b2joint) {
             (this._b2joint as b2.RevoluteJoint).SetMaxMotorTorque(v);
         }
     }
-    setMotorSpeed (v: number) {
+    setMotorSpeed (v: number): void {
         if (this._b2joint) {
             (this._b2joint as b2.RevoluteJoint).SetMotorSpeed(v);
         }
     }
 
-    _createJointDef () {
+    _createJointDef (): any {
         const comp = this._jointComp as HingeJoint2D;
         const def = new b2.RevoluteJointDef();
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);

@@ -32,6 +32,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/map.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Light.h"
@@ -101,6 +102,8 @@ enum class ResourceFlags : uint32_t {
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
     SHADING_RATE = 0x80,
+    TRANSFER_SRC = 0x100,
+    TRANSFER_DST = 0x200,
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
@@ -326,6 +329,15 @@ struct ResolvePair {
     gfx::ResolveMode mode1{gfx::ResolveMode::SAMPLE_ZERO};
 };
 
+inline bool operator==(const ResolvePair& lhs, const ResolvePair& rhs) noexcept {
+    return std::forward_as_tuple(lhs.source, lhs.target, lhs.resolveFlags, lhs.mode, lhs.mode1) ==
+           std::forward_as_tuple(rhs.source, rhs.target, rhs.resolveFlags, rhs.mode, rhs.mode1);
+}
+
+inline bool operator!=(const ResolvePair& lhs, const ResolvePair& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct CopyPair {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -420,5 +432,19 @@ struct PipelineStatistics {
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline hash_t hash<cc::render::ResolvePair>::operator()(const cc::render::ResolvePair& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.source);
+    hash_combine(seed, val.target);
+    hash_combine(seed, val.resolveFlags);
+    hash_combine(seed, val.mode);
+    hash_combine(seed, val.mode1);
+    return seed;
+}
+
+} // namespace ccstd
 
 // clang-format on

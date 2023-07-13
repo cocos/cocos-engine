@@ -41,7 +41,7 @@ const SerializableAttrs = {
 /**
  * 预处理 notify 等扩展属性
  */
-function parseNotify (val, propName, notify, properties) {
+function parseNotify (val, propName, notify, properties): void {
     if (val.get || val.set) {
         if (DEV) {
             warnID(5500);
@@ -53,10 +53,10 @@ function parseNotify (val, propName, notify, properties) {
         // （以 _ 开头将自动设置property 为 visible: false）
         const newKey = `_N$${propName}`;
 
-        val.get = function () {
+        val.get = function (): any {
             return this[newKey];
         };
-        val.set = function (value) {
+        val.set = function (value): void {
             const oldValue = this[newKey];
             this[newKey] = value;
             notify.call(this, oldValue);
@@ -80,7 +80,7 @@ function parseNotify (val, propName, notify, properties) {
     }
 }
 
-function parseType (val, type, className, propName) {
+function parseType (val, type, className, propName): void {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
     if (Array.isArray(type)) {
@@ -142,7 +142,7 @@ function parseType (val, type, className, propName) {
     }
 }
 
-function getBaseClassWherePropertyDefined_DEV (propName, cls) {
+function getBaseClassWherePropertyDefined_DEV (propName, cls): any {
     if (DEV) {
         let res;
         for (; cls && cls.__props__ && cls.__props__.indexOf(propName) !== -1; cls = cls.$super) {
@@ -155,7 +155,11 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>): {
+    default?: any;
+    _short?: boolean | undefined;
+    type?: any;
+} {
     const res: {
         default?: any,
         _short?: boolean,
@@ -167,7 +171,11 @@ function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]
     return res;
 }
 
-export function getFullFormOfProperty (options, isGetset) {
+export function getFullFormOfProperty (options, isGetset): {
+    default?: any;
+    _short?: boolean | undefined;
+    type?: any;
+} | null {
     const isLiteral = options && options.constructor === Object;
     if (!isLiteral) {
         if (Array.isArray(options) && options.length > 0) {
@@ -184,7 +192,7 @@ export function getFullFormOfProperty (options, isGetset) {
     return null;
 }
 
-export function preprocessAttrs (properties, className, cls) {
+export function preprocessAttrs (properties, className, cls): void {
     for (const propName in properties) {
         let val = properties[propName];
         const fullForm = getFullFormOfProperty(val, false);
@@ -226,7 +234,7 @@ export function preprocessAttrs (properties, className, cls) {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base) {
+export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base): false | undefined {
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
         const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
