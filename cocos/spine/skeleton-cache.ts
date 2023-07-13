@@ -78,9 +78,6 @@ export class AnimationCache {
     protected _state: spine.AnimationState = null!;
     protected _skeletonData: spine.SkeletonData = null!;
     protected _skeleton: spine.Skeleton = null!;
-    /**
-     * @engineInternal since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
     public _privateMode = false;
     protected _curIndex = -1;
     protected _isCompleted = false;
