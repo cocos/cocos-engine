@@ -879,6 +879,10 @@ const Elements = {
             panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
+            panel.dump._globals.skin.displayName = 'Skin';
+            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.$.sceneSkin.render(panel.dump._globals.skin);
+
             // skyBox 逻辑 start
             let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
             const oldSkyboxProps = Object.keys(panel.$skyboxProps);
