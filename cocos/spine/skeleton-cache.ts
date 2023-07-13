@@ -379,14 +379,14 @@ class SkeletonCache {
         return skeletonInfo;
     }
 
-    public getAnimationCache (uuid: string, animationName: string) {
+    public getAnimationCache (uuid: string, animationName: string): null | AnimationCache {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return null;
         const animationsCache = skeletonInfo.animationsCache;
         return animationsCache[animationName];
     }
 
-    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string) {
+    public initAnimationCache (uuid: string, data: SkeletonData,  animationName: string): null | AnimationCache {
         const spData = data.getRuntimeData();
         if (!spData) return null;
         const skeletonInfo = this._skeletonCache[uuid];
