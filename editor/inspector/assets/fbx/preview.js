@@ -168,6 +168,7 @@ ui-icon {
     background: var(--color-normal-fill);
 }
 #event-editor {
+    position: relative;
     line-height: 20px;
     width: 100%;
     height: 70%;
@@ -186,6 +187,9 @@ ui-icon {
     background: var(--color-normal-fill-emphasis);
     padding: 2px 4px;
   }
+  #event-editor > header .title {
+    color: var(--color-focus-fill);
+  }
   #event-editor > .header .name {
     margin: 0 4px;
   }
@@ -194,7 +198,6 @@ ui-icon {
     margin: 0 2px;
   }
   #event-editor > .functions {
-    padding: 4px;
     overflow-y: auto;
     flex: 1;
     height: 100%;
@@ -234,6 +237,7 @@ ui-icon {
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
     flex: 1;
+    margin-left: 4px;
   }
   #event-editor ui-section {
     width: 100%;
@@ -258,6 +262,15 @@ ui-icon {
   #event-editor .empty {
     font-style: italic;
     text-align: center;
+  }
+  #event-editor .toast {
+    position: absolute;
+    top: 54px;
+    right: 4px;
+    z-index: 1;
+    padding: 0 4px;
+    background-color: var(--color-normal-fill-emphasis);
+    color: var(--color-warn-fill);
   }
 `;
 
@@ -484,7 +497,11 @@ exports.methods = {
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
-            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'block' : 'none';
+            const isAnimationTab = this.activeTab === 'animation';
+            this.$.animationInfo.style.display = isAnimationTab ? 'block' : 'none';
+            if (!isAnimationTab) {
+                this.eventEditorVm.show = false;
+            }
             this.$.modelInfo.style.display = this.activeTab === 'model' ? 'block' : 'none';
             await this.stopAnimation();
         }
@@ -534,7 +551,7 @@ exports.methods = {
     },
 
     addEventToCurTime() {
-        this.events.addNewEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
+        this.events.addEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
     },
 
     updateEventInfo() {
@@ -545,7 +562,7 @@ exports.methods = {
             if (Array.isArray(events)) {
                 eventInfos = events.map((info) => {
                     return {
-                        ...info,
+                        info,
                         x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
                     };
                 });
