@@ -275,6 +275,16 @@ void OpenHarmonyPlatform::onSurfaceCreated(OH_NativeXComponent* component, void*
 }
 
 void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void* window) {
+    uint64_t width  = 0;
+    uint64_t height = 0;
+    int32_t ret = OH_NativeXComponent_GetXComponentSize(_component, window, &width, &height);
+    CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
+    WindowEvent ev;
+    ev.windowId = cc::ISystemWindow::mainWindowId;
+    ev.type = WindowEvent::Type::SIZE_CHANGED;
+    ev.width = width;
+    ev.height = height;
+    events::WindowEvent::broadcast(ev);
 }
 
 void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
