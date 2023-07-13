@@ -504,7 +504,7 @@ export class TerrainAsset extends Asset {
         if (this._version < TERRAIN_DATA_VERSION8) {
             for (let i = 0; i < this.heights.length; ++i) {
                 const h = (this._heights[i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY_V7;
-                const ch = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY
+                const ch = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
                 this.heights[i] = ch;
             }
         }
