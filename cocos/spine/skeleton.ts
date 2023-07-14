@@ -940,10 +940,12 @@ export class Skeleton extends UIRenderer {
                 this._playCount = 0;
                 this._isAniComplete = true;
                 this._emitCacheCompleteEvent();
+                return;
             }
             this._accTime = 0;
             frameIdx = 0;
             this._emitCacheCompleteEvent();
+            this._curFrame = frames[frameIdx];
         }
     }
 
