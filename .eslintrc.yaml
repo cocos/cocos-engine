@@ -11,8 +11,7 @@ extends:
     - plugin:@typescript-eslint/recommended
     - plugin:@typescript-eslint/recommended-requiring-type-checking
 
-plugins:
-    - '@typescript-eslint'
+plugins: ["@typescript-eslint"]
 
 settings:
     import/resolver:
@@ -146,4 +145,13 @@ rules:
 
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
-    '@typescript-eslint/explicit-function-return-type': [error]
+    '@typescript-eslint/explicit-function-return-type': [error, {
+      allowExpressions: false,
+      allowTypedFunctionExpressions: true,
+      allowHigherOrderFunctions: true,
+      allowDirectConstAssertionInArrowFunctions: true,
+      allowConciseArrowFunctionExpressionsStartingWithVoid: false,
+      allowFunctionsWithoutTypeParameters: false,
+      allowedNames: [],
+      allowIIFEs: true, // IIFEs are widely used, writing their signature twice is painful
+    }]
