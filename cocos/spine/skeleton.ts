@@ -944,8 +944,8 @@ export class Skeleton extends UIRenderer {
             }
             this._accTime = 0;
             frameIdx = 0;
-            this._emitCacheCompleteEvent();
             this._curFrame = frames[frameIdx];
+            this._emitCacheCompleteEvent();
         }
     }
 
