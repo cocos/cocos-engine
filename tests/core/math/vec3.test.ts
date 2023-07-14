@@ -195,7 +195,7 @@ describe('Test Vec3', () => {
                 z: expect.toBeAround(1.7),
             }));
         }
-	});
+    });
 
     test(`generateOrthogonal`, () => {
         // Zero input results zero result.
