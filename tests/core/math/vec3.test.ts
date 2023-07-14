@@ -195,5 +195,70 @@ describe('Test Vec3', () => {
                 z: expect.toBeAround(1.7),
             }));
         }
+	});
+
+    test(`generateOrthogonal`, () => {
+        // Zero input results zero result.
+        expect(gen(Vec3.ZERO)).toBeCloseToVec3(Vec3.ZERO);
+
+        // Even the input is very close to zero, the result is not zero.
+        expect(gen(Vec3.add(new Vec3(), Vec3.ZERO, new Vec3(1e-10, 1e-20, 1e-30)))).toEqual({
+            x: 9.999999999999999e-11,
+            y: -1,
+            z: 0,
+        });
+
+        // Especially observe the behavior on standard unit vectors.
+        {
+            for (const len of [1, -1, 0.3, -6.18]) {
+                if (len > 0) {
+                    expect(gen(new Vec3(len, 0, 0))).toBeCloseToVec3(new Vec3(0, -1, 0));
+                    expect(gen(new Vec3(0, len, 0))).toBeCloseToVec3(new Vec3(1, 0, 0));
+                    expect(gen(new Vec3(0, 0, len))).toBeCloseToVec3(new Vec3(1, 0, 0));
+                } else {
+                    expect(gen(new Vec3(len, 0, 0))).toBeCloseToVec3(new Vec3(0, 1, 0));
+                    expect(gen(new Vec3(0, len, 0))).toBeCloseToVec3(new Vec3(-1, 0, 0));
+                    expect(gen(new Vec3(0, 0, len))).toBeCloseToVec3(new Vec3(-1, 0, 0));
+                }
+            }
+        }
+
+        expect(gen(new Vec3(1, -2, 3))).toEqual({
+            x: 0,
+            y: 0.8320502943378437,
+            z: 0.5547001962252291,
+        });
+        expect(gen(new Vec3(1, -1, -1))).toEqual({
+            x: -0.7071067811865475,
+            y: -0.7071067811865475,
+            z: 0,
+        });
+
+        // The input vector need not to be normalized,
+        // but its effect should be equivalent to its normalized version.
+        ((v: Readonly<Vec3>) => void expect(gen(v)).toBeCloseToVec3(gen(Vec3.normalize(new Vec3(), v))))(
+            new Vec3(1, -2, 3));
+
+        function gen (input: Readonly<Vec3>) {
+            const result = new Vec3(Number.NaN, Number.NaN, Number.NaN);
+
+            // The input should not be modified.
+            const inputFrozen = Object.freeze(Vec3.clone(input));
+
+            // The return value should be the `out` argument.
+            expect(Vec3.generateOrthogonal(result, inputFrozen)).toBe(result);
+
+            if (Vec3.strictEquals(input, Vec3.ZERO)) {
+                // If the input is strictly 0, the result should be strictly 0.
+                expect(Vec3.strictEquals(result, Vec3.ZERO)).toBe(true);
+            } else {
+                // Otherwise, the result should be normalized.
+                expect(Vec3.lengthSqr(result)).toBeCloseTo(1, 5);
+                // The result should be orthogonal to input.
+                expect(Vec3.angle(input, result)).toBeCloseTo(Math.PI / 2, 5);
+            }
+
+            return result;
+        };
     });
 });
