@@ -660,6 +660,9 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setAttachment", optional_override([](Skin &obj, size_t index, const std::string& name, Attachment *attachment) { return obj.setAttachment(index, STRING_STD2SP(name), attachment); }), allow_raw_pointers())
         .function("addSkin", select_overload<void(Skin *)>(&Skin::addSkin), allow_raw_pointers())
         .function("copySkin", select_overload<void(Skin *)>(&Skin::copySkin), allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skin &obj, size_t slotIndex, const std::string& name) { 
+            return obj.getAttachment(slotIndex, STRING_STD2SP(name));
+        }), allow_raw_pointers())
         .function("getAttachments", optional_override([](Skin &obj) {
             std::vector<Skin::AttachmentMap::Entry*> entriesVector;
             auto entries = obj.getAttachments();
