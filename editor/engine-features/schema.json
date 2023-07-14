@@ -106,6 +106,9 @@
                 "physics-2d-builtin": {
                     "$ref": "#/definitions/Item"
                 },
+                "physics-2d-box2d-wasm": {
+                    "$ref": "#/definitions/Item"
+                },
                 "physics-ammo": {
                     "$ref": "#/definitions/Item"
                 },
@@ -251,6 +254,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "physics-2d-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-box2d-wasm": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "physics-ammo": {

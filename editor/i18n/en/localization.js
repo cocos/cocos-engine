@@ -1025,6 +1025,10 @@ module.exports = link(mixin({
             label: "2D Intersection Algorithms",
             description: "Include 2D intersection algorithms.",
         },
+        physics_2d_box2d_wasm: {
+            label: "Box2D-wasm Based 2D Physics System",
+            description: "2D Physics system that based on Box2D-wasm.",
+        },
         particle_2d: {
             label: "2D Particle System",
             description: "Particle system that applied to 2D application.",
