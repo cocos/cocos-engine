@@ -669,7 +669,7 @@ EMSCRIPTEN_BINDINGS(spine) {
             return entriesVector;
         }), allow_raw_pointers())
         .function("removeAttachment", optional_override([](Skin &obj, size_t index, const std::string& name) { obj.removeAttachment(index, STRING_STD2SP(name)); }))
-        .function("getAttachmentsForSlotIndex", optional_override([](Skin &obj, size_t index) {
+        .function("getAttachmentsForSlot", optional_override([](Skin &obj, size_t index) {
             std::vector<Skin::AttachmentMap::Entry*> entriesVector;
             auto entries = obj.getAttachments();
             while (entries.hasNext()) {
