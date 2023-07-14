@@ -25,11 +25,11 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, UniformBlock } from '../../gfx';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, UniformBlock, ResolveMode, SampleCount } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -249,18 +249,18 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
-    // public setCameraConstants (camera: Camera): void {
+    public setBuiltinCameraConstants (camera: Camera): void {
 
-    // }
-    // public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
+    }
+    public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
 
-    // }
-    // public setSpotLightProjectionConstants (light: SpotLight): void {
+    }
+    public setBuiltinDirectionalLightViewConstants (light: DirectionalLight): void {
 
-    // }
-    // public setShadowMapConstants (light: Light, numLevels?: number): void {
+    }
+    public setBuiltinSpotLightViewConstants (light: SpotLight): void {
 
-    // }
+    }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
         if (id === undefined) {
@@ -828,24 +828,24 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    // addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
-    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags);
-    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
-    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-    //     );
-    // }
-    // addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
-    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
-    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
-    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-    //     );
-    // }
-    // addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
-    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
-    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
-    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-    //     );
-    // }
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags);
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
@@ -970,7 +970,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     private readonly _layoutGraph: LayoutGraphData;
 }
 
-export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBuilder {
+export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleRenderPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
@@ -1028,6 +1028,17 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
             clearFlag,
             new Color(depth, stencil, 0, 0));
         this._pass.rasterViews.set(name, view);
+    }
+    resolveRenderTarget (source: string, target: string): void {
+
+    }
+    resolveDepthStencil (
+        source: string,
+        target: string,
+        depthMode?: ResolveMode,
+        stencilMode?: ResolveMode,
+    ): void {
+
     }
     private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
         const view = new ComputeView(slotName);
@@ -1302,6 +1313,7 @@ export class WebPipeline implements BasicPipeline {
         if (renderWindow.swapchain === null) {
             assert(renderWindow.framebuffer.colorTextures.length === 1
                 && renderWindow.framebuffer.colorTextures[0] !== null);
+            desc.sampleCount = renderWindow.framebuffer.colorTextures[0].info.samples;
             return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
                 ResourceGraphValue.Framebuffer,
                 renderWindow.framebuffer,
@@ -1364,6 +1376,37 @@ export class WebPipeline implements BasicPipeline {
         const desc = this.resourceGraph.getDesc(resId);
         desc.width = width;
         desc.height = height;
+    }
+    addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const desc = new ResourceDesc();
+        desc.dimension = dimension;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        desc.format = format;
+        desc.sampleCount = sampleCount;
+        desc.flags = flags;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
+        );
+    }
+    updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = desc.dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        if (format !== Format.UNKNOWN) {
+            desc.format = format;
+        }
+        desc.sampleCount = sampleCount;
     }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
@@ -1632,6 +1675,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
+        desc.sampleCount = SampleCount.X1;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
@@ -1651,6 +1695,7 @@ export class WebPipeline implements BasicPipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
+        desc.sampleCount = SampleCount.X1;
         desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT | ResourceFlags.SAMPLED;
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
@@ -1762,7 +1807,7 @@ export class WebPipeline implements BasicPipeline {
         this.execute();
         this.endFrame();
     }
-    addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicRenderPassBuilder  {
+    addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicMultisampleRenderPassBuilder {
         if (DEBUG) {
             const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
             assert(stageId !== 0xFFFFFFFF);
@@ -1789,7 +1834,7 @@ export class WebPipeline implements BasicPipeline {
     addRenderPass (width: number, height: number, layoutName = 'default'): BasicRenderPassBuilder {
         return this.addRenderPassImpl(width, height, layoutName);
     }
-    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicRenderPassBuilder {
+    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicMultisampleRenderPassBuilder {
         assert(count > 1);
         return this.addRenderPassImpl(width, height, layoutName, count, quality);
     }

@@ -57,6 +57,9 @@ void FramebufferAgent::doInit(const FramebufferInfo &info) {
     if (info.depthStencilTexture) {
         actorInfo.depthStencilTexture = static_cast<TextureAgent *>(info.depthStencilTexture)->getActor();
     }
+    if (info.depthStencilResolveTexture) {
+        actorInfo.depthStencilResolveTexture = static_cast<TextureAgent *>(info.depthStencilResolveTexture)->getActor();
+    }
     actorInfo.renderPass = static_cast<RenderPassAgent *>(info.renderPass)->getActor();
 
     ENQUEUE_MESSAGE_2(

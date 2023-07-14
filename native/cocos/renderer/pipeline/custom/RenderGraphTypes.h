@@ -166,7 +166,7 @@ struct ResourceDesc {
     uint16_t depthOrArraySize{0};
     uint16_t mipLevels{0};
     gfx::Format format{gfx::Format::UNKNOWN};
-    gfx::SampleCount sampleCount{gfx::SampleCount::ONE};
+    gfx::SampleCount sampleCount{gfx::SampleCount::X1};
     gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
     ResourceFlags flags{ResourceFlags::NONE};
 };
@@ -242,11 +242,12 @@ struct Subpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    ccstd::pmr::vector<ResolvePair> resolvePairs;
 };
 
 inline bool operator==(const Subpass& lhs, const Subpass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.resolvePairs) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.resolvePairs);
 }
 
 inline bool operator!=(const Subpass& lhs, const Subpass& rhs) noexcept {
@@ -1047,6 +1048,7 @@ struct RenderGraph {
         impl::ValueHandle<ClearTag, vertex_descriptor>,
         impl::ValueHandle<ViewportTag, vertex_descriptor>>;
 
+    vertex_descriptor getPassID(vertex_descriptor nodeID) const;
     ccstd::string print(boost::container::pmr::memory_resource* scratch) const;
 
     // ContinuousContainer
@@ -1123,6 +1125,7 @@ struct RenderGraph {
     ccstd::pmr::vector<gfx::Viewport> viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
+    ccstd::pmr::vector<vertex_descriptor> sortedVertices;
 };
 
 } // namespace render
@@ -1168,6 +1171,7 @@ inline hash_t hash<cc::render::Subpass>::operator()(const cc::render::Subpass& v
     hash_t seed = 0;
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.resolvePairs);
     return seed;
 }
 

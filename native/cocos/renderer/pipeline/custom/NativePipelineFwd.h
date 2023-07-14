@@ -46,6 +46,7 @@ class NativeRenderSubpassBuilder;
 class NativeMultisampleRenderSubpassBuilder;
 class NativeComputeSubpassBuilder;
 class NativeRenderPassBuilder;
+class NativeMultisampleRenderPassBuilder;
 class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
 class NativeSceneTransversal;

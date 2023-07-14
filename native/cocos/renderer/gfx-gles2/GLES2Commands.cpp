@@ -574,22 +574,13 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
     gpuTexture->glFormat = mapGLFormat(gpuTexture->format);
     gpuTexture->glType = formatToGLType(gpuTexture->format);
     gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
+    gpuTexture->glSamples = static_cast<GLint>(gpuTexture->samples);
 
-    if (gpuTexture->samples > SampleCount::ONE) {
-        if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE) {
-            GLint maxSamples;
-            glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
-
-            auto requestedSampleCount = static_cast<GLint>(gpuTexture->samples);
-            gpuTexture->glSamples = std::min(maxSamples, requestedSampleCount);
-
-            // skip multi-sampled attachment resources if we can use auto resolve
-            if (gpuTexture->usage == TextureUsageBit::COLOR_ATTACHMENT) {
-                gpuTexture->memoryless = true;
-                return;
-            }
-        } else {
-            gpuTexture->glSamples = 1; // fallback to single sample if the extensions is not available
+    if (gpuTexture->samples > SampleCount::X1) {
+        if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE &&
+            hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
+            gpuTexture->allocateMemory = false;
+            return;
         }
     }
 
@@ -810,7 +801,7 @@ void cmdFuncGLES2DestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
-    if (gpuTexture->memoryless || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
+    if (!gpuTexture->allocateMemory || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
 
     if (gpuTexture->glSamples <= 1) {
         switch (gpuTexture->type) {
@@ -3040,6 +3031,12 @@ void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
         }
         cmdIdx++;
     }
+}
+
+GLint cmdFuncGLES2GetMaxSampleCount() {
+    GLint maxSamples = 1;
+    GL_CHECK(glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples));
+    return maxSamples;
 }
 
 void GLES2GPUBlitManager::initialize() {

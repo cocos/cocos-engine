@@ -28,13 +28,15 @@ import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { murmurhash2_32_gc, errorID, assertID, cclegacy, warnID } from '../../core';
-import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
+import {
+    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, UniformBlock,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
-import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
+import {
+    MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
@@ -190,6 +192,7 @@ export class Pass {
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
+    protected _subpassID = 0xFFFFFFFF;
     protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
@@ -576,11 +579,17 @@ export class Pass {
             const r = cclegacy.rendering;
             if (typeof info.phase === 'number') {
                 this._passID = (info as Pass)._passID;
+                this._subpassID = (info as Pass)._subpassID;
                 this._phaseID = (info as Pass)._phaseID;
             } else {
                 this._passID = r.getPassID(info.pass);
                 if (this._passID !== r.INVALID_ID) {
-                    this._phaseID = r.getPhaseID(this._passID, info.phase);
+                    if (info.subpass) {
+                        this._subpassID = r.getSubpassID(this._passID, info.subpass);
+                        this._phaseID = r.getPhaseID(this._subpassID, info.phase);
+                    } else {
+                        this._phaseID = r.getPhaseID(this._passID, info.phase);
+                    }
                 }
             }
             if (this._passID === r.INVALID_ID) {
@@ -778,7 +787,7 @@ export class Pass {
 
         this._blocks = target._blocks;
         this._blocksInt = target._blocksInt;
-        this._dynamics =  target._dynamics;
+        this._dynamics = target._dynamics;
 
         this._shader = target._shader;
 

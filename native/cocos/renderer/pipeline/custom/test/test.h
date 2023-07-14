@@ -149,7 +149,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         nameSet.emplace(viewName);
                     }
 
-                    auto &rasterViews = hasSubpass ? (*subpass).rasterViews : raster.rasterViews;
+                    auto &views = hasSubpass ? (*subpass).rasterViews : raster.rasterViews;
                     auto view = RasterView{
                         viewName.c_str(),
                         isOutput ? AccessType::WRITE : AccessType::READ,
@@ -161,7 +161,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         gfx::ShaderStageFlagBit::NONE,
                     };
                     view.slotID = slot;
-                    rasterViews.emplace(viewName.c_str(), view);
+                    views.emplace(viewName.c_str(), view);
                     if (subpassViews) {
                         subpassViews->emplace(viewName.c_str(), view);
 
@@ -170,6 +170,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                         if (iter == raster.attachmentIndexMap.end()) {
                             raster.attachmentIndexMap.emplace(viewName, newID);
                         }
+                        rasterViews.emplace(viewName, view);
                     }
                     ++slot;
                 }
@@ -566,117 +567,117 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
     using cc::gfx::TextureFlagBit;                                                                                \
     ResourceInfo resources = {                                                                                    \
         {"0",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"1",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"2",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"3",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"4",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"5",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"6",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"7",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"8",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"9",                                                                                                     \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"10",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"11",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"12",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"13",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"14",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"15",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"16",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"17",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"18",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::MANAGED},                                                                            \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"19",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::EXTERNAL},                                                                           \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"20",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::EXTERNAL},                                                                           \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"21",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::EXTERNAL},                                                                           \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
         {"22",                                                                                                    \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::X1, TextureFlagBit::NONE, \
           ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
          {ResourceResidency::BACKBUFFER},                                                                         \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
