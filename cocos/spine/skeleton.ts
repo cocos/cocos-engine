@@ -930,7 +930,7 @@ export class Skeleton extends UIRenderer {
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
         }
-
+        this._curFrame = frames[frameIdx];
         if (frameCache.isCompleted && frameIdx >= frames.length) {
             this._playCount++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
@@ -945,7 +945,6 @@ export class Skeleton extends UIRenderer {
             frameIdx = 0;
             this._emitCacheCompleteEvent();
         }
-        this._curFrame = frames[frameIdx];
     }
 
     protected _emitCacheCompleteEvent () {
