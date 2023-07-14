@@ -146,5 +146,5 @@ rules:
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
     '@typescript-eslint/explicit-function-return-type': [error, {
-      allowIIFEs: true, // IIFEs are widely used, writing their signature twice is painful
+      allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
     }]
