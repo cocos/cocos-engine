@@ -32,7 +32,7 @@ import { ECollider2DType, EJoint2DType  } from './physics-types';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
     IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
-export type IPhysicsEngineId = 'builtin' | 'box2d' | string;
+export type IPhysicsEngineId = 'builtin' | 'box2d' | 'box2d-wasm'| string;
 
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,

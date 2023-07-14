@@ -42,6 +42,7 @@
                 "physics-2d-framework",
                 "physics-2d-box2d",
                 "physics-2d-builtin",
+                "physics-2d-box2d-wasm",
                 "intersection-2d",
                 "primitive",
                 "profiler",

@@ -177,6 +177,10 @@ export class PhysicsSystem2D extends Eventify(System) {
         return selector.id === 'box2d';
     }
 
+    static get PHYSICS_BOX2D_WASM (): boolean {
+        return selector.id === 'box2d-wasm';
+    }
+
     /**
      * @en
      * Gets the predefined physics groups.

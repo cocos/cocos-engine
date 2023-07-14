@@ -31,8 +31,8 @@ import { B2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
 const tempFilter = new B2.Filter();
-const lowerBound = {x:0, y:0};
-const upperBound = {x:0, y:0};
+const lowerBound = { x: 0, y: 0 };
+const upperBound = { x: 0, y: 0 };
 
 function getFilter (shape: B2Shape2D): any {
     const comp = shape.collider;
@@ -109,7 +109,7 @@ export class B2Shape2D implements IBaseShape {
 
             const count = fixture.GetShape().GetChildCount();
             for (let j = 0; j < count; j++) {
-                let aabb = fixture.GetAABB(j);
+                const aabb = fixture.GetAABB(j);
                 lowerBound.x = aabb.lowerBound.x;
                 lowerBound.y = aabb.lowerBound.y;
                 upperBound.x = aabb.upperBound.x;
@@ -176,7 +176,7 @@ export class B2Shape2D implements IBaseShape {
         for (let i = 0; i < shapes.length; i++) {
             const shape = shapes[i];
 
-            const fixDef: B2.FixtureDef = {todo
+            const fixDef: B2.FixtureDef = {
                 density: comp.density,
                 isSensor: comp.sensor,
                 friction: comp.friction,
