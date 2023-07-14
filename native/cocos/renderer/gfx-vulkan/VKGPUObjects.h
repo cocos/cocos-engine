@@ -159,7 +159,7 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
      * 3. Memory bound manually bound.
      * 4. Sparse Image.
      */
-    bool allocateMemory = true;
+    bool memoryAllocated = true;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;

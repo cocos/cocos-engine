@@ -871,7 +871,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
         if (gpuTexture->useRenderBuffer &&
             hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
             gpuTexture->glTarget = GL_RENDERBUFFER;
-            gpuTexture->allocateMemory = false;
+            gpuTexture->memoryAllocated = false;
             return;
         }
     }
@@ -925,7 +925,7 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
-    if (!gpuTexture->allocateMemory ||
+    if (!gpuTexture->memoryAllocated ||
         hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) ||
         hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
         return;
@@ -2634,7 +2634,7 @@ uint8_t *funcGLES3PixelBufferPick(const uint8_t *buffer, Format format, uint32_t
 }
 
 void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers, GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint32_t count) {
-    if (!gpuTexture->allocateMemory) return;
+    if (!gpuTexture->memoryAllocated) return;
 
     GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
     if (glTexture != gpuTexture->glTexture) {
@@ -3082,58 +3082,45 @@ void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
     GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, handle));
     cache->glDrawFramebuffer = handle;
 
-    ccstd::vector<GLenum> drawBuffers(colors.size(), GL_NONE);
-    for (uint32_t i = 0; i < colors.size(); ++i) {
-        const auto &[view, samples] = colors[i];
-        auto att = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i);
-        drawBuffers[i] =att;
-
+    auto bindAttachment = [](GLenum attachment, GLint samples, const GLES3GPUTextureView *view) {
         auto *texture = view->gpuTexture;
         if (samples > 1) {
             CC_ASSERT(view->gpuTexture->glTexture != 0);
             GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
-                att,
-                GL_TEXTURE_2D,
-                texture->glTexture,
-                view->baseLevel,
-                static_cast<GLsizei>(samples)));
-            continue;
+                                                          attachment,
+                                                          GL_TEXTURE_2D,
+                                                          texture->glTexture,
+                                                          view->baseLevel,
+                                                          static_cast<GLsizei>(samples)));
+            return;
         }
 
         if (texture->useRenderBuffer) {
+            /*
+             * Renderbuffer is not allocated if using lazily allocated flag.
+             * If the attachment does not meet the implicit MS condition, renderbuffer should be allocated here.
+             */
             if (view->gpuTexture->glRenderbuffer == 0) {
                 GL_CHECK(glGenRenderbuffers(1, &view->gpuTexture->glRenderbuffer));
                 renderBufferStorage(GLES3Device::getInstance(), texture);
             }
-            GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, att, texture->glTarget, texture->glRenderbuffer));
+            GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, attachment, texture->glTarget, texture->glRenderbuffer));
         } else {
-            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, att, texture->glTarget, texture->glTexture, view->baseLevel));
+            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, texture->glTarget, texture->glTexture, view->baseLevel));
         }
+    };
+
+    ccstd::vector<GLenum> drawBuffers(colors.size(), GL_NONE);
+    for (uint32_t i = 0; i < colors.size(); ++i) {
+        const auto &[view, samples] = colors[i];
+        auto att = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i);
+        drawBuffers[i] = att;
+        bindAttachment(att, samples, view);
     }
 
     if (depthStencil.first != nullptr) {
         const auto &[view, samples] = depthStencil;
-
-        auto *texture = view->gpuTexture;
-        if (samples > 1) {
-            CC_ASSERT(view->gpuTexture->glTexture != 0);
-            GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
-                dsAttachment,
-                GL_TEXTURE_2D,
-                view->gpuTexture->glTexture,
-                view->baseLevel,
-                static_cast<GLsizei>(samples)));
-        } else {
-            if (texture->useRenderBuffer) {
-                if (view->gpuTexture->glRenderbuffer == 0) {
-                    GL_CHECK(glGenRenderbuffers(1, &view->gpuTexture->glRenderbuffer));
-                    renderBufferStorage(GLES3Device::getInstance(), texture);
-                }
-                GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glRenderbuffer));
-            } else {
-                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, dsAttachment, texture->glTarget, texture->glTexture, view->baseLevel));
-            }
-        }
+        bindAttachment(dsAttachment, samples, view);
     }
 
     if (!drawBuffers.empty()) {
