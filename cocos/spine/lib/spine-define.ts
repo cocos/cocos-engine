@@ -41,6 +41,22 @@ function overrideDefineArrayProp (prototype, getPropVector, name) {
     });
 }
 
+function overrideDefineArrayFunction (prototype, getPropVector, name) {
+    Object.defineProperty(prototype, name, {
+        value () {
+            const array: any[] = [];
+            const vectors = getPropVector.call(this);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const objPtr = vectors.get(i);
+                array.push(objPtr);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return array;
+        },
+    });
+}
+
 function overrideClass (wasm) {
     spine.wasmUtil = wasm.SpineWasmUtil;
     spine.wasmUtil.wasm = wasm;
@@ -1127,6 +1143,18 @@ function overrideProperty_Skin () {
     overrideDefineArrayProp(prototype, prototype.getBones, 'bones');
     overrideDefineArrayProp(prototype, prototype.getAttachments, 'attachments');
     overrideDefineArrayProp(prototype, prototype.getConstraints, 'constraints');
+    overrideDefineArrayFunction(prototype, prototype.getAttachments, 'getAttachments');
+    const originGetAttachmentsForSlot = prototype.getAttachmentsForSlot;
+    Object.defineProperty(prototype, 'getAttachmentsForSlot', {
+        value (slotIndex: number, attachments: Array<spine.SkinEntry>) {
+            const vectors = originGetAttachmentsForSlot.call(this, slotIndex);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const objPtr = vectors.get(i);
+                attachments.push(objPtr);
+            }
+        },
+    });
 }
 
 function overrideProperty_SkinEntry () {
