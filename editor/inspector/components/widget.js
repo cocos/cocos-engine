@@ -566,7 +566,10 @@ exports.methods = {
         this.$refs.summitProp.dispatch('change-dump');
     },
     snapshot() {
-        this.$refs.summitProp.dispatch('confirm-dump');
+        // next tick snapshot
+        setTimeout(() => {
+            this.$refs.summitProp.dispatch('confirm-dump');
+        });
     },
 
     getUnit(type) {
