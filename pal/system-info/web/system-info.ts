@@ -25,6 +25,7 @@
 import { DEBUG, EDITOR, PREVIEW, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
@@ -383,3 +384,5 @@ class SystemInfo extends EventTarget {
 }
 
 export const systemInfo = new SystemInfo();
+
+checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());
