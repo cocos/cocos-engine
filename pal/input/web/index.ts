@@ -22,6 +22,8 @@
  THE SOFTWARE.
 */
 
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
+
 export * from './accelerometer-input';
 export * from './gamepad-input';
 export * from './handle-input';
@@ -30,3 +32,5 @@ export * from './handheld-input';
 export * from './keyboard-input';
 export * from './mouse-input';
 export * from './touch-input';
+
+checkPalIntegrity<typeof import('pal/input')>(withImpl<typeof import('./index')>());
