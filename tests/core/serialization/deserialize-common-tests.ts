@@ -4,7 +4,7 @@ import { ccclass, type } from '../../../cocos/core/data/decorators';
 import { deserialize } from '../../../cocos/serialization/deserialize';
 import { getClassId, unregisterClass } from '../../../cocos/core/utils/js-typed';
 
-test.only('Fast mode', () => {
+test('Fast mode', () => {
     @ccclass('cc.MeDoNotBelieveThisExists')
     class Cls {
         @property
