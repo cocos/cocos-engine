@@ -1144,6 +1144,17 @@ function overrideProperty_Skin () {
     overrideDefineArrayProp(prototype, prototype.getAttachments, 'attachments');
     overrideDefineArrayProp(prototype, prototype.getConstraints, 'constraints');
     overrideDefineArrayFunction(prototype, prototype.getAttachments, 'getAttachments');
+    Object.defineProperty(prototype, 'getAttachmentsForSlot', {
+        value (slotIndex: number, attachments: Array<spine.SkinEntry>) {
+            const originGetAttachmentsForSlot = prototype.getAttachmentsForSlotIndex;
+            const vectors = originGetAttachmentsForSlot.call(this, slotIndex);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const objPtr = vectors.get(i);
+                attachments.push(objPtr);
+            }
+        },
+    });
 }
 
 function overrideProperty_SkinEntry () {
