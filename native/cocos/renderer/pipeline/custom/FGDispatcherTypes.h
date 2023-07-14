@@ -102,6 +102,7 @@ struct LayoutAccess {
 
 struct AttachmentInfo {
     uint32_t index{0};
+    uint32_t resourceIndex{0};
     uint32_t isResolveView{0};
 };
 
@@ -112,6 +113,7 @@ struct FGRenderPassInfo {
     gfx::RenderPassInfo rpInfo;
     std::vector<std::string> orderedViews;
     ccstd::map<std::string, AttachmentInfo> viewIndex;
+    ccstd::set<std::string> rootResources;
     uint32_t resolveCount{false};
 };
 
