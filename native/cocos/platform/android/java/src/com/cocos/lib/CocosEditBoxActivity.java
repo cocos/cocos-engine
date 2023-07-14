@@ -68,9 +68,6 @@ public class CocosEditBoxActivity extends Activity {
     private Button mButton = null;
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
-    private RelativeLayout mButtonLayout = null;
-    private RelativeLayout.LayoutParams mButtonParams;
-    private int mEditTextID = 1;
     private int mButtonLayoutID = 2;
 
     /***************************************************************************************
@@ -245,7 +242,9 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
+                        getRootView().scrollTo(0, heightDiff);
                     } else {
+                        getRootView().scrollTo(0, 0);
                         if (mCheckKeyboardShowNormally && !keyboardVisible) {
                             Toast.makeText(CocosEditBoxActivity.this, R.string.tip_disable_safe_input_type, Toast.LENGTH_SHORT).show();
                         }
@@ -314,52 +313,41 @@ public class CocosEditBoxActivity extends Activity {
      **************************************************************************************/
     private void addItems(RelativeLayout layout) {
         RelativeLayout myLayout = new RelativeLayout(this);
-        this.addEditText(myLayout);
-        this.addButton(myLayout);
+        myLayout.setBackgroundColor(Color.argb(255, 244, 244, 244));
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         layout.addView(myLayout, layoutParams);
 
-        //FXI ME: Is it needed?
-        // When touch area outside EditText and soft keyboard, then hide.
-//        layout.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Cocos2dxEditBox.this.hide();
-//                return true;
-//            }
-//
-//        });
+        this.addEditText(myLayout);
+        this.addButton(myLayout);
     }
 
     private void addEditText(RelativeLayout layout) {
         mEditText = new Cocos2dxEditText(this);
         mEditText.setVisibility(View.INVISIBLE);
-        mEditText.setBackgroundColor(Color.WHITE);
-        mEditText.setId(mEditTextID);
+        mEditText.setBackground(getRoundRectShape(18, Color.WHITE, Color.WHITE));
+
         RelativeLayout.LayoutParams editParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        editParams.addRule(RelativeLayout.CENTER_VERTICAL);
         editParams.addRule(RelativeLayout.LEFT_OF, mButtonLayoutID);
+        editParams.setMargins(20, 15, 20, 15);
         layout.addView(mEditText, editParams);
     }
 
     private void addButton(RelativeLayout layout) {
         mButton = new Button(this);
-        mButtonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mButton.setTextColor(Color.WHITE);
-        mButton.setBackground(getRoundRectShape());
-        mButtonLayout = new RelativeLayout(GlobalObject.getActivity());
-        mButtonLayout.setBackgroundColor(Color.WHITE);
-        RelativeLayout.LayoutParams buttonLayoutParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        buttonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        buttonLayoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mEditTextID);
-        buttonLayoutParams.addRule(RelativeLayout.ALIGN_TOP, mEditTextID);
-        mButtonLayout.addView(mButton, mButtonParams);
-        mButtonLayout.setId(mButtonLayoutID);
-        layout.addView(mButtonLayout, buttonLayoutParams);
+        mButton.setBackground(getRoundRectShape(18, DARK_GREEN, DARK_GREEN_PRESS));
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        layoutParams.rightMargin = 15;
+        layout.addView(mButton, layoutParams);
+        mButton.setId(mButtonLayoutID);
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -372,18 +360,17 @@ public class CocosEditBoxActivity extends Activity {
         });
     }
 
-    private Drawable getRoundRectShape() {
-        int radius = 7;
+    private Drawable getRoundRectShape(int radius, int normalColor, int pressColor) {
         float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
         RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
         ShapeDrawable shapeDrawableNormal = new ShapeDrawable();
         shapeDrawableNormal.setShape(roundRectShape);
         shapeDrawableNormal.getPaint().setStyle(Paint.Style.FILL);
-        shapeDrawableNormal.getPaint().setColor(DARK_GREEN);
+        shapeDrawableNormal.getPaint().setColor(normalColor);
         ShapeDrawable shapeDrawablePress = new ShapeDrawable();
         shapeDrawablePress.setShape(roundRectShape);
         shapeDrawablePress.getPaint().setStyle(Paint.Style.FILL);
-        shapeDrawablePress.getPaint().setColor(DARK_GREEN_PRESS);
+        shapeDrawablePress.getPaint().setColor(pressColor);
         StateListDrawable drawable = new StateListDrawable();
         drawable.addState(new int[]{android.R.attr.state_pressed}, shapeDrawablePress);
         drawable.addState(new int[]{}, shapeDrawableNormal);
@@ -400,19 +387,11 @@ public class CocosEditBoxActivity extends Activity {
     public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
         mConfirmHold = confirmHold;
         mEditText.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
-        int editPaddingBottom = mEditText.getPaddingBottom();
-        int editPadding = mEditText.getPaddingTop();
-        mEditText.setPadding(editPadding, editPadding, editPadding, editPaddingBottom);
         mButton.setText(mButtonTitle);
         if (TextUtils.isEmpty(mButtonTitle)) {
-            mButton.setPadding(0, 0, 0, 0);
-            mButtonParams.setMargins(0, 0, 0, 0);
-            mButtonLayout.setVisibility(View.INVISIBLE);
+            mButton.setVisibility(View.INVISIBLE);
         } else {
-            int buttonTextPadding = mEditText.getPaddingBottom() / 2;
-            mButton.setPadding(editPadding, buttonTextPadding, editPadding, buttonTextPadding);
-            mButtonParams.setMargins(0, buttonTextPadding, 0, 0);
-            mButtonLayout.setVisibility(View.VISIBLE);
+            mButton.setVisibility(View.VISIBLE);
         }
 
         this.openKeyboard();
