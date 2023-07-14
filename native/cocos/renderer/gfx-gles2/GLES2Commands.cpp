@@ -579,7 +579,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
     if (gpuTexture->samples > SampleCount::X1) {
         if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE &&
             hasFlag(gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED)) {
-            gpuTexture->allocateMemory = false;
+            gpuTexture->memoryAllocated = false;
             return;
         }
     }
@@ -801,7 +801,7 @@ void cmdFuncGLES2DestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
-    if (!gpuTexture->allocateMemory || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
+    if (!gpuTexture->memoryAllocated || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
 
     if (gpuTexture->glSamples <= 1) {
         switch (gpuTexture->type) {

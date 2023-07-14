@@ -121,7 +121,7 @@ struct GLES2GPUTexture {
     SampleCount samples{SampleCount::X1};
     TextureFlags flags{TextureFlagBit::NONE};
     bool isPowerOf2{false};
-    bool allocateMemory{true}; // false if swapchain image or implicit ms render buffer.
+    bool memoryAllocated{true}; // false if swapchain image or implicit ms render buffer.
     GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};
