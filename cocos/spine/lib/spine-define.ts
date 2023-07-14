@@ -43,7 +43,7 @@ function overrideDefineArrayProp (prototype, getPropVector, name) {
 
 function overrideDefineArrayFunction (prototype, getPropVector, name) {
     Object.defineProperty(prototype, name, {
-        value: function() {
+        value () {
             const array: any[] = [];
             const vectors = getPropVector.call(this);
             const count = vectors.size();
@@ -53,7 +53,7 @@ function overrideDefineArrayFunction (prototype, getPropVector, name) {
             }
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return array;
-        }
+        },
     });
 }
 
