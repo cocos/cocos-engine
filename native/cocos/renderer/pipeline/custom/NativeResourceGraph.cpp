@@ -126,7 +126,7 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
 
     // usage
-    TextureUsage usage = TextureUsage::SAMPLED | TextureUsage::TRANSFER_SRC | TextureUsage::TRANSFER_DST;
+    TextureUsage usage = TextureUsage::NONE;
     if (any(desc.flags & ResourceFlags::COLOR_ATTACHMENT)) {
         usage |= TextureUsage::COLOR_ATTACHMENT;
     }
@@ -142,6 +142,15 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
     if (any(desc.flags & ResourceFlags::SHADING_RATE)) {
         usage |= TextureUsage::SHADING_RATE;
+    }
+    if (any(desc.flags & ResourceFlags::SAMPLED)) {
+        usage |= TextureUsage::SAMPLED;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_SRC)) {
+        usage |= TextureUsage::TRANSFER_SRC;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_DST)) {
+        usage |= TextureUsage::TRANSFER_DST;
     }
 
     return {

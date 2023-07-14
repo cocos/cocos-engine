@@ -1410,6 +1410,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.h
+                 cocos/renderer/pipeline/custom/NativeBuiltinUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeBuiltinUtils.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
@@ -1422,10 +1424,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePools.cpp
                  cocos/renderer/pipeline/custom/NativeProgramLibrary.cpp
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraphUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
                  cocos/renderer/pipeline/custom/NativeSceneCulling.cpp
+                 cocos/renderer/pipeline/custom/NativeSetter.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
                  cocos/renderer/pipeline/custom/NativeUtils.cpp
