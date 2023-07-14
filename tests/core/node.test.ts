@@ -284,4 +284,33 @@ describe(`Node`, () => {
         node.eulerAngles = new Vec3(1, 2, 3);
         expect(node.flagChangedVersion).toBe(val4);
     });
+
+    test.only('setSiblingIndex', () => {
+        // children is [child0, child1, child2]
+        let parent: Node = new Node();
+        let child0: Node = new Node();
+        let child1: Node = new Node();
+        let child2: Node = new Node();
+        parent.addChild(child0);
+        parent.addChild(child1);
+        parent.addChild(child2);
+
+        // children is [child1, child0, child2]
+        child0.setSiblingIndex(1);
+        expect(child0.siblingIndex == 1);
+        expect(child1.siblingIndex == 0);
+        expect(child2.siblingIndex == 2);
+
+        // children is [child1, child2, child0]
+        child0.setSiblingIndex(-1);
+        expect(child0.siblingIndex == 2);
+        expect(child1.siblingIndex == 0);
+        expect(child2.siblingIndex == 1);
+
+        // children is [child1, child2, child0]
+        child0.setSiblingIndex(5);
+        expect(child0.siblingIndex == 2);
+        expect(child1.siblingIndex == 0);
+        expect(child2.siblingIndex == 1);
+    });
 });
