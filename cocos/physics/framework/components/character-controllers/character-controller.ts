@@ -133,20 +133,19 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the contact offset of the character controller.
-     * Contact offset is the character's collision skin width.
+     * Gets or sets the skin width of the character controller.
      * @zh
-     * 获取或设置角色控制器的接触间隙。
+     * 获取或设置角色控制器的皮肤宽度。
      */
-    @tooltip('i18n:physics3d.character_controller.contactOffset')
+    @tooltip('i18n:physics3d.character_controller.skinWidth')
     @type(CCFloat)
-    public get contactOffset () {
-        return this._contactOffset;
+    public get skinWidth () {
+        return this._skinWidth;
     }
 
-    public set contactOffset (value) {
-        if (this._contactOffset === value) return;
-        this._contactOffset = Math.abs(value);
+    public set skinWidth (value) {
+        if (this._skinWidth === value) return;
+        this._skinWidth = Math.abs(value);
         if (this._cct) {
             this._cct.setContactOffset(value);
         }
@@ -239,7 +238,7 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _contactOffset = 0.01;
+    private _skinWidth = 0.01;
     // @serializable
     // private _detectCollisions = true;
     // @serializable

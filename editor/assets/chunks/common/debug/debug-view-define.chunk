@@ -52,10 +52,8 @@
 
 // Debug view UI and macros
 // #pragma define-meta CC_USE_DEBUG_VIEW range([0, 2])
-
-// use uniforms for fast toggling
-#define CC_SURFACES_DEBUG_VIEW_SINGLE 1
-#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC 2
+// #define CC_SURFACES_DEBUG_VIEW_SINGLE 1
+// #define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC 2
 
 #define IS_DEBUG_VIEW_ENABLE_WITH_CAMERA (cc_surfaceTransform.y != 3.0)
 bool equalf_mode(float data1, float data2) { return abs(float(data1) - float(data2)) < 0.001; }

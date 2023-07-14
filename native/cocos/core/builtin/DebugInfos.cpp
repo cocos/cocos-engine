@@ -360,6 +360,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 7508, "The atlas asset of '%s' is not exists!" },
 { 7509, "Spine: Animation not found: %s" },
 { 7510, "Spine: Animation not found: %s" },
+{ 7511, "Spine: Invalid input!" },
 { 7600, "The context of RenderTexture is invalid." },
 { 7601, "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;" },
 { 7602, "Could not attach texture to the framebuffer" },

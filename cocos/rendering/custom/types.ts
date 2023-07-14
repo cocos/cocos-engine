@@ -113,21 +113,24 @@ export function getResourceResidencyName (e: ResourceResidency): string {
 
 export enum QueueHint {
     NONE,
-    RENDER_OPAQUE,
-    RENDER_CUTOUT,
-    RENDER_TRANSPARENT,
+    OPAQUE,
+    MASK,
+    BLEND,
+    RENDER_OPAQUE = OPAQUE,
+    RENDER_CUTOUT = MASK,
+    RENDER_TRANSPARENT = BLEND,
 }
 
 export function getQueueHintName (e: QueueHint): string {
     switch (e) {
     case QueueHint.NONE:
         return 'NONE';
-    case QueueHint.RENDER_OPAQUE:
-        return 'RENDER_OPAQUE';
-    case QueueHint.RENDER_CUTOUT:
-        return 'RENDER_CUTOUT';
-    case QueueHint.RENDER_TRANSPARENT:
-        return 'RENDER_TRANSPARENT';
+    case QueueHint.OPAQUE:
+        return 'OPAQUE';
+    case QueueHint.MASK:
+        return 'MASK';
+    case QueueHint.BLEND:
+        return 'BLEND';
     default:
         return '';
     }

@@ -278,7 +278,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                     // to remove in the future
                     if (sys.platform === sys.Platform.ALIPAY_MINI_GAME && sys.os === sys.OS.ANDROID) {
                         const resPath = `${unzipPath}res/`;
-                        if (fs.accessSync({ path: resPath })) {
+                        if (fs.accessSync({ path: resPath }).success) {
                             data.base = resPath;
                         }
                     }

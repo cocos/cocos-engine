@@ -18,7 +18,7 @@ import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
-import { CameraComponent } from '../../misc';
+import { Camera as CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
@@ -31,14 +31,17 @@ export class PostProcessBuilder implements PipelineBuilder  {
     init () {
         const forward = new ForwardPass();
         const forwardFinal = new ForwardFinalPass();
+        const shadowPass = new ShadowPass();
 
         // default pipeline
+        this.addPass(shadowPass, 'default');
+
         this.addPass(forward, 'default');
         this.addPass(new ForwardTransparencySimplePass(), 'default');
         this.addPass(forwardFinal, 'default');
 
         // rendering dependent data generation
-        this.addPass(new ShadowPass());
+        this.addPass(shadowPass);
 
         // forward pipeline
         this.addPass(forward);

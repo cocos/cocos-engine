@@ -500,13 +500,30 @@ class SubmitInfo {
     public shadowMap: Map<number, RenderShadowMapBatchedQueue> = new Map<number, RenderShadowMapBatchedQueue>();
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
-    reset () {
+
+    private _clearInstances () {
+        const it = this.instances.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
         this.instances.clear();
+    }
+
+    private _clearShadowMap () {
+        for (const shadowMap of this.shadowMap) {
+            shadowMap[1].clear();
+        }
+        this.shadowMap.clear();
+    }
+
+    reset () {
+        this._clearInstances();
         this.renderInstanceQueue.length = 0;
         this.opaqueList.length = 0;
         this.transparentList.length = 0;
         this.planarQueue = null;
-        this.shadowMap.clear();
+        this._clearShadowMap();
         this.additiveLight = null;
         this.reflectionProbe = null;
     }
@@ -673,6 +690,11 @@ class DeviceRenderPass {
                 const resFbo = resGraph._vertices[resId]._object;
                 if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
                     resTex.framebuffer = resFbo;
+                } else if (resTex.texture) {
+                    const desc = resGraph.getDesc(resId);
+                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                        resTex.texture.resize(desc.width, desc.height);
+                    }
                 }
             }
             if (!swapchain) swapchain = resTex.swapchain;

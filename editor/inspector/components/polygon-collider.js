@@ -1,8 +1,9 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 exports.ready = function() {
     this.elements = {

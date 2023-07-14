@@ -216,7 +216,6 @@ exports.listeners = {
         const undoID = await beginRecording(panel.uuidList);
         const dump = event.target.dump;
         try {
-            // Editor.Message.send('scene', 'snapshot');
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
                 if (i > 0) {
@@ -637,9 +636,21 @@ const Elements = {
                     return;
                 }
 
-                // Editor.Message.send('scene', 'snapshot');
-
                 const role = button.getAttribute('role');
+
+                const recordings = [];
+                for (const dump of panel.dumps) {
+                    const prefab = dump.__prefab__;
+                    switch (role) {
+                        case 'reset': {
+                            recordings.push(prefab.rootUuid);
+                        }
+                    }
+                }
+                let undoID;
+                if (recordings.length) {
+                    undoID = await beginRecording(recordings);
+                }
 
                 for (const dump of panel.dumps) {
                     const prefab = dump.__prefab__;
@@ -654,9 +665,7 @@ const Elements = {
                             break;
                         }
                         case 'unlink': {
-                            const undoID = await beginRecording(prefab.rootUuid);
                             await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
-                            await endRecording(undoID);
                             break;
                         }
                         case 'local': {
@@ -664,9 +673,7 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
-                            const undoID = await beginRecording(prefab.rootUuid);
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
-                            await endRecording(undoID);
                             break;
                         }
                         case 'save': {
@@ -675,6 +682,10 @@ const Elements = {
                             break;
                         }
                     }
+                }
+
+                if (recordings.length && undoID) {
+                    await endRecording(undoID);
                 }
             });
         },
@@ -691,7 +702,16 @@ const Elements = {
             const prefab = panel.dump.__prefab__;
             const prefabStateInfo = prefab.prefabStateInfo;
 
-            if (prefabStateInfo.assetUuid) {
+            const canUnlink = panel.dumps.some(dump => {
+                if (dump.__prefab__ && dump.__prefab__.prefabStateInfo) {
+                    const state = dump.__prefab__.prefabStateInfo.state;
+                    if (state === 2 || state === 3) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            if (canUnlink) {
                 panel.$.prefabUnlink.removeAttribute('disabled');
             } else {
                 panel.$.prefabUnlink.setAttribute('disabled', '');

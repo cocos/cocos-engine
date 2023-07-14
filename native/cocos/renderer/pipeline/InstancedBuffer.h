@@ -72,6 +72,7 @@ public:
 
     inline const InstancedItemList &getInstances() const { return _instances; }
     inline const scene::Pass *getPass() const { return _pass; }
+    inline void setPass(const scene::Pass *pass) noexcept { _pass = pass; }
     inline bool hasPendingModels() const { return _hasPendingModels; }
     inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 

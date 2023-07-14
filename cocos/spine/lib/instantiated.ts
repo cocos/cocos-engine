@@ -22,18 +22,12 @@
  THE SOFTWARE.
 */
 
-import { instantiateWasm, fetchBuffer } from 'pal/wasm';
-import { systemInfo } from 'pal/system-info';
-import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, WASM_FALLBACK, HTML5 } from 'internal:constants';
-import asmFactory from 'external:emscripten/spine/spine.asm.js';
-import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
-import wasmFactory from 'external:emscripten/spine/spine.wasm.js';
-import spineWasmUrl from 'external:emscripten/spine/spine.wasm';
+import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
+import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
 import { game } from '../../game';
 import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
-import { BrowserType } from '../../../pal/system-info/enum-type';
 
 const PAGESIZE = 65536; // 64KiB
 
@@ -46,40 +40,11 @@ const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 32 MiB
 
 let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmUrl): Promise<void> {
+function initWasm (wasmFactory, wasmUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[Spine]: Spine wasm load failed: ${err}`;
-        if (WASM_FALLBACK) {
-            if (HTML5 && systemInfo.isMobile && systemInfo.browserType === BrowserType.SAFARI) {
-                const safariVersion = /Version\/([\d.]+)/.exec(window.navigator.userAgent)?.[1];
-                if (safariVersion && Number.parseInt(safariVersion.split('.')[0]) < 15) {
-                    // NOTE: we need to fallback to the wasm which is compiled by lower version of emscripten.
-                    Promise.all([
-                        import('external:emscripten/spine/spine.wasm.fallback'),
-                        import('external:emscripten/spine/spine.wasm.fallback.js')]).then(([
-                        { default: wasmFallbackUrl },
-                        { default: wasmFallbackFactory },
-                    ]) => {
-                        wasmFallbackFactory({
-                            instantiateWasm (importObject: WebAssembly.Imports,
-                                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
-                                // NOTE: the Promise return by instantiateWasm hook can't be caught.
-                                instantiateWasm(wasmFallbackUrl, importObject).then((result: any) => {
-                                    receiveInstance(result.instance, result.module);
-                                }).catch((err) => reject(errorMessage(err)));
-                            },
-                        }).then((Instance: any) => {
-                            wasmInstance = Instance;
-                            registerList.forEach((cb) => {
-                                cb(wasmInstance);
-                            });
-                        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
-                    }).catch(reject);
-                    return;
-                }
-            }
-        }
         wasmFactory({
             instantiateWasm (importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
@@ -97,7 +62,7 @@ function initWasm (wasmUrl): Promise<void> {
     });
 }
 
-function initAsm (): Promise<void> {
+function initAsmJS (asmFactory, asmJsMemUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (CULL_ASM_JS_MODULE) {
             reject(getError(4601));
@@ -124,20 +89,37 @@ function initAsm (): Promise<void> {
     });
 }
 
-export function waitForSpineWasmInstantiation (): Promise<void> {
-    const errorReport = (msg: any) => { error(msg); };
+function shouldUseWasmModule (): boolean {
     if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            return initWasm(spineWasmUrl).catch(errorReport);
-        } else {
-            return initAsm().catch(errorReport);
-        }
+        return sys.hasFeature(sys.Feature.WASM);
     } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-        return initWasm(spineWasmUrl).catch(errorReport);
+        return true;
     } else {
-        return initAsm().catch(errorReport);
+        return false;
     }
 }
+
+export function waitForSpineWasmInstantiation (): Promise<void> {
+    const errorReport = (msg: any) => { error(msg); };
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/spine/spine.asm.js'),
+        import('external:emscripten/spine/spine.js.mem'),
+        import('external:emscripten/spine/spine.wasm.js'),
+        import('external:emscripten/spine/spine.wasm'),
+    ]).then(([
+        { default: asmFactory },
+        { default: asmJsMemUrl },
+        { default: wasmFactory },
+        { default: spineWasmUrl },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initWasm(wasmFactory, spineWasmUrl);
+        } else {
+            return initAsmJS(asmFactory, asmJsMemUrl);
+        }
+    })).catch(errorReport);
+}
+
 if (!JSB) {
     game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation);
     registerList.push(overrideSpineDefine);
