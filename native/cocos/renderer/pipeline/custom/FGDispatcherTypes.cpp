@@ -109,7 +109,7 @@ RelationGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
-  graph(graphIn),
+  renderGraph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
   relationGraph(alloc) {}

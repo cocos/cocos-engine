@@ -101,9 +101,9 @@ struct LayoutAccess {
 };
 
 struct AttachmentInfo {
-    uint32_t index{0};
-    uint32_t resourceIndex{0};
-    uint32_t isResolveView{0};
+    ccstd::pmr::string parentName;
+    uint32_t attachmentIndex{0};
+    uint8_t isResolveView{0};
 };
 
 struct FGRenderPassInfo {
@@ -111,9 +111,9 @@ struct FGRenderPassInfo {
     LayoutAccess dsAccess;
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
-    std::vector<std::string> orderedViews;
-    ccstd::map<std::string, AttachmentInfo> viewIndex;
-    ccstd::set<std::string> rootResources;
+    ccstd::vector<ccstd::pmr::string> orderedViews;
+    ccstd::map<ccstd::pmr::string, AttachmentInfo> viewIndex;
+    ccstd::pmr::unordered_map<ccstd::pmr::string, uint32_t> rootResources;
     uint32_t resolveCount{false};
 };
 
@@ -217,7 +217,7 @@ struct ResourceAccessGraph {
     using edges_size_type = uint32_t;
 
                     LayoutAccess getAccess(ccstd::pmr::string, RenderGraph::vertex_descriptor vertID);
-                
+
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -388,6 +388,14 @@ struct RelationGraph {
     PmrUnorderedMap<ResourceAccessGraph::vertex_descriptor, vertex_descriptor> vertexMap;
 };
 
+struct RenderingInfo {
+    gfx::RenderPassInfo renderpassInfo;
+    gfx::FramebufferInfo framebufferInfo;
+    ccstd::pmr::vector<gfx::Color> clearColors;
+    float clearDepth{0};
+    uint8_t clearStencil{0};
+};
+
 struct FrameGraphDispatcher {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -405,7 +413,7 @@ struct FrameGraphDispatcher {
 
     // how much paralell-execution weights during pass reorder,
     // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
-    // 0 by default 
+    // 0 by default
     void setParalellWeight(float paralellExecWeight);
 
     void enableMemoryAliasing(bool enable);
@@ -417,12 +425,14 @@ struct FrameGraphDispatcher {
     const ResourceAccessNode& getAccessNode(RenderGraph::vertex_descriptor u) const;
 
     const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
+    
+    RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
 
-    const ccstd::vector<std::string>& getOrderedViews(RenderGraph::vertex_descriptor u) const;
+
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
-    const RenderGraph& graph;
+    const RenderGraph& renderGraph;
     const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     RelationGraph relationGraph;
