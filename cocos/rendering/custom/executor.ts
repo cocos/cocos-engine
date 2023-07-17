@@ -51,6 +51,7 @@ import {
     Framebuffer,
     FramebufferInfo,
     GeneralBarrierInfo,
+    InputAssembler,
     InputAssemblerInfo,
     LoadOp,
     MemoryUsageBit,
@@ -58,6 +59,7 @@ import {
     Rect,
     RenderPass,
     RenderPassInfo,
+    Shader,
     StoreOp,
     SurfaceTransform,
     Swapchain,
@@ -482,7 +484,7 @@ class DeviceRenderQueue {
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
     get viewport (): Viewport | null { return this._viewport; }
     get scissor (): Rect | null { return this._scissor; }
-    private _sceneVisitor;
+    private _sceneVisitor!: WebSceneVisitor;
     private _blitDesc: BlitDesc | null = null;
     private _queueId = -1;
     set queueId (val) { this._queueId = val; }
@@ -505,8 +507,10 @@ class DeviceRenderQueue {
         this._devicePass = devicePass;
         if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, context.renderGraph.getLayout(id) || 'default');
         if (!this._sceneVisitor) {
-            this._sceneVisitor = new WebSceneVisitor(context.commandBuffer,
-                context.pipeline.pipelineSceneData);
+            this._sceneVisitor = new WebSceneVisitor(
+                context.commandBuffer,
+                context.pipeline.pipelineSceneData,
+            );
         }
     }
     createBlitDesc (blit: Blit): void {
@@ -612,7 +616,7 @@ class RenderPassLayoutInfo {
     protected _layout: PipelineLayoutData;
     protected _inputName: string;
     protected _descriptorSet: DescriptorSet | null = null;
-    constructor (layoutId, input: [string, ComputeView[]]) {
+    constructor (layoutId: number, input: [string, ComputeView[]]) {
         this._inputName = input[0];
         this._layoutID = layoutId;
         const lg = context.layoutGraph;
@@ -831,9 +835,11 @@ class DeviceRenderPass {
         //     ));
         // }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass,
+        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
+            this._renderPass,
             swapchain ? [swapchain.colorTexture] : colorTexs,
-            swapchain ? swapchain.depthStencilTexture : depthTex));
+            swapchain ? swapchain.depthStencilTexture : depthTex,
+        ));
     }
     get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
@@ -898,8 +904,13 @@ class DeviceRenderPass {
         const pass = submodel.passes[0];
         const ia = submodel.inputAssembler;
         const device = context.device;
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, pass,
-            submodel.shaders[0], renderPass, ia);
+        const pso = PipelineStateManager.getOrCreatePipelineState(
+            device,
+            pass,
+            submodel.shaders[0],
+            renderPass,
+            ia,
+        );
         const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
         mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet, true);
         profilerViewport.width = rect.width;
@@ -928,10 +939,18 @@ class DeviceRenderPass {
             renderPassArea.width = tex.width;
             renderPassArea.height = tex.height;
         }
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderPassArea,
-            this.clearColor, this.clearDepth, this.clearStencil);
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
-            context.pipeline.descriptorSet);
+        cmdBuff.beginRenderPass(
+            this.renderPass,
+            this.framebuffer,
+            renderPassArea,
+            this.clearColor,
+            this.clearDepth,
+            this.clearStencil,
+        );
+        cmdBuff.bindDescriptorSet(
+            SetIndex.GLOBAL,
+            context.pipeline.descriptorSet,
+        );
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -1091,7 +1110,7 @@ class GraphScene {
         }
         this.blit = null;
     }
-    init (scene, blit, sceneID): void {
+    init (scene: SceneData | null, blit: Blit | null, sceneID): void {
         this._copyScene(scene);
         this._copyBlit(blit);
         this.sceneID = sceneID;
@@ -1104,8 +1123,12 @@ class DevicePreSceneTask extends WebSceneTask {
     protected _graphScene: GraphScene;
     private _cmdBuff: CommandBuffer;
     constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
-        super(context.pipelineSceneData, context.ubo,
-            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
+        super(
+            context.pipelineSceneData,
+            context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null,
+            visitor,
+        );
         this._currentQueue = queue;
         this._graphScene = graphScene;
         this._renderPass = queue.devicePass.renderPass;
@@ -1173,6 +1196,7 @@ class DevicePreSceneTask extends WebSceneTask {
                 const probes = cclegacy.internal.reflectionProbeManager.getProbes();
                 for (let i = 0; i < probes.length; i++) {
                     if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera, this._cmdBuff);
                         break;
                     }
@@ -1239,7 +1263,7 @@ class DevicePreSceneTask extends WebSceneTask {
 
     protected _insertRenderList (ro: RenderObject, subModelIdx: number, passIdx: number, isTransparent = false): void {
         const subModel = ro.model.subModels[subModelIdx];
-        const pass = subModel.passes[passIdx];
+        const pass: Pass = subModel.passes[passIdx];
         const shader = subModel.shaders[passIdx];
         const currTransparent = pass.blendState.targets[0].blend;
         const devicePass = this._currentQueue.devicePass;
@@ -1249,7 +1273,7 @@ class DevicePreSceneTask extends WebSceneTask {
         if (currTransparent !== isTransparent || !(pass.phaseID & (isTransparent ? phase : this._currentQueue.phaseID))) {
             return;
         }
-        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | pass.priority as number << 16 | subModel.priority as number << 8 | passIdx;
         const rp = context.pools.addPassInfo();
         rp.priority = ro.model.priority;
         rp.hash = hash;
@@ -1310,8 +1334,12 @@ class DeviceSceneTask extends WebSceneTask {
     protected _renderPass: RenderPass;
     protected _graphScene: GraphScene;
     constructor (queue: DeviceRenderQueue, graphScene: GraphScene, visitor: SceneVisitor) {
-        super(context.pipelineSceneData, context.ubo,
-            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
+        super(
+            context.pipelineSceneData,
+            context.ubo,
+            graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null,
+            visitor,
+        );
         this._currentQueue = queue;
         this._renderPass = this._currentQueue.devicePass.renderPass;
         this._graphScene = graphScene;
@@ -1335,14 +1363,20 @@ class DeviceSceneTask extends WebSceneTask {
             : currSubmitInfo.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
-            const { inputAssembler } = subModel;
-            const pass = subModel.passes[passIdx];
-            const shader = subModel.shaders[passIdx];
-            const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice,
-                pass, shader, this._renderPass, inputAssembler);
+            const inputAssembler: InputAssembler = subModel.inputAssembler;
+            const pass: Pass = subModel.passes[passIdx];
+            const shader: Shader = subModel.shaders[passIdx];
+            const descriptorSet: DescriptorSet = subModel.descriptorSet;
+            const pso = PipelineStateManager.getOrCreatePipelineState(
+                deviceManager.gfxDevice,
+                pass,
+                shader,
+                this._renderPass,
+                inputAssembler,
+            );
             this.visitor.bindPipelineState(pso);
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-            this.visitor.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
+            this.visitor.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
             this.visitor.bindInputAssembler(inputAssembler);
             this.visitor.draw(inputAssembler);
         }
@@ -1366,13 +1400,18 @@ class DeviceSceneTask extends WebSceneTask {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = instance.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass,
-                        shader, this._renderPass, instance.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(
+                        deviceManager.gfxDevice,
+                        pass,
+                        shader,
+                        this._renderPass,
+                        instance.ia,
+                    );
                     if (lastPSO !== pso) {
                         this.visitor.bindPipelineState(pso);
                         lastPSO = pso;
                     }
-                    const ia: any = instance.ia;
+                    const ia: InputAssembler = instance.ia;
                     this.visitor.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
                     this.visitor.bindInputAssembler(ia);
                     this.visitor.draw(ia);
@@ -1397,7 +1436,7 @@ class DeviceSceneTask extends WebSceneTask {
                 const pass = batch.passes[j];
                 if (((isEnableEffect()) ? pass.phaseID : pass.phase) !== this._currentQueue.phaseID) continue;
                 const shader = batch.shaders[j];
-                const inputAssembler: any = batch.inputAssembler!;
+                const inputAssembler: InputAssembler = batch.inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader, this._renderPass, inputAssembler);
                 this.visitor.bindPipelineState(pso);
                 this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
@@ -1414,14 +1453,22 @@ class DeviceSceneTask extends WebSceneTask {
     protected _recordShadowMap (): void {
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.shadowMap.get(this.graphScene.sceneID)!.recordCommandBuffer(context.device,
-            this._renderPass, context.commandBuffer);
+        currSubmitInfo.shadowMap.get(this.graphScene.sceneID)!.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+
+            context.commandBuffer,
+        );
     }
     protected _recordReflectionProbe (): void {
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.reflectionProbe?.recordCommandBuffer(context.device,
-            this._renderPass, context.commandBuffer);
+        currSubmitInfo.reflectionProbe?.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+
+            context.commandBuffer,
+        );
     }
 
     private _clearExtBlitDesc (desc, extResId: number[]): void {
@@ -1448,12 +1495,17 @@ class DeviceSceneTask extends WebSceneTask {
         pass.update();
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
-        const screenIa: any = this._currentQueue.blitDesc!.screenQuad!.quadIA;
+        const screenIa: InputAssembler = this._currentQueue.blitDesc!.screenQuad!.quadIA!;
         const globalDesc = context.pipeline.descriptorSet;
-        let pso;
+        let pso: PipelineState | null = null;
         if (pass !== null && shader !== null && screenIa !== null) {
-            pso = PipelineStateManager.getOrCreatePipelineState(context.device, pass, shader,
-                devicePass.renderPass, screenIa);
+            pso = PipelineStateManager.getOrCreatePipelineState(
+                context.device,
+                pass,
+                shader,
+                devicePass.renderPass,
+                screenIa,
+            );
         }
         if (pso) {
             this.visitor.bindPipelineState(pso);
@@ -1474,18 +1526,22 @@ class DeviceSceneTask extends WebSceneTask {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.additiveLight?.recordCommandBuffer(context.device,
+        currSubmitInfo.additiveLight?.recordCommandBuffer(
+            context.device,
             this._renderPass,
-            context.commandBuffer);
+            context.commandBuffer,
+        );
     }
 
     private _recordPlanarShadows (): void {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.planarQueue?.recordCommandBuffer(context.device,
+        currSubmitInfo.planarQueue?.recordCommandBuffer(
+            context.device,
             this._renderPass,
-            context.commandBuffer);
+            context.commandBuffer,
+        );
     }
     protected _updateGlobal (data: RenderData): void {
         const devicePass = this._currentQueue.devicePass;
@@ -1572,8 +1628,10 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
-        this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
-            context.pipeline.descriptorSet);
+        this.visitor.bindDescriptorSet(
+            SetIndex.GLOBAL,
+            context.pipeline.descriptorSet,
+        );
         if (graphSceneData.flags & SceneFlags.PLANAR_SHADOW) {
             this._recordPlanarShadows();
         }
@@ -1581,8 +1639,12 @@ class DeviceSceneTask extends WebSceneTask {
             this._recordTransparentList();
         }
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
-            this.camera!.geometryRenderer?.render(devicePass.renderPass,
-                context.commandBuffer, context.pipeline.pipelineSceneData);
+            this.camera!.geometryRenderer?.render(
+                devicePass.renderPass,
+                context.commandBuffer,
+
+                context.pipeline.pipelineSceneData,
+            );
         }
         if (graphSceneData.flags & SceneFlags.UI) {
             this._recordUI();
@@ -1769,7 +1831,7 @@ class BlitInfo {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
         const device = cclegacy.director.root.device;
-        const quadVB = device.createBuffer(new BufferInfo(
+        const quadVB: Buffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
             vbSize,
@@ -1784,7 +1846,7 @@ class BlitInfo {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        const quadIB = device.createBuffer(new BufferInfo(
+        const quadIB: Buffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
             ibSize,
@@ -1821,14 +1883,16 @@ class BlitInfo {
 }
 
 class ExecutorContext {
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData,
         width: number,
-        height: number) {
+        height: number,
+    ) {
         this.pipeline = pipeline;
         this.device = device;
         this.commandBuffer = device.commandBuffer;
@@ -1881,12 +1945,15 @@ class ExecutorContext {
 }
 
 export class Executor {
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         layoutGraph: LayoutGraphData,
-        width: number, height: number) {
+        width: number,
+        height: number,
+    ) {
         context = this._context = new ExecutorContext(
             pipeline,
             ubo,
