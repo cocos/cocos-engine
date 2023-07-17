@@ -285,7 +285,7 @@ describe(`Node`, () => {
         expect(node.flagChangedVersion).toBe(val4);
     });
 
-    test.only('setSiblingIndex', () => {
+    test('setSiblingIndex', () => {
         // children is [child0, child1, child2]
         let parent: Node = new Node();
         let child0: Node = new Node();
@@ -297,20 +297,20 @@ describe(`Node`, () => {
 
         // children is [child1, child0, child2]
         child0.setSiblingIndex(1);
-        expect(child0.siblingIndex == 1);
-        expect(child1.siblingIndex == 0);
-        expect(child2.siblingIndex == 2);
+        expect(child0.siblingIndex).toEqual(1);
+        expect(child1.siblingIndex).toEqual(0);
+        expect(child2.siblingIndex).toEqual(2);
 
         // children is [child1, child2, child0]
         child0.setSiblingIndex(-1);
-        expect(child0.siblingIndex == 2);
-        expect(child1.siblingIndex == 0);
-        expect(child2.siblingIndex == 1);
+        expect(child0.siblingIndex).toEqual(2);
+        expect(child1.siblingIndex).toEqual(0);
+        expect(child2.siblingIndex).toEqual(1);
 
         // children is [child1, child2, child0]
         child0.setSiblingIndex(5);
-        expect(child0.siblingIndex == 2);
-        expect(child1.siblingIndex == 0);
-        expect(child2.siblingIndex == 1);
+        expect(child0.siblingIndex).toEqual(2);
+        expect(child1.siblingIndex).toEqual(0);
+        expect(child2.siblingIndex).toEqual(1);
     });
 });

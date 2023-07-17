@@ -623,22 +623,24 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3821);
             return;
         }
+
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
-        const oldIndex = siblings.indexOf(this);
-        if (index !== oldIndex) {
-            siblings.splice(oldIndex, 1);
-            if (index < siblings.length) {
-                siblings.splice(index, 0, this);
-            } else {
-                siblings.push(this);
-            }
-            this._parent._updateSiblingIndex();
-            if (this._onSiblingIndexChanged) {
-                this._onSiblingIndexChanged(index);
-            }
-            this._eventProcessor.onUpdatingSiblingIndex();
+        if (index === -1 || index >= siblings.length) {
+            index = siblings.length - 1;
         }
+
+        if (index === this._siblingIndex) {
+            return;
+        }
+
+        siblings.splice(this._siblingIndex, 1);
+        siblings.splice(index, 0, this);
+        this._parent._updateSiblingIndex();
+
+        if (this._onSiblingIndexChanged) {
+            this._onSiblingIndexChanged(index);
+        }
+        this._eventProcessor.onUpdatingSiblingIndex();
     }
 
     /**
