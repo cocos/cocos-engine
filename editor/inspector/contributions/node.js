@@ -676,6 +676,11 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
+                            // restore-prefab 内置undo;
+                            if (undoID) {
+                                await endRecording(undoID, true);
+                                undoID = undefined;
+                            }
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
                             break;
                         }
@@ -1398,7 +1403,7 @@ const Elements = {
             const panel = this;
 
             const sectionMissing = panel.$.sectionMissing;
-            sectionMissing.addEventListener('click', (event) => {
+            sectionMissing.addEventListener('click', async (event) => {
                 if (event.target.tagName !== 'UI-ICON') {
                     return;
                 }
@@ -1416,6 +1421,10 @@ const Elements = {
                 }
 
                 const uuidList = panel.uuidList;
+                let undoId;
+                if (uuidList.length > 0) {
+                    undoId = await beginRecording(uuidList[0]);
+                }
                 switch (type) {
                     case 'save-o': {
                         Editor.Message.request('scene', 'apply-removed-component', uuidList[0], info.fileID);
@@ -1425,6 +1434,9 @@ const Elements = {
                         Editor.Message.request('scene', 'revert-removed-component', uuidList[0], info.fileID);
                         break;
                     }
+                }
+                if (undoId) {
+                    await endRecording(undoId);
                 }
             });
         },
