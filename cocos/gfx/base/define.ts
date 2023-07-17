@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint-disable no-empty-function */
 
 import { Queue } from './queue';
 import { Buffer } from './buffer';
@@ -2254,8 +2255,11 @@ export function FormatSize (format: Format, width: number, height: number, depth
   * @param mips The target mip levels.
   */
 export function FormatSurfaceSize (
-    format: Format, width: number, height: number,
-    depth: number, mips: number,
+    format: Format,
+    width: number,
+    height: number,
+    depth: number,
+    mips: number,
 ): number {
     let size = 0;
 

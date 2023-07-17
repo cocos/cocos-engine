@@ -184,7 +184,7 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
-    protected _shader: Shader | null = null
+    protected _shader: Shader | null = null;
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
@@ -491,7 +491,10 @@ export class Pass {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const programLib = cclegacy.rendering.programLib as ProgramLibrary;
             const program = programLib.getProgramVariant(
-                this._device, this._phaseID, this._programName, this._defines,
+                this._device,
+                this._phaseID,
+                this._programName,
+                this._defines,
             );
             if (!program) {
                 warnID(12103, this._programName);
@@ -692,8 +695,11 @@ export class Pass {
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
-                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocks[binding] = new Float32Array(
+                this._rootBlock!,
+                _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT,
+            );
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
@@ -737,8 +743,11 @@ export class Pass {
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
-                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocks[binding] = new Float32Array(
+                this._rootBlock!,
+                _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT,
+            );
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }

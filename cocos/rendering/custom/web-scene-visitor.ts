@@ -51,7 +51,7 @@ export class WebSceneVisitor implements SceneVisitor {
     public bindInputAssembler (ia: InputAssembler): void {
         this._commandBuffer.bindInputAssembler(ia);
     }
-    public draw (info: DrawInfo): void {
+    public draw (info: DrawInfo | InputAssembler): void {
         this._commandBuffer.draw(info);
     }
     public updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void {

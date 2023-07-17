@@ -172,8 +172,6 @@ export class Subpass {
 //=================================================================
 // Graph Concept
 export class SubpassGraphVertex {
-    constructor () {
-    }
     readonly _outEdges: OutE[] = [];
     readonly _inEdges: OutE[] = [];
 }
