@@ -92,7 +92,7 @@ struct ResourceAccessNode {
     ResourceAccessNode& operator=(ResourceAccessNode&& rhs) = default;
     ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
 
-    PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
+    ccstd::pmr::unordered_map<ccstd::pmr::string, AccessStatus> resourceStatus;
 };
 
 struct LayoutAccess {
@@ -103,7 +103,8 @@ struct LayoutAccess {
 struct AttachmentInfo {
     ccstd::pmr::string parentName;
     uint32_t attachmentIndex{0};
-    uint8_t isResolveView{0};
+    uint32_t aspect{0};
+    bool isResolveView{0};
 };
 
 struct FGRenderPassInfo {
@@ -114,7 +115,8 @@ struct FGRenderPassInfo {
     ccstd::vector<ccstd::pmr::string> orderedViews;
     ccstd::map<ccstd::pmr::string, AttachmentInfo> viewIndex;
     ccstd::pmr::unordered_map<ccstd::pmr::string, uint32_t> rootResources;
-    uint32_t resolveCount{false};
+    uint32_t resolveCount{0};
+    uint32_t dsViewCount{0};
 };
 
 struct Barrier {
@@ -265,7 +267,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
-    PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
+    PmrTransparentMap<ccstd::pmr::string, PmrTransparentMap<uint32_t, AccessStatus>> resourceAccess;
     PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedTargetStatus;

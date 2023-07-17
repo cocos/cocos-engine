@@ -44,6 +44,7 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
     _gpuRenderPass->depthStencilResolveAttachment = _depthStencilResolveAttachment;
     _gpuRenderPass->subpasses = _subpasses;
     _gpuRenderPass->dependencies = _dependencies;
+    _gpuRenderPass->aspects = _aspects;
 
     // assign a dummy subpass if not specified
     uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());

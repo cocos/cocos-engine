@@ -48,6 +48,7 @@ ccstd::hash_t RenderPass::computeHash() {
     ccstd::hash_combine(seed, _depthStencilResolveAttachment);
 
     ccstd::hash_combine(seed, _subpasses);
+    ccstd::hash_combine(seed, _aspects);
     return seed;
 }
 
@@ -61,6 +62,7 @@ void RenderPass::initialize(const RenderPassInfo &info) {
     _depthStencilResolveAttachment = info.depthStencilResolveAttachment;
     _subpasses = info.subpasses;
     _dependencies = info.dependencies;
+    _aspects = info.aspects;
     _hash = computeHash();
 
     doInit(info);
@@ -71,6 +73,7 @@ void RenderPass::destroy() {
 
     _colorAttachments.clear();
     _subpasses.clear();
+    _aspects.clear();
     _hash = 0U;
 }
 

@@ -1339,6 +1339,8 @@ struct RenderPassInfo {
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
+    IndexList aspects;
+
     EXPOSE_COPY_FN(RenderPassInfo)
 };
 

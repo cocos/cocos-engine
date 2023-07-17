@@ -174,6 +174,9 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
 
+    data.clearColors = std::move(clearColors);
+    data.clearDepth = clearDepth;
+    data.clearStencil = clearStencil;
     data.renderPass = ctx.device->createRenderPass(rpInfo);
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
@@ -1032,44 +1035,36 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 return;
             }
 
-            // attachment name binding order
+            auto defaultAttachment = [](const ccstd::pmr::string& name) {
+                return name == "_" || name.empty();
+            };
+
+            // attachment slot name binding order
             NameLocalID unused{128};
-            ccstd::pmr::unordered_map<std::pair<std::string_view, uint32_t>, std::string_view> orderMap;
+            ccstd::pmr::map<std::pair<std::string_view, uint32_t>, ccstd::pmr::string> inputs(ctx.g.get_allocator());
             for (const auto& [resourceName, rasterView] : subpass.rasterViews) {
                 std::string_view slotNameView{};
-                if (rasterView.slotName != "_" && !rasterView.slotName.empty()) {
+                if (!defaultAttachment(rasterView.slotName)) {
                     slotNameView = rasterView.slotName;
-                } else {
-                    slotNameView = rasterView.slotName1;
+                    const char* suffix = rasterView.attachmentType == AttachmentType::DEPTH_STENCIL ? "/depth" : "";
+                    inputs.emplace(std::piecewise_construct,
+                                   std::forward_as_tuple(slotNameView, unused.value++),
+                                   std::forward_as_tuple(resourceName + suffix));
                 }
-                orderMap.emplace(std::piecewise_construct,
-                                 std::forward_as_tuple(slotNameView, unused.value++),
-                                 std::forward_as_tuple(resourceName));
+                if (!defaultAttachment(rasterView.slotName1)) {
+                    slotNameView = rasterView.slotName1;
+                    inputs.emplace(std::piecewise_construct,
+                                   std::forward_as_tuple(slotNameView, unused.value++),
+                                   std::forward_as_tuple(resourceName + "/stencil"));
+                }
             }
             // build pass resources
             PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
-            resourceIndex.reserve(subpass.rasterViews.size() * 2);
-            for (const auto& [keyPair, resourceName] : orderMap) {
-                const auto& rasterView = subpass.rasterViews.at(resourceName.data());
+            resourceIndex.reserve(inputs.size());
+            for (const auto& [keyPair, resourceName] : inputs) {
                 auto resID = vertex(resourceName.data(), ctx.resourceGraph);
-                if (rasterView.accessType != AccessType::WRITE) {
-                    if (rasterView.attachmentType == AttachmentType::DEPTH_STENCIL) {
-                        if (rasterView.slotName != "_" && !rasterView.slotName.empty()) {
-                            ccstd::pmr::string resName{resourceName};
-                            resID = vertex(resName + "/depth", ctx.resourceGraph);
-                            resourceIndex.emplace(unused, resID);
-                            unused.value++;
-                        }
-                        if (rasterView.slotName1 != "_" && !rasterView.slotName1.empty()) {
-                            ccstd::pmr::string resName{resourceName};
-                            resID = vertex(resName + "/stencil", ctx.resourceGraph);
-                            resourceIndex.emplace(unused, resID);
-                        }
-                    } else {
-                        resourceIndex.emplace(unused, resID);
-                        unused.value++;
-                    }
-                }
+                resourceIndex.emplace(unused, resID);
+                unused.value++;
             }
             for (const auto& [resName, computeViews] : subpass.computeViews) {
                 auto resID = vertex(resName, ctx.resourceGraph);

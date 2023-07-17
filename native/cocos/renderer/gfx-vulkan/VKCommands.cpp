@@ -459,17 +459,13 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
 
         for (uint32_t input : subpassInfo.inputs) {
             bool appearsInOutput = std::find(subpassInfo.colors.begin(), subpassInfo.colors.end(), input) != subpassInfo.colors.end();
-            if (input == gpuRenderPass->colorAttachments.size()) {
-                VkImageLayout layout = subpassInfo.depthStencil != INVALID_BINDING ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-                attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_DEPTH_BIT});
-            } else if (input == (gpuRenderPass->colorAttachments.size() + 1)) {
-                uint32_t slot = gpuRenderPass->colorAttachments.size();
-                VkImageLayout layout = VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL;
-                attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, slot, layout, VK_IMAGE_ASPECT_STENCIL_BIT});
-            } else {
-                VkImageLayout layout = appearsInOutput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_COLOR_BIT});
+            VkImageLayout layout = appearsInOutput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT;
+            if (gpuRenderPass->colorAttachments[input].format == gfx::Format::DEPTH_STENCIL) {
+                layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+                aspectFlag = gpuRenderPass->aspects[input] ? VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
             }
+            attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, aspectFlag});
         }
         for (uint32_t color : subpassInfo.colors) {
             const VkAttachmentDescription2 &attachment = attachmentDescriptions[color];
