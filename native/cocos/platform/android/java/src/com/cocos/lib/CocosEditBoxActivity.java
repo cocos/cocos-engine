@@ -28,7 +28,6 @@ package com.cocos.lib;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -44,6 +43,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +68,7 @@ public class CocosEditBoxActivity extends Activity {
     private Button mButton = null;
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
+    private int mEditTextID = 1;
     private int mButtonLayoutID = 2;
 
     /***************************************************************************************
@@ -77,24 +78,15 @@ public class CocosEditBoxActivity extends Activity {
         private final String TAG = "Cocos2dxEditBox";
         private boolean mIsMultiLine = false;
         private TextWatcher mTextWatcher = null;
-        private Paint mPaint;
-        private int mLineColor = DARK_GREEN;
-        private float mLineWidth = 2f;
         private boolean keyboardVisible = false;
         private int mScreenHeight;
         private boolean mCheckKeyboardShowNormally = false;
 
         public  Cocos2dxEditText(Activity context){
             super(context);
-            //remove focus border
-            this.setBackground(null);
             this.setTextColor(Color.BLACK);
             mScreenHeight = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).
                     getDefaultDisplay().getHeight();
-            mPaint = new Paint();
-            mPaint.setStrokeWidth(mLineWidth);
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(mLineColor);
 
             mTextWatcher = new TextWatcher() {
                 @Override
@@ -114,20 +106,6 @@ public class CocosEditBoxActivity extends Activity {
                 }
             };
             registKeyboardVisible();
-        }
-
-        /***************************************************************************************
-         Override functions.
-         **************************************************************************************/
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            // draw the underline
-            int padB = this.getPaddingBottom();
-            canvas.drawLine(getScrollX(), this.getHeight() - padB / 2 - mLineWidth,
-                    getScrollX() + this.getWidth(),
-                    this.getHeight() - padB / 2 - mLineWidth, mPaint);
-            super.onDraw(canvas);
         }
 
         /***************************************************************************************
@@ -324,17 +302,29 @@ public class CocosEditBoxActivity extends Activity {
         this.addButton(myLayout);
     }
 
+    private int dpToPixel(int dp) {
+        final float scale = getResources().getDisplayMetrics().density;
+        int px = (int) (dp * scale + 0.5f);
+        return px;
+    }
     private void addEditText(RelativeLayout layout) {
         mEditText = new Cocos2dxEditText(this);
         mEditText.setVisibility(View.INVISIBLE);
+        mEditText.setGravity(Gravity.CENTER_VERTICAL);
         mEditText.setBackground(getRoundRectShape(18, Color.WHITE, Color.WHITE));
+        mEditText.setId(mEditTextID);
+        int bottomPadding = dpToPixel(4);
+        int leftPadding = dpToPixel(3);
+        mEditText.setPadding(leftPadding,bottomPadding,leftPadding,bottomPadding);
 
         RelativeLayout.LayoutParams editParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         editParams.addRule(RelativeLayout.CENTER_VERTICAL);
         editParams.addRule(RelativeLayout.LEFT_OF, mButtonLayoutID);
-        editParams.setMargins(20, 15, 20, 15);
+        int bottomMargin = dpToPixel(5);
+        int leftMargin = dpToPixel(4);
+        editParams.setMargins(leftMargin, bottomMargin, bottomMargin, bottomMargin);
         layout.addView(mEditText, editParams);
     }
 
@@ -342,11 +332,16 @@ public class CocosEditBoxActivity extends Activity {
         mButton = new Button(this);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mButton.setTextColor(Color.WHITE);
+        mButton.setTextSize(16);
         mButton.setBackground(getRoundRectShape(18, DARK_GREEN, DARK_GREEN_PRESS));
+        int paddingLeft = dpToPixel(5);
+        mButton.setPadding(paddingLeft,0,paddingLeft,0);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        layoutParams.rightMargin = 15;
+        layoutParams.addRule(RelativeLayout.ALIGN_TOP, mEditTextID);
+        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mEditTextID);
+        layoutParams.rightMargin = dpToPixel(4);
         layout.addView(mButton, layoutParams);
+        mButton.setGravity(Gravity.CENTER);
         mButton.setId(mButtonLayoutID);
 
         mButton.setOnClickListener(new View.OnClickListener() {
