@@ -81,9 +81,9 @@ export class AudioManager {
             return;
         }
 
-        // TODO: support discard policy for audio source
+        // Make sure that at least one audio effect is playing.
         let audioInfoToDiscard: AudioInfo<ManagedAudio> | undefined;
-        if (this._oneShotAudioInfoList.length > 0) {
+        if (this._oneShotAudioInfoList.length > 1) {
             this._oneShotAudioInfoList.forEach((audioInfo) => {
                 if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
                     audioInfoToDiscard = audioInfo;
