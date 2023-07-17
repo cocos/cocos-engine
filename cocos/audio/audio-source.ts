@@ -145,7 +145,9 @@ export class AudioSource extends Component {
                 audioManager.removePlaying(player);
             });
             player.onInterruptionEnd(() => {
-                audioManager.addPlaying(player);
+                if (this._player === player) {
+                    audioManager.addPlaying(player);
+                }
             });
             this._syncStates();
             this.node?.emit(_LOADED_EVENT);
@@ -339,7 +341,9 @@ export class AudioSource extends Component {
         }
         const player = this._player;
         this._player?.play().then(() => {
-            audioManager.addPlaying(player!);
+            if (this._player === player) {
+                audioManager.addPlaying(player!);
+            }
             this.node?.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
