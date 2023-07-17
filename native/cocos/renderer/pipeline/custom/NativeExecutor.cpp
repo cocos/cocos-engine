@@ -1041,20 +1041,29 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
 
             // attachment slot name binding order
             NameLocalID unused{128};
-            ccstd::pmr::map<std::pair<std::string_view, uint32_t>, ccstd::pmr::string> inputs(ctx.g.get_allocator());
+            struct Temp {
+                AccessType accessType;
+                std::string_view name;
+                uint32_t id;
+
+                bool operator<(const Temp& in) const {
+                    return std::tie(accessType, name, id) < std::tie(in.accessType, in.name, in.id);
+                }
+            };
+            ccstd::pmr::map<Temp, ccstd::pmr::string> inputs(ctx.g.get_allocator());
             for (const auto& [resourceName, rasterView] : subpass.rasterViews) {
                 std::string_view slotNameView{};
                 if (!defaultAttachment(rasterView.slotName)) {
                     slotNameView = rasterView.slotName;
                     const char* suffix = rasterView.attachmentType == AttachmentType::DEPTH_STENCIL ? "/depth" : "";
                     inputs.emplace(std::piecewise_construct,
-                                   std::forward_as_tuple(slotNameView, unused.value++),
+                                   std::forward_as_tuple(Temp{rasterView.accessType, slotNameView, unused.value++}),
                                    std::forward_as_tuple(resourceName + suffix));
                 }
                 if (!defaultAttachment(rasterView.slotName1)) {
                     slotNameView = rasterView.slotName1;
                     inputs.emplace(std::piecewise_construct,
-                                   std::forward_as_tuple(slotNameView, unused.value++),
+                                   std::forward_as_tuple(Temp{rasterView.accessType, slotNameView, unused.value++}),
                                    std::forward_as_tuple(resourceName + "/stencil"));
                 }
             }

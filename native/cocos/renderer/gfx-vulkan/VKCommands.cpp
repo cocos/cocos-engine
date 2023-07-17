@@ -461,9 +461,9 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             bool appearsInOutput = std::find(subpassInfo.colors.begin(), subpassInfo.colors.end(), input) != subpassInfo.colors.end();
             VkImageLayout layout = appearsInOutput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT;
-            if (gpuRenderPass->colorAttachments[input].format == gfx::Format::DEPTH_STENCIL) {
+            if (input == gpuRenderPass->colorAttachments.size()) {
                 layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-                aspectFlag = gpuRenderPass->aspects[input] ? VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
+                aspectFlag = VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT;
             }
             attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, aspectFlag});
         }

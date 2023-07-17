@@ -429,8 +429,8 @@ struct FrameGraphDispatcher {
     const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
     
     RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
-
-
+    
+    ccstd::vector<ResourceGraph::vertex_descriptor> getInputs(RenderGraph::vertex_descriptor u) const;
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
