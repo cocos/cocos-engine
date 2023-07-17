@@ -136,6 +136,7 @@ using namespace spine;
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
 %ignore spine::Skin::findAttachmentsForSlot;
+%ignore spine::Skeleton::setSkin(const String&);
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -725,5 +726,12 @@ using namespace spine;
             spDrawOrder.add(drawOrder[i]);
         }
         $self->setFrame(frameIndex, time, spDrawOrder);
+    }
+}
+
+%extend spine::Skeleton {
+    void setSkinByName(const std::string &skinName) {
+        spine::String name(skinName.data());
+        $self->setSkin(name);
     }
 }
