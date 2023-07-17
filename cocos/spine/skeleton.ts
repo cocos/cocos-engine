@@ -1334,7 +1334,9 @@ export class Skeleton extends UIRenderer {
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
-                this._instance.setDebugMode(false);
+                if (this._instance) {
+                    this._instance.setDebugMode(false);
+                }
             }
         }
     }
