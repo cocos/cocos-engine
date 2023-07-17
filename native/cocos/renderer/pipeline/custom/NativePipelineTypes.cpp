@@ -80,12 +80,6 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   sceneFlags(rhs.sceneFlags),
   subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
-DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
-DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
 

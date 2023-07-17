@@ -32,12 +32,12 @@ import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
+import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
+import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Light, Model } from '../../render-scene/scene';
 import { SpotLight } from '../../render-scene/scene/spot-light';
@@ -1193,38 +1193,6 @@ export interface ComputePassBuilder extends Setter {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneVisitor {
-    readonly pipelineSceneData: PipelineSceneData;
-    setViewport (vp: Viewport): void;
-    setScissor (rect: Rect): void;
-    bindPipelineState (pso: PipelineState): void;
-    bindInputAssembler (ia: InputAssembler): void;
-    draw (info: DrawInfo): void;
-
-    bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
-    updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneTask {
-    readonly taskType: TaskType;
-    start (): void;
-    join (): void;
-    submit (): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneTransversal {
-    transverse (visitor: SceneVisitor): SceneTask;
 }
 
 /**

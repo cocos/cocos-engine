@@ -24,7 +24,7 @@
 
 import { PipelineState, DescriptorSet, InputAssembler, DrawInfo, Buffer, CommandBuffer, Rect, Viewport } from '../../gfx';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { SceneVisitor } from './pipeline';
+import { SceneVisitor } from './scene';
 
 export class WebSceneVisitor implements SceneVisitor {
     protected _pipelineSceneData: PipelineSceneData;

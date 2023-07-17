@@ -1412,7 +1412,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.h
                  cocos/renderer/pipeline/custom/NativeBuiltinUtils.cpp
                  cocos/renderer/pipeline/custom/NativeBuiltinUtils.h
-                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h
