@@ -136,7 +136,6 @@ using namespace spine;
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
 %ignore spine::Skin::findAttachmentsForSlot;
-%ignore spine::Skeleton::setSkin(const String&);
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -204,6 +203,7 @@ using namespace spine;
 %rename(attachmentLoader) spine::SkeletonJson::_attachmentLoader;
 %rename(JitterEffect) spine::JitterVertexEffect;
 %rename(SwirlEffect) spine::SwirlVertexEffect;
+%rename(setSkinByName) spine::Skeleton::setSkin(const String &);
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -726,12 +726,5 @@ using namespace spine;
             spDrawOrder.add(drawOrder[i]);
         }
         $self->setFrame(frameIndex, time, spDrawOrder);
-    }
-}
-
-%extend spine::Skeleton {
-    void setSkinByName(const std::string &skinName) {
-        spine::String name(skinName.data());
-        $self->setSkin(name);
     }
 }
