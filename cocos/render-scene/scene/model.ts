@@ -1028,7 +1028,7 @@ export class Model {
         const sampler = this._device.getSampler(new SamplerInfo(
             Filter.LINEAR,
             Filter.LINEAR,
-            Filter.NONE,
+            Filter.LINEAR,
             Address.CLAMP,
             Address.CLAMP,
             Address.CLAMP,
@@ -1110,7 +1110,8 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+                //mipCount;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.planarMipmapCount;
             } else {
                 sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
                 sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;

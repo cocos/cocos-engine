@@ -78,10 +78,9 @@ export class ReflectionProbeFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {
-                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, null);
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
+                probe.copyTextureToMipmap();
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     const renderTexture = probe.bakedCubeTextures[faceIdx];

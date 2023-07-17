@@ -265,7 +265,7 @@ export class ReflectionProbeManager {
                 if (!this._probes[i].realtimePlanarTexture) {
                     this.updatePlanarMap(this._probes[i], null);
                 } else {
-                    this.updatePlanarMap(this._probes[i], this._probes[i].realtimePlanarTexture!.getGFXTexture());
+                    this.updatePlanarMap(this._probes[i], this._probes[i].getPlanarReflectionTexture());
                 }
             }
         }
@@ -327,7 +327,7 @@ export class ReflectionProbeManager {
         const meshRender = probe.previewPlane.getComponent(MeshRenderer);
         if (meshRender) {
             if (probe.realtimePlanarTexture) {
-                this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
+                this.updatePlanarMap(probe, probe.getPlanarReflectionTexture());
             }
         }
     }
@@ -379,7 +379,7 @@ export class ReflectionProbeManager {
                 buffer[bufferOffset + 6] = 0.0;
                 buffer[bufferOffset + 7] = 0.0;
                 //mipCount;
-                buffer[bufferOffset + 8] = 1.0;
+                buffer[bufferOffset + 8] = probe.planarMipmapCount;
             }
             bufferOffset += 4 * dataWidth;
         }

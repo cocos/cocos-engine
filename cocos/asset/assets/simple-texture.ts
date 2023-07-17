@@ -36,7 +36,7 @@ const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 export type PresumedGFXTextureInfo = Pick<TextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 export type PresumedGFXTextureViewInfo = Pick<TextureViewInfo, 'texture' | 'format' | 'baseLevel' | 'levelCount'>;
 
-function getMipLevel (width: number, height: number): number {
+export function getMipLevel (width: number, height: number): number {
     let size = Math.max(width, height);
     let level = 0;
     while (size) { size >>= 1; level++; }
@@ -44,7 +44,7 @@ function getMipLevel (width: number, height: number): number {
 }
 
 function isPOT (n: number): boolean | 0 { return n && (n & (n - 1)) === 0; }
-function canGenerateMipmap (device: Device, w: number, h: number): boolean | 0 {
+export function canGenerateMipmap (device: Device, w: number, h: number): boolean | 0 {
     const needCheckPOT = device.gfxAPI === API.WEBGL;
     if (needCheckPOT) { return isPOT(w) && isPOT(h); }
     return true;

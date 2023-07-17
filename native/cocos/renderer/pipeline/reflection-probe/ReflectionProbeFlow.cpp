@@ -76,6 +76,7 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
             reflectionProbeStage->setUsage(framebuffer, probe);
             reflectionProbeStage->render(camera);
+            probe->copyTextureToMipmap();
         } else {
             //render the 6 faces of the cubemap
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
