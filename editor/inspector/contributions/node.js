@@ -1182,6 +1182,12 @@ const Elements = {
                         $active.invalid = false;
                     }
 
+                    if (dump.value.enabled.visible === false) {
+                        $active.setAttribute('hidden', '');
+                    } else {
+                        $active.removeAttribute('hidden');
+                    }
+
                     const url = panel.getHelpUrl(dump.editor);
                     const $link = $section.querySelector('ui-link');
                     if (url) {
@@ -1257,6 +1263,12 @@ const Elements = {
                         event.stopPropagation();
                         $active.dispatch('confirm-dump');
                     });
+
+                    if (component.value.enabled.visible === false) {
+                        $active.setAttribute('hidden', '');
+                    } else {
+                        $active.removeAttribute('hidden');
+                    }
 
                     const $link = $section.querySelector('.link');
                     const url = panel.getHelpUrl(component.editor);

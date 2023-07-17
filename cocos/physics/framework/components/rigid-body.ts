@@ -36,6 +36,7 @@ import {
     visible,
     type,
     serializable,
+    override,
 } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Vec3, error, warn } from '../../../core';
@@ -67,6 +68,12 @@ export class RigidBody extends Component {
     static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    @override
+    @visible(false)
+    get enabled() {
+        return this._enabled;
+    }
 
     /**
      * @en

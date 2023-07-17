@@ -184,7 +184,7 @@ exports.setHidden = function(data, element) {
     }
 };
 
-exports.updatePropByDump = function(panel, dump) {
+exports.updatePropByDump = function(panel, dump, ignores) {
     panel.dump = dump;
 
     if (!panel.elements) {
@@ -203,6 +203,10 @@ exports.updatePropByDump = function(panel, dump) {
     const newPropKeys = [];
 
     Object.keys(dump.value).forEach((key, index) => {
+        // 如果该属性在忽略列表中就不参与自动化渲染
+        if (Array.isArray(ignores) && ignores.includes(key)) {
+            return;
+        }
         const info = dump.value[key];
         if (!info.visible) {
             return;
