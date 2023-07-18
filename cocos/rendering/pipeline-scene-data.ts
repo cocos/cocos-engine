@@ -225,7 +225,9 @@ export class PipelineSceneData {
         const vbSize = vbStride * 8;
         this._occlusionQueryVertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
         ));
         this._occlusionQueryVertexBuffer.update(vertices);
 
@@ -235,7 +237,9 @@ export class PipelineSceneData {
         const ibSize = ibStride * 36;
         this._occlusionQueryIndicesBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
         ));
         this._occlusionQueryIndicesBuffer.update(indices);
 
