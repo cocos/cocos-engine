@@ -786,11 +786,18 @@ buildResourceIndex(
     PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(scratch);
     resourceIndex.reserve(computeViews.size() * 2);
     for (const auto& [resName, computeViews] : computeViews) {
-        const auto resID = vertex(resName, resg);
+        std::string_view suffix{""};
+        auto resID = vertex(resName, resg);
+        const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
         for (const auto& computeView : computeViews) {
             const auto& name = computeView.name;
             CC_EXPECTS(!name.empty());
             const auto nameID = lg.attributeIndex.at(name);
+
+            if (desc.format == gfx::Format::DEPTH_STENCIL) {
+                suffix = computeView.plane == 0 ? "/depth" : "/stencil";
+                resID = vertex(resName + suffix.data(), resg);
+            }
             resourceIndex.emplace(nameID, resID);
         }
     }

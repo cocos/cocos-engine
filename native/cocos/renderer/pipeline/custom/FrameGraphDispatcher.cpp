@@ -412,8 +412,6 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
         }
     } else {
         auto &transMap = iter->second;
-        // single resource single usage in every rendergraph pass.
-        CC_ASSERT(transMap.find(curVertID) == transMap.end());
         CC_ASSERT(!transMap.empty());
 
         const auto lastRecordIter = (--transMap.end());
@@ -826,9 +824,11 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
             gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
             if (desc.dimension == ResourceDimension::BUFFER) {
-                const auto &[ignore0, accessFlag] = getBufferStatus(pair.first, computeView.accessType, vis, resourceGraph);
+                const auto &[ignore0, access] = getBufferStatus(pair.first, computeView.accessType, vis, resourceGraph);
+                accessFlag = access;
             } else {
-                const auto &[ignore0, accessFlag] = getTextureStatus(pair.first, computeView.accessType, vis, resourceGraph, false);
+                const auto &[ignore0, access] = getTextureStatus(pair.first, computeView.accessType, vis, resourceGraph, false);
+                accessFlag = access;
             }
             range.firstSlice = computeView.plane;
             range.numSlices = 1;
@@ -1451,8 +1451,11 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             auto dstPassID = get(ResourceAccessGraph::PassIDTag{}, rag, dstRagVertID);
 
             if (holds<RasterPassTag>(dstPassID, renderGraph) || holds<RasterSubpassTag>(dstPassID, renderGraph)) {
-                // renderpass info instead
-                continue;
+                const auto &fgRenderPassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, rag, dstRagVertID);
+                if (fgRenderPassInfo.viewIndex.find(resName) != fgRenderPassInfo.viewIndex.end()) {
+                    // renderpass info instead
+                    continue;
+                }
             }
 
             // subpass layout transition
