@@ -43,6 +43,7 @@ CCVKTexture::~CCVKTexture() {
 void CCVKTexture::doInit(const TextureInfo & /*info*/) {
     createTexture(_info.width, _info.height, _size);
 
+    _viewInfo.planeCount = _info.format == Format::DEPTH_STENCIL ? 2 : 1;
     createTextureView();
 }
 
@@ -71,6 +72,7 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
     _gpuTexture->mipLevels = _info.levelCount;
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
+
     bool hasExternalFlag = hasFlag(_gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL);
     if (hasExternalFlag) {
         _gpuTexture->externalVKImage = reinterpret_cast<VkImage>(_info.externalRes);

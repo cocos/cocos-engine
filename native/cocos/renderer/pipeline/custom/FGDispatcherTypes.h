@@ -101,6 +101,7 @@ struct LayoutAccess {
 };
 
 struct AttachmentInfo {
+    const ccstd::pmr::string& parentName;
     uint32_t attachmentIndex{0};
     bool isResolveView{0};
 };
@@ -114,7 +115,7 @@ struct FGRenderPassInfo {
     ccstd::map<ccstd::pmr::string, AttachmentInfo> viewIndex;
     ccstd::pmr::unordered_map<ccstd::pmr::string, uint32_t> rootResources;
     uint32_t resolveCount{0};
-    uint32_t dsViewCount{0};
+    uint32_t uniqueRasterViewCount{0};
 };
 
 struct Barrier {
@@ -428,7 +429,7 @@ struct FrameGraphDispatcher {
     
     RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
     
-    ccstd::vector<ResourceGraph::vertex_descriptor> getInputs(RenderGraph::vertex_descriptor u) const;
+    LayoutAccess getResourceAccess(ResourceGraph::vertex_descriptor r, RenderGraph::vertex_descriptor p) const;
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
