@@ -101,9 +101,7 @@ struct LayoutAccess {
 };
 
 struct AttachmentInfo {
-    ccstd::pmr::string parentName;
     uint32_t attachmentIndex{0};
-    uint32_t aspect{0};
     bool isResolveView{0};
 };
 

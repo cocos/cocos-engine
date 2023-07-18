@@ -121,7 +121,6 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     auto ragVertID = resourceAccessGraph.passIndex.at(u);
     const auto &fgRenderPassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, resourceAccessGraph, ragVertID);
     const auto &orderedViews = fgRenderPassInfo.orderedViews;
-    const auto &resources = fgRenderPassInfo.rootResources;
     const auto &viewIndex = fgRenderPassInfo.viewIndex;
 
     RenderingInfo renderingInfo;
@@ -136,14 +135,13 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     for (const auto &viewName : orderedViews) {
         const auto &info = viewIndex.at(viewName);
         auto attachmentIndex = info.attachmentIndex;
-        const auto &rasterView = pass.rasterViews.at(info.parentName);
+        const auto &rasterView = pass.rasterViews.at(viewName);
         const auto &clearColor = rasterView.clearColor;
         if (info.attachmentIndex != gfx::INVALID_BINDING || rasterView.accessType != AccessType::WRITE) {
             //colorLike
             renderingInfo.clearColors.emplace_back(clearColor);
-            const auto &name = info.parentName;
 
-            auto resID = findVertex(name, resg);
+            auto resID = findVertex(viewName, resg);
             visitObject(
                 resID, resg,
                 [&](const ManagedResource &res) {
@@ -195,8 +193,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
 
             auto &dsAttachment = info.isResolveView ? fbInfo.depthStencilResolveTexture : fbInfo.depthStencilTexture;
 
-            const auto &name = info.parentName;
-            auto resID = findVertex(name, resg);
+            auto resID = findVertex(viewName, resg);
             visitObject(
                 resID, resg,
                 [&](const ManagedTexture &tex) {
@@ -652,8 +649,6 @@ struct ViewInfo {
     gfx::LoadOp loadOp;
     gfx::StoreOp storeOp;
     AttachmentType attachmentType;
-    uint32_t aspect{0};
-    const ccstd::pmr::string parentName;
 };
 
 using AttachmentMap = ccstd::pmr::map<AttachmentSortKey, ViewInfo, AttachmentComparator>;
@@ -664,11 +659,11 @@ void fillRenderPassInfo(const AttachmentMap& colorMap,
     for (const auto &pair : colorMap) {
         const auto &key = pair.first;
         const auto &viewInfo = pair.second;
-        if (viewInfo.attachmentType == AttachmentType::DEPTH_STENCIL && key.accessType == AccessType::WRITE) {
+        if (viewInfo.attachmentType == AttachmentType::DEPTH_STENCIL) {
             // put ds[sample > 1] to ds, ds[sample == 1] to dsResolve, swap them if not a ms pass in endRenderPass.
             bool ms = key.samples != gfx::SampleCount::X1;
             auto &ds = ms ? fgRenderpassInfo.rpInfo.depthStencilAttachment
-                                                           : fgRenderpassInfo.rpInfo.depthStencilResolveAttachment;\
+                                                           : fgRenderpassInfo.rpInfo.depthStencilResolveAttachment;
             auto &dsAccess = ms ? fgRenderpassInfo.dsAccess : fgRenderpassInfo.dsResolveAccess;
             if (ds.format == gfx::Format::UNKNOWN) {
                 ds.depthLoadOp = viewInfo.loadOp;
@@ -681,9 +676,7 @@ void fillRenderPassInfo(const AttachmentMap& colorMap,
                                                    std::forward_as_tuple(key.name),
                                                    // viewIndex(ds will be reordered), isResolveView
                                                    std::forward_as_tuple(AttachmentInfo{
-                                                       viewInfo.parentName,
                                                        gfx::INVALID_BINDING,
-                                                       viewInfo.aspect,
                                                        isResolve,
                                                    }));
             }
@@ -694,17 +687,6 @@ void fillRenderPassInfo(const AttachmentMap& colorMap,
             auto iter = fgRenderpassInfo.viewIndex.find(key.name.c_str());
             auto &colors = fgRenderpassInfo.rpInfo.colorAttachments;
             if (iter == fgRenderpassInfo.viewIndex.end()) {
-                if (viewInfo.format == gfx::Format::DEPTH_STENCIL) {
-                    fgRenderpassInfo.viewIndex.emplace(std::piecewise_construct,
-                                                       std::forward_as_tuple(key.name),
-                                                       std::forward_as_tuple(AttachmentInfo{
-                                                           viewInfo.parentName,
-                                                           gfx::INVALID_BINDING,
-                                                           viewInfo.aspect,
-                                                           fgRenderpassInfo.resolveCount && key.samples == gfx::SampleCount::X1,
-                                                       }));
-                    continue;
-                }
                 auto colorIndex = fgRenderpassInfo.orderedViews.size();
                 auto &color = colors.emplace_back();
                 color.format = viewInfo.format;
@@ -713,19 +695,15 @@ void fillRenderPassInfo(const AttachmentMap& colorMap,
                 color.loadOp = viewInfo.loadOp;
                 fgRenderpassInfo.colorAccesses.emplace_back(LayoutAccess {viewInfo.access.prevAccess, viewInfo.access.nextAccess });
                 fgRenderpassInfo.colorAccesses[colorIndex].nextAccess = viewInfo.access.nextAccess;
-                fgRenderpassInfo.rpInfo.aspects.emplace_back(viewInfo.aspect);
 
                 fgRenderpassInfo.viewIndex.emplace(std::piecewise_construct,
                                                    std::forward_as_tuple(key.name),
                                                    std::forward_as_tuple(AttachmentInfo{
-                                                       viewInfo.parentName,
                                                        static_cast<uint32_t>(fgRenderpassInfo.orderedViews.size()),
-                                                       viewInfo.aspect,
                                                        fgRenderpassInfo.resolveCount && key.samples == gfx::SampleCount::X1,
                                                    }));
 
                 fgRenderpassInfo.orderedViews.emplace_back(key.name);
-                fgRenderpassInfo.rootResources.emplace(viewInfo.parentName, fgRenderpassInfo.rootResources.size());
             } else {
                 const auto &attachmentInfo = fgRenderpassInfo.viewIndex.at(key.name.c_str());
                 auto cIndex = attachmentInfo.attachmentIndex;
@@ -799,39 +777,34 @@ auto checkRasterViews(const Graphs &graphs,
 
     for (const auto &pair : rasterViews) {
         const auto &rasterView = pair.second;
-        const auto &originName = pair.first;
+        const auto &resName = pair.first;
         ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> names(resourceAccessGraph.get_allocator());
-        extractNames(originName, rasterView, names);
+        const auto resID = vertex(resName, resourceGraph);
+        auto access = rasterView.accessType;
+        gfx::ShaderStageFlagBit originVis = getVisibility(renderGraph, layoutGraphData, passID, pair.second.slotName) | explicitVis | pair.second.shaderStageFlags;
+        const auto &[vis, accessFlag] = getTextureStatus(resName.data(), access, originVis, resourceGraph, true);
+        auto range = getResourceRange(resID, resourceGraph);
 
-        for (const auto &[resName, aspect] : names) {
-            const auto resID = vertex(resName, resourceGraph);
-            auto access = rasterView.accessType;
-            gfx::ShaderStageFlagBit originVis = getVisibility(renderGraph, layoutGraphData, passID, pair.second.slotName) | explicitVis | pair.second.shaderStageFlags;
-            const auto &[vis, accessFlag] = getTextureStatus(resName.data(), access, originVis, resourceGraph, true);
-            auto range = getResourceRange(resID, resourceGraph);
+        ViewStatus viewStatus{resName, access, vis, accessFlag, range};
+        addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
 
-            ViewStatus viewStatus{resName, access, vis, accessFlag, range};
-            addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
+        const auto &[lastVertId, lastAccess] = dependencyCheck(resourceAccessGraph, ragVertID, resourceGraph, viewStatus);
+        tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
+        tryAddEdge(lastVertId, ragVertID, relationGraph);
+        dependent |= (lastVertId != EXPECT_START_ID);
 
-            const auto &[lastVertId, lastAccess] = dependencyCheck(resourceAccessGraph, ragVertID, resourceGraph, viewStatus);
-            tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
-            tryAddEdge(lastVertId, ragVertID, relationGraph);
-            dependent |= (lastVertId != EXPECT_START_ID);
-
-            const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
-            colorMap.emplace(AttachmentSortKey{desc.sampleCount,
-                                               rasterView.accessType,
-                                               ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(rasterView.attachmentType)],
-                                               resName},
-                             ViewInfo{desc.format,
-                                      LayoutAccess{lastAccess, accessFlag},
-                                      rasterView.loadOp,
-                                      rasterView.storeOp,
-                                      rasterView.attachmentType,
-                                      aspect,
-                                      originName});
-            hasDS |= rasterView.attachmentType == AttachmentType::DEPTH_STENCIL;
-        }
+        const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+        colorMap.emplace(AttachmentSortKey{desc.sampleCount,
+                                            rasterView.accessType,
+                                            ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(rasterView.attachmentType)],
+                                            resName},
+                            ViewInfo{desc.format,
+                                    LayoutAccess{lastAccess, accessFlag},
+                                    rasterView.loadOp,
+                                    rasterView.storeOp,
+                                    rasterView.attachmentType});
+        hasDS |= rasterView.attachmentType == AttachmentType::DEPTH_STENCIL;
+        
     }
     return std::make_tuple(dependent, hasDS);
 }
@@ -912,9 +885,7 @@ bool checkResolveResource(const Graphs &graphs,
                                   LayoutAccess{lastAccess, accessFlag},
                                   gfx::LoadOp::DISCARD,
                                   gfx::StoreOp::STORE,
-                                  attachmentType,
-                                  0,
-                                  resolveTargetName});
+                                  attachmentType});
     }
     return dependent;
 }
@@ -1024,10 +995,8 @@ void endRenderPass(const Graphs &graphs, uint32_t passID, const RasterPass &pass
 
     auto colorSize = fgRenderpassInfo.orderedViews.size();
     for (auto dsIter = fgRenderpassInfo.viewIndex.begin(); dsIter != fgRenderpassInfo.viewIndex.end(); ++dsIter) {
-        if (dsIter->second.attachmentIndex == gfx::INVALID_BINDING && dsIter->first == dsIter->second.parentName) {
+        if (dsIter->second.attachmentIndex == gfx::INVALID_BINDING) {
             fgRenderpassInfo.orderedViews.emplace_back(dsIter->first);
-            // may be unchanged
-            fgRenderpassInfo.rootResources.emplace(dsIter->second.parentName, fgRenderpassInfo.rootResources.size());
         }
     }
 
@@ -1075,7 +1044,7 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
         const std::string_view name = sortKey.name;
         auto resID = vertex(sortKey.name, resourceGraph);
         const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
-        const auto &[parentName, cIndex, ignored, isResolveView] = fgRenderpassInfo.viewIndex.at(name.data());
+        const auto &[cIndex, isResolveView] = fgRenderpassInfo.viewIndex.at(name.data());
         if (isResolveView) {
             auto resolveIter = std::find_if(pass.resolvePairs.begin(), pass.resolvePairs.end(), [&name](const ResolvePair &resolve) {
                 return strcmp(resolve.target.c_str(), name.data()) == 0;
