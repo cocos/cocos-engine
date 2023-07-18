@@ -23,6 +23,7 @@
 */
 
 import { IMiniGame } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
@@ -158,3 +159,5 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./alipay')>());

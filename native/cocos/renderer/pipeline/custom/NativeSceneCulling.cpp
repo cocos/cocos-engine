@@ -1,16 +1,11 @@
-#include "LayoutGraphGraphs.h"
-#include "NativePipelineTypes.h"
-#include "NativeUtils.h"
-#include "RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
-#include "details/GslUtils.h"
-#include "details/Range.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
-#include "pipeline/custom/NativeUtils.h"
-#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 

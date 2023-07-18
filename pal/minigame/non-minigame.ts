@@ -22,5 +22,9 @@
  THE SOFTWARE.
 */
 
+import { checkPalIntegrity, withImpl } from '../integrity-check';
+
 const minigame: any = {};
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./non-minigame')>());

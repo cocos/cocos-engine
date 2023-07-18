@@ -246,5 +246,7 @@ void cmdFuncGLES2BlitTexture(GLES2Device *device,
 
 void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);
 
+GLint cmdFuncGLES2GetMaxSampleCount();
+
 } // namespace gfx
 } // namespace cc

@@ -28,7 +28,7 @@ import {
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
     SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit,
-    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
+    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers, TextureUsage, TextureFlags,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -359,6 +359,17 @@ export abstract class Device {
      * @param format The GFX format to be queried.
      */
     public enableAutoBarrier (en: boolean): void {}
+
+    /**
+     * @en Get maximum supported sample count.
+     * @zh 获取最大可支持的 Samples 参数
+     * @param format The GFX texture format.
+     * @param usage The GFX texture usage.
+     * @param flags The GFX texture create flags.
+     */
+    public getMaxSampleCount (format: Format, usage: TextureUsage, flags: TextureFlags): SampleCount {
+        return SampleCount.X1;
+    }
 }
 
 export class DefaultResource {
@@ -377,7 +388,8 @@ export class DefaultResource {
                 TextureType.TEX2D,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
                 Format.RGBA8,
-                2, 2,
+                2,
+                2,
                 TextureFlagBit.NONE,
             ));
             const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 1));
@@ -388,7 +400,8 @@ export class DefaultResource {
                 TextureType.CUBE,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
                 Format.RGBA8,
-                2, 2,
+                2,
+                2,
                 TextureFlagBit.NONE,
                 6,
             ));
@@ -410,10 +423,12 @@ export class DefaultResource {
                 TextureType.TEX3D,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
                 Format.RGBA8,
-                2, 2,
+                2,
+                2,
                 TextureFlagBit.NONE,
-                1, 1,
-                SampleCount.ONE,
+                1,
+                1,
+                SampleCount.X1,
                 2,
             ));
             const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 2), new TextureSubresLayers(0, 0, 1));
@@ -424,7 +439,8 @@ export class DefaultResource {
                 TextureType.TEX2D_ARRAY,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
                 Format.RGBA8,
-                2, 2,
+                2,
+                2,
                 TextureFlagBit.NONE,
                 2,
             ));

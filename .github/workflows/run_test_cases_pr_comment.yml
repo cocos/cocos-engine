@@ -1,0 +1,36 @@
+name: run test cases PR comment
+on:
+  workflow_run:
+    workflows: ["run test cases"]
+    types:
+    - completed
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  post-pr-comment:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts  
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run download -R "${{ github.repository }}" --name "pr.txt" "$RUN_ID"
+          gh run download -R "${{ github.repository }}" --name "comment.txt" "$RUN_ID"
+      - name: Set PR environment variable
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = fs.readFileSync('pr.txt', 'utf8').trim();
+            core.exportVariable('PR_NUMBER', pr);
+
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ env.PR_NUMBER }}
+          body-path: 'comment.txt'

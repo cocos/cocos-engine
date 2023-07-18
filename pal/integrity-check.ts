@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -20,31 +20,35 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+*/
 
-#include "NativePipelineTypes.h"
+declare const guard: unique symbol;
 
-namespace cc {
+type Guard = typeof guard;
 
-namespace render {
-
-const pipeline::PipelineSceneData *DefaultSceneVisitor::getPipelineSceneData() const {
-    return nullptr;
+/**
+ * Checks if a PAL implementation module is compatible with its target interface module.
+ *
+ * @example
+ * If you write the following in somewhere:
+ *
+ * ```ts
+ * checkPalIntegrity<typeof import('pal-interface-module')>(
+ *   withImpl<typeof import('pal-implementation-module')>());
+ * ```
+ *
+ * you will receive a compilation error
+ * if your implementation module is not fulfil the interface module.
+ *
+ * @note This function should be easily tree-shaken.
+ */
+export function checkPalIntegrity<T> (impl: T & Guard) {
 }
 
-void DefaultSceneVisitor::setViewport(const gfx::Viewport &vp) {}
-void DefaultSceneVisitor::setScissor(const gfx::Rect &rect) {}
-void DefaultSceneVisitor::bindPipelineState(gfx::PipelineState *pso) {}
-void DefaultSceneVisitor::bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {}
-void DefaultSceneVisitor::bindInputAssembler(gfx::InputAssembler *ia) {}
-void DefaultSceneVisitor::updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) {}
-void DefaultSceneVisitor::draw(const gfx::DrawInfo &info) {}
-
-SceneTask *DefaultForwardLightingTransversal::transverse(SceneVisitor *visitor) const {
-    std::ignore = visitor;
-    return nullptr;
+/**
+ * Utility function, see example of `checkPalIntegrity()`.
+ *
+ */
+export function withImpl<T> () {
+    return 0 as unknown as T & Guard;
 }
-
-} // namespace render
-
-} // namespace cc
