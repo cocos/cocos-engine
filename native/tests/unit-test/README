@@ -2,7 +2,7 @@ Usage:
 ```
 mkdir build
 cd build
-cmake ..
-make
-./src/CocosTest
+cmake .. -GXcode
+make --build .
+./src/Debug/CocosTest
 ```

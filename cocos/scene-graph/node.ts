@@ -615,31 +615,36 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @en Set the sibling index of the current node in its parent's children array.
      * @zh 设置当前节点在父节点的 children 数组中的位置。
+     * @param index @en New sibling index. If index equals -1 or greater or equals then its parent's children size, the node will be
+     * insert at the end of the its parent's children array.
+     * @zh 新的兄弟节点索引值。如果该值等于 -1 或者大于等于兄弟节点数量，那么该节点将会被插到兄弟节点数组的尾部。
      */
     public setSiblingIndex (index: number): void {
-        if (!this._parent) {
+        if (!this._parent || (index < 0 && index !== -1)) {
             return;
         }
         if (this._parent._objFlags & Deactivating) {
             errorID(3821);
             return;
         }
+
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
-        const oldIndex = siblings.indexOf(this);
-        if (index !== oldIndex) {
-            siblings.splice(oldIndex, 1);
-            if (index < siblings.length) {
-                siblings.splice(index, 0, this);
-            } else {
-                siblings.push(this);
-            }
-            this._parent._updateSiblingIndex();
-            if (this._onSiblingIndexChanged) {
-                this._onSiblingIndexChanged(index);
-            }
-            this._eventProcessor.onUpdatingSiblingIndex();
+        if (index === -1 || index >= siblings.length) {
+            index = siblings.length - 1;
         }
+
+        if (index === this._siblingIndex) {
+            return;
+        }
+
+        siblings.splice(this._siblingIndex, 1);
+        siblings.splice(index, 0, this);
+        this._parent._updateSiblingIndex();
+
+        if (this._onSiblingIndexChanged) {
+            this._onSiblingIndexChanged(index);
+        }
+        this._eventProcessor.onUpdatingSiblingIndex();
     }
 
     /**
