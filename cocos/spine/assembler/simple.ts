@@ -130,6 +130,7 @@ export const simple: IAssembler = {
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     comp.drawList.reset();
     if (comp.color.a === 0) return;
+    comp._updateColor();
     _premultipliedAlpha = comp.premultipliedAlpha;
     _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {

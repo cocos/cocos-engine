@@ -23,7 +23,7 @@
 */
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { Component } from '../../scene-graph/component';
 import { misc } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
@@ -67,6 +67,13 @@ export class UIOpacity extends Component {
         this.node._uiProps.localOpacity = value / 255;
 
         this.setEntityLocalOpacityDirtyRecursively(true);
+
+        if(EDITOR_NOT_IN_PREVIEW) {
+            setTimeout(()=>{
+                EditorExtends.Node.emit('change', this.node.uuid, this.node);
+            }, 200);
+        }
+
     }
 
     private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
