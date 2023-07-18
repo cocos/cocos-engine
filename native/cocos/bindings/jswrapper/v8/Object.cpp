@@ -145,8 +145,12 @@ void Object::setIsolate(v8::Isolate *isolate) {
 }
 
 void Object::cleanup() {
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+//TODO:
+#else
     JSBPersistentHandleVisitor jsbVisitor;
     __isolate->VisitHandlesWithClassIds(&jsbVisitor);
+#endif
     SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 }
 
