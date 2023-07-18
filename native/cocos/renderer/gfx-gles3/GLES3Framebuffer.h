@@ -42,6 +42,7 @@ public:
 protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;
+    void updateExtent();
 
     GLES3GPUFramebuffer *_gpuFBO = nullptr;
 };

@@ -25,7 +25,7 @@
 declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
+import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
@@ -92,11 +92,15 @@ export function getPassID (name: string | undefined): number {
     return _renderModule.getPassID(name);
 }
 
+export function getSubpassID (passID: number, name: string): number {
+    return _renderModule.getSubpassID(passID, name);
+}
+
 export function getPhaseID (passID: number, name: string | number | undefined): number {
     if (name === undefined) {
         return _renderModule.getPhaseID(passID, 'default');
     }
-    if (typeof(name) === 'number') {
+    if (typeof (name) === 'number') {
         return _renderModule.getPhaseID(passID, name.toString());
     }
     return _renderModule.getPhaseID(passID, name);

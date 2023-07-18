@@ -42,6 +42,7 @@ public:
 
     inline const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
+    inline const DepthStencilAttachment &getDepthStencilResolveAttachment() const { return _depthStencilResolveAttachment; }
     inline const SubpassInfoList &getSubpasses() const { return _subpasses; }
     inline const SubpassDependencyList &getDependencies() const { return _dependencies; }
     inline ccstd::hash_t getHash() const { return _hash; }
@@ -54,6 +55,7 @@ protected:
 
     ColorAttachmentList _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
+    DepthStencilAttachment _depthStencilResolveAttachment;
     SubpassInfoList _subpasses;
     SubpassDependencyList _dependencies;
     ccstd::hash_t _hash = 0;

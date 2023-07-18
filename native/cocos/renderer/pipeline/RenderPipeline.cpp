@@ -40,7 +40,7 @@
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
-#include "custom/NativeUtils.h"
+#include "custom/NativeBuiltinUtils.h"
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
 
