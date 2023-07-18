@@ -141,7 +141,7 @@ export class AudioSource extends Component {
         }).catch((e) => {});
     }
 
-    private _registerListener(): void {
+    private _registerListener (): void {
         if (!this._hasRegisterListener && this._player) {
             const player = this._player;
             this._player.onEnded(() => {
@@ -158,7 +158,7 @@ export class AudioSource extends Component {
         }
     }
 
-    private _unregisterListener(): void {
+    private _unregisterListener (): void {
         if (this._player && this._hasRegisterListener) {
             this._player.offEnded();
             this._player.offInterruptionBegin();
