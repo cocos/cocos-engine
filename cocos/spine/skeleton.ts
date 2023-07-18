@@ -725,8 +725,10 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache((this.skeletonData as any).uuid, skeletonData);
-            this._skeleton = skeletonInfo.skeleton;
+            if (this.skeletonData) {
+                const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
+                this._skeleton = skeletonInfo.skeleton;
+            }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
             this._state = this._instance.getAnimationState();
@@ -1176,7 +1178,7 @@ export class Skeleton extends UIRenderer {
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode): void {
-        if (this._preCacheMode !== cacheMode) {
+        if (this._preCacheMode as AnimationCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._updateSkeletonData();
