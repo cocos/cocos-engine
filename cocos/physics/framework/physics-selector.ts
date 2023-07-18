@@ -64,7 +64,7 @@ interface IPhysicsWrapperObject {
 
 interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
-interface IPhysicsSelector {
+export interface IPhysicsSelector {
     /**
      * @en
      * The id of the physics engine being used by the physics system.

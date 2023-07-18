@@ -1,0 +1,27 @@
+name: <Web> Interface check PR comment
+on:
+  workflow_run:
+    workflows: ["<Web> Interface check"]
+    types:
+    - completed
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  post-pr-comment:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts  
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run download -R "${{ github.repository }}" --name "interface-diff.txt" "$RUN_ID"       
+      - name: Post interface-diff.txt as comment 
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: interface-diff.txt          
+          number: ${{ github.event.workflow_run.pull_requests[0].number }}
