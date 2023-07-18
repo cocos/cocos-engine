@@ -796,6 +796,27 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<IntrusivePtr<pipeline::InstancedBuffer>> instanceBuffers;
 };
 
+struct RenderBatchingQueue {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {batches.get_allocator().resource()};
+    }
+
+    RenderBatchingQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc);
+    RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc);
+
+    RenderBatchingQueue(RenderBatchingQueue&& rhs) noexcept = default;
+    RenderBatchingQueue(RenderBatchingQueue const& rhs) = delete;
+    RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
+    RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
+
+    static void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags);
+
+    ccstd::pmr::vector<uint32_t> batches;
+};
+
 struct DrawInstance {
     const scene::SubModel* subModel{nullptr};
     uint32_t priority{0};
@@ -853,6 +874,8 @@ struct NativeRenderQueue {
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
+    RenderBatchingQueue opaqueBatchingQueue;
+    RenderBatchingQueue transparentBatchingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
 };

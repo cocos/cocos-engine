@@ -50,6 +50,7 @@ class NativeMultisampleRenderPassBuilder;
 class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
 struct RenderInstancingQueue;
+struct RenderBatchingQueue;
 struct DrawInstance;
 struct RenderDrawQueue;
 struct NativeRenderQueue;
