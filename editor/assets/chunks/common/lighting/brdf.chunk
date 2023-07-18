@@ -15,12 +15,35 @@ float V_Kelemen(float LoH)
 {
     return 0.25 / (LoH * LoH);
 }
-
+float square(float a) { return a * a;}
+vec2 square(vec2 a) { return a * a;}
+vec3 square(vec3 a) { return a * a;}
+float G_Schlick( float roughness, float NoV, float NoL )
+{
+	float k = square( 0.5 + 0.5*roughness );
+	float G_SchlickV = NoV * (1.0 - k) + k;
+	float G_SchlickL = NoL * (1.0 - k) + k;
+	return 0.25 / ( G_SchlickV * G_SchlickL );
+}
 vec3 F_Schlick( vec3 specularColor, float VoH )
 {
 	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
   float selfShadowTerm = saturate(50.0 * specularColor.g);
   return specularColor * (1.0 - Fc) + vec3(selfShadowTerm * Fc);
+}
+vec3 F_SchlickMultiplier( vec3 specularColor, float VoH )
+{
+	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
+  float selfShadowTerm = saturate(50.0 * specularColor.g);
+  return vec3(1.0 - Fc) + vec3(selfShadowTerm * Fc) / (specularColor + vec3(EPSILON));
+}
+
+vec3 F_Fresnel( vec3 SpecularColor, float VoH )
+{
+	vec3 specularColorSqrt = sqrt( clamp( vec3(0.0), vec3(0.99), SpecularColor ) );
+	vec3 n = ( 1.0 + specularColorSqrt ) / ( 1.0 - specularColorSqrt );
+	vec3 g = sqrt( n*n + VoH*VoH - 1.0 );
+	return 0.5 * square( (g - VoH) / (g + VoH) ) * ( 1.0 + square( ((g+VoH)*VoH - 1.0) / ((g-VoH)*VoH + 1.0) ) );
 }
 
 float D_GGX(float roughness, float NoH)
@@ -91,6 +114,16 @@ vec3 IntegratedGFApprox (vec3 specular, float roughness, float NoV) {
   vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
   AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
   return max(vec3(0.0), specular * AB.x + AB.y);
+}
+void IntegratedGFMultiplier (out vec3 integratedGF, out vec3 integratedF, vec3 specular, float roughness, float NoV) {
+  const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+  const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+  vec4 r = roughness * c0 + c1;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+  AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
+  integratedF = vec3(max(0.0, AB.x));
+  integratedGF = max(vec3(0.0), vec3(AB.x) + vec3(AB.y) / (specular + EPSILON_LOWP));
 }
 
 //Diffuse_Lambert

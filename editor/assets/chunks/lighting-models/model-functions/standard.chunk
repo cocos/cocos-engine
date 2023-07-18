@@ -59,11 +59,41 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 }
 
 #if CC_SURFACES_LIGHTING_USE_FRESNEL
-  float CCSurfaceLightingCalculateFresnel(in LightingIntermediateData lightingData)
-  {
-    return CalculateFresnelCoefficient(lightingData.ior, abs(lightingData.NoV)); //NoVSat for single side, and NoVAbs for two sided
-  }
+vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
+{
+    float fresnel = CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVAbsSat); //NoVSat for single side, and NoVAbsSat for two sided
+    return vec3(fresnel);
+}
 #endif
+
+void CCSurfaceLightingCalculateDirectFresnel(out vec3 directGF, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
+{
+  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+    // local lighting also use EnvIntegratedFresnel for estimated GF terms, calculate accurate GF instead in the future, CCSurfacesDebugViewLightingResult also needs modified
+    directGF = environmentGF;
+  #else
+    float roughness = lightingData.specularParam;
+    directGF = F_SchlickMultiplier(specularColor, lightingData.VoHAbsSat) * G_Schlick(roughness, lightingData.NoVSat, lightingData.NoLSat);
+  #endif
+}
+
+void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 integratedF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  float roughness = lightingData.specularParam;
+  IntegratedGFMultiplier(integratedGF, integratedF, specularColor, roughness, lightingData.NoVAbsSat);
+}
+
+void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  float VoH = lightingData.VoHAbsSat;
+	subLayerF = vec3(exp2( (-5.55473 * VoH - 6.98316) * VoH ));
+}
+void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  // ior related fresnel:
+  subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
+}
+
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
   // do not support anisotropy
@@ -218,3 +248,47 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     lightingResult.directTT = ttLighting * DiffuseCoefficient_EnergyConservation * lightSourceColorAndIntensity.xyz* lightSourceColorAndIntensity.w;
   }
 #endif
+
+
+// LastLayerF for temporary use
+// S is spec without GF
+void InitializeLayerBlending(out vec3 blendedBaseLayerD, out vec3 blendedBaseLayerS,
+                             out vec3 blendedSubLayerD, out vec3 blendedSubLayerS,
+                             out vec3 lastLayerF,
+                             in vec3 baseD, in vec3 baseS
+                             )
+{
+  blendedBaseLayerD = baseD;
+  blendedBaseLayerS = baseS;
+  blendedSubLayerD = blendedSubLayerS = vec3(0.0);
+  lastLayerF = vec3(1.0);  
+}
+
+// use subLayerF instead of subLayerGF for ior-dependent 0-1 range
+void CalculateLayerBlending(inout vec3 blendedBaseLayerD, inout vec3 blendedBaseLayerS,
+                            inout vec3 blendedSubLayerD, inout vec3 blendedSubLayerS,
+                            inout vec3 lastLayerF,
+                            in vec3 subLayerD, in vec3 subLayerDiffuseColor,
+                            in vec3 subLayerS, in vec3 subLayerSpecularColor,
+                            in float subLayerOpacity, inout vec3 subLayerF
+                            )
+{
+  subLayerF = saturate(subLayerF * subLayerOpacity);
+  blendedSubLayerD = blendedSubLayerD * (vec3(1.0) - lastLayerF) + subLayerD * subLayerDiffuseColor * subLayerF;
+  blendedSubLayerS = blendedSubLayerS *(vec3(1.0) - lastLayerF) + subLayerS * subLayerSpecularColor * subLayerF;
+  blendedBaseLayerD *= vec3(1.0) - subLayerF;
+  blendedBaseLayerS *= vec3(1.0) - subLayerF;
+  lastLayerF = subLayerF;
+}
+/*void CCSurfacesLightingInitializeLayerBlending(inout LightingResult lightingResult, out vec3 lastLayerF)
+{
+  InitializeLayerBlending(lightingResult.directDiffuseSubLayers, lightingResult.directDiffuseSubLayers,
+                          lightingResult.directDiffuseSubLayers, lightingResult.directDiffuseSubLayers);
+}
+void CCSurfacesLightingCalculateLayerBlending(inout LightingResult lightingResult, inout vec3 lastLayerF,
+                                              in vec3 subLayerD, in vec3 subLayerS, inout vec3 subLayerF
+                                              )
+{
+  // CalculateLayerBlending(lightingResult.);
+}
+*/

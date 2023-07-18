@@ -1,5 +1,6 @@
 
 // saturated N dot V
+// for env reflection with non-metal and smooth surface
 float CalculateFresnelCoefficient(float ior, float NoVSat)
 {
 	float g, c, n, prev, next;

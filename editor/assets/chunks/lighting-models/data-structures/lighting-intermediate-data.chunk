@@ -5,9 +5,9 @@ struct LightingIntermediateData
   float distToCamera, distToCameraSqr; // pos->camera
   float angleAttenuation, distAttenuation;
 
-  float NoL, NoV, NoH;//, VoH;
+  float NoL, NoV, NoH, VoH;
   float NoLSat, NoVSat, NoHSat;//, VoHSat; // clamped to 0-1
-  float NoVAbsSat; // abs and clamped to 1
+  float NoVAbsSat, VoHAbsSat; // abs and clamped to 1
 
   HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPosition);
 
@@ -16,7 +16,7 @@ struct LightingIntermediateData
 
   // material data
   float specularParam; // roughness or specular power
-  float ior;
+  float ior, layerOpacity;
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
@@ -92,9 +92,11 @@ void CCSurfacesLightingGetIntermediateData_PerLight(inout LightingIntermediateDa
   // dot
   data.NoL = dot(data.N, data.L);
   data.NoH = dot(data.N, data.H);
-  // data.VoH = dot(data.V, data.H);
+  data.VoH = dot(data.V, data.H);
   
   data.NoLSat = max(data.NoL, 0.0);
   data.NoHSat = max(data.NoH, 0.0);
   // data.VoHSat = max(data.VoH, 0.0);
+
+  data.VoHAbsSat = max(abs(data.VoH), 0.0);
 }

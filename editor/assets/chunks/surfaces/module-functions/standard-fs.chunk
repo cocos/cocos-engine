@@ -47,12 +47,18 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   // skip in shader graph, need extra code
   vec4 trtParams = SurfacesFragmentModifyTRTParams();
   surfaceData.roughness2ndSpecular = saturate(surfaceData.roughness + trtParams.x);
+  surfaceData.metallic2ndSpecular = surfaceData.metallic;
   surfaceData.intensity2ndSpecular = trtParams.w;
   surfaceData.baseColor2ndSpecular = vec3(1.0); // specular color use specified trt color only
   surfaceData.color2ndSpecular = SurfacesFragmentModifyTRTColor();
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  surfaceData.ior2ndSpecular = surfaceData.ior; //unused
+  surfaceData.opacity2ndSpecular = 1.0; // unused
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    surfaceData.anisotropyShape2ndSpecular = surfaceData.anisotropyShape;
+  #endif
   RotateNormalAndBinormal(surfaceData.worldBinormal2ndSpecular, surfaceData.worldNormal2ndSpecular, surfaceData.worldTangent2ndSpecular, trtParams.y, FSInput_mirrorNormal);
 #endif
 
@@ -67,12 +73,37 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   // skip in shader graph, need extra code
   vec4 dualLobeParams = SurfacesFragmentModifyDualLobeSpecularParams(surfaceData.roughness);
   surfaceData.roughness2ndSpecular = saturate(dualLobeParams.x);
+  surfaceData.metallic2ndSpecular = surfaceData.metallic;
   surfaceData.intensity2ndSpecular = dualLobeParams.w;
   surfaceData.baseColor2ndSpecular = surfaceData.baseColor.rgb;
   surfaceData.color2ndSpecular = vec3(1.0); // no extra coloration
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  surfaceData.ior2ndSpecular = surfaceData.ior;
+  surfaceData.opacity2ndSpecular = 1.0; // unused
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    surfaceData.anisotropyShape2ndSpecular = surfaceData.anisotropyShape;
+  #endif
+#endif
+
+#if CC_SURFACES_LIGHTING_CLEAR_COAT
+  // skip in shader graph, need extra code
+  vec4 clearCoatParams = SurfacesFragmentModifyClearCoatParams();
+  surfaceData.roughness2ndSpecular = clearCoatParams.x;
+  surfaceData.metallic2ndSpecular = 0.0;
+  surfaceData.ior2ndSpecular = clearCoatParams.y;
+  surfaceData.opacity2ndSpecular = clearCoatParams.z;
+  surfaceData.intensity2ndSpecular = clearCoatParams.w;
+  surfaceData.baseColor2ndSpecular = vec3(1.0); // specular color use specified coat color only
+  surfaceData.color2ndSpecular = SurfacesFragmentModifyClearCoatColor();
+  surfaceData.worldNormal2ndSpecular = SurfacesFragmentModifyClearCoatWorldNormal();
+  surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  surfaceData.worldTangent2ndSpecular = CalculateTangent(surfaceData.worldNormal2ndSpecular, surfaceData.worldBinormal2ndSpecular);
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    surfaceData.anisotropyShape2ndSpecular = surfaceData.anisotropyShape;
+    // float anisoRotation = xxx;    RotateNormalAndBinormal(surfaceData.worldBinormal2ndSpecular, surfaceData.worldNormal2ndSpecular, surfaceData.worldTangent2ndSpecular, anisoRotation, FSInput_mirrorNormal);
+  #endif
 #endif
 
 #if CC_SURFACES_LIGHTING_SSS
@@ -114,18 +145,19 @@ vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
 }
 
 // Diffuse/Specular Color with BRDF lighting preparation
-void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
   diffuseColorWithLighting = CCSurfacesGetDiffuseColor(surfaceData);
   specularColorWithLighting = CCSurfacesGetSpecularColor(surfaceData).xyz;
   // (Intergrated) GF/4Pi use approximate value for both direct lighting and environment lighting
   // accuracy value can be calculated in LightingCalculateDirect/Environment instead of IntegratedGFApprox
-  specularColorWithEnvLighting = IntegratedGFApprox(specularColorWithLighting, surfaceData.roughness, lightingData.NoVAbsSat);
+  // specularColorWithEnvLighting = IntegratedGFApprox(specularColorWithLighting, surfaceData.roughness, lightingData.NoVAbsSat);
 }
 // Update two colors with BRDF which depend on lights (optional)
-void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
 }
+
 
 // Copy material data to lighting data
 // such as tangent data for anisotropic materials
@@ -140,6 +172,7 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
   );
   lightingData.specularParam = surfaceData.roughness;
   lightingData.ior = surfaceData.ior;
+  lightingData.layerOpacity = surfaceData.baseColor.a;
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   lightingData.transmitScatteringParams = surfaceData.transmitScatteringParams;
   lightingData.inScatteringColor = surfaceData.inScatteringColor;
@@ -178,11 +211,16 @@ void CCSurfacesGetLightingIntermediateDataTransmitDiffuse(inout LightingIntermed
 void CCSurfacesGetSurfacesMaterialData2ndSpecular(inout SurfacesMaterialData surfaceData2ndSpecular, in SurfacesMaterialData surfaceData)
 {
   surfaceData2ndSpecular = surfaceData;
-  surfaceData2ndSpecular.baseColor = vec4(surfaceData.baseColor2ndSpecular, 1.0);
+  surfaceData2ndSpecular.baseColor = vec4(surfaceData.baseColor2ndSpecular, surfaceData.opacity2ndSpecular);
   surfaceData2ndSpecular.roughness = surfaceData.roughness2ndSpecular;
+  surfaceData2ndSpecular.metallic = surfaceData.metallic2ndSpecular;
   surfaceData2ndSpecular.worldNormal = surfaceData.worldNormal2ndSpecular;
   surfaceData2ndSpecular.worldTangent = surfaceData.worldTangent2ndSpecular;
   surfaceData2ndSpecular.worldBinormal = surfaceData.worldBinormal2ndSpecular;
+  surfaceData2ndSpecular.ior = surfaceData.ior2ndSpecular;
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    surfaceData2ndSpecular.anisotropyShape = surfaceData.anisotropyShape2ndSpecular;
+  #endif
 }
 #endif
 
@@ -191,12 +229,21 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in 
 {
   lightingResult.ao = surfaceData.ao;
   lightingResult.emissive = surfaceData.emissive;
+  lightingResult.directGF = vec3(1.0);
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  lightingResult.directDiffuseSubLayers = lightingResult.directSpecularSubLayers = vec3(0.0);
+  lightingResult.environmentDiffuseSubLayers = lightingResult.environmentSpecularSubLayers = vec3(0.0);
+#endif
 }
 
 // Init accumulated lighting results for additive pass
 void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
 {
   lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+  lightingResult.directGF = vec3(1.0);
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  lightingResult.directDiffuseSubLayers = lightingResult.directSpecularSubLayers = vec3(0.0);
+#endif
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
   lightingResult.directTransmitSpecular = vec3(0.0);
@@ -212,20 +259,28 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
 #endif
 }
 
-// Accumulated lighting results for additive pass
+//todo: vec3 CCSurfacesLightingBlendLayer(LightingResult lightingResult, MaterialSurfaceData surfaceData)D1, S1, F1, D2, S2, F2)，需要带着材质颜色来混
+//多光源下只支持在一个pass内完成，即在common-flow中循环每个光源都是一个lightingResult，每个都调用BlendLayer，然后累加最终颜色即可
+
+// Accumulated lighting results for additive pass only
 void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccumulated, in LightingResult lightingResult)
 {
   lightingResultAccumulated.directDiffuse += lightingResult.directDiffuse * lightingResult.shadow;
-  lightingResultAccumulated.directSpecular += lightingResult.directSpecular * lightingResult.shadow;
+  lightingResultAccumulated.directSpecular += lightingResult.directSpecular * lightingResult.shadow * lightingResult.directGF * lightingResult.fresnel;
+
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    lightingResultAccumulated.directDiffuseSubLayers += lightingResult.directDiffuseSubLayers * lightingResult.shadow;
+    lightingResultAccumulated.directSpecularSubLayers += lightingResult.directSpecularSubLayers * lightingResult.shadow;
+  #endif
 
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    lightingResultAccumulated.directTransmitSpecular += lightingResult.directTransmitSpecular;
+    lightingResultAccumulated.directTransmitSpecular += lightingResult.directTransmitSpecular * (vec3(1.0) - lightingResult.fresnel);
   #endif
   #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
     lightingResultAccumulated.directTransmitDiffuse += lightingResult.directTransmitDiffuse;
   #endif
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    lightingResultAccumulated.direct2ndSpecular += lightingResult.direct2ndSpecular * lightingResult.shadow;
+    lightingResultAccumulated.direct2ndSpecular += lightingResult.direct2ndSpecular * lightingResult.shadow * lightingResult.directGF2ndSpecular * lightingResult.fresnel;
   #endif
   #if CC_SURFACES_LIGHTING_TT
     lightingResultAccumulated.directTT += lightingResult.directTT * lightingResult.shadow;
@@ -256,16 +311,20 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 {
   vec4 color = vec4(0.0, 0.0, 0.0, surfaceData.baseColor.a);
 
-  // todo: local lighting also use EnvLightingSpecularColor for estimated GF terms, calculate accurate GF instead in the future, CCSurfacesDebugViewLightingResult also needs modified
 #if CC_FORWARD_ADD
   // shadow and fresnel has already been applied with common flow
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithEnvLighting
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithEnvLighting
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF
   #endif
-  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    + lightingResult.directDiffuseSubLayers
+    + lightingResult.directSpecularSubLayers
+  #else
+    #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.directGF2ndSpecular
+    #endif
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -276,20 +335,22 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   ;
   
 #else
-  float fresnel = 1.0;
-  #if CC_SURFACES_LIGHTING_USE_FRESNEL
-    fresnel = lightingResult.fresnel;
-  #endif
-  float invFresnel = 1.0 - fresnel;
+  vec3 fresnel = lightingResult.fresnel;
+  vec3 invFresnel = vec3(1.0) - fresnel;
 
   color.xyz +=
     ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithEnvLighting * fresnel
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithEnvLighting * invFresnel
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    + lightingResult.directDiffuseSubLayers
+    + lightingResult.directSpecularSubLayers
+  #else
+    #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.directGF2ndSpecular
+    #endif
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -309,12 +370,17 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
   color.xyz +=
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.environmentSpecular * lightingResult.specularColorWithEnvLighting * fresnel
+    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF * fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithEnvLighting * invFresnel
+    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    + lightingResult.environmentDiffuseSubLayers
+    + lightingResult.environmentSpecularSubLayers
+  #else
+    #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.environmentGF2ndSpecular
+    #endif
   #endif
     )
     * lightingResult.ao
@@ -324,8 +390,87 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   ;
   
   color.xyz += lightingResult.emissive;
-#endif
+  return color;
 
+  //todo:
+  //ior and fresnel range?
+  //整理代码blend layers
+
+  //test
+  LightingIntermediateData lightingData;
+  CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
+  CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
+
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+      color.xyz = lightingResult.environmentSpecularSubLayers;
+      // color.xyz = lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.environmentGF2ndSpecular;
+      color.xyz = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF;
+      // color.xyz = vec3(lightingResult.environmentSubLayerF);
+      return color;
+    #endif
+
+    float VoH = lightingData.VoH;
+  	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
+
+    float LoH = dot(lightingData.L, lightingData.H);
+    color.xyz = F_Schlick(lightingResult.specularColorWithLighting, lightingData.VoH);
+    color.xyz = F_Schlick(lightingResult.specularColorWithLighting, LoH);
+    color.xyz = lightingResult.environmentSpecularSubLayers;
+    color.xyz = vec3(1.0 - Fc);
+    return color;
+    color.xyz = vec3(lightingResult.environmentGF2ndSpecular * lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular);
+    color.xyz = vec3(lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * fresnel);
+    color.xyz = vec3(lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF);
+    color.xyz = vec3(0.0);
+      color.xyz +=
+    ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * fresnel
+  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * invFresnel
+  #endif
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.directGF2ndSpecular
+  #endif
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    + lightingResult.directDiffuseSubLayers
+    + lightingResult.directSpecularSubLayers
+  #endif
+  #if CC_SURFACES_LIGHTING_TT
+    + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
+  #endif
+    )
+    * lightingResult.shadow
+  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+    + lightingResult.directTransmitDiffuse
+  #endif
+  ;
+
+    #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_ALL_IN_ONE
+    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting * lightingResult.shadow; //apply real-time shadows
+  #elif CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
+    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting;
+  #endif
+
+  color.xyz +=
+    ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
+    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF * fresnel
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.environmentGF2ndSpecular
+  #endif
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    + lightingResult.environmentDiffuseSubLayers
+    + lightingResult.environmentSpecularSubLayers
+  #endif
+    )
+    * lightingResult.ao
+  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+    + lightingResult.environmentTransmitDiffuse
+  #endif
+  ;
+  #endif
+  return color;
+#endif
   return color;
 }
 
