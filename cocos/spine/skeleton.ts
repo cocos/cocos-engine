@@ -25,7 +25,7 @@ import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { error, warn } from '../core/platform/debug';
-import { Enum, ccenum } from '../core/value-types/enum';
+import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
@@ -233,8 +233,8 @@ export class Skeleton extends UIRenderer {
     }), 1);
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
     public paused = false;
-    protected _enumSkins: any = Enum({});
-    protected _enumAnimations: any = Enum({});
+    protected _enumSkins: EnumType = Enum({});
+    protected _enumAnimations: EnumType = Enum({});
     protected attachUtil: AttachUtil;
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
@@ -877,8 +877,7 @@ export class Skeleton extends UIRenderer {
             for (let i = 0; i < this._drawList.length; i++) {
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset, dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -913,7 +912,7 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public updateMaterial (): void {
-        let mat;
+        let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
@@ -1262,13 +1261,13 @@ export class Skeleton extends UIRenderer {
         }
         this._cachedSockets.clear();
         const bones = this._skeleton.bones;
-        const getBoneName = (bone: spine.Bone): any => {
+        const getBoneName = (bone: spine.Bone): string => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
+            return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
-            const boneName = getBoneName(bones[i]);
+            const boneName: string = getBoneName(bones[i]);
             this._cachedSockets.set(boneName, bd.index);
         }
     }
