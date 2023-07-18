@@ -152,6 +152,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
         fbfLevelStr                += "_DEPTH_STENCIL";
     }
+    _gpuConstantRegistry->multiDrawIndirect = checkExtension((CC_TOSTR(multi_draw_indirect)));
 
     ccstd::string msaaLevelStr = "NONE";
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP

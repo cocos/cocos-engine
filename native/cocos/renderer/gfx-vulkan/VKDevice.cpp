@@ -821,6 +821,8 @@ void CCVKDevice::initExtensionCapability() {
     _caps.supportVariableRateShading &= hasFlag(_formatFeatures[static_cast<uint32_t>(Format::R8UI)], FormatFeatureBit::SHADING_RATE);
 
     _caps.supportSubPassShading = checkExtension(VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME);
+    _caps.supportMultiDrawIndirect = _gpuContext->physicalDeviceFeatures.multiDrawIndirect &&
+                                     _gpuContext->physicalDeviceFeatures.drawIndirectFirstInstance;
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {

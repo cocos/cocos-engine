@@ -80,6 +80,26 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
     ++_curSubpassIdx;
 }
 
+void GLES3PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    if (_isStateInvalid) {
+        bindStates();
+    }
+
+    auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
+    auto *gpuBuffer = glesBuffer->gpuBuffer();
+    cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, false);
+}
+
+void GLES3PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    if (_isStateInvalid) {
+        bindStates();
+    }
+
+    auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
+    auto *gpuBuffer = glesBuffer->gpuBuffer();
+    cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, true);
+}
+
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
@@ -163,6 +183,13 @@ void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTex
         blit.dstExtent = copy.extent;
     }
     cmdFuncGLES3BlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, blitRegions.data(), count, Filter::POINT);
+}
+
+void GLES3PrimaryCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    GLES3GPUBuffer *srcGLBuffer = static_cast<GLES3Buffer *>(srcBuffer)->gpuBuffer();
+    GLES3GPUBuffer *dstGLBuffer = static_cast<GLES3Buffer *>(dstBuffer)->gpuBuffer();
+
+    cmdFuncGLES3CopyBuffer(srcGLBuffer, dstGLBuffer, regions, count);
 }
 
 void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

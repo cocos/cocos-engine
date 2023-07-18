@@ -22,8 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/std/hash/hash.h"
-
+#include "GFXDef.h"
 #include "GFXBuffer.h"
 #include "GFXInputAssembler.h"
 #include "GFXObject.h"
@@ -37,25 +36,11 @@ InputAssembler::InputAssembler()
 
 InputAssembler::~InputAssembler() = default;
 
-ccstd::hash_t InputAssembler::computeAttributesHash() const {
-    ccstd::hash_t seed = static_cast<uint32_t>(_attributes.size()) * 6;
-    for (const auto &attribute : _attributes) {
-        ccstd::hash_combine(seed, attribute.name);
-        ccstd::hash_combine(seed, attribute.format);
-        ccstd::hash_combine(seed, attribute.isNormalized);
-        ccstd::hash_combine(seed, attribute.stream);
-        ccstd::hash_combine(seed, attribute.isInstanced);
-        ccstd::hash_combine(seed, attribute.location);
-    }
-    return seed;
-}
-
 void InputAssembler::initialize(const InputAssemblerInfo &info) {
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
-    _indirectBuffer = info.indirectBuffer;
-    _attributesHash = computeAttributesHash();
+    _attributesHash = computeAttributesHash(_attributes);
 
     if (_indexBuffer) {
         _drawInfo.indexCount = _indexBuffer->getCount();
@@ -77,7 +62,6 @@ void InputAssembler::destroy() {
 
     _vertexBuffers.clear();
     _indexBuffer = nullptr;
-    _indirectBuffer = nullptr;
 
     _drawInfo = DrawInfo();
 }

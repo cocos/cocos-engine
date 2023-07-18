@@ -131,7 +131,6 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: WebGLIndirectDrawInfos;
 }
 
 export interface IWebGLGPUTexture {
@@ -309,7 +308,6 @@ export interface IWebGLGPUInputAssembler {
     attributes: Attribute[];
     gpuVertexBuffers: IWebGLGPUBuffer[];
     gpuIndexBuffer: IWebGLGPUBuffer | null;
-    gpuIndirectBuffer: IWebGLGPUBuffer | null;
 
     glAttribs: IWebGLAttrib[];
     glIndexType: GLenum;
@@ -430,7 +428,6 @@ export class IWebGLBlitManager {
             stride: 4 * Float32Array.BYTES_PER_ELEMENT,
             buffer: null,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };
@@ -448,7 +445,6 @@ export class IWebGLBlitManager {
             attributes: [new Attribute(`a_position`, Format.RG32F), new Attribute(`a_texCoord`, Format.RG32F)],
             gpuVertexBuffers: [this._gpuVertexBuffer],
             gpuIndexBuffer: null,
-            gpuIndirectBuffer: null,
 
             glAttribs: [],
             glIndexType: 0,
@@ -480,7 +476,6 @@ export class IWebGLBlitManager {
             stride: 8 * Float32Array.BYTES_PER_ELEMENT,
             buffer: this._uniformBuffer,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };

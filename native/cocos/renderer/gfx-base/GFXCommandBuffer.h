@@ -59,11 +59,14 @@ public:
     virtual void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) = 0;
     virtual void nextSubpass() = 0;
     virtual void draw(const DrawInfo &info) = 0;
+    virtual void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) = 0;
+    virtual void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) = 0;
     virtual void updateBuffer(Buffer *buff, const void *data, uint32_t size) = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) = 0;
     virtual void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
     virtual void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
+    virtual void copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id) = 0;

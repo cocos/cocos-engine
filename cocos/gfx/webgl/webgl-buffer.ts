@@ -83,7 +83,6 @@ export class WebGLBuffer extends Buffer {
                 stride: this._stride,
                 buffer: null,
                 vf32: null,
-                indirects: new WebGLIndirectDrawInfos(),
                 glTarget: 0,
                 glBuffer: null,
             };

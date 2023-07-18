@@ -70,7 +70,6 @@ RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
     _iaInfo.attributes = attributes;
     _iaInfo.vertexBuffers = vertexBuffers;
     _iaInfo.indexBuffer = indexBuffer;
-    _iaInfo.indirectBuffer = indirectBuffer;
 }
 
 RenderingSubMesh::~RenderingSubMesh() {
