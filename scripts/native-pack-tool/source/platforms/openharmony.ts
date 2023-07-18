@@ -6,6 +6,7 @@ import { cchelper, Paths } from "../utils";
 import { randomBytes } from "crypto";
 import { outputJSONSync } from 'fs-extra';
 import * as JSON5 from "json5"
+import { writeFileSync } from "fs";
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -96,13 +97,10 @@ export class OpenHarmonyPackTool extends NativePackTool {
         stringJSON.string.find((item: any) => item.name === 'MainAbility_label').value = this.params.projectName;
         outputJSONSync(stringJSONPath, stringJSON, { spaces: 2 });
 
-        const packageJsonPath = ps.join(ohosProjDir, 'package.json');
-        const packageJson = fs.readJSONSync(packageJsonPath);
+        const packageJsonPath = ps.join(ohosProjDir, 'oh-package.json5');
+        const packageJson = this.readJSON5Sync(packageJsonPath);
         packageJson.name = this.params.projectName;
-        fs.writeJSONSync(packageJsonPath, packageJson, {
-            spaces: 4,
-        });
-
+        writeFileSync(packageJsonPath, JSON5.stringify(packageJson, null, 4));
         return true;
     }
 

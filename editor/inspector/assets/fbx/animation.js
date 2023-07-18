@@ -700,7 +700,7 @@ const Elements = {
                 panel.$.importAllAnimatorWrap.style.display = 'block';
             }
 
-            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, false);
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
 
             updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
             updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);
