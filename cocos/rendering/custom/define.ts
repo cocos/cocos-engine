@@ -75,7 +75,7 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
     const { spotLights } = camera.scene!;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        if (light.baked) {
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
             continue;
         }
 
@@ -88,7 +88,7 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
     const { sphereLights } = camera.scene!;
     for (let i = 0; i < sphereLights.length; i++) {
         const light = sphereLights[i];
-        if (light.baked) {
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
             continue;
         }
         geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -117,8 +117,8 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
             validPunctualLights.push(light);
         }
     }
-    // array push not supported.
-    pipeline.pipelineSceneData.validPunctualLights = validPunctualLights;
+    // in jsb, std::vector is not synchronized, so we need to assign it manually
+    sceneData.validPunctualLights = validPunctualLights;
 }
 
 const _cameras: Camera[] = [];
