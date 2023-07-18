@@ -1693,7 +1693,7 @@ export class SceneGlobals {
         this.skin.activate(sceneData.skin);
         this.toneMapping.activate(sceneData.toneMapping);
         if (this.lightProbeInfo && sceneData.lightProbes) {
-            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes as LightProbes);
         }
 
         const root = legacyCC.director.root as Root;
