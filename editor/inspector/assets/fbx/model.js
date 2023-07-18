@@ -889,6 +889,28 @@ const Elements = {
         },
     },
     // lods end
+    // when lang change
+    i18n: {
+        ready() {
+            const panel = this;
+
+            Elements.i18n.changeBind = Elements.i18n.change.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.i18n.changeBind);
+        },
+        close() {
+            Editor.Message.removeBroadcastListener('i18n:change', Elements.i18n.changeBind);
+            Elements.i18n.changeBind = undefined;
+        },
+        change() {
+            const panel = this;
+
+            Elements.normals.update.call(panel);
+            Elements.tangents.update.call(panel);
+            Elements.morphNormals.update.call(panel);
+            Elements.morphNormals.update.call(panel);
+            Elements.meshOptimizerAlgorithm.update.call(panel);
+        },
+    },
 };
 
 exports.methods = {
