@@ -619,7 +619,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 新的兄弟节点索引值。如果该值等于 -1 或者大于等于兄弟节点数量，那么该节点将会被插到兄弟节点数组的尾部。
      */
     public setSiblingIndex (index: number): void {
-        if (!this._parent || (index < 0 || index !== -1)) {
+        if (!this._parent || (index < 0 && index !== -1)) {
             return;
         }
         if (this._parent._objFlags & Deactivating) {
