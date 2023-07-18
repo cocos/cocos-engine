@@ -1490,12 +1490,16 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    protected _updateColor () {
+    /**
+     * @engineInternal
+     */
+    public _updateColor (): void {
+        //if(EDITOR_NOT_IN_PREVIEW) cce.Node.emit('change-node', this.node);
         this.node._uiProps.colorDirty = true;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        const a = this._color.a / 255.0;
+        const a = this.node._uiProps.opacity;
         this._instance.setColor(r, g, b, a);
     }
 
