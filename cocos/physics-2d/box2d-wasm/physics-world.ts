@@ -24,6 +24,7 @@
 
 // import b2 from '@cocos/box2d';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { B2 } from './instantiated';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
@@ -47,8 +48,7 @@ const tempVec2_1 = new Vec2();
 const tempVec2_2 = new Vec2();
 const tempB2Vec2_1 = { x: 0, y: 0 };
 
-const temoBodyDef = new B2.BodyDef();
-const tempB2AABB = new B2.AABB();
+// const tempB2AABB = null;//new B2.AABB();
 
 const testResults: Collider2D[] = [];
 
@@ -63,6 +63,9 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
     protected _raycastQueryCallback: PhysicsRayCastCallback;
 
+    private _temoBodyDef: B2.BodyDef;//new B2.BodyDef();
+    private _tempB2AABB: B2.AABB;//new B2.AABB();
+
     get impl (): B2.World {
         return this._world;
     }
@@ -72,9 +75,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     constructor () {
-        tempB2Vec2_1.x = 0;
-        tempB2Vec2_1.y = -10;
-        this._world = new B2.World(tempB2Vec2_1);
+        this._world = new B2.World({ x: 0, y: -10 });
         const tempBodyDef = new B2.BodyDef();
         //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
         this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
@@ -83,12 +84,15 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         listener.setEndContact(this._onEndContact);
         listener.setPreSolve(this._onPreSolve);
         listener.setPostSolve(this._onPostSolve);
-        this._world.SetContactListener(listener);
+        //this._world.SetContactListener(listener);//todo
 
         this._contactListener = listener;
 
         this._aabbQueryCallback = new PhysicsAABBQueryCallback();
         this._raycastQueryCallback = new PhysicsRayCastCallback();
+
+        this._temoBodyDef = new B2.BodyDef();
+        this._tempB2AABB = new B2.AABB();
     }
 
     _debugGraphics: Graphics | null = null;
@@ -266,7 +270,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             return;
         }
 
-        const bodyDef = temoBodyDef;
+        const bodyDef = this._temoBodyDef;
 
         const comp = body.rigidBody;
 
@@ -281,8 +285,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const node = comp.node;
         const pos = node.worldPosition;
         // bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
-        bodyDef.position.x = pos.x / PHYSICS_2D_PTM_RATIO;
-        bodyDef.position.y = pos.y / PHYSICS_2D_PTM_RATIO;
+        bodyDef.position = { x: pos.x / PHYSICS_2D_PTM_RATIO, y: pos.y / PHYSICS_2D_PTM_RATIO };
         tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
         if (this._rotationAxis.z < 0.0) {
             tempVec3.z = Math.PI * 2 - tempVec3.z;
@@ -292,21 +295,32 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         bodyDef.awake = comp.awakeOnLoad;
 
         if (comp.type === ERigidBody2DType.Animated) {
-            bodyDef.type = ERigidBody2DType.Kinematic as number;
-
+            bodyDef.type = B2.BodyType.b2_kinematicBody;
             this._animatedBodies.push(body);
             body._animatedPos.set(bodyDef.position.x, bodyDef.position.y);
             body._animatedAngle = bodyDef.angle;
         } else {
-            bodyDef.type = comp.type as number;
+            switch (comp.type) {
+            case ERigidBody2DType.Dynamic:
+                bodyDef.type = B2.BodyType.b2_dynamicBody;
+                break;
+            case ERigidBody2DType.Static:
+                bodyDef.type = B2.BodyType.b2_staticBody;
+                break;
+            case ERigidBody2DType.Kinematic:
+                bodyDef.type = B2.BodyType.b2_kinematicBody;
+                break;
+            default:
+                bodyDef.type = B2.BodyType.b2_staticBody;
+                break;
+            }
         }
 
         // read private property
         const compPrivate = comp as any;
         const linearVelocity = compPrivate._linearVelocity;
         // bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
-        bodyDef.linearVelocity.x = linearVelocity.x;
-        bodyDef.linearVelocity.y = linearVelocity.y;
+        bodyDef.linearVelocity = { x: linearVelocity.x / PHYSICS_2D_PTM_RATIO, y: linearVelocity.y / PHYSICS_2D_PTM_RATIO };
         bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity);
 
         const b2Body = this._world.CreateBody(bodyDef);
@@ -345,14 +359,16 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const y = tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
 
         const d = 0.2 / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.lowerBound.x = x - d;
-        tempB2AABB.lowerBound.y = y - d;
-        tempB2AABB.upperBound.x = x + d;
-        tempB2AABB.upperBound.y = y + d;
+        // this._tempB2AABB.lowerBound.x = x - d;
+        // this._tempB2AABB.lowerBound.y = y - d;
+        this._tempB2AABB.lowerBound = { x: x - d, y: y - d };
+        // this._tempB2AABB.upperBound.x = x + d;
+        // this._tempB2AABB.upperBound.y = y + d;
+        this._tempB2AABB.upperBound = { x: x + d, y: y + d };
 
         const callback = this._aabbQueryCallback;
         callback.init(tempVec2_1);
-        this._world.QueryAABB(callback, tempB2AABB);
+        this._world.QueryAABB(callback, this._tempB2AABB);
 
         const fixtures = callback.getFixtures();
         testResults.length = 0;
@@ -366,14 +382,16 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     testAABB (rect: Rect): readonly Collider2D[] {
-        tempB2AABB.lowerBound.x = rect.xMin / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.lowerBound.y = rect.yMin / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.upperBound.x = rect.xMax / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.upperBound.y = rect.yMax / PHYSICS_2D_PTM_RATIO;
+        // this._tempB2AABB.lowerBound.x = rect.xMin / PHYSICS_2D_PTM_RATIO;
+        // this._tempB2AABB.lowerBound.y = rect.yMin / PHYSICS_2D_PTM_RATIO;
+        this._tempB2AABB.lowerBound = { x: rect.xMin / PHYSICS_2D_PTM_RATIO, y: rect.yMin / PHYSICS_2D_PTM_RATIO };
+        // this._tempB2AABB.upperBound.x = rect.xMax / PHYSICS_2D_PTM_RATIO;
+        // this._tempB2AABB.upperBound.y = rect.yMax / PHYSICS_2D_PTM_RATIO;
+        this._tempB2AABB.upperBound = { x: rect.xMax / PHYSICS_2D_PTM_RATIO, y: rect.yMax / PHYSICS_2D_PTM_RATIO };
 
         const callback = this._aabbQueryCallback;
         callback.init();
-        this._world.QueryAABB(callback, tempB2AABB);
+        this._world.QueryAABB(callback, this._tempB2AABB);
 
         const fixtures = callback.getFixtures();
         testResults.length = 0;

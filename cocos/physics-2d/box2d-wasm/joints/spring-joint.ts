@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { ISpringJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { SpringJoint2D } from '../../framework';
@@ -48,13 +49,11 @@ export class B2SpringJoint extends B2Joint implements ISpringJoint {
     _createJointDef (): any {
         const comp = this._jointComp as SpringJoint2D;
         const def = new B2.DistanceJointDef();
-        def.localAnchorA.x = comp.anchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorA.y = comp.anchor.y / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.x = comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.y = comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO;
+        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
+        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.length = comp.distance / PHYSICS_2D_PTM_RATIO;
-        def.dampingRatio = comp.dampingRatio;
-        def.frequencyHz = comp.frequency;
+        def.stiffness = comp.frequency;
+        def.damping = comp.dampingRatio;
         return def;
     }
 }

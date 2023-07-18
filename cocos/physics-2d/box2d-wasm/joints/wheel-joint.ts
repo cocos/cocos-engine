@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IWheelJoint } from '../../spec/i-physics-joint';
 import { WheelJoint2D } from '../../framework';
 import { B2Joint } from './joint-2d';
@@ -61,19 +62,15 @@ export class B2WheelJoint extends B2Joint implements IWheelJoint {
     _createJointDef (): any {
         const comp = this._jointComp as WheelJoint2D;
         const def = new B2.WheelJointDef();
-        def.localAnchorA.x = comp.anchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorA.y = comp.anchor.y / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.x = comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.y = comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO;
+        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
+        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         const angle = toRadian(comp.angle);
-        def.localAxisA.x = Math.cos(angle);
-        def.localAxisA.y = Math.sin(angle);
-        // def.localAxisA.Set(0, 1);
+        def.localAxisA = { x: Math.cos(angle), y: Math.sin(angle) };
         def.maxMotorTorque = comp.maxMotorTorque;
         def.motorSpeed = toRadian(comp.motorSpeed);
         def.enableMotor = comp.enableMotor;
-        def.dampingRatio = comp.dampingRatio;
-        def.frequencyHz = comp.frequency;
+        def.damping = comp.dampingRatio;
+        def.stiffness = comp.frequency;
         return def;
     }
 }

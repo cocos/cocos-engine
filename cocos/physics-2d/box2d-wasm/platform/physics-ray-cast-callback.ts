@@ -23,10 +23,11 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
 
-export class PhysicsRayCastCallback extends B2.RayCastCallback {
+export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
     _type = ERaycast2DType.Closest;
     _fixtures: B2.Fixture[] = [];
     _points: Vec2[] = [];

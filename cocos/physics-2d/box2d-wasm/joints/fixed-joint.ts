@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IFixedJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { FixedJoint2D } from '../../framework';
@@ -43,13 +44,11 @@ export class B2FixedJoint extends B2Joint implements IFixedJoint {
     _createJointDef (): any {
         const comp = this._jointComp as FixedJoint2D;
         const def = new B2.WeldJointDef();
-        def.localAnchorA.x = comp.anchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorA.y = comp.anchor.y / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.x = comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.y = comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO;
+        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
+        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.referenceAngle = 0;
-        def.frequencyHz = comp.frequency;
-        def.dampingRatio = comp.dampingRatio;
+        def.stiffness = comp.frequency;
+        def.damping = comp.dampingRatio;
         return def;
     }
 }

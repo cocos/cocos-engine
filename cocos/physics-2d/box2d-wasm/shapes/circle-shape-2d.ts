@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import { CircleCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';

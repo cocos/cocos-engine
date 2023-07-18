@@ -23,10 +23,11 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
-import { Vec2 } from '../../../core';
+import { Vec2, warn } from '../../../core';
 
 export class B2Joint implements IJoint2D {
     get impl (): B2.Joint | null {
@@ -71,13 +72,17 @@ export class B2Joint implements IJoint2D {
         }
 
         this._body = comp.getComponent(RigidBody2D);
+        if (!this._body) {
+            warn(`Joint2D: Body is not found, can not create joint. Node Name: ${comp.node.name}`);
+            return;
+        }
 
         const def = this._createJointDef();
         if (!def) {
             return;
         }
 
-        def.SetBodyA(this._body!.impl!.impl);
+        def.SetBodyA(this._body.impl!.impl);
         const connectedBody = comp.connectedBody;
         //if connected body is set but not active, return
         if (connectedBody && !connectedBody.enabledInHierarchy) {

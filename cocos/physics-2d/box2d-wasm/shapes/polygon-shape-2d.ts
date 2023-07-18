@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import * as PolygonSeparator from '../../framework/utils/polygon-separator';
 import * as PolygonPartition from '../../framework/utils/polygon-partition';
@@ -71,7 +72,8 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
         for (let i = 0; i < polys.length; i++) {
             const poly = polys[i];
 
-            let shape: B2.PolygonShape | null = null; let vertices: B2.Vec2[] = [];
+            let shape: B2.PolygonShape | null = null;
+            const vertices = new B2.Vec2Vector();
             let firstVertice: B2.Vec2 | null = null;
 
             for (let j = 0, l = poly.length; j < l; j++) {
@@ -82,28 +84,30 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
                 const x = (relativePositionX + (p.x + offset.x) * scaleX) / PHYSICS_2D_PTM_RATIO;
                 const y = (relativePositionY + (p.y + offset.y) * scaleY) / PHYSICS_2D_PTM_RATIO;
                 const v = { x, y };
-                vertices.push(v);
+                vertices.push_back(v);
 
                 if (!firstVertice) {
                     firstVertice = v;
                 }
 
-                if (vertices.length === B2.maxPolygonVertices) {
-                    shape.Set(vertices, vertices.length);
-                    shapes.push(shape);
+                //todo
+                // if (vertices.length === B2.maxPolygonVertices) {
+                //     shape!.Set(vertices, vertices.length);
+                //     shapes.push(shape!);
 
-                    shape = null;
+                //     shape = null;
 
-                    if (j < l - 1) {
-                        vertices = [firstVertice, vertices[vertices.length - 1]];
-                    }
-                }
+                //     if (j < l - 1) {
+                //         vertices = [firstVertice, vertices[vertices.length - 1]];
+                //     }
+                // }
             }
 
             if (shape) {
-                shape.Set(vertices, vertices.length);
+                shape.Set(vertices, vertices.size());
                 shapes.push(shape);
             }
+            vertices.delete();
         }
 
         return shapes;

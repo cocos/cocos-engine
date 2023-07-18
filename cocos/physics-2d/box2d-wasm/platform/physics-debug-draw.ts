@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { Color } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
@@ -33,14 +34,14 @@ const _tmp_color = new Color();
 const GREEN_COLOR = Color.GREEN;
 const RED_COLOR = Color.RED;
 
-export class PhysicsDebugDraw extends B2.Draw {
+export class PhysicsDebugDraw {// extends B2.Draw {
     _drawer: Graphics | null = null;
 
     _xf = new B2.Transform();
     _dxf = new B2.Transform();
 
     constructor (drawer: Graphics) {
-        super();
+        //super();
         this._drawer = drawer;
     }
 

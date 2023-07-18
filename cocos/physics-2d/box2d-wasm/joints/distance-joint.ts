@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IDistanceJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { DistanceJoint2D } from '../../framework';
@@ -30,19 +31,18 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
 export class B2DistanceJoint extends B2Joint implements IDistanceJoint {
     setMaxLength (v: number): void {
-        // if (this._b2joint) {
-        //     (this._b2joint as B2.RopeJoint).SetMaxLength(v);
-        // }
+        if (this._b2joint) {
+            (this._b2joint as B2.RopeJoint).SetMaxLength(v);
+        }
     }
 
     _createJointDef (): any {
-        // const comp = this._jointComp as DistanceJoint2D;
-        // const def = new B2.RopeJointDef();
-        // def.localAnchorA.x = comp.anchor.x / PHYSICS_2D_PTM_RATIO;
-        // def.localAnchorA.y = comp.anchor.y / PHYSICS_2D_PTM_RATIO;
-        // def.localAnchorB.x = comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO;
-        // def.localAnchorB.y = comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO;
-        // def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;
-        // return def;
+        const comp = this._jointComp as DistanceJoint2D;
+        const def = new B2.RopeJointDef();
+        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
+        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
+        def.referenceAngle = 0;
+        def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;
+        return def;
     }
 }

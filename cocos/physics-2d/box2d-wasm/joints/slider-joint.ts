@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { ISliderJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { SliderJoint2D } from '../../framework';
@@ -69,13 +70,10 @@ export class B2SliderJoint extends B2Joint implements ISliderJoint {
     _createJointDef (): any {
         const comp = this._jointComp as SliderJoint2D;
         const def = new B2.PrismaticJointDef();
-        def.localAnchorA.x = comp.anchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorA.y = comp.anchor.y / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.x = comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO;
-        def.localAnchorB.y = comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO;
+        def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
+        def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         const angle = toRadian(comp.angle);
-        def.localAxisA.x = Math.cos(angle);
-        def.localAxisA.y = Math.sin(angle);
+        def.localAxisA = { x: Math.cos(angle), y: Math.sin(angle) };
         def.referenceAngle = 0;
         def.enableLimit = comp.enableLimit;
         def.lowerTranslation = comp.lowerLimit / PHYSICS_2D_PTM_RATIO;
