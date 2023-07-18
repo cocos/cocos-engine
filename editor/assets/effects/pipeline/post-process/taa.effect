@@ -52,15 +52,16 @@ CCProgram fs %{
     vec4 taaParams1;      // xy: offset, z: feedback
     mat4 taaPrevViewProj;
   };
+  
+  #pragma rate motionMaskTex
+  uniform highp sampler2D motionMaskTex;
+
   #pragma rate inputTexture pass
   uniform sampler2D inputTexture;
   #pragma rate depthTex pass
   uniform highp sampler2D depthTex;
   #pragma rate taaPrevTexture pass
   uniform sampler2D taaPrevTexture;
-
-  #pragma rate motionMaskTex
-  uniform highp sampler2D motionMaskTex;
 
   // screen position (0-1)
   vec3 screen2WS(vec3 screenPos) {

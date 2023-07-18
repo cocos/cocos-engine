@@ -31,6 +31,7 @@ import { Color } from '../../core';
 import { scene } from '../../render-scene';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../asset/assets';
+import type { PVData } from '../renderer/particle-system-renderer-cpu';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -325,7 +326,7 @@ export default class ParticleBatchModel extends scene.Model {
         this.setSubModelMaterial(0, mat);
     }
 
-    public addParticleVertexData (index: number, pvdata: any[]): void {
+    public addParticleVertexData (index: number, pvdata: PVData): void {
         if (!this._useInstance) {
             if (!this._mesh) {
                 let offset: number = index * this._vertAttrsFloatCount;
@@ -371,7 +372,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addParticleVertexDataIns (index: number, pvdata: any[]): void {
+    private addParticleVertexDataIns (index: number, pvdata: PVData): void {
         let offset: number = index * this._vertAttrsFloatCount;
         if (!this._mesh) {
             this._vdataF32![offset++] = pvdata[0].x; // position

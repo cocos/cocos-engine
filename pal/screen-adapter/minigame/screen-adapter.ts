@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -31,6 +31,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const my: any;
 
@@ -155,12 +156,9 @@ class ScreenAdapter extends EventTarget {
 
     constructor () {
         super();
-        // TODO: onResize or onOrientationChange is not supported well
-        if (WECHAT || WECHAT_MINI_PROGRAM || RUNTIME_BASED) {
-            minigame.onWindowResize?.(() => {
-                this.emit('window-resize', this.windowSize.width, this.windowSize.height);
-            });
-        }
+        minigame.onWindowResize?.(() => {
+            this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+        });
     }
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
@@ -177,3 +175,5 @@ class ScreenAdapter extends EventTarget {
 }
 
 export const screenAdapter = new ScreenAdapter();
+
+checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

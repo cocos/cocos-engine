@@ -44,6 +44,7 @@ void Framebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
     _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
+    _depthStencilResolveTexture = info.depthStencilResolveTexture;
 
     doInit(info);
 }
@@ -54,6 +55,7 @@ void Framebuffer::destroy() {
     _renderPass = nullptr;
     _colorTextures.clear();
     _depthStencilTexture = nullptr;
+    _depthStencilResolveTexture = nullptr;
 }
 
 } // namespace gfx

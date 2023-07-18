@@ -167,11 +167,13 @@ static bool configureCURL(HttpClient *client, HttpRequest *request, CURL *handle
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, request->getTimeout());
+    // In the openharmony platform, the long type must be used, otherwise there will be an exception.
+    long timeout = static_cast<long>(request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }

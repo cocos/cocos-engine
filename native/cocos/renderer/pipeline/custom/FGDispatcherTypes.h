@@ -114,7 +114,10 @@ struct LayoutAccess {
 struct FGRenderPassInfo {
     std::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
+    LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
+    std::vector<std::string> orderedViews;
+    bool needResolve{false};
 };
 
 struct ResourceAccessGraph {

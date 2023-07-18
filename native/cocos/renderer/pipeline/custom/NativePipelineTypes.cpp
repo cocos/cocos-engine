@@ -35,16 +35,19 @@ namespace cc {
 namespace render {
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
-: batches(alloc),
-  sortedBatches(alloc) {}
+: sortedBatches(alloc),
+  passInstances(alloc),
+  instanceBuffers(alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue&& rhs, const allocator_type& alloc)
-: batches(std::move(rhs.batches), alloc),
-  sortedBatches(std::move(rhs.sortedBatches), alloc) {}
+: sortedBatches(std::move(rhs.sortedBatches), alloc),
+  passInstances(std::move(rhs.passInstances), alloc),
+  instanceBuffers(std::move(rhs.instanceBuffers), alloc) {}
 
 RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, const allocator_type& alloc)
-: batches(rhs.batches, alloc),
-  sortedBatches(rhs.sortedBatches, alloc) {}
+: sortedBatches(rhs.sortedBatches, alloc),
+  passInstances(rhs.passInstances, alloc),
+  instanceBuffers(rhs.instanceBuffers, alloc) {}
 
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
@@ -76,12 +79,6 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
   subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
-
-DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
-DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
-: name(alloc) {}
 
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
@@ -183,7 +180,8 @@ SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
   renderQueues(std::move(rhs.renderQueues), alloc),
   sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
   numCullingQueries(rhs.numCullingQueries),
-  numRenderQueues(rhs.numRenderQueues) {}
+  numRenderQueues(rhs.numRenderQueues),
+  gpuCullingPassID(rhs.gpuCullingPassID) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),

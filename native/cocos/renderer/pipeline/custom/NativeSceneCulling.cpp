@@ -1,16 +1,11 @@
-#include "LayoutGraphGraphs.h"
-#include "NativePipelineTypes.h"
-#include "NativeUtils.h"
-#include "RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
-#include "details/GslUtils.h"
-#include "details/Range.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
-#include "pipeline/custom/NativeUtils.h"
-#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
@@ -19,10 +14,8 @@ namespace render {
 void NativeRenderQueue::clear() noexcept {
     opaqueQueue.instances.clear();
     transparentQueue.instances.clear();
-    opaqueInstancingQueue.batches.clear();
-    opaqueInstancingQueue.sortedBatches.clear();
-    transparentInstancingQueue.batches.clear();
-    transparentInstancingQueue.sortedBatches.clear();
+    opaqueInstancingQueue.clear();
+    transparentInstancingQueue.clear();
     sceneFlags = SceneFlags::NONE;
     subpassOrPassLayoutID = 0xFFFFFFFF;
 }
@@ -30,10 +23,8 @@ void NativeRenderQueue::clear() noexcept {
 bool NativeRenderQueue::empty() const noexcept {
     return opaqueQueue.instances.empty() &&
            transparentQueue.instances.empty() &&
-           opaqueInstancingQueue.batches.empty() &&
-           opaqueInstancingQueue.sortedBatches.empty() &&
-           transparentInstancingQueue.batches.empty() &&
-           transparentInstancingQueue.sortedBatches.empty();
+           opaqueInstancingQueue.empty() &&
+           transparentInstancingQueue.empty();
 }
 
 uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
@@ -350,12 +341,10 @@ void addRenderObject(
 
             // add object to queue
             if (pass.getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                auto& instancedBuffer = *pass.getInstancedBuffer();
-                instancedBuffer.merge(subModel, passIdx);
                 if (bBlend) {
-                    queue.transparentInstancingQueue.add(instancedBuffer);
+                    queue.transparentInstancingQueue.add(pass, *subModel, passIdx);
                 } else {
-                    queue.opaqueInstancingQueue.add(instancedBuffer);
+                    queue.opaqueInstancingQueue.add(pass, *subModel, passIdx);
                 }
             } else {
                 // TODO(zhouzhenglong): change camera to frustum

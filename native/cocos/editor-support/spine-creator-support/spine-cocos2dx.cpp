@@ -57,7 +57,7 @@ static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
 static void setAttachmentVertices(RegionAttachment *attachment) {
     auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
+    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
     V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
     for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
@@ -68,7 +68,7 @@ static void setAttachmentVertices(RegionAttachment *attachment) {
 
 static void setAttachmentVertices(MeshAttachment *attachment) {
     auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()),
+    auto *attachmentVertices = new AttachmentVertices(static_cast<middleware::Texture2D *>(region->page->getRendererObject()),
                                                       static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
     V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
     for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
@@ -103,7 +103,7 @@ Cocos2dTextureLoader::Cocos2dTextureLoader() = default;
 Cocos2dTextureLoader::~Cocos2dTextureLoader() = default;
 
 void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
-    Texture2D *texture = nullptr;
+    middleware::Texture2D *texture = nullptr;
     if (spine::customTextureLoader) {
         texture = spine::customTextureLoader(path.buffer());
     }
@@ -112,7 +112,7 @@ void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
     if (texture) {
         texture->addRef();
 
-        Texture2D::TexParams textureParams = {filter(page.minFilter), filter(page.magFilter), wrap(page.uWrap), wrap(page.vWrap)};
+        middleware::Texture2D::TexParams textureParams = {filter(page.minFilter), filter(page.magFilter), wrap(page.uWrap), wrap(page.vWrap)};
         texture->setTexParameters(textureParams);
 
         page.setRendererObject(texture);
@@ -123,7 +123,7 @@ void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
 
 void Cocos2dTextureLoader::unload(void *texture) {
     if (texture) {
-        (static_cast<Texture2D *>(texture))->release();
+        (static_cast<middleware::Texture2D *>(texture))->release();
     }
 }
 

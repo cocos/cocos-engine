@@ -113,6 +113,7 @@ exports.style = /* css */`
     display: none;
     text-align: center;
     color: var(--color-focus-contrast-weakest);
+    margin-top: 8px;
 }
 .container > .show-type-wrap {
     text-align: center;
@@ -699,7 +700,7 @@ const Elements = {
                 panel.$.importAllAnimatorWrap.style.display = 'block';
             }
 
-            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, false);
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
 
             updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
             updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);

@@ -23,118 +23,71 @@
 */
 
 import b2 from '@cocos/box2d';
-import { assert, js } from '../../../core';
-import { fastRemove } from '../../../core/utils/array';
-import { Contact2DType, PhysicsSystem2D } from '../../framework';
-import { PhysicsContact } from '../physics-contact';
-import { b2Shape2D } from '../shapes/shape-2d';
+import { js } from '../../../core';
 
-/**
- * @en
- * The contact listener responsible for all contact events between colliders.
- * @zh
- * 负责处理所有碰撞体之间的触发事件。
- * @class PhysicsContactListener
- * @extends b2.ContactListener
- */
 export class PhysicsContactListener extends b2.ContactListener {
-    static readonly _contactMap = new Map<string, PhysicsContact>();
+    _contactFixtures: b2.Fixture[] = [];
 
-    private getContactKey (contact: b2.Contact): string {
-        const colliderA = (contact.m_fixtureA.m_userData as b2Shape2D).collider;
-        const colliderB = (contact.m_fixtureB.m_userData as b2Shape2D).collider;
-        let key = colliderA.uuid + colliderB.uuid;
-        if (colliderA.uuid > colliderB.uuid) {
-            key = colliderB.uuid + colliderA.uuid;
-        }
-        return key;
+    _BeginContact: Function | null = null;
+    _EndContact: Function | null = null;
+    _PreSolve: Function | null = null;
+    _PostSolve: Function | null = null;
+
+    setBeginContact (cb): void {
+        this._BeginContact = cb;
+    }
+
+    setEndContact (cb): void {
+        this._EndContact = cb;
+    }
+
+    setPreSolve (cb): void {
+        this._PreSolve = cb;
+    }
+
+    setPostSolve (cb): void {
+        this._PostSolve = cb;
     }
 
     BeginContact (contact: b2.Contact): void {
-        const key = this.getContactKey(contact);
+        if (!this._BeginContact) return;
 
-        if (PhysicsContactListener._contactMap.has(key)) {
-            const retContact = PhysicsContactListener._contactMap.get(key)!;
-            retContact.ref++;
-            if (retContact.status === Contact2DType.END_CONTACT) {
-                retContact.status = Contact2DType.STAY_CONTACT;
-            } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
-                retContact.status = Contact2DType.BEGIN_CONTACT;
-            }
-        } else {
-            const retCollision = new PhysicsContact(contact);
-            PhysicsContactListener._contactMap.set(key, retCollision);
-            retCollision.status = Contact2DType.BEGIN_CONTACT;
+        const fixtureA = contact.GetFixtureA();
+        const fixtureB = contact.GetFixtureB();
+        const fixtures = this._contactFixtures;
+
+        (contact as any)._shouldReport = false;
+
+        if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
+            (contact as any)._shouldReport = true; // for quick check whether this contact should report
+            this._BeginContact(contact);
         }
     }
 
     EndContact (contact: b2.Contact): void {
-        const key = this.getContactKey(contact);
-
-        const retContact = PhysicsContactListener._contactMap.get(key);
-        assert(typeof retContact !== 'undefined');
-
-        retContact.ref--;
-        if (retContact.ref <= 0) {
-            retContact.status = Contact2DType.END_CONTACT;
+        if (this._EndContact && (contact as any)._shouldReport) {
+            (contact as any)._shouldReport = false;
+            this._EndContact(contact);
         }
     }
 
     PreSolve (contact: b2.Contact, oldManifold: b2.Manifold): void {
+        if (this._PreSolve && (contact as any)._shouldReport) {
+            this._PreSolve(contact, oldManifold);
+        }
     }
 
     PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse): void {
+        if (this._PostSolve && (contact as any)._shouldReport) {
+            this._PostSolve(contact, impulse);
+        }
     }
 
-    public finalizeContactEvent (): void {
-        PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string): void => {
-            // emit collision event
-            if (!contact.disabled || contact.status === Contact2DType.BEGIN_CONTACT) { //BEGIN_CONTACT always emits
-                if (contact.status === Contact2DType.END_CONTACT) {
-                    this.emit(Contact2DType.END_CONTACT, contact);
-                } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
-                    this.emit(Contact2DType.BEGIN_CONTACT, contact);
-                } else if (contact.status === Contact2DType.STAY_CONTACT) {
-                    this.emit(Contact2DType.STAY_CONTACT, contact);
-                }
-            }
-
-            // extra processing
-            if (contact.status === Contact2DType.END_CONTACT) {
-                PhysicsContactListener._contactMap.delete(key);
-            } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
-                contact.status = Contact2DType.STAY_CONTACT;
-            }
-        });
+    registerContactFixture (fixture): void {
+        this._contactFixtures.push(fixture);
     }
 
-    private emit (contactType, contact: PhysicsContact): void {
-        const colliderA = contact.colliderA;
-        const colliderB = contact.colliderB;
-        if (!colliderA || !colliderB) {
-            return;
-        }
-
-        const bodyA = colliderA.body;
-        const bodyB = colliderB.body;
-        //if rigid body doesn't exist, collider will be added to groundRigidbody automatically,
-        //hence it should emit event
-        if ((bodyA && !bodyA.enabledInHierarchy) || (bodyB && !bodyB.enabledInHierarchy) || (!bodyA && !bodyB)) {
-            return;
-        }
-
-        //bodyA exists and enabledContactListner, or bodyA doesn't exist
-        if ((bodyA && bodyA.enabledContactListener) || (!bodyA)) {
-            colliderA?.emit(contactType, colliderA, colliderB, contact);
-        }
-
-        //bodyB exists and enabledContactListner, or bodyB doesn't exist
-        if ((bodyB && bodyB.enabledContactListener) || (!bodyB)) {
-            colliderB?.emit(contactType, colliderB, colliderA, contact);
-        }
-
-        if ((bodyA && bodyA.enabledContactListener) || (bodyB && bodyB.enabledContactListener) || !bodyA || !bodyB) {
-            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, contact);
-        }
+    unregisterContactFixture (fixture): void {
+        js.array.remove(this._contactFixtures, fixture);
     }
 }
