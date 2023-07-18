@@ -23,9 +23,10 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { js } from '../../../core';
 
-export class PhysicsContactListener extends B2.ContactListener {
+export class PhysicsContactListener {// extends B2.ContactListener {
     _contactFixtures: B2.Fixture[] = [];
 
     _BeginContact: Function | null = null;

@@ -23,6 +23,7 @@
 */
 
 // import b2, { MotorJointDef, Vec2 } from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IRelativeJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { RelativeJoint2D } from '../../framework';
@@ -63,8 +64,7 @@ export class B2RelativeJoint extends B2Joint implements IRelativeJoint {
     _createJointDef (): any {
         const comp = this._jointComp as RelativeJoint2D;
         const def = new B2.MotorJointDef();
-        def.linearOffset.x = comp.linearOffset.x / PHYSICS_2D_PTM_RATIO;
-        def.linearOffset.y = comp.linearOffset.y / PHYSICS_2D_PTM_RATIO;
+        def.linearOffset = { x: comp.linearOffset.x / PHYSICS_2D_PTM_RATIO, y: comp.linearOffset.y / PHYSICS_2D_PTM_RATIO };
         def.angularOffset = toRadian(comp.angularOffset);
         def.maxForce = comp.maxForce;
         def.maxTorque = comp.maxTorque;

@@ -23,6 +23,7 @@
 */
 
 // import b2 from '@cocos/box2d';
+import { B2 } from './instantiated';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
@@ -38,7 +39,7 @@ const pools: PhysicsContact[] = [];
 // temp world manifold
 const pointCache = [new Vec2(), new Vec2()];
 
-const b2worldmanifold = new B2.WorldManifold();
+const b2worldmanifold = null;//new B2.WorldManifold();
 
 const worldmanifold: IPhysics2DWorldManifold = {
     points: [] as Vec2[],

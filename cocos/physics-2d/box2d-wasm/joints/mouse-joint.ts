@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
+import { B2 } from '../instantiated';
 import { IMouseJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { MouseJoint2D, PhysicsSystem2D, Joint2D } from '../../framework';
@@ -65,11 +65,10 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
     _createJointDef (): any {
         const def = new B2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
-        def.target.x = this._touchPoint.x / PHYSICS_2D_PTM_RATIO;
-        def.target.y = this._touchPoint.y / PHYSICS_2D_PTM_RATIO;
+        def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
         def.maxForce = comp.maxForce;
-        def.dampingRatio = comp.dampingRatio;
-        def.frequencyHz = comp.frequency;
+        def.stiffness = comp.frequency;
+        def.damping = comp.dampingRatio;
         return def;
     }
 

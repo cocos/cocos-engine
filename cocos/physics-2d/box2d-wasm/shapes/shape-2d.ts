@@ -23,6 +23,7 @@
 */
 
 //import b2, { Vec2 } from '@cocos/box2d';
+import { B2 } from '../instantiated';
 
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
@@ -30,7 +31,7 @@ import { Rect, Vec3 } from '../../../core';
 import { B2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
-const tempFilter = new B2.Filter();
+const tempFilter = { categoryBits: 0, maskBits: 0, groupIndex: 0 };// new B2.Filter();
 const lowerBound = { x: 0, y: 0 };
 const upperBound = { x: 0, y: 0 };
 
@@ -176,15 +177,21 @@ export class B2Shape2D implements IBaseShape {
         for (let i = 0; i < shapes.length; i++) {
             const shape = shapes[i];
 
-            const fixDef: B2.FixtureDef = {
-                density: comp.density,
-                isSensor: comp.sensor,
-                friction: comp.friction,
-                restitution: comp.restitution,
-                shape,
-
-                filter,
-            };
+            const fixDef = new B2.FixtureDef();
+            fixDef.density = comp.density;
+            fixDef.isSensor = comp.sensor;
+            fixDef.friction = comp.friction;
+            fixDef.restitution = comp.restitution;
+            fixDef.SetShape(shape);
+            fixDef.filter = filter;
+            // const fixDef: B2.FixtureDef = {
+            //     density: comp.density,
+            //     isSensor: comp.sensor,
+            //     friction: comp.friction,
+            //     restitution: comp.restitution,
+            //     shape,
+            //     filter,
+            // };
 
             const fixture = this._body.CreateFixture(fixDef);
             fixture.m_userData = this;

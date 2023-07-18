@@ -22,10 +22,11 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
+// import b2 from '@cocos/box2d';\
+import { B2 } from '../instantiated';
 import { Vec2 } from '../../../core';
 
-export class PhysicsAABBQueryCallback extends B2.QueryCallback {
+export class PhysicsAABBQueryCallback {//} extends B2.QueryCallback {
     _point = { x: 0, y: 0 };
     _isPoint = false;
     _fixtures: B2.Fixture[] = [];

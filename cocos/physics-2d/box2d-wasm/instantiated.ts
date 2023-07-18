@@ -42,7 +42,7 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 // // How mush memory size of the wasm memory
 // const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 32 MiB
 
-export const B2Instance: B2.instance = {} as any;
+export const B2 = {} as any;
 
 // let box2dInstance: box2dWasm.instance = null!;
 //const registerList: any[] = [];
@@ -59,7 +59,7 @@ function initWasm (wasmUrl): Promise<void> {
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((Instance: any) => {
-            Object.assign(B2Instance, Instance);
+            Object.assign(B2, Instance);
             // box2dInstance = Instance;
             // registerList.forEach((cb) => {
             //     cb(box2dInstance);
