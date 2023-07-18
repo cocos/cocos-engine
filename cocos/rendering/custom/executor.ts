@@ -59,7 +59,7 @@ import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
-import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
+import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding, validPunctualLightsCulling } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
@@ -1131,6 +1131,7 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
             this._submitInfo.additiveLight = context.additiveLight;
+            validPunctualLightsCulling(context.pipeline, this.camera);
             this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
         }
         if (sceneFlag & SceneFlags.PLANAR_SHADOW) {
