@@ -51,7 +51,7 @@ public:
     void onBatchCreated(bool dontSyncChildPrefab) override;
     bool destroy() override;
 
-    void updateWorldTransform() {} override;
+    void updateWorldTransform() override {};
 
 protected:
     void updateScene() override { _scene = this; }
