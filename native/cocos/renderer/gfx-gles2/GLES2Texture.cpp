@@ -59,7 +59,7 @@ void GLES2Texture::doInit(const TextureInfo & /*info*/) {
 
     cmdFuncGLES2CreateTexture(GLES2Device::getInstance(), _gpuTexture);
 
-    if (!_gpuTexture->memoryless) {
+    if (_gpuTexture->memoryAllocated) {
         GLES2Device::getInstance()->getMemoryStatus().textureSize += _size;
         CC_PROFILE_MEMORY_INC(Texture, _size);
     }
@@ -72,7 +72,7 @@ void GLES2Texture::doInit(const TextureViewInfo &info) {
 void GLES2Texture::doDestroy() {
     if (_gpuTexture) {
         if (!_isTextureView) {
-            if (!_gpuTexture->memoryless) {
+            if (_gpuTexture->memoryAllocated) {
                 GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
                 CC_PROFILE_MEMORY_DEC(Texture, _size);
             }
@@ -85,7 +85,7 @@ void GLES2Texture::doDestroy() {
 }
 
 void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
-    if (!_gpuTexture->memoryless) {
+    if (_gpuTexture->memoryAllocated) {
         GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
         CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
@@ -97,7 +97,7 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     GLES2Device::getInstance()->framebufferHub()->update(_gpuTexture);
 
-    if (!_gpuTexture->memoryless) {
+    if (_gpuTexture->memoryAllocated) {
         GLES2Device::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_INC(Texture, size);
     }
@@ -135,7 +135,7 @@ void GLES2Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
     _gpuTexture->size = _size;
-    _gpuTexture->memoryless = true;
+    _gpuTexture->memoryAllocated = false;
     _gpuTexture->swapchain = static_cast<GLES2Swapchain *>(_swapchain)->gpuSwapchain();
 }
 

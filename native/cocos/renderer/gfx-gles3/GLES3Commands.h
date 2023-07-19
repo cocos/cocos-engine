@@ -323,5 +323,7 @@ void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info)
 
 void cmdFuncGLES3MemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
 
+GLint cmdFuncGLES3GetMaxSampleCount(const GLES3Device *device, Format format, TextureUsage usage, TextureFlags flags);
+
 } // namespace gfx
 } // namespace cc
