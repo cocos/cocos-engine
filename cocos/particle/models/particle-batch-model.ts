@@ -49,6 +49,7 @@ const _uvs_ins = [
 
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
+    private _bufferSize: number;
     private _vertAttrs: Attribute[] | null;
     private _vertAttribSize: number;
     private _vBuffer: ArrayBuffer | null;
@@ -80,6 +81,7 @@ export default class ParticleBatchModel extends scene.Model {
 
         this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;
+        this._bufferSize = 16;
         this._vertAttrs = null;
 
         this._vertAttribSize = 0;
@@ -105,6 +107,9 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number): void {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
+        while (this._capacity > this._bufferSize) {
+            this._bufferSize *= 2;
+        }
         if (this._subMeshData && capChanged) {
             this.rebuild();
         }
@@ -165,10 +170,10 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity * this._vertCount,
+            this._vertAttribSize * this._bufferSize * this._vertCount,
             this._vertAttribSize,
         ));
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize * this._vertCount);
         if (this._mesh && this._capacity > 0) {
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
@@ -191,7 +196,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
         vertexBuffer.update(vBuffer);
 
-        const indices: Uint16Array = new Uint16Array(this._capacity * this._indexCount);
+        const indices: Uint16Array = new Uint16Array(this._bufferSize * this._indexCount);
         if (this._mesh && this._capacity > 0) {
             this._mesh.copyIndices(0, indices);
             for (let i = 1; i < this._capacity; i++) {
@@ -215,7 +220,7 @@ export default class ParticleBatchModel extends scene.Model {
         const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            this._bufferSize * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
 
@@ -236,11 +241,11 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity,
+            this._vertAttribSize * this._bufferSize,
             this._vertAttribSize,
         ));
 
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize);
         vertexBuffer.update(vBuffer);
 
         this._insBuffers.push(vertexBuffer);
