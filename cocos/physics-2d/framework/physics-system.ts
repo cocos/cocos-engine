@@ -305,9 +305,9 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this.physicsWorld.syncPhysicsToScene();
 
-        if (this.debugDrawFlags) {
-            this.physicsWorld.drawDebug();
-        }
+        // if (this.debugDrawFlags) {
+        //     this.physicsWorld.drawDebug();
+        // }
 
         this._steping = false;
         director.emit(Director.EVENT_AFTER_PHYSICS);

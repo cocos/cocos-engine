@@ -25,7 +25,7 @@
 /**
  * export Box2D from internal module
  */
-import wasmFactory from 'external:emscripten/box2d/box2d.release.wasm.js';
-import box2dWasmUrl from 'external:emscripten/box2d/box2d.release.wasm.wasm';
+import wasmFactory from 'external:emscripten/box2d/box2d.debug.wasm.js';
+import box2dWasmUrl from 'external:emscripten/box2d/box2d.debug.wasm.wasm';
 
 export { wasmFactory, box2dWasmUrl };

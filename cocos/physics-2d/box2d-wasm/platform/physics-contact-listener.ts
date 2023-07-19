@@ -24,71 +24,107 @@
 
 // import b2 from '@cocos/box2d';
 import { B2 } from '../instantiated';
-import { js } from '../../../core';
+import { js, warn } from '../../../core';
 
 export class PhysicsContactListener {// extends B2.ContactListener {
-    _contactFixtures: B2.Fixture[] = [];
+    static _contactFixtures: number[] = [];
+    static _contactsShouldNotBeReported: number[] = [];
 
-    _BeginContact: Function | null = null;
-    _EndContact: Function | null = null;
-    _PreSolve: Function | null = null;
-    _PostSolve: Function | null = null;
+    static _BeginContact: Function | null = null;
+    static _EndContact: Function | null = null;
+    static _PreSolve: Function | null = null;
+    static _PostSolve: Function | null = null;
 
-    setBeginContact (cb): void {
-        this._BeginContact = cb;
-    }
+    // static setBeginContact (cb): void {
+    //     this._BeginContact = cb;
+    // }
 
-    setEndContact (cb): void {
-        this._EndContact = cb;
-    }
+    // static setEndContact (cb): void {
+    //     this._EndContact = cb;
+    // }
 
-    setPreSolve (cb): void {
-        this._PreSolve = cb;
-    }
+    // static setPreSolve (cb): void {
+    //     this._PreSolve = cb;
+    // }
 
-    setPostSolve (cb): void {
-        this._PostSolve = cb;
-    }
+    // static setPostSolve (cb): void {
+    //     this._PostSolve = cb;
+    // }
 
-    BeginContact (contact: B2.Contact): void {
+    static BeginContact (contact: B2.Contact): void {
         if (!this._BeginContact) return;
 
-        const fixtureA = contact.GetFixtureA();
-        const fixtureB = contact.GetFixtureB();
+        const fixtureA = contact.GetFixtureA() as any;
+        const fixtureB = contact.GetFixtureB() as any;
         const fixtures = this._contactFixtures;
 
-        (contact as any)._shouldReport = false;
+        //(contact as any)._shouldReport = false;
+        this._addContactShouldNotBeReported(contact);
 
-        if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
-            (contact as any)._shouldReport = true; // for quick check whether this contact should report
+        if (fixtures.indexOf(fixtureA.$$.ptr) !== -1 || fixtures.indexOf(fixtureB.$$.ptr) !== -1) {
+            //(contact as any)._shouldReport = true; // for quick check whether this contact should report
+            this._removeContactShouldNotBeReported(contact);
             this._BeginContact(contact);
         }
     }
 
-    EndContact (contact: B2.Contact): void {
-        if (this._EndContact && (contact as any)._shouldReport) {
-            (contact as any)._shouldReport = false;
+    static EndContact (contact: B2.Contact): void {
+        if (this._EndContact && PhysicsContactListener._shouldReportContact(contact)) {
+            // (contact as any)._shouldReport = false;
+            this._addContactShouldNotBeReported(contact);
             this._EndContact(contact);
         }
     }
 
-    PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
-        if (this._PreSolve && (contact as any)._shouldReport) {
+    static PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
+        if (this._PreSolve && PhysicsContactListener._shouldReportContact(contact)) {
             this._PreSolve(contact, oldManifold);
         }
     }
 
-    PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
-        if (this._PostSolve && (contact as any)._shouldReport) {
+    static PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
+        if (this._PostSolve && PhysicsContactListener._shouldReportContact(contact)) {
             this._PostSolve(contact, impulse);
         }
     }
 
-    registerContactFixture (fixture): void {
-        this._contactFixtures.push(fixture);
+    static registerContactFixture (fixture): void {
+        this._contactFixtures.push(fixture.$$.ptr);
     }
 
-    unregisterContactFixture (fixture): void {
-        js.array.remove(this._contactFixtures, fixture);
+    static unregisterContactFixture (fixture): void {
+        js.array.remove(this._contactFixtures, fixture.$$.ptr);
+    }
+
+    static _addContactShouldNotBeReported (contact): void {
+        this._contactsShouldNotBeReported.push(contact.$$.ptr);
+    }
+
+    static _removeContactShouldNotBeReported (contact): void {
+        js.array.remove(this._contactsShouldNotBeReported, contact.$$.ptr);
+    }
+
+    static _shouldReportContact (contact): boolean {
+        return this._contactsShouldNotBeReported.indexOf(contact.$$.ptr) === -1;
+    }
+
+    static callback = {
+        BeginContact (contact: B2.Contact): void {
+            //warn('BeginContact', contact);
+            PhysicsContactListener.BeginContact(contact);
+        },
+        EndContact (contact: B2.Contact): void {
+            //warn('EndContact', contact);
+            PhysicsContactListener.EndContact(contact);
+        },
+        PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
+            //warn('PreSolve', contact, oldManifold);
+            PhysicsContactListener.PreSolve(contact, oldManifold);
+        },
+        PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
+            //warn('PostSolve', contact, impulse);
+            PhysicsContactListener.PostSolve(contact, impulse);
+        },
+
     }
 }
