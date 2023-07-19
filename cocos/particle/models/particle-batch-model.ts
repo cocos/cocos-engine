@@ -175,14 +175,20 @@ export default class ParticleBatchModel extends scene.Model {
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize * this._vertCount);
         if (this._mesh && this._capacity > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -270,15 +276,21 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
             vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -417,7 +429,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number): void {
+    public addGPUParticleVertexData (p: Particle, num: number, time: number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -456,7 +468,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number): void {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time: number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;
