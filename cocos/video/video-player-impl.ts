@@ -163,11 +163,11 @@ export abstract class VideoPlayerImpl {
     }
 
     public onPause (e: Event): void {
+        this._playing = false;
         if (this._ignorePause) {
             this._ignorePause = false;
             return;
         }
-        this._playing = false;
         this.dispatchEvent(EventType.PAUSED);
     }
 
