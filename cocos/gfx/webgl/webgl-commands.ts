@@ -2992,4 +2992,3 @@ export function WebGLCmdFuncBlitTexture (
     // logic different from native, because framebuffer map is not implemented in webgl
     device.blitManager.draw(srcTexture, dstTexture, regions as TextureBlit[], filter);
 }
-

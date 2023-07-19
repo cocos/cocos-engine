@@ -3373,4 +3373,3 @@ export function WebGL2CmdFuncBlitTexture (
         cache.glFramebuffer = origDrawFBO;
     }
 }
-
