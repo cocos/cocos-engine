@@ -92,7 +92,7 @@ struct ResourceAccessNode {
     ResourceAccessNode& operator=(ResourceAccessNode&& rhs) = default;
     ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
 
-    ccstd::pmr::unordered_map<ccstd::pmr::string, AccessStatus> resourceStatus;
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
 };
 
 struct LayoutAccess {
@@ -103,17 +103,30 @@ struct LayoutAccess {
 struct AttachmentInfo {
     const ccstd::pmr::string& parentName;
     uint32_t attachmentIndex{0};
-    bool isResolveView{0};
+    uint32_t isResolveView{0};
 };
 
 struct FGRenderPassInfo {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {orderedViews.get_allocator().resource()};
+    }
+
+    FGRenderPassInfo(const allocator_type& alloc) noexcept; // NOLINT
+    FGRenderPassInfo(FGRenderPassInfo&& rhs, const allocator_type& alloc);
+    FGRenderPassInfo(FGRenderPassInfo const& rhs, const allocator_type& alloc);
+
+    FGRenderPassInfo(FGRenderPassInfo&& rhs) noexcept = default;
+    FGRenderPassInfo(FGRenderPassInfo const& rhs) = delete;
+    FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) = default;
+    FGRenderPassInfo& operator=(FGRenderPassInfo const& rhs) = default;
+
     std::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
-    ccstd::vector<ccstd::pmr::string> orderedViews;
-    ccstd::map<ccstd::pmr::string, AttachmentInfo> viewIndex;
-    ccstd::pmr::unordered_map<ccstd::pmr::string, uint32_t> rootResources;
+    ccstd::pmr::vector<ccstd::pmr::string> orderedViews;
+    PmrTransparentMap<ccstd::pmr::string, AttachmentInfo> viewIndex;
     uint32_t resolveCount{0};
     uint32_t uniqueRasterViewCount{0};
 };
@@ -122,8 +135,8 @@ struct Barrier {
     ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
     gfx::BarrierType type{gfx::BarrierType::FULL};
     gfx::GFXObject* barrier{nullptr};
-    RenderGraph::vertex_descriptor beginVert;
-    RenderGraph::vertex_descriptor endVert;
+    RenderGraph::vertex_descriptor beginVert{0xFFFFFFFF};
+    RenderGraph::vertex_descriptor endVert{0xFFFFFFFF};
     AccessStatus beginStatus;
     AccessStatus endStatus;
 };
@@ -218,7 +231,7 @@ struct ResourceAccessGraph {
     using edges_size_type = uint32_t;
 
                     LayoutAccess getAccess(ccstd::pmr::string, RenderGraph::vertex_descriptor vertID);
-
+                
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -265,8 +278,7 @@ struct ResourceAccessGraph {
     PmrFlatSet<vertex_descriptor> culledPasses;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
-    PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
-    PmrTransparentMap<ccstd::pmr::string, PmrTransparentMap<uint32_t, AccessStatus>> resourceAccess;
+    PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
     PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> movedResource;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedTargetStatus;
@@ -390,6 +402,20 @@ struct RelationGraph {
 };
 
 struct RenderingInfo {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {clearColors.get_allocator().resource()};
+    }
+
+    RenderingInfo(const allocator_type& alloc) noexcept; // NOLINT
+    RenderingInfo(RenderingInfo&& rhs, const allocator_type& alloc);
+    RenderingInfo(RenderingInfo const& rhs, const allocator_type& alloc);
+
+    RenderingInfo(RenderingInfo&& rhs) noexcept = default;
+    RenderingInfo(RenderingInfo const& rhs) = delete;
+    RenderingInfo& operator=(RenderingInfo&& rhs) = default;
+    RenderingInfo& operator=(RenderingInfo const& rhs) = default;
+
     gfx::RenderPassInfo renderpassInfo;
     gfx::FramebufferInfo framebufferInfo;
     ccstd::pmr::vector<gfx::Color> clearColors;
@@ -403,7 +429,7 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& renderGraphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
@@ -414,7 +440,7 @@ struct FrameGraphDispatcher {
 
     // how much paralell-execution weights during pass reorder,
     // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
-    // 0 by default
+    // 0 by default 
     void setParalellWeight(float paralellExecWeight);
 
     void enableMemoryAliasing(bool enable);
@@ -426,9 +452,9 @@ struct FrameGraphDispatcher {
     const ResourceAccessNode& getAccessNode(RenderGraph::vertex_descriptor u) const;
 
     const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
-    
+        
     RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
-    
+        
     LayoutAccess getResourceAccess(ResourceGraph::vertex_descriptor r, RenderGraph::vertex_descriptor p) const;
 
     ResourceAccessGraph resourceAccessGraph;

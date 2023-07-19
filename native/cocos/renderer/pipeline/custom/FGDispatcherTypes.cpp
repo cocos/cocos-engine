@@ -43,6 +43,30 @@ ResourceAccessNode::ResourceAccessNode(ResourceAccessNode&& rhs, const allocator
 ResourceAccessNode::ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc)
 : resourceStatus(rhs.resourceStatus, alloc) {}
 
+FGRenderPassInfo::FGRenderPassInfo(const allocator_type& alloc) noexcept
+: orderedViews(alloc),
+  viewIndex(alloc) {}
+
+FGRenderPassInfo::FGRenderPassInfo(FGRenderPassInfo&& rhs, const allocator_type& alloc)
+: colorAccesses(std::move(rhs.colorAccesses)),
+  dsAccess(std::move(rhs.dsAccess)),
+  dsResolveAccess(std::move(rhs.dsResolveAccess)),
+  rpInfo(std::move(rhs.rpInfo)),
+  orderedViews(std::move(rhs.orderedViews), alloc),
+  viewIndex(std::move(rhs.viewIndex), alloc),
+  resolveCount(rhs.resolveCount),
+  uniqueRasterViewCount(rhs.uniqueRasterViewCount) {}
+
+FGRenderPassInfo::FGRenderPassInfo(FGRenderPassInfo const& rhs, const allocator_type& alloc)
+: colorAccesses(rhs.colorAccesses),
+  dsAccess(rhs.dsAccess),
+  dsResolveAccess(rhs.dsResolveAccess),
+  rpInfo(rhs.rpInfo),
+  orderedViews(rhs.orderedViews, alloc),
+  viewIndex(rhs.viewIndex, alloc),
+  resolveCount(rhs.resolveCount),
+  uniqueRasterViewCount(rhs.uniqueRasterViewCount) {}
+
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : _vertices(alloc),
   passID(alloc),
@@ -56,7 +80,6 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   culledPasses(alloc),
   resourceLifeRecord(alloc),
   topologicalOrder(alloc),
-  subpassIndex(alloc),
   resourceAccess(alloc),
   movedResource(alloc),
   movedSourceStatus(alloc),
@@ -106,10 +129,27 @@ RelationGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
+RenderingInfo::RenderingInfo(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+RenderingInfo::RenderingInfo(RenderingInfo&& rhs, const allocator_type& alloc)
+: renderpassInfo(std::move(rhs.renderpassInfo)),
+  framebufferInfo(std::move(rhs.framebufferInfo)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+RenderingInfo::RenderingInfo(RenderingInfo const& rhs, const allocator_type& alloc)
+: renderpassInfo(rhs.renderpassInfo),
+  framebufferInfo(rhs.framebufferInfo),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& renderGraphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
-  renderGraph(graphIn),
+  renderGraph(renderGraphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
   relationGraph(alloc) {}

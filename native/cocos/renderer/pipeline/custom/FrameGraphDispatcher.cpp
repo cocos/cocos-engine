@@ -123,7 +123,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     const auto &orderedViews = fgRenderPassInfo.orderedViews;
     const auto &viewIndex = fgRenderPassInfo.viewIndex;
 
-    RenderingInfo renderingInfo;
+    RenderingInfo renderingInfo(scratch);
     renderingInfo.renderpassInfo = getRenderPassInfo(u);
     gfx::FramebufferInfo fbInfo{
         nullptr,
