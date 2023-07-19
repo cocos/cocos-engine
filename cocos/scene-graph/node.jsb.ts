@@ -1012,7 +1012,7 @@ Object.defineProperty(nodeProto, '_siblingIndex', {
         return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
     set(v) {
-        this.setSiblingIndex(v);
+        this._sharedInt32Arr[0] = v;
     },
 });
 
@@ -1024,10 +1024,11 @@ Object.defineProperty(nodeProto, 'siblingIndex', {
         return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
     set(v) {
-        this.setSiblingIndex(v);
+        this._sharedInt32Arr[0] = v;
     },
 });
 
+// note: setSiblingIndex is a JSB function, DO NOT override it
 nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
