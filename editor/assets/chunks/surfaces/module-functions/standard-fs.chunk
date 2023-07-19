@@ -259,9 +259,6 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
 #endif
 }
 
-//todo: vec3 CCSurfacesLightingBlendLayer(LightingResult lightingResult, MaterialSurfaceData surfaceData)D1, S1, F1, D2, S2, F2)，需要带着材质颜色来混
-//多光源下只支持在一个pass内完成，即在common-flow中循环每个光源都是一个lightingResult，每个都调用BlendLayer，然后累加最终颜色即可
-
 // Accumulated lighting results for additive pass only
 void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccumulated, in LightingResult lightingResult)
 {
