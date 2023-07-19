@@ -127,7 +127,7 @@ export class ReflectionProbe extends Component {
      * @zh 设置探针类型，环境反射或者平面反射
      */
     @type(Enum(ProbeType))
-    set probeType (value: number) {
+    set probeType (value: ProbeType) {
         this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
@@ -163,7 +163,7 @@ export class ReflectionProbe extends Component {
             this.size = this._size;
         }
     }
-    get probeType (): number {
+    get probeType (): ProbeType {
         return this._probeType;
     }
 

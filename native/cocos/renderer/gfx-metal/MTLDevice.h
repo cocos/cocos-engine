@@ -62,7 +62,7 @@ public:
     using Device::createRenderPass;
     using Device::createShader;
     using Device::createTexture;
-    
+
     void frameSync() override;
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
@@ -88,6 +88,8 @@ public:
             _swapchains.erase(iter);
         }
     }
+    
+    inline CCMTLGPUDeviceObject* gpuObject() const { return _gpuDeviceObj; }
 
 protected:
     static CCMTLDevice *_instance;
@@ -114,6 +116,7 @@ protected:
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
+    SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const override;
 
     void onMemoryWarning();
     void initFormatFeatures(uint32_t family);

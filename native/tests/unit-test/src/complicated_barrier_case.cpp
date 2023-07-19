@@ -136,7 +136,11 @@ TEST(complicatedBarrierTest, test12) {
     const auto& node3 = barrierMap.at(3);
     ExpectEq(node3.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node3.blockBarrier.rearBarriers.empty(), true);
-    ExpectEq(node3.subpassBarriers.empty(), true);
+
+    // subpass barrier size is the same as renderpass subpassinfo, though maybe empty.
+    ExpectEq(node3.subpassBarriers.size() == 1, true);
+    ExpectEq(node3.subpassBarriers.front().frontBarriers.empty(), true);
+    ExpectEq(node3.subpassBarriers.front().rearBarriers.empty(), true);
 
     //node4
     const auto& node4 = barrierMap.at(4);
@@ -181,6 +185,7 @@ TEST(complicatedBarrierTest, test12) {
     const auto& node5 = barrierMap.at(5);
     ExpectEq(node5.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node5.blockBarrier.rearBarriers.size() == 1, true);
+    // not raster pass
     ExpectEq(node5.subpassBarriers.empty(), true);
 
     auto iter7in5 = findBarrierByResID(node5.blockBarrier.rearBarriers, 7);
@@ -198,6 +203,7 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(node6.blockBarrier.frontBarriers.size() == 1, true);
     // resource later used by raster pass, so that layout can be transferred automatically.
     ExpectEq(node6.blockBarrier.rearBarriers.empty(), true);
+    // not a raster pass
     ExpectEq(node6.subpassBarriers.empty(), true);
 
     // node7
@@ -205,7 +211,7 @@ TEST(complicatedBarrierTest, test12) {
     // undefined layout already in initial layout
     ExpectEq(node7.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node7.blockBarrier.rearBarriers.empty(), true);
-    ExpectEq(node7.subpassBarriers.empty(), true);
+    ExpectEq(node7.subpassBarriers.empty(), false);
 
     ExpectEq(node7.blockBarrier.rearBarriers.size(), 0);
 
@@ -219,7 +225,7 @@ TEST(complicatedBarrierTest, test12) {
     const auto& node13 = barrierMap.at(13);
     ExpectEq(node13.blockBarrier.frontBarriers.size(), 0);
     ExpectEq(node13.blockBarrier.rearBarriers.size(), 0);
-    ExpectEq(node13.subpassBarriers.empty(), true);
+    ExpectEq(node13.subpassBarriers.empty(), false);
 
     //node14: almost the same as 13
 
@@ -234,6 +240,7 @@ TEST(complicatedBarrierTest, test12) {
     const auto& node16 = barrierMap.at(16);
     ExpectEq(node16.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node16.blockBarrier.rearBarriers.empty(), true);
+    // not raster pass
     ExpectEq(node16.subpassBarriers.empty(), true);
 
     //runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);

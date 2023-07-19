@@ -121,7 +121,6 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-//#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -153,18 +152,21 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
         fbfLevelStr                += "_DEPTH_STENCIL";
     }
-//#endif
     _gpuConstantRegistry->multiDrawIndirect = checkExtension((CC_TOSTR(multi_draw_indirect)));
 
+    ccstd::string msaaLevelStr = "NONE";
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
+        msaaLevelStr = "MSRT1";
         if (checkExtension("multisampled_render_to_texture2")) {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+            msaaLevelStr = "MSRT2";
         } else {
             _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
         }
     }
 #endif
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = true;
 
     ccstd::string compressedFmts;
 
@@ -243,6 +245,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
     CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
+    CC_LOG_INFO("MULTI_SAMPLE_RENDER_TO_TEXTURE: %s", msaaLevelStr.c_str());
 
     if (_xr) {
         _xr->initializeGLESData(pfnGLES3wLoadProc(), GLES3Device::getInstance()->context());
@@ -611,5 +614,10 @@ void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
     cmdBuff->getQueryPoolResults(queryPool);
 }
 
+SampleCount GLES3Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    return static_cast<SampleCount>(cmdFuncGLES3GetMaxSampleCount(this, format, usage, flags));
+}
+
 } // namespace gfx
 } // namespace cc
+

@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint-disable no-empty-function */
 
 import { Queue } from './queue';
 import { Buffer } from './buffer';
@@ -129,6 +130,7 @@ export enum Feature {
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
     RASTERIZATION_ORDER_COHERENT,
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,
     COUNT,
 }
 
@@ -406,6 +408,7 @@ export enum TextureFlagBit {
     EXTERNAL_OES = 0x4, // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
     MUTABLE_STORAGE = 0x10, //  Texture is mutable or not, default is immutable(only for webgl2)
+    LAZILY_ALLOCATED = 0x20, // Try lazily allocated mode.
 }
 
 export enum FormatFeatureBit {
@@ -418,10 +421,13 @@ export enum FormatFeatureBit {
 }
 
 export enum SampleCount {
-    ONE,                  // Single sample
-    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
-    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
-    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
+    X1  = 0x01,
+    X2  = 0x02,
+    X4  = 0x04,
+    X8  = 0x08,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40
 }
 
 export enum VsyncMode {
@@ -1172,7 +1178,7 @@ export class TextureInfo {
         public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.ONE,
+        public samples: SampleCount = SampleCount.X1,
         public depth: number = 1,
         public externalRes: number = 0,
     ) {}
@@ -1512,7 +1518,7 @@ export class ColorAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.ONE,
+        public sampleCount: SampleCount = SampleCount.X1,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
@@ -1533,7 +1539,7 @@ export class DepthStencilAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.ONE,
+        public sampleCount: SampleCount = SampleCount.X1,
         public depthLoadOp: LoadOp = LoadOp.CLEAR,
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
@@ -1607,6 +1613,7 @@ export class RenderPassInfo {
     constructor (
         public colorAttachments: ColorAttachment[] = [],
         public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public depthStencilResolveAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
         public dependencies: SubpassDependency[] = [],
     ) {}
@@ -1614,6 +1621,7 @@ export class RenderPassInfo {
     public copy (info: Readonly<RenderPassInfo>): RenderPassInfo {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
         return this;
@@ -1702,12 +1710,14 @@ export class FramebufferInfo {
         public renderPass: RenderPass = null!,
         public colorTextures: Texture[] = [],
         public depthStencilTexture: Texture | null = null,
+        public depthStencilResolveTexture: Texture | null = null,
     ) {}
 
     public copy (info: Readonly<FramebufferInfo>): FramebufferInfo {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
+        this.depthStencilResolveTexture = info.depthStencilResolveTexture;
         return this;
     }
 }
@@ -2244,8 +2254,11 @@ export function FormatSize (format: Format, width: number, height: number, depth
   * @param mips The target mip levels.
   */
 export function FormatSurfaceSize (
-    format: Format, width: number, height: number,
-    depth: number, mips: number,
+    format: Format,
+    width: number,
+    height: number,
+    depth: number,
+    mips: number,
 ): number {
     let size = 0;
 
@@ -2431,3 +2444,4 @@ export function formatAlignment (format: Format): FormatAlignment {
 export function alignTo (size: number, alignment: number): number {
     return Math.ceil(size / alignment) * alignment;
 }
+

@@ -29,6 +29,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 
@@ -83,5 +84,14 @@ struct PipelineStatistics;
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::ResolvePair> {
+    hash_t operator()(const cc::render::ResolvePair& val) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on
