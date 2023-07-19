@@ -135,9 +135,14 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     for (const auto &viewName : orderedViews) {
         const auto &info = viewIndex.at(viewName);
         auto attachmentIndex = info.attachmentIndex;
-        const auto &rasterView = pass.rasterViews.at(viewName);
-        const auto &clearColor = rasterView.clearColor;
-        if (info.attachmentIndex != gfx::INVALID_BINDING || rasterView.accessType != AccessType::WRITE) {
+        bool colorLike = info.attachmentIndex != gfx::INVALID_BINDING || info.isResolveView;
+        gfx::Color clearColor{};
+        if (!info.isResolveView) {
+            const auto &rasterView = pass.rasterViews.at(viewName);
+            clearColor = rasterView.clearColor;
+            colorLike |= rasterView.accessType != AccessType::WRITE;
+        }
+        if (colorLike) {
             //colorLike
             renderingInfo.clearColors.emplace_back(clearColor);
 
@@ -166,8 +171,6 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                 [&](const IntrusivePtr<gfx::Framebuffer> &fb) {
                     CC_EXPECTS(fb->getColorTextures().size() == 1);
                     CC_EXPECTS(fb->getColorTextures().at(0));
-                    auto *tex = rasterView.attachmentType == AttachmentType::DEPTH_STENCIL ? fb->getDepthStencilTexture() : fb->getColorTextures()[attachmentIndex];
-                    fbInfo.colorTextures.emplace_back(tex);
                     // render window attaches a depthStencil by default, which may differs from renderpassInfo here.
                     // data.framebuffer = fb;
                 },
