@@ -135,14 +135,12 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     for (const auto &viewName : orderedViews) {
         const auto &info = viewIndex.at(viewName);
         auto attachmentIndex = info.attachmentIndex;
-        bool colorLike = info.attachmentIndex != gfx::INVALID_BINDING || info.isResolveView;
         gfx::Color clearColor{};
         if (!info.isResolveView) {
             const auto &rasterView = pass.rasterViews.at(viewName);
             clearColor = rasterView.clearColor;
-            colorLike |= rasterView.accessType != AccessType::WRITE;
         }
-        if (colorLike) {
+        if (info.attachmentIndex != gfx::INVALID_BINDING) {
             //colorLike
             renderingInfo.clearColors.emplace_back(clearColor);
 
@@ -1045,7 +1043,7 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
     auto &fgRenderpassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, resourceAccessGraph, parentRagVertID);
     AttachmentMap colorMap(resourceAccessGraph.get_allocator());
 
-    auto &[hasDep, hasDS] = checkRasterViews(graphs, rlgVertID, accessNode, pass.rasterViews, colorMap);
+    auto [hasDep, hasDS] = checkRasterViews(graphs, rlgVertID, accessNode, pass.rasterViews, colorMap);
     hasDep |= checkComputeViews(graphs, rlgVertID, accessNode, pass.computeViews);
     hasDep |= checkResolveResource(graphs, rlgVertID, accessNode, pass.resolvePairs, colorMap);
     fillRenderPassInfo(colorMap, fgRenderpassInfo, resourceGraph);

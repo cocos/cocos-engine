@@ -169,7 +169,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     auto& resg = ctx.resourceGraph;
 
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
-    auto& [rpInfo, fbInfo, clearColors, clearDepth, clearStencil] = ctx.fgd.getRenderPassAndFrameBuffer(ctx.currentInFlightPassID, resg);
+    auto [rpInfo, fbInfo, clearColors, clearDepth, clearStencil] = ctx.fgd.getRenderPassAndFrameBuffer(ctx.currentInFlightPassID, resg);
 
     // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
