@@ -44,6 +44,26 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const B2 = {} as any;
 
+const B2_IMPL_PTR = {};
+
+export function addImplPtrReference (B2Object: any, impl: any): void {
+    if (!impl) return;
+    if (impl.$$) { B2_IMPL_PTR[impl.$$.ptr] = B2Object; }
+}
+
+export function removeImplPtrReference (B2Object: any, impl: any): void {
+    if (!impl) return;
+    if (impl.$$) {
+        B2_IMPL_PTR[impl.$$.ptr] = null;
+        delete B2_IMPL_PTR[impl.$$.ptr];
+    }
+}
+
+export function getB2ObjectFromImpl<T> (impl: any): T {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return B2_IMPL_PTR[impl.$$.ptr];
+}
+
 // let box2dInstance: box2dWasm.instance = null!;
 //const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +80,7 @@ function initWasm (wasmUrl): Promise<void> {
             },
         }).then((Instance: any) => {
             Object.assign(B2, Instance);
+            B2.B2_IMPL_PTR = B2_IMPL_PTR;
             // box2dInstance = Instance;
             // registerList.forEach((cb) => {
             //     cb(box2dInstance);

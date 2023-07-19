@@ -23,23 +23,21 @@
 */
 
 // import b2 from '@cocos/box2d';
-import { B2 } from './instantiated';
+import { Fixture } from '@cocos/box2d';
+import { B2, addImplPtrReference, getB2ObjectFromImpl, removeImplPtrReference } from './instantiated';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { B2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
-
-export type B2ContactExtends = B2.Contact & {
-    m_userData: any
-}
+import { B2PhysicsWorld } from './physics-world';
 
 const pools: PhysicsContact[] = [];
 
 // temp world manifold
 const pointCache = [new Vec2(), new Vec2()];
 
-const b2worldmanifold = null;//new B2.WorldManifold();
+// const b2worldmanifold = null;//new B2.WorldManifold();
 
 const worldmanifold: IPhysics2DWorldManifold = {
     points: [] as Vec2[],
@@ -68,7 +66,7 @@ const impulse: IPhysics2DImpulse = {
 };
 
 export class PhysicsContact implements IPhysics2DContact {
-    static get (b2contact: B2ContactExtends): PhysicsContact {
+    static get (b2contact: B2.Contact): PhysicsContact {
         let c = pools.pop();
 
         if (!c) {
@@ -79,8 +77,8 @@ export class PhysicsContact implements IPhysics2DContact {
         return c;
     }
 
-    static put (b2contact: B2ContactExtends): void {
-        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
+    static put (b2contact: B2.Contact): void {
+        const c = getB2ObjectFromImpl<PhysicsContact>(b2contact);
         if (!c) return;
 
         pools.push(c);
@@ -95,23 +93,29 @@ export class PhysicsContact implements IPhysics2DContact {
 
     private _impulse: B2.ContactImpulse | null = null;
     private _inverted = false;
-    private _b2contact: B2ContactExtends | null = null;
+    private _impl: B2.Contact | null = null;
+    private _b2Worldmanifold: B2.WorldManifold | null = null;
 
     _setImpulse (impulse: B2.ContactImpulse | null): void {
         this._impulse = impulse;
     }
 
-    init (b2contact: B2ContactExtends): void {
-        this.colliderA = (b2contact.GetFixtureA().m_userData).collider;
-        this.colliderB = (b2contact.GetFixtureB().m_userData).collider;
+    init (b2contact: B2.Contact): void {
+        this.colliderA = (getB2ObjectFromImpl<B2Shape2D>(b2contact.GetFixtureA())).collider;
+        this.colliderB = (getB2ObjectFromImpl<B2Shape2D>(b2contact.GetFixtureB())).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulse = null;
-
         this._inverted = false;
 
-        this._b2contact = b2contact;
-        b2contact.m_userData = this;
+        // cannot directly assign b2contact to this._impl, since b2contact is a temporary object and
+        // will be released by box2d wasm call back function automatically.
+        // Here we get the b2contact from b2world, which will not be released by wasm automatically.
+        this._impl = (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld)
+            .getContactWithContactImplPtr((b2contact as any).$$.ptr);
+        addImplPtrReference(this, this._impl);
+
+        this._b2Worldmanifold = new B2.WorldManifold();
     }
 
     reset (): void {
@@ -124,8 +128,11 @@ export class PhysicsContact implements IPhysics2DContact {
         this.disabled = false;
         this._impulse = null;
 
-        this._b2contact!.m_userData = null;
-        this._b2contact = null;
+        removeImplPtrReference(this, this._impl!);
+        this._impl = null;
+
+        //delete this._b2worldmanifold
+        //todo
     }
 
     getWorldManifold (): IPhysics2DWorldManifold {
@@ -133,24 +140,21 @@ export class PhysicsContact implements IPhysics2DContact {
         const separations = worldmanifold.separations;
         const normal = worldmanifold.normal;
 
-        this._b2contact!.GetWorldManifold(b2worldmanifold);
-        const b2points = b2worldmanifold.points;
-        const b2separations = b2worldmanifold.separations;
-
-        const count = this._b2contact!.GetManifold().pointCount;
+        this._impl!.GetWorldManifold(this._b2Worldmanifold!);
+        const count = this._impl!.GetManifold().pointCount;
         points.length = separations.length = count;
 
         for (let i = 0; i < count; i++) {
             const p = pointCache[i];
-            p.x = b2points[i].x * PHYSICS_2D_PTM_RATIO;
-            p.y = b2points[i].y * PHYSICS_2D_PTM_RATIO;
-
+            const point = this._b2Worldmanifold!.GetPoint(i);
+            p.x = point.x * PHYSICS_2D_PTM_RATIO;
+            p.y = point.y * PHYSICS_2D_PTM_RATIO;
             points[i] = p;
-            separations[i] = b2separations[i] * PHYSICS_2D_PTM_RATIO;
+            separations[i] = this._b2Worldmanifold!.GetSeparation(i) * PHYSICS_2D_PTM_RATIO;
         }
 
-        normal.x = b2worldmanifold.normal.x;
-        normal.y = b2worldmanifold.normal.y;
+        normal.x = this._b2Worldmanifold!.normal.x;
+        normal.y = this._b2Worldmanifold!.normal.y;
 
         if (this._inverted) {
             normal.x *= -1;
@@ -165,13 +169,12 @@ export class PhysicsContact implements IPhysics2DContact {
         const localNormal = manifold.localNormal;
         const localPoint = manifold.localPoint;
 
-        const b2manifold = this._b2contact!.GetManifold();
-        const b2points = b2manifold.points;
+        const b2manifold = this._impl!.GetManifold();
         const count = points.length = b2manifold.pointCount;
 
         for (let i = 0; i < count; i++) {
             const p = manifoldPointCache[i];
-            const b2p = b2points[i];
+            const b2p = b2manifold.GetPoint(i);
             p.localPoint.x = b2p.localPoint.x * PHYSICS_2D_PTM_RATIO;
             p.localPoint.y = b2p.localPoint.y * PHYSICS_2D_PTM_RATIO;
             p.normalImpulse = b2p.normalImpulse * PHYSICS_2D_PTM_RATIO;
@@ -255,42 +258,42 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     setEnabled (value): void {
-        this._b2contact!.SetEnabled(value);
+        this._impl!.SetEnabled(value);
     }
 
     isTouching (): boolean {
-        return this._b2contact!.IsTouching();
+        return this._impl!.IsTouching();
     }
 
     setTangentSpeed (value): void {
-        this._b2contact!.SetTangentSpeed(value);
+        this._impl!.SetTangentSpeed(value);
     }
 
     getTangentSpeed (): number {
-        return this._b2contact!.GetTangentSpeed();
+        return this._impl!.GetTangentSpeed();
     }
 
     setFriction (value): void {
-        this._b2contact!.SetFriction(value);
+        this._impl!.SetFriction(value);
     }
 
     getFriction (): number {
-        return this._b2contact!.GetFriction();
+        return this._impl!.GetFriction();
     }
 
     resetFriction (): void {
-        return this._b2contact!.ResetFriction();
+        return this._impl!.ResetFriction();
     }
 
     setRestitution (value): void {
-        this._b2contact!.SetRestitution(value);
+        this._impl!.SetRestitution(value);
     }
 
     getRestitution (): number {
-        return this._b2contact!.GetRestitution();
+        return this._impl!.GetRestitution();
     }
 
     resetRestitution (): void {
-        return this._b2contact!.ResetRestitution();
+        return this._impl!.ResetRestitution();
     }
 }

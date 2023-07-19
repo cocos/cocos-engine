@@ -915,7 +915,7 @@ class CharacterController {
         this.setCenter(this._com.center);
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
-        this.setContactOffset(this._com.contactOffset);
+        this.setContactOffset(this._com.skinWidth);
         this.setDetectCollisions(true);//this._com.detectCollisions);
         this.setOverlapRecovery(true);//this._com.enableOverlapRecovery);
     }

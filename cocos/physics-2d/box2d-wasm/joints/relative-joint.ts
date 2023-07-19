@@ -47,6 +47,7 @@ export class B2RelativeJoint extends B2Joint implements IRelativeJoint {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
+            const temp = this._b2joint.cast2MotorJoint();
             (this._b2joint as B2.MotorJoint).SetLinearOffset(tempB2Vec2);
         }
     }

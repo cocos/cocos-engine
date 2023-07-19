@@ -23,7 +23,7 @@
 */
 
 //import b2, { Vec2 } from '@cocos/box2d';
-import { B2 } from '../instantiated';
+import { B2, addImplPtrReference, removeImplPtrReference } from '../instantiated';
 
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
@@ -194,7 +194,8 @@ export class B2Shape2D implements IBaseShape {
             // };
 
             const fixture = this._body.CreateFixture(fixDef);
-            fixture.m_userData = this;
+            //fixture.m_userData = this;
+            addImplPtrReference(this, fixture);
 
             if (body?.enabledContactListener) {
                 (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).registerContactFixture(fixture);
@@ -215,7 +216,8 @@ export class B2Shape2D implements IBaseShape {
 
         for (let i = fixtures.length - 1; i >= 0; i--) {
             const fixture = fixtures[i];
-            fixture.m_userData = null;
+            //fixture.m_userData = null;
+            removeImplPtrReference(this, fixture);
 
             (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).unregisterContactFixture(fixture);
 
