@@ -50,13 +50,13 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
   instanceBuffers(rhs.instanceBuffers, alloc) {}
 
 RenderBatchingQueue::RenderBatchingQueue(const allocator_type& alloc) noexcept
-{}
+: batches(alloc) {}
 
 RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc)
-{}
+: batches(std::move(rhs.batches), alloc) {}
 
 RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc)
-{}
+: batches(rhs.batches, alloc) {}
 
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
