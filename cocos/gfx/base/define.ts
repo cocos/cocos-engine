@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint-disable no-empty-function */
 
 import { Queue } from './queue';
 import { Buffer } from './buffer';
@@ -406,7 +407,8 @@ export enum TextureFlagBit {
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
     EXTERNAL_OES = 0x4, // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
-    LAZILY_ALLOCATED = 0x10 // Try lazily allocated mode.
+    MUTABLE_STORAGE = 0x10, //  Texture is mutable or not, default is immutable(only for webgl2)
+    LAZILY_ALLOCATED = 0x20, // Try lazily allocated mode.
 }
 
 export enum FormatFeatureBit {
@@ -1501,14 +1503,12 @@ export class InputAssemblerInfo {
         public attributes: Attribute[] = [],
         public vertexBuffers: Buffer[] = [],
         public indexBuffer: Buffer | null = null,
-        public indirectBuffer: Buffer | null = null,
     ) {}
 
     public copy (info: Readonly<InputAssemblerInfo>): InputAssemblerInfo {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
-        this.indirectBuffer = info.indirectBuffer;
         return this;
     }
 }
@@ -2254,8 +2254,11 @@ export function FormatSize (format: Format, width: number, height: number, depth
   * @param mips The target mip levels.
   */
 export function FormatSurfaceSize (
-    format: Format, width: number, height: number,
-    depth: number, mips: number,
+    format: Format,
+    width: number,
+    height: number,
+    depth: number,
+    mips: number,
 ): number {
     let size = 0;
 

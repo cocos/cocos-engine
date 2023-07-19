@@ -57,10 +57,12 @@ declare module 'pal/system-info' {
          */
         public exit(): void;
 
-        on (event: PalSystemEvent, cb: (...args: any)=>void, target?: any): void;
-        off (event: PalSystemEvent, cb?: (...args: any)=>void, target?: any): void;
+        on (event: PalSystemEvent, cb: (...args: any) => void, target?: any): void;
+        off (event: PalSystemEvent, cb?: (...args: any) => void, target?: any): void;
         // TODO: support onError
     }
 
     export const systemInfo: SystemInfo;
+
+    export {};
 }

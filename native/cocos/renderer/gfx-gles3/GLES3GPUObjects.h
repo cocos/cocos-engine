@@ -43,6 +43,7 @@ struct GLES3GPUConstantRegistry {
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel mFBF{FBFSupportLevel::NONE};
+    uint32_t multiDrawIndirect = false;
 };
 
 class GLES3GPUStateCache;
@@ -116,7 +117,6 @@ struct GLES3GPUBuffer {
     GLuint glBuffer = 0;
     GLuint glOffset = 0;
     uint8_t *buffer = nullptr;
-    DrawInfoList indirects;
 };
 using GLES3GPUBufferList = ccstd::vector<GLES3GPUBuffer *>;
 
@@ -134,7 +134,7 @@ struct GLES3GPUTexture {
     bool immutable{true};
     bool isPowerOf2{false};
     bool useRenderBuffer{false};
-    bool allocateMemory{true}; // false if swapchain image or implicit ms render buffer.
+    bool memoryAllocated{true}; // false if swapchain image or implicit ms render buffer.
     GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};
@@ -309,7 +309,6 @@ struct GLES3GPUInputAssembler {
     AttributeList attributes;
     GLES3GPUBufferList gpuVertexBuffers;
     GLES3GPUBuffer *gpuIndexBuffer = nullptr;
-    GLES3GPUBuffer *gpuIndirectBuffer = nullptr;
     GLES3GPUAttributeList glAttribs;
     GLenum glIndexType = 0;
     ccstd::unordered_map<size_t, GLuint> glVAOs;
@@ -462,6 +461,7 @@ public:
     ccstd::vector<GLuint> glBindSSBOs;
     ccstd::vector<GLuint> glBindSSBOOffsets;
     GLuint glDispatchIndirectBuffer = 0;
+    GLuint glDrawIndirectBuffer = 0;
     GLuint glVAO = 0;
     uint32_t texUint = 0;
     ccstd::vector<GLuint> glTextures;
@@ -508,6 +508,7 @@ public:
         glBindSSBOs.assign(glBindSSBOs.size(), 0U);
         glBindSSBOOffsets.assign(glBindSSBOOffsets.size(), 0U);
         glDispatchIndirectBuffer = 0;
+        glDrawIndirectBuffer = 0;
         glVAO = 0;
         texUint = 0;
         glTextures.assign(glTextures.size(), 0U);

@@ -119,7 +119,6 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: WebGL2IndirectDrawInfos;
 }
 
 export interface IWebGL2GPUTexture {
@@ -315,7 +314,6 @@ export interface IWebGL2GPUInputAssembler {
     attributes: Attribute[];
     gpuVertexBuffers: IWebGL2GPUBuffer[];
     gpuIndexBuffer: IWebGL2GPUBuffer | null;
-    gpuIndirectBuffer: IWebGL2GPUBuffer | null;
 
     glAttribs: IWebGL2Attrib[];
     glIndexType: GLenum;

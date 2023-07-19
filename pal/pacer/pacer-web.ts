@@ -24,6 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 const FRAME_RESET_TIME = 2000;
 
@@ -144,3 +145,5 @@ export class Pacer {
         }
     }
 }
+
+checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-web')>());

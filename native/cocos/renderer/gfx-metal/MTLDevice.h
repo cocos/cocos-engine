@@ -89,7 +89,7 @@ public:
         }
     }
     
-    inline CCMTLGPUDeviceObject* gpuObject() { return _gpuDeviceObj; }
+    inline CCMTLGPUDeviceObject* gpuObject() const { return _gpuDeviceObj; }
 
 protected:
     static CCMTLDevice *_instance;

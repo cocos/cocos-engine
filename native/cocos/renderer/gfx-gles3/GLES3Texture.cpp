@@ -71,7 +71,7 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
 
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
 
-    if (_gpuTexture->allocateMemory) {
+    if (_gpuTexture->memoryAllocated) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
         CC_PROFILE_MEMORY_INC(Texture, _size);
     }
@@ -103,7 +103,7 @@ void GLES3Texture::doDestroy() {
     CC_SAFE_DELETE(_gpuTextureView);
     if (_gpuTexture) {
         if (!_isTextureView) {
-            if (_gpuTexture->allocateMemory) {
+            if (_gpuTexture->memoryAllocated) {
                 GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
                 CC_PROFILE_MEMORY_DEC(Texture, _size);
             }
@@ -117,7 +117,7 @@ void GLES3Texture::doDestroy() {
 }
 
 void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
-    if (!_isTextureView && _gpuTexture->allocateMemory) {
+    if (!_isTextureView && _gpuTexture->memoryAllocated) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
         CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
@@ -131,7 +131,7 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     GLES3Device::getInstance()->framebufferHub()->update(_gpuTexture);
 
-    if (!_isTextureView && _gpuTexture->allocateMemory) {
+    if (!_isTextureView && _gpuTexture->memoryAllocated) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_INC(Texture, size);
     }
@@ -169,7 +169,7 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->glSamples = static_cast<GLint>(_info.samples);
     _gpuTexture->flags = _info.flags;
     _gpuTexture->size = _size;
-    _gpuTexture->allocateMemory = false;
+    _gpuTexture->memoryAllocated = false;
     _gpuTexture->swapchain = static_cast<GLES3Swapchain *>(_swapchain)->gpuSwapchain();
     _gpuTextureView = ccnew GLES3GPUTextureView;
     createTextureView();

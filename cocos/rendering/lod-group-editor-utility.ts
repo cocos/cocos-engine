@@ -66,15 +66,6 @@ export class LODGroupEditorUtility {
         return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize(lodGroup));
     }
 
-    /**
-     * @zh 强制使用某几级的LOD
-     * @en Force multi LOD level to use.
-     * lodIndexArray @en The LOD level array. Passing [] will return to standard LOD processing. @zh 要使用的LOD层级数组，传[]时将使用标准的处理流程。
-     */
-    static forceLODs (lodGroup: LODGroup, lodIndexArray: number[]) {
-        lodGroup.lodGroup.lockLODLevels(lodIndexArray);
-    }
-
     private static distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {
         if (camera.projectionType === CameraProjection.PERSPECTIVE) {
             assertIsTrue(typeof distance === 'number', 'distance must be present for perspective projection');

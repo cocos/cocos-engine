@@ -532,7 +532,7 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
 }
 
 SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
-    const SampleCount samples[] = {
+    const SampleCount sampleCounts[] = {
         SampleCount::X64,
         SampleCount::X32,
         SampleCount::X16,
@@ -540,7 +540,7 @@ SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, Te
         SampleCount::X4,
         SampleCount::X2,
     };
-    for (auto sampleCount : samples) {
+    for (auto sampleCount : sampleCounts) {
         if  ([_mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)]) {
             return sampleCount;
         }

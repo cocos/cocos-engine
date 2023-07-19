@@ -42,11 +42,6 @@ namespace cc {
 
 namespace render {
 
-SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
-    std::ignore = visitor;
-    return nullptr;
-}
-
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),

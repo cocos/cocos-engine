@@ -766,19 +766,6 @@ public:
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
-class NativeSceneTransversal final : public SceneTransversal {
-public:
-    NativeSceneTransversal() = default;
-    NativeSceneTransversal(const scene::Camera* cameraIn, const scene::RenderScene* sceneIn) noexcept
-    : camera(cameraIn),
-      scene(sceneIn) {}
-
-    SceneTask *transverse(SceneVisitor *visitor) const override;
-
-    const scene::Camera* camera{nullptr};
-    const scene::RenderScene* scene{nullptr};
-};
-
 struct RenderInstancingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -807,6 +794,27 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
     PmrUnorderedMap<const scene::Pass*, uint32_t> passInstances;
     ccstd::pmr::vector<IntrusivePtr<pipeline::InstancedBuffer>> instanceBuffers;
+};
+
+struct RenderBatchingQueue {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {batches.get_allocator().resource()};
+    }
+
+    RenderBatchingQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc);
+    RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc);
+
+    RenderBatchingQueue(RenderBatchingQueue&& rhs) noexcept = default;
+    RenderBatchingQueue(RenderBatchingQueue const& rhs) = delete;
+    RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
+    RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
+
+    static void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags);
+
+    ccstd::pmr::vector<uint32_t> batches;
 };
 
 struct DrawInstance {
@@ -866,43 +874,10 @@ struct NativeRenderQueue {
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
+    RenderBatchingQueue opaqueBatchingQueue;
+    RenderBatchingQueue transparentBatchingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
-};
-
-class DefaultSceneVisitor final : public SceneVisitor {
-public:
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {name.get_allocator().resource()};
-    }
-
-    DefaultSceneVisitor(const allocator_type& alloc) noexcept; // NOLINT
-
-    const pipeline::PipelineSceneData *getPipelineSceneData() const override;
-    void setViewport(const gfx::Viewport &vp) override;
-    void setScissor(const gfx::Rect &rect) override;
-    void bindPipelineState(gfx::PipelineState *pso) override;
-    void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
-    void bindInputAssembler(gfx::InputAssembler *ia) override;
-    void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) override;
-    void draw(const gfx::DrawInfo &info) override;
-
-    ccstd::pmr::string name;
-};
-
-class DefaultForwardLightingTransversal final : public SceneTransversal {
-public:
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {name.get_allocator().resource()};
-    }
-
-    DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept; // NOLINT
-
-    SceneTask *transverse(SceneVisitor *visitor) const override;
-
-    ccstd::pmr::string name;
 };
 
 struct ResourceGroup {

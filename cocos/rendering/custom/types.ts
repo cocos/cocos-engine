@@ -432,6 +432,9 @@ export class CopyPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    sourceOffset = 0;
+    targetOffset = 0;
+    bufferSize = 0;
 }
 
 export class UploadPair {
@@ -649,6 +652,9 @@ export function saveCopyPair (ar: OutputArchive, v: CopyPair): void {
     ar.writeNumber(v.targetMostDetailedMip);
     ar.writeNumber(v.targetFirstSlice);
     ar.writeNumber(v.targetPlaneSlice);
+    ar.writeNumber(v.sourceOffset);
+    ar.writeNumber(v.targetOffset);
+    ar.writeNumber(v.bufferSize);
 }
 
 export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
@@ -662,6 +668,9 @@ export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
     v.targetMostDetailedMip = ar.readNumber();
     v.targetFirstSlice = ar.readNumber();
     v.targetPlaneSlice = ar.readNumber();
+    v.sourceOffset = ar.readNumber();
+    v.targetOffset = ar.readNumber();
+    v.bufferSize = ar.readNumber();
 }
 
 export function saveMovePair (ar: OutputArchive, v: MovePair): void {

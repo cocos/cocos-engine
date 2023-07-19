@@ -87,6 +87,12 @@ void EmptyCommandBuffer::nextSubpass() {
 void EmptyCommandBuffer::draw(const DrawInfo &info) {
 }
 
+void EmptyCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+}
+
+void EmptyCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+}
+
 void EmptyCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
 }
 
@@ -100,6 +106,9 @@ void EmptyCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, c
 }
 
 void EmptyCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+}
+
+void EmptyCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
 }
 
 void EmptyCommandBuffer::dispatch(const DispatchInfo &info) {

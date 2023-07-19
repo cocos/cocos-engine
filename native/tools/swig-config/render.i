@@ -47,8 +47,6 @@ using namespace cc::render;
 %ignore cc::render::PipelineRuntime::isOcclusionQueryEnabled;
 %ignore cc::render::PipelineRuntime::resetRenderQueue;
 %ignore cc::render::PipelineRuntime::isRenderQueueReset;
-%ignore cc::render::SceneVisitor::bindDescriptorSet;
-%ignore cc::render::SceneVisitor::updateBuffer;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -118,8 +116,6 @@ using namespace cc::render;
 %attribute(cc::render::BasicPipeline, cc::render::PipelineType, type, getType);
 %attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, capabilities, getCapabilities);
 %attribute(cc::render::RenderSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
-%attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
-%attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

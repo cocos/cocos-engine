@@ -255,6 +255,20 @@ void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
     if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
+void GLES3CommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    // not support
+    std::ignore = buffer;
+    std::ignore = offset;
+    std::ignore = count;
+    std::ignore = stride;
+}
+void GLES3CommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    // not support
+    std::ignore = buffer;
+    std::ignore = offset;
+    std::ignore = count;
+    std::ignore = stride;
+}
 void GLES3CommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES3CommandBufferDraw);
     if (_isStateInvalid) {
@@ -305,6 +319,10 @@ void GLES3CommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, c
 
 void GLES3CommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
     // should not resolve texture in a secondary command buffer
+}
+
+void GLES3CommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    // should not copy buffer in a secondary command buffer
 }
 
 void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

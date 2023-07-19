@@ -1311,61 +1311,6 @@ public:
 };
 
 /**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneVisitor {
-public:
-    SceneVisitor() noexcept = default;
-    SceneVisitor(SceneVisitor&& rhs) = delete;
-    SceneVisitor(SceneVisitor const& rhs) = delete;
-    SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
-    SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
-    virtual ~SceneVisitor() noexcept = default;
-
-    virtual const pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
-    virtual void setViewport(const gfx::Viewport &vp) = 0;
-    virtual void setScissor(const gfx::Rect &rect) = 0;
-    virtual void bindPipelineState(gfx::PipelineState *pso) = 0;
-    virtual void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
-    virtual void bindInputAssembler(gfx::InputAssembler *ia) = 0;
-    virtual void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) = 0;
-    virtual void draw(const gfx::DrawInfo &info) = 0;
-};
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneTask {
-public:
-    SceneTask() noexcept = default;
-    SceneTask(SceneTask&& rhs) = delete;
-    SceneTask(SceneTask const& rhs) = delete;
-    SceneTask& operator=(SceneTask&& rhs) = delete;
-    SceneTask& operator=(SceneTask const& rhs) = delete;
-    virtual ~SceneTask() noexcept = default;
-
-    virtual TaskType getTaskType() const noexcept = 0;
-    virtual void start() = 0;
-    virtual void join() = 0;
-    virtual void submit() = 0;
-};
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneTransversal {
-public:
-    SceneTransversal() noexcept = default;
-    SceneTransversal(SceneTransversal&& rhs) = delete;
-    SceneTransversal(SceneTransversal const& rhs) = delete;
-    SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
-    SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
-    virtual ~SceneTransversal() noexcept = default;
-
-    virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
-};
-
-/**
  * @en Render pipeline.
  * @zh 渲染管线
  */

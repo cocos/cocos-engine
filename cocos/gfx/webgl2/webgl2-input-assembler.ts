@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { error } from '../../core/platform';
 import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 import { WebGL2Buffer } from './webgl2-buffer';
@@ -38,7 +39,7 @@ export class WebGL2InputAssembler extends InputAssembler {
 
     public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
-            console.error('InputAssemblerInfo.vertexBuffers is null.');
+            error('InputAssemblerInfo.vertexBuffers is null.');
             return;
         }
 
@@ -59,8 +60,6 @@ export class WebGL2InputAssembler extends InputAssembler {
         this._drawInfo.instanceCount = 0;
         this._drawInfo.firstInstance = 0;
 
-        this._indirectBuffer = info.indirectBuffer || null;
-
         const gpuVertexBuffers: IWebGL2GPUBuffer[] = new Array<IWebGL2GPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
             const vb = info.vertexBuffers[i] as WebGL2Buffer;
@@ -79,22 +78,16 @@ export class WebGL2InputAssembler extends InputAssembler {
                 case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
                 case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
                 default: {
-                    console.error('Illegal index buffer stride.');
+                    error('Illegal index buffer stride.');
                 }
                 }
             }
-        }
-
-        let gpuIndirectBuffer: IWebGL2GPUBuffer | null = null;
-        if (info.indirectBuffer) {
-            gpuIndirectBuffer = (info.indirectBuffer as WebGL2Buffer).gpuBuffer;
         }
 
         this._gpuInputAssembler = {
             attributes: info.attributes,
             gpuVertexBuffers,
             gpuIndexBuffer,
-            gpuIndirectBuffer,
 
             glAttribs: [],
             glIndexType,

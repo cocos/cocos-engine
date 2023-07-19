@@ -161,7 +161,7 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
      * 3. Memory bound manually bound.
      * 4. Sparse Image.
      */
-    bool allocateMemory = true;
+    bool memoryAllocated = true;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
@@ -225,10 +225,6 @@ struct CCVKGPUBuffer : public CCVKGPUDeviceObject {
     uint32_t stride = 0U;
     uint32_t count = 0U;
     void *buffer = nullptr;
-
-    bool isDrawIndirectByIndex = false;
-    ccstd::vector<VkDrawIndirectCommand> indirectCmds;
-    ccstd::vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
 
     uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
@@ -345,7 +341,6 @@ struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
     AttributeList attributes;
     ccstd::vector<ConstPtr<CCVKGPUBufferView>> gpuVertexBuffers;
     ConstPtr<CCVKGPUBufferView> gpuIndexBuffer;
-    ConstPtr<CCVKGPUBufferView> gpuIndirectBuffer;
     ccstd::vector<VkBuffer> vertexBuffers;
     ccstd::vector<VkDeviceSize> vertexBufferOffsets;
 };

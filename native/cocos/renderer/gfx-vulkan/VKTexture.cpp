@@ -61,7 +61,7 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
 
     if (_swapchain != nullptr) {
         _gpuTexture->swapchain = static_cast<CCVKSwapchain *>(_swapchain)->gpuSwapchain();
-        _gpuTexture->allocateMemory = false;
+        _gpuTexture->memoryAllocated = false;
     }
 
     _gpuTexture->type = _info.type;
@@ -125,14 +125,14 @@ void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
 void CCVKGPUTexture::init() {
     cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), this);
 
-    if (allocateMemory) {
+    if (memoryAllocated) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_INC(Texture, size);
     }
 }
 
 void CCVKGPUTexture::shutdown() {
-    if (allocateMemory) {
+    if (memoryAllocated) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize -= size;
         CC_PROFILE_MEMORY_DEC(Texture, size);
     }

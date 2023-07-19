@@ -77,7 +77,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
 
     add_vertex(layoutGraphData, RenderPhaseTag{}, "");
     auto &layout = layoutGraphData.layouts.back();
-    auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
+    const auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
     auto &descData = (*descPair.first).second.descriptorSetLayoutData;
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
         const ccstd::string passName = "pass" + std::to_string(i);

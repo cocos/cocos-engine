@@ -54,8 +54,6 @@ public:
 
     inline CCMTLGPUBuffer *gpuBuffer() { return _gpuBuffer; }
     inline MTLIndexType getIndexType() const { return _indexType; }
-    inline bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
-    inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
 protected:
     void doInit(const BufferInfo &info) override;
@@ -71,11 +69,6 @@ protected:
     bool _isIndirectDrawSupported = false;
     uint32_t _bufferViewOffset = 0;
     uint8_t _lastUpdateCycle{0};
-
-    bool _isDrawIndirectByIndex = false;
-    ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
-    ccstd::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
-    DrawInfoList _drawInfos;
 
     CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };

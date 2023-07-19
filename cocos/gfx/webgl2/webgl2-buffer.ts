@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { warn } from '../../core/platform';
 import { Buffer } from '../base/buffer';
 import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import {
@@ -58,7 +59,6 @@ export class WebGL2Buffer extends Buffer {
                 size: this._size,
                 stride: this._stride,
                 buffer: null,
-                indirects: buffer.gpuBuffer.indirects,
                 glTarget: buffer.gpuBuffer.glTarget,
                 glBuffer: buffer.gpuBuffer.glBuffer,
                 glOffset: info.offset,
@@ -77,7 +77,6 @@ export class WebGL2Buffer extends Buffer {
                 size: this._size,
                 stride: this._stride,
                 buffer: null,
-                indirects: new WebGL2IndirectDrawInfos(),
                 glTarget: 0,
                 glBuffer: null,
                 glOffset: 0,
@@ -101,7 +100,7 @@ export class WebGL2Buffer extends Buffer {
 
     public resize (size: number): void {
         if (this._isBufferView) {
-            console.warn('cannot resize buffer views!');
+            warn('cannot resize buffer views!');
             return;
         }
 
@@ -123,7 +122,7 @@ export class WebGL2Buffer extends Buffer {
 
     public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
-            console.warn('cannot update through buffer views!');
+            warn('cannot update through buffer views!');
             return;
         }
 

@@ -165,6 +165,15 @@ bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Obje
     nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
     obj->setProperty("targetPlaneSlice", tmp);
 
+    nativevalue_to_se(from.sourceOffset, tmp, ctx);
+    obj->setProperty("sourceOffset", tmp);
+
+    nativevalue_to_se(from.targetOffset, tmp, ctx);
+    obj->setProperty("targetOffset", tmp);
+
+    nativevalue_to_se(from.bufferSize, tmp, ctx);
+    obj->setProperty("bufferSize", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -399,6 +408,18 @@ bool sevalue_to_native<cc::render::CopyPair>(const se::Value &from, cc::render::
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    obj->getProperty("sourceOffset", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->sourceOffset), ctx);
+    }
+    obj->getProperty("targetOffset", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetOffset), ctx);
+    }
+    obj->getProperty("bufferSize", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bufferSize), ctx);
     }
     return ok;
 }

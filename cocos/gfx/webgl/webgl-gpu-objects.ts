@@ -131,7 +131,6 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: WebGLIndirectDrawInfos;
 }
 
 export interface IWebGLGPUTexture {
@@ -309,7 +308,6 @@ export interface IWebGLGPUInputAssembler {
     attributes: Attribute[];
     gpuVertexBuffers: IWebGLGPUBuffer[];
     gpuIndexBuffer: IWebGLGPUBuffer | null;
-    gpuIndirectBuffer: IWebGLGPUBuffer | null;
 
     glAttribs: IWebGLAttrib[];
     glIndexType: GLenum;
@@ -341,12 +339,16 @@ export class IWebGLBlitManager {
         this._gpuShader = {
             name: 'Blit Pass',
             blocks: [
-                new UniformBlock(0, 0, `BlitParams`,
+                new UniformBlock(
+                    0,
+                    0,
+                    `BlitParams`,
                     [
                         new Uniform(`tilingOffsetSrc`, Type.FLOAT4, 1),
                         new Uniform(`tilingOffsetDst`, Type.FLOAT4, 1),
                     ],
-                    1),
+                    1,
+                ),
             ],
             samplerTextures: [new UniformSamplerTexture(0, samplerOffset, 'textureSrc', Type.SAMPLER2D, 1)],
             subpassInputs: [],
@@ -430,7 +432,6 @@ export class IWebGLBlitManager {
             stride: 4 * Float32Array.BYTES_PER_ELEMENT,
             buffer: null,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };
@@ -448,7 +449,6 @@ export class IWebGLBlitManager {
             attributes: [new Attribute(`a_position`, Format.RG32F), new Attribute(`a_texCoord`, Format.RG32F)],
             gpuVertexBuffers: [this._gpuVertexBuffer],
             gpuIndexBuffer: null,
-            gpuIndirectBuffer: null,
 
             glAttribs: [],
             glIndexType: 0,
@@ -480,7 +480,6 @@ export class IWebGLBlitManager {
             stride: 8 * Float32Array.BYTES_PER_ELEMENT,
             buffer: this._uniformBuffer,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };
@@ -538,7 +537,7 @@ export class IWebGLBlitManager {
         descriptor.gpuSampler = filter === Filter.POINT ? this._gpuPointSampler : this._gpuLinearSampler;
 
         const formatInfo = FormatInfos[gpuTextureDst.format];
-        let attachment = gl.COLOR_ATTACHMENT0;
+        let attachment: number = gl.COLOR_ATTACHMENT0;
         if (formatInfo.hasStencil) {
             attachment = gl.DEPTH_STENCIL_ATTACHMENT;
         } else if (formatInfo.hasDepth) {
@@ -582,8 +581,13 @@ export class IWebGLBlitManager {
             this._uniformBuffer[6] = region.dstOffset.x / dstWidth;
             this._uniformBuffer[7] = region.dstOffset.y / dstHeight;
 
-            WebGLCmdFuncUpdateBuffer(device, this._gpuUniformBuffer, this._uniformBuffer, 0,
-                this._uniformBuffer.length * Float32Array.BYTES_PER_ELEMENT);
+            WebGLCmdFuncUpdateBuffer(
+                device,
+                this._gpuUniformBuffer,
+                this._uniformBuffer,
+                0,
+                this._uniformBuffer.length * Float32Array.BYTES_PER_ELEMENT,
+            );
             WebGLCmdFuncBindStates(device, this._gpuPipelineState, this._gpuInputAssembler, [this._gpuDescriptorSet], [], null!);
             WebGLCmdFuncDraw(device, this._drawInfo);
         }

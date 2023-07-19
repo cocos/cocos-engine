@@ -646,6 +646,19 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
     return size;
 }
 
+ccstd::hash_t computeAttributesHash(const AttributeList& attributes) {
+    ccstd::hash_t seed = static_cast<uint32_t>(attributes.size()) * 6;
+    for (const auto &attribute : attributes) {
+        ccstd::hash_combine(seed, attribute.name);
+        ccstd::hash_combine(seed, attribute.format);
+        ccstd::hash_combine(seed, attribute.isNormalized);
+        ccstd::hash_combine(seed, attribute.stream);
+        ccstd::hash_combine(seed, attribute.isInstanced);
+        ccstd::hash_combine(seed, attribute.location);
+    }
+    return seed;
+}
+
 uint32_t gcd(uint32_t a, uint32_t b) {
     while (b) {
         uint32_t t = a % b;

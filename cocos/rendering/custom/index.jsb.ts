@@ -25,7 +25,7 @@
 declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
+import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
