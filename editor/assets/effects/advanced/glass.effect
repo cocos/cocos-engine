@@ -122,11 +122,9 @@ CCProgram shared-ubos %{
 
 CCProgram macro-remapping %{
   // ui displayed macros
-  #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
   #pragma define-meta USE_VERTEX_COLOR
 
-  #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
 
