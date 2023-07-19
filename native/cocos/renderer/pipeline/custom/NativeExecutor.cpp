@@ -170,7 +170,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
     auto& [rpInfo, fbInfo, clearColors, clearDepth, clearStencil] = ctx.fgd.getRenderPassAndFrameBuffer(ctx.currentInFlightPassID, resg);
-    
+
     // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
 
@@ -816,6 +816,49 @@ getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     return get(ComputeTag{}, passID, rg).computeViews;
 }
 
+ResourceGraph::vertex_descriptor getComputeResource(const ComputeView& view,
+                                                    const ccstd::pmr::string& resName,
+                                                    const ResourceGraph& resg) {
+    auto resID = vertex(resName, resg);
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
+    if (desc.format == gfx::Format::DEPTH_STENCIL) {
+        std::string_view depthSuffix{"/depth"};
+        std::string_view stencilSuffix{"/stencil"};
+        auto rName = resName;
+        rName = view.plane == 0 ? resName + depthSuffix.data() : resName + stencilSuffix.data();
+        resID = vertex(rName, resg);
+    }
+    return resID;
+}
+
+bool defaultAttachment(const ccstd::pmr::string& name) {
+    return name == "_" || name.empty();
+};
+
+auto getRasterResource(const RasterView& view,
+                        const ccstd::pmr::string& resName,
+                        const ResourceGraph& resg) {
+    auto slot0 = vertex(resName, resg);
+    auto slot1 = ResourceGraph::null_vertex();
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, slot0);
+    if (desc.format == gfx::Format::DEPTH_STENCIL && view.accessType != AccessType::WRITE) {
+        std::string_view depthSuffix{"/depth"};
+        std::string_view stencilSuffix{"/stencil"};
+        if (!defaultAttachment(view.slotName)) {
+            slot0 = vertex(resName + depthSuffix.data(), resg);
+        }
+        if (!defaultAttachment(view.slotName1)) {
+            slot1 = vertex(resName + stencilSuffix.data(), resg);
+        }
+        if (!defaultAttachment(view.slotName) &&
+            !defaultAttachment(view.slotName1) &&
+            view.slotName > view.slotName1) {
+            std::swap(slot0, slot1);
+        }
+    }
+    return std::make_tuple(slot0, slot1);
+}
+
 struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
     void updateAndCreatePerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
         auto* perPassSet = updateCameraUniformBufferAndDescriptorSet(ctx, vertID);
@@ -1044,26 +1087,20 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 return;
             }
 
-            auto defaultAttachment = [](const ccstd::pmr::string& name) {
-                return name == "_" || name.empty();
-            };
-            std::string_view depthSuffix = "/depth";
-            std::string_view stencilSuffix = "/stencil";
             NameLocalID unused{128};
             // input sort by slot name
-            ccstd::pmr::map<std::string_view, ccstd::pmr::string> inputs(ctx.g.get_allocator());
+            ccstd::pmr::map<std::string_view, ccstd::pmr::string> inputs(ctx.scratch);
             for (const auto& [resourceName, rasterView] : subpass.rasterViews) {
-                std::string_view slotNameView{};
-                if (!defaultAttachment(rasterView.slotName)) {
-                    std::string_view suffix = rasterView.attachmentType == AttachmentType::DEPTH_STENCIL ? depthSuffix : "";
-                    inputs.emplace(std::piecewise_construct,
-                                   std::forward_as_tuple(rasterView.slotName),
-                                   std::forward_as_tuple(resourceName + suffix.data()));
-                }
-                if (!defaultAttachment(rasterView.slotName1)) {
-                    inputs.emplace(std::piecewise_construct,
-                                   std::forward_as_tuple(rasterView.slotName1),
-                                   std::forward_as_tuple(resourceName + stencilSuffix.data()));
+                if (rasterView.accessType != AccessType::WRITE) {
+                    if (!defaultAttachment(rasterView.slotName)) {
+                        std::string_view suffix = rasterView.attachmentType == AttachmentType::DEPTH_STENCIL ? "/depth" : "";
+                        inputs.emplace(rasterView.slotName, resourceName + suffix.data());
+                    }
+                    if (!defaultAttachment(rasterView.slotName1)) {
+                        CC_EXPECTS(rasterView.attachmentType == AttachmentType::DEPTH_STENCIL);
+                        std::string_view suffix = "/stencil";
+                        inputs.emplace(rasterView.slotName1, resourceName + suffix.data());
+                    }
                 }
             }
             // build pass resources
@@ -1079,12 +1116,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
 
                 for (const auto& computeView : computeViews) {
-                    const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, vertex(resName, ctx.resourceGraph));
-                    auto rName = resName;
-                    if (desc.format == gfx::Format::DEPTH_STENCIL) {
-                        rName = computeView.plane == 0 ? resName + depthSuffix.data() : resName + stencilSuffix.data();
-                        resID = vertex(rName, ctx.resourceGraph);
-                    }
+                    resID = getComputeResource(computeView, resName, ctx.resourceGraph);
                     auto iter = ctx.lg.attributeIndex.find(computeView.name);
                     if (iter != ctx.lg.attributeIndex.end()) {
                         resourceIndex.emplace(iter->second, resID);
