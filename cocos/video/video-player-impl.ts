@@ -178,6 +178,7 @@ export abstract class VideoPlayerImpl {
     }
 
     public onEnded (e: Event): void {
+        this._playing = false;
         this.dispatchEvent(EventType.COMPLETED);
     }
 
@@ -193,7 +194,6 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    //
     public play (): void {
         if (this._loadedMeta || this._loaded) {
             this.canPlay();
