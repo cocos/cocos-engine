@@ -358,7 +358,7 @@ void Node::setSiblingIndex(index_t index) {
         index = static_cast<index_t>(siblings.size()) - 1;
     }
 
-    if (index == _siblingIndex) {
+    if (index < 0 || index == _siblingIndex) {
         return;
     }
 
