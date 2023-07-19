@@ -1,0 +1,161 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+
+  techniques:
+  - passes:
+    - vert: dof-vs
+      frag: dof-coc-fs
+      pass: dof-coc
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-prefilter-fs
+      pass: dof-prefilter
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-combine-fs
+      pass: dof-combine
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram ubo %{
+    #include <common/common-define>
+    uniform ColorGradingUBO {
+        vec4 cocParams;
+        vec4 texSize;
+    };
+
+    #pragma rate colorTex pass
+    uniform sampler2D colorTex;
+    #pragma rate depthTex pass
+    uniform sampler2D depthTex;
+    #pragma rate cocTex pass
+    uniform sampler2D cocTex;
+
+    
+    #define farStart        cocParams.x
+    #define farEnd          cocParams.y
+    #define maxRadius       cocParams.z
+
+    vec4 _downSampleScaleFactor = vec4(0.5);
+
+    #define BLUR_KERNEL 0
+
+    #if BLUR_KERNEL == 0
+      // int kTapCount = 3;
+      // float kOffsets[3];
+      // kOffsets[0] = -1.33333333;
+      // kOffsets[1] = 0.00000000;
+      // kOffsets[2] = 1.33333333;
+
+      // float kCoeffs[3];
+      // kCoeffs[0] = 0.35294118;
+      // kCoeffs[1] = 0.29411765;
+      // kCoeffs[2] = 0.35294118;
+      
+    #elif BLUR_KERNEL == 1
+      int kTapCount = 5;
+      float kOffsets[5];
+      kOffsets[0] = -3.23076923;
+      kOffsets[1] = -1.38461538;
+      kOffsets[2] = 0.00000000;
+      kOffsets[3] = 1.38461538;
+      kOffsets[4] = 3.23076923;
+      
+      float kCoeffs[5];
+      kCoeffs[0] = 0.07027027;
+      kCoeffs[1] = 0.31621622;
+      kCoeffs[2] = 0.22702703;
+      kCoeffs[3] = 0.31621622;
+      kCoeffs[4] = 0.07027027;
+    #endif
+
+    // vec4 blur(vec2 uv, vec2 dir, float premultiply)
+    // {
+    //     // Use the center CoC as radius
+    //     vec2 positionSS = vec2(texSize.xy * _downSampleScaleFactor.xy * uv);
+    //     float samp0CoC = texture(cocTex, positionSS).x;
+
+    //     vec2 offset = texSize.zw * _downSampleScaleFactor.zw * dir * samp0CoC * maxRadius;
+    //     vec4 acc = 0.0;
+
+    //     for (int i = 0; i < kTapCount; i++)
+    //     {
+    //         vec2 sampCoord = uv + kOffsets[i] * offset;
+    //         float sampCoC = texture(cocTex, sampCoord).x;
+    //         vec3 sampColor = texture(colorTex, sampCoord).xyz;
+
+    //         float weight = saturate(1.0 - (samp0CoC - sampCoC));
+    //         acc += vec4(sampColor, premultiply ? sampCoC : 1.0) * kCoeffs[i] * weight;
+    //     }
+
+    //     acc.xyz /= acc.w + 1e-4; // Zero-div guard
+    //     return vec4(acc.xyz, 1.0);
+    // }
+}%
+
+
+CCProgram dof-vs %{
+  #include <./chunks/vs>
+}%
+
+CCProgram dof-coc-fs %{
+  precision highp float;
+  #include <ubo>
+  #include <common/data/packing>
+  #include <common/common-define>
+
+
+
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float depth = unpackRGBAToDepth(texture(depthTex, v_uv)) * 2.0 - 1.0;
+    float coc = (depth - farStart) / (farEnd - farStart);
+    fragColor = vec4(saturate(coc));
+  }
+
+}%
+
+CCProgram dof-prefilter-fs %{
+  precision highp float;
+  #include <ubo>
+ 
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float farCoC = texture(cocTex, v_uv).r;
+
+    vec4 color = texture(colorTex, v_uv);
+    fragColor = color * farCoC;
+  }
+
+}%
+
+CCProgram dof-combine-fs %{
+  precision highp float;
+  #include <ubo>
+  #include <common/data/packing>
+  #include <common/common-define>
+
+  #define farStart        cocParams.x
+  #define farEnd          cocParams.y
+  #define maxRadius       cocParams.z
+
+
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float depth = unpackRGBAToDepth(texture(colorTex, v_uv)) * 2.0 - 1.0;
+    float coc = (depth - farStart) / (farEnd - farStart);
+    fragColor = vec4(saturate(coc));
+  }
+}%

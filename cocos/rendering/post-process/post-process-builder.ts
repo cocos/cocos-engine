@@ -19,7 +19,7 @@ import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
 import { Camera as CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { BloomPass, ColorGradingPass, DofPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
 export class PostProcessBuilder implements PipelineBuilder  {
@@ -59,6 +59,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new ColorGradingPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new BloomPass());
+        this.addPass(new DofPass());
 
         // final output
         this.addPass(new FSRPass()); // fsr should be final
