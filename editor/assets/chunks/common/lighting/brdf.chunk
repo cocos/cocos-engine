@@ -1,5 +1,6 @@
 #include <common/math/number>
 
+// for dielectric(non-metal) surfaces
 float F0ToIor(float F0)
 {
 	return 2.0f / (1.0f - sqrt(F0)) - 1.0f;

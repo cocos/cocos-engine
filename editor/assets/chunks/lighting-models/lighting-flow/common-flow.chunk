@@ -118,6 +118,9 @@
           CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, attenuatedLightColorAndIntensity);
         #endif
 
+        #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+          CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
+        #endif
 
         // user-defined lighting model
         #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
@@ -254,48 +257,15 @@
 
         CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
         CCSurfaceLightingCalculateDirectFresnel(lightingResult.directGF2ndSpecular, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular, lightingResult.environmentGF2ndSpecular);
-
-        #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
-          vec3 lastLayerF, zeroVector = vec3(0.0);
-          vec3 blendedBaseD = lightingResult.directDiffuse, blendedBaseS = lightingResult.directSpecular;
-          CCSurfaceLightingCalculateDirectSubLayerFresnel(lightingResult.directSubLayerF, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular);
-          InitializeLayerBlending(blendedBaseD, blendedBaseS,
-                                  lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
-                                  lastLayerF,
-                                  lightingResult.directDiffuse, lightingResult.directSpecular
-                                  );
-          CalculateLayerBlending (blendedBaseD, blendedBaseS,
-                                  lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
-                                  lastLayerF,
-                                  zeroVector, zeroVector,
-                                  lightingResult.direct2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
-                                  lightingData2ndSpecular.layerOpacity, lightingResult.directSubLayerF
-                                  );
-          lightingResult.directDiffuse = blendedBaseD;
-          lightingResult.directSpecular = blendedBaseS;
-
-          zeroVector = vec3(0.0);
-          blendedBaseD = lightingResult.environmentDiffuse; blendedBaseS = lightingResult.environmentSpecular;
-          CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(lightingResult.environmentSubLayerF, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular);
-          InitializeLayerBlending(blendedBaseD, blendedBaseS,
-                                  lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
-                                  lastLayerF,
-                                  lightingResult.environmentDiffuse, lightingResult.environmentSpecular
-                                  );
-          CalculateLayerBlending (blendedBaseD, blendedBaseS,
-                                  lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
-                                  lastLayerF,
-                                  zeroVector, zeroVector,
-                                  lightingResult.environment2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
-                                  lightingData2ndSpecular.layerOpacity, lightingResult.environmentSubLayerF
-                                  );
-          lightingResult.environmentDiffuse = blendedBaseD;
-          lightingResult.environmentSpecular = blendedBaseS;
-        #endif
       #endif
 
       #if CC_SURFACES_LIGHTING_TT
         CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, cc_mainLitColor);
+      #endif
+
+      #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+        CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
+        CCSurfacesLightingCalculateEnvironmentMultiLayerBlending(lightingResult, lightingData2ndSpecular);
       #endif
 
       // user-defined lighting model

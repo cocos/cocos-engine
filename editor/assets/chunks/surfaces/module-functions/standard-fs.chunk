@@ -390,87 +390,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   ;
   
   color.xyz += lightingResult.emissive;
-  return color;
-
-  //todo:
-  //ior and fresnel range?
-  //整理代码blend layers
-
-  //test
-  LightingIntermediateData lightingData;
-  CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
-  CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
-
-  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
-    #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-      color.xyz = lightingResult.environmentSpecularSubLayers;
-      // color.xyz = lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.environmentGF2ndSpecular;
-      color.xyz = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF;
-      // color.xyz = vec3(lightingResult.environmentSubLayerF);
-      return color;
-    #endif
-
-    float VoH = lightingData.VoH;
-  	float Fc = exp2( (-5.55473 * VoH - 6.98316) * VoH );
-
-    float LoH = dot(lightingData.L, lightingData.H);
-    color.xyz = F_Schlick(lightingResult.specularColorWithLighting, lightingData.VoH);
-    color.xyz = F_Schlick(lightingResult.specularColorWithLighting, LoH);
-    color.xyz = lightingResult.environmentSpecularSubLayers;
-    color.xyz = vec3(1.0 - Fc);
-    return color;
-    color.xyz = vec3(lightingResult.environmentGF2ndSpecular * lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular);
-    color.xyz = vec3(lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * fresnel);
-    color.xyz = vec3(lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF);
-    color.xyz = vec3(0.0);
-      color.xyz +=
-    ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * fresnel
-  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF * invFresnel
-  #endif
-  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.directGF2ndSpecular
-  #endif
-  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
-    + lightingResult.directDiffuseSubLayers
-    + lightingResult.directSpecularSubLayers
-  #endif
-  #if CC_SURFACES_LIGHTING_TT
-    + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
-  #endif
-    )
-    * lightingResult.shadow
-  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-    + lightingResult.directTransmitDiffuse
-  #endif
-  ;
-
-    #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_ALL_IN_ONE
-    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting * lightingResult.shadow; //apply real-time shadows
-  #elif CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
-    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting;
-  #endif
-
-  color.xyz +=
-    ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF * fresnel
-  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.color2ndSpecular * lightingResult.environmentGF2ndSpecular
-  #endif
-  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
-    + lightingResult.environmentDiffuseSubLayers
-    + lightingResult.environmentSpecularSubLayers
-  #endif
-    )
-    * lightingResult.ao
-  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-    + lightingResult.environmentTransmitDiffuse
-  #endif
-  ;
-  #endif
-  return color;
 #endif
+
   return color;
 }
 

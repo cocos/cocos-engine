@@ -39,7 +39,7 @@ struct LightingResult
 
 
 /* for multi-layer materials, should define:
-struct LightingResultLayer
+struct LightingResultPerLayer
 {
   vec3 diffuseColorWithLighting, specularColorWithLighting;
   vec3 directDiffuse, directSpecular, directGF;
