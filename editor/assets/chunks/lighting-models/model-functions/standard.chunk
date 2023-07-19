@@ -258,7 +258,7 @@ void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in
     #endif
     )
   {
-    vec3 lastLayerF, zeroVector = vec3(0.0);
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
     vec3 blendedBaseD = lightingResult.directDiffuse, blendedBaseS = lightingResult.directSpecular;
     InitializeLayerBlending(blendedBaseD, blendedBaseS,
                             lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
@@ -270,7 +270,7 @@ void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in
       CalculateLayerBlending (blendedBaseD, blendedBaseS,
                               lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
                               lastLayerF,
-                              zeroVector, zeroVector,
+                              zeroDiffuse, zeroDiffuse,
                               lightingResult.direct2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
                               lightingData2ndLayer.layerOpacity, lightingResult.directSubLayerF
                               );
@@ -290,7 +290,7 @@ void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in
     #endif
     )
   {
-    vec3 lastLayerF, zeroVector = vec3(0.0);
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
     vec3 blendedBaseD = lightingResult.environmentDiffuse, blendedBaseS = lightingResult.environmentSpecular;
     InitializeLayerBlending(blendedBaseD, blendedBaseS,
                             lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
@@ -302,7 +302,7 @@ void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in
       CalculateLayerBlending (blendedBaseD, blendedBaseS,
                               lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
                               lastLayerF,
-                              zeroVector, zeroVector,
+                              zeroDiffuse, zeroDiffuse,
                               lightingResult.environment2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
                               lightingData2ndLayer.layerOpacity, lightingResult.environmentSubLayerF
                               );
