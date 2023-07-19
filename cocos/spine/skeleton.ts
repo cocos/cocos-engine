@@ -1467,7 +1467,7 @@ export class Skeleton extends UIRenderer {
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
-                this._instance.setDebugMode(false);
+                if (!JSB) this._instance.setDebugMode(false);
             }
         }
     }
@@ -1494,7 +1494,6 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _updateColor (): void {
-        //if(EDITOR_NOT_IN_PREVIEW) cce.Node.emit('change-node', this.node);
         this.node._uiProps.colorDirty = true;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
