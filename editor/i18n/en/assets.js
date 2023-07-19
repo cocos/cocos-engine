@@ -327,9 +327,9 @@ module.exports = {
                 name: 'Add Vertex Color',
                 title: 'Fill vertex color with white if the model file does not contain vertex color attribute.',
             },
-            meshOptimizer: {
-                name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
+            meshSimplify: {
+                name: 'Mesh Simplify',
+                title: 'Mesh Simplify is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',

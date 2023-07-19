@@ -77,6 +77,13 @@ export declare namespace Mesh {
         attributes: Attribute[];
     }
 
+    export interface IMeshLet {
+        meshletsView: IBufferView;
+        triangleView: IBufferView;
+        vertexView: IBufferView;
+        coneView?: IBufferView;
+    }
+
     /**
      * @en Sub mesh contains a list of primitives with the same type (Point, Line or Triangle)
      * @zh 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
@@ -106,6 +113,11 @@ export declare namespace Mesh {
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
         jointMapIndex?: number;
+
+        /**
+         * @en The meshlet data of the sub mesh
+         */
+        meshlet?: IMeshLet;
     }
 
     /**

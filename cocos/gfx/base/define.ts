@@ -1991,6 +1991,29 @@ export enum AttributeName {
     ATTR_BATCH_UV = 'a_batch_uv',
 }
 
+export enum AttributeQuantizeSize {
+    ATTR_POSITION = 0,
+    ATTR_NORMAL = 0,
+    ATTR_TANGENT = 0,
+    ATTR_BITANGENT = 0,
+    ATTR_WEIGHTS = 0,
+    ATTR_JOINTS = 0,
+    ATTR_COLOR = 0,
+    ATTR_COLOR1 = 0,
+    ATTR_COLOR2 = 0,
+    ATTR_TEX_COORD = 0,
+    ATTR_TEX_COORD1 = 0,
+    ATTR_TEX_COORD2 = 0,
+    ATTR_TEX_COORD3 = 0,
+    ATTR_TEX_COORD4 = 0,
+    ATTR_TEX_COORD5 = 0,
+    ATTR_TEX_COORD6 = 0,
+    ATTR_TEX_COORD7 = 0,
+    ATTR_TEX_COORD8 = 0,
+    ATTR_BATCH_ID = 0,
+    ATTR_BATCH_UV = 0,
+}
+
 export const FormatInfos = Object.freeze([
 
     new FormatInfo('UNKNOWN', 0, 0, FormatType.NONE, false, false, false, false),
