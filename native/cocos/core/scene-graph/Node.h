@@ -372,7 +372,7 @@ public:
      * @en Update the world transform information if outdated
      * @zh 更新节点的世界变换信息
      */
-    void updateWorldTransform();
+    virtual void updateWorldTransform();
 
     /**
      * @en Get a world transform matrix
