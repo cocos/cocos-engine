@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { AudioPlayer } from 'pal/audio';
+import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
@@ -144,15 +144,17 @@ export class AudioSource extends Component {
     private _registerListener (): void {
         if (!this._hasRegisterListener && this._player) {
             const player = this._player;
-            this._player.onEnded(() => {
+            player.onEnded(() => {
                 audioManager.removePlaying(player);
                 this.node?.emit(AudioSourceEventType.ENDED, this);
             });
-            this._player.onInterruptionBegin(() => {
+            player.onInterruptionBegin(() => {
                 audioManager.removePlaying(player);
             });
-            this._player.onInterruptionEnd(() => {
-                audioManager.addPlaying(player);
+            player.onInterruptionEnd(() => {
+                if (this._player === player) {
+                    audioManager.addPlaying(player);
+                }
             });
             this._hasRegisterListener = true;
         }
@@ -352,10 +354,15 @@ export class AudioSource extends Component {
         if (this.state === AudioState.PLAYING) {
             this._player?.stop().catch((e) => {});
         }
-        this._player?.play().then(() => {
-            this.node?.emit(AudioSourceEventType.STARTED, this);
-        }).catch((e) => {});
-        audioManager.addPlaying(this._player!);
+        const player = this._player;
+        if (player) {
+            player.play().then(() => {
+                this.node?.emit(AudioSourceEventType.STARTED, this);
+            }).catch((e) => {
+                audioManager.removePlaying(player);
+            });
+            audioManager.addPlaying(player);
+        }
     }
 
     /**
@@ -402,16 +409,22 @@ export class AudioSource extends Component {
             console.error('Invalid audio clip');
             return;
         }
+        let player: OneShotAudio;
         AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
+            player = oneShotAudio;
             audioManager.discardOnePlayingIfNeeded();
             oneShotAudio.onEnd = (): void => {
                 audioManager.removePlaying(oneShotAudio);
             };
             oneShotAudio.play();
             audioManager.addPlaying(oneShotAudio);
-        }).catch((e): void => {});
+        }).catch((e): void => {
+            if (player) {
+                audioManager.removePlaying(player);
+            }
+        });
     }
 
     protected _syncStates (): void {
