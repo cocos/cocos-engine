@@ -346,6 +346,7 @@ struct CopyPair {
 
     CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
     CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t sourceOffsetIn, uint32_t targetOffsetIn, uint32_t bufferSizeIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     CopyPair(CopyPair&& rhs, const allocator_type& alloc);
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 

@@ -798,6 +798,9 @@ struct RenderInstancingQueue {
 
 struct RenderBatchingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {batches.get_allocator().resource()};
+    }
 
     RenderBatchingQueue(const allocator_type& alloc) noexcept; // NOLINT
     RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc);
@@ -810,6 +813,8 @@ struct RenderBatchingQueue {
 
     static void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
         gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags);
+
+    ccstd::pmr::vector<uint32_t> batches;
 };
 
 struct DrawInstance {

@@ -75,6 +75,13 @@ CopyPair::CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uin
   targetFirstSlice(targetFirstSliceIn),
   targetPlaneSlice(targetPlaneSliceIn) {}
 
+CopyPair::CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t sourceOffsetIn, uint32_t targetOffsetIn, uint32_t bufferSizeIn, const allocator_type& alloc) noexcept // NOLINT
+: source(std::move(sourceIn), alloc),
+  target(std::move(targetIn), alloc),
+  sourceOffset(sourceOffsetIn),
+  targetOffset(targetOffsetIn),
+  bufferSize(bufferSizeIn) {}
+
 CopyPair::CopyPair(CopyPair&& rhs, const allocator_type& alloc)
 : source(std::move(rhs.source), alloc),
   target(std::move(rhs.target), alloc),
@@ -85,7 +92,10 @@ CopyPair::CopyPair(CopyPair&& rhs, const allocator_type& alloc)
   sourcePlaneSlice(rhs.sourcePlaneSlice),
   targetMostDetailedMip(rhs.targetMostDetailedMip),
   targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
+  targetPlaneSlice(rhs.targetPlaneSlice),
+  sourceOffset(rhs.sourceOffset),
+  targetOffset(rhs.targetOffset),
+  bufferSize(rhs.bufferSize) {}
 
 CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
 : source(rhs.source, alloc),
@@ -97,7 +107,10 @@ CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
   sourcePlaneSlice(rhs.sourcePlaneSlice),
   targetMostDetailedMip(rhs.targetMostDetailedMip),
   targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
+  targetPlaneSlice(rhs.targetPlaneSlice),
+  sourceOffset(rhs.sourceOffset),
+  targetOffset(rhs.targetOffset),
+  bufferSize(rhs.bufferSize) {}
 
 UploadPair::UploadPair(const allocator_type& alloc) noexcept
 : target(alloc) {}

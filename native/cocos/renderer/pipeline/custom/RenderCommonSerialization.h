@@ -130,6 +130,9 @@ inline void save(OutputArchive& ar, const CopyPair& v) {
     save(ar, v.targetMostDetailedMip);
     save(ar, v.targetFirstSlice);
     save(ar, v.targetPlaneSlice);
+    save(ar, v.sourceOffset);
+    save(ar, v.targetOffset);
+    save(ar, v.bufferSize);
 }
 
 inline void load(InputArchive& ar, CopyPair& v) {
@@ -143,6 +146,9 @@ inline void load(InputArchive& ar, CopyPair& v) {
     load(ar, v.targetMostDetailedMip);
     load(ar, v.targetFirstSlice);
     load(ar, v.targetPlaneSlice);
+    load(ar, v.sourceOffset);
+    load(ar, v.targetOffset);
+    load(ar, v.bufferSize);
 }
 
 inline void save(OutputArchive& ar, const MovePair& v) {
