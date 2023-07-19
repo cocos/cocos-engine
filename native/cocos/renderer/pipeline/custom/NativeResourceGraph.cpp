@@ -22,15 +22,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/graph/depth_first_search.hpp>
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "details/GraphView.h"
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
-#include <boost/graph/depth_first_search.hpp>
-#include "details/GraphView.h"
 
 namespace cc {
 
@@ -259,7 +259,7 @@ void mount(gfx::Device* device, ResourceGraph::vertex_descriptor vertID, Resourc
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-//            mount(device, parentID);
+            mount(device, parentID);
         },
         [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
             auto parentID = parent(vertID, resg);
@@ -270,7 +270,6 @@ void mount(gfx::Device* device, ResourceGraph::vertex_descriptor vertID, Resourc
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-//            mount(device, parentID);
             auto* parentTexture = resg.getTexture(parentID);
             const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
             if (!view.textureView) {
@@ -306,25 +305,23 @@ void unmount(uint64_t completedFenceValue, ResourceGraph& resg) {
 }
 
 struct MountVisitor : boost::dfs_visitor<> {
-    MountVisitor(gfx::Device* deviceIn, ResourceGraph& resgIn):
-        device(deviceIn), resg(resgIn) {}
-    
+    MountVisitor(gfx::Device* deviceIn, ResourceGraph& resgIn) : device(deviceIn), resg(resgIn) {}
+
     void discover_vertex(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) {
         mount(device, u, resg);
     }
-    
+
     gfx::Device* device;
     ResourceGraph& resg;
 };
 
 struct UnmountVisitor : boost::dfs_visitor<> {
-    UnmountVisitor(const uint64_t& completedFenceValIn, ResourceGraph& resgIn):
-    fenceVal(completedFenceValIn), resg(resgIn) {}
-    
+    UnmountVisitor(const uint64_t& completedFenceValIn, ResourceGraph& resgIn) : fenceVal(completedFenceValIn), resg(resgIn) {}
+
     void discover_vertex(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) {
         unmount(fenceVal, resg);
     }
-    
+
     const uint64_t& fenceVal;
     ResourceGraph& resg;
 };
@@ -425,7 +422,6 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         [&](const SubresourceView& view) {
             // TODO(zhouzhenglong): add ImageView support
             texture = view.textureView;
-            //CC_EXPECTS(false);z
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

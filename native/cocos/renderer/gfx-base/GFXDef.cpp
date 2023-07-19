@@ -109,7 +109,6 @@ ccstd::hash_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) con
     ccstd::hash_combine(seed, info.depthStencilAttachment);
     ccstd::hash_combine(seed, info.depthStencilResolveAttachment);
     ccstd::hash_combine(seed, info.subpasses);
-    ccstd::hash_combine(seed, info.aspects);
     ccstd::hash_combine(seed, info.dependencies);
     return seed;
 }
@@ -119,7 +118,6 @@ bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
            lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
            lhs.depthStencilResolveAttachment == rhs.depthStencilResolveAttachment &&
            lhs.subpasses == rhs.subpasses &&
-           lhs.aspects == rhs.aspects &&
            lhs.dependencies == rhs.dependencies;
 }
 

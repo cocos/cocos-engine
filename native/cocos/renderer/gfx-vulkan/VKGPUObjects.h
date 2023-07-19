@@ -121,8 +121,6 @@ public:
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
-    IndexList aspects;
-
     VkRenderPass vkRenderPass;
 
     // helper storage

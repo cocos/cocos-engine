@@ -535,15 +535,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             }
         }
         if (!subpassInfo.preserves.empty()) {
-            auto prepVal = attachmentDescriptions.size();
-            // depth: colors.size
-            // stencil: colors.size + 1
-            auto &preserve = preserveLists.emplace_back(subpassInfo.preserves);
-            std::replace(preserve.begin(), preserve.end(), prepVal, prepVal - 1);
-            std::sort(preserve.begin(), preserve.end());
-            preserve.erase(std::unique(preserve.begin(), preserve.end()), preserve.end());
-            desc.preserveAttachmentCount = utils::toUint(preserve.size());
-            desc.pPreserveAttachments = preserve.data();
+            desc.preserveAttachmentCount = utils::toUint(subpassInfo.preserves.size());
+            desc.pPreserveAttachments = subpassInfo.preserves.data();
         }
 
         if (subpassInfo.depthStencil != INVALID_BINDING) {

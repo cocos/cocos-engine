@@ -33,7 +33,7 @@ namespace {
 
 constexpr uint32_t FORCE_MINOR_VERSION = 0; // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
 
-#define FORCE_ENABLE_VALIDATION  1
+#define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 1
 
 using ccstd::vector;

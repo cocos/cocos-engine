@@ -58,7 +58,6 @@ protected:
     DepthStencilAttachment _depthStencilResolveAttachment;
     SubpassInfoList _subpasses;
     SubpassDependencyList _dependencies;
-    IndexList _aspects;
     ccstd::hash_t _hash = 0;
 };
 
