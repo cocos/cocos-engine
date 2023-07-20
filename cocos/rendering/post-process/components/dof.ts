@@ -5,12 +5,12 @@ import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeM
 import { min } from '../../../core/math/bits';
 import { PostProcessSetting } from './post-process-setting';
 
-@ccclass('cc.Dof')
-@help('cc.Dof')
-@menu('PostProcess/Dof')
+@ccclass('cc.DOF')
+@help('cc.DOF')
+@menu('PostProcess/DOF')
 @disallowMultiple
 @executeInEditMode
-export class Dof extends PostProcessSetting {
+export class DOF extends PostProcessSetting {
     @serializable
     protected _start = 0.0;
     @serializable

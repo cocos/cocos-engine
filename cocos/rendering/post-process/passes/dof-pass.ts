@@ -7,11 +7,11 @@ import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
-import { Dof } from '../components';
+import { DOF } from '../components';
 import { disablePostProcessForDebugView } from './base-pass';
 
 export class DofPass extends SettingPass {
-    get setting () { return getSetting(Dof); }
+    get setting () { return getSetting(DOF); }
 
     checkEnable (camera: Camera) {
         let enable = super.checkEnable(camera);
@@ -61,9 +61,27 @@ export class DofPass extends SettingPass {
             .updatePassViewPort()
             .addRenderPass('dof-prefilter', `dof-prefilter${cameraID}`)
             .setPassInput(input, 'colorTex')
-            .setPassInput(outputCOC, 'cocTex')
-            .addRasterView(slot, Format.RGBA8)
+            .setPassInput(outputCOC, 'outResultTex')
+            .addRasterView(outputPrefilter, Format.RGBA8)
             .blitScreen(1)
+            .version();
+
+        const outputBlurHor = `DOF_BLUR_HOR${cameraID}`;
+        passContext
+            .updatePassViewPort()
+            .addRenderPass('dof-blur-hor', `dof-blur-hor${cameraID}`)
+            .setPassInput(outputPrefilter, 'outResultTex')
+            .addRasterView(outputBlurHor, Format.RGBA8)
+            .blitScreen(2)
+            .version();
+
+        const outputBlurVar = `DOF_BLUR_VAR${cameraID}`;
+        passContext
+            .updatePassViewPort()
+            .addRenderPass('dof-blur-ver', `dof-blur-ver${cameraID}`)
+            .setPassInput(outputBlurHor, 'outResultTex')
+            .addRasterView(slot, Format.RGBA8)
+            .blitScreen(3)
             .version();
     }
 }
