@@ -115,7 +115,7 @@ export class B2Shape2D implements IBaseShape {
                 lowerBound.y = aabb.lowerBound.y;
                 upperBound.x = aabb.upperBound.x;
                 upperBound.y = aabb.upperBound.y;
-                if (fixture.GetShape().m_type === 2) { //b2ShapeType.e_polygonShape
+                if (fixture.GetShape().m_type === B2.ShapeType.e_polygon) { //b2ShapeType.e_polygonShape
                     const skinWidth = fixture.GetShape().m_radius;
                     lowerBound.x += skinWidth;
                     lowerBound.y += skinWidth;

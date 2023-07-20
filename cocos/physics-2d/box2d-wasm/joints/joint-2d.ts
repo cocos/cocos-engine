@@ -30,8 +30,7 @@ import { B2PhysicsWorld } from '../physics-world';
 import { Vec2, warn } from '../../../core';
 
 export class B2Joint implements IJoint2D {
-    get impl (): any {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    get impl (): B2.Joint | null {
         return this._b2joint;
     }
     get comp (): Joint2D | null {
@@ -41,7 +40,7 @@ export class B2Joint implements IJoint2D {
         return this._body;
     }
 
-    protected _b2joint: any = null;
+    protected _b2joint: B2.Joint | null = null;
     protected _jointComp: Joint2D | null = null;
     protected _body: RigidBody2D | null = null;
 
@@ -101,13 +100,15 @@ export class B2Joint implements IJoint2D {
 
         this._b2joint = (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.CreateJoint(def);
 
+        this.UpdateStiffnessAndDamping();
+
         this._inited = true;
     }
 
     _destroy (): void {
         if (!this._inited) return;
 
-        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint);
+        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
 
         this._b2joint = null;
         this._inited = false;
@@ -118,7 +119,10 @@ export class B2Joint implements IJoint2D {
     }
 
     isValid (): Joint2D | null {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._b2joint && this._body && this._body.impl && this._jointComp;
+    }
+
+    UpdateStiffnessAndDamping (): void {
+        // do nothing
     }
 }
