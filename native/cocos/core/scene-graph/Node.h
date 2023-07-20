@@ -27,8 +27,6 @@
 #include "base/Ptr.h"
 #include "base/std/any.h"
 #include "bindings/utils/BindingUtils.h"
-// #include "core/components/Component.h"
-// #include "core/event/Event.h"
 #include "core/data/Object.h"
 #include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
@@ -244,7 +242,7 @@ public:
     /**
      * @en Set position in local coordinate system
      * @zh 设置本地坐标
-     * @param position Target position
+     * @param pos Target position
      */
     inline void setPosition(const Vec3 &pos) { setPosition(pos.x, pos.y, pos.z); }
     inline void setPosition(float x, float y) { setPosition(x, y, _localPosition.z); }
@@ -254,10 +252,8 @@ public:
     // It is invoked after deserialization. It only sets position value, not triggers other logic.
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
-     * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
-     * @zh 获取本地坐标，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
-     * @param out Set the result to out vector
-     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
+     * @en Get position in local coordinate system.
+     * @zh 获取本地坐标.
      */
     inline const Vec3 &getPosition() const { return _localPosition; }
 
@@ -277,10 +273,8 @@ public:
     void setRotationFromEuler(float x, float y, float z);
     inline void setRotationFromEulerForJS(float x, float y, float z) { _euler.set(x, y, z); }
     /**
-     * @en Get rotation as quaternion in local coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
-     * @zh 获取本地旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
-     * @param out Set the result to out quaternion
-     * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
+     * @en Get rotation as quaternion in local coordinate system.
+     * @zh 获取本地旋转四元素.
      */
     inline const Quaternion &getRotation() const { return _localRotation; }
 
@@ -296,10 +290,8 @@ public:
     void setScaleInternal(float x, float y, float z, bool calledFromJS);
     inline void setScaleForJS(float x, float y, float z) { _localScale.set(x, y, z); }
     /**
-     * @en Get scale in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
-     * @zh 获取本地缩放，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
-     * @param out Set the result to out vector
-     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
+     * @en Get scale in local coordinate system.
+     * @zh 获取本地缩放向量。
      */
     inline const Vec3 &getScale() const { return _localScale; }
 
@@ -320,10 +312,8 @@ public:
     void setWorldPosition(float x, float y, float z);
 
     /**
-     * @en Get position in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
-     * @zh 获取世界坐标，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
-     * @param out Set the result to out vector
-     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
+     * @en Get position in world coordinate system.
+     * @zh 获取世界坐标。
      */
     const Vec3 &getWorldPosition() const;
 
@@ -335,28 +325,21 @@ public:
     inline void setWorldRotation(const Quaternion &rotation) { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
     void setWorldRotation(float x, float y, float z, float w);
     /**
-     * @en Get rotation as quaternion in world coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
-     * @zh 获取世界坐标系下的旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
-     * @param out Set the result to out quaternion
-     * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
+     * @en Get rotation as quaternion in world coordinate system.
+     * @zh 获取世界坐标系下的旋转四元素。
      */
     const Quaternion &getWorldRotation() const;
 
     /**
      * @en Set rotation in world coordinate system with euler angles
      * @zh 用欧拉角设置世界坐标系下的旋转
-     * @param x X axis rotation
-     * @param y Y axis rotation
-     * @param z Z axis rotation
      */
     inline void setWorldScale(const Vec3 &scale) { setWorldScale(scale.x, scale.y, scale.z); }
     void setWorldScale(float x, float y, float z);
 
     /**
-     * @en Get scale in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
-     * @zh 获取世界缩放，注意，尽可能传递复用的 [[Vec3]] 以避免产生垃圾。
-     * @param out Set the result to out vector
-     * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
+     * @en Get scale vector in world coordinate system.
+     * @zh 获取世界缩放向量。
      */
     const Vec3 &getWorldScale() const;
 
@@ -377,36 +360,27 @@ public:
     /**
      * @en Get a world transform matrix
      * @zh 获取世界变换矩阵
-     * @param out Set the result to out matrix
-     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     const Mat4 &getWorldMatrix() const;
 
     /**
      * @en Get a world transform matrix with only rotation and scale
      * @zh 获取只包含旋转和缩放的世界变换矩阵
-     * @param out Set the result to out matrix
-     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     Mat4 getWorldRS();
 
     /**
      * @en Get a world transform matrix with only rotation and translation
      * @zh 获取只包含旋转和位移的世界变换矩阵
-     * @param out Set the result to out matrix
-     * @return If `out` given, the return value equals to `out`, otherwise a new matrix will be generated and return
      */
     Mat4 getWorldRT();
 
     /**
      * @en Set local transformation with rotation, position and scale separately.
      * @zh 一次性设置所有局部变换（平移、旋转、缩放）信息
-     * @param rot The rotation
-     * @param pos The position
-     * @param scale The scale
      */
-    void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
+    void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
 
     void setForward(const Vec3 &dir);
 
