@@ -169,9 +169,6 @@ using namespace spine;
 %rename(queue) spine::AnimationState::_queue;
 %rename(animationsChanged) spine::AnimationState::_animationsChanged;
 %rename(trackEntryPool) spine::AnimationState::_trackEntryPool;
-%rename(next) spine::TrackEntry::_next;
-%rename(mixingFrom) spine::TrackEntry::_mixingFrom;
-%rename(mixingTo) spine::TrackEntry::_mixingTo;
 %rename(listener) spine::TrackEntry::_listener;
 %rename(nextAnimationLast) spine::TrackEntry::_nextAnimationLast;
 %rename(trackLast) spine::TrackEntry::_trackLast;
@@ -185,7 +182,6 @@ using namespace spine;
 %rename(animState) spine::EventQueue::_state;
 %rename(setMixWith) spine::AnimationStateData::setMix;
 %rename(TextureAtlas) spine::Atlas;
-%rename(arotation) spine::Bone::_arotation;
 %rename(sorted) spine::Bone::_sorted;
 %rename(spaces) spine::PathConstraint::_spaces;
 %rename(positions) spine::PathConstraint::_positions;
@@ -204,6 +200,9 @@ using namespace spine;
 %rename(JitterEffect) spine::JitterVertexEffect;
 %rename(SwirlEffect) spine::SwirlVertexEffect;
 %rename(setSkinByName) spine::Skeleton::setSkin(const String &);
+%rename(slotIndex) spine::Skin::AttachmentMap::Entry::_slotIndex;
+%rename(name) spine::Skin::AttachmentMap::Entry::_name;
+%rename(attachment) spine::Skin::AttachmentMap::Entry::_attachment;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -266,6 +265,9 @@ using namespace spine;
 %attribute(spine::AnimationState, float, timeScale, getTimeScale, setTimeScale);
 
 %attribute(spine::TrackEntry, spine::Animation*, animation, getAnimation);
+%attribute(spine::TrackEntry, spine::TrackEntry*, next, getNext);
+%attribute(spine::TrackEntry, spine::TrackEntry*, mixingFrom, getMixingFrom);
+%attribute(spine::TrackEntry, spine::TrackEntry*, mixingTo, getMixingTo);
 %attribute(spine::TrackEntry, int, trackIndex, getTrackIndex);
 %attribute(spine::TrackEntry, bool, loop, getLoop, setLoop);
 %attribute(spine::TrackEntry, bool, holdPrevious, getHoldPrevious, setHoldPrevious);
@@ -300,6 +302,7 @@ using namespace spine;
 %attribute(spine::Bone, float, shearY, getShearY, setShearY);
 %attribute(spine::Bone, float, ax, getAX, setAX);
 %attribute(spine::Bone, float, ay, getAY, setAY);
+%attribute(spine::Bone, float, arotation, getAppliedRotation, setAppliedRotation);
 %attribute(spine::Bone, float, ascaleX, getAScaleX, setAScaleX);
 %attribute(spine::Bone, float, ascaleY, getAScaleY, setAScaleY);
 %attribute(spine::Bone, float, ashearX, getAShearX, setAShearX);
@@ -509,6 +512,7 @@ using namespace spine;
 %attribute(spine::RegionAttachment, float, height, getHeight, setHeight);
 %attribute(spine::RegionAttachment, spine::Color&, color, getColor);
 %attribute(spine::RegionAttachment, spine::String&, path, getPath, setPath);
+%attribute(spine::RegionAttachment, void*, rendererObject, getRendererObject, setRendererObject);
 %attribute(spine::RegionAttachment, spine::Vector<float>&, offset, getOffset);
 %attribute(spine::RegionAttachment, spine::Vector<float>&, uvs, getUVs);
 
@@ -726,5 +730,11 @@ using namespace spine;
             spDrawOrder.add(drawOrder[i]);
         }
         $self->setFrame(frameIndex, time, spDrawOrder);
+    }
+}
+
+%extend spine::Color {
+    spine::Color &setFromColor(const spine::Color &other) {
+        return $self->set(other);
     }
 }
