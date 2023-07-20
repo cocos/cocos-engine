@@ -8,14 +8,16 @@ CCEffect %{
       frag: standard-fs
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:                        { value: [1.0, 1.0, 1.0, 0.5], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         roughness:                        { value: 0.0, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        F0:                               { value: 0.3, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        F90:                              { value: 0.8, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.2, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        F0:                               { value: 0.7, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        F90:                              { value: 0.9, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        gradientColor:                    { value: [0.0, 0.05, 0.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
+        gradientIntensity:                { value: 0.2, target: emissiveScaleParam.z, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
@@ -117,6 +119,7 @@ CCProgram shared-ubos %{
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
     vec4 emissiveScaleParam;
+    vec4 gradientColor;
   };
 }%
 
@@ -238,8 +241,11 @@ CCProgram surface-fragment %{
     vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
     float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
     float F0 = emissiveScaleParam.x, F90 = emissiveScaleParam.y;
-    F0 = min(F0, F90);
-    surfaceData.baseColor.a = lerp(F90, F0, NoVSat);
+    surfaceData.baseColor.a = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
+
+    #if USE_GRADIENT_COLOR
+      surfaceData.baseColor.rgb = lerp(gradientColor * albedoScaleAndCutoff, surfaceData.baseColor, pow(NoVSat, emissiveScaleParam.z)).rgb;
+    #endif
   }
 }%
 

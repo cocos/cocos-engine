@@ -16,6 +16,7 @@ struct LightingIntermediateData
 
   // material data
   float specularParam; // roughness or specular power
+  // todo: add F0 & F90
   float ior, layerOpacity;
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC

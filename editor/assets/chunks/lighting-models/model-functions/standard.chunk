@@ -90,8 +90,11 @@ void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in Ligh
 }
 void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
 {
-  // ior related fresnel:
+  // ior related:
   subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
+  // F0 F90 related:
+  // if (equalf(lightingData.ior, 0.0))
+  // subLayerF = vec3(CalculateFresnelCoefficient(lightingData.F0, lightingData.F90, lightingData.NoVSat));
 }
 
 

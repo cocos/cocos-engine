@@ -9,7 +9,6 @@ CCEffect %{
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
-        gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -27,6 +26,8 @@ CCEffect %{
         flakeColorIntensity:              { value: 0.5, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
         flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 40.0], step: 0.001 } }
         coatNormalStrength:               { value: 1.0, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 5.0], step: 0.001 } }
+        gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
+        gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
         coatNormalMap:                    { value: normal, editor: { parent: USE_FLAKE } }
@@ -249,7 +250,7 @@ CCProgram surface-fragment %{
     #if USE_GRADIENT_COLOR
       vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
       float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
-      surfaceData.baseColor = lerp(gradientColor, surfaceData.baseColor, NoVSat);
+      surfaceData.baseColor.rgb = lerp(gradientColor, surfaceData.baseColor, pow(NoVSat, emissiveScaleParam.y)).rgb;
     #endif
 
     #if USE_FLAKE
@@ -258,17 +259,19 @@ CCProgram surface-fragment %{
 
       vec4 data = sampleFlake(flakeDataMap, uv);
       float C = (data.a - 1.0) / density + 1.0;
+      float flakeTintWeight = 1.0;
+      float flakeWeight = saturate(C) * flakeTintWeight * flakeColorIntensity;
 
       // color
       vec4 flakeA = vec4(0.972,0.96,0.915,1);
       vec4 flakeB = vec4(1.0,0.78,0.344,1);
       vec4 flakeColor = lerp(flakeA, flakeB, data.r);
-      float flakeTintWeight = 1.0;
       
       vec4 color = surfaceData.baseColor;
-      color = lerp(color, flakeColor, saturate(C) * flakeTintWeight);
-      color = lerp(surfaceData.baseColor, color, surfaceData.metallic * flakeColorIntensity);
+      color = lerp(color, flakeColor, flakeWeight);
+      color = lerp(surfaceData.baseColor, color, surfaceData.metallic);
       surfaceData.baseColor = color;
+      surfaceData.roughness *= lerp(1.0, 0.5, flakeWeight);
     #endif
   }
 }%
