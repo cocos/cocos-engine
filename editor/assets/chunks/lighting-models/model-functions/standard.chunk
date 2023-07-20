@@ -83,20 +83,21 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
   IntegratedGFMultiplier(integratedGF, integratedF, specularColor, roughness, lightingData.NoVAbsSat);
 }
 
-void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
-{
-  float VoH = lightingData.VoHAbsSat;
-	subLayerF = vec3(exp2( (-5.55473 * VoH - 6.98316) * VoH ));
-}
-void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
-{
-  // ior related:
-  subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
-  // F0 F90 related:
-  // if (equalf(lightingData.ior, 0.0))
-  // subLayerF = vec3(CalculateFresnelCoefficient(lightingData.F0, lightingData.F90, lightingData.NoVSat));
-}
-
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+  {
+    float VoH = lightingData.VoHAbsSat;
+  	subLayerF = vec3(exp2( (-5.55473 * VoH - 6.98316) * VoH ));
+  }
+  void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+  {
+    // ior related:
+    subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
+    // F0 F90 related:
+    // if (equalf(lightingData.ior, 0.0))
+    // subLayerF = vec3(CalculateFresnelCoefficient(lightingData.F0, lightingData.F90, lightingData.NoVSat));
+  }
+#endif
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
   // do not support anisotropy
