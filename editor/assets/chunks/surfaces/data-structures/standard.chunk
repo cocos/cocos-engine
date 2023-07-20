@@ -27,9 +27,14 @@ struct SurfacesMaterialData
   vec4 transmitDiffuseParams;
 #endif
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  // for storage only, copied with CCSurfacesGetSurfacesMaterialData2ndSpecular
   vec3 baseColor2ndSpecular, color2ndSpecular;
-  float intensity2ndSpecular, roughness2ndSpecular;
+  float intensity2ndSpecular, roughness2ndSpecular, metallic2ndSpecular;
   vec3 worldNormal2ndSpecular, worldTangent2ndSpecular, worldBinormal2ndSpecular;
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    float anisotropyShape2ndSpecular;
+  #endif
+  float ior2ndSpecular, opacity2ndSpecular; // for multi-layer
 #endif
 #if CC_SURFACES_LIGHTING_TT
   vec3 baseColorTT;
