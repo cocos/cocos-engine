@@ -23,15 +23,16 @@
 */
 
 // import b2 from '@cocos/box2d';\
-import { B2 } from '../instantiated';
+import { B2, getB2ObjectFromImpl } from '../instantiated';
 import { Vec2 } from '../../../core';
+import { B2RigidBody2D } from '../rigid-body';
 
 export class PhysicsAABBQueryCallback {//} extends B2.QueryCallback {
-    _point = { x: 0, y: 0 };
-    _isPoint = false;
-    _fixtures: B2.Fixture[] = [];
+    static _point = { x: 0, y: 0 };
+    static _isPoint = false;
+    static _fixtures: B2.Fixture[] = [];
 
-    init (point?: Vec2): void {
+    static init (point?: Vec2): void {
         if (point) {
             this._isPoint = true;
             this._point.x = point.x;
@@ -43,7 +44,7 @@ export class PhysicsAABBQueryCallback {//} extends B2.QueryCallback {
         this._fixtures.length = 0;
     }
 
-    ReportFixture (fixture: B2.Fixture): boolean {
+    static ReportFixture (fixture: B2.Fixture): boolean {
         if (this._isPoint) {
             if (fixture.TestPoint(this._point)) {
                 this._fixtures.push(fixture);
@@ -56,11 +57,19 @@ export class PhysicsAABBQueryCallback {//} extends B2.QueryCallback {
         return true;
     }
 
-    getFixture (): any {
+    static getFixture (): any {
         return this._fixtures[0];
     }
 
-    getFixtures (): any[] {
+    static getFixtures (): any[] {
         return this._fixtures;
+    }
+
+    static callback = {
+        ReportFixture (fixture: B2.Fixture): boolean {
+            const rigidBody = getB2ObjectFromImpl<B2RigidBody2D>(fixture.GetBody());
+            const f = rigidBody.getFixtureWithFixtureImplPtr((fixture as any).$$.ptr)!;
+            return PhysicsAABBQueryCallback.ReportFixture(f);
+        },
     }
 }

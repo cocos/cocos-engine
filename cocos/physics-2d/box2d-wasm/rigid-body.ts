@@ -364,4 +364,18 @@ export class B2RigidBody2D implements IRigidBody2D {
             this._body.ApplyAngularImpulse(impulse, wake);
         }
     }
+
+    getFixtureWithFixtureImplPtr (implPtr: number): B2.Fixture| null {
+        let fixtureList = this._body!.GetFixtureList();
+        while (fixtureList) {
+            const b2Fixture = fixtureList;
+            if (b2Fixture) {
+                if ((b2Fixture as any).$$.ptr === implPtr) {
+                    return b2Fixture;
+                }
+                fixtureList = b2Fixture.GetNext();
+            }
+        }
+        return null;
+    }
 }

@@ -110,21 +110,16 @@ export class PhysicsContactListener {// extends B2.ContactListener {
 
     static callback = {
         BeginContact (contact: B2.Contact): void {
-            //warn('BeginContact', contact);
             PhysicsContactListener.BeginContact(contact);
         },
         EndContact (contact: B2.Contact): void {
-            //warn('EndContact', contact);
             PhysicsContactListener.EndContact(contact);
         },
         PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
-            //warn('PreSolve', contact, oldManifold);
             PhysicsContactListener.PreSolve(contact, oldManifold);
         },
         PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
-            //warn('PostSolve', contact, impulse);
             PhysicsContactListener.PostSolve(contact, impulse);
         },
-
     }
 }

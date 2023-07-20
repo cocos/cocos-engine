@@ -23,68 +23,78 @@
 */
 
 // import b2 from '@cocos/box2d';
-import { B2 } from '../instantiated';
+import { B2, getB2ObjectFromImpl } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
+import { B2Shape2D } from '../shapes/shape-2d';
+import { B2RigidBody2D } from '../rigid-body';
 
 export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
-    _type = ERaycast2DType.Closest;
-    _fixtures: B2.Fixture[] = [];
-    _points: Vec2[] = [];
-    _normals: Vec2[] = [];
-    _fractions: number[] = [];
+    static _type = ERaycast2DType.Closest;
+    static _fixtures: B2.Fixture[] = [];
+    static _points: Vec2[] = [];
+    static _normals: Vec2[] = [];
+    static _fractions: number[] = [];
 
-    _mask = 0xffffffff;
+    static _mask = 0xffffffff;
 
-    init (type: ERaycast2DType, mask: number): void {
-        this._type = type;
-        this._mask = mask;
-        this._fixtures.length = 0;
-        this._points.length = 0;
-        this._normals.length = 0;
-        this._fractions.length = 0;
+    static init (type: ERaycast2DType, mask: number): void {
+        PhysicsRayCastCallback._type = type;
+        PhysicsRayCastCallback._mask = mask;
+        PhysicsRayCastCallback._fixtures.length = 0;
+        PhysicsRayCastCallback._points.length = 0;
+        PhysicsRayCastCallback._normals.length = 0;
+        PhysicsRayCastCallback._fractions.length = 0;
     }
 
-    ReportFixture (fixture: B2.Fixture, point, normal, fraction): any {
-        if ((fixture.GetFilterData().categoryBits & this._mask) === 0) {
+    static ReportFixture (fixture: B2.Fixture, point, normal, fraction): any {
+        if ((fixture.GetFilterData().categoryBits & PhysicsRayCastCallback._mask) === 0) {
             return 0;
         }
 
-        if (this._type === ERaycast2DType.Closest) {
-            this._fixtures[0] = fixture;
-            this._points[0] = point;
-            this._normals[0] = normal;
-            this._fractions[0] = fraction;
+        if (PhysicsRayCastCallback._type === ERaycast2DType.Closest) {
+            PhysicsRayCastCallback._fixtures[0] = fixture;
+            PhysicsRayCastCallback._points[0] = point;
+            PhysicsRayCastCallback._normals[0] = normal;
+            PhysicsRayCastCallback._fractions[0] = fraction;
             return fraction;
         }
 
-        this._fixtures.push(fixture);
-        this._points.push(new Vec2(point.x, point.y));
-        this._normals.push(new Vec2(normal.x, normal.y));
-        this._fractions.push(fraction);
+        PhysicsRayCastCallback._fixtures.push(fixture);
+        PhysicsRayCastCallback._points.push(new Vec2(point.x, point.y));
+        PhysicsRayCastCallback._normals.push(new Vec2(normal.x, normal.y));
+        PhysicsRayCastCallback._fractions.push(fraction);
 
-        if (this._type === ERaycast2DType.Any) {
+        if (PhysicsRayCastCallback._type === ERaycast2DType.Any) {
             return 0;
-        } else if (this._type >= ERaycast2DType.All) {
+        } else if (PhysicsRayCastCallback._type >= ERaycast2DType.All) {
             return 1;
         }
 
         return fraction;
     }
 
-    getFixtures (): any[] {
-        return this._fixtures;
+    static getFixtures (): B2.Fixture[] {
+        return PhysicsRayCastCallback._fixtures;
     }
 
-    getPoints (): Vec2[] {
-        return this._points;
+    static getPoints (): Vec2[] {
+        return PhysicsRayCastCallback._points;
     }
 
-    getNormals (): Vec2[] {
-        return this._normals;
+    static getNormals (): Vec2[] {
+        return PhysicsRayCastCallback._normals;
     }
 
-    getFractions (): number[] {
-        return this._fractions;
+    static getFractions (): number[] {
+        return PhysicsRayCastCallback._fractions;
+    }
+
+    static callback = {
+        ReportFixture (fixture: B2.Fixture, point, normal, fraction): any {
+            const rigidBody = getB2ObjectFromImpl<B2RigidBody2D>(fixture.GetBody());
+            const f = rigidBody.getFixtureWithFixtureImplPtr((fixture as any).$$.ptr)!;
+            return PhysicsRayCastCallback.ReportFixture(f, point, normal, fraction);
+        },
     }
 }
