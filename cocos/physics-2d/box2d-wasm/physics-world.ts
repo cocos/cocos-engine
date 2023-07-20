@@ -61,8 +61,8 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     protected _physicsGroundBody: B2.Body;
 
     // protected _contactListener: PhysicsContactListener;
-    protected _aabbQueryCallback: PhysicsAABBQueryCallback;
-    protected _raycastQueryCallback: PhysicsRayCastCallback;
+    protected _aabbQueryCallback: B2.QueryCallback;//PhysicsAABBQueryCallback;
+    protected _raycastQueryCallback: B2.RayCastCallback;//PhysicsRayCastCallback;
 
     private _temoBodyDef: B2.BodyDef;//new B2.BodyDef();
     private _tempB2AABB: B2.AABB;//new B2.AABB();
@@ -93,8 +93,8 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         PhysicsContactListener._PostSolve = this._onPostSolve;
         this._world.SetContactListener(B2.ContactListener.implement(PhysicsContactListener.callback));
 
-        this._aabbQueryCallback = new PhysicsAABBQueryCallback();
-        this._raycastQueryCallback = new PhysicsRayCastCallback();
+        this._aabbQueryCallback = B2.QueryCallback.implement(PhysicsAABBQueryCallback.callback);//new PhysicsAABBQueryCallback();
+        this._raycastQueryCallback = B2.RayCastCallback.implement(PhysicsRayCastCallback.callback);
 
         this._temoBodyDef = new B2.BodyDef();
         this._tempB2AABB = new B2.AABB();
@@ -185,20 +185,21 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         tempVec2_2.x = p2.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_2.y = p2.y / PHYSICS_2D_PTM_RATIO;
 
-        const callback = this._raycastQueryCallback;
-        callback.init(type, mask);
-        this._world.RayCast(callback, tempVec2_1, tempVec2_2);
+        //const callback = PhysicsRayCastCallback._raycastQueryCallback;
+        PhysicsRayCastCallback.init(type, mask);
+        this._world.RayCast(this._raycastQueryCallback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = PhysicsRayCastCallback.getFixtures();
         if (fixtures.length > 0) {
-            const points = callback.getPoints();
-            const normals = callback.getNormals();
-            const fractions = callback.getFractions();
+            const points = PhysicsRayCastCallback.getPoints();
+            const normals = PhysicsRayCastCallback.getNormals();
+            const fractions = PhysicsRayCastCallback.getFractions();
 
             const results: RaycastResult2D[] = [];
             for (let i = 0, l = fixtures.length; i < l; i++) {
                 const fixture = fixtures[i];
-                const shape = fixture.m_userData;
+                // const shape = fixture.m_userData;
+                const shape = getB2ObjectFromImpl<B2Shape2D>(fixture);
                 const collider = shape.collider;
 
                 if (type === ERaycast2DType.AllClosest) {
@@ -382,21 +383,18 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const y = tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
 
         const d = 0.2 / PHYSICS_2D_PTM_RATIO;
-        // this._tempB2AABB.lowerBound.x = x - d;
-        // this._tempB2AABB.lowerBound.y = y - d;
         this._tempB2AABB.lowerBound = { x: x - d, y: y - d };
-        // this._tempB2AABB.upperBound.x = x + d;
-        // this._tempB2AABB.upperBound.y = y + d;
         this._tempB2AABB.upperBound = { x: x + d, y: y + d };
 
         const callback = this._aabbQueryCallback;
-        callback.init(tempVec2_1);
+        PhysicsAABBQueryCallback.init(tempVec2_1);
         this._world.QueryAABB(callback, this._tempB2AABB);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = (fixtures[i].m_userData).collider;
+            const collider = getB2ObjectFromImpl<B2Shape2D>(fixtures[i]).collider;
+            // const collider = (fixtures[i].m_userData).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }
@@ -405,21 +403,18 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     testAABB (rect: Rect): readonly Collider2D[] {
-        // this._tempB2AABB.lowerBound.x = rect.xMin / PHYSICS_2D_PTM_RATIO;
-        // this._tempB2AABB.lowerBound.y = rect.yMin / PHYSICS_2D_PTM_RATIO;
         this._tempB2AABB.lowerBound = { x: rect.xMin / PHYSICS_2D_PTM_RATIO, y: rect.yMin / PHYSICS_2D_PTM_RATIO };
-        // this._tempB2AABB.upperBound.x = rect.xMax / PHYSICS_2D_PTM_RATIO;
-        // this._tempB2AABB.upperBound.y = rect.yMax / PHYSICS_2D_PTM_RATIO;
         this._tempB2AABB.upperBound = { x: rect.xMax / PHYSICS_2D_PTM_RATIO, y: rect.yMax / PHYSICS_2D_PTM_RATIO };
 
         const callback = this._aabbQueryCallback;
-        callback.init();
+        PhysicsAABBQueryCallback.init();
         this._world.QueryAABB(callback, this._tempB2AABB);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = (fixtures[i].m_userData).collider;
+            const collider = getB2ObjectFromImpl<B2Shape2D>(fixtures[i]).collider;
+            // const collider = (fixtures[i].m_userData).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }

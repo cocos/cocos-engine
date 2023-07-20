@@ -47,16 +47,10 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         }
     }
     setFrequency (v: number): void {
-        this.UpdateStiffnessAndDamping();
+        (this._b2joint!.Cast2MouseJoint()).SetFrequency(v);
     }
     setDampingRatio (v: number): void {
-        this.UpdateStiffnessAndDamping();
-    }
-    UpdateStiffnessAndDamping (): void {
-        if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
-                (this._jointComp as MouseJoint2D).frequency, (this._jointComp as MouseJoint2D).dampingRatio);
-        }
+        (this._b2joint!.Cast2MouseJoint()).SetDampingRatio(v);
     }
     setMaxForce (v: number): void {
         if (this._b2joint) {
@@ -69,8 +63,8 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         const comp = this._jointComp as MouseJoint2D;
         def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
         def.maxForce = comp.maxForce;
-        def.damping = 0;//comp.dampingRatio;
-        def.stiffness = 1;//comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequency = comp.frequency;
         return def;
     }
 
