@@ -31,31 +31,33 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { toRadian } from '../../../core';
 
 export class B2WheelJoint extends B2Joint implements IWheelJoint {
-    setDampingRatio (v: number): void {
-        if (this._b2joint) {
-            (this._b2joint as B2.WheelJoint).SetSpringDampingRatio(v);
-        }
-    }
     setFrequency (v: number): void {
+        this.UpdateStiffnessAndDamping();
+    }
+    setDampingRatio (v: number): void {
+        this.UpdateStiffnessAndDamping();
+    }
+    UpdateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            (this._b2joint as B2.WheelJoint).SetSpringFrequencyHz(v);
+            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
+                (this._jointComp as WheelJoint2D).frequency, (this._jointComp as WheelJoint2D).dampingRatio);
         }
     }
 
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint as B2.WheelJoint).EnableMotor(v);
+            (this._b2joint.Cast2WheelJoint()).EnableMotor(v);
         }
     }
     setMaxMotorTorque (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as B2.WheelJoint).SetMaxMotorTorque(v);
+            (this._b2joint.Cast2WheelJoint()).SetMaxMotorTorque(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as B2.WheelJoint).SetMotorSpeed(v);
+            (this._b2joint.Cast2WheelJoint()).SetMotorSpeed(v);
         }
     }
 
@@ -69,8 +71,8 @@ export class B2WheelJoint extends B2Joint implements IWheelJoint {
         def.maxMotorTorque = comp.maxMotorTorque;
         def.motorSpeed = toRadian(comp.motorSpeed);
         def.enableMotor = comp.enableMotor;
-        def.damping = comp.dampingRatio;
-        def.stiffness = comp.frequency;
+        def.damping = 0;//comp.dampingRatio;
+        def.stiffness = 1;//comp.frequency;
         return def;
     }
 }

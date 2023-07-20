@@ -32,7 +32,7 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 export class B2DistanceJoint extends B2Joint implements IDistanceJoint {
     setMaxLength (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as B2.RopeJoint).SetMaxLength(v);
+            (this._b2joint.Cast2RopeJoint()).SetMaxLength(v);
         }
     }
 

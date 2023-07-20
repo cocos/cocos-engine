@@ -43,22 +43,24 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
-            (this._b2joint as B2.MouseJoint).SetTarget(tempB2Vec2);
-        }
-    }
-    setDampingRatio (v: number): void {
-        if (this._b2joint) {
-            (this._b2joint as B2.MouseJoint).SetDampingRatio(v);
+            (this._b2joint.Cast2MouseJoint()).SetTarget(tempB2Vec2);
         }
     }
     setFrequency (v: number): void {
+        this.UpdateStiffnessAndDamping();
+    }
+    setDampingRatio (v: number): void {
+        this.UpdateStiffnessAndDamping();
+    }
+    UpdateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            (this._b2joint as B2.MouseJoint).SetFrequency(v);
+            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
+                (this._jointComp as MouseJoint2D).frequency, (this._jointComp as MouseJoint2D).dampingRatio);
         }
     }
     setMaxForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint as B2.MouseJoint).SetMaxForce(v);
+            (this._b2joint.Cast2MouseJoint()).SetMaxForce(v);
         }
     }
 
@@ -67,8 +69,8 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         const comp = this._jointComp as MouseJoint2D;
         def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
         def.maxForce = comp.maxForce;
-        def.stiffness = comp.frequency;
-        def.damping = comp.dampingRatio;
+        def.damping = 0;//comp.dampingRatio;
+        def.stiffness = 1;//comp.frequency;
         return def;
     }
 
