@@ -22,10 +22,10 @@ CCEffect %{
         coatOpacity:                      { value: 1.0, target: coatParam.z, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         coatIntensity:                    { value: 1.0, target: coatParam.w, editor: { slide : true, range : [0.0, 3.0] , step : 0.0001 } }
         coatColor:                        { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { displayName: CoatColor, type: color } }
-        flakeDensity:                     { value: 0.25, target: flakeParam.x, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
-        flakeColorIntensity:              { value: 0.5, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
+        flakeDensity:                     { value: 0.5, target: flakeParam.x, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
+        flakeColorIntensity:              { value: 0.2, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
         flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 40.0], step: 0.001 } }
-        coatNormalStrength:               { value: 1.0, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 5.0], step: 0.001 } }
+        coatNormalStrength:               { value: 0.1, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
         gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
         gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
