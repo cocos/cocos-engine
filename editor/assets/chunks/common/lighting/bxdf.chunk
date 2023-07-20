@@ -25,7 +25,7 @@ vec3 CalculateScattering(vec3 unscatteredColor, float distance, float outScatter
   vec2 e = vec2(outScatterExtinctCoef, inScatterExtinctCoef * inScatterCoef);
   vec2 extinction = exp(-e * distance);
   vec3 inScattered = (1.0 - extinction.y) * inScatterColor;
-	vec3 outScattered = unscatteredColor * extinction.x * outScatterColor;
+  vec3 outScattered = unscatteredColor * extinction.x * outScatterColor;
   return outScattered + inScattered;
 }
 
