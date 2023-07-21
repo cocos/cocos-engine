@@ -33,6 +33,9 @@ import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
 
+// TODO: the type Storage conflicts with the one on OH platform.
+type Storage = any;
+
 export declare namespace sys {
     /**
      * @en
