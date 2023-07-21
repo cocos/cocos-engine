@@ -25,25 +25,13 @@
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
 import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
 import { wasmFactory, box2dWasmUrl } from './box2d.wasmjs';
-// import asmFactory from 'external:emscripten/spine/spine.asm.js';
-// import asmJsMemUrl from 'external:emscripten/spine/spine.js.mem';
-// import wasmFactory from 'external:emscripten/box2d/box2d.wasm.wasm.js';
-// import box2dWasmUrl from 'external:emscripten/box2d/box2d.wasm.wasm';
+import { asmFactory } from './box2d.asmjs';
+
 import { game } from '../../game';
 import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
-// const PAGESIZE = 65536; // 64KiB
-
-// // How many pages of the wasm memory
-// // TODO: let this can be canfiguable by user.
-// const PAGECOUNT = 32 * 16;
-
-// // How mush memory size of the wasm memory
-// const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 32 MiB
-
 export const B2 = {} as any;
-
 const B2_IMPL_PTR = {};
 
 export function addImplPtrReference (B2Object: any, impl: any): void {
@@ -64,8 +52,6 @@ export function getB2ObjectFromImpl<T> (impl: any): T {
     return B2_IMPL_PTR[impl.$$.ptr];
 }
 
-// let box2dInstance: box2dWasm.instance = null!;
-//const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -81,40 +67,22 @@ function initWasm (wasmUrl): Promise<void> {
         }).then((Instance: any) => {
             Object.assign(B2, Instance);
             B2.B2_IMPL_PTR = B2_IMPL_PTR;
-            // box2dInstance = Instance;
-            // registerList.forEach((cb) => {
-            //     cb(box2dInstance);
-            // });
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
 
-// function initAsm (): Promise<void> {
-//     return new Promise<void>((resolve, reject) => {
-//         if (CULL_ASM_JS_MODULE) {
-//             reject(getError(4601));
-//             return;
-//         }
-//         fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
-//             const wasmMemory: any = {};
-//             wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-//             const module = {
-//                 wasmMemory,
-//                 memoryInitializerRequest: {
-//                     response: arrayBuffer,
-//                     status: 200,
-//                 } as Partial<XMLHttpRequest>,
-//             };
-//             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-//             return asmFactory(module).then((instance: any) => {
-//                 box2dInstance = instance;
-//                 registerList.forEach((cb) => {
-//                     cb(box2dInstance);
-//                 });
-//             });
-//         }).then(resolve).catch(reject);
-//     });
-// }
+function initAsm (): Promise<void> {
+    if (asmFactory != null) {
+        return asmFactory().then((instance: any) => {
+            Object.assign(B2, instance);
+            B2.B2_IMPL_PTR = B2_IMPL_PTR;
+        });
+    } else {
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
+    }
+}
 
 export function waitForBox2dWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
@@ -122,14 +90,12 @@ export function waitForBox2dWasmInstantiation (): Promise<void> {
         if (sys.hasFeature(sys.Feature.WASM)) {
             return initWasm(box2dWasmUrl).catch(errorReport);
         } else {
-            //return initAsm().catch(errorReport);//todo
-            return new Promise<void>((resolve, reject) => {});
+            return initAsm().catch(errorReport);
         }
     } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
         return initWasm(box2dWasmUrl).catch(errorReport);
     } else {
-        //return initAsm().catch(errorReport);//todo
-        return new Promise<void>((resolve, reject) => {});
+        return initAsm().catch(errorReport);
     }
 }
 

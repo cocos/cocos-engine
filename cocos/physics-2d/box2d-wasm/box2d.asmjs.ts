@@ -23,8 +23,8 @@
 */
 
 /**
- * export PhysX from internal module
+ * export box2d from internal module
  */
-//import asmFactory from 'external:emscripten/box2d/box2d.release.asm.js';
+import asmFactory from 'external:emscripten/box2d/box2d.release.asm.js';
 
-//export { asmFactory };
+export { asmFactory };
