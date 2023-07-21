@@ -8,6 +8,7 @@ CCEffect %{
       frag: sky-fs
       properties: &props
         environmentMap:     { value: grey }
+        positionScaling:    { value: 1.0, target: params.w, editor: { tooltip: 'Set a smaller value (such as less than 1.0) to remove the effects of fog' } }
       priority : max - 10
       rasterizerState : &r1
         cullMode : none
@@ -24,18 +25,22 @@ CCEffect %{
       depthStencilState: *d1
 }%
 
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 params;
+  };
+}%
 
 CCProgram surface-vertex %{
   #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
   {
     // Apply uniform scaling for atmosphere effects
-    return In.worldPos;
+    return In.worldPos * params.w;
   }
 }%
 
 CCProgram surface-fragment %{
-
   uniform samplerCube environmentMap;
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
@@ -59,6 +64,7 @@ CCProgram sky-vs %{
 
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
   #include <surface-vertex>
   #include <shading-entries/main-functions/misc/sky-vs>
 }%
@@ -69,6 +75,7 @@ CCProgram sky-fs %{
 
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
   #include <surface-fragment>
   #include <shading-entries/main-functions/misc/sky-fs>
 }%
