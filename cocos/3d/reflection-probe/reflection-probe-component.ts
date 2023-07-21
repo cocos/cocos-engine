@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../../core';
 
@@ -62,6 +62,7 @@ export enum ProbeResolution {
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
 @playOnFocus
+@help('i18n:cc.ReflectionProbe')
 export class ReflectionProbe extends Component {
     protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
     protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
