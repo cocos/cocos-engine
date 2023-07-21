@@ -97,7 +97,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (EDITOR) {
+        if (EDITOR && this._contentSize.height !== value) {
             const clone = new Size(this._contentSize);
             this._contentSize.width = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
@@ -123,7 +123,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (EDITOR) {
+        if (EDITOR && this._contentSize.width !== value) {
             const clone = new Size(this._contentSize);
             this._contentSize.height = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
