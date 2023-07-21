@@ -225,13 +225,6 @@ module.exports = link(mixin({
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
         maxReceived: '产生阴影的有效光源数量',
     },
-    animation: {
-        default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
-        clips: '通过脚本可以访问并播放的 AnimationClip 列表',
-        play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
-        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，<br>但所有动画效果会被彻底固定，不支持任何形式的编辑',
-        sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
-    },
     audio: {
         clip: '通过该组件播放的默认 AudioClip 引用',
         volume: '音频的音量',
