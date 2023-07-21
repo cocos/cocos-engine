@@ -99,8 +99,7 @@ interface cc_BufferAsset_Context_Args {
 }
 export function patch_cc_BufferAsset(ctx: cc_BufferAsset_Context_Args, apply = defaultExec) {
   const { BufferAsset } = { ...ctx };
-  const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(BufferAsset.prototype, '_nativeAsset');
-  apply(() => { $.override(BufferAsset.prototype, '_nativeAsset',  _nativeAssetDescriptor); }, 'override', '_nativeAsset');
+  apply(() => { $.serializable(BufferAsset.prototype, 'view',  () => { return new Uint8Array(); }); }, 'serializable', 'view');
   apply(() => { $.ccclass('cc.BufferAsset')(BufferAsset); }, 'ccclass', null);
 } // end of patch_cc_BufferAsset
 

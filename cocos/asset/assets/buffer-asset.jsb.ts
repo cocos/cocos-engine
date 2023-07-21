@@ -31,6 +31,13 @@ declare const jsb: any;
 export type BufferAsset = JsbBufferAsset;
 export const BufferAsset: typeof JsbBufferAsset = jsb.BufferAsset;
 
+BufferAsset.prototype.buffer = function() {
+    if (!this._bufferLegacy) {
+        this._bufferLegacy = new Uint8Array(this.view);
+    }
+    return this._bufferLegacy;
+};
+
 cclegacy.BufferAsset = jsb.BufferAsset;
 
 // handle meta data, it is generated automatically

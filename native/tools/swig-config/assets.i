@@ -92,8 +92,6 @@
 %rename(_getBindposes) cc::Skeleton::getBindposes;
 %rename(_setBindposes) cc::Skeleton::setBindposes;
 
-%rename(buffer) cc::BufferAsset::getBuffer;
-
 
 
 // ----- Module Macro Section ------
@@ -134,7 +132,7 @@
 %attribute(cc::ImageAsset, cc::PixelFormat, format, getFormat, setFormat);
 %attribute(cc::ImageAsset, ccstd::string&, url, getUrl, setUrl);
 
-%attribute(cc::BufferAsset, cc::ArrayBuffer*, _nativeAsset, getNativeAssetForJS, setNativeAssetForJS);
+%attribute(cc::BufferAsset, cc::Uint8Array&, view, getView, setView);
 
 %attribute(cc::TextureBase, bool, isCompressed, isCompressed);
 %attribute(cc::TextureBase, uint32_t, _width, getWidth, setWidth);
