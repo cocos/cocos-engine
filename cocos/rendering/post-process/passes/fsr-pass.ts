@@ -31,12 +31,12 @@ export class FSRPass extends SettingPass {
         passContext.material = this.material;
         passContext.clearBlack();
 
-        passContext.updatePassViewPort(1 / passContext.shadingScale);
+        passContext.updatePassViewPort(1 / passContext.shadingScale, 0);
 
-        const inputWidth = Math.floor(game.canvas!.width * passContext.shadingScale);
-        const inputHeight = Math.floor(game.canvas!.height * passContext.shadingScale);
-        const outWidth = Math.floor(game.canvas!.width);
-        const outHeight = Math.floor(game.canvas!.height);
+        const inputWidth = Math.floor(passContext.passViewport.width * passContext.shadingScale);
+        const inputHeight = Math.floor(passContext.passViewport.height * passContext.shadingScale);
+        const outWidth = Math.floor(passContext.passViewport.width);
+        const outHeight = Math.floor(passContext.passViewport.height);
 
         const setting = this.setting;
         this.material.setProperty('fsrParams', new Vec4(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
