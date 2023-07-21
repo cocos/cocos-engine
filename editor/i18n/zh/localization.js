@@ -71,6 +71,7 @@ module.exports = link(mixin({
             DirectionalLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/dir-light.html`,
             SphereLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/sphere-light.html`,
             SpotLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/spot-light.html`,
+            LightProbeGroup: `${url}/${version}/manual/zh/concepts/scene/light/probe/light-probe.html`,
             UICoordinateTracker: `${url}/${version}/manual/zh/ui-system/components/editor/ui-coordinate-tracker.html`,
             Animation: `${url}/${version}/manual/zh/animation/animation-component.html`,
             SkeletalAnimation: `${url}/${version}/manual/zh/animation/skeletal-animation.html`,
