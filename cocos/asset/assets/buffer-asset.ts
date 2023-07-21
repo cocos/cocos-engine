@@ -53,7 +53,7 @@ export class BufferAsset extends Asset {
      * @en Since 3.9.0, this method is deprecated.
      * Invocation on this method leads to significate cost. Use `this.view` instead.
      */
-    public buffer () {
+    public buffer (): ArrayBufferLike {
         if (!this._bufferLegacy) {
             this._bufferLegacy = new Uint8Array(this.view);
         }
