@@ -137,7 +137,7 @@ module.exports = link(mixin({
             BlitScreen: `${url}/${version}/manual/en/render-pipeline/post-process/blit-screen.html`,
             TAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             FSR: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
-            Fxaa: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            FXAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             Bloom: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             HBAO: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             ColorGrading: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
