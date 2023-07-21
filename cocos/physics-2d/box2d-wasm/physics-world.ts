@@ -144,7 +144,9 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 3;
 
-            const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
+            PhysicsDebugDraw._drawer = this._debugGraphics;
+            const debugDraw = B2.Draw.implement(PhysicsDebugDraw.callback);//new PhysicsDebugDraw();
+
             this._b2DebugDrawer = debugDraw;
             this._world.SetDebugDraw(debugDraw);
         }
@@ -429,7 +431,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             return;
         }
         this._debugGraphics.clear();
-        this._world.DrawDebugData();
+        this._world.DebugDraw();
     }
 
     _onBeginContact (b2contact: B2.Contact): void {
