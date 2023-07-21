@@ -123,8 +123,6 @@ export class Canvas extends RenderRoot2D {
     protected _alignCanvasWithScreen = true;
 
     protected _thisOnCameraResized: () => void;
-    // fit canvas node to design resolution
-    protected _fitDesignResolution: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;
@@ -132,26 +130,6 @@ export class Canvas extends RenderRoot2D {
     constructor () {
         super();
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
-
-        if (EDITOR) {
-            this._fitDesignResolution = (): void => {
-                // TODO: support paddings of locked widget
-                this.node.getPosition(this._pos);
-                const nodeSize = view.getDesignResolutionSize();
-                Vec3.set(_worldPos, nodeSize.width * 0.5, nodeSize.height * 0.5, 0);
-
-                if (!this._pos.equals(_worldPos)) {
-                    this.node.setPosition(_worldPos);
-                }
-                const trans = this.node._uiProps.uiTransformComp!;
-                if (trans.width !== nodeSize.width) {
-                    trans.width = nodeSize.width;
-                }
-                if (trans.height !== nodeSize.height) {
-                    trans.height = nodeSize.height;
-                }
-            };
-        }
     }
 
     public __preload (): void {
@@ -159,8 +137,6 @@ export class Canvas extends RenderRoot2D {
         const widget = this.getComponent('cc.Widget') as unknown as Widget;
         if (widget) {
             widget.updateAlignment();
-        } else if (EDITOR) {
-            this._fitDesignResolution!();
         }
 
         if (!EDITOR) {
@@ -173,9 +149,6 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
 
         if (EDITOR) {
-            // Constantly align canvas node in edit mode
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
@@ -203,11 +176,7 @@ export class Canvas extends RenderRoot2D {
     public onDestroy (): void {
         super.onDestroy();
 
-        if (EDITOR) {
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-        } else {
-            this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
-        }
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
     protected _onResizeCamera (): void {
