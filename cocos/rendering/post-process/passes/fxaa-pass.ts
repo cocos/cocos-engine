@@ -6,10 +6,10 @@ import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
-import { Fxaa } from '../components/fxaa';
+import { FXAA } from '../components/fxaa';
 
 export class FxaaPass extends SettingPass {
-    get setting () { return getSetting(Fxaa); }
+    get setting () { return getSetting(FXAA); }
 
     name = 'FxaaPass'
     effectName = 'pipeline/post-process/fxaa-hq';

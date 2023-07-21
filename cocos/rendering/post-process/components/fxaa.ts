@@ -1,10 +1,10 @@
 import { ccclass, disallowMultiple, executeInEditMode, help, menu } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
-@ccclass('cc.Fxaa')
-@help('cc.Fxaa')
-@menu('PostProcess/Fxaa')
+@ccclass('cc.FXAA')
+@help('cc.FXAA')
+@menu('PostProcess/FXAA')
 @disallowMultiple
 @executeInEditMode
-export class Fxaa extends PostProcessSetting {
+export class FXAA extends PostProcessSetting {
 }
