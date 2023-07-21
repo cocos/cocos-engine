@@ -143,6 +143,7 @@ module.exports = link(mixin({
             ColorGrading: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             Skin: `${url}/${version}/manual/en/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/en/ui-system/components/editor/renderroot2d.html`,
+            ReflectionProbe: `${url}/${version}/manual/en/concepts/scene/light/probe/reflection-art-workflow.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
