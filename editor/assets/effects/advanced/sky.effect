@@ -7,8 +7,10 @@ CCEffect %{
     - vert: sky-vs
       frag: sky-fs
       properties: &props
-        environmentMap:     { value: grey }
-        positionScaling:    { value: 1.0, target: params.w, editor: { tooltip: 'Set a smaller value (such as less than 1.0) to remove the effects of fog' } }
+        environmentMap:      { value: grey }
+        positionScaling:     { value: 1.0, target: params.w, editor: { tooltip: 'Set a smaller value (such as less than 1.0) to remove the effects of fog' } }
+        blendEnvironmentMap: { value: grey, editor: { parent: BLEND_ENV_MAP } }
+        blendWeight:         { value: 0.0, target: params.x, editor: { parent: BLEND_ENV_MAP } }
       priority : max - 10
       rasterizerState : &r1
         cullMode : none
@@ -42,17 +44,29 @@ CCProgram surface-vertex %{
 
 CCProgram surface-fragment %{
   uniform samplerCube environmentMap;
+  #if BLEND_ENV_MAP
+    uniform samplerCube blendEnvironmentMap;
+  #endif
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec3 sampleEnvMap(samplerCube tex, vec3 R)
+  {
+    vec3 c = vec3(1.0);
+    #if USE_RGBE_CUBEMAP
+      c *= unpackRGBE(fragTextureLod(tex, R, 0.0));
+    #else
+      c *= SRGBToLinear(fragTextureLod(tex, R, 0.0).rgb);
+    #endif
+    return c;
+  }
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec3 c = vec3(1.0);
     #if CC_USE_IBL
       vec3 normal = normalize(FSInput_worldNormal);
       vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-      #if USE_RGBE_CUBEMAP
-        c *= unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
-      #else
-        c *= SRGBToLinear(fragTextureLod(environmentMap, rotationDir.xyz, 0.0).rgb);
+      c = sampleEnvMap(environmentMap, rotationDir);
+      #if BLEND_ENV_MAP
+        c = mix(c, sampleEnvMap(blendEnvironmentMap, rotationDir), params.x);
       #endif
     #endif
     return vec4(c * cc_ambientSky.w, 1.0);
