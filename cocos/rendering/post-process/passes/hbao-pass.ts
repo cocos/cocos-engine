@@ -288,7 +288,7 @@ export class HBAOPass extends SettingPass {
                 this._hbaoParams!.randomTexture.width,
                 this._hbaoParams!.randomTexture.height,
                 1.0 / this._hbaoParams!.randomTexture.width,
-                1.0 / this._hbaoParams!.randomTexture.height,
+                1.0 / this._hbaoParams!.randomTexture.height
             ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams!.blurParam, passIdx);
@@ -322,7 +322,7 @@ export class HBAOPass extends SettingPass {
                 this._hbaoParams!.randomTexture.width,
                 this._hbaoParams!.randomTexture.height,
                 1.0 / this._hbaoParams!.randomTexture.width,
-                1.0 / this._hbaoParams!.randomTexture.height,
+                1.0 / this._hbaoParams!.randomTexture.height
             ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams!.blurParam, passIdx);
@@ -358,7 +358,7 @@ export class HBAOPass extends SettingPass {
                 this._hbaoParams!.randomTexture.width,
                 this._hbaoParams!.randomTexture.height,
                 1.0 / this._hbaoParams!.randomTexture.width,
-                1.0 / this._hbaoParams!.randomTexture.height,
+                1.0 / this._hbaoParams!.randomTexture.height
             ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams!.blurParam, passIdx);
