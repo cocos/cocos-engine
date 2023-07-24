@@ -58,6 +58,8 @@ export class OneShotAudioMinigame {
         });
         const endCallback = (): void => {
             if (this._innerAudioContext) {
+                game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+                game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
                 this._onEndCb?.();
                 nativeAudio.destroy();
                 // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
@@ -66,6 +68,18 @@ export class OneShotAudioMinigame {
         };
         nativeAudio.onEnded(endCallback);
         nativeAudio.onStop(endCallback);//OneShotAudio can not be reused.
+
+        // event
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+    }
+
+    private _onInterruptedBegin (): void {
+        this._innerAudioContext.pause();
+    }
+
+    private _onInterruptedEnd (): void {
+        this._innerAudioContext.play();
     }
 
     public play (): void {
@@ -196,7 +210,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onInterruptedEnd (): void {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
-            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
+            this._eventTarget.once(AudioEvent.INTERRUPTION_END, this._onInterruptedEnd, this);
             return;
         }
         if (this._state === AudioState.INTERRUPTED) {
