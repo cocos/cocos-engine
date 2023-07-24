@@ -283,7 +283,16 @@ export class HBAOPass extends SettingPass {
         this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams!.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams!.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams!.miscParam, passIdx);
-        this.material.setProperty('randomTexSize', new Vec4(this._hbaoParams!.randomTexture.width, this._hbaoParams!.randomTexture.height, 1.0 / this._hbaoParams!.randomTexture.width, 1.0 / this._hbaoParams!.randomTexture.height), passIdx);
+        this.material.setProperty(
+            'randomTexSize',
+            new Vec4(
+                this._hbaoParams!.randomTexture.width,
+                this._hbaoParams!.randomTexture.height,
+                1.0 / this._hbaoParams!.randomTexture.width,
+                1.0 / this._hbaoParams!.randomTexture.height,
+            ),
+            passIdx,
+        );
         this.material.setProperty('blurParam', this._hbaoParams!.blurParam, passIdx);
 
         passContext.clearBlack();
@@ -310,7 +319,16 @@ export class HBAOPass extends SettingPass {
         this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams!.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams!.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams!.miscParam, passIdx);
-        this.material.setProperty('randomTexSize', new Vec4(this._hbaoParams!.randomTexture.width, this._hbaoParams!.randomTexture.height, 1.0 / this._hbaoParams!.randomTexture.width, 1.0 / this._hbaoParams!.randomTexture.height), passIdx);
+        this.material.setProperty(
+            'randomTexSize',
+            new Vec4(
+                this._hbaoParams!.randomTexture.width,
+                this._hbaoParams!.randomTexture.height,
+                1.0 / this._hbaoParams!.randomTexture.width,
+                1.0 / this._hbaoParams!.randomTexture.height,
+            ),
+            passIdx,
+        );
         this.material.setProperty('blurParam', this._hbaoParams!.blurParam, passIdx);
 
         let outputRT = super.slotName(camera, 1);

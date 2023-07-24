@@ -111,7 +111,7 @@ export class PassContext {
     //     return this;
     // }
 
-    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): PassContext {
+    addRasterView (name: string, format: Format, offscreen?: boolean, residency?: ResourceResidency): PassContext {
         const ppl = this.ppl;
         const camera = this.camera;
         const pass = this.pass;
@@ -183,7 +183,9 @@ export class PassContext {
 
     blitScreen (passIdx = 0): PassContext {
         this.pass!.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            this.camera!, this.material!, passIdx,
+            this.camera!,
+            this.material!,
+            passIdx,
             SceneFlags.NONE,
         );
         return this;
