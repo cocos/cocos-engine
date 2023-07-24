@@ -194,9 +194,9 @@ export class SSSSBlurData {
 }
 
 export class SkinPass extends SettingPass {
-    name = 'SkinPass'
+    name = 'SkinPass';
     effectName = 'pipeline/ssss-blur';
-    outputNames = ['SSSSBlur', 'SSSSBlurDS']
+    outputNames = ['SSSSBlur', 'SSSSBlurDS'];
     ssssBlurData = new SSSSBlurData();
 
     private _activate = false;

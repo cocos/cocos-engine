@@ -11,15 +11,15 @@ import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
-    clearColor = new Color()
-    clearDepthColor = new Color()
-    ppl: Pipeline| undefined
-    camera: Camera| undefined
-    material: Material| undefined
-    pass: RenderPassBuilder| undefined
-    rasterWidth = 0
-    rasterHeight = 0
-    layoutName = ''
+    clearColor = new Color();
+    clearDepthColor = new Color();
+    ppl: Pipeline| undefined;
+    camera: Camera| undefined;
+    material: Material| undefined;
+    pass: RenderPassBuilder| undefined;
+    rasterWidth = 0;
+    rasterHeight = 0;
+    layoutName = '';
 
     shadingScale = 1;
     viewport = new Rect();

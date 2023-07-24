@@ -198,9 +198,9 @@ export class HBAOPass extends SettingPass {
 
     get setting (): HBAO { return getSetting(HBAO); }
 
-    name = 'HBAOPass'
+    name = 'HBAOPass';
     effectName = 'pipeline/post-process/hbao';
-    outputNames = ['hbaoRTName', 'hbaoBluredRTName']
+    outputNames = ['hbaoRTName', 'hbaoBluredRTName'];
 
     checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
