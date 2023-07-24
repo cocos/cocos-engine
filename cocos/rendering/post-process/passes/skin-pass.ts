@@ -28,7 +28,7 @@ import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { BasicPipeline, PipelineRuntime } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Address, ClearFlagBit, Filter, Format, SamplerInfo } from '../../../gfx';
 import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 
@@ -38,6 +38,15 @@ import { forceEnableFloatOutput, getRTFormatBeforeToneMapping, getShadowMapSampl
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
 export const SSSS_BLUR_Y_PASS_INDEX = 2;
+
+const _samplePointClamp = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+);
 
 function hasSkinObject (ppl: PipelineRuntime): boolean {
     const sceneData = ppl.pipelineSceneData;
@@ -250,7 +259,7 @@ export class SkinPass extends SettingPass {
             .addRenderPass(copyInputDSPassLayoutName, copyInputDSPass)
             .setClearFlag(ClearFlagBit.COLOR)
             .setClearColor(1.0, 0, 0, 0)
-            .setPassInput(inputDS, 'depthRaw')
+            .setPassInput(inputDS, 'depthRaw',_samplePointClamp)
             .addRasterView(ssssBlurDSName, Format.RGBA8)
             .blitScreen(passIdx)
             .version();
@@ -264,8 +273,8 @@ export class SkinPass extends SettingPass {
         this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
         passContext.updatePassViewPort()
             .addRenderPass(ssssblurXPassLayoutName, ssssblurXPassPassName)
-            .setPassInput(inputRT, 'colorTex')
-            .setPassInput(ssssBlurDSName, 'depthTex')
+            .setPassInput(inputRT, 'colorTex', _samplePointClamp)
+            .setPassInput(ssssBlurDSName, 'depthTex', _samplePointClamp)
             .setClearFlag(ClearFlagBit.COLOR)
             .setClearColor(0, 0, 0, 1)
             .addRasterView(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl))
@@ -281,8 +290,8 @@ export class SkinPass extends SettingPass {
         this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
         passContext.updatePassViewPort()
             .addRenderPass(ssssblurYPassLayoutName, ssssblurYPassPassName)
-            .setPassInput(ssssBlurRTName, 'colorTex')
-            .setPassInput(ssssBlurDSName, 'depthTex')
+            .setPassInput(ssssBlurRTName, 'colorTex', _samplePointClamp)
+            .setPassInput(ssssBlurDSName, 'depthTex', _samplePointClamp)
             .setClearFlag(ClearFlagBit.NONE)
             .setClearColor(0, 0, 0, 1)
             .addRasterView(inputRT, getRTFormatBeforeToneMapping(ppl))

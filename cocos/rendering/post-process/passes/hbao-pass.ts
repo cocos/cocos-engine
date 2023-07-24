@@ -34,10 +34,26 @@ import { HBAO } from '../components';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
-import { ClearFlagBit, Format } from '../../../gfx';
+import { Address, ClearFlagBit, Filter, Format, SamplerInfo } from '../../../gfx';
 import { Scene } from '../../../scene-graph/scene';
 
 const vec2 = new Vec2();
+const _samplePointClamp = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+);
+const _samplePointWrap = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.WRAP,
+    Address.WRAP,
+    Address.WRAP,
+);
 
 class HBAOParams {
     declare randomTexture: Texture2D;
@@ -283,7 +299,7 @@ export class HBAOPass extends SettingPass {
         const layoutName = 'hbao-pass';
         const passName = `CameraHBAOPass${cameraID}`;
         passContext.addRenderPass(layoutName, passName)
-            .setPassInput(inputDS, 'DepthTex')
+            .setPassInput(inputDS, 'DepthTex', _samplePointClamp)
             .addRasterView(outputRT, Format.RGBA8)
             .blitScreen(passIdx)
             .version();
@@ -320,8 +336,8 @@ export class HBAOPass extends SettingPass {
             passName = `CameraHBAOBluredYPass${cameraID}`;
         }
         passContext.addRenderPass(layoutName, passName)
-            .setPassInput(inputRT, 'AOTexNearest')
-            .setPassInput(inputDS, 'DepthTex')
+            .setPassInput(inputRT, 'AOTexNearest', _samplePointWrap)
+            .setPassInput(inputDS, 'DepthTex', _samplePointClamp)
             .addRasterView(outputRT, Format.RGBA8)
             .blitScreen(passIdx)
             .version();
@@ -352,7 +368,7 @@ export class HBAOPass extends SettingPass {
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
         passContext.addRenderPass(layoutName, passName)
-            .setPassInput(inputRT, 'AOTexNearest')
+            .setPassInput(inputRT, 'AOTexNearest', _samplePointWrap)
             .addRasterView(outputRT, Format.RGBA8)
             .blitScreen(passIdx)
             .version();

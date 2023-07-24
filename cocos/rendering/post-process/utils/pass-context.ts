@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 
 import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
-import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, Sampler, SamplerInfo, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
@@ -162,9 +162,21 @@ export class PassContext {
         }
         return this;
     }
-    setPassInput (inputName: string, shaderName: string): PassContext {
+    setPassInput (inputName: string, shaderName: string, samplerInfo?: SamplerInfo | null, plane?: number): PassContext {
+        let sampler: Sampler| null = null;
+        const ppl = this.ppl;
+        if (samplerInfo !== null && samplerInfo !== undefined && ppl) {
+            const device = ppl.device;
+            sampler = device.getSampler(samplerInfo);
+        }
         if (this.ppl!.containsResource(inputName)) {
-            this.pass!.addTexture(inputName, shaderName);
+            if (sampler && plane !== null && plane !== undefined) {
+                this.pass!.addTexture(inputName, shaderName, sampler, plane);
+            } else if (sampler) {
+                this.pass!.addTexture(inputName, shaderName, sampler);
+            } else {
+                this.pass!.addTexture(inputName, shaderName);
+            }
         }
         return this;
     }
