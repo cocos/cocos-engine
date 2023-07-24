@@ -301,7 +301,7 @@ jobs:
             - Test Platform: PR-Test
             - Editor Version: ${process.env.EDITOR_VERSION}
             - Task Result: ${process.env.TASK_STATUS}
-            - Task URL: http://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
+            - Task URL: https://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
             ## Task Details
             ${process.env.TASK_REPORT}`);
