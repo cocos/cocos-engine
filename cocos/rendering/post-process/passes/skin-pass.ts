@@ -128,8 +128,7 @@ export class SSSSBlurData {
         for (let i = 0; i < nSamples; i++) {
             const o = -range + i * step;
             const sign = o < 0.0 ? -1.0 : 1.0;
-            // eslint-disable-next-line no-restricted-properties
-            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+            this._kernel[i].w = range * sign * Math.abs(o * o) / (range * range);
         }
 
         // Calculate the weights:
