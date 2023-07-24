@@ -352,5 +352,9 @@ void DeviceValidator::frameSync() {
     _actor->frameSync();
 }
 
+SampleCount DeviceValidator::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    return _actor->getMaxSampleCount(format, usage, flags);
+}
+
 } // namespace gfx
 } // namespace cc

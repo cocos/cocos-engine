@@ -18,7 +18,44 @@ module.exports = {
 
     classes: {
         'cc': {
+            'Animation': {
+                'properties': {
+                    'clips': {
+                        displayName: '剪辑列表',
+                        tooltip: '此组件管理的所有剪辑。',
+                    },
+                    'defaultClip': {
+                        displayName: '默认剪辑',
+                        tooltip: '默认播放的剪辑。',
+                    },
+                    'playOnLoad': {
+                        displayName: '加载后播放',
+                        tooltip: '是否在组件加载完成后自动播放默认剪辑。',
+                    },
+                },
+            },
+            'SkeletalAnimation': {
+                'properties': {
+                    __extends__: 'classes.cc.Animation.properties',
+                    'sockets': {
+                        displayName: '挂点列表',
+                        tooltip: '当前动画组件维护的挂点列表。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。',
+                    },
+                    'useBakedAnimation': {
+                        displayName: '预烘培动画',
+                        tooltip: '是否预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。',
+                    },
+                },
+            },
             'animation': {
+                'AnimationController': {
+                    properties: {
+                        'graph': {
+                            displayName: '图',
+                            tooltip: '此动画控制器所关联的动画图或动画图变体。',
+                        },
+                    },
+                },
                 'PoseGraphOutputNode': {
                     displayName: '输出姿态',
                 },

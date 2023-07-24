@@ -154,7 +154,7 @@ DefaultResource::DefaultResource(Device *device) {
 
     if (device->getCapabilities().max3DTextureSize >= 2) {
         _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
-                                            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
+                                            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::X1, 2});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 2}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture3D, &region, 1);
     }

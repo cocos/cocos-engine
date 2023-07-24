@@ -164,6 +164,18 @@ vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+vec4 SurfacesFragmentModifySSSParams()
+{
+    // x: sssIntensity, moisture
+    // y: sssCurvature, for preintegrated sss
+    // z: sssColoration, for sss transmitted light color with dark area
+    // w: unused
+    return vec4(1.0, 0.1, 1.0, 0.0);
+}
+#endif
+
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
 // depends on CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
 vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
@@ -174,15 +186,32 @@ vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
 }
 #endif
 
-#ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
-// depends on CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
-vec4 SurfacesFragmentModifySSSParams()
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
+vec4 SurfacesFragmentModifyClearCoatParams()
 {
-    // x: sssIntensity, moisture
-    // y: sssCurvature, for preintegrated sss
-    // z: sssColoration, for sss transmitted light color with dark area
-    // w: unused
-    return vec4(1.0, 0.1, 1.0, 0.0);
+    //x: coat roughness
+    //y: coat ior
+    //z: coat opacity
+    //w: coat intensity
+    return vec4(0.2, 1.5, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
+vec3 SurfacesFragmentModifyClearCoatColor()
+{
+    // for iridescense color variation
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
+vec3 SurfacesFragmentModifyClearCoatWorldNormal()
+{
+    return normalize(FSInput_worldNormal);
 }
 #endif
 

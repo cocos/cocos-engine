@@ -73,7 +73,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    
+
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -87,7 +87,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     _version = std::to_string(_mtlFeatureSet);
-    
+
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -139,13 +139,15 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
 
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily: MTLGPUFamilyApple3];
+
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
-    
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
@@ -525,6 +527,23 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
     _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::VERTEX_ATTRIBUTE;
+}
+
+SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    const SampleCount sampleCounts[] = {
+        SampleCount::X64,
+        SampleCount::X32,
+        SampleCount::X16,
+        SampleCount::X8,
+        SampleCount::X4,
+        SampleCount::X2,
+    };
+    for (auto sampleCount : sampleCounts) {
+        if  ([_mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)]) {
+            return sampleCount;
+        }
+    }
+    return SampleCount::X1;
 }
 
 } // namespace gfx

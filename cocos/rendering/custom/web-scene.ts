@@ -28,7 +28,7 @@ import { RenderScene, scene } from '../../render-scene';
 import { Camera, Model, ShadowType, SKYBOX_FLAG } from '../../render-scene/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
+import { SceneTask, SceneTransversal, SceneVisitor } from './scene';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 

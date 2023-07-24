@@ -237,6 +237,15 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 if(color >= colorAttachments.size()) {
                     continue; // depthStencil as output
                 }
+                if (subpasses[i].resolves.size() > j) {
+                    uint32_t resolve = subpasses[i].resolves[j];
+                    auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
+                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
+                }
                 if (visited[color])
                     continue;
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[color]);
@@ -255,17 +264,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
                 visited[color] = true;
                 _colorAppearedBefore.set(color);
-                if (subpasses[i].resolves.size() > j) {
-                    uint32_t resolve = subpasses[i].resolves[j];
-                    auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
-                    if (resolveTex->textureInfo().samples == SampleCount::ONE)
-                        continue;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
-                }
             }
         }
         updateDepthStencilState(ccMtlRenderPass->getCurrentSubpassIndex(), mtlRenderPassDescriptor);
@@ -388,19 +386,13 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
         }
 
         if (subpass.depthStencilResolve != INVALID_BINDING) {
-            const CCMTLTexture *dsResolveTex = nullptr;
-            if (subpass.depthStencilResolve >= colorTextures.size()) {
-                dsResolveTex = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture());
-            } else {
-                dsResolveTex = static_cast<CCMTLTexture *>(colorTextures[subpass.depthStencilResolve]);
-            }
-            descriptor.depthAttachment.resolveTexture = dsResolveTex->getMTLTexture();
+            descriptor.depthAttachment.resolveTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture())->getMTLTexture();
             descriptor.depthAttachment.resolveLevel = 0;
             descriptor.depthAttachment.resolveSlice = 0;
             descriptor.depthAttachment.resolveDepthPlane = 0;
             descriptor.depthAttachment.storeAction = subpass.depthResolveMode == ResolveMode::NONE ? MTLStoreActionMultisampleResolve : MTLStoreActionStoreAndMultisampleResolve;
 
-            descriptor.stencilAttachment.resolveTexture = dsResolveTex->getMTLTexture();
+            descriptor.stencilAttachment.resolveTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilResolveTexture())->getMTLTexture();
             descriptor.stencilAttachment.resolveLevel = 0;
             descriptor.stencilAttachment.resolveSlice = 0;
             descriptor.stencilAttachment.resolveDepthPlane = 0;
@@ -917,6 +909,10 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             _computeEncoder.setTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
         }
     }
+}
+
+void CCMTLCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    // not supported.
 }
 
 void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {

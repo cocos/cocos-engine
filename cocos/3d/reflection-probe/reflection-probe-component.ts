@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../../core';
+import { CCBoolean, CCObject, Color, Enum, Vec3, warn } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -127,7 +127,7 @@ export class ReflectionProbe extends Component {
      * @zh 设置探针类型，环境反射或者平面反射
      */
     @type(Enum(ProbeType))
-    set probeType (value: number) {
+    set probeType (value: ProbeType) {
         this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
@@ -151,7 +151,7 @@ export class ReflectionProbe extends Component {
                     this._objFlags ^= CCObject.Flags.IsRotationLocked;
                 }
                 if (!this._sourceCamera) {
-                    console.warn('the reflection camera is invalid, please set the reflection camera');
+                    warn('the reflection camera is invalid, please set the reflection camera');
                 } else {
                     this.probe.switchProbeType(value, this._sourceCamera.camera);
                 }
@@ -163,7 +163,7 @@ export class ReflectionProbe extends Component {
             this.size = this._size;
         }
     }
-    get probeType (): number {
+    get probeType (): ProbeType {
         return this._probeType;
     }
 

@@ -54,7 +54,9 @@ TEST(simpleClosedBarrierTest, test11) {
     const auto& node1 = barrierMap.at(1);
     ExpectEq(node1.blockBarrier.frontBarriers.size(), 0);
     ExpectEq(node1.blockBarrier.rearBarriers.size(), 0);
-    ExpectEq(node1.subpassBarriers.empty(), true);
+    ExpectEq(node1.subpassBarriers.size() == 1, true);
+    ExpectEq(node1.subpassBarriers.front().frontBarriers.empty(), true);
+    ExpectEq(node1.subpassBarriers.front().rearBarriers.empty(), true);
 
     // transitioned by renderpass info
     //ExpectEq(node1.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
@@ -65,7 +67,9 @@ TEST(simpleClosedBarrierTest, test11) {
     const auto& node2 = barrierMap.at(2);
     ExpectEq(node2.blockBarrier.frontBarriers.size(), 0);
     ExpectEq(node2.blockBarrier.rearBarriers.size(), 0);
-    ExpectEq(node2.subpassBarriers.empty(), true);
+    ExpectEq(node2.subpassBarriers.size() == 1, true);
+    ExpectEq(node2.subpassBarriers.front().frontBarriers.empty(), true);
+    ExpectEq(node2.subpassBarriers.front().rearBarriers.empty(), true);
 
     // ditto
     //// res3

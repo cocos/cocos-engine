@@ -229,8 +229,8 @@ VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage) {
     return static_cast<VkFormatFeatureFlags>(flags);
 }
 
-VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
-    uint32_t flags = 0U;
+VkImageUsageFlags mapVkImageUsageFlags(TextureUsage usage, TextureFlags textureFlags) {
+    VkImageUsageFlags flags = 0;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC)) flags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (hasFlag(usage, TextureUsage::TRANSFER_DST)) flags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (hasFlag(usage, TextureUsage::SAMPLED)) flags |= VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -239,7 +239,14 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
     if (hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) flags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::SHADING_RATE)) flags |= VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
-    return static_cast<VkImageUsageFlagBits>(flags);
+
+    if (hasFlag(textureFlags, TextureFlags::GEN_MIPMAP)) {
+        flags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (hasFlag(textureFlags, TextureFlags::LAZILY_ALLOCATED)) {
+        flags |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+    }
+    return flags;
 }
 
 VkImageAspectFlags mapVkImageAspectFlags(Format format) {
@@ -491,17 +498,6 @@ const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
     VK_STENCIL_FACE_FRONT_BIT,
     VK_STENCIL_FACE_BACK_BIT,
     VK_STENCIL_FACE_FRONT_AND_BACK,
-};
-
-const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[] = {
-    VK_SAMPLE_COUNT_1_BIT,
-    VK_SAMPLE_COUNT_2_BIT,
-#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_IOS
-    VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
-#else // desktop platforms
-    VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
-#endif
-    VK_SAMPLE_COUNT_16_BIT | VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
 };
 
 const VkAccessFlags FULL_ACCESS_FLAGS =
