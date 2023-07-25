@@ -28,7 +28,7 @@ import { ccclass, help, disallowMultiple, executeInEditMode,
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
+import { Vec3, screen, Enum, cclegacy, visibleRect, approx, EPSILON } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
 import { NodeEventType } from '../../scene-graph/node-event';
@@ -124,7 +124,7 @@ export class Canvas extends RenderRoot2D {
 
     protected _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
-    protected _fitDesignResolution: (() => void) | undefined;
+    protected fitDesignResolution_EDITOR: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;
@@ -134,7 +134,7 @@ export class Canvas extends RenderRoot2D {
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
 
         if (EDITOR) {
-            this._fitDesignResolution = (): void => {
+            this.fitDesignResolution_EDITOR = (): void => {
                 // TODO: support paddings of locked widget
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
@@ -160,7 +160,7 @@ export class Canvas extends RenderRoot2D {
         if (widget) {
             widget.updateAlignment();
         } else if (EDITOR) {
-            this._fitDesignResolution!();
+            this.fitDesignResolution_EDITOR!();
         }
 
         if (!EDITOR) {
