@@ -138,12 +138,12 @@ export class Canvas extends RenderRoot2D {
                 // TODO: support paddings of locked widget
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
-                Vec3.set(_worldPos, nodeSize.width * 0.5, nodeSize.height * 0.5, 0);
+                const trans = this.node._uiProps.uiTransformComp!;
+                Vec3.set(_worldPos, nodeSize.width * trans.anchorX, nodeSize.height * trans.anchorY, 0);
 
                 if (!this._pos.equals(_worldPos)) {
                     this.node.setPosition(_worldPos);
                 }
-                const trans = this.node._uiProps.uiTransformComp!;
                 if (trans.width !== nodeSize.width) {
                     trans.width = nodeSize.width;
                 }
