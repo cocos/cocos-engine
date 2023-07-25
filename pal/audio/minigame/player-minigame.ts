@@ -30,7 +30,6 @@ import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { OS } from '../../system-info/enum-type';
-import { Game, game } from '../../../cocos/game';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
@@ -58,8 +57,8 @@ export class OneShotAudioMinigame {
         });
         const endCallback = (): void => {
             if (this._innerAudioContext) {
-                game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-                game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+                systemInfo.off('hide', this._onInterruptedBegin, this);
+                systemInfo.off('show', this._onInterruptedEnd, this);
                 this._onEndCb?.();
                 nativeAudio.destroy();
                 // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
@@ -70,8 +69,8 @@ export class OneShotAudioMinigame {
         nativeAudio.onStop(endCallback);//OneShotAudio can not be reused.
 
         // event
-        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        systemInfo.on('hide', this._onInterruptedBegin, this);
+        systemInfo.on('show', this._onInterruptedEnd, this);
     }
 
     private _onInterruptedBegin (): void {
@@ -123,8 +122,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        systemInfo.on('hide', this._onInterruptedBegin, this);
+        systemInfo.on('show', this._onInterruptedEnd, this);
         const eventTarget = this._eventTarget;
         this._onPlay = (): void => {
             this._state = AudioState.PLAYING;
@@ -185,8 +184,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy (): void {
-        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        systemInfo.off('hide', this._onInterruptedBegin, this);
+        systemInfo.off('show', this._onInterruptedEnd, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
