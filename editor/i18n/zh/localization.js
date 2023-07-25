@@ -1292,6 +1292,9 @@ module.exports = link(mixin({
         shadingScale: '渲染分辨率',
         enableShadingScaleInEditor: '是否在编辑器中缩放渲染分辨率',
     },
+    tone_mapping: {
+        toneMappingType: '色调映射方式，只在启用HDR时生效。',
+    },
 },
 
 require('./animation'),

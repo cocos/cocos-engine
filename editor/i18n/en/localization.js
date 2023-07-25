@@ -1318,6 +1318,9 @@ module.exports = link(mixin({
         shadingScale: 'Rendering resolution.',
         enableShadingScaleInEditor: 'Enable Shading Scale In Editor',
     },
+    tone_mapping: {
+        toneMappingType: 'Tone mapping type,valid only when HDR is enabled.',
+    },
 },
 
 require('./animation'),

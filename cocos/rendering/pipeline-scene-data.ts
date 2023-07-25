@@ -34,7 +34,7 @@ import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
-import { Model } from '../render-scene/scene';
+import { Model, PostSettings } from '../render-scene/scene';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
@@ -108,6 +108,7 @@ export class PipelineSceneData {
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
     public skin: Skin = new Skin();
+    public postSettings: PostSettings = new PostSettings();
     public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
@@ -224,7 +225,9 @@ export class PipelineSceneData {
         const vbSize = vbStride * 8;
         this._occlusionQueryVertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
         ));
         this._occlusionQueryVertexBuffer.update(vertices);
 
@@ -234,7 +237,9 @@ export class PipelineSceneData {
         const ibSize = ibStride * 36;
         this._occlusionQueryIndicesBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
         ));
         this._occlusionQueryIndicesBuffer.update(indices);
 
