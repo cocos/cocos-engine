@@ -53,7 +53,7 @@ namespace cc {
 			~PostSettings() = default;
             void activate();
 
-			void initialize(const PostSettingsInfo &toneMappingInfo);
+			void initialize(const PostSettingsInfo &postSettingsInfo);
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
             void setToneMappingType(ToneMappingType toneMappingType);
         private:
