@@ -24,7 +24,7 @@ CCEffect %{
         coatColor:                        { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { displayName: CoatColor, type: color } }
         flakeDensity:                     { value: 0.5, target: flakeParam.x, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
         flakeColorIntensity:              { value: 0.2, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
-        flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 40.0], step: 0.001 } }
+        flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 100.0], step: 0.001 } }
         coatNormalStrength:               { value: 0.1, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
         gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
         gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -215,12 +215,20 @@ CCProgram surface-fragment %{
       return coatColor.xyz;
   }
 
-  vec4 sampleFlake(sampler2D tex, vec2 uv)
-  {
-      vec4 blurred = texture(tex, uv);
-      vec4 detailed = fragTextureLod(tex, uv, 1.0);
-      return lerp(blurred, detailed, 0.3);
-  }
+  #if USE_FLAKE
+    vec4 sampleFlakeData(vec2 uv)
+    {
+        vec4 blurred = texture(flakeDataMap, uv);
+        vec4 detailed = fragTextureLod(flakeDataMap, uv, 1.0);
+        return lerp(blurred, detailed, 0.3);
+    }
+    vec4 sampleFlakeNormal(vec2 uv)
+    {
+        vec4 blurred = texture(coatNormalMap, uv);
+        vec4 detailed = fragTextureLod(coatNormalMap, uv, 1.0);
+        return lerp(blurred, detailed, 0.3);
+    }
+  #endif
 
   #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
   vec3 SurfacesFragmentModifyClearCoatWorldNormal()
@@ -229,8 +237,8 @@ CCProgram surface-fragment %{
     #if USE_FLAKE
       float density = flakeParam.x, densityMin = 0.25, flakeTiling = flakeParam.z;
       vec2 uv = FSInput_texcoord * flakeTiling;
-      vec4 data = sampleFlake(flakeDataMap, uv);
-      vec3 nmmp = (sampleFlake(coatNormalMap, uv).xyz - vec3(0.5)) * 2.0;
+      vec4 data = sampleFlakeData(uv);
+      vec3 nmmp = (sampleFlakeNormal(uv).xyz - vec3(0.5)) * 2.0;
       float C = (data.a - 1.0) / density + 1.0;
       float bumpIntensity = saturate(max(densityMin, C));
       nmmp = lerp(vec3(0.0, 0.0, 1.0), nmmp, bumpIntensity);
@@ -257,7 +265,7 @@ CCProgram surface-fragment %{
       float density = flakeParam.x, flakeColorIntensity = flakeParam.y, flakeTiling = flakeParam.z;
       vec2 uv = FSInput_texcoord * flakeTiling;
 
-      vec4 data = sampleFlake(flakeDataMap, uv);
+      vec4 data = sampleFlakeData(uv);
       float C = (data.a - 1.0) / density + 1.0;
       float flakeTintWeight = 1.0;
       float flakeWeight = saturate(C) * flakeTintWeight * flakeColorIntensity;
