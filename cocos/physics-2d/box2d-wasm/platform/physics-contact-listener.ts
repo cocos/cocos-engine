@@ -28,7 +28,6 @@ import { js, warn } from '../../../core';
 
 export class PhysicsContactListener {// extends B2.ContactListener {
     static _contactFixtures: number[] = [];
-    static _contactsShouldNotBeReported: number[] = [];
 
     static _BeginContact: Function | null = null;
     static _EndContact: Function | null = null;
@@ -58,32 +57,25 @@ export class PhysicsContactListener {// extends B2.ContactListener {
         const fixtureB = contact.GetFixtureB() as any;
         const fixtures = this._contactFixtures;
 
-        //(contact as any)._shouldReport = false;
-        this._addContactShouldNotBeReported(contact);
-
         if (fixtures.indexOf(fixtureA.$$.ptr) !== -1 || fixtures.indexOf(fixtureB.$$.ptr) !== -1) {
-            //(contact as any)._shouldReport = true; // for quick check whether this contact should report
-            this._removeContactShouldNotBeReported(contact);
             this._BeginContact(contact);
         }
     }
 
     static EndContact (contact: B2.Contact): void {
-        if (this._EndContact && PhysicsContactListener._shouldReportContact(contact)) {
-            // (contact as any)._shouldReport = false;
-            this._addContactShouldNotBeReported(contact);
+        if (this._EndContact) {
             this._EndContact(contact);
         }
     }
 
     static PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
-        if (this._PreSolve && PhysicsContactListener._shouldReportContact(contact)) {
+        if (this._PreSolve) {
             this._PreSolve(contact, oldManifold);
         }
     }
 
     static PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
-        if (this._PostSolve && PhysicsContactListener._shouldReportContact(contact)) {
+        if (this._PostSolve) {
             this._PostSolve(contact, impulse);
         }
     }
@@ -94,18 +86,6 @@ export class PhysicsContactListener {// extends B2.ContactListener {
 
     static unregisterContactFixture (fixture): void {
         js.array.remove(this._contactFixtures, fixture.$$.ptr);
-    }
-
-    static _addContactShouldNotBeReported (contact): void {
-        this._contactsShouldNotBeReported.push(contact.$$.ptr);
-    }
-
-    static _removeContactShouldNotBeReported (contact): void {
-        js.array.remove(this._contactsShouldNotBeReported, contact.$$.ptr);
-    }
-
-    static _shouldReportContact (contact): boolean {
-        return this._contactsShouldNotBeReported.indexOf(contact.$$.ptr) === -1;
     }
 
     static callback = {
