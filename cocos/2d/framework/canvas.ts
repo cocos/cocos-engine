@@ -28,7 +28,7 @@ import { ccclass, help, disallowMultiple, executeInEditMode,
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3, screen, Enum, cclegacy, visibleRect, approx, EPSILON } from '../../core';
+import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
 import { NodeEventType } from '../../scene-graph/node-event';
