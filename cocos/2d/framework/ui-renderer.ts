@@ -602,6 +602,32 @@ export class UIRenderer extends Renderer {
         return mat;
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
+    public getMaterialAddDepth (): Material {
+        let mat: Material;
+        switch (this._instanceMaterialType) { // todo
+        case InstanceMaterialType.ADD_COLOR:
+            mat = builtinResMgr.get(`ui-base-depth-material`);
+            break;
+        case InstanceMaterialType.GRAYSCALE:
+            mat = builtinResMgr.get(`ui-sprite-gray-depth-material`);
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED:
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep-depth-material`);
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-depth-material`);
+            break;
+        default:
+            mat = builtinResMgr.get(`ui-sprite-depth-material`);
+            break;
+        }
+        return mat;
+    }
+
     protected _flushAssembler?(): void;
 
     /**

@@ -30,6 +30,7 @@ import { Layers } from '../../scene-graph/layers';
 import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';
+import { RenderingSubMesh } from '../../asset/assets';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 export class DrawBatch2D {
@@ -64,6 +65,20 @@ export class DrawBatch2D {
         return this._shaders;
     }
 
+    get material () {
+        return this._material;
+    }
+    set material (val) {
+        this._material = val;
+    }
+
+    get renderingSubMesh () {
+        return this._renderingSubMesh;
+    }
+    set renderingSubMesh (val) {
+        this._renderingSubMesh = val;
+    }
+
     // public bufferBatch: MeshBuffer | null = null; // use less
     // public camera: Camera | null = null; // use less
     // public renderScene: RenderScene | null = null; // use less for now
@@ -81,7 +96,12 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     //private declare _nativeObj: any;
 
-    public destroy (ui: IBatcher): void {
+    private _material: Material | null = null; // for world mode
+    private _renderingSubMesh: RenderingSubMesh | null = null;
+    public firstIndex = 0;
+    public indexCount = 0;
+
+    public destroy (ui: IBatcher) {
         this._passes = [];
     }
 
@@ -99,6 +119,9 @@ export class DrawBatch2D {
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         // this.renderScene = null;
+        this.firstIndex = 0;
+        this.indexCount = 0;
+        this._renderingSubMesh = null;
     }
 
     // object version
