@@ -51,3 +51,14 @@ vec4 rsqrt(vec4 value) { return vec4(1.0) / sqrt(value); }
 float rand(vec2 seeds_zero_to_one) {
     return fract(sin(dot(seeds_zero_to_one.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
+
+#if __VERSION__ <= 100
+  mat4 transpose(mat4 v) {
+    mat4 tmp;
+    tmp[0] = vec4(v[0].x, v[1].x, v[2].x, v[3].x);
+    tmp[1] = vec4(v[0].y, v[1].y, v[2].y, v[3].y);
+    tmp[2] = vec4(v[0].z, v[1].z, v[2].z, v[3].z);
+    tmp[3] = vec4(v[0].w, v[1].w, v[2].w, v[3].w);
+    return tmp;
+  }
+#endif
