@@ -123,7 +123,7 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
     #endif
-    //todo: planar refraction from scene color
+    // todo: planar refraction from scene color when use planar probe or no probe
   #endif
 
   #if CC_USE_IBL && CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE

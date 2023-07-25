@@ -119,6 +119,7 @@
         #endif
 
         #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+          lightingResult.specularColorWithLighting2ndSpecular *= surfaceData.color2ndSpecular; //temporary coloration
           CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
         #endif
 
@@ -264,6 +265,7 @@
       #endif
 
       #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+        lightingResult.specularColorWithLighting2ndSpecular *= surfaceData.color2ndSpecular; //temporary coloration
         CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
         CCSurfacesLightingCalculateEnvironmentMultiLayerBlending(lightingResult, lightingData2ndSpecular);
       #endif
