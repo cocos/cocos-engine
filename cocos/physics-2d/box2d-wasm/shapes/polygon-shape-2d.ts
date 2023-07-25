@@ -61,7 +61,38 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
             points.length -= 1;
         }
 
-        const polys = PolygonPartition.ConvexPartition(points);
+        //const polys = PolygonPartition.ConvexPartition(points);
+        const polys: IVec2Like[][] = [];
+        if (points) {
+            const verticesVec = new B2.Vec2Vector();
+            const verticesCountVec = new B2.Int32Vector();
+            // put points into vertices
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                const v = { x: p.x, y: p.y };
+                verticesVec.push_back(v);
+            }
+            verticesCountVec.push_back(points.length);
+
+            const resultVerticesVec = new B2.Vec2Vector();
+            const resultVerticesCountVec = new B2.Int32Vector();
+
+            B2.ConvexPartition(verticesVec, verticesCountVec, resultVerticesVec, resultVerticesCountVec);
+
+            //put resultVerticesVec and resultVerticesCountVec into polys
+            let offset = 0;
+            for (let i = 0; i < resultVerticesCountVec.size(); i++) {
+                const verticesCount = resultVerticesCountVec.get(i);
+                const vertices: IVec2Like[] = [];
+                for (let j = 0; j < verticesCount; j++) {
+                    const v = resultVerticesVec.get(offset + j);
+                    vertices.push({ x: v.x, y: v.y });
+                }
+                polys.push(vertices);
+                offset += verticesCount;
+            }
+        }
+
         if (!polys) {
             console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
             return shapes;

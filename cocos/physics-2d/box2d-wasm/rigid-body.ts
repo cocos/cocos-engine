@@ -198,8 +198,8 @@ export class B2RigidBody2D implements IRigidBody2D {
         const b2body = this._body!;
         if (!b2body) return;
 
-        tempVec2_1.x = 0;//.Set(0, 0);
-        tempVec2_1.y = 0;//.Set(0, 0);
+        tempVec2_1.x = 0;
+        tempVec2_1.y = 0;
 
         b2body.SetLinearVelocity(tempVec2_1);
         b2body.SetAngularVelocity(0);
@@ -248,12 +248,12 @@ export class B2RigidBody2D implements IRigidBody2D {
         return out;
     }
     getLinearVelocityFromWorldPoint<Out extends IVec2Like> (worldPoint: IVec2Like, out: Out): Out {
-        // tempVec2_1.Set(worldPoint.x / PHYSICS_2D_PTM_RATIO, worldPoint.y / PHYSICS_2D_PTM_RATIO);
+        out = out || new Vec2();
         tempVec2_1.x = worldPoint.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_1.y = worldPoint.y / PHYSICS_2D_PTM_RATIO;
-        out = this._body!.GetLinearVelocityFromWorldPoint(tempVec2_1);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const temp = this._body!.GetLinearVelocityFromWorldPoint(tempVec2_1);
+        out.x =  temp.x * PHYSICS_2D_PTM_RATIO;
+        out.y =  temp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
     setAngularVelocity (v: number): void {
@@ -267,40 +267,37 @@ export class B2RigidBody2D implements IRigidBody2D {
         out = out || new Vec2();
         tempVec2_1.x = worldVector.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_1.y = worldVector.y / PHYSICS_2D_PTM_RATIO;
-        out = this._body!.GetLocalVector(tempVec2_1);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const temp = this._body!.GetLocalVector(tempVec2_1);
+        out.x =  temp.x * PHYSICS_2D_PTM_RATIO;
+        out.y =  temp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
     getWorldVector<Out extends IVec2Like> (localVector: IVec2Like, out: Out): Out {
-        // tempVec2_1.Set(localVector.x / PHYSICS_2D_PTM_RATIO, localVector.y / PHYSICS_2D_PTM_RATIO);
         tempVec2_1.x = localVector.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_1.y = localVector.y / PHYSICS_2D_PTM_RATIO;
-        out = this._body!.GetWorldVector(tempVec2_1);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const temp = this._body!.GetWorldVector(tempVec2_1);
+        out.x =  temp.x * PHYSICS_2D_PTM_RATIO;
+        out.y =  temp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
     getLocalPoint<Out extends IVec2Like> (worldPoint: IVec2Like, out: Out): Out {
         out = out || new Vec2();
-        // tempVec2_1.Set(worldPoint.x / PHYSICS_2D_PTM_RATIO, worldPoint.y / PHYSICS_2D_PTM_RATIO);
         tempVec2_1.x = worldPoint.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_1.y = worldPoint.y / PHYSICS_2D_PTM_RATIO;
-        this._body!.GetLocalPoint(tempVec2_1);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const temp = this._body!.GetLocalPoint(tempVec2_1);
+        out.x =  temp.x * PHYSICS_2D_PTM_RATIO;
+        out.y =  temp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
     getWorldPoint<Out extends IVec2Like> (localPoint: IVec2Like, out: Out): Out {
         out = out || new Vec2();
-        //tempVec2_1.Set(localPoint.x / PHYSICS_2D_PTM_RATIO, localPoint.y / PHYSICS_2D_PTM_RATIO);
         tempVec2_1.x = localPoint.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_1.y = localPoint.y / PHYSICS_2D_PTM_RATIO;
-        out = this._body!.GetWorldPoint(tempVec2_1);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const temp = this._body!.GetWorldPoint(tempVec2_1);
+        out.x =  temp.x * PHYSICS_2D_PTM_RATIO;
+        out.y =  temp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
@@ -325,7 +322,6 @@ export class B2RigidBody2D implements IRigidBody2D {
 
     applyForce (force: IVec2Like, point: IVec2Like, wake: boolean): void {
         if (this._body!) {
-            //tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
             tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
             tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
             this._body.ApplyForce(force as B2.Vec2, tempVec2_1, wake);
@@ -346,7 +342,6 @@ export class B2RigidBody2D implements IRigidBody2D {
 
     applyLinearImpulse (impulse: IVec2Like, point: IVec2Like, wake: boolean): void {
         if (this._body!) {
-            // tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
             tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
             tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
             this._body.ApplyLinearImpulse(impulse as B2.Vec2, tempVec2_1, wake);
