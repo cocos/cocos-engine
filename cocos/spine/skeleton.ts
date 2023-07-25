@@ -1468,7 +1468,7 @@ export class Skeleton extends UIRenderer {
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
-                this._instance.setDebugMode(false);
+                if (!JSB) this._instance.setDebugMode(false);
             }
         }
     }
@@ -1491,12 +1491,15 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _updateColor (): void {
         this.node._uiProps.colorDirty = true;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        const a = this._color.a / 255.0;
+        const a = this.node._uiProps.opacity;
         this._instance.setColor(r, g, b, a);
     }
 
