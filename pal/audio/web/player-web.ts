@@ -208,7 +208,6 @@ export class OneShotAudioWeb {
         this._bufferSourceNode.stop();
         this._bufferSourceNode.disconnect();
         this._bufferSourceNode.buffer = null;
-        this._bufferSourceNode = null as any;
     }
 }
 
@@ -442,7 +441,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._sourceNode.stop();
                 this._sourceNode.disconnect();
                 this._sourceNode.buffer = null;
-                this._sourceNode = null as any;
+                this._sourceNode = undefined;
             }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.
