@@ -1304,18 +1304,11 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     const newPrefabInfo = (cloned as any)._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
+            EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
             // newPrefabInfo.fileId = '';
         } else {
             // var PrefabUtils = Editor.require('scene://utils/prefab');
             // PrefabUtils.unlinkPrefab(cloned);
-        }
-    }
-    if (EDITOR_NOT_IN_PREVIEW) {
-        // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
-        // issue: https://github.com/cocos/cocos-engine/issues/14643
-        const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;
-        if (!syncing) {
-            cloned.name += ' (Clone)';
         }
     }
 
