@@ -123,6 +123,8 @@ export class Canvas extends RenderRoot2D {
     protected _alignCanvasWithScreen = true;
 
     protected _thisOnCameraResized: () => void;
+    // fit canvas node to design resolution
+    protected _fitDesignResolution: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;
@@ -130,6 +132,26 @@ export class Canvas extends RenderRoot2D {
     constructor () {
         super();
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
+
+        if (EDITOR) {
+            this._fitDesignResolution = (): void => {
+                // TODO: support paddings of locked widget
+                this.node.getPosition(this._pos);
+                const nodeSize = view.getDesignResolutionSize();
+                Vec3.set(_worldPos, nodeSize.width * 0.5, nodeSize.height * 0.5, 0);
+
+                if (!this._pos.equals(_worldPos)) {
+                    this.node.setPosition(_worldPos);
+                }
+                const trans = this.node._uiProps.uiTransformComp!;
+                if (trans.width !== nodeSize.width) {
+                    trans.width = nodeSize.width;
+                }
+                if (trans.height !== nodeSize.height) {
+                    trans.height = nodeSize.height;
+                }
+            };
+        }
     }
 
     public __preload (): void {
@@ -137,6 +159,8 @@ export class Canvas extends RenderRoot2D {
         const widget = this.getComponent('cc.Widget') as unknown as Widget;
         if (widget) {
             widget.updateAlignment();
+        } else if (EDITOR) {
+            this._fitDesignResolution!();
         }
 
         if (!EDITOR) {
