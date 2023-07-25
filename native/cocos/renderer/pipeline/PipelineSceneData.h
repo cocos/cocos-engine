@@ -44,7 +44,7 @@ class Fog;
 class Octree;
 class Light;
 class Skin;
-class ToneMapping;
+class PostSettings;
 } // namespace scene
 namespace gi {
 class LightProbes;
@@ -77,7 +77,7 @@ public:
     inline scene::Octree *getOctree() const { return _octree; }
     inline gi::LightProbes *getLightProbes() const { return _lightProbes; }
     inline scene::Skin *getSkin() const { return _skin; }
-    inline scene::ToneMapping *getToneMapping() const { return _toneMapping; }
+    inline scene::PostSettings *getPostSettings() const { return _postSettings; }
     inline gfx::InputAssembler *getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *getOcclusionQueryShader() const { return _occlusionQueryShader; }
@@ -137,7 +137,7 @@ protected:
     // manage memory manually
     CSMLayers *_csmLayers{nullptr};
     // manage memory manually
-    scene::ToneMapping *_toneMapping{nullptr};
+    scene::PostSettings *_postSettings{nullptr};
 
     bool _isHDR{true};
     bool _csmSupported{true};

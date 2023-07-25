@@ -33,27 +33,27 @@ namespace cc {
             LINEAR = 1,
         };
 
-        class ToneMapping;
-        class ToneMappingInfo : public RefCounted {
+        class PostSettings;
+        class PostSettingsInfo : public RefCounted {
         public:
-            ToneMappingInfo() = default;
-            ~ToneMappingInfo() override = default;
+            PostSettingsInfo() = default;
+            ~PostSettingsInfo() override = default;
 
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
             void setToneMappingType(ToneMappingType toneMappingType);
 
-            void activate(ToneMapping *resource);
-            ToneMapping *_resource{nullptr};
+            void activate(PostSettings *resource);
+            PostSettings *_resource{nullptr};
             ToneMappingType _toneMappingType{ ToneMappingType::DEFAULT };
 		};
 
-		class ToneMapping final {
+		class PostSettings final {
 		public:
-			ToneMapping() = default;
-			~ToneMapping() = default;
+			PostSettings() = default;
+			~PostSettings() = default;
             void activate();
 
-			void initialize(const ToneMappingInfo &toneMappingInfo);
+			void initialize(const PostSettingsInfo &toneMappingInfo);
             inline ToneMappingType getToneMappingType() const { return _toneMappingType; }
             void setToneMappingType(ToneMappingType toneMappingType);
         private:

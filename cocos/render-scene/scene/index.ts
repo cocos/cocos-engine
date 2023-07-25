@@ -39,4 +39,4 @@ export * from './point-light';
 export * from './ranged-directional-light';
 export * from './reflection-probe';
 export * from './lod-group';
-export * from './tone-mapping';
+export * from './post-settings';

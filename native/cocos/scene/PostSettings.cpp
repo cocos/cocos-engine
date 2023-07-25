@@ -22,20 +22,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "scene/ToneMapping.h"
+#include "scene/PostSettings.h"
 #include "core/Root.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 namespace cc {
 namespace scene {
 
-void ToneMappingInfo::activate(ToneMapping *resource) {
+void PostSettingsInfo::activate(PostSettings *resource) {
     _resource = resource;
     if (_resource != nullptr) {
         _resource->initialize(*this);
         _resource->activate();
     }
 }
-void ToneMappingInfo::setToneMappingType(ToneMappingType toneMappingType) {
+void PostSettingsInfo::setToneMappingType(ToneMappingType toneMappingType) {
     _toneMappingType = toneMappingType;
 
     if (_resource != nullptr) {
@@ -43,22 +43,22 @@ void ToneMappingInfo::setToneMappingType(ToneMappingType toneMappingType) {
     }
 }
 
-void ToneMapping::activate() {
+void PostSettings::activate() {
     _activated = true;
     updatePipeline();
 }
 
-void ToneMapping::initialize(const ToneMappingInfo &toneMappingInfo) {
+void PostSettings::initialize(const PostSettingsInfo &postSettingsInfo) {
     _activated = false;
-    _toneMappingType = toneMappingInfo.getToneMappingType();
+    _toneMappingType = postSettingsInfo.getToneMappingType();
 }
 
-void ToneMapping::setToneMappingType(ToneMappingType toneMappingType) {
+void PostSettings::setToneMappingType(ToneMappingType toneMappingType) {
     _toneMappingType = toneMappingType;
     updatePipeline();
 }
 
-void ToneMapping::updatePipeline() const {
+void PostSettings::updatePipeline() const {
     
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();

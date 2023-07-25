@@ -169,7 +169,7 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Skybox*, skybox, getSkybox);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Skin*, skin, getSkin);
-%attribute(cc::pipeline::PipelineSceneData, cc::scene::ToneMapping*, toneMapping, getToneMapping);
+%attribute(cc::pipeline::PipelineSceneData, cc::scene::PostSettings*, postSettings, getPostSettings);
 %attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
 %attribute(cc::pipeline::PipelineSceneData, ccstd::vector<const cc::scene::Light *>, validPunctualLights, getValidPunctualLights, setValidPunctualLights);
 %attribute(cc::pipeline::PipelineSceneData, bool, csmSupported, getCSMSupported);

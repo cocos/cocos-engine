@@ -1536,8 +1536,8 @@ cocos_source_files(
                  cocos/scene/ReflectionProbeManager.h
                  cocos/scene/Skin.h
                  cocos/scene/Skin.cpp
-                 cocos/scene/ToneMapping.h
-                 cocos/scene/ToneMapping.cpp
+                 cocos/scene/PostSettings.h
+                 cocos/scene/PostSettings.cpp
 )
 
 ##### primitive

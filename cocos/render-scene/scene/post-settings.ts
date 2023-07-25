@@ -1,12 +1,12 @@
 import { Enum, cclegacy } from '../../core';
-import { ToneMappingInfo } from '../../scene-graph/scene-globals';
+import { PostSettingsInfo } from '../../scene-graph/scene-globals';
 
 export const ToneMappingType = Enum({
     DEFAULT: 0,
     LINEAR: 1,
 });
 
-export  class ToneMapping {
+export  class PostSettings {
     protected _toneMappingType = ToneMappingType.DEFAULT;
     protected _activated = false;
 
@@ -17,8 +17,8 @@ export  class ToneMapping {
     get toneMappingType (): number {
         return this._toneMappingType;
     }
-    public initialize (toneMappingInfo: ToneMappingInfo): void {
-        this._toneMappingType = toneMappingInfo.toneMappingType;
+    public initialize (postSettingsInfo: PostSettingsInfo): void {
+        this._toneMappingType = postSettingsInfo.toneMappingType;
     }
 
     public activate (): void {

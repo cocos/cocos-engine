@@ -45,7 +45,7 @@ import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
 import { property } from '../core/data/class-decorator';
-import { ToneMapping, ToneMappingType } from '../render-scene/scene/tone-mapping';
+import { PostSettings, ToneMappingType } from '../render-scene/scene/post-settings';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1184,8 +1184,8 @@ export class SkinInfo {
 }
 legacyCC.SkinInfo = SkinInfo;
 
-@ccclass('cc.ToneMappingInfo')
-export class ToneMappingInfo {
+@ccclass('cc.PostSettingsInfo')
+export class PostSettingsInfo {
     /**
      * @zh 色调映射类型
      * @en Tone mapping type
@@ -1207,16 +1207,16 @@ export class ToneMappingInfo {
     @serializable
     protected _toneMappingType = ToneMappingType.DEFAULT;
 
-    protected _resource: ToneMapping | null = null;
+    protected _resource: PostSettings | null = null;
 
-    public activate (resource: ToneMapping): void {
+    public activate (resource: PostSettings): void {
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.activate();
     }
 }
 
-legacyCC.ToneMappingInfo = ToneMappingInfo;
+legacyCC.PostSettingsInfo = PostSettingsInfo;
 
 export interface ILightProbeNode {
     node: Node;
@@ -1654,7 +1654,7 @@ export class SceneGlobals {
      */
     @editable
     @serializable
-    public toneMapping = new ToneMappingInfo();
+    public postSettings = new PostSettingsInfo();
 
     /**
      * @en bake with stationary main light
@@ -1691,7 +1691,7 @@ export class SceneGlobals {
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
         this.skin.activate(sceneData.skin);
-        this.toneMapping.activate(sceneData.toneMapping);
+        this.postSettings.activate(sceneData.postSettings);
         if (this.lightProbeInfo && sceneData.lightProbes) {
             this.lightProbeInfo.activate(scene, sceneData.lightProbes as LightProbes);
         }

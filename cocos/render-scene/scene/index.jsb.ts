@@ -40,7 +40,7 @@ import type {
     Fog as JsbFog,
     Shadows as JsbShadows,
     Skybox as JsbSkybox,
-    ToneMapping as JsbToneMapping
+    PostSettings as JsbPostSettings
 } from './index';
 
 // NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
@@ -383,9 +383,9 @@ export const Skybox: typeof JsbSkybox = jsb.Skybox;
 export type Skybox = JsbSkybox;
 cclegacy.Skybox = Skybox;
 
-export const ToneMapping: typeof JsbToneMapping = jsb.ToneMapping;
-export type ToneMapping = JsbToneMapping;
-cclegacy.ToneMapping = ToneMapping;
+export const PostSettings: typeof JsbPostSettings = jsb.PostSettings;
+export type PostSettings = JsbPostSettings;
+cclegacy.PostSettings = PostSettings;
 
 export * from './model';
 export * from './submodel';
