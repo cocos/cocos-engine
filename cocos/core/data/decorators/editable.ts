@@ -289,11 +289,7 @@ export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV
  * 设置该属性在编辑器中的计量单位。
  * @param name 计量单位的名称。
  */
-export const unit: (name:
-| 'lm'
-| 'lx'
-| 'cd/m²'
-) => LegacyPropertyDecorator = !DEV
+export const unit: (name: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
     : setPropertyStashVar1WithImplicitVisible('unit');
 
