@@ -44,6 +44,8 @@ import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
+import { ReflectionProbeManager } from '../../3d/reflection-probe/reflection-probe-manager';
+import { director } from '../../game/director';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -148,7 +150,14 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     return loadOp;
 }
 
-export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0, out?: Rect): Rect {
+export function getRenderArea (
+    camera: Camera,
+    width: number,
+    height: number,
+    light: Light | null = null,
+    level = 0,
+    out: Rect | undefined = undefined,
+): Rect {
     out = out || new Rect();
     const vp = camera ? camera.viewport : new Rect(0, 0, 1, 1);
     const w = width;
@@ -222,10 +231,12 @@ export function buildCopyPass (ppl: BasicPipeline, inOuts: CopyPair[]): void {
 }
 
 let fxaaData: FxaaData | null = null;
-export function buildFxaaPass (camera: Camera,
+export function buildFxaaPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     if (!fxaaData) {
         fxaaData = new FxaaData();
     }
@@ -262,7 +273,9 @@ export function buildFxaaPass (camera: Camera,
     fxaaPass.addRenderTarget(fxaaPassRTName, LoadOp.CLEAR, StoreOp.STORE, clearColor);
     fxaaData.fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
     fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, fxaaData.fxaaMaterial, fxaaPassIdx,
+        camera,
+        fxaaData.fxaaMaterial,
+        fxaaPassIdx,
         SceneFlags.NONE,
     );
     return { rtName: fxaaPassRTName, dsName: inputDS };
@@ -318,12 +331,14 @@ class BloomData {
     }
 }
 let bloomData: BloomData | null = null;
-export function buildBloomPass (camera: Camera,
+export function buildBloomPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     threshold = 0.6,
     iterations = 2,
-    intensity = 2.0): { rtName: string; dsName: string; } {
+    intensity = 2.0,
+): { rtName: string; dsName: string; } {
     if (!bloomData) {
         bloomData = new BloomData();
     }
@@ -366,7 +381,9 @@ export function buildBloomPass (camera: Camera,
     bloomPrefilterPass.addRenderTarget(bloomPassPrefilterRTName, LoadOp.CLEAR, StoreOp.STORE, bloomClearColor);
     bloomData.bloomMaterial.setProperty('texSize', new Vec4(0, 0, bloomData.threshold, 0), 0);
     bloomPrefilterPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, bloomData.bloomMaterial, 0,
+        camera,
+        bloomData.bloomMaterial,
+        0,
         SceneFlags.NONE,
     );
     // === Bloom downSampler ===
@@ -393,7 +410,9 @@ export function buildBloomPass (camera: Camera,
         bloomDownSamplePass.addRenderTarget(bloomPassDownSampleRTName, LoadOp.CLEAR, StoreOp.STORE, bloomClearColor);
         bloomData.bloomMaterial.setProperty('texSize', texSize, BLOOM_DOWNSAMPLEPASS_INDEX + i);
         bloomDownSamplePass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            camera, bloomData.bloomMaterial, BLOOM_DOWNSAMPLEPASS_INDEX + i,
+            camera,
+            bloomData.bloomMaterial,
+            BLOOM_DOWNSAMPLEPASS_INDEX + i,
             SceneFlags.NONE,
         );
     }
@@ -421,7 +440,9 @@ export function buildBloomPass (camera: Camera,
         bloomUpSamplePass.addRenderTarget(bloomPassUpSampleRTName, LoadOp.CLEAR, StoreOp.STORE, bloomClearColor);
         bloomData.bloomMaterial.setProperty('texSize', texSize, BLOOM_UPSAMPLEPASS_INDEX + i);
         bloomUpSamplePass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            camera, bloomData.bloomMaterial, BLOOM_UPSAMPLEPASS_INDEX + i,
+            camera,
+            bloomData.bloomMaterial,
+            BLOOM_UPSAMPLEPASS_INDEX + i,
             SceneFlags.NONE,
         );
     }
@@ -445,7 +466,9 @@ export function buildBloomPass (camera: Camera,
     bloomCombinePass.addRenderTarget(bloomPassCombineRTName, LoadOp.CLEAR, StoreOp.STORE, bloomClearColor);
     bloomData.bloomMaterial.setProperty('texSize', new Vec4(0, 0, 0, bloomData.intensity), BLOOM_COMBINEPASS_INDEX);
     bloomCombinePass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, bloomData.bloomMaterial, BLOOM_COMBINEPASS_INDEX,
+        camera,
+        bloomData.bloomMaterial,
+        BLOOM_COMBINEPASS_INDEX,
         SceneFlags.NONE,
     );
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
@@ -476,9 +499,11 @@ export class PostInfo {
 
 let postInfo: PostInfo;
 
-export function buildPostprocessPass (camera: Camera,
+export function buildPostprocessPass (
+    camera: Camera,
     ppl: BasicPipeline,
-    inputTex: string): { rtName: string; dsName: string; } {
+    inputTex: string,
+): { rtName: string; dsName: string; } {
     if (!postInfo) {
         postInfo = new PostInfo();
     }
@@ -506,24 +531,38 @@ export function buildPostprocessPass (camera: Camera,
         postClearColor.y = camera.clearColor.y;
         postClearColor.z = camera.clearColor.z;
     }
-    postprocessPass.addRenderTarget(postprocessPassRTName,
-        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET), StoreOp.STORE, postClearColor);
-    postprocessPass.addDepthStencil(postprocessPassDS,
-        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE, camera.clearDepth, camera.clearStencil, camera.clearFlag);
-    postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(
-        postInfo.postMaterial, 0, SceneFlags.NONE,
+    postprocessPass.addRenderTarget(
+        postprocessPassRTName,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
+
+        StoreOp.STORE,
+
+        postClearColor,
     );
+    postprocessPass.addDepthStencil(
+        postprocessPassDS,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+
+        camera.clearDepth,
+
+        camera.clearStencil,
+
+        camera.clearFlag,
+    );
+    postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(postInfo.postMaterial, 0, SceneFlags.NONE);
     if (getProfilerCamera() === camera) {
         postprocessPass.showStatistics = true;
     }
     return { rtName: postprocessPassRTName, dsName: postprocessPassDS };
 }
 
-export function buildForwardPass (camera: Camera,
+export function buildForwardPass (
+    camera: Camera,
     ppl: BasicPipeline,
     isOffScreen: boolean,
-    enabledAlpha = true): { rtName: string; dsName: string; } {
+    enabledAlpha = true,
+): { rtName: string; dsName: string; } {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -564,22 +603,29 @@ export function buildForwardPass (camera: Camera,
             forwardPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
     }
-    forwardPass.addRenderTarget(forwardPassRTName,
+    forwardPass.addRenderTarget(
+        forwardPassRTName,
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
         StoreOp.STORE,
-        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    forwardPass.addDepthStencil(forwardPassDSName,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w),
+    );
+    forwardPass.addDepthStencil(
+        forwardPassDSName,
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
         // If the depth texture is used by subsequent passes, it must be set to store.
         isOffScreen ? StoreOp.DISCARD : StoreOp.STORE,
         camera.clearDepth,
         camera.clearStencil,
-        camera.clearFlag);
+        camera.clearFlag,
+    );
     forwardPass
         .addQueue(QueueHint.RENDER_OPAQUE)
-        .addSceneOfCamera(camera, new LightInfo(),
+        .addSceneOfCamera(
+            camera,
+            new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING,
+        );
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
         sceneFlags |= SceneFlags.UI;
@@ -594,10 +640,15 @@ export function buildForwardPass (camera: Camera,
 }
 
 let shadowPass;
-export function buildShadowPass (passName: Readonly<string>,
+export function buildShadowPass (
+    passName: Readonly<string>,
     ppl: BasicPipeline,
-    camera: Camera, light: Light, level: number,
-    width: Readonly<number>, height: Readonly<number>): void {
+    camera: Camera,
+    light: Light,
+    level: number,
+    width: Readonly<number>,
+    height: Readonly<number>,
+): void {
     const fboW = width;
     const fboH = height;
     const area = getRenderArea(camera, width, height, light, level);
@@ -617,25 +668,37 @@ export function buildShadowPass (passName: Readonly<string>,
         shadowPass.name = passName;
         shadowPass.setViewport(new Viewport(0, 0, fboW, fboH));
         shadowPass.addRenderTarget(shadowMapName, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, camera.clearColor.w));
-        shadowPass.addDepthStencil(`${shadowMapName}Depth`, LoadOp.CLEAR, StoreOp.DISCARD,
-            camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
+        shadowPass.addDepthStencil(
+            `${shadowMapName}Depth`,
+            LoadOp.CLEAR,
+            StoreOp.DISCARD,
+            camera.clearDepth,
+            camera.clearStencil,
+            ClearFlagBit.DEPTH_STENCIL,
+        );
     }
     const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
-    queue.addSceneOfCamera(camera, new LightInfo(light, level),
-        SceneFlags.SHADOW_CASTER);
+    queue.addSceneOfCamera(
+        camera,
+        new LightInfo(light, level),
+        SceneFlags.SHADOW_CASTER,
+    );
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
 
-export function buildReflectionProbePasss (camera: Camera,
-    ppl: BasicPipeline): void {
-    if (!cclegacy.internal.reflectionProbeManager) return;
-    const probes = cclegacy.internal.reflectionProbeManager.getProbes();
+export function buildReflectionProbePasss (
+    camera: Camera,
+    ppl: BasicPipeline,
+): void {
+    const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+    if (!reflectionProbeManager) return;
+    const probes = reflectionProbeManager.getProbes();
     if (probes.length === 0) return;
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
             if (probes[i].probeType === ProbeType.PLANAR) {
-                buildReflectionProbePass(camera, ppl, probe, probe.realtimePlanarTexture.window!, 0);
+                buildReflectionProbePass(camera, ppl, probe, probe.realtimePlanarTexture!.window!, 0);
             } else if (EDITOR) {
                 for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
                     probe.updateCameraDir(faceIdx);
@@ -647,8 +710,13 @@ export function buildReflectionProbePasss (camera: Camera,
     }
 }
 
-export function buildReflectionProbePass (camera: Camera,
-    ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number): void {
+export function buildReflectionProbePass (
+    camera: Camera,
+    ppl: BasicPipeline,
+    probe: ReflectionProbe,
+    renderWindow: RenderWindow,
+    faceIdx: number,
+): void {
     const cameraName = `Camera${faceIdx}`;
     const area = probe.renderArea();
     const width = area.x;
@@ -668,10 +736,20 @@ export function buildReflectionProbePass (camera: Camera,
     const probePass = ppl.addRenderPass(width, height, 'default');
     probePass.name = `ReflectionProbePass${faceIdx}`;
     probePass.setViewport(new Viewport(0, 0, width, height));
-    probePass.addRenderTarget(probePassRTName, getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.RENDER_TARGET),
-        StoreOp.STORE, new Color(probeCamera.clearColor.x, probeCamera.clearColor.y, probeCamera.clearColor.z, probeCamera.clearColor.w));
-    probePass.addDepthStencil(probePassDSName, getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE, probeCamera.clearDepth, probeCamera.clearStencil, probeCamera.clearFlag);
+    probePass.addRenderTarget(
+        probePassRTName,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        new Color(probeCamera.clearColor.x, probeCamera.clearColor.y, probeCamera.clearColor.z, probeCamera.clearColor.w),
+    );
+    probePass.addDepthStencil(
+        probePassDSName,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        probeCamera.clearDepth,
+        probeCamera.clearStencil,
+        probeCamera.clearFlag,
+    );
     const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE);
     passBuilder.addSceneOfCamera(camera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
@@ -720,14 +798,28 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Basi
     if (mainLight && mainLight.shadowEnabled) {
         shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
         if (mainLight.shadowFixedArea) {
-            buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
-                camera, mainLight, 0, mapWidth, mapHeight);
+            buildShadowPass(
+                shadowInfo.mainLightShadowNames[0],
+                ppl,
+                camera,
+                mainLight,
+                0,
+                mapWidth,
+                mapHeight,
+            );
         } else {
             const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
             shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
             for (let i = 0; i < csmLevel; i++) {
-                buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
-                    camera, mainLight, i, mapWidth, mapHeight);
+                buildShadowPass(
+                    shadowInfo.mainLightShadowNames[0],
+                    ppl,
+                    camera,
+                    mainLight,
+                    i,
+                    mapWidth,
+                    mapHeight,
+                );
             }
         }
     }
@@ -736,8 +828,15 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Basi
         const light = shadowInfo.validLights[l];
         const passName = `SpotLightShadow${l.toString()}${cameraName}`;
         shadowInfo.spotLightShadowNames[l] = passName;
-        buildShadowPass(passName, ppl,
-            camera, light, 0, mapWidth, mapHeight);
+        buildShadowPass(
+            passName,
+            ppl,
+            camera,
+            light,
+            0,
+            mapWidth,
+            mapHeight,
+        );
     }
     return shadowInfo;
 }
@@ -750,8 +849,10 @@ export class GBufferInfo {
     ds!: string;
 }
 // deferred passes
-export function buildGBufferPass (camera: Camera,
-    ppl: BasicPipeline): GBufferInfo {
+export function buildGBufferPass (
+    camera: Camera,
+    ppl: BasicPipeline,
+): GBufferInfo {
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -869,7 +970,9 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
     lightingClearColor.w = 0;
     lightingPass.addRenderTarget(deferredLightingPassRTName, LoadOp.CLEAR, StoreOp.STORE, lightingClearColor);
     lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, lightingInfo.deferredLightingMaterial, 0,
+        camera,
+        lightingInfo.deferredLightingMaterial,
+        0,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
     // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
@@ -899,8 +1002,10 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
     }
 }
 
-export function buildUIPass (camera: Camera,
-    ppl: BasicPipeline): void {
+export function buildUIPass (
+    camera: Camera,
+    ppl: BasicPipeline,
+): void {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -918,14 +1023,22 @@ export function buildUIPass (camera: Camera,
     const uiAndProfilerPass = ppl.addRenderPass(width, height, 'default');
     uiAndProfilerPass.name = `CameraUIAndProfilerPass${cameraID}`;
     uiAndProfilerPass.setViewport(new Viewport(area.x, area.y, width, height));
-    uiAndProfilerPass.addRenderTarget(dsUIAndProfilerPassRTName,
+    uiAndProfilerPass.addRenderTarget(
+        dsUIAndProfilerPassRTName,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
         StoreOp.STORE,
-        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    uiAndProfilerPass.addDepthStencil(dsUIAndProfilerPassDSName,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w),
+    );
+    uiAndProfilerPass.addDepthStencil(
+        dsUIAndProfilerPassDSName,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
         StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
+        camera.clearDepth,
+
+        camera.clearStencil,
+
+        camera.clearFlag,
+    );
     const sceneFlags = SceneFlags.UI;
     uiAndProfilerPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
@@ -936,7 +1049,7 @@ export function buildUIPass (camera: Camera,
 }
 
 export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>): void {
-    const pipeline = cclegacy.director.root.pipeline;
+    const pipeline = director.root!.pipeline as WebPipeline;
     const sceneData = ppl.pipelineSceneData;
     const skybox = sceneData.skybox;
     setter.addConstant('CCCamera');
@@ -986,7 +1099,7 @@ export function getDescBindingFromName (bindingName: string): number {
     const layoutGraph = pipeline.layoutGraph;
     const vertIds = layoutGraph.vertices();
     const descId = layoutGraph.attributeIndex.get(bindingName);
-    let currDesData;
+    let currDesData: DescriptorSetData;
     for (const i of vertIds) {
         const layout = layoutGraph.getLayout(i);
         for (const [k, descData] of layout.descriptorSets) {
@@ -1020,10 +1133,12 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
         let buffer = descriptorSet.getBuffer(bindId);
         let haveBuff = true;
         if (!buffer && !isUpdate) {
-            buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            buffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 value.length * 4,
-                value.length * 4));
+                value.length * 4,
+            ));
             haveBuff = false;
         }
         if (isUpdate) {
@@ -1198,7 +1313,7 @@ class SSSSBlurData {
             const o = -range + i * step;
             const sign = o < 0.0 ? -1.0 : 1.0;
             // eslint-disable-next-line no-restricted-properties
-            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+            this._kernel[i].w = range * sign * Math.abs(o ** EXPONENT) / range ** EXPONENT;
         }
 
         // Calculate the weights:
@@ -1295,10 +1410,12 @@ export function hasSkinObject (ppl: BasicPipeline): boolean {
     return sceneData.skin.enabled && sceneData.standardSkinModel !== null;
 }
 
-function _buildSSSSBlurPass (camera: Camera,
+function _buildSSSSBlurPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     const sceneData = ppl.pipelineSceneData;
     const skin = sceneData.skin;
     const standardSkinModel = sceneData.standardSkinModel;
@@ -1350,10 +1467,18 @@ function _buildSSSSBlurPass (camera: Camera,
         sampler.mipFilter = Filter.NONE;
         copyInputDSPass.addTexture(inputDS, 'depthRaw');
     }
-    copyInputDSPass.addRenderTarget(ssssBlurDSName,
-        LoadOp.CLEAR, StoreOp.STORE, new Color(1.0, 0.0, 0.0, 0.0));
+    copyInputDSPass.addRenderTarget(
+        ssssBlurDSName,
+        LoadOp.CLEAR,
+
+        StoreOp.STORE,
+
+        new Color(1.0, 0.0, 0.0, 0.0),
+    );
     copyInputDSPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, ssssBlurData.ssssBlurMaterial, COPY_INPUT_DS_PASS_INDEX,
+        camera,
+        ssssBlurData.ssssBlurMaterial,
+        COPY_INPUT_DS_PASS_INDEX,
         SceneFlags.NONE,
     );
 
@@ -1378,13 +1503,25 @@ function _buildSSSSBlurPass (camera: Camera,
         ssssblurXPass.addTexture(ssssBlurDSName, 'depthTex');
     }
     ssssblurXPass.addRenderTarget(ssssBlurRTName, LoadOp.CLEAR, StoreOp.STORE, ssssBlurClearColor);
-    ssssblurXPass.addDepthStencil(inputDS, LoadOp.LOAD, StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
-    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
-        ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_X_PASS_INDEX);
+    ssssblurXPass.addDepthStencil(
+        inputDS,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearDepth,
+        camera.clearStencil,
+        camera.clearFlag,
+    );
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(
+        ssssBlurData.ssssFov,
+        ssssBlurData.ssssWidth,
+        ssssBlurData.boundingBox,
+        ssssBlurData.ssssScale,
+    ), SSSS_BLUR_X_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
     ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_X_PASS_INDEX,
+        camera,
+        ssssBlurData.ssssBlurMaterial,
+        SSSS_BLUR_X_PASS_INDEX,
         SceneFlags.NONE,
     );
 
@@ -1409,13 +1546,25 @@ function _buildSSSSBlurPass (camera: Camera,
         ssssblurYPass.addTexture(ssssBlurDSName, 'depthTex');
     }
     ssssblurYPass.addRenderTarget(inputRT, LoadOp.LOAD, StoreOp.STORE, ssssBlurClearColor);
-    ssssblurYPass.addDepthStencil(inputDS, LoadOp.LOAD, StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
-    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
-        ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_Y_PASS_INDEX);
+    ssssblurYPass.addDepthStencil(
+        inputDS,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearDepth,
+        camera.clearStencil,
+        camera.clearFlag,
+    );
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(
+        ssssBlurData.ssssFov,
+        ssssBlurData.ssssWidth,
+        ssssBlurData.boundingBox,
+        ssssBlurData.ssssScale,
+    ), SSSS_BLUR_Y_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_Y_PASS_INDEX);
     ssssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_Y_PASS_INDEX,
+        camera,
+        ssssBlurData.ssssBlurMaterial,
+        SSSS_BLUR_Y_PASS_INDEX,
         SceneFlags.NONE,
     );
     return { rtName: inputRT, dsName: inputDS };
@@ -1439,10 +1588,12 @@ class ToneMappingInfo {
 }
 
 let toneMappingInfo: ToneMappingInfo | null = null;
-export function buildToneMappingPass (camera: Camera,
+export function buildToneMappingPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) return { rtName: inputRT, dsName: inputDS };
     if (!toneMappingInfo) {
         toneMappingInfo = new ToneMappingInfo();
@@ -1474,29 +1625,42 @@ export function buildToneMappingPass (camera: Camera,
     if (ppl.containsResource(inputRT)) {
         toneMappingPass.addTexture(inputRT, 'u_texSampler');
     }
-    toneMappingPass.addRenderTarget(toneMappingPassRTName,
+    toneMappingPass.addRenderTarget(
+        toneMappingPassRTName,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
-        StoreOp.STORE, toneMappingClearColor);
-    toneMappingPass.addDepthStencil(toneMappingPassDS,
+        StoreOp.STORE,
+
+        toneMappingClearColor,
+    );
+    toneMappingPass.addDepthStencil(
+        toneMappingPassDS,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
         StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
-    toneMappingPass.addQueue(QueueHint.NONE).addFullscreenQuad(
-        toneMappingInfo.toneMappingMaterial, 0, SceneFlags.NONE,
+        camera.clearDepth,
+
+        camera.clearStencil,
+
+        camera.clearFlag,
     );
-    toneMappingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.UI);
+    toneMappingPass.addQueue(QueueHint.NONE).addFullscreenQuad(toneMappingInfo.toneMappingMaterial, 0, SceneFlags.NONE);
+    toneMappingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(
+        camera,
+        new LightInfo(),
+        SceneFlags.UI,
+    );
     if (getProfilerCamera() === camera) {
         toneMappingPass.showStatistics = true;
     }
     return { rtName: toneMappingPassRTName, dsName: toneMappingPassDS };
 }
 
-export function buildTransparencyPass (camera: Camera,
+export function buildTransparencyPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    hasDeferredTransparencyObject: boolean): { rtName: string; dsName: string; } {
+    hasDeferredTransparencyObject: boolean,
+): { rtName: string; dsName: string; } {
     if (hasDeferredTransparencyObject) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -1519,22 +1683,36 @@ export function buildTransparencyPass (camera: Camera,
             alphaPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
     }
-    alphaPass.addRenderTarget(inputRT,
-        LoadOp.LOAD, StoreOp.STORE,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    alphaPass.addDepthStencil(inputDS,
-        LoadOp.LOAD, StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
+    alphaPass.addRenderTarget(
+        inputRT,
+        LoadOp.LOAD,
+
+        StoreOp.STORE,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0),
+    );
+    alphaPass.addDepthStencil(
+        inputDS,
+        LoadOp.LOAD,
+
+        StoreOp.STORE,
+        camera.clearDepth,
+
+        camera.clearStencil,
+
+        camera.clearFlag,
+    );
     alphaPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
     return { rtName: inputRT, dsName: inputDS };
 }
 
-function _buildSpecularPass (camera: Camera,
+function _buildSpecularPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -1558,29 +1736,49 @@ function _buildSpecularPass (camera: Camera,
             specalurPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
     }
-    specalurPass.addRenderTarget(inputRT,
-        LoadOp.LOAD, StoreOp.STORE,
-        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    specalurPass.addDepthStencil(inputDS,
-        LoadOp.LOAD, StoreOp.STORE,
-        camera.clearDepth, camera.clearStencil, camera.clearFlag);
+    specalurPass.addRenderTarget(
+        inputRT,
+        LoadOp.LOAD,
+
+        StoreOp.STORE,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w),
+    );
+    specalurPass.addDepthStencil(
+        inputDS,
+        LoadOp.LOAD,
+
+        StoreOp.STORE,
+        camera.clearDepth,
+
+        camera.clearStencil,
+
+        camera.clearFlag,
+    );
     specalurPass
         .addQueue(QueueHint.RENDER_OPAQUE, 'default')
-        .addSceneOfCamera(camera, new LightInfo(),
+        .addSceneOfCamera(
+            camera,
+            new LightInfo(),
             SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY,
+        );
     specalurPass
         .addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
-        .addSceneOfCamera(camera, new LightInfo(),
+        .addSceneOfCamera(
+            camera,
+            new LightInfo(),
             SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY,
+        );
     return { rtName: inputRT, dsName: inputDS };
 }
 
-export function buildSSSSPass (camera: Camera,
+export function buildSSSSPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     if (hasSkinObject(ppl)) {
         forceEnableFloatOutput(ppl);
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
@@ -1736,10 +1934,12 @@ class HBAOParams {
 
 let _hbaoParams: HBAOParams | null = null;
 const vec2 = new Vec2();
-function _buildHBAOPass (camera: Camera,
+function _buildHBAOPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string): { rtName: string; dsName: string; } {
+    inputDS: string,
+): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -1780,17 +1980,21 @@ function _buildHBAOPass (camera: Camera,
     _hbaoParams.hbaoMaterial.setProperty('randomTexSize', new Vec4(_hbaoParams.randomTexture.width, _hbaoParams.randomTexture.height, 1.0 / _hbaoParams.randomTexture.width, 1.0 / _hbaoParams.randomTexture.height), passIdx);
     _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
     hbaoPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
-        camera, _hbaoParams.hbaoMaterial, passIdx,
+        camera,
+        _hbaoParams.hbaoMaterial,
+        passIdx,
         SceneFlags.NONE,
     );
     return { rtName: hbaoRTName, dsName: inputDS };
 }
 
-function _buildHBAOBlurPass (camera: Camera,
+function _buildHBAOBlurPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    isYPass: boolean): { rtName: string; dsName: string; } {
+    isYPass: boolean,
+): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -1848,17 +2052,21 @@ function _buildHBAOBlurPass (camera: Camera,
     _hbaoParams.hbaoMaterial.setProperty('miscParam', _hbaoParams.miscParam, passIdx);
     _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
     blurPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
-        camera, _hbaoParams.hbaoMaterial, passIdx,
+        camera,
+        _hbaoParams.hbaoMaterial,
+        passIdx,
         SceneFlags.NONE,
     );
     return { rtName: outputRTName, dsName: inputDS };
 }
 
-function _buildHBAOCombinedPass (camera: Camera,
+function _buildHBAOCombinedPass (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    outputRT: string): { rtName: string; dsName: string; } {
+    outputRT: string,
+): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -1900,13 +2108,16 @@ function _buildHBAOCombinedPass (camera: Camera,
     _hbaoParams.hbaoMaterial.setProperty('miscParam', _hbaoParams.miscParam, passIdx);
     _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
     hbaoPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
-        camera, _hbaoParams.hbaoMaterial, passIdx,
+        camera,
+        _hbaoParams.hbaoMaterial,
+        passIdx,
         SceneFlags.NONE,
     );
     return { rtName: outputRTName, dsName: inputDS };
 }
 
-export function buildHBAOPasses (camera: Camera,
+export function buildHBAOPasses (
+    camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
@@ -1915,7 +2126,8 @@ export function buildHBAOPasses (camera: Camera,
     blurSharpness = 3,
     aoSaturation = 1.0,
     aoStrength = 1.0,
-    needBlur = true): { rtName: string; dsName: string; } {
+    needBlur = true,
+): { rtName: string; dsName: string; } {
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -1967,7 +2179,7 @@ export const CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
 class ClusterLightData {
     declare clusterBuildCS: Material;
-    declare clusterLightCullingCS: Material
+    declare clusterLightCullingCS: Material;
     clusters_x_threads = 16;
     clusters_y_threads = 8;
     clusters_z_threads = 1;
@@ -2000,8 +2212,11 @@ class ClusterLightData {
 }
 
 let _clusterLightData: ClusterLightData | null = null;
-export function buildLightClusterBuildPass (camera: Camera, clusterData: ClusterLightData,
-    ppl: Pipeline): void {
+export function buildLightClusterBuildPass (
+    camera: Camera,
+    clusterData: ClusterLightData,
+    ppl: Pipeline,
+): void {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
 
@@ -2025,8 +2240,11 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
 }
 
-export function buildLightClusterCullingPass (camera: Camera, clusterData: ClusterLightData,
-    ppl: Pipeline): void {
+export function buildLightClusterCullingPass (
+    camera: Camera,
+    clusterData: ClusterLightData,
+    ppl: Pipeline,
+): void {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
     const clusterLightBufferName = `clusterLightBuffer${cameraID}`;

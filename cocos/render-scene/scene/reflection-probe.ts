@@ -29,6 +29,7 @@ import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
+import { view } from '../../ui/view';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -125,10 +126,10 @@ export class ReflectionProbe {
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
      */
-    set probeType (value: number) {
+    set probeType (value: ProbeType) {
         this._probeType = value;
     }
-    get probeType (): number {
+    get probeType (): ProbeType {
         return this._probeType;
     }
 
@@ -308,7 +309,7 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera): void {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = cclegacy.view.getDesignResolutionSize();
+            const canvasSize = view.getDesignResolutionSize();
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
             cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
@@ -317,7 +318,7 @@ export class ReflectionProbe {
         this._needRender = true;
     }
 
-    public switchProbeType (type: number, sourceCamera: Camera | null): void {
+    public switchProbeType (type: ProbeType, sourceCamera: Camera | null): void {
         if (type === ProbeType.CUBE) {
             this._needRender = false;
         } else if (sourceCamera !== null) {

@@ -11,9 +11,9 @@ import { FXAA } from '../components/fxaa';
 export class FxaaPass extends SettingPass {
     get setting (): FXAA { return getSetting(FXAA); }
 
-    name = 'FxaaPass'
+    name = 'FxaaPass';
     effectName = 'pipeline/post-process/fxaa-hq';
-    outputNames = ['FxaaColor']
+    outputNames = ['FxaaColor'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);

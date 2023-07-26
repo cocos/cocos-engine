@@ -25,7 +25,7 @@ import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
-import { Enum, ccenum } from '../core/value-types/enum';
+import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
@@ -65,6 +65,11 @@ export const timeScale = 1.0;
  * @zh Spine 动画缓存类型。
  */
 export enum AnimationCacheMode {
+    /**
+     * @en Unset mode.
+     * @zh 未设置模式。
+     */
+    UNSET = -1,
     /**
      * @en The realtime mode.
      * @zh 实时计算模式。
@@ -207,7 +212,7 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _timeScale = 1;
     @serializable
-    protected _preCacheMode = -1;
+    protected _preCacheMode: AnimationCacheMode = AnimationCacheMode.UNSET;
     @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
     @serializable
@@ -241,8 +246,8 @@ export class Skeleton extends UIRenderer {
     }), 1);
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
     public paused = false;
-    protected _enumSkins: any = Enum({});
-    protected _enumAnimations: any = Enum({});
+    protected _enumSkins: EnumType = Enum({});
+    protected _enumAnimations: EnumType = Enum({});
     protected attachUtil: AttachUtil;
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
@@ -725,7 +730,7 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache((this.skeletonData as any).uuid, skeletonData);
+            const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData!.uuid, skeletonData);
             this._skeleton = skeletonInfo.skeleton;
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
@@ -1396,9 +1401,9 @@ export class Skeleton extends UIRenderer {
         }
         this._cachedSockets.clear();
         const bones = this._skeleton.bones;
-        const getBoneName = (bone: spine.Bone): any => {
+        const getBoneName = (bone: spine.Bone): string => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
+            return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
@@ -1494,7 +1499,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    protected _updateColor (): void {
+    public _updateColor (): void {
         this.node._uiProps.colorDirty = true;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;

@@ -68,12 +68,11 @@ export class UIOpacity extends Component {
 
         this.setEntityLocalOpacityDirtyRecursively(true);
 
-        if(EDITOR_NOT_IN_PREVIEW) {
-            setTimeout(()=>{
+        if (EDITOR_NOT_IN_PREVIEW) {
+            setTimeout(() => {
                 EditorExtends.Node.emit('change', this.node.uuid, this.node);
             }, 200);
         }
-
     }
 
     private setEntityLocalOpacityDirtyRecursively (dirty: boolean): void {
