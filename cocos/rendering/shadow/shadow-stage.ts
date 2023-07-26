@@ -31,7 +31,9 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { ShadowFlow } from './shadow-flow';
-import { Camera, CSMLevel, DirectionalLight } from '../../render-scene/scene';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { CSMLevel } from '../../render-scene/scene/shadows';
+import { Camera } from '../../render-scene/scene/camera';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -98,8 +100,14 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.endRenderPass();
         this._isShadowMapCleared = true;
     }
@@ -151,8 +159,14 @@ export class ShadowStage extends RenderStage {
 
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
