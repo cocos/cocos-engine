@@ -114,6 +114,7 @@ export function load (app: Application) {
     }
 
     function onCreateSignature (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+        fixTypeArguments(_context, reflection, node);
         handleTagLegacyPublic(_context, reflection, node);
     }
 
@@ -161,6 +162,20 @@ export function load (app: Application) {
 
         comment.removeTags(TAG_NAME_LEGACY_PUBLIC);
         comment.tags.push(new CommentTag('deprecated', undefined, 'This key is reserved for internal usage.'));
+    }
+
+    // NOTE: this is a bug on typedoc, we fix in this plugin.
+    function fixTypeArguments (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+        if (reflection.typeParameters) {
+            for (const typeParam of reflection.typeParameters) {
+                // @ts-ignore
+                const typeArguments = typeParam.type?.typeArguments;
+                if (typeArguments?.[0]?.name === typeParam.name) {
+                    // @ts-ignore
+                    delete typeParam.type.typeArguments;
+                }
+            }
+        }
     }
 
     function setCategory (reflectionId: ReflectionId, categoryId: string, categoryConfig: CategoryConfig) {
