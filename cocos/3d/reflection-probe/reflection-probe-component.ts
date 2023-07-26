@@ -326,7 +326,7 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
         }
-        this.node.on(Node.EventType.TRANSFORM_CHANGED,this._onProbeTransformChanged, this);
+        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged, this);
     }
     onDisable (): void {
         if (this._probe) {
