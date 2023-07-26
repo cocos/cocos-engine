@@ -448,7 +448,7 @@ export class ReflectionProbeManager {
      * @param probe reflection probe to be set
      * @param blendProbe reflection probe for blend
      */
-    public setReflectionProbe(model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null = null) {
+    public setReflectionProbe (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null = null) {
         if (!probe) return;
         this._useCubeModels.set(model, probe);
         this._updateCubemapOfModel(model, probe);
@@ -576,7 +576,7 @@ export class ReflectionProbeManager {
         return false;
     }
 
-    private _updateBlendProbeInfo(model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null): void {
+    private _updateBlendProbeInfo (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null): void {
         const node = model.node;
         if (!node) {
             return;

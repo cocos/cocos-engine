@@ -385,7 +385,7 @@ export class ReflectionProbe extends Component {
         ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
     }
 
-    private _onProbeTransformChanged(type: TransformBit): void {
+    private _onProbeTransformChanged (type: TransformBit): void {
         this.probe.updateBoundingBox();
         if (type & Node.TransformBit.POSITION) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
