@@ -1228,6 +1228,7 @@ const Elements = {
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
                         <ui-drag-item additional='${additional}'>
+                            <ui-icon default="component" color="true" value="${component.type}"></ui-icon>
                             <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
                         </ui-drag-item>
                         <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
