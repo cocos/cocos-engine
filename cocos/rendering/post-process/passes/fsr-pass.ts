@@ -10,12 +10,14 @@ import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
 import { game } from '../../../game';
 
+const tempVec4 = new Vec4();
+
 export class FSRPass extends SettingPass {
     get setting () { return getSetting(FSR); }
 
-    name = 'FSRPass'
+    name = 'FSRPass';
     effectName = 'pipeline/post-process/fsr';
-    outputNames = ['FSRColor']
+    outputNames = ['FSRColor'];
 
     checkEnable (camera: Camera) {
         let enable = super.checkEnable(camera);
@@ -39,12 +41,14 @@ export class FSRPass extends SettingPass {
         const outHeight = Math.floor(passContext.passViewport.height);
 
         const setting = this.setting;
-        this.material.setProperty('fsrParams', new Vec4(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
-        this.material.setProperty('texSize',
-            new Vec4(
+        this.material.setProperty('fsrParams', tempVec4.set(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
+        this.material.setProperty(
+            'texSize',
+            tempVec4.set(
                 inputWidth, inputHeight,
                 outWidth, outHeight,
-            ));
+            ),
+        );
 
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = `FSR_EASU${cameraID}`;
