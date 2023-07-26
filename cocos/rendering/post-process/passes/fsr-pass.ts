@@ -42,13 +42,7 @@ export class FSRPass extends SettingPass {
 
         const setting = this.setting;
         this.material.setProperty('fsrParams', tempVec4.set(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
-        this.material.setProperty(
-            'texSize',
-            tempVec4.set(
-                inputWidth, inputHeight,
-                outWidth, outHeight,
-            ),
-        );
+        this.material.setProperty('texSize', tempVec4.set(inputWidth, inputHeight, outWidth, outHeight));
 
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = `FSR_EASU${cameraID}`;
