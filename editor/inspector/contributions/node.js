@@ -381,6 +381,7 @@ exports.template = /* html*/`
             <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
             <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
             <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
+            <ui-prop class="postSettings" type="dump" ui-section-config></ui-prop>
         </section>
 
         <ui-section class="component node config" expand>
@@ -453,6 +454,7 @@ exports.$ = {
     sceneSkyboxAfter: '.container > .body > .scene > .skybox > .after',
     sceneOctree: '.container > .body > .scene > .octree',
     sceneSkin: '.container > .body > .scene > .skin',
+    scenePostSettings: '.scene > .postSettings',
 
     node: '.container > .body > .node',
     nodeHeader: '.container > .body > .node > .component-header',
@@ -953,6 +955,9 @@ const Elements = {
             panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
+            panel.dump._globals.postSettings.displayName = 'PostSettings';
+            panel.$.scenePostSettings.render(panel.dump._globals.postSettings);
+
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType') {
@@ -1089,6 +1094,8 @@ const Elements = {
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
+
+            panel.$.scenePostSettings.style.display = useHDR ? 'inline-flex' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;

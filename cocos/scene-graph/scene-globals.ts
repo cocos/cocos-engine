@@ -45,6 +45,7 @@ import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
 import { property } from '../core/data/class-decorator';
+import { PostSettings, ToneMappingType } from '../render-scene/scene/post-settings';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1183,6 +1184,40 @@ export class SkinInfo {
 }
 legacyCC.SkinInfo = SkinInfo;
 
+@ccclass('cc.PostSettingsInfo')
+export class PostSettingsInfo {
+    /**
+     * @zh 色调映射类型
+     * @en Tone mapping type
+     */
+    @editable
+    @type(ToneMappingType)
+    @tooltip('i18n:tone_mapping.toneMappingType')
+    set toneMappingType (val) {
+        this._toneMappingType = val;
+        if (this._resource) {
+            this._resource.toneMappingType = val;
+        }
+    }
+
+    get toneMappingType (): number {
+        return this._toneMappingType;
+    }
+
+    @serializable
+    protected _toneMappingType = ToneMappingType.DEFAULT;
+
+    protected _resource: PostSettings | null = null;
+
+    public activate (resource: PostSettings): void {
+        this._resource = resource;
+        this._resource.initialize(this);
+        this._resource.activate();
+    }
+}
+
+legacyCC.PostSettingsInfo = PostSettingsInfo;
+
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
@@ -1614,6 +1649,14 @@ export class SceneGlobals {
     public lightProbeInfo = new LightProbeInfo();
 
     /**
+     * @en Tone mapping related configuration
+     * @zh 色调映射相关配置
+     */
+    @editable
+    @serializable
+    public postSettings = new PostSettingsInfo();
+
+    /**
      * @en bake with stationary main light
      * @zh 主光源是否以静止状态烘培
      */
@@ -1648,8 +1691,9 @@ export class SceneGlobals {
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
         this.skin.activate(sceneData.skin);
+        this.postSettings.activate(sceneData.postSettings);
         if (this.lightProbeInfo && sceneData.lightProbes) {
-            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes as LightProbes);
         }
 
         const root = legacyCC.director.root as Root;

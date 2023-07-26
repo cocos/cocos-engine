@@ -110,13 +110,13 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR))
     {
-        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithEnvLighting;
+        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF;
         isSRGBColor = true;
     }
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
     {
-        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.directGF;
         isSRGBColor = true;
     }
     
@@ -128,13 +128,13 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR))
     {
-        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithEnvLighting;
+        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF;
         isSRGBColor = true;
     }
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_ALL))
     {
-        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.environmentGF;
         isSRGBColor = true;
     }
     
@@ -162,14 +162,11 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
         isSRGBColor = false;
     }
 
-    float fresnel = 0.0;
+    vec3 fresnel = lightingResult.fresnel;
     vec3 directTransmitSpecular = vec3(0.0), environmentTransmitSpecular = vec3(0.0);
     vec3 directTransmitDiffuse = vec3(0.0), environmentTransmitDiffuse = vec3(0.0);
     vec3 diffuseColorWithLightingTT = vec3(0.0), specularColorWithLighting2ndSpecular = vec3(0.0);
     vec3 direct2ndSpecular = vec3(0.0), environment2ndSpecular = vec3(0.0);
-  #if CC_SURFACES_LIGHTING_USE_FRESNEL
-    fresnel = lightingResult.fresnel;
-  #endif
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     directTransmitSpecular = lightingResult.directTransmitSpecular;
     environmentTransmitSpecular = lightingResult.environmentTransmitSpecular;
@@ -179,10 +176,18 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     environmentTransmitDiffuse = lightingResult.environmentTransmitDiffuse;
   #endif
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    direct2ndSpecular = lightingResult.direct2ndSpecular;
-    environment2ndSpecular = lightingResult.environment2ndSpecular;
-    specularColorWithLighting2ndSpecular = lightingResult.specularColorWithEnvLighting2ndSpecular;
+    direct2ndSpecular = lightingResult.direct2ndSpecular * lightingResult.directGF2ndSpecular;
+    environment2ndSpecular = lightingResult.environment2ndSpecular * lightingResult.environmentGF2ndSpecular;
+    specularColorWithLighting2ndSpecular = lightingResult.specularColorWithLighting2ndSpecular;
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+      fresnel = lightingResult.environmentSubLayerF;
+    #endif
   #endif
+  #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+    direct2ndSpecular = lightingResult.directSpecularSubLayers;
+    environment2ndSpecular = lightingResult.environmentSpecularSubLayers;
+  #endif
+
 
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRESNEL))
     {
@@ -287,9 +292,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_AO)
       lightingResult.ao = 1.0;
 
-  #if CC_SURFACES_LIGHTING_USE_FRESNEL
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_FRESNEL)
-      lightingResult.fresnel = 1.0;
-  #endif
+      lightingResult.fresnel = vec3(1.0);
   }
 #endif

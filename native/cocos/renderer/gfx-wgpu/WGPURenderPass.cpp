@@ -36,13 +36,13 @@ using namespace emscripten;
 class CCWGPURenderPassHelper {
 public:
     explicit CCWGPURenderPassHelper(const RenderPassInfo &info) {
-        SampleCount samples = SampleCount::ONE;
+        SampleCount samples = SampleCount::X1;
         for (size_t i = 0; i < info.colorAttachments.size(); i++) {
             colors[i].loadOp = toWGPULoadOp(info.colorAttachments[i].loadOp);
             colors[i].storeOp = toWGPUStoreOp(info.colorAttachments[i].storeOp);
             colors[i].clearValue = defaultClearColor;
             // TODO_Zeqaing : subpass
-            if (info.colorAttachments[i].sampleCount != SampleCount::ONE)
+            if (info.colorAttachments[i].sampleCount != SampleCount::X1)
                 samples = info.colorAttachments[i].sampleCount;
         }
 
@@ -54,7 +54,7 @@ public:
         depthStencils[0].depthClearValue = defaultClearDepth;
         depthStencils[0].depthReadOnly = false;
         depthStencils[0].stencilReadOnly = false;
-        if (samples == SampleCount::ONE)
+        if (samples == SampleCount::X1)
             samples = info.depthStencilAttachment.sampleCount;
 
         renderPassDesc = ccnew WGPURenderPassDescriptor;

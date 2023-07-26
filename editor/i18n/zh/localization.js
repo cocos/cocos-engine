@@ -71,6 +71,7 @@ module.exports = link(mixin({
             DirectionalLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/dir-light.html`,
             SphereLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/sphere-light.html`,
             SpotLight: `${url}/${version}/manual/zh/concepts/scene/light/lightType/spot-light.html`,
+            LightProbeGroup: `${url}/${version}/manual/zh/concepts/scene/light/probe/light-probe.html`,
             UICoordinateTracker: `${url}/${version}/manual/zh/ui-system/components/editor/ui-coordinate-tracker.html`,
             Animation: `${url}/${version}/manual/zh/animation/animation-component.html`,
             SkeletalAnimation: `${url}/${version}/manual/zh/animation/skeletal-animation.html`,
@@ -137,12 +138,13 @@ module.exports = link(mixin({
             BlitScreen: `${url}/${version}/manual/zh/render-pipeline/post-process/blit-screen.html`,
             TAA: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             FSR: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
-            Fxaa: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
+            FXAA: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             Bloom: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             HBAO: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
             ColorGrading: `${url}/${version}/manual/zh/render-pipeline/post-process/index.html`,
-            Skin: `${url}/${version}/manual/zh/shader/surface-shader/skin.html`,
+            Skin: `${url}/${version}/manual/zh/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
+            ReflectionProbe: `${url}/${version}/manual/zh/concepts/scene/light/probe/reflection-art-workflow.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -224,13 +226,6 @@ module.exports = link(mixin({
         planeHeight: '阴影接收平面距离原点的高度',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
         maxReceived: '产生阴影的有效光源数量',
-    },
-    animation: {
-        default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
-        clips: '通过脚本可以访问并播放的 AnimationClip 列表',
-        play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
-        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，<br>但所有动画效果会被彻底固定，不支持任何形式的编辑',
-        sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
     },
     audio: {
         clip: '通过该组件播放的默认 AudioClip 引用',
@@ -1297,6 +1292,9 @@ module.exports = link(mixin({
         global: '是否对所有后效摄像机开启此后效流程',
         shadingScale: '渲染分辨率',
         enableShadingScaleInEditor: '是否在编辑器中缩放渲染分辨率',
+    },
+    tone_mapping: {
+        toneMappingType: '色调映射方式，只在启用HDR时生效。',
     },
 },
 

@@ -71,6 +71,7 @@ module.exports = link(mixin({
             DirectionalLight: `${url}/${version}/manual/en/concepts/scene/light/lightType/dir-light.html`,
             SphereLight: `${url}/${version}/manual/en/concepts/scene/light/lightType/sphere-light.html`,
             SpotLight: `${url}/${version}/manual/en/concepts/scene/light/lightType/spot-light.html`,
+            LightProbeGroup: `${url}/${version}/manual/en/concepts/scene/light/probe/light-probe.html`,
             UICoordinateTracker: `${url}/${version}/manual/en/ui-system/components/editor/ui-coordinate-tracker.html`,
             Animation: `${url}/${version}/manual/en/animation/animation-component.html`,
             SkeletalAnimation: `${url}/${version}/manual/en/animation/skeletal-animation.html`,
@@ -137,12 +138,13 @@ module.exports = link(mixin({
             BlitScreen: `${url}/${version}/manual/en/render-pipeline/post-process/blit-screen.html`,
             TAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             FSR: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
-            Fxaa: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
+            FXAA: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             Bloom: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             HBAO: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
             ColorGrading: `${url}/${version}/manual/en/render-pipeline/post-process/index.html`,
-            Skin: `${url}/${version}/manual/en/shader/surface-shader/skin.html`,
+            Skin: `${url}/${version}/manual/en/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/en/ui-system/components/editor/renderroot2d.html`,
+            ReflectionProbe: `${url}/${version}/manual/en/concepts/scene/light/probe/reflection-art-workflow.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -1316,6 +1318,9 @@ module.exports = link(mixin({
         global: 'Whether the post process is enabled for all post process camera.',
         shadingScale: 'Rendering resolution.',
         enableShadingScaleInEditor: 'Enable Shading Scale In Editor',
+    },
+    tone_mapping: {
+        toneMappingType: 'Tone mapping type,valid only when HDR is enabled.',
     },
 },
 

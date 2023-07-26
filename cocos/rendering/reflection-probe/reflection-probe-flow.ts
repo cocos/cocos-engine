@@ -26,8 +26,9 @@ import { ccclass } from 'cc.decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { RenderPipeline } from '..';
-import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
+import { RenderPipeline } from '../render-pipeline';
+import { Camera } from '../../render-scene/scene/camera';
+import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { cclegacy } from '../../core';
 
 /**
@@ -61,7 +62,7 @@ export class ReflectionProbeFlow extends RenderFlow {
         if (!cclegacy.internal.reflectionProbeManager) {
             return;
         }
-        const probes = cclegacy.internal.reflectionProbeManager.getProbes();
+        const probes = cclegacy.internal.reflectionProbeManager.getProbes() as ReflectionProbe[];
         for (let i = 0; i < probes.length; i++) {
             if (probes[i].needRender) {
                 if (EDITOR || probes[i].probeType === ProbeType.PLANAR) {
