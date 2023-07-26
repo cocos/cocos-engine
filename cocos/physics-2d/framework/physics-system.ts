@@ -378,10 +378,9 @@ export class PhysicsSystem2D extends Eventify(System) {
     testAABB (rect: Rect): readonly Collider2D[] {
         return this.physicsWorld.testAABB(rect);
     }
+    static constructAndRegister (): void {
+        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
+    }
 }
 
-function initPhysicsSystem (): void {
-    director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
-}
-
-director.once(Director.EVENT_INIT, (): void => { initPhysicsSystem(); });
+director.once(Director.EVENT_INIT, (): void => { PhysicsSystem2D.constructAndRegister(); });
