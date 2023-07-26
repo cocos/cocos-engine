@@ -139,7 +139,24 @@ export class Canvas extends RenderRoot2D {
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
                 const trans = this.node._uiProps.uiTransformComp!;
-                Vec3.set(_worldPos, nodeSize.width * trans.anchorX, nodeSize.height * trans.anchorY, 0);
+
+                let scaleX = this.node.scale.x;
+                let anchorX = trans.anchorX;
+                if (scaleX < 0) {
+                    anchorX = 1.0 - anchorX;
+                    scaleX = -scaleX;
+                }
+                nodeSize.width = scaleX === 0 ? nodeSize.width : nodeSize.width / scaleX;
+
+                let scaleY = this.node.scale.y;
+                let anchorY = trans.anchorY;
+                if (scaleY < 0) {
+                    anchorY = 1.0 - anchorY;
+                    scaleY = -scaleY;
+                }
+                nodeSize.height = scaleY === 0 ? nodeSize.height : nodeSize.height / scaleY;
+
+                Vec3.set(_worldPos, nodeSize.width * anchorX, nodeSize.height * anchorY, 0);
 
                 if (!this._pos.equals(_worldPos)) {
                     this.node.setPosition(_worldPos);
