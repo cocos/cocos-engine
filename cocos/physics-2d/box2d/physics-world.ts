@@ -23,13 +23,13 @@
 */
 
 import b2 from '@cocos/box2d';
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-import { Canvas } from '../../2d/framework';
-import { Graphics } from '../../2d/components';
+// import { Canvas } from '../../2d/framework';
+// import { Graphics } from '../../2d/components';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -88,7 +88,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: Graphics | null = null;
+    _debugGraphics: any | null = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -118,7 +118,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 }
 
                 canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
+                canvas.addComponent('cc.Canvas');
                 canvas.parent = scene;
             }
 
@@ -129,7 +129,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent(Graphics);
+            this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 3;
 
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
@@ -382,6 +382,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     drawDebug (): void {
+        if (TEST) return;
         this._checkDebugDrawValid();
 
         if (!this._debugGraphics) {
