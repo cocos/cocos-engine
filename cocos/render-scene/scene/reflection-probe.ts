@@ -24,12 +24,11 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Size } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
-import { view } from '../../ui/view';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -309,7 +308,7 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera): void {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = view.getDesignResolutionSize();
+            const canvasSize = cclegacy.view.getDesignResolutionSize() as Size;
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
             cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
@@ -422,14 +421,13 @@ export class ReflectionProbe {
     private _createCamera (cameraNode: Node): Camera | null {
         const root = cclegacy.director.root;
         if (!this._camera) {
-            this._camera = (cclegacy.director.root).createCamera();
+            this._camera = root.createCamera();
             if (!this._camera) return null;
             this._camera.initialize({
                 name: cameraNode.name,
                 node: cameraNode,
                 projection: CameraProjection.PERSPECTIVE,
-                window: EDITOR ? cclegacy.director.root && cclegacy.director.root.mainWindow
-                    : cclegacy.director.root && cclegacy.director.root.tempWindow,
+                window: EDITOR ? root && root.mainWindow : root && root.tempWindow,
                 priority: 0,
                 cameraType: CameraType.DEFAULT,
                 trackingType: TrackingType.NO_TRACKING,

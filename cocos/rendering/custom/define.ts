@@ -25,10 +25,15 @@
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
-import {
-    Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe,
-    ShadowType, SKYBOX_FLAG, SpotLight, PointLight, RangedDirectionalLight, SphereLight,
-} from '../../render-scene/scene';
+import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
+import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { CSMLevel, ShadowType } from '../../render-scene/scene/shadows';
+import { Light, LightType } from '../../render-scene/scene/light';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
+import { PointLight } from '../../render-scene/scene/point-light';
+import { SphereLight } from '../../render-scene/scene/sphere-light';
+import { SpotLight } from '../../render-scene/scene/spot-light';
 import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
@@ -45,7 +50,6 @@ import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
 import { ReflectionProbeManager } from '../../3d/reflection-probe/reflection-probe-manager';
-import { director } from '../../game/director';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -1049,7 +1053,7 @@ export function buildUIPass (
 }
 
 export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>): void {
-    const pipeline = director.root!.pipeline as WebPipeline;
+    const pipeline = cclegacy.director.root!.pipeline as WebPipeline;
     const sceneData = ppl.pipelineSceneData;
     const skybox = sceneData.skybox;
     setter.addConstant('CCCamera');
