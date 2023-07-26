@@ -1,9 +1,6 @@
-import { Texture2D } from '../../../asset/assets';
-import { CCFloat } from '../../../core';
-import { property } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
-import { min } from '../../../core/math/bits';
 import { PostProcessSetting } from './post-process-setting';
+import { CCFloat } from '../../../core';
 
 @ccclass('cc.DOF')
 @help('cc.DOF')

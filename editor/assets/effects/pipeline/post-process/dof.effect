@@ -16,14 +16,8 @@ CCEffect %{
         depthTest: false
         depthWrite: false
     - vert: dof-vs
-      frag: dof-blur-hor-fs
-      pass: dof-blur-hor
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
-    - vert: dof-vs
-      frag: dof-blur-ver-fs
-      pass: dof-blur-ver
+      frag: dof-blur-fs
+      pass: dof-blur
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -44,10 +38,20 @@ CCProgram ubo %{
 
     #pragma rate colorTex pass
     uniform sampler2D colorTex;
+
     #pragma rate depthTex pass
     uniform sampler2D depthTex;
-    #pragma rate outResultTex pass
-    uniform sampler2D outResultTex;
+
+    #pragma rate cocTex pass
+    uniform sampler2D cocTex;
+
+    #pragma rate prefilterTex pass
+    uniform sampler2D prefilterTex;
+
+    #pragma rate blurTex pass
+    uniform sampler2D blurTex;
+
+    
     
     #define farStart        cocParams.x
     #define farEnd          cocParams.y
@@ -90,12 +94,13 @@ CCProgram dof-coc-fs %{
 CCProgram dof-prefilter-fs %{
   precision highp float;
   #include <ubo>
+  #include <common/common-define>
  
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    float farCoC = texture(outResultTex, v_uv).r;
+    float farCoC = texture(cocTex, v_uv).r;
 
     vec4 color = texture(colorTex, v_uv);
     fragColor = color * farCoC;
@@ -103,7 +108,7 @@ CCProgram dof-prefilter-fs %{
 
 }%
 
-CCProgram dof-blur-hor-fs %{
+CCProgram dof-blur-fs %{
   precision highp float;
   #include <ubo>
  
@@ -112,50 +117,32 @@ CCProgram dof-blur-hor-fs %{
 
   void main () {
 
-    vec3 col = vec3(0.0);
-    float gridSum = 0.0;
-
-    const int upper = ((_GridSize - 1) / 2);
-    const int lower = -upper;
-
-    for (int x = lower; x <= upper; ++x)
+    
+    // GAUSSIAN BLUR SETTINGS {{{
+    const float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
+    const float Quality = 3.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
+    float Size = 8.0; // BLUR SIZE (Radius)
+    // GAUSSIAN BLUR SETTINGS }}}
+   
+    vec2 Radius = Size/texSize.xy;
+    
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = v_uv;
+    // Pixel colour
+    vec4 Color = texture(colorTex, uv);
+    
+    // Blur calculations
+    for( float d = 0.0; d < PI2; d += PI2 / Directions)
     {
-      float gauss = gaussian(x);
-      gridSum += gauss;
-      vec2 uv = v_uv + vec2(texSize.x * float(x), 0.0);
-      col += gauss * texture(outResultTex, uv).xyz;
+        for(float i = 1.0 / Quality; i <= 1.0; i += 1.0 / Quality)
+        {
+          Color += texture(colorTex, uv + vec2(cos(d), sin(d)) * Radius * i);		
+        }
     }
-
-    col /= gridSum;
-    fragColor = vec4(col, 1.0);
-  }
-
-}%
-
-CCProgram dof-blur-ver-fs %{
-  precision highp float;
-  #include <ubo>
- 
-  in vec2 v_uv;
-  layout(location = 0) out vec4 fragColor;
-
-  void main () {
-    vec3 col = vec3(0.0);
-		float gridSum = 0.0;
-
-		const int upper = ((_GridSize - 1) / 2);
-		const int lower = -upper;
-
-		for (int y = lower; y <= upper; ++y)
-		{
-			float gauss = gaussian(y);
-			gridSum += gauss;
-			vec2 uv = v_uv + vec2(0.0, texSize.y * float(y));
-			col += gauss * texture(outResultTex, uv).xyz;
-		}
-
-		col /= gridSum;
-    fragColor = vec4(col, 1.0);
+    
+    // Output to screen
+    Color /= Quality * Directions - 15.0;
+    fragColor =  Color;
   }
 
 }%
@@ -170,6 +157,6 @@ CCProgram dof-combine-fs %{
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    fragColor = vec4(1.0);
+    fragColor = texture(blurTex, v_uv);
   }
 }%
