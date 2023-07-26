@@ -86,7 +86,7 @@ export class ReflectionProbeManager {
         if (!scene || !scene.renderScene) {
             return;
         }
-        const models = scene.renderScene.models;
+        const models = scene.renderScene.models as Model[];
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             if (!model.node) continue;
@@ -448,7 +448,7 @@ export class ReflectionProbeManager {
      * @param probe reflection probe to be set
      * @param blendProbe reflection probe for blend
      */
-    public setReflectionProbe (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null = null) {
+    public setReflectionProbe (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null = null): void {
         if (!probe) return;
         this._useCubeModels.set(model, probe);
         this._updateCubemapOfModel(model, probe);
