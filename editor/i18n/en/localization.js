@@ -296,15 +296,6 @@ module.exports = link(mixin({
         csmLayersTransition: 'Enable or disable CSM layers transition(Improve quality, reduce performance)',
         csmTransitionRange: 'CSM layers transition range(in NDC space: value range is 0 to 1)',
     },
-    model: {
-        shadow_receiving_model: 'Shadow receive mode',
-        shadow_casting_model: 'Shadow projection mode',
-        mesh: 'The mesh of the model',
-        skinning_root: 'The skinning root, where the controlling Animation is located',
-        shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
-        shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
-        standard_skin_model: 'Bias value (world space unit) that ensure globally unique standard skin model',
-    },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
         sprite_frame: 'Sprite Frame image to use',
@@ -1324,6 +1315,7 @@ module.exports = link(mixin({
     },
 },
 
+require('./rendering'),
 require('./animation'),
 
 ));
