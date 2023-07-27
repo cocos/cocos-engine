@@ -77,8 +77,14 @@ export class TextProcessing {
         this._lettersInfo.length = 0;
     }
 
-    public processingString (isBmFont: boolean, style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, inputString: string, out?: string[]): void {
+    public processingString (
+        isBmFont: boolean,
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        out?: string[],
+    ): void {
         if (!isBmFont) {
             let loopTime = 0;
             this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
@@ -117,8 +123,15 @@ export class TextProcessing {
         }
     }
 
-    public generateRenderInfo (isBmFont: boolean, style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData, inputString: string, callback: AnyFunction): void {
+    public generateRenderInfo (
+        isBmFont: boolean,
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        inputString: string,
+        callback: AnyFunction,
+    ): void {
         if (!isBmFont) {
             this._updateLabelDimensions(style, layout, outputLayoutData);
             this._updateTexture(style, layout, outputLayoutData, outputRenderData);
@@ -157,8 +170,13 @@ export class TextProcessing {
         return scale;
     }
 
-    private _calculateLabelFont (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, inputString: string): void {
+    // processingString
+    private _calculateLabelFont (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+    ): void {
         if (!this._context) {
             return;
         }
@@ -291,10 +309,12 @@ export class TextProcessing {
                 totalHeight = 0;
                 for (i = 0; i < paragraphedStrings.length; ++i) {
                     const allWidth = safeMeasureText(this._context, paragraphedStrings[i], _fontDesc);
-                    textFragment = fragmentText(paragraphedStrings[i],
+                    textFragment = fragmentText(
+                        paragraphedStrings[i],
                         allWidth,
                         canvasWidthNoMargin,
-                        this._measureText(this._context, _fontDesc));
+                        this._measureText(this._context, _fontDesc),
+                    );
                     totalHeight += textFragment.length * lineHeight;
                 }
 
@@ -341,10 +361,12 @@ export class TextProcessing {
         this._context.font = _fontDesc;
         for (let i = 0; i < paragraphedStrings.length; ++i) {
             const allWidth = safeMeasureText(this._context, paragraphedStrings[i], _fontDesc);
-            const textFragment = fragmentText(paragraphedStrings[i],
+            const textFragment = fragmentText(
+                paragraphedStrings[i],
                 allWidth,
                 canvasWidthNoMargin,
-                this._measureText(this._context, _fontDesc));
+                this._measureText(this._context, _fontDesc),
+            );
             _splitStrings = _splitStrings.concat(textFragment);
         }
         outputLayoutData.parsedString = _splitStrings;
@@ -366,6 +388,7 @@ export class TextProcessing {
         return paragraphLength;
     }
 
+    // processingString
     private _updatePaddingRect (style: TextStyle, outputLayoutData: TextOutputLayoutData): void {
         let top = 0; let bottom = 0; let left = 0; let right = 0;
         let outlineWidth = 0;
@@ -587,8 +610,15 @@ export class TextProcessing {
 
     // -------------------- Render Processing Part --------------------------
 
-    private generateVertexData (isBmFont: boolean, style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData, inputString: string, callback: AnyFunction): void {
+    private generateVertexData (
+        isBmFont: boolean,
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        inputString: string,
+        callback: AnyFunction,
+    ): void {
         if (!isBmFont) {
             this.updateQuatCount(outputRenderData); // update vbBuffer count
             callback(style, outputLayoutData, outputRenderData);
@@ -619,6 +649,7 @@ export class TextProcessing {
     // -------------------- Canvas Mode Part ---------------------------
     // -------------------- Multiple Quad Mode Part --------------------
 
+    // processingString
     private _setupBMFontOverflowMetrics (layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
         let newWidth = outputLayoutData.nodeContentSize.width;
         let newHeight = outputLayoutData.nodeContentSize.height;
@@ -668,6 +699,7 @@ export class TextProcessing {
         }
     }
 
+    // processingString
     private _alignText (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, inputString: string): void {
         this._multilineTextWrap(style, layout, outputLayoutData, inputString, this._getFirstWordLen);
 
@@ -702,8 +734,14 @@ export class TextProcessing {
         outputLayoutData.parsedString = _splitStrings;
     }
 
-    private _multilineTextWrap (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        inputString: string, nextTokenFunc: (arg0: TextStyle, arg1: TextLayout, arg2: string, arg3: number, arg4: number) => number): boolean {
+    // processingString
+    private _multilineTextWrap (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        nextTokenFunc: (arg0: TextStyle, arg1: TextLayout, arg2: string, arg3: number, arg4: number) => number,
+    ): boolean {
         layout.linesWidth.length = 0;
 
         const _string = inputString;
@@ -870,6 +908,7 @@ export class TextProcessing {
         this._lettersInfo[letterIndex].y = letterPosition.y;
     }
 
+    // processingString
     private _getFirstWordLen (style: TextStyle, layout: TextLayout, text: string, startIndex: number, textLen: number): number {
         let character = text.charAt(startIndex);
         if (isUnicodeCJK(character)
@@ -954,8 +993,13 @@ export class TextProcessing {
         return layout.overFlow === Overflow.SHRINK ? style.bmfontScale : 1;
     }
 
-    private _isVerticalClamp (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        inputString: string, process: TextProcessing): boolean {
+    private _isVerticalClamp (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        process: TextProcessing,
+    ): boolean {
         if (layout.textDesiredHeight > outputLayoutData.nodeContentSize.height) {
             return true;
         } else {
@@ -963,8 +1007,13 @@ export class TextProcessing {
         }
     }
 
-    private _isHorizontalClamp (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        inputString: string, process: TextProcessing): boolean {
+    private _isHorizontalClamp (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        process: TextProcessing,
+    ): boolean {
         let letterClamp = false;
         const _string = inputString;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
@@ -1006,9 +1055,15 @@ export class TextProcessing {
         return false;
     }
 
-    private _shrinkLabelToContentSize (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, inputString: string,
+    // processingString
+    private _shrinkLabelToContentSize (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
         lambda: (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-            inputString: string, process: TextProcessing) => boolean): void {
+            inputString: string, process: TextProcessing) => boolean,
+    ): void {
         const fontSize = style.actualFontSize;
 
         let left = 0;
@@ -1040,6 +1095,7 @@ export class TextProcessing {
         }
     }
 
+    // processingString
     private _scaleFontSizeDown (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, inputString: string, fontSize: number): void {
         let shouldUpdateContent = true;
         if (!fontSize) {
@@ -1054,8 +1110,14 @@ export class TextProcessing {
         }
     }
 
-    private _updateQuads (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData, inputString: string, callback): boolean {
+    private _updateQuads (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        inputString: string,
+        callback,
+    ): boolean {
         const texture =  style.spriteFrame ? style.spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
 
         const appX = outputRenderData.uiTransAnchorX * outputLayoutData.nodeContentSize.width;

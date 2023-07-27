@@ -122,7 +122,7 @@ export class LabelOutline extends Component {
     protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
         if (label) {
-            label.updateRenderData(true);
+            label.markForUpdateRenderData();
         }
     }
 }

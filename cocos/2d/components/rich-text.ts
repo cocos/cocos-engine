@@ -895,8 +895,12 @@ export class RichText extends Component {
             }
         }
         if (fragmentWidth > this._maxWidth) {
-            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth,
-                this._measureText(styleIndex) as unknown as (s: string) => number);
+            const fragments = fragmentText(
+                labelString,
+                fragmentWidth,
+                this._maxWidth,
+                this._measureText(styleIndex) as unknown as (s: string) => number,
+            );
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -1201,9 +1205,11 @@ export class RichText extends Component {
             }
 
             const pos = segment.node.position;
-            segment.node.setPosition(nextTokenX + lineOffsetX,
+            segment.node.setPosition(
+                nextTokenX + lineOffsetX,
                 this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
-                pos.z);
+                pos.z,
+            );
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += segment.node._uiProps.uiTransformComp!.width;
@@ -1323,7 +1329,7 @@ export class RichText extends Component {
         label.useSystemFont = this._isSystemFontUsed;
         label.lineHeight = this._lineHeight;
 
-        label.updateRenderData(true);
+        label.updateRenderData(true);// 此处的强制更新是为了这个步骤之后马上要使用的宽度
     }
 
     protected _applyLayer (): void {

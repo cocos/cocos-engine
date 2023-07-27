@@ -39,6 +39,7 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
+import { TransformBit } from '../../scene-graph';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -229,6 +230,8 @@ export class Label extends UIRenderer {
         }
 
         this._string = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -251,6 +254,8 @@ export class Label extends UIRenderer {
         }
 
         this._horizontalAlign = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -273,6 +278,8 @@ export class Label extends UIRenderer {
         }
 
         this._verticalAlign = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -308,6 +315,8 @@ export class Label extends UIRenderer {
         }
 
         this._fontSize = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -329,6 +338,8 @@ export class Label extends UIRenderer {
         }
 
         this._lineHeight = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -353,6 +364,8 @@ export class Label extends UIRenderer {
         }
 
         this._spacingX = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -375,6 +388,8 @@ export class Label extends UIRenderer {
         }
 
         this._overflow = value;
+        this._markLayoutDirty(); // 其实只影响 bm
+        this._markLayoutDirty(); // 其实只影响 bm
         this.markForUpdateRenderData();
     }
 
@@ -396,6 +411,8 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
+        this._markLayoutDirty(); // 其实只影响 bm
+        this._markLayoutDirty(); // 其实只影响 bm
         this.markForUpdateRenderData();
     }
 
@@ -431,6 +448,8 @@ export class Label extends UIRenderer {
             this.font = null;
         }
         this._flushAssembler();
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -453,6 +472,8 @@ export class Label extends UIRenderer {
         }
 
         this._fontFamily = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -491,7 +512,11 @@ export class Label extends UIRenderer {
         this.destroyRenderData();
 
         this._fontAtlas = null;
+        this._markLayoutDirty();
+        this.updateRenderData(true);//为了 flushAssembler
         this.updateRenderData(true);
+        this._markLayoutDirty();
+        this.updateRenderData(true);//为了 flushAssembler
     }
 
     /**
@@ -520,7 +545,11 @@ export class Label extends UIRenderer {
         }
 
         this._cacheMode = value;
+        this._markLayoutDirty();
+        this.updateRenderData(true); //为了 flushAssembler
         this.updateRenderData(true);
+        this._markLayoutDirty();
+        this.updateRenderData(true); //为了 flushAssembler
     }
 
     /**
@@ -541,6 +570,8 @@ export class Label extends UIRenderer {
         }
 
         this._isBold = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -562,6 +593,8 @@ export class Label extends UIRenderer {
         }
 
         this._isItalic = value;
+        this._markLayoutDirty();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -670,6 +703,12 @@ export class Label extends UIRenderer {
     get textLayoutData (): TextOutputLayoutData {
         return this._textLayoutData!;
     }
+    /**
+     * @engineInternal
+     */
+    get layoutDirty (): boolean {
+        return this._layoutDirty;
+    }
 
     @serializable
     protected _string = 'label';
@@ -684,7 +723,7 @@ export class Label extends UIRenderer {
     @serializable
     protected _fontFamily = 'Arial';
     @serializable
-    protected _lineHeight = 40;
+    protected _lineHeight = 40;//实际上影响排版的位置，而不影响排版
     @serializable
     protected _overflow: Overflow = Overflow.NONE;
     @serializable
@@ -696,13 +735,13 @@ export class Label extends UIRenderer {
     @serializable
     protected _spacingX = 0;
     @serializable
-    protected _isItalic = false;
+    protected _isItalic = false;// 只会影响宽度
     @serializable
-    protected _isBold = false;
+    protected _isBold = false;// 只会影响宽度
     @serializable
-    protected _isUnderline = false;
+    protected _isUnderline = false;// 不影响，但是要同步
     @serializable
-    protected _underlineHeight = 2;
+    protected _underlineHeight = 2;// 不影响，但是要同步
     @serializable
     protected _cacheMode = CacheMode.NONE;
 
@@ -722,6 +761,8 @@ export class Label extends UIRenderer {
     protected _textLayout: TextLayout | null = null;
     protected _textRenderData: TextOutputRenderData | null = null;
     protected _textLayoutData: TextOutputLayoutData | null = null;
+
+    protected _layoutDirty = true; // 是否重新计算文本布局
 
     /**
      * @engineInternal
@@ -802,7 +843,7 @@ export class Label extends UIRenderer {
      * @zh 更新渲染相关数据。
      * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
      */
-    public updateRenderData (force = false): void {
+    public updateRenderData (force = false): void { // 此接口应当有限使用，仅有几种情况才使用，且其他情况也该直接 markDirty 即可
         if (force) {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
@@ -951,6 +992,38 @@ export class Label extends UIRenderer {
             }
         }
         super._updateBlendFunc();
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _markLayoutDirty (): void {
+        if (this._layoutDirty) return;
+        this._layoutDirty = true;
+        if (this.enabled) {
+            // 加入队列，统一进行更新
+            // 在排版时进行 renderDirty 的触发
+            // 还是在上层直接进行触发？
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _resetLayoutDirty (): void {
+        this._layoutDirty = false;
+    }
+
+    protected _nodeStateChange (transformType: TransformBit): void {
+        super._nodeStateChange(transformType);
+        this._markLayoutDirty();
+        for (let i = 0; i < this.node.children.length; ++i) {
+            const child = this.node.children[i];
+            const renderComp = child.getComponent(Label);
+            if (renderComp) {
+                renderComp._markLayoutDirty();
+            }
+        }
     }
 }
 
