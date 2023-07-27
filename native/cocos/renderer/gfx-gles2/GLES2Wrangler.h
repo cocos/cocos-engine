@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "../gfx-gles-common/eglw.h"
-#include "../gfx-gles-common/gles2w.h"
+#include "../gfx-gles-common/loader/eglw.h"
+#include "../gfx-gles-common/loader/gles2w.h"
 
 bool gles2wInit();
 bool gles2wExit();

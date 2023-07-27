@@ -461,6 +461,8 @@ cocos_source_files(
     cocos/base/TypeDef.h
     cocos/base/BinaryArchive.cpp
     cocos/base/BinaryArchive.h
+    cocos/base/DynamicLibrary.cpp
+    cocos/base/DynamicLibrary.h
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -1613,13 +1615,26 @@ cocos_source_files(
 
 if(CC_USE_GLES2 OR CC_USE_GLES3)
     cocos_source_files(
+        cocos/renderer/gfx-gles-common/common/GLESQueue.cpp
+        cocos/renderer/gfx-gles-common/common/GLESQueue.h
+        cocos/renderer/gfx-gles-common/common/GLESCommandStorage.cpp
+        cocos/renderer/gfx-gles-common/common/GLESCommandStorage.h
+        cocos/renderer/gfx-gles-common/egl/Context.cpp
+        cocos/renderer/gfx-gles-common/egl/Context.h
+        cocos/renderer/gfx-gles-common/egl/Surface.cpp
+        cocos/renderer/gfx-gles-common/egl/Surface.h
+        cocos/renderer/gfx-gles-common/egl/Instance.cpp
+        cocos/renderer/gfx-gles-common/egl/Instance.h
+    )
+
+    cocos_source_files(
         cocos/renderer/gfx-gles-common/GLESCommandPool.h
-        cocos/renderer/gfx-gles-common/eglw.cpp
-        cocos/renderer/gfx-gles-common/gles2w.cpp
+        cocos/renderer/gfx-gles-common/loader/eglw.cpp
+        cocos/renderer/gfx-gles-common/loader/gles2w.cpp
     )
     if(CC_USE_GLES3)
         cocos_source_files(
-            cocos/renderer/gfx-gles-common/gles3w.cpp
+            cocos/renderer/gfx-gles-common/loader/gles3w.cpp
         )
     endif()
 endif()
@@ -2374,7 +2389,7 @@ if(USE_MIDDLEWARE)
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                                      cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
-                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h                                  
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
 
         )
         cocos_source_files(
@@ -3327,7 +3342,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED) 
+    if(IS_GENERATED)
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()
