@@ -3,6 +3,7 @@ import { Application, Converter, Context, Reflection, Comment, CommentTag, Seria
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
+import { cullEngineInternal } from './cull-engine-internal';
 
 const TAG_NAME_CC_CATEGORY = 'ccCategory';
 
@@ -53,6 +54,10 @@ export function load (app: Application) {
         visit(context.project, (reflection) => {
             handleLink(context, reflection);
         });
+    });
+
+    app.serializer.on(Serializer.EVENT_END, (serializeEvent: SerializeEvent) => {
+        cullEngineInternal(serializeEvent.output)
     });
 
     type ReflectionId = Reflection['id'];
@@ -165,6 +170,7 @@ export function load (app: Application) {
     }
 
     // NOTE: this is a bug on typedoc, we fix in this plugin.
+    // should not generate typeArguments field in typeParameters' type field.
     function fixTypeArguments (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
         if (reflection.typeParameters) {
             for (const typeParam of reflection.typeParameters) {
