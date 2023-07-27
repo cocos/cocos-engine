@@ -162,8 +162,14 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
     }
     _convertedFormat = mu::convertGFXPixelFormat(_viewInfo.format);
     auto mtlTextureType = mu::toMTLTextureType(_viewInfo.type);
+
+    MTLPixelFormat format = mu::toMTLPixelFormat(_convertedFormat);
+    if(_viewInfo.format == Format::DEPTH_STENCIL) {
+        format = _viewInfo.basePlane == 0 ? mu::toMTLPixelFormat(_viewInfo.texture->getFormat()) : MTLPixelFormatX32_Stencil8;
+    }
+
     _mtlTextureView = [static_cast<CCMTLTexture *>(_viewInfo.texture)->_mtlTexture
-        newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+        newTextureViewWithPixelFormat:format
                           textureType:mtlTextureType
                                levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
                                slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
@@ -220,6 +226,9 @@ bool CCMTLTexture::createMTLTexture() {
         return false;
 
     descriptor.usage = mu::toMTLTextureUsage(_info.usage);
+    if(hasFlag(_info.flags, TextureFlags::MUTABLE_VIEW_FORMAT)) {
+        descriptor.usage |= MTLTextureUsagePixelFormatView;
+    }
     descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
     descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
     descriptor.mipmapLevelCount = _info.levelCount;

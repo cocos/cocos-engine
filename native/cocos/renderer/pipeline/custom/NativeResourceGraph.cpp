@@ -22,10 +22,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/graph/depth_first_search.hpp>
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "details/GraphView.h"
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
@@ -168,6 +170,23 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     };
 }
 
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, const ResourceDesc& desc, bool bCube = false) {
+    using namespace gfx; // NOLINT(google-build-using-namespace)
+
+    const auto& textureInfo = getTextureInfo(desc, bCube);
+
+    return {
+        nullptr,
+        textureInfo.type,
+        subresView.format,
+        subresView.indexOrFirstMipLevel,
+        subresView.numMipLevels,
+        subresView.firstArraySlice,
+        subresView.numArraySlices,
+        subresView.firstPlane,
+        subresView.numPlanes,
+    };
+}
 } // namespace
 
 bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
@@ -233,7 +252,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(queue.swapchain);
             std::ignore = queue;
         },
-        [&](const FormatView& view) { // NOLINT(misc-no-recursion)
+        [&](const FormatView& view) {
             std::ignore = view;
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
@@ -243,10 +262,9 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-            mount(device, parentID);
+            mount(device, parentID); // NOLINT(misc-no-recursion)
         },
-        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
-            std::ignore = view;
+        [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
             while (resg.isTextureView(parentID)) {
@@ -255,7 +273,13 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-            mount(device, parentID);
+            auto* parentTexture = resg.getTexture(parentID);
+            const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+            if (!view.textureView) {
+                auto textureViewInfo = getTextureViewInfo(view, desc);
+                textureViewInfo.texture = parentTexture;
+                view.textureView = device->createTexture(textureViewInfo);
+            }
         });
 }
 
@@ -362,8 +386,7 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const SubresourceView& view) {
             // TODO(zhouzhenglong): add ImageView support
-            std::ignore = view;
-            CC_EXPECTS(false);
+            texture = view.textureView;
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

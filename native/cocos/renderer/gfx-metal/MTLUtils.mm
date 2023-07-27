@@ -35,10 +35,13 @@
 #include "spirv_cross/spirv_msl.hpp"
 #include "TargetConditionals.h"
 #include "base/Log.h"
+#include <regex>
 
 namespace cc {
 namespace gfx {
 namespace {
+
+static constexpr bool ENABLE_DS_INPUT = false;
 
 ccstd::unordered_map<size_t, PipelineState *> pipelineMap;
 ccstd::unordered_map<size_t, RenderPass *> renderPassMap;
@@ -918,8 +921,8 @@ bool mu::isFramebufferFetchSupported() {
 ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                             ShaderStageFlagBit shaderType,
                             CCMTLGPUShader *gpuShader,
-                            const ccstd::vector<uint32_t> &drawBuffer,
-                            const ccstd::vector<uint32_t> &readBuffer) {
+                            RenderPass* renderPass,
+                            uint32_t subpassIndex) {
     CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
@@ -1056,19 +1059,40 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
     }
 
+    struct AttachmentDesc{
+        uint32_t slot{0};
+        std::string name;
+    };
+    AttachmentDesc depthInput, stencilInput;
     if (executionModel == spv::ExecutionModelFragment) {
+        auto* ccRenderPass = static_cast<CCMTLRenderPass*>(renderPass);
+        const auto& readBuffer = ccRenderPass ? ccRenderPass->getReadBuffer(subpassIndex) : ccstd::vector<uint32_t>{};
         if (!resources.subpass_inputs.empty()) {
-            gpuShader->inputs.resize(resources.subpass_inputs.size());
+//            gpuShader->inputs.resize(resources.subpass_inputs.size());
             for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
                 const auto &attachment = resources.subpass_inputs[i];
-                gpuShader->inputs[i].name = attachment.name;
-                auto id = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                auto loc = id >= readBuffer.size() ? id : readBuffer[id];
+                auto inputIndex = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                auto loc = inputIndex >= readBuffer.size() ? inputIndex : readBuffer[inputIndex];
+                if(renderPass) {
+                    if(loc == renderPass->getColorAttachments().size()) {
+                        depthInput.slot = inputIndex;
+                        depthInput.name = attachment.name;
+                        continue;
+                    }
+                    if(loc == (renderPass->getColorAttachments().size() + 1)) {
+                        stencilInput.slot = inputIndex;
+                        stencilInput.name = attachment.name;
+                        continue;;
+                    }
+                }
+                auto& input = gpuShader->inputs.emplace_back();
+                input.name = attachment.name;
                 msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
             }
         }
 
         gpuShader->outputs.resize(resources.stage_outputs.size());
+        const auto& drawBuffer = renderPass ? ccRenderPass->getDrawBuffer(subpassIndex) : ccstd::vector<uint32_t>{};
         for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
             const auto &stageOutput = resources.stage_outputs[i];
             auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
@@ -1096,6 +1120,44 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", output.c_str());
     }
+    if constexpr(ENABLE_DS_INPUT) {
+        if(!depthInput.name.empty() || !stencilInput.name.empty()) {
+            auto outIndex = output.find("struct main0_out");
+            std::string depthDecl = depthInput.name.empty() ? "" : "\n    float depth [[depth(less)]];";
+            std::string stencilDecl = stencilInput.name.empty() ? "" : "\n    uint stencil [[stencil]];";
+            auto dsDecl = "struct DSInput\n{" + depthDecl + stencilDecl + " \n};\n";
+            output.insert(outIndex, dsDecl);
+            bool hasDepth{false};
+            if (!depthInput.name.empty()) {
+                std::string depthName(depthInput.name.substr(1));
+                std::string depthInExp = "[, ]*float4 " + depthName + "([^\\)]+\\))\\]\\]";
+                std::regex depthInputExp(depthInExp);
+                output = std::regex_replace(output, depthInputExp, "");
+                std::string_view immutableOut{"fragment main0_out"};
+                auto entryIndex = output.find(immutableOut);
+                auto bodyIndex = output.find_first_of("{", entryIndex + 1);
+                output = output.insert(bodyIndex + 1,
+                                        "\nDSInput __dsInput{};\nfloat " + depthName + " = __dsInput.depth;");
+                hasDepth = true;
+            }
+            if(!stencilInput.name.empty()) {
+                std::string stencilName(stencilInput.name.substr(1));
+                std::string stencilInExp = "[, ]*int4 " + stencilName + "([^\\)]+\\))\\]\\]";
+                std::regex stencilInputExp(stencilInExp);
+                output = std::regex_replace(output, stencilInputExp, "");
+                std::string_view immutableOut{"fragment main0_out"};
+                auto entryIndex = output.find(immutableOut);
+                auto bodyIndex = output.find_first_of("{", entryIndex + 1);
+                std::string declStr = hasDepth ? "" : "\nDSInput __dsInput{};";
+                output = output.insert(bodyIndex + 1,
+                                       declStr + "\nuint " + stencilName + " = __dsInput.stencil;");
+                std::regex usingValExp(stencilName + "\\.[rx]");
+                output = std::regex_replace(output, usingValExp, stencilName);
+            }
+            
+        }
+    }
+
     return output;
 }
 
