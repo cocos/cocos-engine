@@ -31,6 +31,7 @@ import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
 import { approx } from '../../../core';
+import { Vec2 } from '../../../core/math';
 
 const Overflow = Label.Overflow;
 
@@ -45,28 +46,23 @@ export const ttfUtils =  {
         trans: UITransform,
     ): void {
         // font info // both
-        style.isSystemFontUsed = comp.useSystemFont;
-        style.fontSize = comp.fontSize;
+        style.isSystemFontUsed = comp.useSystemFont; // 都会影响
+        style.fontSize = comp.fontSize; // 都会影响
 
-        // node info // both
-        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width;
-        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height;
         // layout info
-        layout.lineHeight = comp.lineHeight; // both
-        layout.overFlow = comp.overflow; // layout only // but change render
+        layout.lineHeight = comp.lineHeight; // both // 都影响
+        layout.overFlow = comp.overflow; // layout only // but change render // 在 bmfont 里会和渲染相关，ttf 不会
         if (comp.overflow === Overflow.NONE) {
             layout.wrapping = false;
         } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
             layout.wrapping = true;
         } else {
-            layout.wrapping = comp.enableWrapText; // layout only // but change render
+            layout.wrapping = comp.enableWrapText; // layout only // but change render // 在 bmfont 里会和渲染相关，ttf 不会
         }
 
         // effect info // both
-        style.isBold = comp.isBold;
-        style.isItalic = comp.isItalic;
-        style.isUnderline = comp.isUnderline;
-        style.underlineHeight = comp.underlineHeight;
+        style.isBold = comp.isBold; // 可能会影响到 context 的测量，所以和排版相关 // 和渲染相关
+        style.isItalic = comp.isItalic; // 可能会影响到 context 的测量，所以和排版相关 // 和渲染相关
 
         // outline// both
         const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
@@ -75,7 +71,7 @@ export const ttfUtils =  {
             style.outlineColor.set(comp.outlineColor);
             style.outlineWidth = comp.outlineWidth;
         } else {
-            style.isOutlined = false;
+            style.isOutlined = false; // 由于影响到了canvas 的宽度，所以和排版相关 // 和渲染相关
         }
 
         // shadow// both
@@ -87,17 +83,32 @@ export const ttfUtils =  {
             style.shadowOffsetX = comp.shadowOffset.x;
             style.shadowOffsetY = comp.shadowOffset.y;
         } else {
-            style.hasShadow = false;
+            style.hasShadow = false; // 由于影响到了canvas 的宽度，所以和排版相关 //和渲染相关
         }
 
-        // render info
-        style.color.set(comp.color);// may opacity bug // render Only
-        outputRenderData.texture = comp.spriteFrame; // render Only
-        outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
-        outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
+        layout.horizontalAlign = comp.horizontalAlign; // render Only // 由于影响起始位置的计算，所以和排版相关 // 和渲染相关
+        layout.verticalAlign = comp.verticalAlign; // render Only // 由于影响起始位置的计算，所以和排版相关 // 和渲染相关
 
-        layout.horizontalAlign = comp.horizontalAlign; // render Only
-        layout.verticalAlign = comp.verticalAlign; // render Only
+        // node info // both // 怎么触发 dirty
+        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width; // 这儿的更新一定都会影响的
+        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height; // 这儿的更新一定都会影响的
+    },
+
+    // render Only
+    updateRenderProcessingData (
+        style: TextStyle,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        anchor: Readonly<Vec2>,
+    ): void {
+        style.isUnderline = comp.isUnderline;
+        style.underlineHeight = comp.underlineHeight;
+
+        // render info
+        style.color.set(comp.color);
+        outputRenderData.texture = comp.spriteFrame;
+        outputRenderData.uiTransAnchorX = anchor.x;
+        outputRenderData.uiTransAnchorY = anchor.y;
     },
 
     getAssemblerData (): ISharedLabelData {
@@ -112,41 +123,50 @@ export const ttfUtils =  {
         }
     },
 
-    updateRenderData (comp: Label): void {
-        if (!comp.renderData) { return; }
-
-        if (comp.renderData.vertDirty) {
+    // 进行统一调用
+    updateLayoutData (comp: Label): void {
+        if (comp.layoutDirty) {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
-            const outputRenderData = comp.textRenderData;
             style.fontScale = view.getScaleX();
-            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
+            this.updateLayoutProcessingData(style, layout, outputLayoutData, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             style.fontFamily = this._updateFontFamily(comp);
-            this._resetDynamicAtlas(comp);
 
             // TextProcessing
             processing.processingString(false, style, layout, outputLayoutData, comp.string);
-            processing.generateRenderInfo(
-                false,
-                style,
-                layout,
-                outputLayoutData,
-                outputRenderData,
-                comp.string,
-                this.generateVertexData,
-            );
+            comp.actualFontSize = style.actualFontSize;
+            trans.setContentSize(outputLayoutData.nodeContentSize);
+            comp.contentWidth = outputLayoutData.nodeContentSize.width;
+            comp._resetLayoutDirty();
+        }
+    },
+
+    updateRenderData (comp: Label): void {
+        if (!comp.renderData) { return; }
+
+        if (comp.renderData.vertDirty) {
+            this.updateLayoutData(comp); // 需要注意的是要防止在两个函数中间被修改 // 但是这里的修改应该是不会影响到排版的
+
+            const processing = TextProcessing.instance;
+            const style = comp.textStyle;
+            const layout = comp.textLayout;
+            const outputLayoutData = comp.textLayoutData;
+            const outputRenderData = comp.textRenderData;
+            const anchor = comp.node._uiProps.uiTransformComp!.anchorPoint;
+            this.updateRenderProcessingData(style, outputRenderData, comp, anchor);
+
+            this._resetDynamicAtlas(comp);
+
+            processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData, comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;
             this._calDynamicAtlas(comp, outputLayoutData);
-
-            comp.actualFontSize = style.actualFontSize;
-            trans.setContentSize(outputLayoutData.nodeContentSize);
 
             const datalist = renderData.data;
             datalist[0] = outputRenderData.vertexBuffer[0];
@@ -156,7 +176,6 @@ export const ttfUtils =  {
 
             this.updateUVs(comp);
             comp.renderData.vertDirty = false;
-            comp.contentWidth = outputLayoutData.nodeContentSize.width;
         }
 
         if (comp.spriteFrame) {
