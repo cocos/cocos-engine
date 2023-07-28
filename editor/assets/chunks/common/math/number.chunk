@@ -52,6 +52,13 @@ float rand(vec2 seeds_zero_to_one) {
     return fract(sin(dot(seeds_zero_to_one.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+// like smoothstep, but it's linear interpolation
+float linearstep(float minValue, float maxValue, float value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec2 linearstep(vec2 minValue, vec2 maxValue, vec2 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec3 linearstep(vec3 minValue, vec3 maxValue, vec3 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+vec4 linearstep(vec4 minValue, vec4 maxValue, vec4 value) { return saturate((value - minValue) / (maxValue - minValue)); }
+
+
 #if __VERSION__ <= 100
   mat4 transpose(mat4 v) {
     mat4 tmp;
