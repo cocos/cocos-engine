@@ -3,13 +3,16 @@
 
 namespace cc::gfx {
 
-uint8_t *GLESCommandStorage::BlockStorage::allocate(uint32_t size, uint32_t alignment) {
-    auto alignSize = utils::alignTo(size, alignment);
+GLESCommandStorage::GLESCommandStorage() {
+    allocateStorage();
+}
+
+uint8_t *GLESCommandStorage::BlockStorage::allocate(uint32_t size) {
     if (!storage) {
         storage = std::make_unique<uint8_t[]>(blockSize);
     }
 
-    if (offset + alignSize > blockSize) {
+    if (offset + size > blockSize) {
         return nullptr;
     }
     uint8_t *res = storage.get() + offset;
@@ -29,6 +32,7 @@ void GLESCommandStorage::allocateStorage() {
 }
 
 void GLESCommandStorage::reset() {
+    _tmpBuffers.clear();
     for (auto &storage : _storages) {
         storage->reset();
     }
@@ -47,13 +51,20 @@ void GLESCommandStorage::execute() {
 }
 
 uint8_t* GLESCommandStorage::allocate(uint32_t size, uint32_t alignment) {
-    uint8_t *ptr = (*_iterator)->allocate(size, alignment);
+    auto alignSize = utils::alignTo(size, alignment);
+    if (alignSize > DEFAULT_BLOCK_SIZE) {
+        _tmpBuffers.emplace_back(std::make_unique<uint8_t[]>(alignSize));
+        return _tmpBuffers.back().get();
+    }
+
+    uint8_t *ptr = (*_iterator)->allocate(alignSize);
     if (ptr == nullptr) {
         _iterator++;
         if (_iterator == _storages.end()) {
             allocateStorage();
         }
-        ptr = (*_iterator)->allocate(size, alignment);
+        ptr = (*_iterator)->allocate(alignSize);
+        CC_ASSERT(ptr != nullptr);
     }
     return ptr;
 }

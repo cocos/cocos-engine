@@ -31,7 +31,7 @@ struct Cmd : public CmdBase {
 
 class GLESCommandStorage {
 public:
-    GLESCommandStorage() = default;
+    GLESCommandStorage();
     ~GLESCommandStorage() = default;
 
     static constexpr uint32_t DEFAULT_ALIGNMENT = 4;
@@ -57,13 +57,11 @@ public:
         uint32_t offset = 0;
         std::unique_ptr<uint8_t[]> storage;
 
-        uint8_t *allocate(uint32_t size, uint32_t alignment);
+        uint8_t *allocate(uint32_t size);
         void reset();
     };
-
-private:
     void allocateStorage();
-
+private:
     using StoragePtr = std::unique_ptr<BlockStorage>;
     using Iterator = std::list<StoragePtr>::iterator;
 
@@ -71,6 +69,7 @@ private:
     Iterator _iterator = _storages.end();
     CmdBase* _head = nullptr;
     CmdBase** _current = &_head;
+    ccstd::list<std::unique_ptr<uint8_t[]>> _tmpBuffers;
 };
 
 } // namespace cc::gfx

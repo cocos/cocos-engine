@@ -1,3 +1,4 @@
+#pragma once
 #include "gfx-gles-common/egl/Base.h"
 #include "gfx-base/GFXDeviceObject.h"
 
@@ -16,7 +17,7 @@ public:
     }
 
     EGLSurface getNativeHandle() const { return _surface; };
-    void swapBuffer() { eglSwapBuffers(_display, _surface); };
+    virtual void swapBuffer() {};
 
 protected:
     EGLDisplay _display = EGL_NO_DISPLAY;
@@ -28,7 +29,8 @@ public:
     WindowSurface() = default;
     ~WindowSurface() override = default;
 
-    bool init(EGLConfig cfg, void *window);
+    bool init(EGLConfig cfg, EGLNativeWindowType window);
+    void swapBuffer() override;
     EGLint getWidth() const { return _width; }
     EGLint getHeight() const { return _height; }
 

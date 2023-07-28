@@ -5,9 +5,12 @@
 #include "base/Log.h"
 #include "base/StringUtil.h"
 #include "gfx-gles-common/egl/Base.h"
+#include "gfx-gles-common/egl/Debug.h"
 #include "gfx-gles-common/loader/eglw.h"
 #include "gfx-gles-common/loader/gles2w.h"
+#ifdef CC_USE_GLES3
 #include "gfx-gles-common/loader/gles3w.h"
+#endif
 
 namespace cc::gfx::egl {
 namespace {
@@ -17,10 +20,10 @@ std::unique_ptr<Instance> gInstance;
 }
 
 void *getProcAddress(const char *proc) {
-    if (eglGetProcAddress)  {
-        return reinterpret_cast<void *>(eglGetProcAddress(proc));
-    }
-    return gLibEGL->getProcAddress(proc);
+    void *res = nullptr;
+    if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
+    if (res == nullptr) res = reinterpret_cast<void *>(gLibEGL->getProcAddress(proc));
+    return res;
 }
 
 namespace {
@@ -86,13 +89,14 @@ bool loadLibrary() {
             return false;
         }
     }
+    gLibEGL = std::move(libEGL);
+    gLibGLES = std::move(libGLES);
 
     eglwLoadProcs(getProcAddress);
     gles2wLoadProcs(getProcAddress);
+#ifdef CC_USE_GLES3
     gles3wLoadProcs(getProcAddress);
-
-    gLibEGL = std::move(libEGL);
-    gLibGLES = std::move(libGLES);
+#endif
     return true;
 }
 } // namespace

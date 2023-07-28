@@ -85,7 +85,6 @@ class CommandBuffer;
 class Queue;
 class QueryPool;
 class Window;
-class Context;
 
 using BufferBarrierList = ccstd::vector<BufferBarrier *>;
 using TextureBarrierList = ccstd::vector<TextureBarrier *>;

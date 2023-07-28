@@ -1,10 +1,10 @@
 #pragma once
 
-#include "base/std/container/vector.h"
-#include "base/std/container/string.h"
-#include "gfx-gles-common/egl/Surface.h"
-#include "gfx-gles-common/egl/Base.h"
 #include <memory>
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
+#include "gfx-gles-common/egl/Base.h"
+#include "gfx-gles-common/egl/Surface.h"
 
 namespace cc::gfx::egl {
 
@@ -19,7 +19,7 @@ struct ContextInfo {
 
 class Context {
 public:
-    Context() = default;
+    explicit Context(uint32_t index) : _contextID(index) {}
     ~Context();
 
     bool init(const ContextInfo &info);
@@ -30,16 +30,22 @@ public:
     void surfaceDestroy(EGLSurface surface);
     void resetCurrent(bool noContext = false);
 
+    PBufferSurface *getPBufferSurface() const { return _pBuffer.get(); }
+    EGLDisplay getDisplay() const { return _display; }
     EGLContext getContext() const { return _context; }
     EGLConfig getConfig() const { return _config; }
     EGLSurface getCurrentDrawSurface() const { return _currentDrawSurface; }
     EGLSurface getCurrentReadSurface() const { return _currentReadSurface; }
 
-    uint32_t getMinorVersion() const { return _glMinorVersion; }
-    uint32_t getMajorVersion() const { return _glMajorVersion; }
+    EGLint getMinorVersion() const { return _glMinorVersion; }
+    EGLint getMajorVersion() const { return _glMajorVersion; }
+
+    uint32_t getContextID() const { return _contextID; }
 private:
     bool createEGLContext(const ContextInfo &info);
     bool createPBuffer();
+
+    uint32_t _contextID = 0;
 
     EGLContext _context = EGL_NO_CONTEXT;
     EGLDisplay _display = EGL_NO_DISPLAY;
@@ -47,10 +53,8 @@ private:
     EGLSurface _currentReadSurface = EGL_NO_SURFACE;
     EGLConfig  _config = EGL_NO_CONFIG_KHR;
 
-    uint32_t _glMajorVersion{0U};
-    uint32_t _glMinorVersion{0U};
-    EGLint _majorVersion{0};
-    EGLint _minorVersion{0};
+    EGLint _glMajorVersion{0U};
+    EGLint _glMinorVersion{0U};
     ccstd::vector<ccstd::string> _extensions;
     std::unique_ptr<PBufferSurface> _pBuffer;
 };

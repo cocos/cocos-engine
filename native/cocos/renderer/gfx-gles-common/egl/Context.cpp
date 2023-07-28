@@ -1,4 +1,6 @@
 #include "Context.h"
+
+#include "gfx-gles-common/egl/Debug.h"
 #include "gfx-gles-common/egl/Instance.h"
 
 namespace cc::gfx::egl {
@@ -83,6 +85,7 @@ EGLConfig chooseConfig(EGLDisplay eglDisplay, const Config &cfg, bool qualityPre
             lastScore = currScore;
         }
     }
+    CC_LOG_INFO("Setup EGLConfig: depth [%d] stencil [%d] sampleBuffer [%d] sampleCount [%d]", depth, stencil, sampleBuffers, sampleCount);
     return eglConfig;
 }
 } // namespace
@@ -97,35 +100,35 @@ Context::~Context() {
 
 bool Context::createEGLContext(const ContextInfo &info) {
     auto *instance = Instance::getInstance();
-
+    EGL_CHECK(_display = eglGetDisplay(EGL_DEFAULT_DISPLAY));
     _config = chooseConfig(_display, info.config, info.qualityPreferred, info.msaaEnabled);
 
-    _majorVersion = info.majorVersion;
-    _minorVersion = _majorVersion >= 3 ? 2 : 0;
+    _glMajorVersion = info.majorVersion;
+    _glMinorVersion = _glMajorVersion >= 3 ? 2 : 0;
     ccstd::vector<EGLint> eglAttributes;
     if (instance->checkExtension(CC_TOSTR(EGL_KHR_create_context))) {
         eglAttributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
-        eglAttributes.push_back(_majorVersion);
+        eglAttributes.push_back(_glMajorVersion);
         eglAttributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
-        eglAttributes.push_back(_minorVersion);
+        eglAttributes.push_back(_glMinorVersion);
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION
         eglAttributes.push_back(EGL_CONTEXT_FLAGS_KHR);
         eglAttributes.push_back(EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR);
 #endif
         eglAttributes.push_back(EGL_NONE);
 
-        for (EGLint m = _minorVersion; m >= 0; --m) {
+        for (EGLint m = _glMinorVersion; m >= 0; --m) {
             eglAttributes[3] = m;
             _context = eglCreateContext(_display, _config, info.sharedContext, eglAttributes.data());
             auto err = eglGetError(); // QNX throws egl errors on mismatch
             if (_context && err == EGL_SUCCESS) {
-                _minorVersion = m;
+                _glMinorVersion = m;
                 break;
             }
         }
     } else {
         eglAttributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
-        eglAttributes.push_back(_majorVersion);
+        eglAttributes.push_back(_glMajorVersion);
         eglAttributes.push_back(EGL_NONE);
         EGL_CHECK(_context = eglCreateContext(_display, _config, info.sharedContext, eglAttributes.data()));
     }
@@ -150,8 +153,6 @@ bool Context::init(const ContextInfo &info) {
     if (!createPBuffer()) {
         return false;
     }
-
-    makeCurrent();
     return true;
 }
 
