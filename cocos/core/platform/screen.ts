@@ -35,7 +35,7 @@ import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
-class Screen {
+export class Screen {
     /**
      * @internal
      */
