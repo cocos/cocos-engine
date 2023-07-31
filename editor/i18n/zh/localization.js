@@ -1289,7 +1289,7 @@ module.exports = link(mixin({
     },
 },
 
-require('./rendering'),
+require('./modules/rendering'),
 require('./animation'),
 
 ));
