@@ -25,10 +25,10 @@ import { ImageSource } from '../../../pal/image/types';
 export default function downloadDomImage (
     url: string,
     options: Record<string, any>,
-    onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void),
+    onComplete: ((err: Error | null, data?: ImageData | null) => void),
 ): void {
     ImageData.loadImage(url).then((imageData) => {
-        onComplete(null, imageData.data);
+        onComplete(null, imageData);
     }).catch((err) => {
         onComplete(err);
     });

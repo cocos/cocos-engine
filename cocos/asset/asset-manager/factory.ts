@@ -23,6 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { ImageAsset } from '../assets/image-asset';
 import JsonAsset from '../assets/json-asset';
 import { TextAsset } from '../assets/text-asset';
@@ -45,7 +46,7 @@ function createImageAsset (id: string, imageData: ImageData, options: Record<str
     try {
         out = new ImageAsset();
         out._nativeUrl = id;
-        out._nativeAsset = imageData.data;
+        out._nativeAsset = imageData;
     } catch (e) {
         err = e as Error;
     }

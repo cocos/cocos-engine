@@ -572,14 +572,29 @@ export class WebGLDevice extends Device {
         regions: Readonly<BufferTextureCopy[]>,
     ): void {
         const texImages: TexImageSource[] = [];
+        const buffers: ArrayBufferView[] = [];
         imageAssets.forEach((item) => {
-            texImages.push(item.data as TexImageSource);
+            if (ArrayBuffer.isView(item.data)) {
+                buffers.push(item.data);
+            } else {
+                texImages.push(item.data as TexImageSource);
+            }
         });
-        WebGLCmdFuncCopyTexImagesToTexture(
-            this,
-            texImages,
-            (texture as WebGLTexture).gpuTexture,
-            regions,
-        );
+        if (texImages.length > 0) {
+            WebGLCmdFuncCopyTexImagesToTexture(
+                this,
+                texImages,
+                (texture as WebGLTexture).gpuTexture,
+                regions,
+            );
+        }
+        if (buffers.length > 0) {
+            WebGLCmdFuncCopyBuffersToTexture(
+                this,
+                buffers,
+                (texture as WebGLTexture).gpuTexture,
+                regions,
+            );
+        }
     }
 }

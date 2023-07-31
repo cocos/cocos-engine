@@ -26,7 +26,7 @@
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ImageData } from 'pal/image';
-import { ImageSource, IMemoryImageSource } from '../../../pal/image/types';
+import { ImageSource, IMemoryImageSource, RawDataType } from '../../../pal/image/types';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -485,20 +485,16 @@ export class ImageAsset extends Asset {
     @override
     get _nativeAsset (): any {
         // Maybe returned to pool in webgl.
-        return this._imageData.data;
+        return this._imageData.source;
     }
     // TODO: Property 'format' does not exist on type 'ImageBitmap'
     // set _nativeAsset (value: ImageSource) {
     set _nativeAsset (value: any) {
-        this.reset(value);
-    }
-
-    /*
-     * @en Raw image data.
-     * @zh 原始图像数据。
-     */
-    get rawData (): any {
-        return this._imageData.getRawData();
+        if (value instanceof ImageData) {
+            this._imageData = value;
+        } else {
+            this.reset(value as ImageSource);
+        }
     }
 
     /**
@@ -506,7 +502,19 @@ export class ImageAsset extends Asset {
      * @zh 图像的来源（包括：HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView）。
      */
     get data (): ImageSource | ArrayBufferView | null {
-        return this._imageData.data;
+        if ('_data' in this._imageData.source) {
+            return this._imageData.getRawData() as ArrayBufferView;
+        } else {
+            return this._imageData.source;
+        }
+    }
+
+    /*
+     * @en Raw image data.
+     * @zh 原始图像数据。
+     */
+    get rawData (): RawDataType | null {
+        return this._imageData.getRawData();
     }
 
     /**
@@ -530,7 +538,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素格式。
      */
     get format (): PixelFormat {
-        return this._format;
+        return (this.data as IMemoryImageSource).format;
     }
 
     /**
@@ -548,7 +556,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     get mipmapLevelDataSize (): number[] | undefined {
-        return this._imageData.mipmapLevelDataSize;
+        return (this.data as IMemoryImageSource).mipmapLevelDataSize;
     }
 
     /**
@@ -572,7 +580,7 @@ export class ImageAsset extends Asset {
 
     private _height = 0;
 
-    constructor (nativeAsset?: ImageSource | ArrayBufferView) {
+    constructor (nativeAsset?: ImageSource) {
         super();
 
         if (EDITOR) {
@@ -588,15 +596,16 @@ export class ImageAsset extends Asset {
      */
     public reset (data: ImageSource): void {
         this._imageData.reset(data);
-        if (this._imageData.format != null) {
-            this._format =  this._imageData.format;
+        if ('_data' in data) {
+            const format = data.format;
+            if (format != null) {
+                this._format = format;
+            }
         }
     }
 
     public destroy (): boolean {
-        if (this._imageData.isHtmlElement()) {
-            this._setRawAsset('');
-        }
+        this._setRawAsset('');
         this._imageData.destroy();
         return super.destroy();
     }

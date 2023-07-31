@@ -637,16 +637,31 @@ export class WebGL2Device extends Device {
         imageAssets: Readonly<ImageAsset[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
-    ): void  {
+    ): void {
         const texImages: TexImageSource[] = [];
+        const buffers: ArrayBufferView[] = [];
         imageAssets.forEach((item) => {
-            texImages.push(item.data as TexImageSource);
+            if (ArrayBuffer.isView(item.data)) {
+                buffers.push(item.data);
+            } else {
+                texImages.push(item.data as TexImageSource);
+            }
         });
-        WebGL2CmdFuncCopyTexImagesToTexture(
-            this,
-            texImages,
-            (texture as WebGL2Texture).gpuTexture,
-            regions,
-        );
+        if (texImages.length > 0) {
+            WebGL2CmdFuncCopyTexImagesToTexture(
+                this,
+                texImages,
+                (texture as WebGL2Texture).gpuTexture,
+                regions,
+            );
+        }
+        if (buffers.length > 0) {
+            WebGL2CmdFuncCopyBuffersToTexture(
+                this,
+                buffers,
+                (texture as WebGL2Texture).gpuTexture,
+                regions,
+            );
+        }
     }
 }

@@ -22,58 +22,69 @@
  THE SOFTWARE.
 */
 import { BaseImageData } from '../base-image-data';
-import type { ImageSource, IMemoryImageSource } from '../types';
-import { ccwindow } from '../../../cocos/core/global-exports';
+import { ImageSource, IMemoryImageSource, RawDataType } from '../types';
 import { getError } from '../../../cocos/core';
 
+declare const jsb: any;
+
 export class ImageData extends BaseImageData {
+    protected _rawData: RawDataType | null = null;
+    constructor (imageAsset?: ImageSource | ArrayBufferView) {
+        super(imageAsset);
+        this.reset(imageAsset);
+    }
+
     public destroy (): void {
-        if (this.data && this.data instanceof HTMLImageElement) {
-            // JSB element should destroy native data.
-            // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
-            // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
-            // issue: https://github.com/cocos/cocos-engine/issues/14646
-            (this.data as any).destroy();
+        if (this._rawData instanceof jsb.JSBNativeDataHolder) {
+            jsb.destroyImage(this._rawData);
         }
+        // if (this.imageSource && this.imageSource instanceof HTMLImageElement) {
+        //     // JSB element should destroy native data.
+        //     // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
+        //     // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
+        //     // issue: https://github.com/cocos/cocos-engine/issues/14646
+        //     (this.imageSource as any).destroy();
+        // }
         super.destroy();
     }
 
-    public getRawData (): unknown {
+    public getRawData (): RawDataType | null {
+        // TODO(qgh) :ImageBitmap without raw data.
+        return this._rawData;
+    }
+
+    public reset (imageSource?: ImageSource | ArrayBufferView): void {
+        if (imageSource == null) {
+            this._rawData = null;
+            return;
+        }
         // TODO(qgh):Need to remove implementations such as HTMLImageElement and use a simpler image class.
-        if (this._imageSource instanceof HTMLCanvasElement) {
-            return (this._imageSource as any)._data.data;
-        } else if (this._imageSource instanceof HTMLImageElement) {
-            return (this._imageSource as any)._data;
-        } else if (ArrayBuffer.isView(this._imageSource)) {
-            return this._imageSource.buffer;
+        if (imageSource instanceof HTMLCanvasElement) {
+            this._rawData = (imageSource as any)._data.data;
+        } else if (imageSource instanceof HTMLImageElement) {
+            this._rawData = (imageSource as any).data;
+        } else if (ArrayBuffer.isView(imageSource)) {
+            this._rawData = imageSource;
+        } else if ('_data' in imageSource) {
+            this._rawData = imageSource._data;
         }
-        return super.getRawData();
+        super.reset(imageSource);
     }
 
-    protected isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-        if ((imageSource as IMemoryImageSource)._compressed === true) {
-            return false;
-        }
-        return super.isNativeImage(imageSource);
-    }
-
-    static loadImage (url: string): Promise<ImageData> {
+    static loadImage (urlOrBase64: string): Promise<ImageData> {
         return new Promise((resolve, reject) => {
             const image = new ImageData();
-
-            if (ccwindow.location.protocol !== 'file:') {
-                image.crossOrigin = 'anonymous';
-            }
-
-            image.onload = (): void => {
+            jsb.loadImage(urlOrBase64, (info): void => {
+                if (!info) {
+                    reject(new Error(getError(4930, urlOrBase64)));
+                    return;
+                }
+                (image.source as IMemoryImageSource).width = info.width;
+                (image.source as IMemoryImageSource).height = info.height;
+                (image.source as IMemoryImageSource)._data = info.data;
+                image._rawData = info.data;
                 resolve(image);
-            };
-            image.onerror = (): void => {
-                reject(new Error(getError(4930, url)));
-            };
-
-            image.src = url;
-            return image;
+            });
         });
     }
 }

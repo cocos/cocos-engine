@@ -40,3 +40,5 @@ export interface IMemoryImageSource {
  * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
+
+export type RawDataType = ArrayBufferView | jsb.JSBNativeDataHolder;

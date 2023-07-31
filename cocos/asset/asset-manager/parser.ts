@@ -82,13 +82,13 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parseImage (file: ImageData | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageSource | ArrayBufferView | null) => void)): void {
+    public parseImage (file: ImageData | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageData | null) => void)): void {
         if (file instanceof ImageData) {
-            onComplete(null, file.data);
+            onComplete(null, file);
             return;
         }
         createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
-            onComplete(null, result);
+            onComplete(null, new ImageData(result));
         }, (err): void => {
             onComplete(err, null);
         });

@@ -139,21 +139,21 @@ export class SplashScreen {
             const bgPromise = new Promise<void>((resolve, reject): void => {
                 ImageData.loadImage(this.settings.bgBase64).then((imageData) => {
                     this.bgImage = new ImageAsset();
-                    this.bgImage._nativeAsset = imageData.data;
+                    this.bgImage._nativeAsset = imageData;
                     this.initBG();
                     resolve();
                 }).catch((err) => {
-                    reject();
+                    reject(err);
                 });
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
                 ImageData.loadImage(this.settings.base64src).then((imageData) => {
                     this.logoImage = new ImageAsset();
-                    this.logoImage._nativeAsset = imageData.data;
+                    this.logoImage._nativeAsset = imageData;
                     this.initLogo();
                     resolve();
                 }).catch((err) => {
-                    reject();
+                    reject(err);
                 });
             });
             return Promise.all([bgPromise, logoPromise]);

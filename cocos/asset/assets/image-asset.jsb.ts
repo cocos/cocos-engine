@@ -54,10 +54,15 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._imageData.data;
+        return this._imageData.source;
     },
     set (value: ImageSource) {
-        this.reset(value);
+        if (value instanceof ImageData) {
+            this._imageData = value;
+            this._syncDataToNative();
+        } else {
+            this.reset(value);
+        }
     },
 });
 
@@ -65,7 +70,11 @@ Object.defineProperty(imageAssetProto, 'data', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._imageData.data;
+        if ('_data' in this._imageData.source) {
+            return this._imageData.getRawData() as ArrayBufferView;
+        } else {
+            return this._imageData.source;
+        }
     },
 });
 
@@ -87,19 +96,20 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 
 // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
 // imageAssetProto.reset = function (data: ImageSource) {
-imageAssetProto.reset = function (data: any) {
+imageAssetProto.reset = function (data: ImageSource | ArrayBufferView) {
     this._imageData.reset(data);
-    if (this._imageData.format != null) {
-        this._format =  this._imageData.format;
+    if ('_data' in data) {
+        const format = data.format;
+        if (format != null) {
+            this._format = format;
+        }
     }
     this._syncDataToNative();
 };
 
 const superDestroy = jsb.Asset.prototype.destroy;
 imageAssetProto.destroy = function () {
-    if (this._imageData.isHtmlElement()) {
-        this._setRawAsset('');
-    }
+    this._setRawAsset('');
     this._imageData.destroy();
     return superDestroy.call(this);
 };

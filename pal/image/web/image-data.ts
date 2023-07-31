@@ -22,16 +22,22 @@
  THE SOFTWARE.
 */
 import { ImageSource } from 'pal/image';
+import { RawDataType } from '../types';
 import { BaseImageData } from '../base-image-data';
 import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
 export class ImageData extends BaseImageData {
-    public getRawData (): unknown {
-        let data;
-        if ('getContext' in this._imageSource) {
-            const canvasElem = this._imageSource;
-            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, this._imageSource.width, this._imageSource.height);
+    public getRawData (): RawDataType | null {
+        if (this.source == null) {
+            return null;
+        }
+        let data: ArrayBufferView | null = null;
+        if ('_data' in this.source) {
+            data = this.source._data;
+        } else if ('getContext' in this.source) {
+            const canvasElem = this.source;
+            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, this.source.width, this.source.height);
             const buff = imageData!.data.buffer;
             let rawBuffer;
             if ('buffer' in buff) {
@@ -41,9 +47,8 @@ export class ImageData extends BaseImageData {
                 rawBuffer = buff;
                 data = new Uint8Array(rawBuffer);
             }
-            //buffers[i] = data;
-        } else if (this._imageSource instanceof HTMLImageElement || this._imageSource instanceof ImageBitmap) {
-            const img = this._imageSource;
+        } else if (this.source instanceof HTMLImageElement || this.source instanceof ImageBitmap) {
+            const img = this.source;
             const canvas = ccwindow.document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
@@ -53,7 +58,7 @@ export class ImageData extends BaseImageData {
             const buff = imageData!.data.buffer;
             let rawBuffer;
             if ('buffer' in buff) {
-                // es-lint as any
+            // es-lint as any
                 data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
             } else {
                 rawBuffer = buff;
@@ -63,26 +68,26 @@ export class ImageData extends BaseImageData {
             // eslint-disable-next-line no-console
             console.log('imageBmp copy not impled!');
         }
-        return this.data;
+        return data;
     }
 
-    static loadImage (url: string): Promise<ImageData> {
+    static loadImage (urlOrBase64: string): Promise<ImageData> {
         return new Promise((resolve, reject) => {
-            const image = new ImageData();
+            const image = new ccwindow.Image();
 
             if (ccwindow.location.protocol !== 'file:') {
                 image.crossOrigin = 'anonymous';
             }
 
             image.onload = (): void => {
-                resolve(image);
+                const imageData = new ImageData(image);
+                resolve(imageData);
             };
             image.onerror = (): void => {
-                reject(new Error(getError(4930, url)));
+                reject(new Error(getError(4930, urlOrBase64)));
             };
 
-            image.src = url;
-            return image;
+            image.src = urlOrBase64;
         });
     }
 }

@@ -21,16 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { PixelFormat } from '../../cocos/asset/assets/asset-enum';
 import { IMemoryImageSource, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
-import { ccwindow } from '../../cocos/core/global-exports';
 
 export class BaseImageData {
-    protected _imageSource: ImageSource;
+    // TODO(qgh):Designed for compatibility, may be removed in the future.
+    protected _source: ImageSource;
 
     constructor (imageAsset?: ImageSource | ArrayBufferView) {
-        this._imageSource = {
+        this._source = {
             _data: null,
             width: 0,
             height: 0,
@@ -39,120 +38,59 @@ export class BaseImageData {
             mipmapLevelDataSize: [],
         };
         if (typeof imageAsset !== 'undefined') {
-            this.data = imageAsset;
-        } else if (typeof imageAsset === 'undefined') {
-            this._imageSource = new ccwindow.Image();
+            if (!ArrayBuffer.isView(imageAsset)) {
+                this._source = imageAsset;
+            } else {
+                this._source._data = imageAsset;
+            }
         }
     }
 
     public destroy (): void {
-        if (this.data && this.data instanceof HTMLImageElement) {
-            this.data.src = '';
-            // this._setRawAsset('');
-        } else if (this.isImageBitmap(this.data)) {
-            this.data?.close();
+        if (this.source && this.source instanceof HTMLImageElement) {
+            this.source.src = '';
+        } else if (this.isImageBitmap(this.source)) {
+            this.source?.close();
         }
     }
 
-    set data (imageAsset: ImageSource | ArrayBufferView | null) {
-        if (imageAsset != null && !ArrayBuffer.isView(imageAsset)) {
+    set source (imageAsset: ImageSource | null) {
+        if (imageAsset != null) {
             this.reset(imageAsset);
-        } else {
-            (this._imageSource as IMemoryImageSource)._data = imageAsset;
         }
     }
 
-    get data (): ImageSource | ArrayBufferView | null {
-        if (this._imageSource && this.isNativeImage(this._imageSource)) {
-            return this._imageSource;
-        }
-
-        return this._imageSource && this._imageSource._data;
-    }
-
-    public getRawData (): unknown {
-        return this.data as any;
-    }
-
-    public acceptAnonymousCORS (): void {
-        (this._imageSource as HTMLImageElement).crossOrigin = 'anonymous';
-    }
-
-    set crossOrigin (cors: string) {
-        (this._imageSource as HTMLImageElement).crossOrigin = cors;
-    }
-
-    set onload (cb: (ev: Event) => void) {
-        (this._imageSource as HTMLImageElement).onload = cb;
-    }
-
-    set onerror (cb: (ev: Event | string) => void) {
-        (this._imageSource as HTMLImageElement).onerror = cb;
-    }
-
-    set src (url: string) {
-        (this._imageSource as HTMLImageElement).src = url;
-    }
-
-    get src (): string {
-        return (this._imageSource as HTMLImageElement).src;
+    get source (): ImageSource {
+        return this._source;
     }
 
     get width (): number {
-        return this._imageSource.width;
-    }
-
-    set width (value: number) {
-        (this._imageSource as IMemoryImageSource).width = value;
+        return this._source.width;
     }
 
     get height (): number {
-        if (!(this._imageSource instanceof ArrayBuffer)) {
-            return this._imageSource.height;
+        return this._source.height;
+    }
+
+    public reset (data?: ImageSource | ArrayBufferView): void {
+        if (data != null) {
+            if (!ArrayBuffer.isView(data)) {
+                this._source = data;
+            } else {
+                this._source = {
+                    _data: null,
+                    width: 0,
+                    height: 0,
+                    format: 0,
+                    _compressed: false,
+                    mipmapLevelDataSize: [],
+                };
+                this._source._data = data;
+            }
         }
-        return 0;
     }
 
-    set height (value: number) {
-        (this._imageSource as IMemoryImageSource).height = value;
-    }
-
-    get format (): PixelFormat | null {
-        if (!(this._imageSource instanceof HTMLElement) && !this.isImageBitmap(this._imageSource) && !this.isArrayBuffer()) {
-            return this._imageSource.format;
-        }
-        return null;
-    }
-
-    get compressed (): boolean {
-        return false;
-    }
-
-    get mipmapLevelDataSize (): number[] | undefined {
-        return (this._imageSource as IMemoryImageSource).mipmapLevelDataSize;
-    }
-
-    public reset (data: ImageSource): void {
-        this._imageSource = data;
-    }
-
-    public isArrayBuffer (): boolean {
-        return ArrayBuffer.isView((this._imageSource as IMemoryImageSource)._data);
-    }
-
-    public isHtmlElement (): boolean {
-        return this._imageSource instanceof HTMLElement;
-    }
-
-    public isImageBitmap (imageSource: any): imageSource is ImageBitmap {
+    private isImageBitmap (imageSource: any): imageSource is ImageBitmap {
         return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
-    }
-
-    protected isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || this.isImageBitmap(imageSource);
-    }
-
-    private fetchImageSource (imageSource: ImageSource): any {
-        return '_data' in imageSource ? imageSource._data : imageSource;
     }
 }

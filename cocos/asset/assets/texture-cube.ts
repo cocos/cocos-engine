@@ -578,7 +578,7 @@ export class TextureCube extends SimpleTexture {
                 height: face.height,
                 format: face.format,
             });
-            tex.uploadData(face.data!);
+            tex.uploadData(face);
 
             for (let i = 0; i < layout.length; i++) {
                 const layoutInfo = layout[i];

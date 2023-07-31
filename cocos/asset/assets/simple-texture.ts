@@ -142,11 +142,11 @@ export class SimpleTexture extends TextureBase {
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
-    public uploadData (source: ImageSource | ArrayBufferView, level = 0, arrayIndex = 0): void {
+    public uploadData (source: ImageSource | ArrayBufferView | ImageAsset, level = 0, arrayIndex = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
-        const imageAsset = new ImageAsset(source);
+
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
             return;
@@ -157,10 +157,15 @@ export class SimpleTexture extends TextureBase {
         region.texExtent.height = this._textureHeight >> level;
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
-
-        if (ArrayBuffer.isView(imageAsset.data)) {
-            gfxDevice.copyBuffersToTexture([imageAsset.data], this._gfxTexture, _regions);
+        if (ArrayBuffer.isView(source)) {
+            gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
         } else {
+            let imageAsset;
+            if (source instanceof ImageAsset) {
+                imageAsset = source;
+            } else {
+                imageAsset = new ImageAsset(source);
+            }
             gfxDevice.copyImagesToTexture([imageAsset], this._gfxTexture, _regions);
         }
     }
@@ -169,11 +174,10 @@ export class SimpleTexture extends TextureBase {
      * @engineInternal
      */
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number): void {
-        const data = image.data;
-        if (!data) {
+        if (!image.data) {
             return;
         }
-        this.uploadData(data, level, arrayIndex);
+        this.uploadData(image, level, arrayIndex);
         this._checkTextureLoaded();
 
         if (macro.CLEANUP_IMAGE_CACHE) {
