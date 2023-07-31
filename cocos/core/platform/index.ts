@@ -44,4 +44,5 @@ export {
     DebugMode,
 } from './debug';
 
-export { Screen, screen } from './screen';
+export { screen } from './screen';
+export { Screen } from './screen';
