@@ -169,7 +169,7 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
     if (!rasterViews.empty()) {
         NameLocalID unused{128};
         // input sort by slot name
-        ccstd::pmr::map<std::string_view, std::pair<const ccstd::pmr::string &, std::string_view>> inputs(scratch);
+        ccstd::pmr::map<std::string_view, std::pair<std::string_view, std::string_view>> inputs(scratch);
         for (const auto &[resourceName, rasterView] : rasterViews) {
             if (rasterView.accessType != AccessType::WRITE) {
                 if (!defaultAttachment(rasterView.slotName)) {
@@ -189,8 +189,10 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
         }
         // build pass resources
         for (const auto &[slotName, nameInfo] : inputs) {
-            auto resID = realResourceID(nameInfo.first);
-            resID = locateSubres(resID, resourceGraph, nameInfo.second);
+            auto resID = realResourceID(nameInfo.first.data());
+            if (!nameInfo.second.empty()) {
+                resID = locateSubres(resID, resourceGraph, nameInfo.second);
+            }
             resourceIndex.emplace(unused, resID);
             unused.value++;
         }
@@ -543,7 +545,7 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
         if (rag.leafPasses.find(lastVertID) != rag.leafPasses.end()) {
             rag.leafPasses.erase(lastVertID);
         }
-        
+
         if(viewStatus.access != AccessType::WRITE) {
             subResourceFeedback(resourceGraph, resourceID, desc.format);
         }
@@ -811,33 +813,68 @@ void fillRenderPassInfo(const AttachmentMap &colorMap,
     }
 };
 
+[[nodiscard("concat")]] ccstd::pmr::string concatResName(
+    std::string_view name0,
+    std::string_view name1,
+    boost::container::pmr::memory_resource *scratch) {
+    ccstd::pmr::string name(name0, scratch);
+    name += "/";
+    name += name1;
+    return name;
+}
+
 void extractNames(const ccstd::pmr::string &resName,
                   const RasterView &view,
                   ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> &names) {
     // depth_stencil
     if (view.attachmentType == AttachmentType::DEPTH_STENCIL) {
         if (!defaultAttachment(view.slotName)) {
-            if (strstr(resName.c_str(), "/depth")) {
+            if (strstr(resName.c_str(), "/")) {
                 names.emplace_back(resName, 0);
             } else {
-                names.emplace_back(resName + "/depth", 0);
+                auto &subresName = names.emplace_back();
+                subresName.first = concatResName(resName, DEPTH_PLANE_NAME, names.get_allocator().resource());
+                subresName.second = 0;
             }
         }
         if (!defaultAttachment(view.slotName1)) {
-            if (strstr(resName.c_str(), "/stencil")) {
+            if (strstr(resName.c_str(), "/")) {
                 names.emplace_back(resName, 1);
             } else {
-                names.emplace_back(resName + "/stencil", 1);
+                auto &subresName = names.emplace_back();
+                subresName.first = concatResName(resName, STENCIL_PLANE_NAME, names.get_allocator().resource());
+                subresName.second = 1;
             }
         }
     }
 
-    if (names.empty()) {
-        names.emplace_back(resName, 0);
-    }
     // cube
 
     // array
+    
+    if (names.empty()) {
+        names.emplace_back(resName, 0);
+    }
+}
+
+[[nodiscard("subresName")]] ccstd::pmr::string getSubresName(const ccstd::pmr::string &resName,
+                                                            uint32_t planeID, const ResourceGraph& resg,
+                                                            boost::container::pmr::memory_resource* scratch) {
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, vertex(resName, resg));
+    if(desc.format == gfx::Format::DEPTH_STENCIL) {
+        auto nameView = planeID == 0 ? DEPTH_PLANE_NAME : STENCIL_PLANE_NAME;
+        const auto &subresName = concatResName(resName, nameView, scratch);
+        return subresName;
+    }
+    
+
+    // cube
+
+    // array
+
+    // UNREACHABLE
+    CC_ASSERT(false);
+    return "";
 }
 
 auto checkRasterViews(const Graphs &graphs,
@@ -858,7 +895,6 @@ auto checkRasterViews(const Graphs &graphs,
     for (const auto &pair : rasterViews) {
         const auto &rasterView = pair.second;
         const auto &resName = pair.first;
-        ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> names(resourceAccessGraph.get_allocator());
         const auto resID = vertex(resName, resourceGraph);
         auto access = rasterView.accessType;
         gfx::ShaderStageFlagBit originVis = getVisibility(renderGraph, layoutGraphData, passID, pair.second.slotName) | explicitVis | pair.second.shaderStageFlags;
@@ -884,6 +920,12 @@ auto checkRasterViews(const Graphs &graphs,
                                   rasterView.storeOp,
                                   rasterView.attachmentType});
         hasDS |= rasterView.attachmentType == AttachmentType::DEPTH_STENCIL;
+
+        ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> names(resourceAccessGraph.get_allocator());
+        extractNames(resName, rasterView, names);
+        for (const auto& [subresFullName, plane] : names) {
+            resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
+        }
     }
     return std::make_tuple(dependent, hasDS);
 }
@@ -922,6 +964,11 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
             tryAddEdge(lastVertId, ragVertID, relationGraph);
             dependent = lastVertId != EXPECT_START_ID;
+            
+            if(out_degree(resID, resourceGraph)) {
+                const auto& subresFullName = getSubresName(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
+                resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
+            }
         }
     }
 
@@ -1414,7 +1461,7 @@ bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const Resour
 
 void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) {
     const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
-    
+
     if(moveValidation(pass, resourceAccessGraph, resourceGraph)) {
         for(const auto& pair : pass.movePairs) {
             auto srcResourceRange = getResourceRange(vertex(pair.source, resourceGraph), resourceGraph);
