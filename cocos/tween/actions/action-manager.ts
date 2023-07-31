@@ -30,6 +30,7 @@ import { Action } from './action';
 import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
+import type { ActionInterval } from './action-interval';
 
 let ID_COUNTER = 0;
 
@@ -39,10 +40,10 @@ let ID_COUNTER = 0;
  * @private
  */
 class HashElement {
-    actions = [];
+    actions: Action[] = [];
     target: Record<string, unknown> | null = null; // ccobject
     actionIndex = 0;
-    currentAction = null; // CCAction
+    currentAction: Action | null = null; // CCAction
     paused = false;
     lock = false;
 }
@@ -451,14 +452,14 @@ export class ActionManager {
      */
     update (dt: number): void {
         const locTargets = this._arrayTargets;
-        let locCurrTarget;
+        let locCurrTarget: HashElement;
         for (let elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
 
             const target = locCurrTarget.target;
             if (isCCObject(target) && !target.isValid) {
-                this.removeAllActionsFromTarget(target);
+                this.removeAllActionsFromTarget(target as unknown as Node);
                 elt--;
                 continue;
             }
@@ -471,7 +472,7 @@ export class ActionManager {
                     if (!locCurrTarget.currentAction) continue;
 
                     // use for speed
-                    locCurrTarget.currentAction.step(dt * (locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1));
+                    locCurrTarget.currentAction.step(dt * (this._isActionInternal(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1));
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -492,5 +493,9 @@ export class ActionManager {
                 }
             }
         }
+    }
+
+    private _isActionInternal (action: any): action is ActionInterval {
+        return typeof action._speedMethod !== 'undefined';
     }
 }

@@ -44,6 +44,8 @@ export interface ClassStash {
          * The property stashes.
          */
         properties?: Record<PropertyKey, PropertyStash>;
+
+        editor?: Record<PropertyKey, any>;
     };
 
     /**

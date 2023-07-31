@@ -409,7 +409,7 @@ export class Vec3 extends ValueType {
                 // If the directions are almost opposite,
                 // every vector that orthonormal to the directions can be the rotation axis.
                 const fromNormalized = Vec3.multiplyScalar(cacheV1, from, 1.0 / lenFrom);
-                const axis = chooseAnyPerpendicular(cacheV2, fromNormalized);
+                const axis = Vec3.generateOrthogonal(cacheV2, fromNormalized);
                 const angle = Math.PI * t;
                 rotateAxisAngle(cacheV3, fromNormalized, axis, angle);
                 Vec3.multiplyScalar(out, cacheV3, lenLerped);
@@ -807,6 +807,32 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @zh 生成指定向量的一个正交单位向量。如果指定的向量 **精确地** 是零向量，则返回 **精确的** 零向量。
+     * @en Generates an unit vector orthogonal to specified vector.
+     * If the specified vector is **strictly** zero vector, the result is **strict** zero vector.
+     * @param out @zh 生成的向量。@en The generated vector.
+     * @param n @zh 输入向量。该向量 **不必** 是标准化的。 @en The input vector. **Need not** to be normalized.
+     * @returns `out`
+     */
+    public static generateOrthogonal<Out extends IVec3Like> (out: Out, n: Readonly<IVec3Like>): Out {
+        const { x, y, z } = n;
+        // 1. Drop the component with minimal magnitude.
+        // 2. Negate one of the remain components.
+        // 3. Swap the remain components.
+        const absX = Math.abs(x);
+        const absY = Math.abs(y);
+        const absZ = Math.abs(z);
+        if (absX < absY && absX < absZ) {
+            Vec3.set(out, 0.0, z, -y);
+        } else if (absY < absZ) {
+            Vec3.set(out, z, 0.0, -x);
+        } else {
+            Vec3.set(out, y, -x, 0.0);
+        }
+        return Vec3.normalize(out, out);
+    }
+
+    /**
      * @en x component.
      * @zh x 分量。
      */
@@ -1188,27 +1214,6 @@ export function v3 (x?: number, y?: number, z?: number): Vec3;
 
 export function v3 (x?: number | Vec3, y?: number, z?: number): Vec3 {
     return new Vec3(x as any, y, z);
-}
-
-/**
- * Chooses an arbitrary unit vector that is perpendicular to input.
- */
-function chooseAnyPerpendicular (out: Vec3, v: Readonly<Vec3>): Vec3 {
-    const { x, y, z } = v;
-    // 1. Drop the component with minimal magnitude.
-    // 2. Negate one of the remain components.
-    // 3. Swap the remain components.
-    const absX = Math.abs(x);
-    const absY = Math.abs(y);
-    const absZ = Math.abs(z);
-    if (absX < absY && absX < absZ) {
-        Vec3.set(out, 0.0, z, -y);
-    } else if (absY < absZ) {
-        Vec3.set(out, z, 0.0, -x);
-    } else {
-        Vec3.set(out, y, -x, 0.0);
-    }
-    return Vec3.normalize(out, out);
 }
 
 /**

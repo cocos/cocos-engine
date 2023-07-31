@@ -328,6 +328,7 @@ DECLARE_BUS_EVENT_ARG1(PointerLock, Engine, bool)
 DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
 DECLARE_BUS_EVENT_ARG0(Close, Engine)
 DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)
+DECLARE_BUS_EVENT_ARG0(ScriptExecutionTimeout, Engine)
 DECLARE_BUS_EVENT_ARG1(ScriptEngine, Engine, ScriptEngineEvent)
 } // namespace events
 } // namespace cc

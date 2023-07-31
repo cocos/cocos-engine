@@ -26,7 +26,7 @@
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Director, director } from '../game/director';
-import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
+import { Vec2, Vec3, visibleRect, js, cclegacy, approx, EPSILON } from '../core';
 import { View } from './view';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
@@ -124,6 +124,11 @@ function align (node: Node, widget: Widget): void {
             } else {
                 x = localRight + (anchorX - 1) * width;
             }
+            if (!approx(scaleX, 0, EPSILON)) {
+                width /= scaleX;
+            } else {
+                width = uiTrans.width;
+            }
         }
 
         widget._lastSize.width = width;
@@ -182,6 +187,11 @@ function align (node: Node, widget: Widget): void {
             } else {
                 y = localTop + (anchorY - 1) * height;
             }
+            if (!approx(scaleY, 0, EPSILON)) {
+                height /= scaleY;
+            } else {
+                height = uiTrans.height;
+            }
         }
 
         widget._lastSize.height = height;
@@ -228,9 +238,8 @@ function refreshScene (): void {
         }
         const i = 0;
         let widget: Widget | null = null;
-        const iterator = widgetManager._activeWidgetsIterator;
-        for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-            widget = activeWidgets[iterator.i];
+        for (let i = 0; i < activeWidgets.length; ++i) {
+            widget = activeWidgets[i];
             if (widget._dirty) {
                 align(widget.node, widget);
                 widget._dirty = false;

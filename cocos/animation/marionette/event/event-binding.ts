@@ -31,7 +31,7 @@ export class AnimationGraphEventBinding {
             return;
         }
 
-        invokeComponentMethodsEngagedInAnimationEvent(origin, this.methodName);
+        invokeComponentMethodsEngagedInAnimationEvent(origin, this.methodName, []);
     }
 
     public copyTo (that: AnimationGraphEventBinding): AnimationGraphEventBinding {

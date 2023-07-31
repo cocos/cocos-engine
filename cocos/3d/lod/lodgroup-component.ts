@@ -242,6 +242,8 @@ export class LODGroup extends Component {
 
     private _eventRegistered = false;
 
+    private _forceUsedLevels: number[] = [];
+
     constructor () {
         super();
     }
@@ -543,7 +545,20 @@ export class LODGroup extends Component {
      * lodLevel @en The LOD level to use. Passing lodLevel < 0 will return to standard LOD processing. @zh 要使用的LOD层级，为负数时使用标准的处理流程
      */
     public forceLOD (lodLevel: number): void {
-        this.lodGroup.lockLODLevels(lodLevel < 0 ? [] : [lodLevel]);
+        this._forceUsedLevels = lodLevel < 0 ? [] : [lodLevel];
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
+    }
+
+    /**
+     * @en Force multi LOD level to use, This function is only called in editor.<br/>
+     * @zh 强制使用某几级的LOD,该接口只会在编辑器下调用。
+     * lodIndexArray @en The LOD level array. Passing [] will return to standard LOD processing. @zh 要使用的LOD层级数组，传[]时将使用标准的处理流程。
+     */
+    public forceLODs (lodIndexArray: number[]): void {
+        if (EDITOR) {
+            this._forceUsedLevels = lodIndexArray.slice();
+            this.lodGroup.lockLODLevels(this._forceUsedLevels);
+        }
     }
 
     onLoad (): void {
@@ -587,6 +602,7 @@ export class LODGroup extends Component {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -609,6 +625,7 @@ export class LODGroup extends Component {
 
     onDisable (): void {
         this._detachFromScene();
+        this.lodGroup.lockLODLevels([]);
     }
 
     private _attachToScene (): void {
@@ -625,9 +642,6 @@ export class LODGroup extends Component {
         if (this._lodGroup.scene) { this._lodGroup.scene.removeLODGroup(this._lodGroup); }
     }
 
-    /**
-     * @engineInternal
-     */
     private _emitChangeNode (node: Node): void {
         if (EDITOR) {
             EditorExtends.Node.emit('change', node.uuid, node);

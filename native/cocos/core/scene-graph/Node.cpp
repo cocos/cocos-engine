@@ -345,28 +345,27 @@ void Node::removeAllChildren() {
 }
 
 void Node::setSiblingIndex(index_t index) {
-    if (!_parent) {
+    if (!_parent || (index < 0 && index != -1)) {
         return;
     }
     if (!!(_parent->_objFlags & Flags::DEACTIVATING)) {
         debug::errorID(3821);
         return;
     }
+
     ccstd::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
-    index = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
-    index_t oldIdx = getIdxOfChild(siblings, this);
-    if (index != oldIdx) {
-        if (oldIdx != CC_INVALID_INDEX) {
-            siblings.erase(siblings.begin() + oldIdx);
-        }
-        if (index < siblings.size()) {
-            siblings.insert(siblings.begin() + index, this);
-        } else {
-            siblings.emplace_back(this);
-        }
-        _parent->updateSiblingIndex();
-        emit<SiblingIndexChanged>(index);
+    if (index == -1 || index >= siblings.size()) {
+        index = static_cast<index_t>(siblings.size()) - 1;
     }
+
+    if (index < 0 || index == _siblingIndex) {
+        return;
+    }
+
+    siblings.erase(siblings.begin() + _siblingIndex);
+    siblings.insert(siblings.begin() + index, this);
+    _parent->updateSiblingIndex();
+    emit<SiblingIndexChanged>(index);
 }
 
 Node *Node::getChildByPath(const ccstd::string &path) const {

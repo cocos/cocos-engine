@@ -847,17 +847,7 @@ MTLTextureType mu::toMTLTextureType(TextureType type) {
 }
 
 NSUInteger mu::toMTLSampleCount(SampleCount count) {
-    //TODO_Zeqiang: query from device.
-    switch (count) {
-        case SampleCount::ONE: return 1;
-        case SampleCount::MULTIPLE_PERFORMANCE: return 2;
-        case SampleCount::MULTIPLE_BALANCE: return 4;
-        case SampleCount::MULTIPLE_QUALITY:
-            return 8;
-            //        case SampleCount::X16: return 16;
-            //        case SampleCount::X32: return 32;
-            //        case SampleCount::X64: return 64;
-    }
+    return static_cast<NSUInteger>(count);
 }
 
 MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {

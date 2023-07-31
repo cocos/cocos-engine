@@ -1,10 +1,11 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 // 排列时，相邻元素的间隔间距
-const MARGIN = '4PX';
+const MARGIN = '4px';
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 const { setHidden, setDisabled, isMultipleInvalid } = require('../utils/prop');
 

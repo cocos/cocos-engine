@@ -8,9 +8,7 @@
                 "970b0598-bcb0-4714-91fb-2e81440dccd8",
                 "bcd64cc6-2dd9-43f6-abbe-66318d332032",
                 "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
-                "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
-                "5c601d96-e4c7-4698-991b-7ee674b11079",
-                "9361fd90-ba52-4f84-aa93-6e878fd576ca"
+                "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
             ]
         },
         "gfx-webgl": {
@@ -25,17 +23,9 @@
         "3d": {
             "modules": ["3d"],
             "dependentAssets": [
-                "1baf0fc9-befa-459c-8bdd-af1a450a0319",
                 "511d2633-09a7-4bdd-ac42-f778032124b3",
                 "5d45aa00-e064-4938-b314-4265f0c2258c",
-                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
-                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
-                "620b6bf3-0369-4560-837f-2a2c00b73c26",
-                "2df0a40b-26c2-47ce-be0d-4d3cd4164737",
-                "39f74202-ead5-4a45-b966-273d526adbf1",
-                "8f6ac413-2f1e-4b88-b26f-54556b5dd510",
-                "45e7c0c8-2699-4912-b45f-d42bb8384189",
-                "84ac6f69-3086-455a-86a4-561da8ee710b"
+                "9361fd90-ba52-4f84-aa93-6e878fd576ca"
             ]
         },
         "animation": {
@@ -199,7 +189,13 @@
                 "cafd95c9-c558-46f9-9812-1224b65c09ee",
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
                 "2df0a40b-26c2-47ce-be0d-4d3cd4164737",
-                "dace6a58-1705-48c7-a275-70afc9534e88"
+                "dace6a58-1705-48c7-a275-70afc9534e88",
+                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
+                "39f74202-ead5-4a45-b966-273d526adbf1",
+                "8f6ac413-2f1e-4b88-b26f-54556b5dd510",
+                "45e7c0c8-2699-4912-b45f-d42bb8384189",
+                "84ac6f69-3086-455a-86a4-561da8ee710b",
+                "5c601d96-e4c7-4698-991b-7ee674b11079"
             ]
         },
         "websocket": {
@@ -667,6 +663,12 @@
         },
         "CULL_ASM_JS_MODULE": {
             "comment": "Whether cull the asm js module.\nThe external modules ending with '.asm.js'. or '.js.mem' is culled if this constant is true.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "WASM_SUBPACKAGE": {
+            "comment": "An internal constant to indicate whether we use wasm assets as minigame subpackage.\nThis is useful when we need to reduce code size.",
             "type": "boolean",
             "value": false,
             "internal": true

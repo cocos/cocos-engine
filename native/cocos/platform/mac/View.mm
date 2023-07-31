@@ -38,6 +38,7 @@
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
+    NSRect _contentRect;
     AppDelegate *_delegate;
 }
 
@@ -73,6 +74,11 @@
                                                                        owner:self
                                                                     userInfo:nil] autorelease];
         [self addTrackingArea:trackingArea];
+        
+        NSWindow* window = self.window;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidMove:) name:NSWindowDidMoveNotification
+            object:window];
+        [self updateContentRect];
     }
     return self;
 }
@@ -88,6 +94,7 @@
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
     cc::events::WindowEvent::broadcast(ev);
+    [self updateContentRect];
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -110,6 +117,8 @@
         ev.height = static_cast<int>(nativeSize.height);
         cc::events::WindowEvent::broadcast(ev);
     }
+
+    [self updateContentRect];
 }
 
 - (void)viewDidChangeBackingProperties {
@@ -133,6 +142,7 @@
         ev.height = static_cast<int>(height);
         cc::events::WindowEvent::broadcast(ev);
     }
+    [self updateContentRect];
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -272,6 +282,15 @@
     return YES;
 }
 
+- (void)updateContentRect {
+    NSWindow* window = self.window;
+    _contentRect = [window contentRectForFrameRect:[window frame]];
+}
+
+- (void)windowDidMove:(NSNotification *)aNotification {
+    [self updateContentRect];
+}
+
 - (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
     _mouseEvent.windowId = [self getWindowId];
     _mouseEvent.type = type;
@@ -311,9 +330,11 @@
         }
 
         auto mainDisplayId = CGMainDisplayID();
-        float windowX = contentRect.origin.x;
+    
+        float windowX = _contentRect.origin.x;
         float windowY =
-           CGDisplayPixelsHigh(mainDisplayId) - contentRect.origin.y - contentRect.size.height;
+           CGDisplayPixelsHigh(mainDisplayId) - _contentRect.origin.y - _contentRect.size.height;
+       
         window->setLastMousePos(windowX + _mouseEvent.x, windowY + _mouseEvent.y);
     }
     cc::events::Mouse::broadcast(_mouseEvent);

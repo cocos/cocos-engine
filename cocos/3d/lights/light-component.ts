@@ -171,7 +171,7 @@ export class Light extends Component {
      * 光源色温。
      */
     @slide
-    @range([1000, 15000, 1])
+    @range([1000, 15000, 100])
     @tooltip('i18n:lights.color_temperature')
     get colorTemperature (): number {
         return this._colorTemperature;

@@ -73,7 +73,7 @@ function renderGroupEffectOptions(effects) {
 }
 
 exports.style = `
-.invalid { display: none; }
+.invalid { display: none; text-align: center; margin-top: 8px; }
 .invalid[active] { display: block; }
 .invalid[active] ~ * { display: none; }
 
@@ -319,12 +319,13 @@ exports.methods = {
                 $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {
                     const dump = $prop.dump;
                     if (dump && dump.childMap && dump.children.length) {
-                        if (!$prop.$children) {
-                            $prop.$children = document.createElement('section');
-                            $prop.$children.setAttribute(
+                        if (!$prop.$childMap) {
+                            $prop.$childMap = document.createElement('section');
+                            $prop.$childMap.setAttribute(
                                 'style',
                                 'margin-left: var(--ui-prop-margin-left, unset);',
                             );
+                            $prop.$childMap.$props = {};
 
                             for (const childName in dump.childMap) {
                                 if (dump.childMap[childName].value === undefined) {
@@ -335,29 +336,29 @@ exports.methods = {
                                     loopSetAssetDumpDataReadonly(dump.childMap[childName]);
                                 }
 
-                                $prop.$children[childName] = document.createElement('ui-prop');
-                                $prop.$children[childName].setAttribute('type', 'dump');
-                                $prop.$children[childName].render(dump.childMap[childName]);
-                                $prop.$children.appendChild($prop.$children[childName]);
+                                $prop.$childMap.$props[childName] = document.createElement('ui-prop');
+                                $prop.$childMap.$props[childName].setAttribute('type', 'dump');
+                                $prop.$childMap.$props[childName].render(dump.childMap[childName]);
+                                $prop.$childMap.appendChild($prop.$childMap.$props[childName]);
                             }
 
-                            if (Array.from($prop.$children.children).length) {
-                                $prop.after($prop.$children);
+                            if (Array.from($prop.$childMap.children).length) {
+                                $prop.after($prop.$childMap);
                             }
 
                             $prop.addEventListener('change-dump', (e) => {
                                 if (e.target.dump.value) {
-                                    $prop.$children.removeAttribute('hidden');
+                                    $prop.$childMap.removeAttribute('hidden');
                                 } else {
-                                    $prop.$children.setAttribute('hidden', '');
+                                    $prop.$childMap.setAttribute('hidden', '');
                                 }
                             });
                         }
 
                         if (dump.value) {
-                            $prop.$children.removeAttribute('hidden');
+                            $prop.$childMap.removeAttribute('hidden');
                         } else {
-                            $prop.$children.setAttribute('hidden', '');
+                            $prop.$childMap.setAttribute('hidden', '');
                         }
                     }
                 });
@@ -366,7 +367,11 @@ exports.methods = {
             // when passes length more than one, the ui-section of pipeline state collapse
             if (technique.passes.length > 1) {
                 $container.querySelectorAll('[cache-expand$="PassStates"]').forEach(($pipelineState) => {
-                    $pipelineState.removeAttribute('expand');
+                    const cacheExpand = $pipelineState.getAttribute('cache-expand');
+                    if (!this.defaultCollapsePasses[cacheExpand]) {
+                        $pipelineState.expand = false;
+                        this.defaultCollapsePasses[cacheExpand] = true;
+                    }
                 });
             }
         }
@@ -410,7 +415,6 @@ exports.methods = {
             'children',
             'defines',
             'extends',
-            'pipelineStates',
         ];
 
         const cacheData = this.cacheData;
@@ -434,7 +438,7 @@ exports.methods = {
                         cacheData[name] = {};
                     }
 
-                    const { type, value } = prop[name];
+                    const { type, value, isObject } = prop[name];
                     if (type && value !== undefined) {
                         if (!cacheData[name][passIndex]) {
                             if (name === 'USE_INSTANCING' && passIndex !== 0) {
@@ -449,7 +453,9 @@ exports.methods = {
                         }
                     }
 
-                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                    if (isObject) {
+                        cacheProperty(value, passIndex);
+                    } else if (prop[name].childMap && typeof prop[name].childMap === 'object') {
                         cacheProperty(prop[name].childMap, passIndex);
                     }
                 }
@@ -503,7 +509,9 @@ exports.methods = {
                         }
                     }
 
-                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                    if (prop[name].isObject) {
+                        updateProperty(prop[name].value, passIndex);
+                    } else if (prop[name].childMap && typeof prop[name].childMap === 'object') {
                         updateProperty(prop[name].childMap, passIndex);
                     }
                 }
@@ -578,6 +586,7 @@ exports.update = async function(assetList, metaList) {
  * Method of initializing the panel
  */
 exports.ready = function() {
+    this.defaultCollapsePasses = {};
     this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {

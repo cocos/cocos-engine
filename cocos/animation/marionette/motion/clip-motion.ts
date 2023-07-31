@@ -168,7 +168,7 @@ class ClipMotionEval implements MotionEval {
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         this._frameEventEval?.reset();
     }
 
@@ -216,7 +216,7 @@ class ClipMotionPort implements MotionPort {
         return this._eval[evaluatePortTag](progress, context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._eval.reenter();
     }
 

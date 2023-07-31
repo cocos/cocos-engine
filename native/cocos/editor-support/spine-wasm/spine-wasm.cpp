@@ -44,28 +44,25 @@ SkeletonData* SpineWasmUtil::querySpineSkeletonDataByUUID(const std::string& uui
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithJson(const std::string& jsonStr, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(), "", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonJson json(attachmentLoader);
     json.setScale(1.0F);
     SkeletonData* skeletonData = json.readSkeletonData(jsonStr.c_str());
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
+
     return skeletonData;
 }
 
 SkeletonData* SpineWasmUtil::createSpineSkeletonDataWithBinary(uint32_t byteSize, const std::string& altasStr) {
     auto* atlas = new Atlas(altasStr.c_str(), altasStr.size(), "", nullptr, false);
     if (!atlas) {
-        //LogUtil::PrintToJs("create atlas failed!!!");
         return nullptr;
     }
     AttachmentLoader* attachmentLoader = new AtlasAttachmentLoaderExtension(atlas);
     spine::SkeletonBinary binary(attachmentLoader);
     binary.setScale(1.0F);
     SkeletonData* skeletonData = binary.readSkeletonData(s_mem, byteSize);
-    //LogUtil::PrintToJs("initWithSkeletonData ok.");
     return skeletonData;
 }
 

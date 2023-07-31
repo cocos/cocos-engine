@@ -4,8 +4,7 @@ import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-gr
 import { poseGraphOp } from "../../../../../cocos/animation/marionette/pose-graph/op";
 import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PVNodeGetVariableFloat } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable";
-import { pseudoRandomRange } from "../../../../../exports/base";
-import { createPseudoRandomGenerator01 } from "../../../../utils/random";
+import { PseudoRandomGenerator } from "../../../../utils/random";
 import { BlendTwoOperator } from "../../utils/abstract-operators";
 import { AnimationGraphEvalMock } from "../../utils/eval-mock";
 import { createAnimationGraph } from "../../utils/factory";
@@ -42,14 +41,14 @@ export function includeTestsFor_BlendTwoPoseLike_PoseNode<TPoseNode extends Pose
     });
 
     test(`Ratio`, () => {
-        const g = createPseudoRandomGenerator01(10086);
+        const g = new PseudoRandomGenerator(10086);
 
         const fixture = {
-            initial_ratio: g(),
+            initial_ratio: g.range01(),
 
-            blend_input_data_1: PoseData_1tr_1aux.generate(g),
+            blend_input_data_1: PoseData_1tr_1aux.generate(() => g.range01()),
 
-            blend_input_data_2: PoseData_1tr_1aux.generate(g),
+            blend_input_data_2: PoseData_1tr_1aux.generate(() => g.range01()),
         };
 
         const fillPoseGraph = (poseGraph: PoseGraph) => {

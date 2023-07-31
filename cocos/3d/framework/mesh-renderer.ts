@@ -152,7 +152,7 @@ class ModelBakeSettings extends EventTarget {
      * @zh 模型是否是静态的并可以烘培光照贴图。
      * 注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0 })
+    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0, style: 'section' })
     @editable
     get bakeable (): boolean {
         return this._bakeable;
@@ -210,7 +210,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether to use light probe which provides indirect light to dynamic objects.
      * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
      */
-    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1 })
+    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1, style: 'section' })
     @editable
     @type(CCBoolean)
     get useLightProbe (): boolean {
@@ -241,7 +241,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
-    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2 })
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2, style: 'section' })
     @type(Enum(ReflectionProbeType))
     get reflectionProbe (): ReflectionProbeType {
         return this._reflectionProbeType;
@@ -339,7 +339,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2, style: 'section' })
     @disallowAnimation
     get shadowBias (): number {
         return this._shadowBias;
@@ -990,7 +990,7 @@ export class MeshRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public isUseGPUScene () {
+    public isUseGPUScene (): boolean {
         const sceneData = cclegacy.director.root.pipeline.pipelineSceneData;
         if (!sceneData || !sceneData.isGPUDrivenEnabled()) {
             return false;

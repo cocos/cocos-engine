@@ -33,6 +33,7 @@
 #include "core/builtin/BuiltinResMgr.h"
 #include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
+#include "platform/CountdownTrigger.h"
 #include "platform/FileUtils.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/core/ProgramLib.h"
@@ -69,6 +70,12 @@
     #include "profiler/DebugRenderer.h"
 #endif
 #include "profiler/Profiler.h"
+
+#if !CC_EDITOR && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
+    #define COUNTDOWN_TRIGGER_ENABLED 1
+#else
+    #define COUNTDOWN_TRIGGER_ENABLED 0
+#endif
 
 namespace {
 
@@ -134,6 +141,10 @@ int32_t Engine::init() {
 
     EventDispatcher::init();
 
+#if COUNTDOWN_TRIGGER_ENABLED
+    CountdownTrigger::init();
+#endif
+
     BasePlatform *platform = BasePlatform::getPlatform();
 
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
@@ -190,6 +201,9 @@ void Engine::destroy() {
 
     CCObject::deferredDestroy();
 
+#if COUNTDOWN_TRIGGER_ENABLED
+    CountdownTrigger::destroy();
+#endif
     delete _builtinResMgr;
     delete _programLib;
 
@@ -284,6 +298,13 @@ void Engine::tick() {
 #endif
 
         prevTime = std::chrono::steady_clock::now();
+
+#if COUNTDOWN_TRIGGER_ENABLED
+        CountdownTrigger countdownTrigger(
+            _blockingTimeoutMS, +[]() {
+                events::ScriptExecutionTimeout::broadcast();
+            });
+#endif
 
         _scheduler->update(dt);
 

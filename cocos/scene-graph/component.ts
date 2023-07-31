@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
+import { ccclass, tooltip, displayName, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Script } from '../asset/assets/scripts';
 import { CCObject } from '../core/data/object';
@@ -98,6 +98,7 @@ class Component extends CCObject {
      * log(comp.uuid);
      * ```
      */
+    @visible(false)
     get uuid (): string {
         return this._id;
     }
@@ -122,6 +123,7 @@ class Component extends CCObject {
      * log(comp.enabled);
      * ```
      */
+    @visible(true)
     get enabled (): boolean {
         return this._enabled;
     }

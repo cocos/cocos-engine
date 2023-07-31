@@ -113,21 +113,24 @@ export function getResourceResidencyName (e: ResourceResidency): string {
 
 export enum QueueHint {
     NONE,
-    RENDER_OPAQUE,
-    RENDER_CUTOUT,
-    RENDER_TRANSPARENT,
+    OPAQUE,
+    MASK,
+    BLEND,
+    RENDER_OPAQUE = OPAQUE,
+    RENDER_CUTOUT = MASK,
+    RENDER_TRANSPARENT = BLEND,
 }
 
 export function getQueueHintName (e: QueueHint): string {
     switch (e) {
     case QueueHint.NONE:
         return 'NONE';
-    case QueueHint.RENDER_OPAQUE:
-        return 'RENDER_OPAQUE';
-    case QueueHint.RENDER_CUTOUT:
-        return 'RENDER_CUTOUT';
-    case QueueHint.RENDER_TRANSPARENT:
-        return 'RENDER_TRANSPARENT';
+    case QueueHint.OPAQUE:
+        return 'OPAQUE';
+    case QueueHint.MASK:
+        return 'MASK';
+    case QueueHint.BLEND:
+        return 'BLEND';
     default:
         return '';
     }
@@ -165,6 +168,8 @@ export enum ResourceFlags {
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
     SHADING_RATE = 0x80,
+    TRANSFER_SRC = 0x100,
+    TRANSFER_DST = 0x200,
 }
 
 export enum TaskType {
@@ -202,6 +207,7 @@ export enum SceneFlags {
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
     REFLECTION_PROBE = 0x2000,
+    GPU_DRIVEN = 0x4000,
     ALL = 0xFFFFFFFF,
 }
 
@@ -426,6 +432,9 @@ export class CopyPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    sourceOffset = 0;
+    targetOffset = 0;
+    bufferSize = 0;
 }
 
 export class UploadPair {
@@ -643,6 +652,9 @@ export function saveCopyPair (ar: OutputArchive, v: CopyPair): void {
     ar.writeNumber(v.targetMostDetailedMip);
     ar.writeNumber(v.targetFirstSlice);
     ar.writeNumber(v.targetPlaneSlice);
+    ar.writeNumber(v.sourceOffset);
+    ar.writeNumber(v.targetOffset);
+    ar.writeNumber(v.bufferSize);
 }
 
 export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
@@ -656,6 +668,9 @@ export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
     v.targetMostDetailedMip = ar.readNumber();
     v.targetFirstSlice = ar.readNumber();
     v.targetPlaneSlice = ar.readNumber();
+    v.sourceOffset = ar.readNumber();
+    v.targetOffset = ar.readNumber();
+    v.bufferSize = ar.readNumber();
 }
 
 export function saveMovePair (ar: OutputArchive, v: MovePair): void {

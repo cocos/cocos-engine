@@ -71,8 +71,6 @@ public:
             return std::strcmp(ext, extension.c_str()) == 0;
         });
     }
-
-    VkSampleCountFlagBits getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const;
 };
 
 struct CCVKAccessInfo {
@@ -119,6 +117,7 @@ public:
 
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    DepthStencilAttachment depthStencilResolveAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
@@ -148,10 +147,19 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     uint32_t size = 0U;
     uint32_t arrayLayers = 1U;
     uint32_t mipLevels = 1U;
-    SampleCount samples = SampleCount::ONE;
+    SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    bool memoryless = false;
+
+    /*
+     * allocate and bind memory by Texture.
+     * If any of the following conditions are met, then the statement is false
+     * 1. Texture is a swapchain image.
+     * 2. Texture has flag LAZILY_ALLOCATED.
+     * 3. Memory bound manually bound.
+     * 4. Sparse Image.
+     */
+    bool memoryAllocated = true;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
@@ -254,6 +262,7 @@ struct CCVKGPUFramebuffer : public CCVKGPUDeviceObject {
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
     ccstd::vector<ConstPtr<CCVKGPUTextureView>> gpuColorViews;
     ConstPtr<CCVKGPUTextureView> gpuDepthStencilView;
+    ConstPtr<CCVKGPUTextureView> gpuDepthStencilResolveView;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
     std::vector<VkFramebuffer> vkFrameBuffers;
     CCVKGPUSwapchain *swapchain = nullptr;

@@ -26,6 +26,7 @@ import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO,
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here
@@ -256,3 +257,5 @@ class SystemInfo extends EventTarget {
 }
 
 export const systemInfo = new SystemInfo();
+
+checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());

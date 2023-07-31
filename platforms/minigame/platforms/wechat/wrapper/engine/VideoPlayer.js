@@ -291,7 +291,11 @@ if (cc.internal.VideoPlayer) {
             let self = this;
             let video = this._video;
             if (!video || !this._visible) return;
-
+            // HACK: this is to unify inconsistent behavior (on Android, video won't play from begin if called pause() before called stop().
+            // but if called play() before stop(), video will play from begin.) of wechat official interface on Android & iOS.
+            if (!this._playing) {
+                video.play();
+            }
             video.stop().then(function (res) {
                 if (res.errMsg && !res.errMsg.includes('ok')) {
                     console.error('failed to stop video player');

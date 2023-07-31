@@ -129,7 +129,7 @@ function _componentCorrupted (node: Node, comp: Component, index: number): void 
  * @zh 用于执行节点和组件的激活和停用操作的管理器。
  */
 export default class NodeActivator {
-    public resetComp?: ((comp: Component, didResetToDefault: boolean) => void);
+    public declare resetComp?: ((comp: Component, didResetToDefault: boolean) => void);
     protected _activatingStack!: ActivateTask[];
 
     constructor () {

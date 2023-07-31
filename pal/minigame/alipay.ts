@@ -23,8 +23,9 @@
 */
 
 import { IMiniGame } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let my: any;
 
@@ -78,10 +79,19 @@ minigame.onTouchCancel = function (cb): void {
 };
 // #endregion TouchEvent
 
+// #region Audio
+const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
+    onPlay: true,  // Fix: onPlay can not be executed at Alipay(Override onPlay method).
+    onPause: true,  // Fix: calling pause twice, onPause won't execute twice.(Override onPause method)
+    onStop: false,
+    onSeek: false,
+}, true);
+
+// eslint-disable-next-line func-names
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     // NOTE: `onCanPlay` and `offCanPlay` is not standard minigame interface,
     // so here we mark audio as type of any
-    const audio: any = my.createInnerAudioContext();
+    const audio: any = polyfilledCreateInnerAudio();
     audio.onCanplay = audio.onCanPlay.bind(audio);
     audio.offCanplay = audio.offCanPlay.bind(audio);
     delete audio.onCanPlay;
@@ -149,3 +159,5 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./alipay')>());

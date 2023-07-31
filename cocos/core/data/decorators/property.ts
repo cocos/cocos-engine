@@ -25,7 +25,7 @@
 import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
-import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor, Initializer } from './utils';
+import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
@@ -75,7 +75,7 @@ export function property (
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
         descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ): void {
-        const classStash = getOrCreateClassStash(target);
+        const classStash = getOrCreateClassDecoratorStash(target as AnyFunction);
         const propertyStash = getOrCreateEmptyPropertyStash(
             target,
             propertyKey,
@@ -140,16 +140,11 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
     return dummyObj;
 }
 
-function getOrCreateClassStash (target: Parameters<LegacyPropertyDecorator>[0]): ClassStash {
-    const cache = getClassCache(target.constructor) as ClassStash;
-    return cache;
-}
-
 function getOrCreateEmptyPropertyStash (
     target: Parameters<LegacyPropertyDecorator>[0],
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
 ): PropertyStash {
-    const classStash = getClassCache(target.constructor) as ClassStash;
+    const classStash = getOrCreateClassDecoratorStash(target.constructor);
     const ccclassProto = getSubDict(classStash, 'proto');
     const properties = getSubDict(ccclassProto, 'properties');
     const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
@@ -161,7 +156,7 @@ export function getOrCreatePropertyStash (
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): PropertyStash {
-    const classStash = getClassCache(target.constructor) as ClassStash;
+    const classStash = getOrCreateClassDecoratorStash(target.constructor);
     const ccclassProto = getSubDict(classStash, 'proto');
     const properties = getSubDict(ccclassProto, 'properties');
     const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;

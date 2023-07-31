@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable, type } from 'cc.decorator';
+import { ccclass, editable, serializable, type, visible } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
@@ -40,6 +40,7 @@ import type { Scene } from './scene';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
+import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -151,6 +152,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @readOnly
      */
+    @visible(false)
     get uuid (): string {
         return this._id;
     }
@@ -240,8 +242,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *
      * @deprecated since v3.4.0
      */
-    get eventProcessor (): any {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    get eventProcessor (): NodeEventProcessor {
         return this._eventProcessor;
     }
 
@@ -376,7 +377,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _name: string;
 
-    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
@@ -466,10 +467,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3821);
         }
 
+        // Should set it before invoking `this._onSetParent()` as `this._onSetParent` will use new parent.
         this._parent = newParent;
-        // Reset sibling index
-        this._siblingIndex = 0;
-
         this._onSetParent(oldParent, keepWorldTransform);
 
         if (this.emit) {
@@ -478,7 +477,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
-                const removeAt = oldParent._children.indexOf(this);
+                const removeAt = this._siblingIndex;
                 if (DEV && removeAt < 0) {
                     errorID(1633);
                     return;
@@ -491,6 +490,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             }
         }
 
+        // Reset sibling index
+        this._siblingIndex = 0;
         if (newParent) {
             if (DEBUG && (newParent._objFlags & Deactivating)) {
                 errorID(3821);
@@ -614,31 +615,36 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @en Set the sibling index of the current node in its parent's children array.
      * @zh 设置当前节点在父节点的 children 数组中的位置。
+     * @param index @en New sibling index. If index equals -1 or greater or equals then its parent's children size, the node will be
+     * insert at the end of the its parent's children array.
+     * @zh 新的兄弟节点索引值。如果该值等于 -1 或者大于等于兄弟节点数量，那么该节点将会被插到兄弟节点数组的尾部。
      */
     public setSiblingIndex (index: number): void {
-        if (!this._parent) {
+        if (!this._parent || (index < 0 && index !== -1)) {
             return;
         }
         if (this._parent._objFlags & Deactivating) {
             errorID(3821);
             return;
         }
+
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
-        const oldIndex = siblings.indexOf(this);
-        if (index !== oldIndex) {
-            siblings.splice(oldIndex, 1);
-            if (index < siblings.length) {
-                siblings.splice(index, 0, this);
-            } else {
-                siblings.push(this);
-            }
-            this._parent._updateSiblingIndex();
-            if (this._onSiblingIndexChanged) {
-                this._onSiblingIndexChanged(index);
-            }
-            this._eventProcessor.onUpdatingSiblingIndex();
+        if (index === -1 || index >= siblings.length) {
+            index = siblings.length - 1;
         }
+
+        if (index === this._siblingIndex) {
+            return;
+        }
+
+        siblings.splice(this._siblingIndex, 1);
+        siblings.splice(index, 0, this);
+        this._parent._updateSiblingIndex();
+
+        if (this._onSiblingIndexChanged) {
+            this._onSiblingIndexChanged(index);
+        }
+        this._eventProcessor.onUpdatingSiblingIndex();
     }
 
     /**
@@ -1140,7 +1146,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         default:
             break;
         }
-        this._eventProcessor.on(type, callback, target, useCapture);
+        this._eventProcessor.on(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
@@ -1160,7 +1166,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * ```
      */
     public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
-        this._eventProcessor.off(type, callback, target, useCapture);
+        this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
         // All listener removed
@@ -1188,7 +1194,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param target - The target (this object) to invoke the callback, can be null
      */
     public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
-        this._eventProcessor.once(type, callback, target, useCapture);
+        this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 
     /**

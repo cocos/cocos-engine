@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { AudioPlayer } from 'pal/audio';
+import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
@@ -59,6 +59,7 @@ export class AudioSource extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
     protected _player: AudioPlayer | null = null;
+    private _hasRegisterListener: boolean = false;
 
     @serializable
     protected _loop = false;
@@ -78,9 +79,7 @@ export class AudioSource extends Component {
     private _resetPlayer (): void {
         if (this._player) {
             audioManager.removePlaying(this._player);
-            this._player.offEnded();
-            this._player.offInterruptionBegin();
-            this._player.offInterruptionEnd();
+            this._unregisterListener();
             this._player.destroy();
             this._player = null;
         }
@@ -137,6 +136,14 @@ export class AudioSource extends Component {
             // clear old player
             this._resetPlayer();
             this._player = player;
+            this._syncStates();
+            this.node?.emit(_LOADED_EVENT);
+        }).catch((e) => {});
+    }
+
+    private _registerListener (): void {
+        if (!this._hasRegisterListener && this._player) {
+            const player = this._player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
                 this.node?.emit(AudioSourceEventType.ENDED, this);
@@ -145,11 +152,21 @@ export class AudioSource extends Component {
                 audioManager.removePlaying(player);
             });
             player.onInterruptionEnd(() => {
-                audioManager.addPlaying(player);
+                if (this._player === player) {
+                    audioManager.addPlaying(player);
+                }
             });
-            this._syncStates();
-            this.node?.emit(_LOADED_EVENT);
-        }).catch((e) => {});
+            this._hasRegisterListener = true;
+        }
+    }
+
+    private _unregisterListener (): void {
+        if (this._player && this._hasRegisterListener) {
+            this._player.offEnded();
+            this._player.offInterruptionBegin();
+            this._player.offInterruptionEnd();
+            this._hasRegisterListener = false;
+        }
     }
 
     /**
@@ -233,8 +250,7 @@ export class AudioSource extends Component {
 
     public onDestroy (): void {
         this.stop();
-        this._player?.destroy();
-        this._player = null;
+        this.clip = null;// It will trigger _syncPlayer then call resetPlayer
     }
     /**
      * @en
@@ -334,16 +350,21 @@ export class AudioSource extends Component {
             this._operationsBeforeLoading.push('play');
             return;
         }
+        this._registerListener();
         audioManager.discardOnePlayingIfNeeded();
         // Replay if the audio is playing
         if (this.state === AudioState.PLAYING) {
             this._player?.stop().catch((e) => {});
         }
         const player = this._player;
-        this._player?.play().then(() => {
-            audioManager.addPlaying(player!);
-            this.node?.emit(AudioSourceEventType.STARTED, this);
-        }).catch((e) => {});
+        if (player) {
+            player.play().then(() => {
+                this.node?.emit(AudioSourceEventType.STARTED, this);
+            }).catch((e) => {
+                audioManager.removePlaying(player);
+            });
+            audioManager.addPlaying(player);
+        }
     }
 
     /**
@@ -357,10 +378,7 @@ export class AudioSource extends Component {
             this._operationsBeforeLoading.push('pause');
             return;
         }
-        const player = this._player;
-        this._player?.pause().then(() => {
-            audioManager.removePlaying(player!);
-        }).catch((e) => {});
+        this._player?.pause().catch((e) => {});
     }
 
     /**
@@ -374,10 +392,10 @@ export class AudioSource extends Component {
             this._operationsBeforeLoading.push('stop');
             return;
         }
-        const player = this._player;
-        this._player?.stop().then(() => {
-            audioManager.removePlaying(player!);
-        }).catch((e) => {});
+        if (this._player) {
+            this._player.stop().catch((e) => {});
+            audioManager.removePlaying(this._player);
+        }
     }
 
     /**
@@ -393,18 +411,22 @@ export class AudioSource extends Component {
             error('Invalid audio clip');
             return;
         }
+        let player: OneShotAudio;
         AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
+            player = oneShotAudio;
             audioManager.discardOnePlayingIfNeeded();
-            oneShotAudio.onPlay = (): void => {
-                audioManager.addPlaying(oneShotAudio);
-            };
             oneShotAudio.onEnd = (): void => {
                 audioManager.removePlaying(oneShotAudio);
             };
             oneShotAudio.play();
-        }).catch((e): void => {});
+            audioManager.addPlaying(oneShotAudio);
+        }).catch((e): void => {
+            if (player) {
+                audioManager.removePlaying(player);
+            }
+        });
     }
 
     protected _syncStates (): void {

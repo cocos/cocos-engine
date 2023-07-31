@@ -318,6 +318,16 @@ public:
     uint32_t getVMId() const { return _vmId; }
 
     /**
+     * @brief
+     * This function asks ScriptEngine to interrupt lengthy JavaScript operations and run the provided callback, passing the supplied data to it.
+     * Once the callback completes, control returns to the JavaScript code. Multiple interrupt requests may be ongoing.
+     * This function can be called from a different thread without needing a Locker. The registered callback should not reenter the interrupted Isolate.
+     * @param callback the callback to be called when interruption happens.
+     * @param data the data to be passed to the callback
+     */
+    void requestInterrupt(void (*callback)(void *), void *data);
+
+    /**
      * @brief Fast version of call script function, faster than Object::call
      */
     bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr);

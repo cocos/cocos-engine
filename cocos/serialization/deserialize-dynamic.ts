@@ -85,12 +85,12 @@ type AttributeFormerlySerializedAs = `${AttributeName}${typeof POSTFIX_FORMERLY_
 type AttributeDefault = `${AttributeName}${typeof POSTFIX_DEFAULT}`;
 type AttributeType = `${AttributeName}${typeof POSTFIX_TYPE}`;
 type AttributeEditorOnly = `${AttributeName}${typeof POSTFIX_EDITOR_ONLY}`;
-type AttrResult = {
+interface AttrResult {
     [K: string]: typeof K extends AttributeFormerlySerializedAs ? string :
         typeof K extends AttributeDefault ? unknown :
         typeof K extends AttributeType ? AnyFunction :
         typeof K extends AttributeEditorOnly ? boolean : never;
-};
+}
 
 function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const attrs: AttrResult = CCClass.Attr.getClassAttrs(klass);
@@ -100,7 +100,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -136,17 +136,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            let isPrimitiveType;
-            if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-            } else {
-                const defaultType = typeof defaultValue;
-                isPrimitiveType = defaultType === 'string'
-                                  || defaultType === 'number'
-                                  || defaultType === 'boolean';
-            }
-
-            if (isPrimitiveType) {
+            const isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
+            if (isPrimitiveTypeInFastMode) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
@@ -181,7 +172,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     const shouldCopyId = js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component);
     let shouldCopyRawData = false;
 
@@ -206,18 +197,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
-            let isPrimitiveType = false;
+            let isPrimitiveTypeInFastMode = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-                } else {
-                    const defaultType = typeof defaultValue;
-                    isPrimitiveType = defaultType === 'string'
-                                      || defaultType === 'number'
-                                      || defaultType === 'boolean';
-                }
+                isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
             }
-            if (fastMode && isPrimitiveType) {
+            if (isPrimitiveTypeInFastMode) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
                     simplePropsToRead = simpleProps.slice();
                 }
@@ -251,7 +235,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             if (prop === undefined) {
                 continue;
             }
-            if (!fastMode && typeof prop !== 'object') {
+            if (typeof prop !== 'object') {
                 o[propName] = prop;
             } else {
                 // fastMode (so will not simpleProp) or object
@@ -281,28 +265,50 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     };
 }
 
+/**
+ * Tells if the class can be deserialized in "fast mode".
+ * In fast mode, deserialization of the class will go into an optimized way:
+ * each class property will be examined whether to be primitive according to their default value
+ * and type. Finally, all primitive properties would be together deserialized using simple assignment,
+ * without performing in-loop check.
+ */
+function canBeDeserializedInFastMode (klass: any): boolean {
+    return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+}
+
+function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
+    if (defaultValue === undefined) {
+        return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+    } else {
+        const defaultType = typeof defaultValue;
+        return defaultType === 'string'
+                          || defaultType === 'number'
+                          || defaultType === 'boolean';
+    }
+}
+
 type TypedArrayViewConstructorName =
     | 'Uint8Array' | 'Int8Array'
     | 'Uint16Array' | 'Int16Array'
     | 'Uint32Array' | 'Int32Array'
     | 'Float32Array' | 'Float64Array';
 
-type SerializedTypedArray = {
+interface SerializedTypedArray {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArray';
     array: number[];
     ctor: TypedArrayViewConstructorName;
-};
+}
 
-type SerializedTypedArrayRef = {
+interface SerializedTypedArrayRef {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArrayRef';
     ctor: TypedArrayViewConstructorName;
     offset: number;
     length: number;
-};
+}
 
 type SerializedGeneralTypedObject = {
     __id__: never;
@@ -310,18 +316,18 @@ type SerializedGeneralTypedObject = {
     __type__?: NotKnownTypeTag;
 } & Record<NotTypeTag, SerializedFieldValue>;
 
-type SerializedObjectReference = {
+interface SerializedObjectReference {
     __type__: never;
     __uuid__: never;
     __id__: number;
 }
 
-type SerializedUUIDReference = {
+interface SerializedUUIDReference {
     __type__: never;
     __id__: never;
     __uuid__: string;
     __expectedType__: string;
-};
+}
 
 type SerializedObject = SerializedTypedArray | SerializedTypedArrayRef | SerializedGeneralTypedObject;
 
@@ -588,12 +594,10 @@ class _Deserializer {
             return;
         }
 
-        // cSpell:words Deserializable
-
-        type ClassicCustomizedDeserializable = { _deserialize: (content: unknown, deserializer: _Deserializer) => void; };
+        interface ClassicCustomizedDeserializable { _deserialize: (content: unknown, deserializer: _Deserializer) => void; }
         if ((object as Partial<ClassicCustomizedDeserializable>)._deserialize) {
             // TODO: content check?
-            (object as ClassicCustomizedDeserializable)._deserialize((value as unknown as { content: unknown }).content, this);
+            (object as Partial<ClassicCustomizedDeserializable>)._deserialize!((value as unknown as { content: unknown }).content, this);
             return;
         }
 
@@ -767,18 +771,18 @@ class _Deserializer {
         klass: SerializableClassConstructor,
     ): void {
         if (klass === cclegacy.Vec2) {
-            type SerializedVec2 = { x?: number; y?: number; };
+            interface SerializedVec2 { x?: number; y?: number; }
             instance.x = (serialized as SerializedVec2).x || 0;
             instance.y = (serialized as SerializedVec2).y || 0;
             return;
         } else if (klass === cclegacy.Vec3) {
-            type SerializedVec3 = { x?: number; y?: number; z?: number; };
+            interface SerializedVec3 { x?: number; y?: number; z?: number; }
             instance.x = (serialized as SerializedVec3).x || 0;
             instance.y = (serialized as SerializedVec3).y || 0;
             instance.z = (serialized as SerializedVec3).z || 0;
             return;
         } else if (klass === cclegacy.Color) {
-            type SerializedColor = { r?: number; g?: number; b?: number; a?: number; };
+            interface SerializedColor { r?: number; g?: number; b?: number; a?: number; }
             instance.r = (serialized as SerializedColor).r || 0;
             instance.g = (serialized as SerializedColor).g || 0;
             instance.b = (serialized as SerializedColor).b || 0;
@@ -786,7 +790,7 @@ class _Deserializer {
             instance.a = (a === undefined ? 255 : a);
             return;
         } else if (klass === cclegacy.Size) {
-            type SerializedSize = { width?: number; height?: number; };
+            interface SerializedSize { width?: number; height?: number; }
             instance.width = (serialized as SerializedSize).width || 0;
             instance.height = (serialized as SerializedSize).height || 0;
             return;
@@ -865,8 +869,8 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     return res;
 }
 
-export function parseUuidDependenciesDynamic (serialized: unknown): never[] {
-    const depends = [];
+export function parseUuidDependenciesDynamic (serialized: unknown): string[] {
+    const depends: string[] = [];
     const parseDependRecursively = (data: any, out: string[]): void => {
         if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
         const uuid = data.__uuid__;

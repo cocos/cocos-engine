@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { PREVIEW } from "internal:constants";
+import { PREVIEW } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const require: (path: string) =>  Promise<void>;
 
@@ -69,3 +70,5 @@ export function loadJsFile (path: string): Promise<void> {
         return require(`${path}`);
     }
 }
+
+checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());
