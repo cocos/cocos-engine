@@ -641,20 +641,6 @@ const Elements = {
 
                 const role = button.getAttribute('role');
 
-                const recordings = [];
-                for (const dump of panel.dumps) {
-                    const prefab = dump.__prefab__;
-                    switch (role) {
-                        case 'reset': {
-                            recordings.push(prefab.rootUuid);
-                        }
-                    }
-                }
-                let undoID;
-                if (recordings.length) {
-                    undoID = await beginRecording(recordings);
-                }
-
                 for (const dump of panel.dumps) {
                     const prefab = dump.__prefab__;
 
@@ -676,11 +662,6 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
-                            // restore-prefab 内置undo;
-                            if (undoID) {
-                                await endRecording(undoID, true);
-                                undoID = undefined;
-                            }
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
                             break;
                         }
@@ -690,10 +671,6 @@ const Elements = {
                             break;
                         }
                     }
-                }
-
-                if (recordings.length && undoID) {
-                    await endRecording(undoID);
                 }
             });
         },
