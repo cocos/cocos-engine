@@ -44,4 +44,5 @@ struct LightingResultPerLayer
   vec3 diffuseColorWithLighting, specularColorWithLighting;
   vec3 directDiffuse, directSpecular, directGF;
   vec3 environmentDiffuse, environmentSpecular, environmentGF;
+  vec3 directSubLayerF, environmentSubLayerF;
 }*/
