@@ -440,7 +440,9 @@ void Mesh::initialize() {
 
         _isMeshDataUploaded = true;
         if (!_allowDataAccess) {
+#if !CC_EDITOR
             releaseData();
+#endif
         }
     }
 }
@@ -1261,7 +1263,9 @@ void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 void Mesh::setAllowDataAccess(bool allowDataAccess) {
     _allowDataAccess = allowDataAccess;
     if (_isMeshDataUploaded && !_allowDataAccess) {
+#if !CC_EDITOR
         releaseData();
+#endif
     }
 }
 
