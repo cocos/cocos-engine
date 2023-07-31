@@ -35,6 +35,7 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
+import { EDITOR } from 'internal:constants';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -493,7 +494,7 @@ export class Mesh extends Asset {
             }
 
             this._isMeshDataUploaded = true;
-            if (!this._allowDataAccess) {
+            if (!this._allowDataAccess && !EDITOR) {
                 this.releaseData();
             }
         }
@@ -1304,7 +1305,7 @@ export class Mesh extends Asset {
      */
     public set allowDataAccess (allowDataAccess: boolean) {
         this._allowDataAccess = allowDataAccess;
-        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+        if (this._isMeshDataUploaded && !this._allowDataAccess && !EDITOR) {
             this.releaseData();
         }
     }
