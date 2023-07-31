@@ -132,7 +132,7 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
-        if (EDITOR || this.settings.totalTime <= 0) {
+        if (EDITOR || this.settings.totalTime <= 0 || this.settings.logo === undefined || this.settings.background === undefined) {
             this.settings.totalTime = 0;
         } else {
             this.device = cclegacy.director.root!.device;
@@ -141,12 +141,12 @@ export class SplashScreen {
             this.preInit();
             this.initLayout();
 
-            if (this.settings.logo!.type === 'default') {
+            if (this.settings.logo.type === 'default') {
                 this.initWaterMark();
             }
             let bgPromise = Promise.resolve();
             let logoPromise = Promise.resolve();
-            if (this.settings.background!.type === 'custom') {
+            if (this.settings.background.type === 'custom') {
                 bgPromise = new Promise<void>((resolve, reject): void => {
                     this.bgImage = new ccwindow.Image();
                     this.bgImage.onload = (): void => {
@@ -159,7 +159,7 @@ export class SplashScreen {
                     this.bgImage.src = this.settings.background!.base64!;
                 });
             }
-            if (this.settings.logo!.type !== 'none') {
+            if (this.settings.logo.type !== 'none') {
                 logoPromise = new Promise<void>((resolve, reject): void => {
                     this.logoImage = new ccwindow.Image();
                     this.logoImage.onload = (): void => {
