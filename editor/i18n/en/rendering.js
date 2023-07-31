@@ -79,7 +79,7 @@ module.exports = {
                     },
                     'isGlobalStandardSkinObject': {
                         displayName: 'Global Standard Skin Object',
-                        tooltip: '(FIXME!!)Bias value (world space unit) that ensure globally unique standard skin model.',
+                        tooltip: 'The engine needs to know the scale of the model corresponding to the skin material in order to calculate the skin scattered light correctly. If no model is checked, the model with the skin material will be automatically selected for calculation.',
                     },
                 },
             },
