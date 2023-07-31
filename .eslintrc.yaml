@@ -101,6 +101,7 @@ rules:
     prefer-destructuring: off # auto-fix is not smart enough to merge different instances
     linebreak-style: off # we don't enforce this on everyone's dev environment for now
     spaced-comment: off # for license declarations
+    default-case-last: off # Place default case clause to first make it more clear that this switch statement has handled all cases
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
