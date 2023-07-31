@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection, ReferenceReflection } from 'typedoc';
+import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, Serializer, SerializeEvent, ReferenceReflection } from 'typedoc';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
