@@ -36,7 +36,6 @@ import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 import { scalableContainerManager } from '../core/memop/scalable-container';
-import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
 import { releaseManager } from '../asset/asset-manager/release-manager';
@@ -174,6 +173,13 @@ export class Director extends EventTarget {
      * @event Director.EVENT_END_FRAME
      */
     public static readonly EVENT_END_FRAME = 'director_end_frame';
+
+    /**
+     * @en The event which will be triggered at the time that UI system update.
+     * @zh UI系统开始更新时的事件。
+     * @event Director.EVENT_UPDATE_UI
+     */
+    public static readonly EVENT_UPDATE_UI = 'director_update_ui';
 
     public static instance: Director;
 
@@ -509,8 +515,12 @@ export class Director extends EventTarget {
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             // NOTE: the similar function signatures but defined as deferent function types.
-            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
-                onLoaded as ((err?: Error | null) => void) | null);
+            bundle.preloadScene(
+                sceneName,
+                null,
+                onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null,
+            );
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
@@ -731,10 +741,11 @@ export class Director extends EventTarget {
                 for (let i = 0; i < this._systems.length; ++i) {
                     this._systems[i].postUpdate(dt);
                 }
+
+                this.emit(Director.EVENT_UPDATE_UI);
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            uiRendererManager.updateAllDirtyRenderers();
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 

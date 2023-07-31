@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,28 @@
  THE SOFTWARE.
 */
 
-import './deprecated-1.2.0';
-import './deprecated-3.0.0';
-import './deprecated-3.6.0';
+import { DEBUG } from 'internal:constants';
+import { assert } from '../../core';
+import { UIRenderer } from './ui-renderer';
 
-export * from './canvas';
-export * from './ui-component';
-export * from './ui-renderer';
-export * from './ui-transform';
-export * from './deprecated';
-export * from './render-root-2d';
-export * from './sprite-renderer';
-export * from './ui-system';
+export class UILayoutManager { // 可能能够合并
+    private _dirtyUIs: (UIRenderer)[] = []; // 可能只要 uiTrans 就行
+
+    public markLayoutDirty (uiRenderer: UIRenderer): void {
+        // 可由上层管理flag，否则就需要在 UIRenderer 中增加版本号
+        this._dirtyUIs.push(uiRenderer);
+    }
+
+    public updateAllDirtyLayout (): void {
+        const length = this._dirtyUIs.length;
+        const dirtyRenderers = this._dirtyUIs;
+        for (let i = 0; i < length; i++) {
+            if (DEBUG) {
+                assert(dirtyRenderers[i]._internalLayoutId !== -1);
+            }
+            dirtyRenderers[i]._updateLayout();
+        }
+        this._dirtyUIs.length = 0;
+    }
+}
+export const uiLayoutManager = new UILayoutManager();

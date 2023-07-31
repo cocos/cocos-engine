@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,22 @@
  THE SOFTWARE.
 */
 
-import './deprecated-1.2.0';
-import './deprecated-3.0.0';
-import './deprecated-3.6.0';
+import { System } from '../../core';
+import { Director, director } from '../../game';
+import { uiRendererManager } from './ui-renderer-manager';
+import { uiLayoutManager } from './ui-layout-manager';
 
-export * from './canvas';
-export * from './ui-component';
-export * from './ui-renderer';
-export * from './ui-transform';
-export * from './deprecated';
-export * from './render-root-2d';
-export * from './sprite-renderer';
-export * from './ui-system';
+export class UISystem extends System {
+    init (): void {
+        director.on(Director.EVENT_UPDATE_UI, this.tick, this);
+    }
+
+    tick (): void {
+        uiLayoutManager.updateAllDirtyLayout(); // 更新所有 dirty 的 layout
+        // 可以分开更新了
+        uiRendererManager.updateAllDirtyRenderers(); // 更新所有 dirty 的 renderer
+    }
+}
+
+export const uiSystem = new UISystem();
+director.registerSystem('ui-system', uiSystem, 0);

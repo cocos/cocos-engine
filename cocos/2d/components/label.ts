@@ -40,6 +40,7 @@ import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
 import { TransformBit } from '../../scene-graph';
+import { uiLayoutManager } from '../framework/ui-layout-manager';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -231,7 +232,6 @@ export class Label extends UIRenderer {
 
         this._string = value;
         this._markLayoutDirty();
-        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -255,7 +255,6 @@ export class Label extends UIRenderer {
 
         this._horizontalAlign = value;
         this._markLayoutDirty();
-        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -278,7 +277,6 @@ export class Label extends UIRenderer {
         }
 
         this._verticalAlign = value;
-        this._markLayoutDirty();
         this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
@@ -316,7 +314,6 @@ export class Label extends UIRenderer {
 
         this._fontSize = value;
         this._markLayoutDirty();
-        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -338,7 +335,6 @@ export class Label extends UIRenderer {
         }
 
         this._lineHeight = value;
-        this._markLayoutDirty();
         this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
@@ -365,7 +361,6 @@ export class Label extends UIRenderer {
 
         this._spacingX = value;
         this._markLayoutDirty();
-        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -389,7 +384,6 @@ export class Label extends UIRenderer {
 
         this._overflow = value;
         this._markLayoutDirty(); // 其实只影响 bm
-        this._markLayoutDirty(); // 其实只影响 bm
         this.markForUpdateRenderData();
     }
 
@@ -411,7 +405,6 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
-        this._markLayoutDirty(); // 其实只影响 bm
         this._markLayoutDirty(); // 其实只影响 bm
         this.markForUpdateRenderData();
     }
@@ -449,7 +442,6 @@ export class Label extends UIRenderer {
         }
         this._flushAssembler();
         this._markLayoutDirty();
-        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -472,7 +464,6 @@ export class Label extends UIRenderer {
         }
 
         this._fontFamily = value;
-        this._markLayoutDirty();
         this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
@@ -514,9 +505,6 @@ export class Label extends UIRenderer {
         this._fontAtlas = null;
         this._markLayoutDirty();
         this.updateRenderData(true);//为了 flushAssembler
-        this.updateRenderData(true);
-        this._markLayoutDirty();
-        this.updateRenderData(true);//为了 flushAssembler
     }
 
     /**
@@ -547,9 +535,6 @@ export class Label extends UIRenderer {
         this._cacheMode = value;
         this._markLayoutDirty();
         this.updateRenderData(true); //为了 flushAssembler
-        this.updateRenderData(true);
-        this._markLayoutDirty();
-        this.updateRenderData(true); //为了 flushAssembler
     }
 
     /**
@@ -570,7 +555,6 @@ export class Label extends UIRenderer {
         }
 
         this._isBold = value;
-        this._markLayoutDirty();
         this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
@@ -593,7 +577,6 @@ export class Label extends UIRenderer {
         }
 
         this._isItalic = value;
-        this._markLayoutDirty();
         this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
@@ -762,7 +745,7 @@ export class Label extends UIRenderer {
     protected _textRenderData: TextOutputRenderData | null = null;
     protected _textLayoutData: TextOutputLayoutData | null = null;
 
-    protected _layoutDirty = true; // 是否重新计算文本布局
+    protected _layoutDirty = false; // 是否重新计算文本布局
 
     /**
      * @engineInternal
@@ -793,6 +776,7 @@ export class Label extends UIRenderer {
 
     public onEnable (): void {
         super.onEnable();
+        this._markLayoutDirty();
 
         // TODO: Hack for barbarians
         if (!this._font && !this._isSystemFontUsed) {
@@ -998,12 +982,13 @@ export class Label extends UIRenderer {
      * @engineInternal
      */
     public _markLayoutDirty (): void {
-        if (this._layoutDirty) return;
+        if (this._layoutDirty) return;//同底层的markLayoutDirty中做的防护一样，防止重复加入队列
         this._layoutDirty = true;
-        if (this.enabled) {
+        if (this.enabled) { //不一定需要
             // 加入队列，统一进行更新
             // 在排版时进行 renderDirty 的触发
             // 还是在上层直接进行触发？
+            uiLayoutManager.markLayoutDirty(this);
         }
     }
 
@@ -1012,6 +997,15 @@ export class Label extends UIRenderer {
      */
     public _resetLayoutDirty (): void {
         this._layoutDirty = false;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _updateLayout (): void {
+        if (this._assembler) {
+            this._assembler.updateLayoutData(this);
+        }
     }
 
     protected _nodeStateChange (transformType: TransformBit): void {

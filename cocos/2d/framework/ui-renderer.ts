@@ -45,6 +45,7 @@ import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
 import type { Batcher2D } from '../renderer/batcher-2d';
+import { uiLayoutManager } from './ui-layout-manager';
 
 // hack
 ccenum(BlendFactor);
@@ -432,6 +433,11 @@ export class UIRenderer extends Renderer {
             this._postRender(render);
         }
     }
+
+    /**
+     * @engineInternal
+     */
+    public _updateLayout (): void { } // 重载思路，或者也可以用回调思路，事件交由manger处理
 
     protected _render (render: IBatcher): void {
         // Implemented by subclasses
