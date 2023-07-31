@@ -23,6 +23,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
@@ -35,7 +36,6 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
-import { EDITOR } from 'internal:constants';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -320,9 +320,9 @@ export class Mesh extends Asset {
 
     @serializable
     private _struct: Mesh.IStruct = {
-        vertexBundles: [],
-        primitives: [],
-    };
+            vertexBundles: [],
+            primitives: [],
+        };
 
     @serializable
     private _hash = 0;
