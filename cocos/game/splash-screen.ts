@@ -28,7 +28,7 @@ import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTran
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer,
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
@@ -476,10 +476,10 @@ export class SplashScreen {
                     // device's fov may be asymmetry
                     let radioLeft = 1.0;
                     let radioRight = 1.0;
-                    if (xrEye === XREye.LEFT) {
-                        radioLeft = Math.abs(Math.tan(xrFov[0])) / Math.abs(Math.tan(xrFov[1]));
-                    } else if (xrEye === XREye.RIGHT) {
-                        radioRight = Math.abs(Math.tan(xrFov[1])) / Math.abs(Math.tan(xrFov[0]));
+                    if (xrEye === XREye.LEFT as number) {
+                        radioLeft = Math.abs(Math.tan(xrFov[0] as number)) / Math.abs(Math.tan(xrFov[1] as number));
+                    } else if (xrEye === XREye.RIGHT as number) {
+                        radioRight = Math.abs(Math.tan(xrFov[1] as number)) / Math.abs(Math.tan(xrFov[0] as number));
                     }
                     Mat4.ortho(
                         this.projection,
@@ -512,7 +512,7 @@ export class SplashScreen {
                 device.acquire([swapchain]);
                 // record command
                 const cmdBuff = this.cmdBuff;
-                const framebuffer = cclegacy.director.root!.mainWindow!.framebuffer;
+                const framebuffer = cclegacy.director.root!.mainWindow!.framebuffer as Framebuffer;
                 const renderArea = this.renderArea;
 
                 renderArea.width = swapchain.width;
@@ -633,7 +633,7 @@ export class SplashScreen {
         }
         return SplashScreen._ins;
     }
-
+    // eslint-disable-next-line no-empty-function
     private constructor () {}
 }
 
