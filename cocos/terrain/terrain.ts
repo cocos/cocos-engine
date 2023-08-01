@@ -23,6 +23,7 @@
 */
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
 import { EffectAsset, Texture2D } from '../asset/assets';
@@ -1829,6 +1830,9 @@ export class Terrain extends Component {
     public setHeight (i: number, j: number, h: number): void {
         h = clamp(h, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX);
         this._heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
+        if (EDITOR && this._asset) {
+            this._asset.heights[j * this.vertexCount[0] + i] = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
+        }
     }
 
     /**
@@ -1984,6 +1988,12 @@ export class Terrain extends Component {
         this._weights[index * 4 + 1] = w.y * 255;
         this._weights[index * 4 + 2] = w.z * 255;
         this._weights[index * 4 + 3] = w.w * 255;
+        if (EDITOR && this._asset) {
+            this._asset.weights[index * 4 + 0] = w.x * 255;
+            this._asset.weights[index * 4 + 1] = w.y * 255;
+            this._asset.weights[index * 4 + 2] = w.x * 255;
+            this._asset.weights[index * 4 + 3] = w.w * 255;
+        }
     }
 
     /**
