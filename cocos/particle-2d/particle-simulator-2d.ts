@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc } from '../core';
+import { Vec2, Color, js, misc, random } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -150,12 +150,12 @@ export class Simulator {
         // Init particle
         // timeToLive
         // no negative life. prevent division by 0
-        particle.timeToLive = psys.life + psys.lifeVar * (Math.random() - 0.5) * 2;
+        particle.timeToLive = psys.life + psys.lifeVar * (random() - 0.5) * 2;
         const timeToLive = particle.timeToLive = Math.max(0, particle.timeToLive);
 
         // position
-        particle.pos.x = psys.sourcePos.x + psys.posVar.x * (Math.random() - 0.5) * 2;
-        particle.pos.y = psys.sourcePos.y + psys.posVar.y * (Math.random() - 0.5) * 2;
+        particle.pos.x = psys.sourcePos.x + psys.posVar.x * (random() - 0.5) * 2;
+        particle.pos.y = psys.sourcePos.y + psys.posVar.y * (random() - 0.5) * 2;
 
         // Color
         let sr = 0;
@@ -167,30 +167,30 @@ export class Simulator {
         const endColor = psys.endColor;
         const endColorVar = psys.endColorVar;
 
-        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (Math.random() - 0.5) * 2, 0, 255);
-        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (Math.random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
-        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (Math.random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
-        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (Math.random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
-        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (Math.random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
+        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
+        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
+        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
+        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
+        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
+        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
+        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
+        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
 
         // size
-        let startS = psys.startSize + psys.startSizeVar * (Math.random() - 0.5) * 2;
+        let startS = psys.startSize + psys.startSizeVar * (random() - 0.5) * 2;
         startS = Math.max(0, startS); // No negative value
         particle.size = startS;
         if (psys.endSize === START_SIZE_EQUAL_TO_END_SIZE) {
             particle.deltaSize = 0;
         } else {
-            let endS = psys.endSize + psys.endSizeVar * (Math.random() - 0.5) * 2;
+            let endS = psys.endSize + psys.endSizeVar * (random() - 0.5) * 2;
             endS = Math.max(0, endS); // No negative values
             particle.deltaSize = (endS - startS) / timeToLive;
         }
 
         // rotation
-        const startA = psys.startSpin + psys.startSpinVar * (Math.random() - 0.5) * 2;
-        const endA = psys.endSpin + psys.endSpinVar * (Math.random() - 0.5) * 2;
+        const startA = psys.startSpin + psys.startSpinVar * (random() - 0.5) * 2;
+        const endA = psys.endSpin + psys.endSpinVar * (random() - 0.5) * 2;
         particle.rotation = startA;
         particle.deltaRotation = (endA - startA) / timeToLive;
 
@@ -202,18 +202,18 @@ export class Simulator {
         particle.aspectRatio = psys.aspectRatio || 1;
 
         // direction
-        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (Math.random() - 0.5) * 2);
+        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
         // Mode Gravity: A
         if (psys.emitterMode === EmitterMode.GRAVITY) {
-            const s = psys.speed + psys.speedVar * (Math.random() - 0.5) * 2;
+            const s = psys.speed + psys.speedVar * (random() - 0.5) * 2;
             // direction
             particle.dir.x = Math.cos(a);
             particle.dir.y = Math.sin(a);
             particle.dir.multiplyScalar(s);
             // radial accel
-            particle.radialAccel = psys.radialAccel + psys.radialAccelVar * (Math.random() - 0.5) * 2;
+            particle.radialAccel = psys.radialAccel + psys.radialAccelVar * (random() - 0.5) * 2;
             // tangential accel
-            particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (Math.random() - 0.5) * 2;
+            particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (random() - 0.5) * 2;
             // rotation is dir
             if (psys.rotationIsDir) {
                 particle.rotation = -misc.radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
@@ -221,12 +221,12 @@ export class Simulator {
         } else {
             // Mode Radius: B
             // Set the default diameter of the particle from the source position
-            const startRadius = psys.startRadius + psys.startRadiusVar * (Math.random() - 0.5) * 2;
-            const endRadius = psys.endRadius + psys.endRadiusVar * (Math.random() - 0.5) * 2;
+            const startRadius = psys.startRadius + psys.startRadiusVar * (random() - 0.5) * 2;
+            const endRadius = psys.endRadius + psys.endRadiusVar * (random() - 0.5) * 2;
             particle.radius = startRadius;
             particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
-            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (Math.random() - 0.5) * 2);
+            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
         }
     }
 

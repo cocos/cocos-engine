@@ -121,7 +121,9 @@ export function toDegree (a: number): number {
 /**
  * @method random
  */
-export const random = Math.random;
+export function random () {
+    return Object.prototype.hasOwnProperty.call(Math, 'seedrandom') ? Math['seedrandom']() : Math.random();
+}
 
 /**
  * @en Returns a floating-point random number between min (inclusive) and max (exclusive).<br/>
@@ -131,8 +133,8 @@ export const random = Math.random;
  * @param max
  * @return The random number.
  */
-export function randomRange (min: number, max: number): number {
-    return Math.random() * (max - min) + min;
+export function randomRange (min: number, max: number) {
+    return random() * (max - min) + min;
 }
 
 /**

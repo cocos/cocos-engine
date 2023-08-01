@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
-import { lerp, pseudoRandom, repeat, Enum } from '../../core';
+import { lerp, pseudoRandom, repeat, Enum, random } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -262,8 +262,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @param p @en Particle to set start row. @zh 设置初始行属性的粒子。
      * @internal
      */
-    public init (p: Particle): void {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
+    public init (p: Particle) {
+        p.startRow = Math.floor(random() * this.numTilesY);
     }
 
     /**

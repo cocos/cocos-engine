@@ -24,7 +24,7 @@
 
 import { CCClass } from '../data';
 import { Enum } from '../value-types';
-import { Color, lerp, repeat, EPSILON, approx } from '../math';
+import { Color, lerp, repeat, EPSILON, approx, random } from '../math';
 
 const Mode = Enum({
     Blend: 0,
@@ -171,9 +171,9 @@ export class Gradient {
      * @param out @en Randomized color. @zh 随机生成的颜色。
      * @returns @en Randomized color. @zh 随机生成的颜色。
      */
-    public getRandomColor (out: Color): Color {
-        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
+    public getRandomColor (out: Color) {
+        const c = this.colorKeys[Math.trunc(random() * this.colorKeys.length)];
+        const a = this.alphaKeys[Math.trunc(random() * this.alphaKeys.length)];
         out.set(c.color);
         out._set_a_unsafe(a.alpha);
         return out;
