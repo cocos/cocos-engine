@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random } from '../core';
+import { Vec2, Color, js, misc, random, IColorLike } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -275,7 +275,7 @@ export class Simulator {
             const y1 = -halfHeight;
             const x2 = halfWidth;
             const y2 = halfHeight;
-            const rad = -misc.degreesToRadians(particle.rotation);
+            const rad = -misc.degreesToRadians(particle.rotation as number);
             const cr = Math.cos(rad);
             const sr = Math.sin(rad);
             // bl
@@ -313,13 +313,13 @@ export class Simulator {
             vbuf[offset + 29] = 0;
         }
         // color
-        Color.toArray(vbuf, particle.color, offset + 5);
-        Color.toArray(vbuf, particle.color, offset + 14);
-        Color.toArray(vbuf, particle.color, offset + 23);
-        Color.toArray(vbuf, particle.color, offset + 32);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 5);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 14);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 23);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 32);
     }
 
-    public step (dt): void {
+    public step (dt: number): void {
         const assembler = this.sys.assembler!;
         const psys = this.sys;
         const node = psys.node;

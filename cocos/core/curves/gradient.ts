@@ -171,7 +171,7 @@ export class Gradient {
      * @param out @en Randomized color. @zh 随机生成的颜色。
      * @returns @en Randomized color. @zh 随机生成的颜色。
      */
-    public getRandomColor (out: Color) {
+    public getRandomColor (out: Color): Color {
         const c = this.colorKeys[Math.trunc(random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(random() * this.alphaKeys.length)];
         out.set(c.color);

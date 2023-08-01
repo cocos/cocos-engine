@@ -262,7 +262,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @param p @en Particle to set start row. @zh 设置初始行属性的粒子。
      * @internal
      */
-    public init (p: Particle) {
+    public init (p: Particle): void {
         p.startRow = Math.floor(random() * this.numTilesY);
     }
 
