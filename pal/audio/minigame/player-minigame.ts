@@ -151,9 +151,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
             // Reset all properties
             this._resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
-            const currentTime = this._innerAudioContext ? this._innerAudioContext.currentTime : 0;
-            if (currentTime !== 0) {
-                this._innerAudioContext.seek(0);
+            if (TAOBAO || TAOBAO_MINIGAME) {
+                /**Unable to seek again after stop; After stop, regardless of whether the starttime has been set,
+                the playback will always start from 0 again**/
+            } else {
+                const currentTime = this._innerAudioContext ? this._innerAudioContext.currentTime : 0;
+                if (currentTime !== 0) {
+                    this._innerAudioContext.seek(0);
+                }
             }
         };
         innerAudioContext.onStop(this._onStop);
@@ -167,12 +172,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 } else {
                     this._needSeek = false;
                 }
-            }
-
-            // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
-            if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.IOS
-                && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                innerAudioContext.pause();
             }
         };
         innerAudioContext.onSeeked(this._onSeeked);
@@ -350,14 +349,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
 
     @enqueueOperation
     stop (): Promise<void> {
-        // NOTE: on Taobao, it is designed that innerAudioContext is useless after calling stop.
-        // so we implement stop as pase + seek.
-        if (TAOBAO || TAOBAO_MINIGAME) {
-            this._innerAudioContext.pause();
-            this._innerAudioContext.seek(0);
-            this._onStop?.();
-            return Promise.resolve();
-        }
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();
