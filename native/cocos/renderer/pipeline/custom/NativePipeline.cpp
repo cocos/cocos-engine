@@ -1025,6 +1025,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             pair.target = targetHzbName;
             pair.mipLevels = 1;
             pair.numSlices = 1;
+            pair.targetMostDetailedMip = k;
             move.movePairs.emplace_back(std::move(pair));
         }
 
