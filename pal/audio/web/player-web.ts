@@ -206,6 +206,7 @@ export class OneShotAudioWeb {
         clearTimeout(this._currentTimer);
         audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
+        this._bufferSourceNode.disconnect();
         this._bufferSourceNode.buffer = null;
     }
 }
@@ -438,7 +439,9 @@ export class AudioPlayerWeb implements OperationQueueable {
         try {
             if (this._sourceNode) {
                 this._sourceNode.stop();
+                this._sourceNode.disconnect();
                 this._sourceNode.buffer = null;
+                this._sourceNode = undefined;
             }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.
