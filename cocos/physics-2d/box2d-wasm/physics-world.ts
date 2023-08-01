@@ -60,7 +60,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     protected _rotationAxis: Vec3 = new Vec3();
     protected _physicsGroundBody: B2.Body;
 
-    // protected _contactListener: PhysicsContactListener;
+    protected _contactListener: any;//B2.ContactListener;
     protected _aabbQueryCallback: B2.QueryCallback;//PhysicsAABBQueryCallback;
     protected _raycastQueryCallback: B2.RayCastCallback;//PhysicsRayCastCallback;
 
@@ -91,7 +91,8 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         PhysicsContactListener._EndContact = this._onEndContact;
         PhysicsContactListener._PreSolve = this._onPreSolve;
         PhysicsContactListener._PostSolve = this._onPostSolve;
-        this._world.SetContactListener(B2.ContactListener.implement(PhysicsContactListener.callback));
+        this._contactListener = B2.ContactListener.implement(PhysicsContactListener.callback);
+        this._world.SetContactListener(this._contactListener);
 
         this._aabbQueryCallback = B2.QueryCallback.implement(PhysicsAABBQueryCallback.callback);//new PhysicsAABBQueryCallback();
         this._raycastQueryCallback = B2.RayCastCallback.implement(PhysicsRayCastCallback.callback);
@@ -358,12 +359,10 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     registerContactFixture (fixture: B2.Fixture): void {
-        //this._contactListener.registerContactFixture(fixture);
-        PhysicsContactListener.registerContactFixture(fixture);
+        this._contactListener.registerContactFixture((fixture as any).$$.ptr);
     }
     unregisterContactFixture (fixture: B2.Fixture): void {
-        //this._contactListener.unregisterContactFixture(fixture);
-        PhysicsContactListener.unregisterContactFixture(fixture);
+        this._contactListener.unregisterContactFixture((fixture as any).$$.ptr);
     }
 
     getContactWithContactImplPtr (implPtr: number): B2.Contact| null {

@@ -27,8 +27,6 @@ import { B2 } from '../instantiated';
 import { js, warn } from '../../../core';
 
 export class PhysicsContactListener {// extends B2.ContactListener {
-    static _contactFixtures: number[] = [];
-
     static _BeginContact: Function | null = null;
     static _EndContact: Function | null = null;
     static _PreSolve: Function | null = null;
@@ -78,14 +76,6 @@ export class PhysicsContactListener {// extends B2.ContactListener {
         if (this._PostSolve) {
             this._PostSolve(contact, impulse);
         }
-    }
-
-    static registerContactFixture (fixture): void {
-        this._contactFixtures.push(fixture.$$.ptr);
-    }
-
-    static unregisterContactFixture (fixture): void {
-        js.array.remove(this._contactFixtures, fixture.$$.ptr);
     }
 
     static callback = {
