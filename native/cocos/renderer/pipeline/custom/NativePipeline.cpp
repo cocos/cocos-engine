@@ -931,13 +931,10 @@ void NativePipeline::addBuiltinHzbGenerationPass(
                 std::forward_as_tuple());
             CC_ENSURES(res.second);
 
-            res.first->second.emplace_back(
-                ccstd::pmr::string{"sourceImage", res.first->second.get_allocator()}, // descriptor name in shader
-                AccessType::READ,
-                gfx::ClearFlagBit::NONE,
-                ClearValueType::NONE,
-                ClearValue{},
-                gfx::ShaderStageFlagBit::COMPUTE);
+            auto &view = res.first->second.emplace_back();
+            view.name = "sourceImage";
+            view.accessType = AccessType::READ;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
         } else {
             prevMipName.resize(targetHzbName.size());
             CC_ENSURES(prevMipName == std::string_view{targetHzbName});
@@ -951,13 +948,10 @@ void NativePipeline::addBuiltinHzbGenerationPass(
                 std::forward_as_tuple());
             CC_ENSURES(res.second);
 
-            res.first->second.emplace_back(
-                ccstd::pmr::string{"sourceImage", res.first->second.get_allocator()}, // descriptor name in shader
-                AccessType::READ,
-                gfx::ClearFlagBit::NONE,
-                ClearValueType::NONE,
-                ClearValue{},
-                gfx::ShaderStageFlagBit::COMPUTE);
+            auto &view = res.first->second.emplace_back();
+            view.name = "sourceImage";
+            view.accessType = AccessType::READ;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
         }
         // target
         currMipName.resize(targetHzbName.size());
@@ -970,13 +964,10 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             std::forward_as_tuple());
         CC_ENSURES(res.second);
 
-        res.first->second.emplace_back(
-            ccstd::pmr::string{"targetImage", res.first->second.get_allocator()},
-            AccessType::WRITE,
-            gfx::ClearFlagBit::NONE,
-            ClearValueType::NONE,
-            ClearValue{},
-            gfx::ShaderStageFlagBit::COMPUTE);
+        auto &view = res.first->second.emplace_back();
+        view.name = "targetImage";
+        view.accessType = AccessType::WRITE;
+        view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
 
         // uniforms
         auto &data = get(RenderGraph::DataTag{}, renderGraph, passID);
