@@ -27,9 +27,14 @@ void main() {
 const FS_BG = `
 precision mediump float;
 uniform sampler2D u_Sampler;
+uniform float u_flip;
 varying vec2 v_TexCoord;
 void main() {
-    gl_FragColor = texture2D(u_Sampler, v_TexCoord);
+    vec2 texCoord = v_TexCoord;
+    if(u_flip > 0.5) {
+        texCoord.y = 1.0 - texCoord.y;
+    }
+    gl_FragColor = texture2D(u_Sampler, texCoord);
 }`;
 
 const VS_PROGRESSBAR = `
@@ -82,7 +87,14 @@ let progress = 0.0;
 let progressBarColor = [61 / 255, 197 / 255, 222 / 255, 1];
 let progressBackground = [100 / 255, 111 / 255, 118 / 255, 1];
 let afterTick = null;
+let backgroundFilp = 1.0; // set 0 to not flip
 let displayRatio = <%= displayRatio%>;
+let bgColor = [<%= bgColor%>];
+let useCustomBg = <%= useCustomBg%>;
+let useLogo = <%= useLogo%>;
+let useDefaultLogo = <%= useDefaultLogo%>;
+let logoName = '<%= logoName %>';
+let bgName = '<%= bgName %>';
 
 function initShaders(vshader, fshader) {
     return createProgram(vshader, fshader);
@@ -333,6 +345,8 @@ function drawTexture(gl, program, texture, vertexBuffer, vertexFormatLength) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     var uSampler = gl.getUniformLocation(program, 'u_Sampler');
     gl.uniform1i(uSampler, 0);
+    var uFlip = gl.getUniformLocation(program, 'u_flip');
+    gl.uniform1f(uFlip, backgroundFilp);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     var aPosition = gl.getAttribLocation(program, 'a_Position');
     gl.enableVertexAttribArray(aPosition);
@@ -363,20 +377,16 @@ function drawProgressBar(gl, program, vertexBuffer, vertexFormatLength, progress
 }
 
 function draw() {
-    gl.disable(gl.SCISSOR_TEST);
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.DEPTH_TEST);
-
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
     gl.clear(gl.COLOR_BUFFER_BIT);
     // draw background
-    drawTexture(gl, programBg, bgTexture, bgVertexBuffer, 4);
+    useCustomBg && drawTexture(gl, programBg, bgTexture, bgVertexBuffer, 4);
     // draw logo
-    drawTexture(gl, program, logoTexture, vertexBuffer, 4);
+    useLogo && drawTexture(gl, program, logoTexture, vertexBuffer, 4);
     // draw slogan
-    drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
+    useLogo && useDefaultLogo && drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
     // draw progress bar
     drawProgressBar(gl, programProgress, vertexBufferProgress, 3, progress, progressBarColor, progressBackground);
 }
@@ -398,12 +408,12 @@ function end() {
         gl.useProgram(null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.deleteTexture(logoTexture);
-        gl.deleteTexture(sloganTexture);
-        gl.deleteTexture(bgTexture);
+        useLogo && gl.deleteTexture(logoTexture);
+        useLogo && useDefaultLogo && gl.deleteTexture(sloganTexture);
+        useCustomBg && gl.deleteTexture(bgTexture);
         gl.deleteBuffer(vertexBuffer);
-        gl.deleteBuffer(bgVertexBuffer);
-        gl.deleteBuffer(sloganVertexBuffer);
+        useCustomBg && gl.deleteBuffer(bgVertexBuffer);
+        useLogo && useDefaultLogo && gl.deleteBuffer(sloganVertexBuffer);
         gl.deleteBuffer(vertexBufferProgress);
         gl.deleteProgram(program);
         gl.deleteProgram(programBg);
@@ -434,30 +444,35 @@ function start(alpha, antialias, useWebgl2) {
         gl = window.canvas.getContext("webgl", options);
     }
     initVertexBuffer();
-    initBgVertexBuffer();
-    initSloganVertexBuffer();
+    useCustomBg && initBgVertexBuffer();
+    useLogo && useDefaultLogo && initSloganVertexBuffer();
     initProgressVertexBuffer();
 
     initLogoTexture();
-    initBgTexture();
-    initSloganTexture();
+    useCustomBg && initBgTexture();
+    useLogo && useDefaultLogo && initSloganTexture();
 
-    program = initShaders(VS_LOGO, FS_LOGO);
-    programBg = initShaders(VS_BG, FS_BG);
+    if (useLogo) {
+        program = initShaders(VS_LOGO, FS_LOGO);
+    }
+    if (useCustomBg) {
+        programBg = initShaders(VS_BG, FS_BG);
+    }
     programProgress = initShaders(VS_PROGRESSBAR, FS_PROGRESSBAR);
     tick();
+    
     return Promise.all([
         //logo should be loaded earlier than slogan
-        loadImage('logo.png').then(() => {
+        useLogo && loadImage(logoName).then(() => {
             updateVertexBuffer();
             updateLogoTexture();
         }).then(() => {
-            return loadSlogan('slogan.png').then(() => {
+            return useLogo && useDefaultLogo && loadSlogan('slogan.png').then(() => {
                 updateSloganVertexBuffer();
                 updateSloganTexture();
             });
         }),
-        loadBackground('background.png').then(() => {
+        useCustomBg && loadBackground(bgName).then(() => {
             updateBgVertexBuffer();
             updateBgTexture();
         })

@@ -239,7 +239,7 @@ CCProgram surface-fragment %{
       float fresnel = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
       result.fresnel = vec3(fresnel);
     #else
-      // simply fix oit depth issue for bright color alpha blending
+      // simply fix single blend source issue for bright color alpha blending
       float threshold = 0.5, bright = dot(result.environmentSpecular, vec3(0.33333));
       if (bright > threshold)
         result.environmentSpecular = result.environmentSpecular / bright * threshold;

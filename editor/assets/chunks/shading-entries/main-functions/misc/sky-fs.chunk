@@ -22,5 +22,12 @@ void main() {
     color.rgb = LinearToSRGB(color.rgb);
   #endif
 
-    fragColorX = color;
+  //todo: LDR fogging in gamma space, HDR fogging should move before tone mapping
+  #if CC_USE_FOG != CC_FOG_NONE
+    float fogFactor = 1.0;
+    CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+    CC_APPLY_FOG_BASE(color, fogFactor);
+  #endif
+  
+  fragColorX = color;
 }

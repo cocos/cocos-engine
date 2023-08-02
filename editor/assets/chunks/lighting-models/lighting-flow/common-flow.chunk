@@ -19,7 +19,8 @@
         vec3 diff;
         SurfacesMaterialData surfaceData2ndSpecular;
         CCSurfacesGetSurfacesMaterialData2ndSpecular(surfaceData2ndSpecular, surfaceData);
-        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResultAccumulated.specularColorWithLighting2ndSpecular, surfaceData2ndSpecular, lightingData);
+        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLighting2ndSpecular, surfaceData2ndSpecular, lightingData);
+        lightingResultAccumulated.specularColorWithLighting2ndSpecular = lightingResult.specularColorWithLighting2ndSpecular;
       #endif
 
       int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
@@ -119,6 +120,7 @@
         #endif
 
         #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+          lightingResult.specularColorWithLighting2ndSpecular *= surfaceData.color2ndSpecular; //temporary coloration
           CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
         #endif
 
@@ -264,6 +266,7 @@
       #endif
 
       #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+        lightingResult.specularColorWithLighting2ndSpecular *= surfaceData.color2ndSpecular; //temporary coloration
         CCSurfacesLightingCalculateDirectMultiLayerBlending(lightingResult, lightingData2ndSpecular);
         CCSurfacesLightingCalculateEnvironmentMultiLayerBlending(lightingResult, lightingData2ndSpecular);
       #endif
