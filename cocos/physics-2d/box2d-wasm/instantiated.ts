@@ -23,12 +23,12 @@
 */
 
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
-import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, EDITOR, TEST } from 'internal:constants';
 import { wasmFactory, box2dWasmUrl } from './box2d.wasmjs';
 import { asmFactory } from './box2d.asmjs';
 
 import { game } from '../../game';
-import { getError, error, sys } from '../../core';
+import { getError, error, sys, debug } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const B2 = {} as any;
@@ -55,7 +55,7 @@ export function getB2ObjectFromImpl<T> (impl: any): T {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        const errorMessage = (err: any): string => `[box2d]: box2d wasm load failed: ${err}`;
+        const errorMessage = (err: any): string => `[box2d]: box2d wasm lib load failed: ${err}`;
         wasmFactory({
             instantiateWasm (importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
@@ -65,6 +65,7 @@ function initWasm (wasmUrl): Promise<void> {
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((Instance: any) => {
+            if (!EDITOR && !TEST) debug('[box2d]:box2d wasm lib loaded.');
             Object.assign(B2, Instance);
             B2.B2_IMPL_PTR = B2_IMPL_PTR;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
@@ -74,6 +75,7 @@ function initWasm (wasmUrl): Promise<void> {
 function initAsm (): Promise<void> {
     if (asmFactory != null) {
         return asmFactory().then((instance: any) => {
+            if (!EDITOR && !TEST) debug('[box2d]:box2d asm lib loaded.');
             Object.assign(B2, instance);
             B2.B2_IMPL_PTR = B2_IMPL_PTR;
         });
