@@ -320,9 +320,9 @@ export class Mesh extends Asset {
 
     @serializable
     private _struct: Mesh.IStruct = {
-            vertexBundles: [],
-            primitives: [],
-        };
+        vertexBundles: [],
+        primitives: [],
+    };
 
     @serializable
     private _hash = 0;
