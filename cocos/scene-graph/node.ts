@@ -363,6 +363,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     @serializable
     protected _prefab: PrefabInfo | null = null;
+    /**
+     * @engineInternal
+     */
+    public get prefab (): PrefabInfo | null { return this._prefab; }
 
     protected _scene: Scene = null!;
 
