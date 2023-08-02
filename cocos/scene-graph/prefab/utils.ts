@@ -336,7 +336,7 @@ export function applyTargetOverrides (node: Node): void {
             let source: Node | Component | null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
-                const src  = targetOverride.source as Node;
+                const src = targetOverride.source as Node;
                 const sourceInstance = src?.prefab?.instance;
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
