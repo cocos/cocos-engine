@@ -26,36 +26,14 @@
 import { B2 } from '../instantiated';
 import { js, warn } from '../../../core';
 
-export class PhysicsContactListener {// extends B2.ContactListener {
+export class PhysicsContactListener {
     static _BeginContact: Function | null = null;
     static _EndContact: Function | null = null;
     static _PreSolve: Function | null = null;
     static _PostSolve: Function | null = null;
 
-    // static setBeginContact (cb): void {
-    //     this._BeginContact = cb;
-    // }
-
-    // static setEndContact (cb): void {
-    //     this._EndContact = cb;
-    // }
-
-    // static setPreSolve (cb): void {
-    //     this._PreSolve = cb;
-    // }
-
-    // static setPostSolve (cb): void {
-    //     this._PostSolve = cb;
-    // }
-
     static BeginContact (contact: B2.Contact): void {
-        if (!this._BeginContact) return;
-
-        const fixtureA = contact.GetFixtureA() as any;
-        const fixtureB = contact.GetFixtureB() as any;
-        const fixtures = this._contactFixtures;
-
-        if (fixtures.indexOf(fixtureA.$$.ptr) !== -1 || fixtures.indexOf(fixtureB.$$.ptr) !== -1) {
+        if (this._BeginContact) {
             this._BeginContact(contact);
         }
     }
