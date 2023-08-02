@@ -120,7 +120,7 @@ export function generateTargetMap (node: Node, targetMap: TargetMap, isRoot: boo
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
     const prefabInstance = node.prefab?.instance;
     if (!isRoot && prefabInstance) {
-        targetMap[prefabInstance.fileId] = new TargetMap();
+        targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId] as TargetMap;
     }
 
@@ -405,7 +405,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false): void
             }
         }
 
-        const targetMap = new TargetMap();
+        const targetMap = {};
         prefabInstance.targetMap = targetMap;
         generateTargetMap(node, targetMap, true);
         applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);

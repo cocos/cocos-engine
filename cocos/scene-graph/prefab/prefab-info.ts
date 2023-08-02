@@ -167,7 +167,7 @@ export class PrefabInstance {
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
 
-    public targetMap: TargetMap = new TargetMap();
+    public targetMap: TargetMap = {};
 
     /**
      * make sure prefab instance expand only once
@@ -201,9 +201,7 @@ export class PrefabInstance {
     }
 }
 
-export class TargetMap {
-    [key: string]: TargetMap | Node | Component;
-}
+export interface TargetMap { [k: string]: TargetMap | Node | Component }
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
