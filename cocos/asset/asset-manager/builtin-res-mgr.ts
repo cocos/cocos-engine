@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
-import { ImageSource } from '../../../pal/image/types';
+import { IMemoryImageSource } from '../../../pal/image/types';
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -120,7 +120,7 @@ export class BuiltinResMgr {
             offset += halfDefaultSize * numChannels;
         }
 
-        const blackMemImageSource: ImageSource = {
+        const blackMemImageSource: IMemoryImageSource = {
             width: len,
             height: len,
             _data: blackValueView,
@@ -128,7 +128,7 @@ export class BuiltinResMgr {
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
-        const emptyMemImageSource: ImageSource = {
+        const emptyMemImageSource: IMemoryImageSource = {
             width: len,
             height: len,
             _data: emptyValueView,
@@ -136,7 +136,7 @@ export class BuiltinResMgr {
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
-        const greyMemImageSource: ImageSource = {
+        const greyMemImageSource: IMemoryImageSource = {
             width: len,
             height: len,
             _data: greyValueView,
@@ -144,7 +144,7 @@ export class BuiltinResMgr {
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
-        const whiteMemImageSource: ImageSource = {
+        const whiteMemImageSource: IMemoryImageSource = {
             width: len,
             height: len,
             _data: whiteValueView,
@@ -152,7 +152,7 @@ export class BuiltinResMgr {
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
-        const normalMemImageSource: ImageSource = {
+        const normalMemImageSource: IMemoryImageSource = {
             width: len,
             height: len,
             _data: normalValueView,
@@ -160,7 +160,7 @@ export class BuiltinResMgr {
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
-        const defaultMemImageSource: ImageSource = {
+        const defaultMemImageSource: IMemoryImageSource = {
             width: defaultSize,
             height: defaultSize,
             _data: defaultValueView,

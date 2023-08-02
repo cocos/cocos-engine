@@ -25,7 +25,7 @@
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { ImageData } from 'pal/image';
-import { ImageSource } from '../../../pal/image/types';
+import { IMemoryImageSource, ImageSource } from '../../../pal/image/types';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy, error } from '../../core';
 import { patch_cc_ImageAsset } from '../../native-binding/decorators';
@@ -43,11 +43,15 @@ const extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.as
 // TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
 const imageAssetProto: any = ImageAsset.prototype;
 
-imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
+imageAssetProto._ctor = function (nativeAsset?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
     this._height = 0;
-    this._imageData = new ImageData(nativeAsset);
+    if (nativeAsset instanceof ImageData) {
+        this._imageData = nativeAsset;
+    } else {
+        this._imageData = new ImageData(nativeAsset);
+    }
 };
 
 Object.defineProperty(imageAssetProto, '_nativeAsset', {
@@ -56,7 +60,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     get () {
         return this._imageData.source;
     },
-    set (value: ImageSource) {
+    set (value: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
         if (value instanceof ImageData) {
             this._imageData = value;
             this._syncDataToNative();
@@ -67,18 +71,6 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
 });
 
 Object.defineProperty(imageAssetProto, 'data', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        if ('_data' in this._imageData.source) {
-            return this._imageData.getRawData() as ArrayBufferView;
-        } else {
-            return this._imageData.source;
-        }
-    },
-});
-
-Object.defineProperty(imageAssetProto, 'rawData', {
     configurable: true,
     enumerable: true,
     get () {
@@ -96,7 +88,7 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 
 // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
 // imageAssetProto.reset = function (data: ImageSource) {
-imageAssetProto.reset = function (data: ImageSource | ArrayBufferView) {
+imageAssetProto.reset = function (data: IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
     this._imageData.reset(data);
     if ('_data' in data) {
         const format = data.format;

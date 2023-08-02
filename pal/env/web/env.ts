@@ -29,7 +29,7 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
     const container = document.querySelector('#Cocos3dGameContainer') as HTMLDivElement;
     const canvas = document.querySelector('#GameCanvas') as HTMLCanvasElement;
 
-    return { frame, canvas, container };
+    return { frame, container, canvas };
 }
 
 export function loadJsFile (path: string): Promise<void> {

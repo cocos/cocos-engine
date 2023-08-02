@@ -21,14 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { IMemoryImageSource, ImageSource } from './types';
+import { RawDataType, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
+import { deviceManager, API } from '../../cocos/gfx';
+import { ccwindow } from '../../cocos/core/global-exports';
 
 export class BaseImageData {
     // TODO(qgh):Designed for compatibility, may be removed in the future.
     protected _source: ImageSource;
 
-    constructor (imageAsset?: ImageSource | ArrayBufferView) {
+    constructor (source?: ImageSource | ArrayBufferView) {
         this._source = {
             _data: null,
             width: 0,
@@ -37,26 +39,26 @@ export class BaseImageData {
             _compressed: false,
             mipmapLevelDataSize: [],
         };
-        if (typeof imageAsset !== 'undefined') {
-            if (!ArrayBuffer.isView(imageAsset)) {
-                this._source = imageAsset;
+        if (typeof source !== 'undefined') {
+            if (!ArrayBuffer.isView(source)) {
+                this._source = source;
             } else {
-                this._source._data = imageAsset;
+                this._source._data = source;
             }
         }
     }
 
     public destroy (): void {
-        if (this.source && this.source instanceof HTMLImageElement) {
-            this.source.src = '';
-        } else if (this.isImageBitmap(this.source)) {
-            this.source?.close();
+        if (this._source && this._source instanceof HTMLImageElement) {
+            this._source.src = '';
+        } else if (this.isImageBitmap(this._source)) {
+            this._source?.close();
         }
     }
 
-    set source (imageAsset: ImageSource | null) {
-        if (imageAsset != null) {
-            this.reset(imageAsset);
+    set source (source: ImageSource | null) {
+        if (source != null) {
+            this.reset(source);
         }
     }
 
@@ -88,6 +90,49 @@ export class BaseImageData {
                 this._source._data = data;
             }
         }
+    }
+
+    public getRawData (): RawDataType | null {
+        if (this._source == null) {
+            return null;
+        }
+        let data: ArrayBufferView | null = null;
+        if ('_data' in this._source) {
+            data = this._source._data;
+        } else if ('getContext' in this._source) {
+            const canvasElem = this._source;
+            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, this._source.width, this._source.height);
+            const buff = imageData!.data.buffer;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+        } else if (this._source instanceof HTMLImageElement || this._source instanceof ImageBitmap) {
+            const img = this._source;
+            const canvas = ccwindow.document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img as any, 0, 0);
+            const imageData = ctx?.getImageData(0, 0, img.width, img.height);
+            const buff = imageData!.data.buffer;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+        } else {
+            // eslint-disable-next-line no-console
+            console.log('imageBmp copy not impled!');
+        }
+        return data;
     }
 
     private isImageBitmap (imageSource: any): imageSource is ImageBitmap {

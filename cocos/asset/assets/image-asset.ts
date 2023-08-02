@@ -27,7 +27,7 @@ import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ImageData } from 'pal/image';
 import { ImageSource, IMemoryImageSource, RawDataType } from '../../../pal/image/types';
-import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
+import { Device, Format, FormatFeatureBit, deviceManager, API } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy, warn } from '../../core';
@@ -193,8 +193,12 @@ export class ImageAsset extends Asset {
             let dataOffset = fileHeaderLength;
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-                    file.byteLength, true); //add file data size
+                outView.setUint32(
+                    COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                    file.byteLength,
+
+                    true,
+                ); //add file data size
 
                 // Append compresssed file
                 if (file instanceof ArrayBuffer) {
@@ -267,8 +271,14 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
+    public static parseCompressedTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        type: number,
+        out: IMemoryImageSource,
+    ): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -293,8 +303,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePVRTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -345,8 +360,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePKMTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -379,8 +399,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parseASTCTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -493,7 +518,8 @@ export class ImageAsset extends Asset {
         if (value instanceof ImageData) {
             this._imageData = value;
         } else {
-            this.reset(value as ImageSource);
+            // This is a hack method, otherwise ts will just report an error.
+            this.reset(value as IMemoryImageSource);
         }
     }
 
@@ -501,20 +527,16 @@ export class ImageAsset extends Asset {
      * @en Image data source(include: HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView).
      * @zh 图像的来源（包括：HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView）。
      */
-    get data (): ImageSource | ArrayBufferView | null {
-        if ('_data' in this._imageData.source) {
-            return this._imageData.getRawData() as ArrayBufferView;
+    get data (): ImageSource | RawDataType | null {
+        if (deviceManager.gfxDevice.gfxAPI === API.WEBGL || deviceManager.gfxDevice.gfxAPI === API.WEBGL2) {
+            if ('_data' in this._imageData.source) {
+                return this._imageData.getRawData();
+            } else {
+                return this._imageData.source;
+            }
         } else {
-            return this._imageData.source;
+            return this._imageData.getRawData();
         }
-    }
-
-    /*
-     * @en Raw image data.
-     * @zh 原始图像数据。
-     */
-    get rawData (): RawDataType | null {
-        return this._imageData.getRawData();
     }
 
     /**
@@ -538,7 +560,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素格式。
      */
     get format (): PixelFormat {
-        return (this.data as IMemoryImageSource).format;
+        return (this._nativeAsset as IMemoryImageSource).format;
     }
 
     /**
@@ -556,7 +578,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     get mipmapLevelDataSize (): number[] | undefined {
-        return (this.data as IMemoryImageSource).mipmapLevelDataSize;
+        return (this._nativeAsset as IMemoryImageSource).mipmapLevelDataSize;
     }
 
     /**
@@ -580,21 +602,46 @@ export class ImageAsset extends Asset {
 
     private _height = 0;
 
-    constructor (nativeAsset?: ImageSource) {
+    /**
+     * @en Constructing an ImageSource object.
+     * @zh 构造ImageSource对象
+     * @param data @en The image source. @zh 图像数据源。
+     * @deprecated please use imagedata structure.
+     */
+    constructor (nativeAsset: HTMLCanvasElement | HTMLImageElement | ImageBitmap);
+    /**
+     * @en Constructing an ImageSource object.
+     * @zh 构造ImageSource对象
+     * @param data @en The image source. @zh 图像数据源。
+     */
+    constructor (nativeAsset?: ImageData | IMemoryImageSource);
+    constructor (nativeAsset?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
         super();
 
         if (EDITOR) {
             this._exportedExts = null;
         }
-        this._imageData = new ImageData(nativeAsset);
+        if (nativeAsset instanceof ImageData) {
+            this._imageData = nativeAsset;
+        } else {
+            this._imageData = new ImageData(nativeAsset);
+        }
     }
 
     /**
      * @en Reset the source of the image asset.
      * @zh 重置此图像资源使用的原始图像源。
      * @param data @en The new source. @zh 新的图片数据源。
+     * @deprecated @en Recommended use of the IMemoryImageSource object. @zh 推荐使用IMemoryImageSource对象
      */
-    public reset (data: ImageSource): void {
+    public reset (data: HTMLCanvasElement | HTMLImageElement | ImageBitmap): void;
+    /**
+     * @en Reset the source of the image asset.
+     * @zh 重置此图像资源使用的原始图像源。
+     * @param data @en The new source. @zh 新的图片数据源。
+     */
+    public reset (data: IMemoryImageSource): void;
+    public reset (data: IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap): void {
         this._imageData.reset(data);
         if ('_data' in data) {
             const format = data.format;

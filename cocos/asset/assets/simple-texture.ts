@@ -24,7 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { ImageSource } from '../../../pal/image/types';
+import { IMemoryImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
@@ -141,8 +141,28 @@ export class SimpleTexture extends TextureBase {
      * @param source @en The source image or image data. @zh 源图像或图像数据。
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
+     * @deprecated since v3.9, please use `uploadData()` instead.
      */
-    public uploadData (source: ImageSource | ArrayBufferView | ImageAsset, level = 0, arrayIndex = 0): void {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, level, arrayIndex): void;
+    /**
+     * @en Upload data to the given mipmap level.
+     * The size of the image will affect how the mipmap is updated.
+     * - When the image is an ArrayBuffer, the size of the image must match the mipmap size.
+     * - If the image size matches the mipmap size, the mipmap data will be updated entirely.
+     * - If the image size is smaller than the mipmap size, the mipmap will be updated from top left corner.
+     * - If the image size is larger, an error will be raised
+     * @zh 上传图像数据到指定层级的 Mipmap 中。
+     * 图像的尺寸影响 Mipmap 的更新范围：
+     * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
+     * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
+     * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
+     * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
+     * @param source @en The source image or image data. @zh 源图像或图像数据。
+     * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
+     * @param arrayIndex @en The array index. @zh 要上传的数组索引。
+     */
+    public uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView, level, arrayIndex): void;
+    public uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView | HTMLCanvasElement | HTMLImageElement  | ImageBitmap, level = 0, arrayIndex = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
@@ -164,7 +184,8 @@ export class SimpleTexture extends TextureBase {
             if (source instanceof ImageAsset) {
                 imageAsset = source;
             } else {
-                imageAsset = new ImageAsset(source);
+                // This is a hack method, otherwise ts will just report an error.
+                imageAsset = new ImageAsset(source as IMemoryImageSource);
             }
             gfxDevice.copyImagesToTexture([imageAsset], this._gfxTexture, _regions);
         }

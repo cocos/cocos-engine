@@ -27,7 +27,7 @@ import { js, macro, cclegacy } from '../../core';
 import './texture-base';
 import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
 import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';
-import { ImageData } from 'pal/image';
+import { ImageAsset } from './image-asset';
 
 declare const jsb: any;
 
@@ -43,8 +43,17 @@ SimpleTexture.WrapMode = WrapMode;
 const simpleTextureProto = jsb.SimpleTexture.prototype;
 const oldUpdateDataFunc = simpleTextureProto.uploadData;
 simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
-    let imageData = new ImageData(source);
-    oldUpdateDataFunc.call(this, imageData.getRawData(), level, arrayIndex);
+    if(ArrayBuffer.isView(source)) {
+        oldUpdateDataFunc.call(this, source, level, arrayIndex);
+    } else {
+        let imageAsset;
+        if (source instanceof ImageAsset) {
+            imageAsset = source;
+        } else {
+            imageAsset = new ImageAsset(source);
+        }
+        oldUpdateDataFunc.call(this, imageAsset.data, level, arrayIndex);
+    }
 };
 
 simpleTextureProto._ctor = function () {

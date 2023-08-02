@@ -23,55 +23,10 @@
 */
 import { ALIPAY, XIAOMI, JSB, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { BaseImageData } from '../base-image-data';
-import { ImageSource, RawDataType   } from '../types';
 import { ccwindow } from '../../../cocos/core/global-exports';
 import { getError } from '../../../cocos/core';
 
-export type ImageDataType = ArrayBufferView;
 export class ImageData extends BaseImageData {
-    public getRawData (): RawDataType | null {
-        if (this.source == null) {
-            return null;
-        }
-        let data: ArrayBufferView | null = null;
-        if ('_data' in this.source) {
-            data = this.source._data;
-        } else if ('getContext' in this.source) {
-            const canvasElem = this.source;
-            const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, this.source.width, this.source.height);
-            const buff = imageData!.data.buffer;
-            let rawBuffer;
-            if ('buffer' in buff) {
-                // es-lint as any
-                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
-            } else {
-                rawBuffer = buff;
-                data = new Uint8Array(rawBuffer);
-            }
-        } else if (this.source instanceof HTMLImageElement || this.source instanceof ImageBitmap) {
-            const img = this.source;
-            const canvas = ccwindow.document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx?.drawImage(img as any, 0, 0);
-            const imageData = ctx?.getImageData(0, 0, img.width, img.height);
-            const buff = imageData!.data.buffer;
-            let rawBuffer;
-            if ('buffer' in buff) {
-                // es-lint as any
-                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
-            } else {
-                rawBuffer = buff;
-                data = new Uint8Array(rawBuffer);
-            }
-        } else {
-        // eslint-disable-next-line no-console
-            console.log('imageBmp copy not impled!');
-        }
-        return data;
-    }
-
     static loadImage (url: string): Promise<ImageData> {
         return new Promise((resolve, reject) => {
             const image = new ccwindow.Image();

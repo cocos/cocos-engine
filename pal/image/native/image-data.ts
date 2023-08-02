@@ -23,7 +23,7 @@
 */
 import { BaseImageData } from '../base-image-data';
 import { ImageSource, IMemoryImageSource, RawDataType } from '../types';
-import { getError } from '../../../cocos/core';
+import { getError, override, assert } from '../../../cocos/core';
 
 declare const jsb: any;
 
@@ -34,25 +34,22 @@ export class ImageData extends BaseImageData {
         this.reset(imageAsset);
     }
 
+    @override
     public destroy (): void {
         if (this._rawData instanceof jsb.JSBNativeDataHolder) {
+            // JSB element should destroy native data.
             jsb.destroyImage(this._rawData);
         }
-        // if (this.imageSource && this.imageSource instanceof HTMLImageElement) {
-        //     // JSB element should destroy native data.
-        //     // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
-        //     // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
-        //     // issue: https://github.com/cocos/cocos-engine/issues/14646
-        //     (this.imageSource as any).destroy();
-        // }
         super.destroy();
     }
 
+    @override
     public getRawData (): RawDataType | null {
         // TODO(qgh) :ImageBitmap without raw data.
         return this._rawData;
     }
 
+    @override
     public reset (imageSource?: ImageSource | ArrayBufferView): void {
         if (imageSource == null) {
             this._rawData = null;
@@ -67,6 +64,8 @@ export class ImageData extends BaseImageData {
             this._rawData = imageSource;
         } else if ('_data' in imageSource) {
             this._rawData = imageSource._data;
+        } else {
+            assert(false, 'ImageBitmap has no raw data!');
         }
         super.reset(imageSource);
     }

@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, TAOBAO } from 'internal:constants';
-import { ImageData, ImageSource } from 'pal/image';
+import { ImageData } from 'pal/image';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {

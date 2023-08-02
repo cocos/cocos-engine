@@ -27,7 +27,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
-import { ImageSource } from '../../../pal/image/types';
+import { IMemoryImageSource } from '../../../pal/image/types';
 import { Mat4, Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js } from '../../core';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
@@ -249,9 +249,19 @@ export class SpriteFrame extends Asset {
      * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource could be HTMLCanvasElement, HTMLImageElement, IMemoryImageSource.
      *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
      * @returns @en SpriteFrame asset. @zh 精灵资源。
+     * @deprecated @en Recommended use of the ImageAsset object. @zh 推荐使用ImageAsset对象
      */
-    public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset): SpriteFrame {
-        const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
+    public static createWithImage (imageSourceOrImageAsset: HTMLCanvasElement | HTMLImageElement | ImageBitmap): SpriteFrame;
+    /**
+     * @en Create a SpriteFrame object by an image asset or an native image asset.
+     * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 资源。
+     * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource could be HTMLCanvasElement, HTMLImageElement, IMemoryImageSource.
+     *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
+     * @returns @en SpriteFrame asset. @zh 精灵资源。
+     */
+    public static createWithImage (imageSourceOrImageAsset: ImageAsset | IMemoryImageSource): SpriteFrame;
+    public static createWithImage (imageSourceOrImageAsset: ImageAsset | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap): SpriteFrame {
+        const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset as IMemoryImageSource);
         const tex = new Texture2D();
         tex.image = img;
         const spf = new SpriteFrame();

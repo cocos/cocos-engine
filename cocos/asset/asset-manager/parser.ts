@@ -23,7 +23,7 @@
 */
 
 import { ImageData } from 'pal/image';
-import { ImageSource, IMemoryImageSource } from '../../../pal/image/types';
+import { IMemoryImageSource } from '../../../pal/image/types';
 import { ImageAsset } from '../assets/image-asset';
 import { js, warn } from '../../core';
 import Cache from './cache';
@@ -89,7 +89,7 @@ export class Parser {
         }
         createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
             onComplete(null, new ImageData(result));
-        }, (err): void => {
+        }, (err: Error): void => {
             onComplete(err, null);
         });
     }
