@@ -429,7 +429,7 @@ export function expandNestedPrefabInstanceNode (node: Node): void {
 
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
-            expandPrefabInstanceNode(instanceNode, true);
+            expandPrefabInstanceNode(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
             // if (!EDITOR) {
             //     applyNodeAndComponentId(instanceNode, (instanceNode as any)._prefab?.instance?.fileId ?? '');
