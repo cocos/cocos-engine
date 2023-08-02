@@ -1,0 +1,62 @@
+type: State
+nodes:
+  t_169079019866889988962:
+    type: SurfaceMasterNode
+    position:
+      x: 384
+      'y': 8
+    details:
+      inputPins:
+        - dataType: vec3
+          value:
+            x: 0
+            'y': 0
+            z: 0
+          details: {}
+        - dataType: vec3
+          value:
+            x: 0
+            'y': 0
+            z: 0
+          details: {}
+        - dataType: vec3
+          value:
+            x: 0
+            'y': 0
+            z: 0
+          details: {}
+        - dataType: vec3
+          value:
+            x: 0
+            'y': 0
+            z: 0
+          details: {}
+        - dataType: vec3
+          value:
+            x: 0
+            'y': 0
+            z: 0
+          details: {}
+        - dataType: float
+          value: 0
+          details: {}
+        - dataType: float
+          value: 0.5
+          details: {}
+        - dataType: float
+          value: 0
+          details: {}
+        - dataType: float
+          value: 0
+          details: {}
+        - dataType: float
+          value: 1
+          details: {}
+        - dataType: float
+          value: 0
+          details: {}
+      outputPins: []
+      pin: {}
+lines: {}
+graphs: {}
+details: {}
