@@ -73,9 +73,9 @@ void CCMTLShader::doInit(const ShaderInfo& info) {
     _specializedFragFuncs = [[NSMutableDictionary alloc] init];
     // spirv-cross for input attachment needs RenderPass to build [[color(index)]],
     // build gpu shader only when there is no subPass input.
-    if (!checkInputAttachment(info)) {
-        gpuShader(nullptr, 0);
-    }
+//    if (!checkInputAttachment(info)) {
+//        gpuShader(nullptr, 0);
+//    }
 }
 
 void CCMTLShader::doDestroy() {

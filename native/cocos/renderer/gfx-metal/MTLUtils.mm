@@ -41,8 +41,6 @@ namespace cc {
 namespace gfx {
 namespace {
 
-static constexpr bool ENABLE_DS_INPUT = false;
-
 ccstd::unordered_map<size_t, PipelineState *> pipelineMap;
 ccstd::unordered_map<size_t, RenderPass *> renderPassMap;
 
@@ -1059,11 +1057,6 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
     }
 
-    struct AttachmentDesc{
-        uint32_t slot{0};
-        std::string name;
-    };
-    AttachmentDesc depthInput, stencilInput;
     if (executionModel == spv::ExecutionModelFragment) {
         auto* ccRenderPass = static_cast<CCMTLRenderPass*>(renderPass);
         const auto& readBuffer = ccRenderPass ? ccRenderPass->getReadBuffer(subpassIndex) : ccstd::vector<uint32_t>{};
@@ -1073,18 +1066,8 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                 const auto &attachment = resources.subpass_inputs[i];
                 auto inputIndex = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
                 auto loc = inputIndex >= readBuffer.size() ? inputIndex : readBuffer[inputIndex];
-                if(renderPass) {
-                    if(loc == renderPass->getColorAttachments().size()) {
-                        depthInput.slot = inputIndex;
-                        depthInput.name = attachment.name;
-                        continue;
-                    }
-                    if(loc == (renderPass->getColorAttachments().size() + 1)) {
-                        stencilInput.slot = inputIndex;
-                        stencilInput.name = attachment.name;
-                        continue;;
-                    }
-                }
+                // depth stencil input not support in metal
+                CC_ASSERT(loc != renderPass->getColorAttachments().size());
                 auto& input = gpuShader->inputs.emplace_back();
                 input.name = attachment.name;
                 msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
@@ -1119,43 +1102,6 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     if (!output.size()) {
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", output.c_str());
-    }
-    if constexpr(ENABLE_DS_INPUT) {
-        if(!depthInput.name.empty() || !stencilInput.name.empty()) {
-            auto outIndex = output.find("struct main0_out");
-            std::string depthDecl = depthInput.name.empty() ? "" : "\n    float depth [[depth(less)]];";
-            std::string stencilDecl = stencilInput.name.empty() ? "" : "\n    uint stencil [[stencil]];";
-            auto dsDecl = "struct DSInput\n{" + depthDecl + stencilDecl + " \n};\n";
-            output.insert(outIndex, dsDecl);
-            bool hasDepth{false};
-            if (!depthInput.name.empty()) {
-                std::string depthName(depthInput.name.substr(1));
-                std::string depthInExp = "[, ]*float4 " + depthName + "([^\\)]+\\))\\]\\]";
-                std::regex depthInputExp(depthInExp);
-                output = std::regex_replace(output, depthInputExp, "");
-                std::string_view immutableOut{"fragment main0_out"};
-                auto entryIndex = output.find(immutableOut);
-                auto bodyIndex = output.find_first_of("{", entryIndex + 1);
-                output = output.insert(bodyIndex + 1,
-                                        "\nDSInput __dsInput{};\nfloat " + depthName + " = __dsInput.depth;");
-                hasDepth = true;
-            }
-            if(!stencilInput.name.empty()) {
-                std::string stencilName(stencilInput.name.substr(1));
-                std::string stencilInExp = "[, ]*int4 " + stencilName + "([^\\)]+\\))\\]\\]";
-                std::regex stencilInputExp(stencilInExp);
-                output = std::regex_replace(output, stencilInputExp, "");
-                std::string_view immutableOut{"fragment main0_out"};
-                auto entryIndex = output.find(immutableOut);
-                auto bodyIndex = output.find_first_of("{", entryIndex + 1);
-                std::string declStr = hasDepth ? "" : "\nDSInput __dsInput{};";
-                output = output.insert(bodyIndex + 1,
-                                       declStr + "\nuint " + stencilName + " = __dsInput.stencil;");
-                std::regex usingValExp(stencilName + "\\.[rx]");
-                output = std::regex_replace(output, usingValExp, stencilName);
-            }
-            
-        }
     }
 
     return output;
