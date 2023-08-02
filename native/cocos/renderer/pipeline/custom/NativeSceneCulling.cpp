@@ -104,7 +104,7 @@ void SceneCulling::collectCullingQueries(
 }
 
 namespace {
-
+const pipeline::PipelineSceneData* pSceneData = nullptr;
 bool isNodeVisible(const Node* node, uint32_t visibility) {
     return node && ((visibility & node->getLayer()) == node->getLayer());
 }
@@ -113,9 +113,18 @@ uint32_t isModelVisible(const scene::Model& model, uint32_t visibility) {
     return visibility & static_cast<uint32_t>(model.getVisFlags());
 }
 
-bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustum) {
+bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustum, bool castShadow) {
     const auto* const modelWorldBounds = model.getWorldBounds();
-    return !modelWorldBounds || modelWorldBounds->aabbFrustum(frustum);
+    if (!modelWorldBounds) {
+        return true;
+    }
+    geometry::AABB transWorldBounds{};
+    transWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
+    const scene::Shadows& shadows = *pSceneData->getShadows();
+    if (shadows.getType() == scene::ShadowType::PLANAR && castShadow) {
+        modelWorldBounds->transform(shadows.getMatLight(), &transWorldBounds);
+    }
+    return transWorldBounds.aabbFrustum(frustum);
 }
 
 void octreeCulling(
@@ -183,7 +192,7 @@ void bruteForceCulling(
         // filter model by view visibility
         if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
             // frustum culling
-            if (!isFrustumVisible(model, cameraOrLightFrustum)) {
+            if (!isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) {
                 continue;
             }
             // is skybox, skip
@@ -248,14 +257,23 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        const auto& csmLayers = *pplSceneData.getCSMLayers();
+                        auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
                         const auto& csmLevel = mainLight->getCSMLevel();
                         const geometry::Frustum* frustum = nullptr;
-                        if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-                            frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
+                        const auto& shadows = *pplSceneData.getShadows();
+                        if (shadows.getType() == scene::ShadowType::PLANAR) {
+                            frustum = &camera.getFrustum();
                         } else {
-                            frustum = &csmLayers.getLayers()[level]->getValidFrustum();
+                            if (shadows.isEnabled() && shadows.getType() == scene::ShadowType::SHADOW_MAP && mainLight && mainLight->getNode()) {
+                                csmLayers.update(&pplSceneData, &camera);
+                            }
+                            // const
+                            if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
+                                frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
+                            } else {
+                                frustum = &csmLayers.getLayers()[level]->getValidFrustum();
+                            }
                         }
                         sceneCulling(
                             skyboxModelToSkip,
@@ -281,7 +299,6 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
 }
 
 namespace {
-
 bool isBlend(const scene::Pass& pass) {
     bool bBlend = false;
     for (const auto& target : pass.getBlendState()->targets) {
@@ -429,6 +446,7 @@ void SceneCulling::fillRenderQueues(
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
     const pipeline::PipelineSceneData& pplSceneData) {
+    pSceneData = &pplSceneData;
     collectCullingQueries(rg, lg);
     batchCulling(pplSceneData);
     fillRenderQueues(rg, pplSceneData);

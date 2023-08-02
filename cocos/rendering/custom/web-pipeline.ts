@@ -304,7 +304,11 @@ function setShadowUBOLightView (
     const pipeline = (director.root as Root).pipeline;
     const device = pipeline.device;
     const sceneData = pipeline.pipelineSceneData;
+
     const shadowInfo = sceneData.shadows;
+    if (shadowInfo.type === ShadowType.Planar) {
+        return;
+    }
     const csmLayers = sceneData.csmLayers;
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
@@ -758,6 +762,7 @@ function setTextureUBOView (setter: WebSetter, camera: Camera | null, cfg: Reado
     const skybox = cfg.skybox;
     const director = cclegacy.director;
     const root = director.root;
+    const pipeline = root.pipeline as WebPipeline;
     if (skybox.reflectionMap) {
         const texture = skybox.reflectionMap.getGFXTexture()!;
         const sampler: Sampler = root.device.getSampler(skybox.reflectionMap.getSamplerInfo());
@@ -779,18 +784,17 @@ function setTextureUBOView (setter: WebSetter, camera: Camera | null, cfg: Reado
         setter.setTexture('cc_diffuseMap', texture);
         setter.setSampler('cc_diffuseMap', sampler);
     }
-    const pointSampler: Sampler = root.device.getSampler(_samplerPointInfo);
     if (!setter.hasSampler('cc_shadowMap')) {
-        setter.setSampler('cc_shadowMap', pointSampler);
+        setter.setSampler('cc_shadowMap', pipeline.defaultSampler);
     }
     if (!setter.hasTexture('cc_shadowMap')) {
-        setter.setTexture('cc_shadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        setter.setTexture('cc_shadowMap', pipeline.defaultTexture);
     }
     if (!setter.hasSampler('cc_spotShadowMap')) {
-        setter.setSampler('cc_spotShadowMap', pointSampler);
+        setter.setSampler('cc_spotShadowMap', pipeline.defaultSampler);
     }
     if (!setter.hasTexture('cc_spotShadowMap')) {
-        setter.setTexture('cc_spotShadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        setter.setTexture('cc_spotShadowMap',  pipeline.defaultTexture);
     }
 }
 
@@ -989,11 +993,12 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         throw new Error('Method not implemented.');
     }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RenderQueueBuilder {
+        const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
-            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
             assert(layoutId !== 0xFFFFFFFF);
         }
         const queue = new RenderQueue(hint);
+        queue.phaseID = layoutId;
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
@@ -1129,11 +1134,12 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         return result;
     }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): WebRenderQueueBuilder {
+        const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
-            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
             assert(layoutId !== 0xFFFFFFFF);
         }
         const queue = new RenderQueue(hint);
+        queue.phaseID = layoutId;
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
@@ -1283,11 +1289,12 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         throw new Error('Method not implemented.');
     }
     addQueue (layoutName = 'default'): WebComputeQueueBuilder {
+        const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
-            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
             assert(layoutId !== 0xFFFFFFFF);
         }
         const queue = new RenderQueue();
+        queue.phaseID = layoutId;
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
@@ -1556,6 +1563,14 @@ export class WebPipeline implements BasicPipeline {
         return this._globalDescSetData;
     }
 
+    get defaultSampler (): Sampler {
+        return this._defaultSampler;
+    }
+
+    get defaultTexture (): Texture {
+        return builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!;
+    }
+
     private _compileMaterial (): void {
         this._copyPassMat.initialize({
             effectName: 'pipeline/copy-pass',
@@ -1587,7 +1602,9 @@ export class WebPipeline implements BasicPipeline {
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
         const isLinear = this._device.gfxAPI === API.WEBGL ? 1 : 0;
         this.setMacroInt('CC_SHADOWMAP_USE_LINEAR_DEPTH', isLinear);
-
+        const director: Director = cclegacy.director;
+        const root: Root = director.root!;
+        this._defaultSampler = root.device.getSampler(_samplerPointInfo);
         // 0: UNIFORM_VECTORS_LESS_EQUAL_64, 1: UNIFORM_VECTORS_GREATER_EQUAL_125.
         this.pipelineSceneData.csmSupported = this.device.capabilities.maxFragmentUniformVectors
             >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
@@ -1998,6 +2015,7 @@ export class WebPipeline implements BasicPipeline {
     private _copyPassMat: Material = new Material();
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
+    private _defaultSampler!: Sampler;
     private _globalDescriptorSet: DescriptorSet | null = null;
     private _globalDescriptorSetInfo: DescriptorSetInfo | null = null;
     private _globalDescriptorSetLayout: DescriptorSetLayout | null = null;
