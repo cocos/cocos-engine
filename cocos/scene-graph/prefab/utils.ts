@@ -400,9 +400,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false): void
         if (recursively) {
             if (node && node.children) {
                 node.children.forEach((child) => {
-                    if (child) {
-                        expandPrefabInstanceNode(child, true);
-                    }
+                    expandPrefabInstanceNode(child, true);
                 });
             }
         }
@@ -418,9 +416,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false): void
     } else if (recursively) {
         if (node && node.children) {
             node.children.forEach((child) => {
-                if (child) {
-                    expandPrefabInstanceNode(child, true);
-                }
+                expandPrefabInstanceNode(child, true);
             });
         }
     }
