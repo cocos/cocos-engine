@@ -295,7 +295,7 @@ export const sys = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效。
      * @param url @zh 访问的链接。 @en Visited links.
      */
-    openURL (url): void {
+    openURL (url: string): void {
         systemInfo.openURL(url);
     },
 
@@ -307,7 +307,7 @@ export const sys = {
             .then((): any => systemInfo.init())
             .then((): void => {
                 try {
-                    let localStorage: Storage | null = sys.localStorage = window.localStorage;
+                    let localStorage: Storage = sys.localStorage = window.localStorage;
                     localStorage.setItem('storage', '');
                     localStorage.removeItem('storage');
                     localStorage = null;
