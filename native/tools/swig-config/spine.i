@@ -738,3 +738,11 @@ using namespace spine;
         return $self->set(other);
     }
 }
+
+%extend spine::Skeleton {
+    spine::Attachment &getAttachmentByName(const std::string &slotName, const std::string &attachmentName) {
+        spine::String slot(slotName.data());
+        spine::String attachment(attachmentName.data());
+        return *($self->getAttachment(slot, attachment));
+    }
+}
