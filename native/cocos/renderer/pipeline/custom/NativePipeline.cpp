@@ -56,6 +56,10 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
     programLibrary->setPipeline(this);
 }
 
+bool NativePipeline::getIsGPUDrivenEnabled() const {
+    return pipelineSceneData->isGPUDrivenEnabled();
+}
+
 gfx::Device *NativePipeline::getDevice() const {
     return device;
 }
