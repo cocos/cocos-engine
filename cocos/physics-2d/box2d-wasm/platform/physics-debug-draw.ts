@@ -36,7 +36,7 @@ const RED_COLOR = Color.RED;
 
 export class PhysicsDebugDraw {// extends B2.Draw {
     static callback = {
-        DrawPolygon (vertices: B2.Vec2Vector, vertexCount: number, color: B2.Color): void {
+        DrawPolygon (vertices: number, vertexCount: number, color: B2.Color): void {
             PhysicsDebugDraw.DrawPolygon(vertices, vertexCount, color);
         },
         DrawSolidPolygon (vertices: number, vertexCount: number, color: B2.Color): void {
@@ -87,7 +87,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         drawer.close();
     }
 
-    static DrawPolygon (vertices: B2.Vec2Vector, vertexCount: number, color: B2.Color): void {
+    static DrawPolygon (vertices: number, vertexCount: number, color: B2.Color): void {
         PhysicsDebugDraw._applyStrokeColor(color);
         PhysicsDebugDraw._DrawPolygon(vertices, vertexCount);
         PhysicsDebugDraw._drawer!.stroke();
