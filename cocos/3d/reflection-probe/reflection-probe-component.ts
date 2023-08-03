@@ -312,7 +312,9 @@ export class ReflectionProbe extends Component {
 
     public onLoad (): void {
         this._createProbe();
-        ReflectionProbeManager.probeManager.registerEvent();
+        if (Editor) {
+            ReflectionProbeManager.probeManager.registerEvent();
+        }
     }
 
     onEnable (): void {

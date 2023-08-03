@@ -1143,7 +1143,7 @@ export class MeshRenderer extends ModelRenderer {
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
-            cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
+            cclegacy.internal.reflectionProbeManager.selectBakedReflectionProbe(this._model);
             if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, false)) {
                 warnID(16302);
             }
