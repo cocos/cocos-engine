@@ -1200,6 +1200,7 @@ export interface ComputePassBuilder extends Setter {
  * @zh 渲染管线
  */
 export interface Pipeline extends BasicPipeline {
+    readonly isGPUDrivenEnabled: boolean;
     /**
      * @en Add storage buffer.
      * @zh 添加存储缓冲

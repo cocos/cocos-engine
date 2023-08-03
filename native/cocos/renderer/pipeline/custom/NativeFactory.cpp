@@ -70,11 +70,12 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
     }
 }
 
-Pipeline* Factory::createPipeline() {
+Pipeline* Factory::createPipeline(bool bEnableGpuDriven) {
     if (sPipeline) {
         return sPipeline;
     }
     sPipeline = ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    sPipeline->pipelineSceneData->setGPUDrivenEnabled(bEnableGpuDriven);
     CC_EXPECTS(sRenderingModule);
     sRenderingModule->programLibrary->pipeline = sPipeline;
     return sPipeline;

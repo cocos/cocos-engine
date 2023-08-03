@@ -1318,6 +1318,7 @@ class Pipeline : public BasicPipeline {
 public:
     Pipeline() noexcept = default;
 
+    virtual bool getIsGPUDrivenEnabled() const = 0;
     /**
      * @en Add storage buffer.
      * @zh 添加存储缓冲
@@ -1503,7 +1504,7 @@ class Factory {
 public:
     static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
     static void destroy(RenderingModule* renderingModule) noexcept;
-    static Pipeline *createPipeline();
+    static Pipeline *createPipeline(bool bEnableGpuDriven);
 };
 
 } // namespace render
