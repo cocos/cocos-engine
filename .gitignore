@@ -46,6 +46,7 @@ native/external/
 
 scripts/typedoc-plugin/lib/
 !templates/**/*
+templates/**/.DS_Store
 
 @types/consts.d.ts
 

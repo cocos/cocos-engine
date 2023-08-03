@@ -1,4 +1,4 @@
-import { ccclass, editable, serializable, type } from '../../../../core/data/decorators';
+import { ccclass, editable, range, serializable, type } from '../../../../core/data/decorators';
 import { Pose } from '../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
@@ -22,6 +22,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
+    @range([0.0, 1.0, 0.01])
     ratio = 1.0;
 
     public bind (context: AnimationGraphBindingContext): void {

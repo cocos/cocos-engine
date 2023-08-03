@@ -136,6 +136,7 @@ import {
     getRenderArea,
     mergeSrcToTargetDesc,
     updateGlobalDescBinding,
+    validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
@@ -1232,6 +1233,7 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
             this._submitInfo.additiveLight = context.additiveLight;
+            validPunctualLightsCulling(context.pipeline, this.camera);
             this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
         }
         if (sceneFlag & SceneFlags.PLANAR_SHADOW) {

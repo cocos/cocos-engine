@@ -198,10 +198,6 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             events::WindowEvent::broadcast(ev);
             break;
         }
-        case SDL_WINDOWEVENT_ENTER: {
-            SDL_CaptureMouse(SDL_TRUE);
-            break;
-        }
         case SDL_WINDOWEVENT_CLOSE: {
             ev.type = WindowEvent::Type::CLOSE;
             events::WindowEvent::broadcast(ev);

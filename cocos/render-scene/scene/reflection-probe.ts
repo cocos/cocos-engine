@@ -24,7 +24,7 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Size } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
@@ -125,10 +125,10 @@ export class ReflectionProbe {
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
      */
-    set probeType (value: number) {
+    set probeType (value: ProbeType) {
         this._probeType = value;
     }
-    get probeType (): number {
+    get probeType (): ProbeType {
         return this._probeType;
     }
 
@@ -308,7 +308,7 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera): void {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = cclegacy.view.getDesignResolutionSize();
+            const canvasSize = cclegacy.view.getDesignResolutionSize() as Size;
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
             cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
@@ -317,7 +317,7 @@ export class ReflectionProbe {
         this._needRender = true;
     }
 
-    public switchProbeType (type: number, sourceCamera: Camera | null): void {
+    public switchProbeType (type: ProbeType, sourceCamera: Camera | null): void {
         if (type === ProbeType.CUBE) {
             this._needRender = false;
         } else if (sourceCamera !== null) {
@@ -421,14 +421,13 @@ export class ReflectionProbe {
     private _createCamera (cameraNode: Node): Camera | null {
         const root = cclegacy.director.root;
         if (!this._camera) {
-            this._camera = (cclegacy.director.root).createCamera();
+            this._camera = root.createCamera();
             if (!this._camera) return null;
             this._camera.initialize({
                 name: cameraNode.name,
                 node: cameraNode,
                 projection: CameraProjection.PERSPECTIVE,
-                window: EDITOR ? cclegacy.director.root && cclegacy.director.root.mainWindow
-                    : cclegacy.director.root && cclegacy.director.root.tempWindow,
+                window: EDITOR ? root && root.mainWindow : root && root.tempWindow,
                 priority: 0,
                 cameraType: CameraType.DEFAULT,
                 trackingType: TrackingType.NO_TRACKING,

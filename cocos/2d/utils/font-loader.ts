@@ -167,7 +167,6 @@ export function loadFont (url: string, options: Record<string, any>, onComplete:
 
     // Default width reference to test whether new font is loaded correctly
     const fontDesc = `40px ${fontFamilyName}`;
-    const refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
 
     // Setup font face style
     const fontStyle = ccdocument.createElement('style');
@@ -195,6 +194,7 @@ export function loadFont (url: string, options: Record<string, any>, onComplete:
     if (useNativeCheck()) {
         nativeCheckFontLoaded(Date.now(), fontFamilyName, onComplete);
     } else {
+        const refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
         // Save loading font
         const fontLoadHandle = {
             fontFamilyName,

@@ -61,9 +61,9 @@ export default class MainAbility extends UIAbility {
             }
         });
         // Set full screen
-        //windowStage.getMainWindow().then((window: window.Window) => {
-        //    window.setFullScreen(true);
-        //});
+        windowStage.getMainWindow().then((window: window.Window) => {
+            window.setWindowSystemBarEnable([]);
+        });
         nativeContext.writablePathInit(this.context.cacheDir);
     }
 

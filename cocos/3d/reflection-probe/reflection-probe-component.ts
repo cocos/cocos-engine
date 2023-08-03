@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCBoolean, CCObject, Color, Enum, Vec3, warn } from '../../core';
 
@@ -62,6 +62,7 @@ export enum ProbeResolution {
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
 @playOnFocus
+@help('i18n:cc.ReflectionProbe')
 export class ReflectionProbe extends Component {
     protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
     protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
@@ -325,12 +326,14 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
         }
+        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged, this);
     }
     onDisable (): void {
         if (this._probe) {
             ReflectionProbeManager.probeManager.unregister(this._probe);
             this._probe.disable();
         }
+        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged);
     }
 
     public start (): void {
@@ -362,14 +365,6 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-
-            if (this.node.hasChangedFlags) {
-                this.probe.updateBoundingBox();
-            }
-            if (this.node.hasChangedFlags & TransformBit.POSITION) {
-                ReflectionProbeManager.probeManager.onUpdateProbes(true);
-                ReflectionProbeManager.probeManager.updateProbeData();
-            }
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
             if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)
@@ -388,6 +383,14 @@ export class ReflectionProbe extends Component {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
         ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+    }
+
+    private _onProbeTransformChanged (type: TransformBit): void {
+        this.probe.updateBoundingBox();
+        if (type & Node.TransformBit.POSITION) {
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.updateProbeData();
+        }
     }
 
     private _createProbe (): void {

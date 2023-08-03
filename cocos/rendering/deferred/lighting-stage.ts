@@ -28,7 +28,8 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera, LightType } from '../../render-scene/scene';
+import { Camera } from '../../render-scene/scene/camera';
+import { LightType } from '../../render-scene/scene/light';
 import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
@@ -355,8 +356,14 @@ export class LightingStage extends RenderStage {
 
         pipeline.pipelineUBO.updateShadowUBO(camera);
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            framebuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.setScissor(pipeline.generateScissor(camera));
         cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);

@@ -22,10 +22,9 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
-import { Light } from '../render-scene/scene';
+import { Light } from '../render-scene/scene/light';
 import { getDescBindingFromName, getDescriptorSetDataFromLayout } from './custom/define';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings, isEnableEffect } from './define';
 

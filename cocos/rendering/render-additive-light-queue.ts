@@ -38,7 +38,8 @@ import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../render-scene/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
-import { Camera, ShadowType } from '../render-scene/scene';
+import { Camera } from '../render-scene/scene/camera';
+import { ShadowType } from '../render-scene/scene/shadows';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { PipelineUBO } from './pipeline-ubo';
 import { PipelineRuntime } from './custom/pipeline';
@@ -386,8 +387,17 @@ export class RenderAdditiveLightQueue {
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range,
-                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
+                Mat4.perspective(
+                    _matShadowViewProj,
+                    (light as SpotLight).angle,
+                    1.0,
+                    0.001,
+                    (light as SpotLight).range,
+                    true,
+                    cap.clipSpaceMinZ,
+                    cap.clipSpaceSignY,
+                    0,
+                );
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 
