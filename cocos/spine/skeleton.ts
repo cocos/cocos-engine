@@ -66,6 +66,11 @@ export const timeScale = 1.0;
  */
 export enum AnimationCacheMode {
     /**
+     * @en Unset mode.
+     * @zh 未设置模式。
+     */
+    UNSET = -1,
+    /**
      * @en The realtime mode.
      * @zh 实时计算模式。
      */
@@ -207,7 +212,7 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _timeScale = 1;
     @serializable
-    protected _preCacheMode = -1;
+    protected _preCacheMode: AnimationCacheMode = AnimationCacheMode.UNSET;
     @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
     @serializable
@@ -1487,12 +1492,15 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    protected _updateColor (): void {
+    /**
+     * @engineInternal
+     */
+    public _updateColor (): void {
         this.node._uiProps.colorDirty = true;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        const a = this._color.a / 255.0;
+        const a = this.node._uiProps.opacity;
         this._instance.setColor(r, g, b, a);
     }
 

@@ -29,7 +29,7 @@ import { ForwardStagePriority } from '../enum';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { ReflectionProbeFlow } from './reflection-probe-flow';
-import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
+import { Camera, ReflectionProbe } from '../../render-scene/scene';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { Vec3 } from '../../core';
 import { packRGBE } from '../../core/math/color';
@@ -90,8 +90,14 @@ export class ReflectionProbeStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._frameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._frameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._frameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.endRenderPass();
     }
 
@@ -119,8 +125,14 @@ export class ReflectionProbeStage extends RenderStage {
             colors[0].w = rgbe.w;
         }
         const device = pipeline.device;
-        cmdBuff.beginRenderPass(renderPass, this._frameBuffer!, this._renderArea,
-            colors, this._probe!.camera.clearDepth, this._probe!.camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._frameBuffer!,
+            this._renderArea,
+            colors,
+            this._probe!.camera.clearDepth,
+            this._probe!.camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._probeRenderQueue.recordCommandBuffer(device, renderPass, cmdBuff);

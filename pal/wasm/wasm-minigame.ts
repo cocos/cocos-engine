@@ -26,6 +26,7 @@ import { HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:const
 import { minigame } from 'pal/minigame';
 import { basename } from '../../cocos/core/utils/path';
 import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { log } from '../../cocos/core/platform/debug';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
@@ -55,7 +56,8 @@ function loadSubpackage (name: string): Promise<void> {
                     resolve();
                 },
                 fail (err) {
-                    reject(err);
+                    log(`Load subpacakge '${name}' failed, maybe we don't need this subpacakge or it's an engine build issue, for detailed: `, err);
+                    resolve();
                 },
             });
         } else {

@@ -18,7 +18,47 @@ module.exports = {
 
     classes: {
         'cc': {
+            'Animation': {
+                'properties': {
+                    'clips': {
+                        displayName: 'Clips',
+                        tooltip: 'All clips this component governs.',
+                    },
+                    'defaultClip': {
+                        displayName: 'Default Clip',
+                        tooltip: 'The default clip to play.',
+                    },
+                    'playOnLoad': {
+                        displayName: 'Play On Load',
+                        tooltip: 'Whether automatically play the default clip after component loaded.',
+                    },
+                },
+            },
+            'SkeletalAnimation': {
+                'properties': {
+                    __extends__: 'classes.cc.Animation.properties',
+                    'sockets': {
+                        displayName: 'Sockets',
+                        tooltip: 'The joint sockets this animation component maintains. ' +
+                            'Sockets have to be registered here before attaching custom nodes to animated joints.',
+                    },
+                    'useBakedAnimation': {
+                        displayName: 'Use Baked Animation',
+                        tooltip: `Whether to bake animations. Default to true, ` +
+                            `which substantially increases performance while making all animations completely fixed.` +
+                            `Dynamically changing this property will take effect when playing the next animation clip.`,
+                    },
+                },
+            },
             'animation': {
+                'AnimationController': {
+                    properties: {
+                        'graph': {
+                            displayName: 'Graph',
+                            tooltip: 'The animation graph or animation graph variant associated with this animation controller.',
+                        },
+                    },
+                },
                 'PoseGraphOutputNode': {
                     displayName: 'Output Pose',
                 },

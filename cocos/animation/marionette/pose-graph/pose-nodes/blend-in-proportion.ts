@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { ccclass, serializable } from '../../../../core/data/decorators';
+import { ccclass, range, serializable } from '../../../../core/data/decorators';
 import { blendPoseInto, Pose } from '../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
@@ -29,6 +29,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
         arraySyncGroup: 'blend-item',
         arraySyncGroupFollower: true,
     })
+    @range([0.0, Number.POSITIVE_INFINITY])
     public readonly proportions: number[] = [];
 
     public bind (context: AnimationGraphBindingContext): void {

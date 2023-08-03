@@ -40,6 +40,7 @@ import type {
     Fog as JsbFog,
     Shadows as JsbShadows,
     Skybox as JsbSkybox,
+    PostSettings as JsbPostSettings
 } from './index';
 
 // NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
@@ -339,6 +340,11 @@ export const EnvironmentLightingType = Enum({
     DIFFUSEMAP_WITH_REFLECTION: 2,
 });
 
+export const ToneMappingType = Enum({
+    DEFAULT: 0,
+    LINEAR: 1,
+});
+
 export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = JsbShadowsInfo;
 export const Shadows: typeof JsbShadows = jsb.Shadows;
@@ -376,6 +382,10 @@ Object.defineProperty(Shadows, 'COEFFICIENT_OF_EXPANSION', {
 export const Skybox: typeof JsbSkybox = jsb.Skybox;
 export type Skybox = JsbSkybox;
 cclegacy.Skybox = Skybox;
+
+export const PostSettings: typeof JsbPostSettings = jsb.PostSettings;
+export type PostSettings = JsbPostSettings;
+cclegacy.PostSettings = PostSettings;
 
 export * from './model';
 export * from './submodel';

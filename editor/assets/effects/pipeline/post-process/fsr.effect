@@ -80,7 +80,8 @@ CCProgram fs-easu %{
       rendersize, rendersize, texSize.zw
     );
     FsrEasuF(c, gl_FragCoord.xy, con0, con1, con2, con3);
-    fragColor = vec4(c.xyz, 1.);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(c.xyz, alpha);
   }
   
 }%
@@ -115,6 +116,7 @@ CCProgram fs-rcas %{
 
     // Perform RCAS pass
     vec3 col = FsrRcasF(gl_FragCoord.xy, con);
-    fragColor = vec4(col, 1.);
+    float alpha = texture(outputResultMap, v_uv).a;
+    fragColor = vec4(col, alpha);
   }
 }%

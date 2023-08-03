@@ -13,6 +13,7 @@ import { PoseGraphStash, StateMachine } from "../../../cocos/animation/marionett
 import { PoseNodeLocation, visitPoseNodeInLayer } from "./visit/visit-pose-node";
 import { PoseGraph } from '../../../cocos/animation/marionette/pose-graph/pose-graph';
 import { PoseNodeStateMachine } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine";
+import { attr } from "../../../cocos/core/data/utils/attribute";
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 
@@ -90,6 +91,17 @@ export function getInputDefaultDisplayName(inputKey: poseGraphOp.InputKey) {
     } else {
         return `${inputKey[0]}[${inputKey[1]}]`;
     }
+}
+
+export function getPoseGraphNodeInputAttrs(node: PoseGraphNode, inputKey: poseGraphOp.InputKey) {
+    const [propertyName] = inputKey;
+    const attrs = attr(node.constructor, propertyName);
+    delete attrs.type;
+    delete attrs.ctor;
+    if (Array.isArray(node[propertyName])) {
+        delete attrs['default'];
+    }
+    return attrs;
 }
 
 function clonePoseGraphNode(node: PoseGraphNode) {

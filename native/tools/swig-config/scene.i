@@ -23,6 +23,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
+#include "scene/PostSettings.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
@@ -478,6 +479,8 @@ using namespace cc;
 %attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
 %attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
 
+%attribute(cc::scene::PostSettings, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
+
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, subModels, getSubModels);
@@ -577,6 +580,8 @@ using namespace cc;
 %attribute(cc::scene::OctreeInfo, cc::Vec3&, minPos, getMinPos, setMinPos);
 %attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
+
+%attribute(cc::scene::PostSettingsInfo, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
@@ -678,6 +683,7 @@ using namespace cc;
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
 %include "scene/Skin.h"
+%include "scene/PostSettings.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
