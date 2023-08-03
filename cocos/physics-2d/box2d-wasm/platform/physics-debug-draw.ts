@@ -39,7 +39,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         DrawPolygon (vertices: B2.Vec2Vector, vertexCount: number, color: B2.Color): void {
             PhysicsDebugDraw.DrawPolygon(vertices, vertexCount, color);
         },
-        DrawSolidPolygon (vertices: B2.Vec2Vector, vertexCount: number, color: B2.Color): void {
+        DrawSolidPolygon (vertices: number, vertexCount: number, color: B2.Color): void {
             PhysicsDebugDraw.DrawSolidPolygon(vertices, vertexCount, color);
         },
         DrawCircle (center: B2.Vec2, radius: number, color: B2.Color): void {
@@ -69,13 +69,13 @@ export class PhysicsDebugDraw {// extends B2.Draw {
     //     PhysicsDebugDraw._drawer = drawer;
     // }
 
-    static _DrawPolygon (vertices: B2.Vec2Vector, vertexCount: number): void {
+    static _DrawPolygon (vertices: number, vertexCount: number): void {
         const drawer = PhysicsDebugDraw._drawer!;
 
         for (let i = 0; i < vertexCount; i++) {
             //B2.Transform.MulXV(PhysicsDebugDraw._xf, vertices[i], _tmp_vec2);
-            _tmp_vec2.x = vertices.get(i).x;
-            _tmp_vec2.y = vertices.get(i).y;
+            _tmp_vec2.x = B2.GetFloat32(vertices, i * 2 + 0);
+            _tmp_vec2.y = B2.GetFloat32(vertices, i * 2 + 1);
             const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
             const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
             if (i === 0) drawer.moveTo(x, y);
@@ -93,7 +93,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         PhysicsDebugDraw._drawer!.stroke();
     }
 
-    static DrawSolidPolygon (vertices: B2.Vec2Vector, vertexCount: number, color: B2.Color): void {
+    static DrawSolidPolygon (vertices: number, vertexCount: number, color: B2.Color): void {
         PhysicsDebugDraw._applyFillColor(color);
         PhysicsDebugDraw._DrawPolygon(vertices, vertexCount);
         PhysicsDebugDraw._drawer!.fill();
