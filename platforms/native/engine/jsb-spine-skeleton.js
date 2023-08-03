@@ -133,16 +133,8 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this._skeletonCache = spine.initSkeletonData(uuid, filePath, atlasText, jsbTextures, this.scale);
         if (this._skeletonCache) {
-            if (this._skeletonCache.getWidth) {
-                this.width = this._skeletonCache.getWidth();
-            } else {
-                this.width = this._skeletonCache.width;
-            }
-            if (this._skeletonCache.getHeight) {
-                this.height = this._skeletonCache.getHeight();
-            } else {
-                this.height = this._skeletonCache.height;
-            }
+            this.width = this._skeletonCache.width;
+            this.height = this._skeletonCache.height;
         }
     };
 
