@@ -1550,6 +1550,8 @@ cocos_source_files(
                  cocos/scene/gpu-scene/GPUMeshPool.h
                  cocos/scene/gpu-scene/GPUScene.cpp
                  cocos/scene/gpu-scene/GPUScene.h
+		 cocos/scene/PostSettings.h
+                 cocos/scene/PostSettings.cpp
 )
 
 ##### primitive

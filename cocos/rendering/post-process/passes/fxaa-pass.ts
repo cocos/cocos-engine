@@ -6,14 +6,14 @@ import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
-import { Fxaa } from '../components/fxaa';
+import { FXAA } from '../components/fxaa';
 
 export class FxaaPass extends SettingPass {
-    get setting (): Fxaa { return getSetting(Fxaa); }
+    get setting (): FXAA { return getSetting(FXAA); }
 
-    name = 'FxaaPass'
+    name = 'FxaaPass';
     effectName = 'pipeline/post-process/fxaa-hq';
-    outputNames = ['FxaaColor']
+    outputNames = ['FxaaColor'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);

@@ -28,6 +28,7 @@ import {
     displayName,
     editable,
     executeInEditMode,
+    help,
     menu,
     range,
     serializable,
@@ -46,6 +47,7 @@ import { AutoPlacement, PlaceMethod } from './auto-placement';
  * @zh 光照探针组组件。
  */
 @ccclass('cc.LightProbeGroup')
+@help('i18n:cc.LightProbeGroup')
 @menu('Rendering/LightProbeGroup')
 @disallowMultiple
 @executeInEditMode

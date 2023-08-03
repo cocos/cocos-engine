@@ -135,5 +135,7 @@ sceneProto._activate = function (active: boolean) {
     }
 };
 
+sceneProto._instantiate = function(): void {};
+
 // handle meta data, it is generated automatically
 patch_cc_Scene({Scene, SceneGlobals});

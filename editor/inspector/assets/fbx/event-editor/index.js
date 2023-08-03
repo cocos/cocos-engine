@@ -14,8 +14,19 @@ exports.ready = function() {
         components: eventEditor.components,
         mounted: eventEditor.mounted,
     });
-    this.eventEditorVm.$on('update', (frame, eventInfos) => {
-        this.events.updateEventInfo.call(this, frame, eventInfos);
+    this.eventEditorVm.$on('update', (eventInfos) => {
+        this.events.updateEventInfo.call(this, eventInfos);
+    });
+
+    this.eventEditorVm.$on('addFunc', (frame, newFuncName) => {
+        this.events.addEvent.call(this, frame, newFuncName);
+    });
+
+    this.eventEditorVm.$on('delFunc', (frame, eventInfo) => {
+        this.events.delEvent.call(this, frame, eventInfo);
+    });
+    this.eventEditorVm.$on('hide', (frame, eventInfo) => {
+        this.events.unselect.call(this, frame, eventInfo);
     });
 };
 

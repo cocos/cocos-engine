@@ -356,8 +356,10 @@ class AnimationClipAGEvaluationRegular implements AnimationClipAGEvaluation {
 
         const {
             tracks,
-            [exoticAnimationTag]: exoticAnimation,
+            // NOTE: on OH platform, there is a bug on Destructuring Assignment syntax.
+            // [exoticAnimationTag]: exoticAnimation,
         } = clip;
+        const exoticAnimation = clip[exoticAnimationTag];
 
         for (const track of tracks) {
             if (track instanceof UntypedTrack) {

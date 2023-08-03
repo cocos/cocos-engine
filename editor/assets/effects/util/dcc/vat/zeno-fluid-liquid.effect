@@ -226,7 +226,7 @@ CCProgram surface-fragment %{
     return normalize(CalculateNormalFromTangentSpace(nmmp, normalIntensity, N, T, FSInput_mirrorNormal));
   }
 
-  float GetFresnel(float fresnel)
+  vec3 GetFresnel(vec3 fresnel)
   {
     return saturate(fresnel * 1.5);
   }
