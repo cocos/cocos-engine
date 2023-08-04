@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
 import { B2 } from '../instantiated';
 import { js, warn } from '../../../core';
 
@@ -32,41 +31,41 @@ export class PhysicsContactListener {
     static _PreSolve: Function | null = null;
     static _PostSolve: Function | null = null;
 
-    static BeginContact (contact: B2.Contact): void {
+    static BeginContact (contact: number): void {
         if (this._BeginContact) {
             this._BeginContact(contact);
         }
     }
 
-    static EndContact (contact: B2.Contact): void {
+    static EndContact (contact: number): void {
         if (this._EndContact) {
             this._EndContact(contact);
         }
     }
 
-    static PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
+    static PreSolve (contact: number, oldManifold: B2.Manifold): void {
         if (this._PreSolve) {
             this._PreSolve(contact, oldManifold);
         }
     }
 
-    static PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
+    static PostSolve (contact: number, impulse: B2.ContactImpulse): void {
         if (this._PostSolve) {
             this._PostSolve(contact, impulse);
         }
     }
 
     static callback = {
-        BeginContact (contact: B2.Contact): void {
+        BeginContact (contact: number): void {
             PhysicsContactListener.BeginContact(contact);
         },
-        EndContact (contact: B2.Contact): void {
+        EndContact (contact: number): void {
             PhysicsContactListener.EndContact(contact);
         },
-        PreSolve (contact: B2.Contact, oldManifold: B2.Manifold): void {
+        PreSolve (contact: number, oldManifold: B2.Manifold): void {
             PhysicsContactListener.PreSolve(contact, oldManifold);
         },
-        PostSolve (contact: B2.Contact, impulse: B2.ContactImpulse): void {
+        PostSolve (contact: number, impulse: B2.ContactImpulse): void {
             PhysicsContactListener.PostSolve(contact, impulse);
         },
     }

@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
 import { B2 } from '../instantiated';
 import { Color, warn } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';

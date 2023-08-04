@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
 import { B2, getB2ObjectFromImpl } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
