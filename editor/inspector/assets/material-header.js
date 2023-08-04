@@ -92,7 +92,7 @@ exports.methods = {
     },
 };
 
-exports.ready = async function () {
+exports.ready = async function() {
     const panel = this;
 
     callMaterialPreviewFunction('resetCamera');
@@ -111,7 +111,7 @@ exports.ready = async function () {
     panel.$.canvas.addEventListener('mousedown', async (event) => {
         await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
-        async function onkeydown(event) {
+        async function keydown(event) {
             await callMaterialPreviewFunction('onKeyDown', {
                 code: event.code,
                 keyCode: event.keyCode,
@@ -136,13 +136,13 @@ exports.ready = async function () {
 
             document.removeEventListener('mousemove', mousemove);
             document.removeEventListener('mouseup', mouseup);
-            document.removeEventListener('keydown', onkeydown);
+            document.removeEventListener('keydown', keydown);
 
             panel.isPreviewDataDirty = false;
         }
         document.addEventListener('mousemove', mousemove);
         document.addEventListener('mouseup', mouseup);
-        document.addEventListener('keydown', onkeydown);
+        document.addEventListener('keydown', keydown);
 
         panel.isPreviewDataDirty = true;
     });

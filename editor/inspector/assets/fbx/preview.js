@@ -13,7 +13,7 @@ exports.template = /* html */`
     <div class= "noModel tips">
         <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
         <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
-    </div>    
+    </div>
     <div class="preview-container">
         <div class="animation-info">
             <div class="flex">
@@ -446,8 +446,8 @@ const Elements = {
 
 exports.methods = {
     /**
-     * 
-     * @param {boolean} hasModel 
+     *
+     * @param {boolean} hasModel
      */
     updatePanelHidden(hasModel) {
         this.$.noModel.hidden = hasModel;
@@ -708,7 +708,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -750,7 +750,7 @@ exports.ready = function () {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -781,7 +781,7 @@ exports.update = async function (assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
