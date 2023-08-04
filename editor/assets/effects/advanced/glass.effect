@@ -2,16 +2,26 @@
 
 CCEffect %{
   techniques:
-  - name: opaque
+  - name: single-sided
     passes:
     - vert: standard-vs
       frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      rasterizerState:
+        cullMode: Back
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: src_alpha
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         roughness:                        { value: 0.0, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:                { value: 0.2, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         F0:                               { value: 0.7, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         F90:                              { value: 0.9, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
@@ -82,31 +92,37 @@ CCEffect %{
       phase: gbuffer
       embeddedMacros: { CC_PIPELINE_TYPE: 1 }
       propertyIndex: 0
-  - name: transparent
+  - name: two-sided
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_USE_TWO_SIDED: true }
       rasterizerState:
         cullMode: Front
-      depthStencilState: &d1
-        depthTest: true
-        depthWrite: false
-      blendState: &b1
-        targets:
-        - blend: true
-          blendSrc: src_alpha
-          blendDst: one_minus_src_alpha
-          blendDstAlpha: one_minus_src_alpha
-      properties: *props
-    - vert: standard-vs
-      frag: standard-fs
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
-      rasterizerState:
-        cullMode: Back
+      properties: &props
+        tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        roughness:                        { value: 0.0, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.2, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        F0:                               { value: 0.7, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        F90:                              { value: 0.9, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        gradientColor:                    { value: [0.0, 0.05, 0.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
+        gradientIntensity:                { value: 0.2, target: emissiveScaleParam.z, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:                        { value: normal }
+        pbrMap:                           { value: grey }
       depthStencilState: *d1
       blendState: *b1
-      properties: *props
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_USE_TWO_SIDED: true }
+      rasterizerState:
+        cullMode: Back
+      propertyIndex: 0
+      depthStencilState: *d1
+      blendState: *b1
     - *forward-add
     - *shadow-caster
     - *planar-shadow
@@ -133,11 +149,9 @@ CCProgram shared-ubos %{
 
 CCProgram macro-remapping %{
   // ui displayed macros
-  #pragma define-meta USE_TWOSIDE
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_PROBE_REFRACTION editor({ tooltip: 'Use transparency technique when disabled, otherwise use opaque technique' })
 
-  #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
   #define CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR USE_PROBE_REFRACTION
   #define CC_SURFACES_LIGHTING_USE_FRESNEL USE_PROBE_REFRACTION
@@ -210,9 +224,10 @@ CCProgram surface-fragment %{
   {
     vec4 pbr = pbrParams;
     pbr.x = 1.0;
+    pbr.z = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, DEFAULT_UV);
-      pbr.yzw *= res.yzw;
+      pbr.yw *= res.yw;
     #endif
 
     return pbr;
@@ -227,9 +242,12 @@ CCProgram surface-fragment %{
     float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
 
     #if !USE_PROBE_REFRACTION
-      // fresnel for alpha blend
+      // final color = srcColor * F + dstColor * (1-F) * glassColor
+      // srcAlpha = (1-F) * glassColorBright (use bright instead for one channel)
+      // srcBlend = 1, dstBlend = srcAlpha
       float F0 = emissiveScaleParam.x, F90 = emissiveScaleParam.y;
-      surfaceData.baseColor.a = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
+      float fresnel = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
+      surfaceData.baseColor.a = (1.0 - fresnel) * length(surfaceData.baseColor.rgb);
     #endif
 
     #if USE_GRADIENT_COLOR
@@ -241,14 +259,13 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
   void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
   {
-    #if USE_PROBE_REFRACTION
-      // fresnel for refraction
-      vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
-      float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
-      float F0 = emissiveScaleParam.x, F90 = emissiveScaleParam.y;
-      float fresnel = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
-      result.fresnel = vec3(fresnel);
-    #else
+    vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
+    float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
+    float F0 = emissiveScaleParam.x, F90 = emissiveScaleParam.y;
+    float fresnel = CalculateFresnelCoefficient(min(F0, F90), F90, NoVSat);
+    result.fresnel = vec3(fresnel);
+
+    #if !USE_PROBE_REFRACTION
       // simply fix single blend source issue for bright color alpha blending
       float threshold = 0.5, bright = dot(result.environmentSpecular, vec3(0.33333));
       if (bright > threshold)
