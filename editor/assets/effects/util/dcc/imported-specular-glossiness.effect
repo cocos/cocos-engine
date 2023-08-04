@@ -168,7 +168,7 @@ CCProgram surface-fragment %{
   #if USE_SPECULAR_GLOSSINESS_MAP
     uniform sampler2D specularGlossinessMap;
   #endif
-  #if USE_SPECULAR_MAP && !HAS_EXPORTED_METALLIC
+  #if USE_SPECULAR_MAP
     uniform sampler2D specularMap;
   #endif
    #if USE_METALLIC_MAP
