@@ -114,7 +114,7 @@ void RenderInstancingQueue::add(
         instanceBuffer->setPass(&pass);
         const auto &instances = instanceBuffer->getInstances();
         for (const auto &item : instances) {
-            CC_EXPECTS(item.count == 0);
+            CC_EXPECTS(item.drawInfo.instanceCount == 0);
         }
     }
     auto &instancedBuffer = *instanceBuffers[iter->second];
@@ -150,7 +150,7 @@ void RenderInstancingQueue::recordCommandBuffer(
         cmdBuffer->bindDescriptorSet(pipeline::materialSet, drawPass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
         for (const auto &instance : instances) {
-            if (!instance.count) {
+            if (!instance.drawInfo.instanceCount) {
                 continue;
             }
             auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(

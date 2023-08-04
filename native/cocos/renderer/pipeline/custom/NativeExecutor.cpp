@@ -868,7 +868,7 @@ void submitUICommands(
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::LOCAL), ds);
-            cmdBuff->draw(inputAssembler);
+            cmdBuff->draw(batch->getDrawInfo());
         }
     }
 }
