@@ -88,7 +88,7 @@ export class PackManager {
         let err: Error | null = null;
 
         if (Array.isArray(json)) {
-            json = unpackJSONs(json as Parameters<typeof unpackJSONs>[0]);
+            json = unpackJSONs(json as unknown as Parameters<typeof unpackJSONs>[0]);
 
             if (json.length !== pack.length) {
                 errorID(4915);
