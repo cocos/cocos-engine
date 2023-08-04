@@ -1,4 +1,4 @@
-import { ccclass, serializable } from '../../../../core/data/decorators';
+import { ccclass, range, serializable } from '../../../../core/data/decorators';
 import { Pose, applyDeltaPose } from '../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
@@ -29,6 +29,7 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
+    @range([0.0, 1.0, 0.01])
     public ratio = 1.0;
 
     public bind (context: AnimationGraphBindingContext): void {

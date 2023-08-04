@@ -1539,8 +1539,8 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
-		 cocos/scene/Skin.h
-		 cocos/scene/Skin.cpp
+		         cocos/scene/Skin.h
+		         cocos/scene/Skin.cpp
                  cocos/scene/gpu-scene/Define.h
                  cocos/scene/gpu-scene/GPUBatchPool.cpp
                  cocos/scene/gpu-scene/GPUBatchPool.h
@@ -1550,6 +1550,8 @@ cocos_source_files(
                  cocos/scene/gpu-scene/GPUMeshPool.h
                  cocos/scene/gpu-scene/GPUScene.cpp
                  cocos/scene/gpu-scene/GPUScene.h
+		         cocos/scene/PostSettings.h
+                 cocos/scene/PostSettings.cpp
 )
 
 ##### primitive

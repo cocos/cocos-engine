@@ -344,10 +344,12 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
+        // Because the ts layer calls the getviewsize interface in response to resize.
+		// So we need to set the view size when sending the message.
+        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

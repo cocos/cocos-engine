@@ -30,7 +30,6 @@ import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { OS } from '../../system-info/enum-type';
-import { Game, game } from '../../../cocos/game';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
@@ -58,6 +57,8 @@ export class OneShotAudioMinigame {
         });
         const endCallback = (): void => {
             if (this._innerAudioContext) {
+                systemInfo.off('hide', this._onInterruptedBegin, this);
+                systemInfo.off('show', this._onInterruptedEnd, this);
                 this._onEndCb?.();
                 nativeAudio.destroy();
                 // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
@@ -66,6 +67,18 @@ export class OneShotAudioMinigame {
         };
         nativeAudio.onEnded(endCallback);
         nativeAudio.onStop(endCallback);//OneShotAudio can not be reused.
+
+        // event
+        systemInfo.on('hide', this._onInterruptedBegin, this);
+        systemInfo.on('show', this._onInterruptedEnd, this);
+    }
+
+    private _onInterruptedBegin (): void {
+        this._innerAudioContext.pause();
+    }
+
+    private _onInterruptedEnd (): void {
+        this._innerAudioContext.play();
     }
 
     public play (): void {
@@ -109,8 +122,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        systemInfo.on('hide', this._onInterruptedBegin, this);
+        systemInfo.on('show', this._onInterruptedEnd, this);
         const eventTarget = this._eventTarget;
         this._onPlay = (): void => {
             this._state = AudioState.PLAYING;
@@ -138,9 +151,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
             // Reset all properties
             this._resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
-            const currentTime = this._innerAudioContext ? this._innerAudioContext.currentTime : 0;
-            if (currentTime !== 0) {
-                this._innerAudioContext.seek(0);
+            if (TAOBAO || TAOBAO_MINIGAME) {
+                /**Unable to seek again after stop; After stop, regardless of whether the starttime has been set,
+                the playback will always start from 0 again**/
+            } else {
+                const currentTime = this._innerAudioContext ? this._innerAudioContext.currentTime : 0;
+                if (currentTime !== 0) {
+                    this._innerAudioContext.seek(0);
+                }
             }
         };
         innerAudioContext.onStop(this._onStop);
@@ -155,12 +173,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                     this._needSeek = false;
                 }
             }
-
-            // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
-            if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.IOS
-                && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                innerAudioContext.pause();
-            }
         };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = (): void => {
@@ -171,8 +183,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy (): void {
-        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
-        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        systemInfo.off('hide', this._onInterruptedBegin, this);
+        systemInfo.off('show', this._onInterruptedEnd, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
@@ -196,7 +208,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onInterruptedEnd (): void {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
-            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
+            this._eventTarget.once(AudioEvent.INTERRUPTION_END, this._onInterruptedEnd, this);
             return;
         }
         if (this._state === AudioState.INTERRUPTED) {
@@ -337,14 +349,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
 
     @enqueueOperation
     stop (): Promise<void> {
-        // NOTE: on Taobao, it is designed that innerAudioContext is useless after calling stop.
-        // so we implement stop as pase + seek.
-        if (TAOBAO || TAOBAO_MINIGAME) {
-            this._innerAudioContext.pause();
-            this._innerAudioContext.seek(0);
-            this._onStop?.();
-            return Promise.resolve();
-        }
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();

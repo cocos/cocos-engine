@@ -15,6 +15,7 @@ import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-g
 import { PoseNodePlayMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion";
 import { PoseNodeSampleMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/sample-motion";
 import { PoseGraph } from "../../../cocos/animation/marionette/pose-graph/pose-graph";
+import { AnimationGraphVariant } from "../../../cocos/animation/marionette/animation-graph-variant";
 
 export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph): Generator<EditorExtendableObject> {
     for (const layer of animationGraph.layers) {
@@ -112,7 +113,17 @@ export function* visitAnimationClipsInController(animationController: AnimationC
     const {
         graph,
     } = animationController;
-    if (graph) {
-        yield* visitAnimationClips(graph as AnimationGraph);
+    if (graph instanceof AnimationGraph) {
+        yield* visitAnimationClips(graph);
+    } else if (graph instanceof AnimationGraphVariant) {
+        const {
+            original,
+            clipOverrides,
+        } = graph;
+        if (original) {
+            for (const clip of visitAnimationClips(original)) {
+                yield clipOverrides.get(clip) ?? clip;
+            }
+        }
     }
 }

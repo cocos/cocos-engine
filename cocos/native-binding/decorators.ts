@@ -794,6 +794,21 @@ export function patch_cc_PointLight(ctx: cc_PointLight_Context_Args, apply = def
   apply(() => { $.ccclass('cc.PointLight')(PointLight); }, 'ccclass', null);
 } // end of patch_cc_PointLight
 
+//---- class cc_PostSettingsInfo
+interface cc_PostSettingsInfo_Context_Args {
+   PostSettingsInfo: any;
+   ToneMappingType: any;
+}
+export function patch_cc_PostSettingsInfo(ctx: cc_PostSettingsInfo_Context_Args, apply = defaultExec) {
+  const { PostSettingsInfo, ToneMappingType } = { ...ctx };
+  const toneMappingTypeDescriptor = Object.getOwnPropertyDescriptor(PostSettingsInfo.prototype, 'toneMappingType');
+  apply(() => { $.tooltip('i18n:tone_mapping.toneMappingType')(PostSettingsInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'tooltip', 'toneMappingType');
+  apply(() => { $.type(ToneMappingType)(PostSettingsInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'type', 'toneMappingType');
+  apply(() => { $.editable(PostSettingsInfo.prototype, 'toneMappingType',  toneMappingTypeDescriptor); }, 'editable', 'toneMappingType');
+  apply(() => { $.serializable(PostSettingsInfo.prototype, '_toneMappingType',  () => { return ToneMappingType.DEFAULT; }); }, 'serializable', '_toneMappingType');
+  apply(() => { $.ccclass('cc.PostSettingsInfo')(PostSettingsInfo); }, 'ccclass', null);
+} // end of patch_cc_PostSettingsInfo
+
 //---- class cc_RangedDirectionalLight
 interface cc_RangedDirectionalLight_Context_Args {
    RangedDirectionalLight: any;
@@ -876,9 +891,10 @@ interface cc_SceneGlobals_Context_Args {
    OctreeInfo: any;
    SkinInfo: any;
    LightProbeInfo: any;
+   PostSettingsInfo: any;
 }
 export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply = defaultExec) {
-  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo } = { ...ctx };
+  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo, PostSettingsInfo } = { ...ctx };
   const skyboxDescriptor = Object.getOwnPropertyDescriptor(SceneGlobals.prototype, 'skybox');
   apply(() => { $.editable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'editable', 'ambient');
   apply(() => { $.serializable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'serializable', 'ambient');
@@ -895,6 +911,8 @@ export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply =
   apply(() => { $.editable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'editable', 'skin');
   apply(() => { $.serializable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'serializable', 'lightProbeInfo');
   apply(() => { $.editable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'editable', 'lightProbeInfo');
+  apply(() => { $.serializable(SceneGlobals.prototype, 'postSettings',  () => { return new PostSettingsInfo(); }); }, 'serializable', 'postSettings');
+  apply(() => { $.editable(SceneGlobals.prototype, 'postSettings',  () => { return new PostSettingsInfo(); }); }, 'editable', 'postSettings');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'serializable', 'bakedWithStationaryMainLight');
   apply(() => { $.editable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'editable', 'bakedWithStationaryMainLight');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithHighpLightmap',  () => { return false; }); }, 'serializable', 'bakedWithHighpLightmap');

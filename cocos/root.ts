@@ -23,7 +23,9 @@
 */
 
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
+import type { RenderPipeline } from './rendering/render-pipeline';
+import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
+import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
@@ -41,6 +43,7 @@ import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
 import { XREye, XRPoseType } from './xr/xr-enums';
+import { ICustomJointTextureLayout } from './3d/skeletal-animation/skeletal-animation-utils';
 
 /**
  * @en Initialization information for the Root
@@ -311,7 +314,10 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
-        const customJointTextureLayouts = settings.querySettings(Settings.Category.ANIMATION, 'customJointTextureLayouts') || [];
+        const customJointTextureLayouts = settings.querySettings(
+            Settings.Category.ANIMATION,
+            'customJointTextureLayouts',
+        ) as ICustomJointTextureLayout[] || [];
         this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
         this._resizeMaxJointForDS();
     }
@@ -717,7 +723,7 @@ export class Root {
 
         let allcameras: Camera[] = [];
         const webxrHmdPoseInfos = xr.webxrHmdPoseInfos;
-        for (let xrEye = 0; xrEye < viewCount; xrEye++) {
+        for (let xrEye: XREye = 0; xrEye < viewCount; xrEye++) {
             for (const window of windows) {
                 allcameras = allcameras.concat(window.cameras);
                 if (window.swapchain) {
@@ -789,7 +795,7 @@ export class Root {
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
-            const stamp = director.getTotalFrames();
+            const stamp = director.getTotalFrames() as number;
 
             if (this._batcher) {
                 this._batcher.update();

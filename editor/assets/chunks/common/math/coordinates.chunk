@@ -101,6 +101,16 @@ vec3 RotationVecFromAxisY(vec3 v, float rotateAngleArc)
   return RotationVecFromAxisY(v, cos(rotateAngleArc), sin(rotateAngleArc));
 }
 
+vec3 RotationVecFromAxis(vec3 v, vec3 axis, float rotateAngleArc)
+{
+    float cosAngle = cos(rotateAngleArc);
+    float sinAngle = sin(rotateAngleArc);
+    vec3 crossProd = cross(axis, v);
+    float dotProd = dot(axis, v);
+    vec3 axisScaled = axis * dotProd * (1.0 - cosAngle);
+    return v * cosAngle + crossProd * sinAngle + axisScaled;
+}
+
 // rotationAngle: radians, 0-2Pi
 void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
 {

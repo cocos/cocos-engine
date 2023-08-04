@@ -422,7 +422,8 @@ public:
             if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
                 actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
                 if (actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
-                    eventChangedIndex = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
+                            >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
                 } else {
                     eventChangedIndex = 0;
                 }
@@ -431,7 +432,8 @@ public:
                        actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
                 if (actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
-                    eventChangedIndex = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
+                            >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
                 } else {
                     eventChangedIndex = 0;
                 }
@@ -443,8 +445,9 @@ public:
                 return false;
             }
 
+            bool touchHandled = true;
             if (eventChangedIndex >= 0) {
-                addTouchEvent(touchEvent, eventChangedIndex, motionEvent);
+                touchHandled = addTouchEvent(touchEvent, eventChangedIndex, motionEvent);
             } else {
                 for (int i = 0; i < motionEvent->pointerCount; i++) {
                     addTouchEvent(touchEvent, i, motionEvent);
@@ -452,7 +455,7 @@ public:
             }
             events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
-            return true;
+            return touchHandled;
         }
         return false;
     }
@@ -670,14 +673,15 @@ public:
     }
 
 private:
-    static void addTouchEvent(cc::TouchEvent &touchEvent, int index, GameActivityMotionEvent *motionEvent) {
+    static bool addTouchEvent(cc::TouchEvent &touchEvent, int index, GameActivityMotionEvent *motionEvent) {
         if (index < 0 || index >= motionEvent->pointerCount) {
-            ABORT_IF(false);
+            return false;
         }
         int id = motionEvent->pointers[index].id;
         float x = GameActivityPointerAxes_getX(&motionEvent->pointers[index]);
         float y = GameActivityPointerAxes_getY(&motionEvent->pointers[index]);
         touchEvent.touches.emplace_back(x, y, id);
+        return true;
     }
 
     static void setMousePosition(cc::MouseEvent &mouseEvent, GameActivityMotionEvent *motionEvent) {

@@ -50,12 +50,12 @@ vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
 {
   return surfaceData.specular.xyz;
 }
-void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
   diffuseColorWithLighting = vec3(0.0);
-  specularColorWithEnvLighting = specularColorWithLighting = surfaceData.specular.xyz * surfaceData.baseStep;
+  specularColorWithLighting = surfaceData.specular.xyz * surfaceData.baseStep;
 }
-void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
   float NL = 0.5 * lightingData.NoL + 0.5;
 
@@ -67,7 +67,6 @@ void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLig
 
   diffuseColorWithLighting = diffuse * surfaceData.baseStep;
 }
-
 
 // Copy material data to lighting data
 // such as tangent data for anisotropic materials
@@ -140,8 +139,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   LightingIntermediateData lightingData;
   lightingData.NoL = -1.0;
   vec3 backLightingDiffuse, backLightingSpecular;
-  CCSurfacesLightingInitializeColorWithLighting(backLightingDiffuse, backLightingSpecular, backLightingSpecular, surfaceData, lightingData);
-  CCSurfacesLightingCalculateColorWithLighting(backLightingDiffuse, backLightingSpecular, backLightingSpecular, surfaceData, lightingData);
+  CCSurfacesLightingInitializeColorWithLighting(backLightingDiffuse, backLightingSpecular, surfaceData, lightingData);
+  CCSurfacesLightingCalculateColorWithLighting(backLightingDiffuse, backLightingSpecular, surfaceData, lightingData);
 
   color.xyz +=
     mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * mix(backLightingDiffuse, lightingResult.diffuseColorWithLighting, lightingResult.shadow)
