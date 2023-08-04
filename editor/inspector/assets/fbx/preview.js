@@ -341,7 +341,7 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
-                async function onkeydown(event) {
+                async function keydown(event) {
                     await callModelPreviewFunction('onKeyDown', {
                         code: event.code,
                         keyCode: event.keyCode,
@@ -366,14 +366,14 @@ const Elements = {
 
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
-                    document.removeEventListener('keydown', onkeydown);
+                    document.removeEventListener('keydown', keydown);
 
                     panel.isPreviewDataDirty = false;
                 }
 
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
-                document.addEventListener('keydown', onkeydown);
+                document.addEventListener('keydown', keydown);
 
                 panel.isPreviewDataDirty = true;
             });
@@ -381,6 +381,7 @@ const Elements = {
             panel.$.canvas.addEventListener('wheel', async (event) => {
                 await callModelPreviewFunction('onMouseWheel', {
                     wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
                 });
                 panel.isPreviewDataDirty = true;
             });
@@ -707,7 +708,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -749,7 +750,7 @@ exports.ready = function() {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -780,7 +781,7 @@ exports.update = async function(assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

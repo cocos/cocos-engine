@@ -104,7 +104,7 @@ const Elements = {
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
-                async function onkeydown(event) {
+                async function keydown(event) {
                     // Non-model previews do not respond to events
                     if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                     await callMeshPreviewFunction('onKeyDown', {
@@ -131,14 +131,14 @@ const Elements = {
 
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
-                    document.removeEventListener('keydown', onkeydown);
+                    document.removeEventListener('keydown', keydown);
 
                     panel.isPreviewDataDirty = false;
                 }
 
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
-                document.addEventListener('keydown', onkeydown);
+                document.addEventListener('keydown', keydown);
 
                 panel.isPreviewDataDirty = true;
             });
@@ -148,6 +148,7 @@ const Elements = {
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                 await callMeshPreviewFunction('onMouseWheel', {
                     wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
                 });
                 panel.isPreviewDataDirty = true;
             });
@@ -278,7 +279,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -287,7 +288,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -301,7 +302,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
