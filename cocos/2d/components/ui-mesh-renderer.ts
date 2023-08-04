@@ -168,8 +168,10 @@ export class UIMeshRenderer extends Component {
                 this._UIModelNativeProxy.clearModels();
                 this._renderEntity.clearDynamicRenderDrawInfos();
                 for (let i = 0; i < models.length; i++) {
-                    this._uploadRenderData(i);
-                    this._UIModelNativeProxy.updateModels(models[i]);
+                    if (models[i].enabled) {
+                        this._uploadRenderData(i);
+                        this._UIModelNativeProxy.updateModels(models[i]);
+                    }
                 }
                 this._UIModelNativeProxy.attachDrawInfo();
             }
