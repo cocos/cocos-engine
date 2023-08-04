@@ -150,6 +150,7 @@ exports.ready = async function() {
     panel.$.canvas.addEventListener('wheel', async (event) => {
         await callMaterialPreviewFunction('onMouseWheel', {
             wheelDeltaY: event.wheelDeltaY,
+            wheelDeltaX: event.wheelDeltaX
         });
         panel.isPreviewDataDirty = true;
     });
