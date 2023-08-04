@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
 import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import { CircleCollider2D } from '../../framework';

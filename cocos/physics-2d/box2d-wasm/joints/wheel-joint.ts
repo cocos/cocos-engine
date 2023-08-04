@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2 from '@cocos/box2d';
 import { B2 } from '../instantiated';
 import { IWheelJoint } from '../../spec/i-physics-joint';
 import { WheelJoint2D } from '../../framework';

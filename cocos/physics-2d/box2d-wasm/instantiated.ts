@@ -34,12 +34,12 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 export const B2 = {} as any;
 const B2_IMPL_PTR = {};
 
-export function addImplPtrReference (B2Object: any, impl: any): void {
+export function addImplReference (B2Object: any, impl: any): void {
     if (!impl) return;
     if (impl.$$) { B2_IMPL_PTR[impl.$$.ptr] = B2Object; }
 }
 
-export function removeImplPtrReference (B2Object: any, impl: any): void {
+export function removeImplReference (B2Object: any, impl: any): void {
     if (!impl) return;
     if (impl.$$) {
         B2_IMPL_PTR[impl.$$.ptr] = null;
@@ -50,6 +50,22 @@ export function removeImplPtrReference (B2Object: any, impl: any): void {
 export function getB2ObjectFromImpl<T> (impl: any): T {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return B2_IMPL_PTR[impl.$$.ptr];
+}
+
+export function addImplPtrReference (B2Object: any, implPtr: number): void {
+    if (implPtr) { B2_IMPL_PTR[implPtr] = B2Object; }
+}
+
+export function removeImplPtrReference (B2Object: any, implPtr: number): void {
+    if (implPtr) {
+        B2_IMPL_PTR[implPtr] = null;
+        delete B2_IMPL_PTR[implPtr];
+    }
+}
+
+export function getB2ObjectFromImplPtr<T> (implPtr: number): T {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return B2_IMPL_PTR[implPtr];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
