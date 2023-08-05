@@ -43,9 +43,8 @@ import { Renderer } from '../../misc/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
-import { director } from '../../game';
 import type { Batcher2D } from '../renderer/batcher-2d';
-import { uiLayoutManager } from './ui-layout-manager';
+import { uiSystem } from './ui-system';
 
 // hack
 ccenum(BlendFactor);
@@ -135,7 +134,7 @@ export class UIRenderer extends Renderer {
      * @zh 后置渲染数据组装器
      * @internal
      */
-    public static PostAssembler: IAssemblerManager | null = null;
+    public static PostAssembler: IAssemblerManager | null = null; // Todo: remove it
 
     constructor () {
         super();
@@ -258,7 +257,7 @@ export class UIRenderer extends Renderer {
     protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
-    protected _postAssembler: IAssembler | null = null;
+    protected _postAssembler: IAssembler | null = null; // Todo: remove it
 
     // RenderEntity
     //protected renderData: RenderData | null = null;
@@ -288,7 +287,7 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get batcher (): Batcher2D {
-        return director.root!.batcher2D;
+        return uiSystem.batcher2D;
     }
 
     /**
@@ -428,7 +427,7 @@ export class UIRenderer extends Renderer {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: IBatcher): void {
+    public postUpdateAssembler (render: IBatcher): void { // Todo：Remove it
         if (this._postAssembler && this._renderFlag) {
             this._postRender(render);
         }

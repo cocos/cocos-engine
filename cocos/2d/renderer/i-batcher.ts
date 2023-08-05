@@ -38,7 +38,6 @@ import { Material } from '../../asset/assets';
 import { Node } from '../../scene-graph';
 
 export interface IBatcher {
-    currBufferAccessor: StaticVBAccessor;
     readonly batches: CachedArray<DrawBatch2D>;
     // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     // unRegisterCustomBuffer (buffer: MeshBuffer);
@@ -51,17 +50,15 @@ export interface IBatcher {
     initialize(): boolean;
     destroy();
 
-    addScreen (comp: RenderRoot2D);
+    addScreen (node: Node);
     getFirstRenderCamera (node: Node): Camera | null;
-    removeScreen (comp: RenderRoot2D);
+    removeScreen (node: Node);
 
     sortScreens ();
 
     update ();
     uploadBuffers ();
     reset ();
-
-    switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
 
     commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
     commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null);

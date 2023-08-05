@@ -54,23 +54,11 @@ export interface IRootInfo {
 
 const rootProto: any = Root.prototype;
 
-rootProto._createBatcher2D = function () {
-    if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this);
-        if (!this._batcher!.initialize()) {
-            this._batcher = null;
-            this.destroy();
-            return;
-        }
-        this._batcher._nativeObj = this.getBatcher2D();
-    }
-}
-
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
     get() {
-        return this._batcher;
+        return this.cclegacy.internal.uiSystem.batcher2D;// 返回的应该是uiSystem里的对象了// create 里进行了绑定
     },
 });
 
@@ -105,7 +93,6 @@ rootProto._ctor = function (device: Device) {
     this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
-    this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
     this._registerListeners();
 };
@@ -254,7 +241,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         }
         ppl = oldSetPipeline.call(this, pipeline);
     }
-    this._createBatcher2D();
     return ppl;
 }
 

@@ -257,8 +257,8 @@ export class TextureBase extends Asset {
      */
     public destroy (): boolean {
         const destroyed = super.destroy();
-        if (destroyed && cclegacy.director.root?.batcher2D) {
-            cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+        if (destroyed && cclegacy.internal.uiSystem.batcher2D) {
+            cclegacy.internal.uiSystem.batcher2D.releaseDescriptorSetCache(this);
         }
         return destroyed;
     }

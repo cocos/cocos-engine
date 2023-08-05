@@ -287,8 +287,9 @@ export const widgetManager = cclegacy._widgetManager = {
     } : null,
 
     init (): void {
-        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
-        director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
+        // move to uiSystem
+        // director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
+        // director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
         View.instance.on('design-resolution-changed', this.onResized, this);
         if (!EDITOR) {
@@ -407,6 +408,7 @@ export const widgetManager = cclegacy._widgetManager = {
     updateAlignment,
     AlignMode,
     AlignFlags,
+    refreshScene,
 };
 
 director.on(Director.EVENT_INIT, () => {

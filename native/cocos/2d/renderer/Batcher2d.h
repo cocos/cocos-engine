@@ -36,25 +36,36 @@
 #include "scene/DrawBatch2D.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
 class Root;
-using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
-using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
+using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>; // accessor buffers
+using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>; // accessor Map
 
 class Batcher2d final {
 public:
+    static Batcher2d *getInstance();
     Batcher2d();
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
     void syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
 
+
     bool initialize();
     void update();
     void uploadBuffers();
     void reset();
+    void destroy();
 
+    scene::Camera* getFirstRenderCamera(const Node* node);
+
+    void addScreen (Node* node);
+    void removeScreen (Node* node);
+    void sortScreen ();
     void syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes);
-    void releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler);
+    void releaseDescriptorSetCache(TextureBase* texture);
 
     UIMeshBuffer* getMeshBuffer(uint16_t accId, uint16_t bufferId);
     gfx::Device* getDevice();
@@ -132,6 +143,10 @@ private:
             vbBuffer[offset++] = static_cast<float>(temp.b) / 255.0F;
             vbBuffer[offset++] = entity->getOpacity();
         }
+    }
+
+    static inline size_t screenSort (Node* nodeA, Node* nodeB) {
+        return nodeA->getSiblingIndex() - nodeB->getSiblingIndex();
     }
 
     void insertMaskBatch(RenderEntity* entity);

@@ -28,8 +28,8 @@ import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { Color, warnID } from '../../core';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
-import { director } from '../../game';
 import type { Batcher2D } from '../renderer/batcher-2d';
+import { uiSystem } from '../framework/ui-system';
 
 /**
  * @en
@@ -132,9 +132,10 @@ export class UIStaticBatch extends UIRenderer {
         this._init = false;
     }
 
+    // TODO useless
     protected _getBatcher (): Batcher2D | null {
-        if (director.root && director.root.batcher2D) {
-            return director.root.batcher2D;
+        if (uiSystem && uiSystem.batcher2D) {
+            return uiSystem.batcher2D;
         }
         warnID(9301);
         return null;

@@ -25,8 +25,8 @@
 import { ccclass, disallowMultiple, executeInEditMode,
     executionOrder, help, menu, requireComponent } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { cclegacy } from '../../core';
 import { UITransform } from './ui-transform';
+import { uiSystem } from './ui-system';
 
 /**
  * @en The entry node for 2D object data collection, all 2D rendering objects need to be rendered under the RenderRoot node.
@@ -41,14 +41,14 @@ import { UITransform } from './ui-transform';
 @executeInEditMode
 export class RenderRoot2D extends Component {
     public onEnable (): void {
-        cclegacy.director.root!.batcher2D.addScreen(this);
+        uiSystem.batcher2D.addScreen(this.node);
     }
 
     public onDisable (): void {
-        cclegacy.director.root!.batcher2D.removeScreen(this);
+        uiSystem.batcher2D.removeScreen(this.node);
     }
 
     public onDestroy (): void {
-        cclegacy.director.root!.batcher2D.removeScreen(this);
+        uiSystem.batcher2D.removeScreen(this.node);
     }
 }

@@ -158,8 +158,6 @@ void Root::destroy() {
 
     CC_SAFE_DESTROY_NULL(_pipeline);
 
-    CC_SAFE_DELETE(_batcher);
-
     for (auto *swapchain : _swapchains) {
         CC_SAFE_DELETE(swapchain);
     }
@@ -343,14 +341,6 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
     onGlobalPipelineStateChanged();
 
-    if (_batcher == nullptr) {
-        _batcher = ccnew Batcher2d(this);
-        if (!_batcher->initialize()) {
-            destroy();
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -386,10 +376,6 @@ void Root::frameMoveBegin() {
         scene->removeBatches();
     }
 
-    if (_batcher != nullptr) {
-        _batcher->update();
-    }
-
     //
     _cameraList.clear();
 }
@@ -404,10 +390,6 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames) {
 
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
-
-        if (_batcher != nullptr) {
-            _batcher->uploadBuffers();
-        }
 
         if (isNeedUpdateScene) {
             for (const auto &scene : _scenes) {
@@ -443,10 +425,6 @@ void Root::frameMoveEnd() {
         emit<AfterRender>();
 #endif
         _device->present();
-    }
-
-    if (_batcher != nullptr) {
-        _batcher->reset();
     }
 }
 

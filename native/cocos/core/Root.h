@@ -238,7 +238,7 @@ public:
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    inline Batcher2d *getBatcher2D() const { return _batcher; }
+    // inline Batcher2d *getBatcher2D() const { return _batcher; }
 
     /**
      * @zh
@@ -307,7 +307,7 @@ private:
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
-    Batcher2d *_batcher{nullptr};
+    // Batcher2d *_batcher{nullptr};
     IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
     IntrusivePtr<scene::RenderWindow> _curRenderWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;

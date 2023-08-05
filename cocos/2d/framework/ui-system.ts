@@ -22,22 +22,104 @@
  THE SOFTWARE.
 */
 
-import { System } from '../../core';
-import { Director, director } from '../../game';
+import { System, cclegacy } from '../../core';
+import { Director, director } from '../../game/director';
 import { uiRendererManager } from './ui-renderer-manager';
 import { uiLayoutManager } from './ui-layout-manager';
+import { Batcher2D } from '../renderer/batcher-2d';
+
+class FunctionCallbackInfo {
+    public callback: AnyFunction;
+    public target: any;
+    constructor (callback: AnyFunction, target: any) {
+        this.callback = callback;
+        this.target = target;
+    }
+}
 
 export class UISystem extends System {
-    init (): void {
-        director.on(Director.EVENT_UPDATE_UI, this.tick, this);
+    private _batcher: Batcher2D | null = null;
+    private _extraPartBeforeUpdate: FunctionCallbackInfo[] = [];
+
+    /**
+     * @en The draw batch manager for 2D UI, for engine internal usage, user do not need to use this.
+     * @zh 2D UI 渲染合批管理器，引擎内部使用，用户无需使用此接口
+     */
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
-    tick (): void {
+    public init (): void {
+        if (!this._batcher) {
+            // TODO
+            // 能否直接创建原生对象？然后管理 // 未能成功创建原生对象 // 存在循环引用
+            this._batcher = new Batcher2D(director.root!);
+        }
+        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, this.afterSceneLaunch, this);
+        director.on(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+        director.on(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+        director.on(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+        director.on(Director.EVENT_UPDATE_UI, this.tick, this);
+        director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
+        director.on(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+    }
+
+    public destroy (): void {
+        if (this._batcher) {
+            this._batcher.destroy();
+            this._batcher = null;
+        }
+    }
+
+    public afterSceneLaunch (): void {
+        cclegacy._widgetManager.refreshScene();
+    }
+
+    public beforeUpdate (): void {
+        cclegacy._widgetManager.refreshScene();
+    }
+
+    public afterUpdate (): void {
+
+    }
+
+    public tick (): void {
         uiLayoutManager.updateAllDirtyLayout(); // 更新所有 dirty 的 layout
         // 可以分开更新了
         uiRendererManager.updateAllDirtyRenderers(); // 更新所有 dirty 的 renderer
+    }
+
+    public render (): void {
+        if (this._batcher) {
+            this._batcher.update();
+            this._batcher.uploadBuffers();
+        }
+    }
+
+    public afterDraw (): void {
+        if (this._batcher) {
+            this._batcher.reset();
+        }
+    }
+
+    // 触发阶段
+    private beforeDraw (): void {
+        // 只支持了 once
+        for (let i = 0, length = this._extraPartBeforeUpdate.length; i < length; i++) {
+            const info = this._extraPartBeforeUpdate[i];
+            const callback = info.callback;
+            const target = info.target;
+            callback.call(target);
+        }
+        this._extraPartBeforeUpdate.length = 0;
+    }
+
+    // only one time
+    public addCallbackToBeforeUpdate (callback: AnyFunction, target: any): void {
+        this._extraPartBeforeUpdate.push(new FunctionCallbackInfo(callback, target));
     }
 }
 
 export const uiSystem = new UISystem();
 director.registerSystem('ui-system', uiSystem, 0);
+cclegacy.internal.uiSystem = uiSystem;

@@ -27,7 +27,6 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
-import { director } from '../../game/director';
 import { game } from '../../game';
 import { Mat4, Vec3, visibleRect, sys } from '../../core';
 import { view } from '../view';
@@ -40,6 +39,7 @@ import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { ccwindow } from '../../core/global-exports';
+import { uiSystem } from '../../2d/framework/ui-system';
 
 const ccdocument = ccwindow.document;
 
@@ -286,7 +286,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        const camera = director.root!.batcher2D.getFirstRenderCamera(node);
+        const camera = uiSystem.batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
         camera.node.getWorldRT(_matrix_temp);

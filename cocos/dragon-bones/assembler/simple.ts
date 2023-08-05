@@ -23,6 +23,7 @@
 */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
+import { JSB } from 'internal:constants';
 import { Color, Mat4, Vec3, cclegacy } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
@@ -38,6 +39,8 @@ import { Texture2D } from '../../asset/assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
+import { uiSystem } from '../../2d/framework/ui-system';
+import { BufferAccessorManager } from '../../2d/renderer/buffer-accessor-manager';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -134,11 +137,12 @@ export const simple: IAssembler = {
     ensureAccessor (): StaticVBAccessor {
         if (!_accessor) {
             const device = director.root!.device;
-            const batcher = director.root!.batcher2D;
             const attributes = vfmtPosUvColor;
             this.accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
-            // Register to batcher so that batcher can upload buffers after batching process
-            batcher.registerBufferAccessor(Number.parseInt('DRAGONBONES', 36), _accessor);
+            if (!JSB) {
+                // Register to batcher so that batcher can upload buffers after batching process
+                BufferAccessorManager.instance.registerBufferAccessor(Number.parseInt('DRAGONBONES', 36), _accessor);
+            }
         }
         return this.accessor as StaticVBAccessor;
     },

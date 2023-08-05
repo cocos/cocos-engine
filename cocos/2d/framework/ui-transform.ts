@@ -30,6 +30,7 @@ import { Director, director } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';
 import { Mask } from '../components/mask';
+import { uiSystem } from './ui-system';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -237,7 +238,7 @@ export class UITransform extends Component {
      * @deprecated since v3.0
      */
     get visibility (): number {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        const camera = uiSystem.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.visibility : 0;
     }
 
@@ -246,7 +247,7 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority (): number {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        const camera = uiSystem.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.priority : 0;
     }
 

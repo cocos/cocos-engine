@@ -26,9 +26,9 @@ import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
-import { director } from '../game/director';
 import { Node } from '../scene-graph';
 import type { Camera } from '../render-scene/scene';
+import { uiSystem } from '../2d/framework/ui-system';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
@@ -92,7 +92,7 @@ export abstract class WebViewImpl {
     get webview (): HTMLIFrameElement | null { return this._webview; }
     get state (): EventType { return this._state; }
     get UICamera (): Camera | null {
-        return director.root!.batcher2D.getFirstRenderCamera(this._node!);
+        return uiSystem.batcher2D.getFirstRenderCamera(this._node!);
     }
 
     protected dispatchEvent (key: EventType, ...args: any[any]): void {

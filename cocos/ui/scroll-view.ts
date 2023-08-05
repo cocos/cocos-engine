@@ -27,6 +27,7 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
+import { uiSystem } from '../2d/framework/ui-system';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
 import { errorID, logID } from '../core/platform/debug';
 import { Size, Vec2, Vec3, approx } from '../core/math';
@@ -973,7 +974,8 @@ export class ScrollView extends ViewGroup {
         // Because widget component will adjust content position and scrollView position is correct after visit
         // So this event could make sure the content is on the correct position after loading.
         if (this._content) {
-            director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
+            uiSystem.addCallbackToBeforeUpdate(this._adjustContentOutOfBoundary, this);
+            // director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
         }
     }
 

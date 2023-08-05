@@ -123,6 +123,7 @@ export class LabelOutline extends Component {
         const label = this.node.getComponent(Label);
         if (label) {
             label.markForUpdateRenderData();
+            label._markLayoutDirty();
         }
     }
 }

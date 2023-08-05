@@ -23,6 +23,8 @@
 ****************************************************************************/
 
 #include "core/assets/TextureBase.h"
+
+#include "2d/renderer/Batcher2d.h"
 #include "base/StringUtil.h"
 #include "cocos/core/platform/Debug.h"
 #include "core/utils/IDGenerator.h"
@@ -107,9 +109,9 @@ void TextureBase::setAnisotropy(uint32_t anisotropy) {
 
 bool TextureBase::destroy() {
     const bool destroyed = Super::destroy();
-    //cjh TODO:    if (destroyed && legacyCC.director.root?.batcher2D) {
-    //        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
-    //    }
+    if (destroyed && Batcher2d::getInstance() != nullptr) {
+        Batcher2d::getInstance()->releaseDescriptorSetCache(this);
+    }
     return destroyed;
 }
 

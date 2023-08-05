@@ -27,7 +27,7 @@ import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { assertID, errorID, Pool, macro, assertIsTrue } from '../../core';
-import { director } from '../../game';
+import { uiSystem } from '../framework/ui-system';
 
 interface IFreeEntry {
     offset: number;
@@ -87,7 +87,7 @@ export class StaticVBAccessor extends BufferAccessor {
         super(device, attributes);
         this._vCount = vCount || Math.floor(macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes);
         this._iCount = iCount || (this._vCount * StaticVBAccessor.IB_SCALE);
-        this._id = StaticVBAccessor.generateID();
+        this._id = StaticVBAccessor.generateID(); // id 风险
         // Initialize first mesh buffer
         this._allocateBuffer();
     }
@@ -304,8 +304,10 @@ export class StaticVBAccessor extends BufferAccessor {
         //sync to native
         // temporarily batcher transports buffers
         // It is better to put accessor to native
-        const batcher = director.root!.batcher2D;
-        batcher.syncMeshBuffersToNative(this.id, this._buffers);
+        if (JSB) {
+            const nativeBuffers = this._buffers.map((buf) => buf.nativeObj);
+            uiSystem.batcher2D.syncMeshBuffersToNative(this.id, nativeBuffers);
+        }
 
         return this._buffers.length - 1;
     }

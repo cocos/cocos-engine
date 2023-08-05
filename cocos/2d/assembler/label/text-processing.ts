@@ -34,6 +34,7 @@ import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
+import { uiSystem } from '../../framework/ui-system';
 
 const Alignment = [
     'left', // macro.TextAlignment.LEFT
@@ -534,12 +535,8 @@ export class TextProcessing {
                     outputRenderData.texture.rect = new Rect(0, 0, this._canvas.width, this._canvas.height);
                     outputRenderData.texture._calculateUV();
                 }
-                if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
-                    if (JSB) {
-                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
-                    } else {
-                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
-                    }
+                if (uiSystem.batcher2D) {
+                    uiSystem.batcher2D.releaseDescriptorSetCache(tex);
                 }
             }
         }
