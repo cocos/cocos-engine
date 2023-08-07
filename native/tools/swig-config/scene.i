@@ -105,6 +105,8 @@ using namespace cc;
 %ignore cc::Root::getEventProcessor;
 %ignore cc::Node::getEventProcessor;
 
+%ignore cc::scene::IMacroPatch::IMacroPatch(const std::pair<const std::string, cc::MacroValue>&);
+
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
