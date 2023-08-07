@@ -23,15 +23,16 @@
 */
 
 import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
-import { cclegacy, ValueType, Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, errorID, getError, js } from '../core';
+import { cclegacy, ValueType, Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, errorID, getError, js, assertIsTrue } from '../core';
 
-import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
+import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../asset/assets/asset';
 
-import type { CCON } from './ccon';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
 
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
+
+import type { MapEnum, TupleSlice } from './deserialize-type-utilities';
 
 const FORCE_COMPILED = false; // TODO: BUILD;
 
@@ -120,24 +121,6 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     }
 }
 
-// // TODO: Used for Data.TypedArray.
-// const TypedArrays = [
-//     Float32Array,
-//     Float64Array,
-//
-//     Int8Array,
-//     Int16Array,
-//     Int32Array,
-//
-//     Uint8Array,
-//     Uint16Array,
-//     Uint32Array,
-//
-//     Uint8ClampedArray,
-//     // BigInt64Array,
-//     // BigUint64Array,
-// ];
-
 /** **************************************************************************
  * TYPE DECLARATIONS
  *************************************************************************** */
@@ -217,12 +200,6 @@ const enum DataTypeID {
     // Common TypedArray for legacyCC.Node only. Never be null.
     TRS,
 
-    // // From the point of view of simplified implementation,
-    // // it is not supported to deserialize TypedArray that is initialized to null in the constructor.
-    // // Also, the length of TypedArray cannot be changed.
-    // // Developers will rarely manually assign a null.
-    // TypedArray,
-
     // ValueType without default value (in arrays, dictionaries).
     // Developers will rarely manually assign a null.
     ValueType,
@@ -257,7 +234,6 @@ interface DataTypes {
     [DataTypeID.ValueTypeCreated]: IValueTypeData;
     [DataTypeID.AssetRefByInnerObj]: number;
     [DataTypeID.TRS]: ITRSData;
-    // [DataTypeID.TypedArray]: Array<InstanceOrReverseIndex>;
     [DataTypeID.ValueType]: IValueTypeData;
     [DataTypeID.Array_Class]: DataTypes[DataTypeID.Class][];
     [DataTypeID.CustomizedClass]: ICustomObjectData;
@@ -400,13 +376,6 @@ export declare namespace deserialize.Internal {
     export type IArrayData_ = IArrayData;
 }
 
-// const TYPEDARRAY_TYPE = 0;
-// const TYPEDARRAY_ELEMENTS = 1;
-// interface ITypedArrayData extends Array<number|number[]> {
-//     [TYPEDARRAY_TYPE]: number,
-//     [TYPEDARRAY_ELEMENTS]: number[],
-// }
-
 const enum Refs {
     EACH_RECORD_LENGTH = 3,
     OWNER_OFFSET = 0,
@@ -450,9 +419,9 @@ const enum File {
 }
 
 // Main file structure
-interface IFileData extends Array<any> {
+interface IFileDataMap {
     // version
-    [File.Version]: number | FileInfo | any;
+    [File.Version]: number;
 
     // Shared data area, the higher the number of references, the higher the position
 
@@ -481,12 +450,36 @@ interface IFileData extends Array<any> {
     [File.DependUuidIndices]: (StringIndex|string)[];
 }
 
-// type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
-type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>;
-const PACKED_SECTIONS = File.Instances;
-interface IPackedFileData extends Shared {
-    [PACKED_SECTIONS]: IFileData[];
+type IFileData = MapEnum<{
+    [x in keyof IFileDataMap as `${x}`]: IFileDataMap[x];
+}, 11 /* Currently we should manually specify the enumerators count. */>;
+
+type IIntrudedFileDataMap = Omit<IFileDataMap, File.Version> & {
+    [File.Context]: FileInfo & DeserializeContext;
 }
+
+type IIntrudedFileData = MapEnum<{
+    [x in keyof IIntrudedFileDataMap as `${x}`]: IIntrudedFileDataMap[x];
+}, 11 /* Currently we should manually specify the enumerators count. */>;
+
+type IDeserializeInput = IFileData | IIntrudedFileData;
+
+type ISharedData = TupleSlice<IFileData, 1, 5>;
+
+type IPackedFileSection = [
+    ...document: TupleSlice<IFileData, 5>,
+];
+
+const PACKED_SECTIONS = File.Instances;
+
+type IPackedFileData = [
+    /** Version. */
+    version: number,
+
+    ...shared: ISharedData,
+
+    sections: IPackedFileSection[],
+];
 
 export declare namespace deserialize.Internal {
     export import Refs_ = Refs;
@@ -500,13 +493,17 @@ interface ICustomHandler {
     result: Details,
     customEnv: any,
 }
-type ClassFinder = (type: string) => AnyCtor;
+type ClassFinder = deserialize.ClassFinder;
+
+interface DeserializeContext extends ICustomHandler {
+    _version?: number;
+}
 
 interface IOptions extends Partial<ICustomHandler> {
     classFinder?: ClassFinder;
-    reportMissingClass: deserialize.ReportMissingClass;
-    _version?: number;
+    reportMissingClass?: deserialize.ReportMissingClass;
 }
+
 interface ICustomClass {
     _deserialize?: (content: any, context: ICustomHandler) => void;
 }
@@ -527,21 +524,21 @@ export class Details {
      * @zh
      * 对象列表，其中每个对象有属性需要通过 uuid 进行资源加载
      */
-    uuidObjList: IFileData[File.DependObjs] | null = null;
+    uuidObjList: IIntrudedFileData[File.DependObjs] | null = null;
     /**
      * @en
      * the corresponding field name which referenced to the asset
      * @zh
      * 引用着资源的字段名称
      */
-    uuidPropList: IFileData[File.DependKeys] | null = null;
+    uuidPropList: IIntrudedFileData[File.DependKeys] | null = null;
     /**
      * @en
      * list of the depends assets' uuid
      * @zh
      * 依赖资源的 uuid 列表
      */
-    uuidList: IFileData[File.DependUuidIndices] | null = null;
+    uuidList: IIntrudedFileData[File.DependUuidIndices] | null = null;
 
     /**
      * @en
@@ -566,7 +563,7 @@ export class Details {
      * @method init
      * @param {Object} data
      */
-    init (data?: IFileData): void {
+    init (data?: IDeserializeInput): void {
         if (FORCE_COMPILED || data) {
             this.uuidObjList = data![File.DependObjs];
             this.uuidPropList = data![File.DependKeys];
@@ -641,7 +638,7 @@ if (EDITOR || TEST) {
     };
 }
 
-export function dereference (refs: IRefs, instances: IFileData[File.Instances], strings: IFileData[File.SharedStrings]): void {
+export function dereference (refs: IRefs, instances: IIntrudedFileData[File.Instances], strings: IIntrudedFileData[File.SharedStrings]): void {
     const dataLength = refs.length - 1;
     let i = 0;
     // owner is object
@@ -673,7 +670,7 @@ export function dereference (refs: IRefs, instances: IFileData[File.Instances], 
 
 //
 
-function deserializeCCObject (data: IFileData, objectData: IClassObjectData): Record<string, any> {
+function deserializeCCObject (data: IIntrudedFileData, objectData: IClassObjectData): Record<string, any> {
     const mask = data[File.SharedMasks][objectData[OBJ_DATA_MASK]];
     const clazz = mask[MASK_CLASS];
     const ctor = clazz[CLASS_TYPE] as Exclude<AnyCtor, ICustomClass>;
@@ -707,7 +704,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData): Re
     return obj;
 }
 
-function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent): ICustomClass {
+function deserializeCustomCCObject (data: IIntrudedFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent): ICustomClass {
     // eslint-disable-next-line new-cap
     const obj = new ctor();
     if (obj._deserialize) {
@@ -720,13 +717,13 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
 
 // Parse Functions
 
-type ParseFunction<T> = (data: IFileData, owner: any, key: string, value: T) => void;
+type ParseFunction<T> = (data: IIntrudedFileData, owner: any, key: string, value: T) => void;
 
-function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]): void {
+function assignSimple (data: IIntrudedFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]): void {
     owner[key] = value;
 }
 
-function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex): void {
+function assignInstanceRef (data: IIntrudedFileData, owner: any, key: string, value: InstanceBnotReverseIndex): void {
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
     } else {
@@ -735,7 +732,7 @@ function assignInstanceRef (data: IFileData, owner: any, key: string, value: Ins
 }
 
 function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
-    return (data: IFileData, owner: any, key: string, value: T[]): void => {
+    return (data: IIntrudedFileData, owner: any, key: string, value: T[]): void => {
         for (let i = 0; i < value.length; ++i) {
             parser(data, value, i as unknown as string, value[i]);
         }
@@ -743,21 +740,21 @@ function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
     };
 }
 
-function parseAssetRefByInnerObj (data: IFileData, owner: any, key: string, value: number): void {
+function parseAssetRefByInnerObj (data: IIntrudedFileData, owner: any, key: string, value: number): void {
     owner[key] = null;
     data[File.DependObjs][value] = owner;
 }
 
-function parseClass (data: IFileData, owner: any, key: string, value: IClassObjectData): void {
+function parseClass (data: IIntrudedFileData, owner: any, key: string, value: IClassObjectData): void {
     owner[key] = deserializeCCObject(data, value);
 }
 
-function parseCustomClass (data: IFileData, owner: any, key: string, value: ICustomObjectData): void {
+function parseCustomClass (data: IIntrudedFileData, owner: any, key: string, value: ICustomObjectData): void {
     const ctor = data[File.SharedClasses][value[CUSTOM_OBJ_DATA_CLASS]] as CCClassConstructor<ICustomClass>;
     owner[key] = deserializeCustomCCObject(data, ctor, value[CUSTOM_OBJ_DATA_CONTENT]);
 }
 
-function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData): void {
+function parseValueTypeCreated (data: IIntrudedFileData, owner: any, key: string, value: IValueTypeData): void {
     /**BuiltinValueTypes index: Vec2=0, Vec3=1, Vec4=2, Quat=3, Color=4, Size=5, Rect=6, Mat4=7
        The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
        so we need to set to native after value changed
@@ -771,18 +768,18 @@ function parseValueTypeCreated (data: IFileData, owner: any, key: string, value:
     }
 }
 
-function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData): void {
+function parseValueType (data: IIntrudedFileData, owner: any, key: string, value: IValueTypeData): void {
     const val: ValueType = new BuiltinValueTypes[value[VALUETYPE_SETTER]]();
     BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
     owner[key] = val;
 }
 
-function parseTRS (data: IFileData, owner: any, key: string, value: ITRSData): void {
+function parseTRS (data: IIntrudedFileData, owner: any, key: string, value: ITRSData): void {
     const typedArray = owner[key] as (Float32Array | Float64Array);
     typedArray.set(value);
 }
 
-function parseDict (data: IFileData, owner: any, key: string, value: IDictData): void {
+function parseDict (data: IIntrudedFileData, owner: any, key: string, value: IDictData): void {
     const dict = value[DICT_JSON_LAYOUT];
     owner[key] = dict;
     for (let i = DICT_JSON_LAYOUT + 1; i < value.length; i += 3) {
@@ -794,7 +791,7 @@ function parseDict (data: IFileData, owner: any, key: string, value: IDictData):
     }
 }
 
-function parseArray (data: IFileData, owner: any, key: string, value: IArrayData): void {
+function parseArray (data: IIntrudedFileData, owner: any, key: string, value: IArrayData): void {
     const array = value[ARRAY_ITEM_VALUES];
     for (let i = 0; i < array.length; ++i) {
         const subValue = array[i];
@@ -807,17 +804,6 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 
     owner[key] = array;
 }
-
-// function parseTypedArray (data: IFileData, owner: any, key: string, value: ITypedArrayData) {
-//     let val: ValueType = new TypedArrays[value[TYPEDARRAY_TYPE]]();
-//     BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
-//     // obj = new window[serialized.ctor](array.length);
-//     // for (let i = 0; i < array.length; ++i) {
-//     //     obj[i] = array[i];
-//     // }
-//     // return obj;
-//     owner[key] = val;
-// }
 
 const ASSIGNMENTS: {
     [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
@@ -836,9 +822,8 @@ ASSIGNMENTS[DataTypeID.Array_Class] = genArrayParser(parseClass);
 ASSIGNMENTS[DataTypeID.CustomizedClass] = parseCustomClass;
 ASSIGNMENTS[DataTypeID.Dict] = parseDict;
 ASSIGNMENTS[DataTypeID.Array] = parseArray;
-// ASSIGNMENTS[DataTypeID.TypedArray] = parseTypedArray;
 
-function parseInstances (data: IFileData): RootInstanceIndex {
+function parseInstances (data: IIntrudedFileData): RootInstanceIndex {
     const instances = data[File.Instances];
     const instanceTypes = data[File.InstanceTypes];
     const instanceTypesLen = instanceTypes === EMPTY_PLACEHOLDER ? 0 : (instanceTypes).length;
@@ -929,7 +914,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
     container[index] = klass;
 }
 
-function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass): void {
+function lookupClasses (data: [any, ...ISharedData, ...any[]], silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass): void {
     const classFinder = customFinder || js.getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
@@ -948,7 +933,7 @@ function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: Cl
     }
 }
 
-function cacheMasks (data: IPackedFileData): void {
+function cacheMasks (data: [any, ...ISharedData, ...any[]]): void {
     const masks = data[File.SharedMasks];
     if (masks) {
         const classes = data[File.SharedClasses];
@@ -959,7 +944,7 @@ function cacheMasks (data: IPackedFileData): void {
     }
 }
 
-function parseResult (data: IFileData): void {
+function parseResult (data: IIntrudedFileData): void {
     const instances = data[File.Instances];
     const sharedStrings = data[File.SharedStrings];
     const dependSharedUuids = data[File.SharedUuids];
@@ -1005,9 +990,35 @@ export function isCompiledJson (json: unknown): boolean {
     }
 }
 
-/**
- * @module cc
- */
+function initializeDeserializationContext(
+    data: IDeserializeInput,
+    details: Details,
+    options?: IOptions & DeserializeDynamicOptions,
+) {
+    details.init(data);
+
+    options ??= {};
+
+    let version = data[File.Version];
+    let preprocessed = false;
+    if (typeof version === 'object') {
+        preprocessed = version.preprocessed;
+        version = version.version;
+    }
+    if (version < SUPPORT_MIN_FORMAT_VERSION) {
+        throw new Error(getError(5304, version));
+    }
+
+    const context = options as IIntrudedFileData[File.Context];
+    context._version = version;
+    context.result = details;
+    data[File.Context] = context;
+
+    if (!preprocessed) {
+        lookupClasses(data as IIntrudedFileData, false, options.classFinder, options.reportMissingClass ?? deserialize.reportMissingClass);
+        cacheMasks(data as IIntrudedFileData);
+    }
+}
 
 /**
  * @en Deserializes a previously serialized object to reconstruct it to the original.
@@ -1018,54 +1029,47 @@ export function isCompiledJson (json: unknown): boolean {
  * @param options Deserialization Options.
  * @return The original object.
  */
-export function deserialize (data: IFileData | string | CCON | any, details: Details | any, options?: IOptions | any): unknown {
+export function deserialize (data: IDeserializeInput | string | any, details?: Details, options?: IOptions & DeserializeDynamicOptions): unknown {
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
 
-    const borrowDetails = !details;
-    details = details || Details.pool.get();
+    let isBorrowedDetails = false;
+    if (!details) {
+        const borrowedDetails = Details.pool.get();
+        assertIsTrue(borrowedDetails, `Can not allocate deserialization details`);
+        details = borrowedDetails;
+        isBorrowedDetails = true;
+    }
+
     let res;
 
     if (!FORCE_COMPILED && !isCompiledJson(data)) {
         res = deserializeDynamic(data, details, options);
     } else {
-        details.init(data);
-        options = options || {};
+        initializeDeserializationContext(
+            data,
+            details,
+            options,
+        );
 
-        let version = data[File.Version];
-        let preprocessed = false;
-        if (typeof version === 'object') {
-            preprocessed = version.preprocessed;
-            version = version.version;
-        }
-        if (version < SUPPORT_MIN_FORMAT_VERSION) {
-            throw new Error(getError(5304, version));
-        }
-        options._version = version;
-        options.result = details;
-        data[File.Context] = options;
-
-        if (!preprocessed) {
-            lookupClasses(data, false, options.classFinder, options.reportMissingClass ?? deserialize.reportMissingClass);
-            cacheMasks(data);
-        }
+        const injectedData = data as IIntrudedFileData;
 
         cclegacy.game._isCloning = true;
-        const instances = data[File.Instances];
-        const rootIndex = parseInstances(data);
+        const instances = injectedData[File.Instances];
+        const rootIndex = parseInstances(injectedData);
         cclegacy.game._isCloning = false;
 
-        if (data[File.Refs]) {
-            dereference(data[File.Refs] as IRefs, instances, data[File.SharedStrings]);
+        if (injectedData[File.Refs]) {
+            dereference(injectedData[File.Refs] as IRefs, instances, injectedData[File.SharedStrings]);
         }
 
-        parseResult(data);
+        parseResult(injectedData);
 
         res = instances[rootIndex];
     }
 
-    if (borrowDetails) {
+    if (isBorrowedDetails) {
         Details.pool.put(details);
     }
 
@@ -1095,7 +1099,8 @@ class FileInfo {
     }
 }
 
-export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder, reportMissingClass?: deserialize.ReportMissingClass): IFileData[] {
+export function unpackJSONs (
+    data: IPackedFileData, classFinder?: ClassFinder, reportMissingClass?: deserialize.ReportMissingClass): IDeserializeInput[] {
     if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(getError(5304, data[File.Version]));
     }
@@ -1110,9 +1115,10 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder, r
 
     const sections = data[PACKED_SECTIONS];
     for (let i = 0; i < sections.length; ++i) {
-        sections[i].unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
+        const section = sections[i];
+        (section as any[]).unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
     }
-    return sections;
+    return sections as unknown as IDeserializeInput[];
 }
 
 export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData, hasNativeDep?: boolean): IFileData {
@@ -1126,7 +1132,7 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
     ];
 }
 
-export function hasNativeDep (data: IFileData): boolean {
+export function hasNativeDep (data: IIntrudedFileData): boolean {
     const instances = data[File.Instances];
     const rootInfo = instances[instances.length - 1];
     if (typeof rootInfo !== 'number') {
@@ -1136,7 +1142,7 @@ export function hasNativeDep (data: IFileData): boolean {
     }
 }
 
-function getDependUuidList (json: IFileData): string[] {
+function getDependUuidList (json: IIntrudedFileData): string[] {
     const sharedUuids = json[File.SharedUuids];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return json[File.DependUuidIndices].map((index) => sharedUuids[index]);
@@ -1145,7 +1151,7 @@ function getDependUuidList (json: IFileData): string[] {
 export function parseUuidDependencies (serialized: unknown): string[] {
     // eslint-disable-next-line @typescript-eslint/ban-types
     if (!DEV || isCompiledJson(serialized as object)) {
-        return getDependUuidList(serialized as IFileData);
+        return getDependUuidList(serialized as IIntrudedFileData);
     } else {
         return parseUuidDependenciesDynamic(serialized);
     }
@@ -1224,7 +1230,6 @@ if (TEST) {
             CustomizedClass: DataTypeID.CustomizedClass,
             Dict: DataTypeID.Dict,
             Array: DataTypeID.Array,
-            // TypedArray: DataTypeID.TypedArray,
         },
         BuiltinValueTypes,
         unpackJSONs,
