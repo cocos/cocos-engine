@@ -350,20 +350,6 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         this._contactListener.unregisterContactFixture((fixture as any).$$.ptr);
     }
 
-    getContactWithContactImplPtr (implPtr: number): B2.Contact| null {
-        let contactList = this._world.GetContactList();
-        while (contactList) {
-            const b2Contact = contactList;
-            if (b2Contact) {
-                if ((b2Contact as any).$$.ptr === implPtr) {
-                    return b2Contact;
-                }
-                contactList = b2Contact.GetNext();
-            }
-        }
-        return null;
-    }
-
     testPoint (point: Vec2): readonly Collider2D[] {
         const x = tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
         const y = tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
@@ -440,7 +426,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         c.emit(Contact2DType.PRE_SOLVE);
     }
 
-    _onPostSolve (b2contact: number, impulse: B2.ContactImpulse): void {
+    _onPostSolve (b2contact: number, impulse: number): void {
         const c = getB2ObjectFromImplPtr<PhysicsContact>(b2contact);
         if (!c) {
             return;
@@ -449,6 +435,6 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         // impulse only survive during post sole callback
         c._setImpulse(impulse);
         c.emit(Contact2DType.POST_SOLVE);
-        c._setImpulse(null);
+        c._setImpulse(0);
     }
 }

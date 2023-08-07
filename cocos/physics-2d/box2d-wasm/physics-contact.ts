@@ -90,26 +90,26 @@ export class PhysicsContact implements IPhysics2DContact {
     disabled = false;
     disabledOnce = false;
 
-    private _impulse: B2.ContactImpulse | null = null;
+    private _impulsePtr: number = 0;
     private _inverted = false;
     private _implPtr: number = 0;
     private _b2WorldmanifoldPtr: number = 0;
 
-    _setImpulse (impulse: B2.ContactImpulse | null): void {
-        this._impulse = impulse;
+    _setImpulse (impulse: number): void {
+        this._impulsePtr = impulse;
     }
 
     init (b2contact: number): void {
-        this.colliderA = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureARawPtr(b2contact))).collider;
-        this.colliderB = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureBRawPtr(b2contact))).collider;
+        this.colliderA = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact))).collider;
+        this.colliderB = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact))).collider;
         this.disabled = false;
         this.disabledOnce = false;
-        this._impulse = null;
+        this._impulsePtr = 0;
         this._inverted = false;
 
         this._implPtr = b2contact;
         addImplPtrReference(this, this._implPtr);
-        this._b2WorldmanifoldPtr = (new B2.WorldManifold()).$$.ptr;
+        this._b2WorldmanifoldPtr = B2.WorldManifoldNew();
     }
 
     reset (): void {
@@ -120,7 +120,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this.colliderA = null;
         this.colliderB = null;
         this.disabled = false;
-        this._impulse = null;
+        this._impulsePtr = 0;
 
         removeImplPtrReference(this, this._implPtr);
         this._implPtr = 0;
@@ -134,8 +134,8 @@ export class PhysicsContact implements IPhysics2DContact {
         const separations = worldmanifold.separations;
         const normal = worldmanifold.normal;
 
-        B2.ContactGetWorldManifoldRawPtr(this._implPtr, this._b2WorldmanifoldPtr);
-        const b2Manifold = B2.ContactGetManifoldRawPtr(this._implPtr);
+        B2.ContactGetWorldManifold(this._implPtr, this._b2WorldmanifoldPtr);
+        const b2Manifold = B2.ContactGetManifold(this._implPtr);
         const count = B2.ManifoldGetPointCount(b2Manifold);
         points.length = separations.length = count;
 
@@ -163,7 +163,7 @@ export class PhysicsContact implements IPhysics2DContact {
         const localNormal = manifold.localNormal;
         const localPoint = manifold.localPoint;
 
-        const b2Manifold = B2.ContactGetManifoldRawPtr(this._implPtr);
+        const b2Manifold = B2.ContactGetManifold(this._implPtr);
         const count = points.length = B2.ManifoldGetPointCount(b2Manifold);
 
         for (let i = 0; i < count; i++) {
@@ -191,15 +191,15 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     getImpulse (): IPhysics2DImpulse | null {
-        const b2impulse = this._impulse;
+        const b2impulse = this._impulsePtr;
         if (!b2impulse) return null;
 
         const normalImpulses = impulse.normalImpulses;
         const tangentImpulses = impulse.tangentImpulses;
-        const count = b2impulse.count;
+        const count = B2.ContactImpulseGetCount(b2impulse);
         for (let i = 0; i < count; i++) {
-            normalImpulses[i] = b2impulse.normalImpulses[i] * PHYSICS_2D_PTM_RATIO;
-            tangentImpulses[i] = b2impulse.tangentImpulses[i];
+            normalImpulses[i] = B2.ContactImpulseGetNormalImpulsesValue(b2impulse, i) * PHYSICS_2D_PTM_RATIO;
+            tangentImpulses[i] = B2.ContactImpulseGetTangentImpulsesValue(b2impulse, i);
         }
 
         tangentImpulses.length = normalImpulses.length = count;
