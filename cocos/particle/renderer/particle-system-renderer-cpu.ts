@@ -345,54 +345,35 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
+    private doScale (pass) {
+        Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+        this._particleSystem.node.getWorldRotation(this._world_rot);
+        Quat.normalize(this._world_rot, this._world_rot);
+        Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+        this._particleSystem.node.getWorldPosition(this._node_pos);
+        Mat4.fromTranslation(this._pos_mat, this._node_pos);
+        Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+        Mat4.copy(_tempWorldTrans, this._scale_local_trans);
+
+        pass.setUniform(this._uTransformHandle, _tempWorldTrans);
+        if (this._trailMat) {
+            this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
+        }
+    }
+
     private doUpdateScale (pass) {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
-            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
-            this._particleSystem.node.getWorldRotation(this._world_rot);
-            Quat.normalize(this._world_rot, this._world_rot);
-            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
-            this._particleSystem.node.getWorldPosition(this._node_pos);
-            Mat4.fromTranslation(this._pos_mat, this._node_pos);
-            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
-            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
-            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
-            if (this._trailMat) {
-                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
-            }
+            this.doScale(pass);
             break;
         case Space.World:
             this._particleSystem.node.getWorldScale(this._node_scale);
-            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
-            this._particleSystem.node.getWorldRotation(this._world_rot);
-            Quat.normalize(this._world_rot, this._world_rot);
-            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
-            this._particleSystem.node.getWorldPosition(this._node_pos);
-            Mat4.fromTranslation(this._pos_mat, this._node_pos);
-            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
-            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
-
-            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
-            if (this._trailMat) {
-                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
-            }
+            this.doScale(pass);
             break;
         default:
             this._particleSystem.node.getScale(this._node_scale);
-            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
-            this._particleSystem.node.getWorldRotation(this._world_rot);
-            Quat.normalize(this._world_rot, this._world_rot);
-            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
-            this._particleSystem.node.getWorldPosition(this._node_pos);
-            Mat4.fromTranslation(this._pos_mat, this._node_pos);
-            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
-            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
-
-            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
-            if (this._trailMat) {
-                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
-            }
+            this.doScale(pass);
             break;
         }
         pass.setUniform(this._uScaleHandle, this._node_scale);

@@ -149,8 +149,8 @@ export class ParticleCuller {
             Mat4.fromTranslation(_pos_mat, _node_pos);
             Mat4.fromQuat(_rol_mat, _node_rol);
             Mat4.fromScaling(_scale_mat, _node_scale);
-            Mat4.multiply(_rol_scale_mat, _rol_mat, _scale_mat);
-            Mat4.multiply(_trans_mat, _pos_mat, _rol_scale_mat);
+            Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
+            Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
         }
 
         for (let i = 0; i < count; ++i) {
@@ -222,19 +222,15 @@ export class ParticleCuller {
         Mat4.fromTranslation(_pos_mat, _node_pos);
         Mat4.fromQuat(_rol_mat, _node_rol);
         Mat4.fromScaling(_scale_mat, _node_scale);
-        Mat4.multiply(_rol_scale_mat, _rol_mat, _scale_mat);
-        Mat4.multiply(_trans_mat, _pos_mat, _rol_scale_mat);
+        Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
+        Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps.simulationSpace, _trans_mat);
         });
 
         if (ps.simulationSpace === Space.Local) {
-            Mat4.invert(this._localMat, _trans_mat);
-            this._localMat.m12 = 0;
-            this._localMat.m13 = 0;
-            this._localMat.m14 = 0;
-            this._localMat.m15 = 1;
+            Mat4.transpose(this._localMat, _rol_scale_mat);
         }
 
         for (let i = 0; i < particleLst.length; ++i) {
