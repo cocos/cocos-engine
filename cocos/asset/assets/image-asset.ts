@@ -606,25 +606,25 @@ export class ImageAsset extends Asset {
      * @en Constructing an ImageSource object.
      * @zh 构造ImageSource对象
      * @param data @en The image source. @zh 图像数据源。
-     * @deprecated please use imagedata structure.
+     * @deprecated @en please use `constructor(imageSource?: ImageData | IMemoryImageSource)` instead.
      */
-    constructor (nativeAsset: HTMLCanvasElement | HTMLImageElement | ImageBitmap);
+    constructor (imageSource: HTMLCanvasElement | HTMLImageElement | ImageBitmap);
     /**
      * @en Constructing an ImageSource object.
      * @zh 构造ImageSource对象
      * @param data @en The image source. @zh 图像数据源。
      */
-    constructor (nativeAsset?: ImageData | IMemoryImageSource);
-    constructor (nativeAsset?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
+    constructor (imageSource?: ImageData | IMemoryImageSource);
+    constructor (imageSource?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
         super();
 
         if (EDITOR) {
             this._exportedExts = null;
         }
-        if (nativeAsset instanceof ImageData) {
-            this._imageData = nativeAsset;
+        if (imageSource instanceof ImageData) {
+            this._imageData = imageSource;
         } else {
-            this._imageData = new ImageData(nativeAsset);
+            this._imageData = new ImageData(imageSource);
         }
     }
 
@@ -632,7 +632,7 @@ export class ImageAsset extends Asset {
      * @en Reset the source of the image asset.
      * @zh 重置此图像资源使用的原始图像源。
      * @param data @en The new source. @zh 新的图片数据源。
-     * @deprecated @en Recommended use of the IMemoryImageSource object. @zh 推荐使用IMemoryImageSource对象
+     * @deprecated @en please use `reset(data: IMemoryImageSource)` instead. @zh 请使用`reset(data: IMemoryImageSource)`替换
      */
     public reset (data: HTMLCanvasElement | HTMLImageElement | ImageBitmap): void;
     /**

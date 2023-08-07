@@ -23,8 +23,8 @@
 */
 import { RawDataType, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
-import { deviceManager, API } from '../../cocos/gfx';
 import { ccwindow } from '../../cocos/core/global-exports';
+import { assert } from '../../cocos/core/platform/debug';
 
 export class BaseImageData {
     // TODO(qgh):Designed for compatibility, may be removed in the future.
@@ -129,8 +129,7 @@ export class BaseImageData {
                 data = new Uint8Array(rawBuffer);
             }
         } else {
-            // eslint-disable-next-line no-console
-            console.log('imageBmp copy not impled!');
+            assert(false, 'ImageBitmap has no raw data!');
         }
         return data;
     }

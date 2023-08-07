@@ -141,7 +141,7 @@ export class SimpleTexture extends TextureBase {
      * @param source @en The source image or image data. @zh 源图像或图像数据。
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
-     * @deprecated since v3.9, please use `uploadData()` instead.
+     * @deprecated since v3.9, please use `uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView, level, arrayIndex)` instead.
      */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, level, arrayIndex): void;
     /**
