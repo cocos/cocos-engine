@@ -45,4 +45,4 @@ export {
 } from './debug';
 
 export { screen } from './screen';
-export { Screen } from './screen';
+export type { Screen } from './screen';
