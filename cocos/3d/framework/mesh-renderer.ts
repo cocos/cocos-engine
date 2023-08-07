@@ -902,10 +902,11 @@ export class MeshRenderer extends ModelRenderer {
             // because the lighting map will influence the model's shader
             this._model.initLightingmap(this.bakeSettings.texture, this.bakeSettings.uvParam);
             this._updateUseLightProbe();
-            this._updateUseReflectionProbe();
+            this._updateUseReflectionProbeType();
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBiasAndProbeId();
+            this._updateUseReflectionProbe();
             this._updateReceiveDirLight();
             this._onUpdateReflectionProbeDataMap();
             this._onUpdateLocalReflectionProbeData();
@@ -1211,6 +1212,11 @@ export class MeshRenderer extends ModelRenderer {
         if (!this._model) return;
         this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
         this._updateReflectionProbeTexture();
+    }
+
+    protected _updateUseReflectionProbeType (): void {
+        if (!this._model) return;
+        this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
     }
 
     protected _updateBakeToReflectionProbe (): void {

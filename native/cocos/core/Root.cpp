@@ -322,7 +322,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         }
     } else {
         CC_ASSERT(!_pipelineRuntime);
-        _pipelineRuntime.reset(render::Factory::createPipeline());
+        _pipelineRuntime.reset(render::Factory::createPipeline(false));
         if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();

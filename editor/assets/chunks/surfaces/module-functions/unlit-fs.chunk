@@ -27,13 +27,13 @@ vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
 }
 
 // Diffuse/Specular Color with BRDF lighting preparation
-void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
   diffuseColorWithLighting = CCSurfacesGetDiffuseColor(surfaceData);
-  specularColorWithEnvLighting = specularColorWithLighting = CCSurfacesGetSpecularColor(surfaceData).xyz;
+  specularColorWithLighting = CCSurfacesGetSpecularColor(surfaceData).xyz;
 }
 // Update two colors with BRDF which depend on lights (optional)
-void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
 }
 

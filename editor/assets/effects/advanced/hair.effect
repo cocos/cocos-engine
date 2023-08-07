@@ -26,7 +26,7 @@ CCEffect %{
         anisotropyMap:                    { value: black }
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
         offsetTRT:                        { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [-0.5, 0.5], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
-        IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 5.0], step: 0.01 } }
+        IntensityTRT:                     { value: 2.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 10.0], step: 0.01 } }
         baseColorTRT:                     { value: [0.5, 0.33, 0.18, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color, tooltip: 'The color of internal reflection lighting' } }
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01, tooltip: 'The saturation of internal transmit lighting color' } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }

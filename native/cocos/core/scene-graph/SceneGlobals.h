@@ -36,6 +36,7 @@ class SkyboxInfo;
 class FogInfo;
 class OctreeInfo;
 class SkinInfo;
+class PostSettingsInfo;
 } // namespace scene
 
 namespace gi {
@@ -58,6 +59,7 @@ public:
     inline bool getBakedWithStationaryMainLight() const { return _bakedWithStationaryMainLight; }
     inline bool getBakedWithHighpLightmap() const { return _bakedWithHighpLightmap; }
     inline scene::SkinInfo *getSkinInfo() const { return _skinInfo.get(); }
+    inline scene::PostSettingsInfo *getPostSettingsInfo() const { return _postSettingsInfo.get(); }
 
     void setAmbientInfo(scene::AmbientInfo *info);
     void setShadowsInfo(scene::ShadowsInfo *info);
@@ -68,6 +70,7 @@ public:
     void setBakedWithStationaryMainLight(bool value);
     void setBakedWithHighpLightmap(bool value);
     void setSkinInfo(scene::SkinInfo *info);
+    void setPostSettingsInfo(scene::PostSettingsInfo *info);
 
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;
@@ -77,6 +80,7 @@ private:
     IntrusivePtr<scene::OctreeInfo> _octreeInfo;
     IntrusivePtr<gi::LightProbeInfo> _lightProbeInfo;
     IntrusivePtr<scene::SkinInfo> _skinInfo;
+    IntrusivePtr<scene::PostSettingsInfo> _postSettingsInfo;
     bool _bakedWithStationaryMainLight;
     bool _bakedWithHighpLightmap;
 };

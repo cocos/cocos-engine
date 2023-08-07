@@ -59,9 +59,43 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 }
 
 #if CC_SURFACES_LIGHTING_USE_FRESNEL
-  float CCSurfaceLightingCalculateFresnel(in LightingIntermediateData lightingData)
+vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
+{
+    float fresnel = CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVAbsSat); //NoVSat for single side, and NoVAbsSat for two sided
+    return vec3(fresnel);
+}
+#endif
+
+void CCSurfaceLightingCalculateDirectFresnel(out vec3 directGF, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
+{
+  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+    // local lighting also use EnvIntegratedFresnel for estimated GF terms, calculate accurate GF instead in the future, CCSurfacesDebugViewLightingResult also needs modified
+    directGF = environmentGF;
+  #else
+    float roughness = lightingData.specularParam;
+    directGF = F_SchlickMultiplier(specularColor, lightingData.VoHAbsSat) * G_Schlick(roughness, lightingData.NoVSat, lightingData.NoLSat);
+  #endif
+}
+
+void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 integratedF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  float roughness = lightingData.specularParam;
+  IntegratedGFMultiplier(integratedGF, integratedF, specularColor, roughness, lightingData.NoVAbsSat);
+}
+
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  void CCSurfaceLightingCalculateDirectSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
   {
-    return CalculateFresnelCoefficient(lightingData.ior, abs(lightingData.NoV)); //NoVSat for single side, and NoVAbs for two sided
+    float VoH = lightingData.VoHAbsSat;
+  	subLayerF = vec3(exp2( (-5.55473 * VoH - 6.98316) * VoH ));
+  }
+  void CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(out vec3 subLayerF, in LightingIntermediateData lightingData, vec3 specularColor)
+  {
+    // ior related:
+    subLayerF = vec3(CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat));
+    // F0 F90 related:
+    // if (equalf(lightingData.ior, 0.0))
+    // subLayerF = vec3(CalculateFresnelCoefficient(lightingData.F0, lightingData.F90, lightingData.NoVSat));
   }
 #endif
 
@@ -89,7 +123,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
     #endif
-    //todo: planar refraction from scene color
+    // todo: planar refraction from scene color when use planar probe or no probe
   #endif
 
   #if CC_USE_IBL && CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE
@@ -216,5 +250,72 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     // scattered = tt + origin diffuse
     vec3 ttLighting = scatteredLighting - lightingData.NoLSat;
     lightingResult.directTT = ttLighting * DiffuseCoefficient_EnergyConservation * lightSourceColorAndIntensity.xyz* lightSourceColorAndIntensity.w;
+  }
+#endif
+
+#if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
+  // todo: layer result in LightingResult separate to single structure like LightingResultPerLayer
+  void CCSurfacesLightingCalculateDirectMultiLayerBlending(inout LightingResult lightingResult
+      , in LightingIntermediateData lightingData2ndLayer
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+    )
+  {
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
+    vec3 blendedBaseD = lightingResult.directDiffuse, blendedBaseS = lightingResult.directSpecular;
+    InitializeLayerBlending(blendedBaseD, blendedBaseS,
+                            lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
+                            lastLayerF,
+                            lightingResult.directDiffuse, lightingResult.directSpecular
+                            );
+
+      CCSurfaceLightingCalculateDirectSubLayerFresnel(lightingResult.directSubLayerF, lightingData2ndLayer, lightingResult.specularColorWithLighting2ndSpecular);
+      CalculateLayerBlending (blendedBaseD, blendedBaseS,
+                              lightingResult.directDiffuseSubLayers, lightingResult.directSpecularSubLayers,
+                              lastLayerF,
+                              zeroDiffuse, zeroDiffuse,
+                              lightingResult.direct2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
+                              lightingData2ndLayer.layerOpacity, lightingResult.directSubLayerF
+                              );
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+
+    // output
+    lightingResult.directDiffuse = blendedBaseD;
+    lightingResult.directSpecular = blendedBaseS;
+  }
+
+  void CCSurfacesLightingCalculateEnvironmentMultiLayerBlending(inout LightingResult lightingResult
+      , in LightingIntermediateData lightingData2ndLayer
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+    )
+  {
+    vec3 lastLayerF, zeroDiffuse = vec3(0.0);
+    vec3 blendedBaseD = lightingResult.environmentDiffuse, blendedBaseS = lightingResult.environmentSpecular;
+    InitializeLayerBlending(blendedBaseD, blendedBaseS,
+                            lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
+                            lastLayerF,
+                            lightingResult.environmentDiffuse, lightingResult.environmentSpecular
+                            );
+
+      CCSurfaceLightingCalculateEnvironmentSubLayerFresnel(lightingResult.environmentSubLayerF, lightingData2ndLayer, lightingResult.specularColorWithLighting2ndSpecular);
+      CalculateLayerBlending (blendedBaseD, blendedBaseS,
+                              lightingResult.environmentDiffuseSubLayers, lightingResult.environmentSpecularSubLayers,
+                              lastLayerF,
+                              zeroDiffuse, zeroDiffuse,
+                              lightingResult.environment2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular,
+                              lightingData2ndLayer.layerOpacity, lightingResult.environmentSubLayerF
+                              );
+    #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1
+      // add more layers...
+    #endif
+
+    // output
+    lightingResult.environmentDiffuse = blendedBaseD;
+    lightingResult.environmentSpecular = blendedBaseS;
   }
 #endif

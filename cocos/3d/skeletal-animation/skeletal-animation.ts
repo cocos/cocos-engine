@@ -23,7 +23,7 @@
 */
 
 import {
-    ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
+    ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable,
 } from 'cc.decorator';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, cclegacy, js, assertIsTrue, warn } from '../../core';
@@ -107,7 +107,7 @@ export class SkeletalAnimation extends Animation {
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */
     @type([Socket])
-    @tooltip('i18n:animation.sockets')
+    @editable
     get sockets (): Socket[] {
         return this._sockets;
     }
@@ -131,7 +131,7 @@ export class SkeletalAnimation extends Animation {
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
      */
-    @tooltip('i18n:animation.use_baked_animation')
+    @editable
     get useBakedAnimation (): boolean {
         return this._useBakedAnimation;
     }

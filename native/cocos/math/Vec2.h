@@ -510,7 +510,6 @@ public:
     /** Calculates cross product of two points.
      @return float
      @since v2.1.4
-     @deprecated since v3.8.0, There is no physical meaning.
      */
     inline float cross(const Vec2 &other) const {
         return x * other.y - y * other.x;

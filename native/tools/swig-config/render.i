@@ -116,6 +116,7 @@ using namespace cc::render;
 %attribute(cc::render::BasicPipeline, cc::render::PipelineType, type, getType);
 %attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, capabilities, getCapabilities);
 %attribute(cc::render::RenderSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
+%attribute(cc::render::Pipeline, bool, isGPUDrivenEnabled, getIsGPUDrivenEnabled);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

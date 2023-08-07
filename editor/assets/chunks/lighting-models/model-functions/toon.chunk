@@ -40,3 +40,21 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   lightingDiffuse = vec3(0.0);
   lightingSpecular = vec3(0.0);
 }
+
+
+#if CC_SURFACES_LIGHTING_USE_FRESNEL
+vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
+{
+    return vec3(1.0);
+}
+#endif
+
+void CCSurfaceLightingCalculateDirectFresnel(out vec3 fresnel, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
+{
+    fresnel = vec3(1.0);
+}
+
+void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, out vec3 integratedF, in LightingIntermediateData lightingData, vec3 specularColor)
+{
+  integratedF = integratedGF = vec3(1.0);
+}

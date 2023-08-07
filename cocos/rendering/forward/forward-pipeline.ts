@@ -39,6 +39,12 @@ import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
 const PIPELINE_TYPE = 0;
 
+export function createDefaultPipeline (): ForwardPipeline {
+    const rppl = new ForwardPipeline();
+    rppl.initialize({ flows: [] });
+    return rppl;
+}
+
 /**
  * @en The forward render pipeline
  * @zh 前向渲染管线。

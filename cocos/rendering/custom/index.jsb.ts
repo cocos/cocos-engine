@@ -42,7 +42,7 @@ export const enableEffectImport = true;
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
-    _pipeline = render.Factory.createPipeline() as Pipeline;
+    _pipeline = render.Factory.createPipeline(false) as Pipeline;
     return _pipeline;
 }
 

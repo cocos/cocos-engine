@@ -1138,7 +1138,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.on(NodeEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: any = false): void {
+    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
@@ -1165,7 +1165,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.off(NodeEventType.TOUCH_START, callback, this.node);
      * ```
      */
-    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
@@ -1193,7 +1193,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean): void {
         this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 

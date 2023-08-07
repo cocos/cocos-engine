@@ -298,13 +298,10 @@ export class Vec2 extends ValueType {
      * @override (a:Vec2, b:Vec2) => number
      * @override [deprecated] (out:Vec3, a:Vec2, b:Vec2) => Vec3
      */
-    /**
-     * @deprecated since v3.8.0, There is no physical meaning.
-     */
     public static cross (a: IVec2Like, b: IVec2Like): number;
 
     /**
-     * @deprecated since v3.8.0, There is no physical meaning.
+     * @deprecated Consider use another overrides please.
      */
     public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out): Vec3;
 
@@ -719,9 +716,6 @@ export class Vec2 extends ValueType {
      * @zh 向量叉乘。
      * @param other specified vector
      * @return `out`
-     */
-    /**
-     * @deprecated since v3.8.0, There is no physical meaning.
      */
     public cross (other: Vec2): number {
         return this.x * other.y - this.y * other.x;
