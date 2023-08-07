@@ -38,8 +38,9 @@ export class BufferAccessorManager {
     }
 
     public _staticVBBuffer: StaticVBAccessor | null = null;
-    public _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
     public _currBID = -1;
+
+    private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
 
     /**
      * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
@@ -65,6 +66,33 @@ export class BufferAccessorManager {
     // Only Web need this
     public registerBufferAccessor (key: number, accessor: StaticVBAccessor): void {
         this._bufferAccessors.set(key, accessor);
+    }
+
+    public destroy (): void {
+        for (const accessor of this._bufferAccessors.values()) {
+            accessor.destroy();
+        }
+        this._bufferAccessors.clear();
+    }
+
+    public upload (): void {
+        for (const accessor of this._bufferAccessors.values()) {
+            accessor.uploadBuffers();
+            accessor.reset();
+        }
+    }
+
+    public reset (): void {
+        for (const accessor of this._bufferAccessors.values()) {
+            accessor.reset();
+        }
+        this._staticVBBuffer = null;
+        this._currBID = -1;
+    }
+
+    // Only for static batching
+    public setVBBufferForce (val: StaticVBAccessor | null): void {
+        this._staticVBBuffer = val;
     }
 }
 

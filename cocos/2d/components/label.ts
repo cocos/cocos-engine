@@ -383,7 +383,7 @@ export class Label extends UIRenderer {
         }
 
         this._overflow = value;
-        this._markLayoutDirty(); // 其实只影响 bm
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -405,7 +405,7 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
-        this._markLayoutDirty(); // 其实只影响 bm
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -504,7 +504,7 @@ export class Label extends UIRenderer {
 
         this._fontAtlas = null;
         this._markLayoutDirty();
-        this.updateRenderData(true);//为了 flushAssembler
+        this.updateRenderData(true);
     }
 
     /**
@@ -534,7 +534,7 @@ export class Label extends UIRenderer {
 
         this._cacheMode = value;
         this._markLayoutDirty();
-        this.updateRenderData(true); //为了 flushAssembler
+        this.updateRenderData(true);
     }
 
     /**
@@ -706,7 +706,7 @@ export class Label extends UIRenderer {
     @serializable
     protected _fontFamily = 'Arial';
     @serializable
-    protected _lineHeight = 40;//实际上影响排版的位置，而不影响排版
+    protected _lineHeight = 40;
     @serializable
     protected _overflow: Overflow = Overflow.NONE;
     @serializable
@@ -718,13 +718,13 @@ export class Label extends UIRenderer {
     @serializable
     protected _spacingX = 0;
     @serializable
-    protected _isItalic = false;// 只会影响宽度
+    protected _isItalic = false;
     @serializable
-    protected _isBold = false;// 只会影响宽度
+    protected _isBold = false;
     @serializable
-    protected _isUnderline = false;// 不影响，但是要同步
+    protected _isUnderline = false;
     @serializable
-    protected _underlineHeight = 2;// 不影响，但是要同步
+    protected _underlineHeight = 2;
     @serializable
     protected _cacheMode = CacheMode.NONE;
 
@@ -745,7 +745,7 @@ export class Label extends UIRenderer {
     protected _textRenderData: TextOutputRenderData | null = null;
     protected _textLayoutData: TextOutputLayoutData | null = null;
 
-    protected _layoutDirty = false; // 是否重新计算文本布局
+    protected _layoutDirty = false;
 
     /**
      * @engineInternal
@@ -827,7 +827,7 @@ export class Label extends UIRenderer {
      * @zh 更新渲染相关数据。
      * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
      */
-    public updateRenderData (force = false): void { // 此接口应当有限使用，仅有几种情况才使用，且其他情况也该直接 markDirty 即可
+    public updateRenderData (force = false): void {
         if (force) {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
@@ -982,12 +982,9 @@ export class Label extends UIRenderer {
      * @engineInternal
      */
     public _markLayoutDirty (): void {
-        if (this._layoutDirty) return;//同底层的markLayoutDirty中做的防护一样，防止重复加入队列
+        if (this._layoutDirty) return;
         this._layoutDirty = true;
-        if (this.enabled) { //不一定需要
-            // 加入队列，统一进行更新
-            // 在排版时进行 renderDirty 的触发
-            // 还是在上层直接进行触发？
+        if (this.enabled) {
             uiLayoutManager.markLayoutDirty(this);
         }
     }

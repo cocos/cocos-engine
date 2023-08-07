@@ -287,10 +287,7 @@ export const widgetManager = cclegacy._widgetManager = {
     } : null,
 
     init (): void {
-        // move to uiSystem
-        // director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
-        // director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
-
+        // move event target to uiSystem
         View.instance.on('design-resolution-changed', this.onResized, this);
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);

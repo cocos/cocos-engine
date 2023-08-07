@@ -130,12 +130,7 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        // 应该在 manager destroy 的时候释放
-        const bufferAccessors = BufferAccessorManager.instance._bufferAccessors;
-        for (const accessor of bufferAccessors.values()) {
-            accessor.destroy();
-        }
-        bufferAccessors.clear();
+        BufferAccessorManager.instance.destroy();
 
         if (this._drawBatchPool) {
             this._drawBatchPool.destroy();
@@ -242,10 +237,7 @@ export class Batcher2D implements IBatcher {
                 this._meshDataArray[i].uploadBuffers();
             }
 
-            for (const accessor of BufferAccessorManager.instance._bufferAccessors.values()) {
-                accessor.uploadBuffers();
-                accessor.reset();
-            }
+            BufferAccessorManager.instance.upload();
 
             this._descriptorSetCache.update();
         }
@@ -262,17 +254,13 @@ export class Batcher2D implements IBatcher {
             this._drawBatchPool.free(batch);
         }
         // Reset buffer accessors
-        for (const accessor of BufferAccessorManager.instance._bufferAccessors.values()) {
-            accessor.reset();
-        }
+        BufferAccessorManager.instance.reset();
         const length = this._meshDataArray.length;
         for (let i = 0; i < length; i++) {
             this._meshDataArray[i].freeIAPool();
         }
         this._meshDataArray.length = 0;
-        BufferAccessorManager.instance._staticVBBuffer = null;
 
-        BufferAccessorManager.instance._currBID = -1;
         this._indexStart = 0;
         this._currHash = 0;
         this._currLayer = 0;
@@ -524,7 +512,7 @@ export class Batcher2D implements IBatcher {
 
     public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor): void {
         this.finishMergeBatches();
-        BufferAccessorManager.instance._staticVBBuffer = bufferAccessor;
+        BufferAccessorManager.instance.setVBBufferForce(bufferAccessor);
         this.currStaticRoot = staticComp;
     }
 
@@ -532,7 +520,7 @@ export class Batcher2D implements IBatcher {
         this.finishMergeBatches();
         this.currStaticRoot = null;
         // Clear linear buffer to switch to the correct internal accessor
-        BufferAccessorManager.instance._staticVBBuffer = null;
+        BufferAccessorManager.instance.setVBBufferForce(null);
         BufferAccessorManager.instance.switchBufferAccessor();
     }
 

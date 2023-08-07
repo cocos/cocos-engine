@@ -44,6 +44,7 @@ export class UISystem extends System {
     /**
      * @en The draw batch manager for 2D UI, for engine internal usage, user do not need to use this.
      * @zh 2D UI 渲染合批管理器，引擎内部使用，用户无需使用此接口
+     * @engineInternal
      */
     public get batcher2D (): Batcher2D {
         return this._batcher as Batcher2D;
@@ -51,8 +52,6 @@ export class UISystem extends System {
 
     public init (): void {
         if (!this._batcher) {
-            // TODO
-            // 能否直接创建原生对象？然后管理 // 未能成功创建原生对象 // 存在循环引用
             this._batcher = new Batcher2D(director.root!);
         }
         director.on(Director.EVENT_AFTER_SCENE_LAUNCH, this.afterSceneLaunch, this);
@@ -84,9 +83,8 @@ export class UISystem extends System {
     }
 
     public tick (): void {
-        uiLayoutManager.updateAllDirtyLayout(); // 更新所有 dirty 的 layout
-        // 可以分开更新了
-        uiRendererManager.updateAllDirtyRenderers(); // 更新所有 dirty 的 renderer
+        uiLayoutManager.updateAllDirtyLayout();
+        uiRendererManager.updateAllDirtyRenderers();
     }
 
     public render (): void {
@@ -102,9 +100,7 @@ export class UISystem extends System {
         }
     }
 
-    // 触发阶段
     private beforeDraw (): void {
-        // 只支持了 once
         for (let i = 0, length = this._extraPartBeforeUpdate.length; i < length; i++) {
             const info = this._extraPartBeforeUpdate[i];
             const callback = info.callback;
@@ -114,7 +110,6 @@ export class UISystem extends System {
         this._extraPartBeforeUpdate.length = 0;
     }
 
-    // only one time
     public addCallbackToBeforeUpdate (callback: AnyFunction, target: any): void {
         this._extraPartBeforeUpdate.push(new FunctionCallbackInfo(callback, target));
     }

@@ -975,7 +975,6 @@ export class ScrollView extends ViewGroup {
         // So this event could make sure the content is on the correct position after loading.
         if (this._content) {
             uiSystem.addCallbackToBeforeUpdate(this._adjustContentOutOfBoundary, this);
-            // director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
         }
     }
 
@@ -1287,7 +1286,6 @@ export class ScrollView extends ViewGroup {
             out.set(
                 totalMovement.x * (1 - this.brake) / totalTime,
                 totalMovement.y * (1 - this.brake) / totalTime,
-
                 totalMovement.z,
             );
         }

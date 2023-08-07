@@ -40,8 +40,8 @@ namespace scene {
 class Camera;
 }
 class Root;
-using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>; // accessor buffers
-using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>; // accessor Map
+using UIMeshBufferArray = ccstd::vector<UIMeshBuffer*>;
+using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 class Batcher2d final {
 public:

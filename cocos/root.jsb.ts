@@ -54,14 +54,6 @@ export interface IRootInfo {
 
 const rootProto: any = Root.prototype;
 
-Object.defineProperty(rootProto, 'batcher2D', {
-    configurable: true,
-    enumerable: true,
-    get() {
-        return this.cclegacy.internal.uiSystem.batcher2D;// 返回的应该是uiSystem里的对象了// create 里进行了绑定
-    },
-});
-
 Object.defineProperty(rootProto, 'dataPoolManager', {
     configurable: true,
     enumerable: true,

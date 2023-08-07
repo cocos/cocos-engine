@@ -134,7 +134,7 @@ export class UIRenderer extends Renderer {
      * @zh 后置渲染数据组装器
      * @internal
      */
-    public static PostAssembler: IAssemblerManager | null = null; // Todo: remove it
+    public static PostAssembler: IAssemblerManager | null = null; // Todo: Remove it
 
     constructor () {
         super();
@@ -257,7 +257,7 @@ export class UIRenderer extends Renderer {
     protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
-    protected _postAssembler: IAssembler | null = null; // Todo: remove it
+    protected _postAssembler: IAssembler | null = null; // Todo: Remove it
 
     // RenderEntity
     //protected renderData: RenderData | null = null;
@@ -436,7 +436,7 @@ export class UIRenderer extends Renderer {
     /**
      * @engineInternal
      */
-    public _updateLayout (): void { } // 重载思路，或者也可以用回调思路，事件交由manger处理
+    public _updateLayout (): void { }
 
     protected _render (render: IBatcher): void {
         // Implemented by subclasses

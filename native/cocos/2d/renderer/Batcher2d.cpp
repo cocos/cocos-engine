@@ -536,7 +536,6 @@ void Batcher2d::reset() {
     // stencilManager
 }
 
-// 会不会出现重复销毁的问题
 void Batcher2d::destroy() {
     _drawBatchPool.destroy();
 

@@ -22,15 +22,12 @@
  THE SOFTWARE.
 */
 
-import { DEBUG } from 'internal:constants';
-import { assert } from '../../core';
 import { UIRenderer } from './ui-renderer';
 
-export class UILayoutManager { // 可能能够合并
-    private _dirtyUIs: (UIRenderer)[] = []; // 可能只要 uiTrans 就行
+export class UILayoutManager {
+    private _dirtyUIs: (UIRenderer)[] = [];
 
     public markLayoutDirty (uiRenderer: UIRenderer): void {
-        // 可由上层管理flag，否则就需要在 UIRenderer 中增加版本号
         this._dirtyUIs.push(uiRenderer);
     }
 
@@ -38,9 +35,6 @@ export class UILayoutManager { // 可能能够合并
         const length = this._dirtyUIs.length;
         const dirtyRenderers = this._dirtyUIs;
         for (let i = 0; i < length; i++) {
-            if (DEBUG) {
-                assert(dirtyRenderers[i]._internalLayoutId !== -1);
-            }
             dirtyRenderers[i]._updateLayout();
         }
         this._dirtyUIs.length = 0;

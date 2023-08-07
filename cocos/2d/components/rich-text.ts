@@ -1329,7 +1329,7 @@ export class RichText extends Component {
         label.useSystemFont = this._isSystemFontUsed;
         label.lineHeight = this._lineHeight;
 
-        label.updateRenderData(true);// 此处的强制更新是为了这个步骤之后马上要使用的宽度
+        label.updateRenderData(true);
     }
 
     protected _applyLayer (): void {

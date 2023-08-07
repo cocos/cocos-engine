@@ -99,7 +99,6 @@ export const bmfontUtils = {
         style.color.set(comp.color); // render only
     },
 
-    // 进行统一调用
     updateLayoutData (comp: Label): void {
         if (comp.layoutDirty) {
             const trans = comp.node._uiProps.uiTransformComp!;
@@ -132,7 +131,6 @@ export const bmfontUtils = {
         }
 
         if (comp.renderData.vertDirty) {
-            // this.updateLayoutData(comp);// 需要注意的是要防止在两个函数中间被修改 // 但是这里的修改应该是不会影响到排版的
             const renderData = comp.renderData;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
