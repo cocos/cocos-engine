@@ -215,6 +215,20 @@ void SkyboxInfo::setMaterialProperty(const ccstd::string &name, const MaterialPr
     }
 }
 
+void SkyboxInfo::updateEnvMap(TextureCube *val) {
+    if (!val) {
+        setApplyDiffuseMap(false);
+        setUseIBL(false);
+        setEnvLightingType(EnvironmentLightingType::HEMISPHERE_DIFFUSE);
+    }
+    if (_resource) {
+        _resource->setEnvMaps(_envmapHDR, _envmapLDR);
+        _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
+        _resource->setEnvmap(val);
+    }
+}
+
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
     Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(_useHDR);
