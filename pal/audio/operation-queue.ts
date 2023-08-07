@@ -26,6 +26,7 @@ import { EventTarget } from '../../cocos/core';
 
 type OperationMethod = (...args: any[]) => Promise<void>;
 export interface OperationInfo {
+    op: string;
     id: number;
     func: OperationMethod;
     args: any[],
@@ -35,6 +36,38 @@ export interface OperationInfo {
 export interface OperationQueueable {
     _operationQueue: OperationInfo[];
     _eventTarget: EventTarget;
+}
+
+function removeUnneededCalls (instance: OperationQueueable): void {
+    const size = instance._operationQueue.length;
+    const tmpQueue = instance._operationQueue.slice();
+    const reserveOps: OperationInfo[] = [];
+    let seekSearched = false;
+    for (let i = size - 1; i >= 0; i--) {
+        const opInfo = tmpQueue[i];
+        if (opInfo.op === 'stop') {
+            reserveOps.push(opInfo);
+            break;
+        } else if (opInfo.op === 'seek') {
+            if (!seekSearched) {
+                reserveOps.push(opInfo);
+                seekSearched = true;
+            }
+        } else if (seekSearched) {
+            reserveOps.push(opInfo);
+            break;
+        } else if (reserveOps.length === 0) {
+            reserveOps.push(opInfo);
+        }
+    }
+    reserveOps.forEach((opInfo): void => {
+        const index = instance._operationQueue.indexOf(opInfo);
+        instance._operationQueue.splice(index, 1);
+    });
+    instance._operationQueue.forEach((opInfo): void => {
+        instance._eventTarget.emit(opInfo.id.toString());
+    });
+    instance._operationQueue = reserveOps.reverse();
 }
 
 let operationId = 0;
@@ -47,6 +80,7 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
         opInfo.invoking = false;
         target._operationQueue.shift();
         target._eventTarget.emit(opInfo.id.toString());
+        removeUnneededCalls(target);
         const nextOpInfo: OperationInfo = target._operationQueue[0];
         nextOpInfo && _tryCallingRecursively(target, nextOpInfo);
     }).catch((e) => {});
@@ -72,6 +106,7 @@ export function enqueueOperation<T extends OperationQueueable> (target: T, prope
             const instance = this as OperationQueueable;
             // enqueue operation
             instance._operationQueue.push({
+                op: propertyKey,
                 id,
                 func: originalOperation,
                 args,

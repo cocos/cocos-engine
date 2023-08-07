@@ -189,7 +189,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
             });
-            // NOTE: innewAudioContext might not stop the audio playing, have to call it explicitly.
+            // NOTE: innerAudioContext might not stop the audio playing, have to call it explicitly.
             this._innerAudioContext.stop();
             this._innerAudioContext.destroy();
             // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'
@@ -318,12 +318,15 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
                 this._seeking = true;
+                this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
-            } else if (this._cacheTime !== time) { // Skip the invalid seek
-                this._cacheTime = time;
-                this._needSeek = true;
+            } else {
+                if (this._cacheTime !== time) { // Skip the invalid seek
+                    this._cacheTime = time;
+                    this._needSeek = true;
+                }
+                resolve();
             }
-            resolve();
         });
     }
 
@@ -350,6 +353,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     stop (): Promise<void> {
         return new Promise((resolve) => {
+            if (AudioState.INIT === this._state) {
+                this._resetSeekCache();
+                resolve();
+                return;
+            }
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();
         });
