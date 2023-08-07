@@ -27,7 +27,7 @@ import { Color, warn } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
 
-const _tmp_vec2 = { x: 0, y: 0 };
+let _tmp_vec2 = { x: 0, y: 0 };
 const _tmp_color = new Color();
 
 const GREEN_COLOR = Color.GREEN;
@@ -60,21 +60,16 @@ export class PhysicsDebugDraw {// extends B2.Draw {
 
     static _drawer: Graphics | null = null;
 
-    // static _xf = new B2.Transform();
-    // static _dxf = new B2.Transform();
-
-    // constructor (drawer: Graphics) {
-    //     //super();
-    //     PhysicsDebugDraw._drawer = drawer;
-    // }
+    static _xf = { p: { x: 0, y: 0 },  q: { s: 0, c: 1 } };//new B2.Transform();
+    static _dxf = { p: { x: 0, y: 0 },  q: { s: 0, c: 1 } };//new B2.Transform();
 
     static _DrawPolygon (vertices: number, vertexCount: number): void {
         const drawer = PhysicsDebugDraw._drawer!;
 
         for (let i = 0; i < vertexCount; i++) {
-            //B2.Transform.MulXV(PhysicsDebugDraw._xf, vertices[i], _tmp_vec2);
             _tmp_vec2.x = B2.GetFloat32(vertices, i * 2 + 0);
             _tmp_vec2.y = B2.GetFloat32(vertices, i * 2 + 1);
+            _tmp_vec2 = B2.TransformVector2(PhysicsDebugDraw._xf, _tmp_vec2);
             const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
             const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
             if (i === 0) drawer.moveTo(x, y);
@@ -100,7 +95,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
     }
 
     static _DrawCircle (center: B2.Vec2, radius: number): void {
-        const p = { x: 0, y: 0 };//PhysicsDebugDraw._xf.p;
+        const p = PhysicsDebugDraw._xf.p;
         PhysicsDebugDraw._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO,
             (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
@@ -128,41 +123,38 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         }
         PhysicsDebugDraw._applyStrokeColor(color);
 
-        // B2.Transform.MulXV(PhysicsDebugDraw._xf, p1, _tmp_vec2);
+        _tmp_vec2 = B2.TransformVector2(PhysicsDebugDraw._xf, p1);
         drawer.moveTo(p1.x * PHYSICS_2D_PTM_RATIO, p1.y * PHYSICS_2D_PTM_RATIO);
-        // B2.Transform.MulXV(PhysicsDebugDraw._xf, p2, _tmp_vec2);
         drawer.lineTo(p2.x * PHYSICS_2D_PTM_RATIO, p2.y * PHYSICS_2D_PTM_RATIO);
         drawer.stroke();
     }
 
     static DrawTransform (xf: B2.Transform): void {
-        warn('Not support DrawTransform');
+        const drawer = PhysicsDebugDraw._drawer!;
 
-        // const drawer = PhysicsDebugDraw._drawer!;
+        drawer.strokeColor = RED_COLOR;
 
-        // drawer.strokeColor = RED_COLOR;
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
-        // _tmp_vec2.x = _tmp_vec2.y = 0;
-        // B2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
-        // drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        _tmp_vec2.x = 1; _tmp_vec2.y = 0;
+        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
-        // _tmp_vec2.x = 1; _tmp_vec2.y = 0;
-        // B2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
-        // drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        drawer.stroke();
 
-        // drawer.stroke();
+        drawer.strokeColor = GREEN_COLOR;
 
-        // drawer.strokeColor = GREEN_COLOR;
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
-        // _tmp_vec2.x = _tmp_vec2.y = 0;
-        // B2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
-        // drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        _tmp_vec2.x = 0; _tmp_vec2.y = 1;
+        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
-        // _tmp_vec2.x = 0; _tmp_vec2.y = 1;
-        // B2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
-        // drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
-
-        // drawer.stroke();
+        drawer.stroke();
     }
 
     static DrawPoint (center, size, color): void {
@@ -187,5 +179,13 @@ export class PhysicsDebugDraw {// extends B2.Draw {
             color.b * 255,
             150,
         );
+    }
+
+    PushTransform (xf): void {
+        PhysicsDebugDraw._xf = xf;
+    }
+
+    PopTransform (): void {
+        PhysicsDebugDraw._xf = PhysicsDebugDraw._dxf;
     }
 }
