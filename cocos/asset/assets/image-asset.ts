@@ -524,8 +524,16 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @en Image data source(include: HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView).
-     * @zh 图像的来源（包括：HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap | ArrayBufferView）。
+     * @en Return image data.
+     *     If using a webgl backend:
+     *        - Return source if source is HTMLCanvasElement | HTMLImageElement | ImageBitmap.
+     *        - If source is IMemoryImageSource then return raw image data.
+     *     Other rendering backends that return raw image data.
+     * @zh 返回图像数据。
+     *     如果是webgl的渲染后端：
+     *        - 如果source是HTMLCanvasElement | HTMLImageElement | ImageBitmap则直接返回source.
+     *        - 如果source是IMemoryImageSource则返回原始图像数据.
+     *     其他的渲染后端，返回的都是原始图像数据。
      */
     get data (): ImageSource | RawDataType | null {
         if (deviceManager.gfxDevice.gfxAPI === API.WEBGL || deviceManager.gfxDevice.gfxAPI === API.WEBGL2) {
