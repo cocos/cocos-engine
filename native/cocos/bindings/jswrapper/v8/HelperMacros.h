@@ -70,6 +70,11 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
     return reinterpret_cast<T *>(s.nativeThisObject());
 }
 
+template <typename T, typename BASE, typename STATE>
+constexpr inline T *SE_THIS_OBJECT_VIRTUAL(STATE &s) { // NOLINT(readability-identifier-naming)
+    return dynamic_cast<T *>(reinterpret_cast<BASE*>(s.nativeThisObject()));
+}
+
 template <typename T>
 constexpr typename std::enable_if<std::is_enum<T>::value, char *>::type SE_UNDERLYING_TYPE_NAME() { // NOLINT(readability-identifier-naming)
     return typeid(std::underlying_type_t<T>).name();
