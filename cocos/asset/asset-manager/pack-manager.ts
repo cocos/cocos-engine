@@ -24,7 +24,7 @@
 
 import { ImageAsset } from '../assets/image-asset';
 import { Texture2D } from '../assets/texture-2d';
-import { packCustomObjData, unpackJSONs } from '../../serialization/deserialize';
+import { isGeneralPurposePack, packCustomObjData, unpackJSONs } from '../../serialization/deserialize';
 import { assertIsTrue, error, errorID, js } from '../../core';
 import Cache from './cache';
 import downloader from './downloader';
@@ -56,6 +56,7 @@ export class PackManager {
     private _loading = new Cache<IUnpackRequest[]>();
     private _unpackers: Record<string, Unpacker> = {
         '.json': this.unpackJson,
+        '.ccon': this.unpackJson,
     };
 
     /**
@@ -87,14 +88,14 @@ export class PackManager {
         const out: Record<string, any> = js.createMap(true);
         let err: Error | null = null;
 
-        if (Array.isArray(json)) {
-            json = unpackJSONs(json as unknown as Parameters<typeof unpackJSONs>[0]);
+        if (isGeneralPurposePack(json)) {
+            const unpacked = unpackJSONs(json);
 
-            if (json.length !== pack.length) {
+            if (unpacked.length !== pack.length) {
                 errorID(4915);
             }
             for (let i = 0; i < pack.length; i++) {
-                out[`${pack[i]}@import`] = json[i];
+                out[`${pack[i]}@import`] = unpacked[i];
             }
         } else {
             const textureType = js.getClassId(Texture2D);

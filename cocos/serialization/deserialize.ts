@@ -28,7 +28,9 @@ import { cclegacy, errorID, getError, js, assertIsTrue } from '../core';
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../asset/assets/asset';
 
+import { CCON } from './ccon';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
+import { decodeTypedArray, TypedArrayData } from './compiled/typed-array';
 
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
@@ -124,6 +126,12 @@ const enum DataTypeID {
     // Common TypedArray for legacyCC.Node only. Never be null.
     TRS,
 
+    // From the point of view of simplified implementation,
+    // it is not supported to deserialize TypedArray that is initialized to null in the constructor.
+    // Also, the length of TypedArray cannot be changed.
+    // Developers will rarely manually assign a null.
+    TypedArray,
+
     // ValueType without default value (in arrays, dictionaries).
     // Developers will rarely manually assign a null.
     ValueType,
@@ -158,6 +166,7 @@ interface DataTypes {
     [DataTypeID.ValueTypeCreated]: IValueTypeData;
     [DataTypeID.AssetRefByInnerObj]: number;
     [DataTypeID.TRS]: ITRSData;
+    [DataTypeID.TypedArray]: TypedArrayData;
     [DataTypeID.ValueType]: IValueTypeData;
     [DataTypeID.Array_Class]: DataTypes[DataTypeID.Class][];
     [DataTypeID.CustomizedClass]: ICustomObjectData;
@@ -297,6 +306,7 @@ export declare namespace deserialize.Internal {
     export type ITRSData_ = ITRSData;
     export type IDictData_ = IDictData;
     export type IArrayData_ = IArrayData;
+    export type ITypedArrayData_ = TypedArrayData;
 }
 
 const enum Refs {
@@ -339,6 +349,9 @@ const enum File {
     DependUuidIndices,
 
     ARRAY_LENGTH,
+
+    RUNTIME_BEGIN = ARRAY_LENGTH,
+    BinaryStorage_runtime = RUNTIME_BEGIN,
 }
 
 // Main file structure
@@ -379,6 +392,11 @@ type IFileData = MapEnum<{
 
 type IRuntimeFileDataMap = Omit<IFileDataMap, File.Version> & {
     [File.Context]: FileInfo & DeserializeContext;
+
+    /**
+     * The binary storage attached to this document.
+     */
+    [File.BinaryStorage_runtime]: Uint8Array | undefined;
 }
 
 /**
@@ -386,7 +404,7 @@ type IRuntimeFileDataMap = Omit<IFileDataMap, File.Version> & {
  */
 export type IRuntimeFileData = MapEnum<{
     [x in keyof IRuntimeFileDataMap as `${x}`]: IRuntimeFileDataMap[x];
-}, 11 /* Currently we should manually specify the enumerators count. */>;
+}, 12 /* Currently we should manually specify the enumerators count. */>;
 
 type IDeserializeInput = IFileData | IRuntimeFileData;
 
@@ -394,7 +412,14 @@ type ISharedData = TupleSlice<IFileData, 1, 5>;
 
 type IPackedFileSection = [
     ...document: TupleSlice<IFileData, 5>,
+
+    /**
+     * This section's binary storage span into packed binary buffer.
+     */
+    binaryStorage: [byteOffset: number, byteLength: number] | Empty,
 ];
+
+const PACKED_FILE_SECTION_BINARY_STORAGE_INDEX = 6;
 
 const PACKED_SECTIONS = File.Instances;
 
@@ -423,6 +448,8 @@ type ClassFinder = deserialize.ClassFinder;
 
 interface DeserializeContext extends ICustomHandler {
     _version?: number;
+    attachedBinary?: Uint8Array;
+    attachedBinaryDataViewCache?: DataView;
 }
 
 interface IOptions extends Partial<ICustomHandler> {
@@ -711,6 +738,10 @@ function parseArray (data: IRuntimeFileData, owner: any, key: string, value: IAr
     owner[key] = array;
 }
 
+function parseTypedArray (data: IRuntimeFileData, owner: any, key: string, value: TypedArrayData) {
+    owner[key] = decodeTypedArray(data, value);
+}
+
 const ASSIGNMENTS: {
     [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -728,6 +759,7 @@ ASSIGNMENTS[DataTypeID.Array_Class] = genArrayParser(parseClass);
 ASSIGNMENTS[DataTypeID.CustomizedClass] = parseCustomClass;
 ASSIGNMENTS[DataTypeID.Dict] = parseDict;
 ASSIGNMENTS[DataTypeID.Array] = parseArray;
+ASSIGNMENTS[DataTypeID.TypedArray] = parseTypedArray;
 
 function parseInstances (data: IRuntimeFileData): RootInstanceIndex {
     const instances = data[File.Instances];
@@ -887,6 +919,12 @@ function parseResult (data: IRuntimeFileData): void {
 }
 
 export function isCompiledJson (json: unknown): boolean {
+    if (json instanceof CCON) {
+        // This is a very verbose check.
+        // Make sure we won't ran in infinite loop due to data error.
+        assertIsTrue(!(json.document instanceof CCON));
+        return isCompiledJson(json.document);
+    }
     if (Array.isArray(json)) {
         const version = json[0];
         // array[0] will not be a number in the editor version
@@ -898,6 +936,7 @@ export function isCompiledJson (json: unknown): boolean {
 
 function initializeDeserializationContext(
     data: IDeserializeInput,
+    attachedBinary: Uint8Array | undefined,
     details: Details,
     options?: IOptions & DeserializeDynamicOptions,
 ) {
@@ -918,6 +957,7 @@ function initializeDeserializationContext(
     const context = options as IRuntimeFileData[File.Context];
     context._version = version;
     context.result = details;
+    context.attachedBinary = attachedBinary;
     data[File.Context] = context;
 
     if (!preprocessed) {
@@ -935,7 +975,7 @@ function initializeDeserializationContext(
  * @param options Deserialization Options.
  * @return The original object.
  */
-export function deserialize (data: IDeserializeInput | string | any, details?: Details, options?: IOptions & DeserializeDynamicOptions): unknown {
+export function deserialize (data: IDeserializeInput | string | CCON | any, details?: Details, options?: IOptions & DeserializeDynamicOptions): unknown {
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
@@ -953,13 +993,30 @@ export function deserialize (data: IDeserializeInput | string | any, details?: D
     if (!FORCE_COMPILED && !isCompiledJson(data)) {
         res = deserializeDynamic(data, details, options);
     } else {
+        let input: IDeserializeInput;
+        let binary: Uint8Array | undefined = undefined;
+        if (data instanceof CCON) {
+            input = data.document as IDeserializeInput;
+            // Currently, a ccon should have only one chunk at most.
+            assertIsTrue(data.chunks.length === 1);
+            binary = data.chunks[0];
+        } else {
+            input = data as IDeserializeInput;
+            const binaryStorage = input[File.BinaryStorage_runtime];
+            if (ArrayBuffer.isView(binaryStorage)) {
+                binary = binaryStorage;
+            }
+        }
+        
         initializeDeserializationContext(
-            data,
+            input,
+            binary,
             details,
             options,
         );
 
-        const runtimeData = data as IRuntimeFileData;
+        const runtimeData = input as IRuntimeFileData;
+        const context = runtimeData[File.Context];
 
         cclegacy.game._isCloning = true;
         const instances = runtimeData[File.Instances];
@@ -973,6 +1030,12 @@ export function deserialize (data: IDeserializeInput | string | any, details?: D
         parseResult(runtimeData);
 
         res = instances[rootIndex];
+
+        // Clean up our injections.
+        {
+            context.attachedBinary = undefined;
+            context.attachedBinaryDataViewCache = undefined;
+        }
     }
 
     if (isBorrowedDetails) {
@@ -1005,8 +1068,33 @@ class FileInfo {
     }
 }
 
+export type GeneralPurposePack = IPackedFileData | CCON;
+
+/**
+ * Decides if the pack is a general-purpose pack.
+ * If true, it should be unpacked through `unpackJSONs`.
+ * @param data Pack data.
+ * @returns Unpacked contents, that's, a list of serialized objects.
+ */
+export function isGeneralPurposePack(data: unknown): data is GeneralPurposePack {
+    return Array.isArray(data) || data instanceof CCON;
+}
+
 export function unpackJSONs (
-    data: IPackedFileData, classFinder?: ClassFinder, reportMissingClass?: deserialize.ReportMissingClass): IDeserializeInput[] {
+    input: GeneralPurposePack,
+    classFinder?: ClassFinder,
+    reportMissingClass?: deserialize.ReportMissingClass,
+): IDeserializeInput[] {
+    let data: IPackedFileData;
+    let binaryChunk: Uint8Array | undefined = undefined;
+    if (input instanceof CCON) {
+        data = input.document as IPackedFileData;
+        assertIsTrue(input.chunks.length <= 1);
+        binaryChunk = input.chunks[0];
+    } else {
+        data = input;
+    }
+
     if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(getError(5304, data[File.Version]));
     }
@@ -1022,7 +1110,22 @@ export function unpackJSONs (
     const sections = data[PACKED_SECTIONS];
     for (let i = 0; i < sections.length; ++i) {
         const section = sections[i];
+        const binaryStorageSpan = section[PACKED_FILE_SECTION_BINARY_STORAGE_INDEX];
         (section as any[]).unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
+        if (binaryStorageSpan !== EMPTY_PLACEHOLDER) {
+            if (!binaryChunk) {
+                // Bad data: there's section requiring binary storage but the incoming data didn't provide one. 
+                throw new Error(`Bad data: there's section requiring binary storage but the incoming data didn't provide one`);
+            }
+
+            const [byteOffset, byteLength] = binaryStorageSpan;
+            const span = new Uint8Array(
+                binaryChunk.buffer,
+                binaryChunk.byteOffset + byteOffset,
+                byteLength,
+            );
+            (section as unknown as IRuntimeFileData)[File.BinaryStorage_runtime] = span;
+        }
     }
     return sections as unknown as IDeserializeInput[];
 }
@@ -1134,6 +1237,7 @@ if (TEST) {
             CustomizedClass: DataTypeID.CustomizedClass,
             Dict: DataTypeID.Dict,
             Array: DataTypeID.Array,
+            TypedArray: DataTypeID.TypedArray,
         },
         unpackJSONs,
     };
