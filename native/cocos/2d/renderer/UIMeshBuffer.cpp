@@ -68,11 +68,8 @@ void UIMeshBuffer::resetIA() {
 void UIMeshBuffer::destroy() {
     reset();
     _attributes.clear();
-    for (auto* vb : _iaInfo.vertexBuffers) {
-        delete vb;
-    }
-    _iaInfo.vertexBuffers.clear();
-    CC_SAFE_DELETE(_iaInfo.indexBuffer);
+    _vb = nullptr;
+    _ib = nullptr;
     if (_needDeleteVData) {
         delete _vData;
         delete _iData;
@@ -130,23 +127,24 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
         uint32_t vbStride = _vertexFormatBytes;
         uint32_t ibStride = sizeof(uint16_t);
 
-        auto* vertexBuffer = device->createBuffer({
+        gfx::InputAssemblerInfo iaInfo = {};
+        _vb = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
-        auto* indexBuffer = device->createBuffer({
+        _ib = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
 
-        _iaInfo.attributes = _attributes;
-        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo.indexBuffer = indexBuffer;
-        _ia = device->createInputAssembler(_iaInfo);
+        iaInfo.attributes = _attributes;
+        iaInfo.vertexBuffers.emplace_back(_vb);
+        iaInfo.indexBuffer = _ib;
+        _ia = device->createInputAssembler(iaInfo);
     }
 
     return _ia;

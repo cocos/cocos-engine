@@ -28,6 +28,7 @@
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXInputAssembler.h"
 #include "renderer/gfx-base/GFXDef-common.h"
+#include "renderer/gfx-base/GFXBuffer.h"
 
 namespace cc {
 
@@ -89,7 +90,8 @@ private:
 
     ccstd::vector<gfx::Attribute> _attributes;
     IntrusivePtr<gfx::InputAssembler> _ia;
-    gfx::InputAssemblerInfo _iaInfo;
+    IntrusivePtr<gfx::Buffer> _vb;
+    IntrusivePtr<gfx::Buffer> _ib;
 
     bool _dirty{false};
     bool _needDeleteVData{false};

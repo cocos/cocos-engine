@@ -294,5 +294,7 @@ private:
 
     // ia
     IntrusivePtr<gfx::InputAssembler> _ia;
+    IntrusivePtr<gfx::Buffer> _vb;
+    IntrusivePtr<gfx::Buffer> _ib;
 };
 } // namespace cc

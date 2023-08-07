@@ -72,6 +72,8 @@ void RenderDrawInfo::resetMeshIA() { // NOLINT(readability-make-member-function-
 }
 
 void RenderDrawInfo::destroy() {
+    _vb = nullptr;
+    _ib = nullptr;
     _ia = nullptr;
     if (_localDSBF) {
         CC_SAFE_DELETE(_localDSBF->ds);
@@ -85,13 +87,13 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
         gfx::InputAssemblerInfo iaInfo = {};
         uint32_t vbStride = 9 * sizeof(float); // magic Number
         uint32_t ibStride = sizeof(uint16_t);
-        auto* vertexBuffer = device->createBuffer({
+        _vb = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
-        auto* indexBuffer = device->createBuffer({
+        _ib = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
@@ -99,8 +101,8 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
         });
 
         iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
-        iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        iaInfo.indexBuffer = indexBuffer;
+        iaInfo.vertexBuffers.emplace_back(_vb);
+        iaInfo.indexBuffer = _ib;
 
         _ia = device->createInputAssembler(iaInfo);
     }
