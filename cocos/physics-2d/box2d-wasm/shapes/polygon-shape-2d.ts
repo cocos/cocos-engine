@@ -24,7 +24,6 @@
 
 import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
-import * as PolygonSeparator from '../../framework/utils/polygon-separator';
 import * as PolygonPartition from '../../framework/utils/polygon-partition';
 import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
@@ -60,38 +59,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
             points.length -= 1;
         }
 
-        //const polys = PolygonPartition.ConvexPartition(points);
-        const polys: IVec2Like[][] = [];
-        if (points) {
-            const verticesVec = new B2.Vec2Vector();
-            const verticesCountVec = new B2.Int32Vector();
-            // put points into vertices
-            for (let i = 0; i < points.length; i++) {
-                const p = points[i];
-                const v = { x: p.x, y: p.y };
-                verticesVec.push_back(v);
-            }
-            verticesCountVec.push_back(points.length);
-
-            const resultVerticesVec = new B2.Vec2Vector();
-            const resultVerticesCountVec = new B2.Int32Vector();
-
-            B2.ConvexPartition(verticesVec, verticesCountVec, resultVerticesVec, resultVerticesCountVec);
-
-            //put resultVerticesVec and resultVerticesCountVec into polys
-            let offset = 0;
-            for (let i = 0; i < resultVerticesCountVec.size(); i++) {
-                const verticesCount = resultVerticesCountVec.get(i);
-                const vertices: IVec2Like[] = [];
-                for (let j = 0; j < verticesCount; j++) {
-                    const v = resultVerticesVec.get(offset + j);
-                    vertices.push({ x: v.x, y: v.y });
-                }
-                polys.push(vertices);
-                offset += verticesCount;
-            }
-        }
-
+        const polys = PolygonPartition.ConvexPartition(points);
         if (!polys) {
             console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
             return shapes;
@@ -120,17 +88,19 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
                     firstVertice = v;
                 }
 
-                //todo
-                // if (vertices.length === B2.maxPolygonVertices) {
-                //     shape!.Set(vertices, vertices.length);
-                //     shapes.push(shape!);
+                if (vertices.size() === B2.maxPolygonVertices) {
+                    shape!.Set(vertices, vertices.size());
+                    shapes.push(shape!);
 
-                //     shape = null;
+                    shape = null;
 
-                //     if (j < l - 1) {
-                //         vertices = [firstVertice, vertices[vertices.length - 1]];
-                //     }
-                // }
+                    if (j < l - 1) {
+                        const temp = vertices.get(vertices.size() - 1);
+                        vertices.resize(0, { x: 0, y: 0 });//clear
+                        vertices.push_back(firstVertice);
+                        vertices.push_back(temp);
+                    }
+                }
             }
 
             if (shape) {
