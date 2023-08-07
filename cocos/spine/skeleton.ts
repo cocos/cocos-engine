@@ -631,11 +631,11 @@ export class Skeleton extends UIRenderer {
     /**
      * @internal Since v3.7.2, this is an engine private interface.
      */
-    public onRestore () {
+    public onRestore (): void {
         this.updateMaterial();
         this.markForUpdateRenderData();
     }
-    
+
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
