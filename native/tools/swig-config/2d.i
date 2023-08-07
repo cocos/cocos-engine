@@ -105,6 +105,7 @@
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 
+%rename(Batcher2D) cc::Batcher2d;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -188,6 +189,8 @@
 
 %import "2d/renderer/StencilManager.h"
 %import "math/Color.h"
+
+%import "core/assets/TextureBase.h"
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
