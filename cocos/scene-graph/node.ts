@@ -1810,7 +1810,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 let isNestedPrefab = false;
                 let parent = this.getParent();
                 while (parent) {
-                    const nestedRoots = parent?._prefab?.nestedPrefabInstanceRoots;
+                    const nestedRoots = parent._prefab?.nestedPrefabInstanceRoots;
                     if (nestedRoots && nestedRoots.length > 0) {
                         // if this node is not in nestedPrefabInstanceRoots,it means this node is not the root of prefab,so it should be discarded.
                         isNestedPrefab = !nestedRoots.some((root) => root === this);
