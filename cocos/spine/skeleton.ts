@@ -626,9 +626,16 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
-    public onRestore (): void {
-
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
+    public onRestore () {
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
+    
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
