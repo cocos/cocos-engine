@@ -196,7 +196,6 @@ export class ImageAsset extends Asset {
                 outView.setUint32(
                     COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
                     file.byteLength,
-
                     true,
                 ); //add file data size
 
