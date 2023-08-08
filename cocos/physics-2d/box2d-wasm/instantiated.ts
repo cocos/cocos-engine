@@ -32,40 +32,62 @@ import { getError, error, sys, debug } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const B2 = {} as any;
-const B2_IMPL_PTR = {};
 
-export function addImplReference (B2Object: any, impl: any): void {
-    if (!impl) return;
-    if (impl.$$) { B2_IMPL_PTR[impl.$$.ptr] = B2Object; }
-}
-
-export function removeImplReference (B2Object: any, impl: any): void {
-    if (!impl) return;
-    if (impl.$$) {
-        B2_IMPL_PTR[impl.$$.ptr] = null;
-        delete B2_IMPL_PTR[impl.$$.ptr];
-    }
-}
-
-export function getB2ObjectFromImpl<T> (impl: any): T {
+export function getImplPtr (wasmObject: any): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return B2_IMPL_PTR[impl.$$.ptr];
+    return (wasmObject).$$.ptr;
 }
 
-export function addImplPtrReference (B2Object: any, implPtr: number): void {
-    if (implPtr) { B2_IMPL_PTR[implPtr] = B2Object; }
+/**
+* mapping wasm-object-ptr to ts-object
+*  B2.Fixture pointer -->B2Shape2D
+*  B2.Body pointer --> B2RigidBody2D
+*  B2.Contact pointer --> PhysicsContact
+*  B2.Joint pointer --> B2Joint
+*  ...
+*/
+const WASM_OBJECT_PTR_2_TS_OBJECT = {};
+export function addImplPtrReference (TSObject: any, implPtr: number): void {
+    if (implPtr) { WASM_OBJECT_PTR_2_TS_OBJECT[implPtr] = TSObject; }
 }
-
-export function removeImplPtrReference (B2Object: any, implPtr: number): void {
+export function removeImplPtrReference (implPtr: number): void {
     if (implPtr) {
-        B2_IMPL_PTR[implPtr] = null;
-        delete B2_IMPL_PTR[implPtr];
+        WASM_OBJECT_PTR_2_TS_OBJECT[implPtr] = null;
+        delete WASM_OBJECT_PTR_2_TS_OBJECT[implPtr];
+    }
+}
+export function getTSObjectFromWASMObjectPtr<T> (implPtr: number): T {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return WASM_OBJECT_PTR_2_TS_OBJECT[implPtr];
+}
+export function getTSObjectFromWASMObject<T> (impl: any): T {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return WASM_OBJECT_PTR_2_TS_OBJECT[getImplPtr(impl)];
+}
+
+/**
+* mapping wasm-object-ptr to wasm-object
+*  B2.Fixture pointer -->B2.Fixture
+*  B2.Body pointer --> B2.Body
+*  B2.Contact pointer --> B2.Contact
+*  B2.Joint pointer --> B2.Joint
+*  ...
+*/
+const WASM_OBJECT_PTR_2_WASM_OBJECT = {};
+export function addImplPtrReferenceWASM (WASMObject: any, implPtr: number): void {
+    if (implPtr) { WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr] = WASMObject; }
+}
+
+export function removeImplPtrReferenceWASM (implPtr: number): void {
+    if (implPtr) {
+        WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr] = null;
+        delete WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
     }
 }
 
-export function getB2ObjectFromImplPtr<T> (implPtr: number): T {
+export function getWASMObjectFromWASMObjectPtr<T> (implPtr: number): T {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return B2_IMPL_PTR[implPtr];
+    return WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +105,6 @@ function initWasm (wasmUrl): Promise<void> {
         }).then((Instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d wasm lib loaded.');
             Object.assign(B2, Instance);
-            B2.B2_IMPL_PTR = B2_IMPL_PTR;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
@@ -93,7 +114,6 @@ function initAsm (): Promise<void> {
         return asmFactory().then((instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d asm lib loaded.');
             Object.assign(B2, instance);
-            B2.B2_IMPL_PTR = B2_IMPL_PTR;
         });
     } else {
         return new Promise<void>((resolve, reject) => {

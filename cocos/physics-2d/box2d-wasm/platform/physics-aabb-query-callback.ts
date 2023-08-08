@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, getB2ObjectFromImpl } from '../instantiated';
+import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { B2RigidBody2D } from '../rigid-body';
 
@@ -65,9 +65,8 @@ export class PhysicsAABBQueryCallback {
     }
 
     static callback = {
-        ReportFixture (fixture: B2.Fixture): boolean {
-            const rigidBody = getB2ObjectFromImpl<B2RigidBody2D>(fixture.GetBody());
-            const f = rigidBody.getFixtureWithFixtureImplPtr((fixture as any).$$.ptr)!;
+        ReportFixture (fixture: number): boolean {
+            const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsAABBQueryCallback.ReportFixture(f);
         },
     }

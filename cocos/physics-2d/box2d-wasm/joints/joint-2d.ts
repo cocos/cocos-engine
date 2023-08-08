@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2 } from '../instantiated';
+import { B2, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr } from '../instantiated';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
@@ -98,6 +98,8 @@ export class B2Joint implements IJoint2D {
         def.collideConnected = comp.collideConnected;
 
         this._b2joint = (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.CreateJoint(def);
+        addImplPtrReference(this, getImplPtr(this._b2joint));
+        addImplPtrReferenceWASM(this._b2joint, getImplPtr(this._b2joint));
 
         this.UpdateStiffnessAndDamping();
 

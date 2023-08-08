@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, getB2ObjectFromImpl } from '../instantiated';
+import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
 import { B2Shape2D } from '../shapes/shape-2d';
@@ -90,9 +90,8 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
     }
 
     static callback = {
-        ReportFixture (fixture: B2.Fixture, point, normal, fraction): any {
-            const rigidBody = getB2ObjectFromImpl<B2RigidBody2D>(fixture.GetBody());
-            const f = rigidBody.getFixtureWithFixtureImplPtr((fixture as any).$$.ptr)!;
+        ReportFixture (fixture: number, point, normal, fraction): any {
+            const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsRayCastCallback.ReportFixture(f, point, normal, fraction);
         },
     }
