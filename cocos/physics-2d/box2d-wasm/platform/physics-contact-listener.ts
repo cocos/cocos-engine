@@ -43,7 +43,7 @@ export class PhysicsContactListener {
         }
     }
 
-    static PreSolve (contact: number, oldManifold: B2.Manifold): void {
+    static PreSolve (contact: number, oldManifold: number): void {
         if (this._PreSolve) {
             this._PreSolve(contact, oldManifold);
         }
@@ -62,7 +62,7 @@ export class PhysicsContactListener {
         EndContact (contact: number): void {
             PhysicsContactListener.EndContact(contact);
         },
-        PreSolve (contact: number, oldManifold: B2.Manifold): void {
+        PreSolve (contact: number, oldManifold: number): void {
             PhysicsContactListener.PreSolve(contact, oldManifold);
         },
         PostSolve (contact: number, impulse: number): void {
