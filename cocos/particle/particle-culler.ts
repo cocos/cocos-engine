@@ -37,9 +37,6 @@ const _node_mat = new Mat4();
 const _node_rol = new Quat();
 const _node_scale = new Vec3();
 const _node_pos = new Vec3();
-const _rol_mat = new Mat4();
-const _scale_mat = new Mat4();
-const _pos_mat = new Mat4();
 const _trans_mat = new Mat4();
 const _rol_scale_mat = new Mat4();
 
@@ -146,9 +143,6 @@ export class ParticleCuller {
             default:
                 break;
             }
-            Mat4.fromTranslation(_pos_mat, _node_pos);
-            Mat4.fromQuat(_rol_mat, _node_rol);
-            Mat4.fromScaling(_scale_mat, _node_scale);
             Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
             Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
         }
@@ -219,9 +213,6 @@ export class ParticleCuller {
         default:
             break;
         }
-        Mat4.fromTranslation(_pos_mat, _node_pos);
-        Mat4.fromQuat(_rol_mat, _node_rol);
-        Mat4.fromScaling(_scale_mat, _node_scale);
         Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
         Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
 
