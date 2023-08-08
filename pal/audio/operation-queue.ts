@@ -69,6 +69,7 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
         return;
     }
     opInfo.invoking = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     opInfo.func.call(target, ...opInfo.args).then(() => {
         opInfo.invoking = false;
         target._operationQueue.shift();
@@ -94,6 +95,7 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
  * It means that, for example, you can't call stop in the implementation of play operation,
  * because that would cause the operation deadlock.
  */
+// eslint-disable-next-line max-len
 export function enqueueOperation<T extends OperationQueueable> (target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
     const originalOperation = descriptor.value!;
     // eslint-disable-next-line func-names

@@ -129,6 +129,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
             if (this._needSeek) {
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 this.seek(this._cacheTime).catch((e) => {});
             }
         };
@@ -168,6 +169,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._needSeek) {
                 this._needSeek = false;
                 if (this._cacheTime.toFixed(3) !== this._innerAudioContext.currentTime.toFixed(3)) {
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     this.seek(this._cacheTime).catch((e) => {});
                 } else {
                     this._needSeek = false;
@@ -202,6 +204,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 this._state = AudioState.INTERRUPTED;
                 this._readyToHandleOnShow = true;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         }
     }
@@ -214,6 +217,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         }
         this._readyToHandleOnShow = false;
@@ -235,6 +239,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 resolve(new AudioPlayerMinigame(innerAudioContext as InnerAudioContext));
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         });
     }
@@ -259,6 +264,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 clearTimeout(timer);
                 // eslint-disable-next-line no-console
                 console.error('failed to load innerAudioContext');
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 reject(new Error(err));
             }
             innerAudioContext.onCanplay(success);
@@ -270,6 +276,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve, reject) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(new (OneShotAudioMinigame as any)(innerAudioContext, volume));
             }).catch(reject);
         });
