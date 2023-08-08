@@ -338,15 +338,15 @@ export class SkinPass extends SettingPass {
             .addSceneOfCamera(
                 camera,
                 new LightInfo(),
-                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING,
+                SceneFlags.TRANSPARENT_OBJECT
+            | SceneFlags.CUTOUT_OBJECT,
             );
         pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
             .addSceneOfCamera(
                 camera,
                 new LightInfo(),
-                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING,
+                SceneFlags.TRANSPARENT_OBJECT
+            | SceneFlags.CUTOUT_OBJECT,
             );
     }
 

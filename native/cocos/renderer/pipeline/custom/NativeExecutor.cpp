@@ -1365,32 +1365,14 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
-        bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
-        bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
-        if (!bDraw && !bDrawInstancing) {
-            bDraw = true;
-            bDrawInstancing = true;
-        }
-        const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
-        const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
-        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
-
-        if (bDrawShadowCaster || bDrawOpaqueOrMask) {
-            queue.opaqueQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.opaqueInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
-        }
-        if (bDrawBlend) {
-            queue.transparentQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.transparentInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
-        }
+        queue.opaqueQueue.recordCommandBuffer(
+            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+        queue.opaqueInstancingQueue.recordCommandBuffer(
+            ctx.currentPass, ctx.cmdBuff);
+        queue.transparentQueue.recordCommandBuffer(
+        ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+        queue.transparentInstancingQueue.recordCommandBuffer(
+            ctx.currentPass, ctx.cmdBuff);
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
                              ctx.currentPassLayoutID, camera, ctx.cmdBuff);

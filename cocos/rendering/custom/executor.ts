@@ -125,7 +125,6 @@ import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
@@ -573,37 +572,11 @@ class DeviceRenderQueue {
 }
 
 class SubmitInfo {
-    public instances = new Set<InstancedBuffer>();
-    public renderInstanceQueue: InstancedBuffer[] = [];
-    public opaqueList: RenderInfo[] = [];
-    public transparentList: RenderInfo[] = [];
     // <scene id, shadow queue>
-    public shadowMap: Map<number, RenderShadowMapBatchedQueue> = new Map<number, RenderShadowMapBatchedQueue>();
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
 
-    private _clearInstances (): void {
-        const it = this.instances.values(); let res = it.next();
-        while (!res.done) {
-            res.value.clear();
-            res = it.next();
-        }
-        this.instances.clear();
-    }
-
-    private _clearShadowMap (): void {
-        for (const shadowMap of this.shadowMap) {
-            shadowMap[1].clear();
-        }
-        this.shadowMap.clear();
-    }
-
     reset (): void {
-        this._clearInstances();
-        this.renderInstanceQueue.length = 0;
-        this.opaqueList.length = 0;
-        this.transparentList.length = 0;
-        this._clearShadowMap();
         this.additiveLight = null;
         this.reflectionProbe = null;
     }
@@ -959,23 +932,7 @@ class DeviceRenderPass {
         cmdBuff.endRenderPass();
     }
 
-    private _clear (): void {
-        for (const [cam, infoMap] of context.submitMap) {
-            for (const [id, info] of infoMap) {
-                info.additiveLight?.clear();
-                const it = info.instances.values(); let res = it.next();
-                while (!res.done) {
-                    res.value.clear();
-                    res = it.next();
-                }
-                info.renderInstanceQueue = [];
-                info.instances.clear();
-            }
-        }
-    }
-
     postPass (): void {
-        this._clear();
         // this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
@@ -1191,70 +1148,7 @@ class DeviceSceneTask extends WebSceneTask {
     }
     get graphScene (): GraphScene { return this._graphScene; }
     public start (): void {}
-    protected _recordRenderList (isTransparent: boolean): void {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        const renderList = isTransparent ? currSubmitInfo.transparentList
-            : currSubmitInfo.opaqueList;
-        for (let i = 0; i < renderList.length; ++i) {
-            const { subModel, passIdx } = renderList[i];
-            const inputAssembler: InputAssembler = subModel.inputAssembler;
-            const pass: Pass = subModel.passes[passIdx];
-            const shader: Shader = subModel.shaders[passIdx];
-            const descriptorSet: DescriptorSet = subModel.descriptorSet;
-            const pso = PipelineStateManager.getOrCreatePipelineState(
-                deviceManager.gfxDevice,
-                pass,
-                shader,
-                this._renderPass,
-                inputAssembler,
-            );
-            this.visitor.bindPipelineState(pso);
-            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-            this.visitor.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
-            this.visitor.bindInputAssembler(inputAssembler);
-            this.visitor.draw(inputAssembler);
-        }
-    }
-    protected _recordOpaqueList (): void {
-        this._recordRenderList(false);
-    }
-    protected _recordInstences (): void {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        const it = currSubmitInfo.renderInstanceQueue.length === 0
-            ? currSubmitInfo.instances.values()
-            : currSubmitInfo.renderInstanceQueue.values();
-        let res = it.next();
-        while (!res.done) {
-            const { instances, pass, hasPendingModels } = res.value;
-            if (hasPendingModels) {
-                this.visitor.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-                let lastPSO: PipelineState | null = null;
-                for (let b = 0; b < instances.length; ++b) {
-                    const instance = instances[b];
-                    if (!instance.count) { continue; }
-                    const shader = instance.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(
-                        deviceManager.gfxDevice,
-                        pass,
-                        shader,
-                        this._renderPass,
-                        instance.ia,
-                    );
-                    if (lastPSO !== pso) {
-                        this.visitor.bindPipelineState(pso);
-                        lastPSO = pso;
-                    }
-                    const ia: InputAssembler = instance.ia;
-                    this.visitor.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
-                    this.visitor.bindInputAssembler(ia);
-                    this.visitor.draw(ia);
-                }
-            }
-            res = it.next();
-        }
-    }
+
     protected _recordUI (): void {
         const batches = this.camera!.scene!.batches;
         for (let i = 0; i < batches.length; i++) {
@@ -1282,19 +1176,7 @@ class DeviceSceneTask extends WebSceneTask {
             }
         }
     }
-    protected _recordTransparentList (): void {
-        this._recordRenderList(true);
-    }
-    protected _recordShadowMap (): void {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.shadowMap.get(this.graphScene.sceneID)!.recordCommandBuffer(
-            context.device,
-            this._renderPass,
 
-            context.commandBuffer,
-        );
-    }
     protected _recordReflectionProbe (): void {
         const submitMap = context.submitMap;
         const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
@@ -1354,19 +1236,9 @@ class DeviceSceneTask extends WebSceneTask {
             this.visitor.draw(screenIa);
             // The desc data obtained from the outside should be cleaned up so that the data can be modified
             this._clearExtBlitDesc(layoutDesc, extResId);
-            // if (isEnableEffect()) this.visitor.bindDescriptorSet(SetIndex.GLOBAL, globalDesc);
         }
     }
-    private _recordAdditiveLights (): void {
-        const devicePass = this._currentQueue.devicePass;
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.additiveLight?.recordCommandBuffer(
-            context.device,
-            this._renderPass,
-            context.commandBuffer,
-        );
-    }
+
     protected _updateGlobal (data: RenderData): void {
         const devicePass = this._currentQueue.devicePass;
         updateGlobalDescBinding(data, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
@@ -1389,11 +1261,9 @@ class DeviceSceneTask extends WebSceneTask {
         mergeSrcToTargetDesc(descSetData!.descriptorSet, context.pipeline.descriptorSet, true);
         this._currentQueue.isUpdateUBO = true;
     }
-    public submit (): void {
-        const devicePass = this._currentQueue.devicePass;
+
+    private _applyViewport (): void {
         const queueViewport = this._currentQueue.viewport;
-        const sceneCulling = context.culling;
-        this._updateRenderData();
         if (queueViewport) {
             this.visitor.setViewport(queueViewport);
             this.visitor.setScissor(this._currentQueue.scissor!);
@@ -1411,6 +1281,13 @@ class DeviceSceneTask extends WebSceneTask {
             this.visitor.setViewport(sceneViewport);
             this.visitor.setScissor(area);
         }
+    }
+
+    public submit (): void {
+        const devicePass = this._currentQueue.devicePass;
+        const sceneCulling = context.culling;
+        this._updateRenderData();
+        this._applyViewport();
         // Currently processing blit and camera first
         if (this.graphScene.blit) {
             this._recordBlit();
@@ -1419,26 +1296,14 @@ class DeviceSceneTask extends WebSceneTask {
         const renderQueueDesc = sceneCulling.sceneQueryIndex.get(this.graphScene.sceneID)!;
         const renderQueue =  sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
         const graphSceneData = this.graphScene.scene!;
-        if (graphSceneData.flags & SceneFlags.OPAQUE_OBJECT
-            || graphSceneData.flags & SceneFlags.CUTOUT_OBJECT) {
-            renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
-        }
+        renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
-        // if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
-        //     this._recordAdditiveLights();
-        // }
-        // this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
-        //     context.pipeline.descriptorSet);
-        if (graphSceneData.flags & SceneFlags.TRANSPARENT_OBJECT) {
-            // this._recordTransparentList();
-            renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
-        }
+        renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
                 devicePass.renderPass,
                 context.commandBuffer,
-
                 context.pipeline.pipelineSceneData,
             );
         }
@@ -1701,7 +1566,6 @@ class ExecutorContext {
         this.width = width;
         this.height = height;
         this.additiveLight = new RenderAdditiveLightQueue(pipeline);
-        this.shadowMapBatched = new RenderShadowMapBatchedQueue(pipeline);
         this.pools = new ExecutorPools(this);
         this.blit = new BlitInfo(this);
         this.culling = new SceneCulling();
@@ -1730,7 +1594,6 @@ class ExecutorContext {
     readonly root: Root;
     readonly ubo: PipelineUBO;
     readonly additiveLight: RenderAdditiveLightQueue;
-    readonly shadowMapBatched: RenderShadowMapBatchedQueue;
     readonly submitMap: Map<Camera, Map<number, SubmitInfo>> = new Map<Camera, Map<number, SubmitInfo>>();
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
