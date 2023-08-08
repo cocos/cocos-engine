@@ -1,6 +1,6 @@
 import { JSB } from 'internal:constants';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, assertIsTrue } from '../../core';
-import type { IIntrudedFileData } from '../deserialize';
+import type { IRuntimeFileData } from '../deserialize';
 
 const constructorMap = [
     Vec2,   // 0
@@ -100,7 +100,7 @@ export function serializeBuiltinValueType (obj: unknown): ValueTypeData | undefi
     }
 }
 
-export function deserializeBuiltinValueType (data: IIntrudedFileData, owner: any, key: string, value: ValueTypeData): void {
+export function deserializeBuiltinValueType (data: IRuntimeFileData, owner: any, key: string, value: ValueTypeData): void {
     const typeIndex = value[0];
     assertIsTrue(typeIndex >= 0 && typeIndex < constructorMap.length);
     const object = new (constructorMap[typeIndex])();
@@ -109,7 +109,7 @@ export function deserializeBuiltinValueType (data: IIntrudedFileData, owner: any
     owner[key] = object;
 }
 
-export function deserializeBuiltinValueTypeInto (data: IIntrudedFileData, owner: any, key: string, value: ValueTypeData): void {
+export function deserializeBuiltinValueTypeInto (data: IRuntimeFileData, owner: any, key: string, value: ValueTypeData): void {
     const typeIndex = value[0];
     assertIsTrue(typeIndex >= 0 && typeIndex < constructorMap.length);
     if (JSB) {
