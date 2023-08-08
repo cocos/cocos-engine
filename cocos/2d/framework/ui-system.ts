@@ -28,18 +28,8 @@ import { uiRendererManager } from './ui-renderer-manager';
 import { uiLayoutManager } from './ui-layout-manager';
 import { Batcher2D } from '../renderer/batcher-2d';
 
-class FunctionCallbackInfo {
-    public callback: AnyFunction;
-    public target: any;
-    constructor (callback: AnyFunction, target: any) {
-        this.callback = callback;
-        this.target = target;
-    }
-}
-
 export class UISystem extends System {
     private _batcher: Batcher2D | null = null;
-    private _extraPartBeforeUpdate: FunctionCallbackInfo[] = [];
 
     /**
      * @en The draw batch manager for 2D UI, for engine internal usage, user do not need to use this.
@@ -57,13 +47,20 @@ export class UISystem extends System {
         director.on(Director.EVENT_AFTER_SCENE_LAUNCH, this.afterSceneLaunch, this);
         director.on(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
         director.on(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-        director.on(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
         director.on(Director.EVENT_UPDATE_UI, this.tick, this);
-        director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
+        director.on(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
         director.on(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+        director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
     }
 
     public destroy (): void {
+        director.off(Director.EVENT_AFTER_SCENE_LAUNCH, this.afterSceneLaunch, this);
+        director.off(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+        director.off(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+        director.off(Director.EVENT_UPDATE_UI, this.tick, this);
+        director.off(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+        director.off(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+        director.off(Director.EVENT_BEFORE_COMMIT, this.render, this);
         if (this._batcher) {
             this._batcher.destroy();
             this._batcher = null;
@@ -101,17 +98,6 @@ export class UISystem extends System {
     }
 
     private beforeDraw (): void {
-        for (let i = 0, length = this._extraPartBeforeUpdate.length; i < length; i++) {
-            const info = this._extraPartBeforeUpdate[i];
-            const callback = info.callback;
-            const target = info.target;
-            callback.call(target);
-        }
-        this._extraPartBeforeUpdate.length = 0;
-    }
-
-    public addCallbackToBeforeUpdate (callback: AnyFunction, target: any): void {
-        this._extraPartBeforeUpdate.push(new FunctionCallbackInfo(callback, target));
     }
 }
 

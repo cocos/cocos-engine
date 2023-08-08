@@ -73,7 +73,7 @@ export const simple: IAssembler = {
             const device = director.root!.device;
             _accessor = new StaticVBAccessor(device, vfmtPosUvColor, this.vCount);
             //batcher.registerBufferAccessor(Number.parseInt('TILED-MAP', 36), _accessor);
-            director.on(Director.EVENT_BEFORE_DRAW, () => { // 额外改造，解除事件依赖，每帧重置
+            director.on(Director.EVENT_AFTER_UPDATE, () => {
                 _accessor.reset();
             });
         }

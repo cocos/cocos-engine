@@ -124,7 +124,7 @@ export const ttfUtils =  {
     },
 
     updateLayoutData (comp: Label): void {
-        if (comp.layoutDirty) {
+        if (comp.layoutDirty && comp.assemblerData) {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
@@ -133,7 +133,7 @@ export const ttfUtils =  {
             style.fontScale = view.getScaleX();
             this.updateLayoutProcessingData(style, layout, outputLayoutData, comp, trans);
             // use canvas in assemblerData // to do to optimize
-            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
+            processing.setCanvasUsed(comp.assemblerData.canvas, comp.assemblerData.context);
             style.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
@@ -159,6 +159,7 @@ export const ttfUtils =  {
 
             this._resetDynamicAtlas(comp);
 
+            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData, comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;
