@@ -26,6 +26,7 @@
 
 #include "bindings/jswrapper/PrivateObject.h"
 #include "jsb_global_init.h"
+#include "bindings/utils/jsb_garbagecollect_callback.h"
 
 template <typename T, class... Args>
 T *jsb_override_new(Args &&...args) { // NOLINT(readability-identifier-naming)

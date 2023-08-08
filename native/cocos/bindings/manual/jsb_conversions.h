@@ -53,7 +53,7 @@
 #include "renderer/gfx-base/states/GFXSampler.h"
 
 #include "base/HasMemberFunction.h"
-#include "bindings/utils/jsb_garbagecollect_callback.h"
+#include "base/VirtualInheritBase.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                   \
     do {                                                                                                        \
