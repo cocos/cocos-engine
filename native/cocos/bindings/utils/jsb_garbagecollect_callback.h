@@ -24,8 +24,10 @@
 
 #pragma once
 
+#include <type_traits>
 #include "base/VirtualInheritBase.h"
 #include "base/HasMemberFunction.h"
+#include "bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
@@ -33,10 +35,10 @@ template<typename T, typename STATE>
 inline void invokeOnGarbageCollectMethod(STATE& s) {
     if constexpr (cc::has_onGarbageCollect<T, void()>::value) {
         if constexpr (std::is_base_of_v<cc::VirtualInheritBase, T>) {
-            auto cobj = SE_THIS_OBJECT_VIRTUAL<T, cc::VirtualInheritBase>(s);
+            auto* cobj = SE_THIS_OBJECT_VIRTUAL<T, cc::VirtualInheritBase, STATE>(s);
             if (cobj != nullptr) cobj->onGarbageCollect();
         } else {
-            auto* cobj = SE_THIS_OBJECT<T>(s);
+            auto* cobj = SE_THIS_OBJECT<T, STATE>(s);
             if (cobj != nullptr) cobj->onGarbageCollect();
         }
     }
