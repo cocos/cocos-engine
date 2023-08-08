@@ -91,9 +91,8 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
                     probe->setNeedRender(false);
                     return;
                 }
-                RenderTexture *rt = cubeFaces[faceIdx];
                 auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
-                reflectionProbeStage->setUsage(rt->getWindow()->getFramebuffer(), probe);
+                reflectionProbeStage->setUsage(cubeFaces[faceIdx]->getWindow()->getFramebuffer(), probe);
                 reflectionProbeStage->render(camera);
             }
             probe->setNeedRender(false);
