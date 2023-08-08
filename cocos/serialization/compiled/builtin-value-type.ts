@@ -1,5 +1,5 @@
 import { JSB } from 'internal:constants';
-import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, assertIsTrue } from '../../core';
+import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, assertIsTrue, ValueType } from '../../core';
 import type { IRuntimeFileData } from '../deserialize';
 
 const constructorMap = [
@@ -69,10 +69,7 @@ const setterMap: SetterMap = [
     },
 ];
 
-export function serializeBuiltinValueType (obj: unknown): ValueTypeData | null {
-    if (typeof obj !== 'object' || !obj) {
-        return null;
-    }
+export function serializeBuiltinValueType (obj: ValueType): ValueTypeData | null {
     const ctor = obj.constructor;
     const typeId = (constructorMap as readonly any[]).indexOf(ctor);
     switch (ctor) {
