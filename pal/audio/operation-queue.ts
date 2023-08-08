@@ -62,7 +62,9 @@ function removeUnneededCalls (instance: OperationQueueable): void {
     }
     reserveOps.forEach((opInfo): void => {
         const index = instance._operationQueue.indexOf(opInfo);
-        instance._operationQueue.splice(index, 1);
+        if (index >= 0) {
+            instance._operationQueue.splice(index, 1);
+        }
     });
     instance._operationQueue.forEach((opInfo): void => {
         instance._eventTarget.emit(opInfo.id.toString());
@@ -82,7 +84,10 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
         target._eventTarget.emit(opInfo.id.toString());
         removeUnneededCalls(target);
         const nextOpInfo: OperationInfo = target._operationQueue[0];
-        nextOpInfo && _tryCallingRecursively(target, nextOpInfo);
+        if (nextOpInfo) {
+            _tryCallingRecursively(target, nextOpInfo);
+        }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     }).catch((e) => {});
 }
 
@@ -100,6 +105,7 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
  */
 export function enqueueOperation<T extends OperationQueueable> (target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
     const originalOperation = descriptor.value!;
+    // eslint-disable-next-line func-names
     descriptor.value = function (...args: any[]): Promise<void> {
         return new Promise((resolve) => {
             const id = operationId++;
