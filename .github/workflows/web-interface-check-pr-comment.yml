@@ -32,11 +32,23 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           gh run download -R "${{ github.repository }}" --name "interface-diff.txt" "$RUN_ID"
+
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v2.11.0
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            workflow: web-interface-check.yml
+            run_id: ${{ github.event.workflow_run.id }}
+      - name: Read the pr_num file
+        id: pr_num_reader
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+            path: ./pr_num/pr_num.txt
           
       - name: Post interface-diff.txt as comment 
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: interface-diff.txt
-          number: ${{ steps.source_run_info.outputs.pullRequestNumber }}
+          number: ${{ steps.pr_num_reader.outputs.content }}
           # The following matters, see: https://github.com/orgs/community/discussions/25220
           # number: ${{ github.event.workflow_run.pull_requests[0].number }}
