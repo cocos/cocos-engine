@@ -2,6 +2,9 @@ import { JSB } from 'internal:constants';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, assertIsTrue, ValueType } from '../../core';
 import type { IRuntimeFileData } from '../deserialize';
 
+/**
+ * If a value type is not registered in this list, it will be serialized as plain class.
+ */
 const constructorMap = [
     Vec2,   // 0
     Vec3,   // 1
