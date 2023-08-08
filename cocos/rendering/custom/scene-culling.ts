@@ -149,7 +149,6 @@ function addRenderObject (
     phaseLayoutId: number,
     isDrawOpaqueOrMask: boolean,
     isDrawBlend: boolean,
-    isDrawShadowCaster: boolean,
     camera: Camera,
     model: Model,
     queue: RenderQueue,
@@ -170,15 +169,13 @@ function addRenderObject (
             // check scene flags
             const is_blend = isBlend(pass);
             const isOpaqueOrMask = !is_blend;
-            if (!isDrawShadowCaster) {
-                if (!isDrawBlend && is_blend) {
-                    // skip transparent object
-                    continue;
-                }
-                if (!isDrawOpaqueOrMask && isOpaqueOrMask) {
-                    // skip opaque object
-                    continue;
-                }
+            if (!isDrawBlend && is_blend) {
+                // skip transparent object
+                continue;
+            }
+            if (!isDrawOpaqueOrMask && isOpaqueOrMask) {
+                // skip opaque object
+                continue;
             }
 
             // add object to queue
@@ -407,7 +404,6 @@ export class SceneCulling {
                     phaseLayoutId,
                     isDrawOpaqueOrMask,
                     isDrawBlend,
-                    isDrawShadowCaster,
                     camera,
                     model,
                     renderQueue,
