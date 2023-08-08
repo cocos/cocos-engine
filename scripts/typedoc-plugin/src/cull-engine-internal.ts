@@ -36,7 +36,7 @@ function traverseObject (obj: Record<string, any>, recentGroups?: any[]): void {
     }
 }
 
-function traverseArray (arr: Array<any>, recentGroups?: any): void {
+function traverseArray (arr: Array<any>, recentGroups?: any[]): void {
     for (let i = arr.length - 1; i >= 0; --i) {
         const item = arr[i];
         if (typeof item === 'number' || typeof item === 'string') {
