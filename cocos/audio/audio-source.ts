@@ -38,9 +38,9 @@ enum AudioSourceEventType {
     ENDED = 'ended',
 }
 
-class DelayedOperation {
-    op: string = '';
-    params: any[] | null = null;
+interface DelayedOperation {
+    op: string;
+    params: any[] | null;
 }
 
 /**
@@ -118,6 +118,7 @@ export class AudioSource extends Component {
             return;
         }
         if (!clip._nativeAsset) {
+            // eslint-disable-next-line no-console
             console.error('Invalid audio clip');
             return;
         }
@@ -476,6 +477,7 @@ export class AudioSource extends Component {
             return;
         }
         this._cachedCurrentTime = num;
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         this._player?.seek(this._cachedCurrentTime).catch((e): void => {});
     }
 

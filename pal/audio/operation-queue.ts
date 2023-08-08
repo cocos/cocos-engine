@@ -60,15 +60,6 @@ function removeUnneededCalls (instance: OperationQueueable): void {
             reserveOps.push(opInfo);
         }
     }
-    reserveOps.forEach((opInfo): void => {
-        const index = instance._operationQueue.indexOf(opInfo);
-        if (index >= 0) {
-            instance._operationQueue.splice(index, 1);
-        }
-    });
-    instance._operationQueue.forEach((opInfo): void => {
-        instance._eventTarget.emit(opInfo.id.toString());
-    });
     instance._operationQueue = reserveOps.reverse();
 }
 
