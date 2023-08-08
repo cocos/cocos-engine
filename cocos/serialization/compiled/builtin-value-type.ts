@@ -69,9 +69,9 @@ const setterMap: SetterMap = [
     },
 ];
 
-export function serializeBuiltinValueType (obj: unknown): ValueTypeData | undefined {
+export function serializeBuiltinValueType (obj: unknown): ValueTypeData | null {
     if (typeof obj !== 'object' || !obj) {
-        return undefined;
+        return null;
     }
     const ctor = obj.constructor;
     const typeId = (constructorMap as readonly any[]).indexOf(ctor);
@@ -96,7 +96,7 @@ export function serializeBuiltinValueType (obj: unknown): ValueTypeData | undefi
         return res;
     }
     default:
-        return undefined;
+        return null;
     }
 }
 
