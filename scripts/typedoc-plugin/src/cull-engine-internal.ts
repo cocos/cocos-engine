@@ -59,7 +59,9 @@ function traverseArray (arr: Array<any>, recentGroups?: any[]): void {
                         }
                         if (group.children.length === 0) {
                             const groupIndex = recentGroups.findIndex((group: Record<string, any>) => group.kind === item.kind);
-                            recentGroups.splice(groupIndex, 1);
+                            if (groupIndex > -1) {
+                                recentGroups.splice(groupIndex, 1);
+                            }
                         }
                     }
                 }
