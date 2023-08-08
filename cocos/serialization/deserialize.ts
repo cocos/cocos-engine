@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
-import { cclegacy, ValueType, Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, errorID, getError, js, assertIsTrue } from '../core';
+import { cclegacy, errorID, getError, js, assertIsTrue } from '../core';
 
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../asset/assets/asset';
@@ -36,90 +36,14 @@ import type { MapEnum, TupleSlice } from './deserialize-type-utilities';
 
 const FORCE_COMPILED = false; // TODO: BUILD;
 
+import { deserializeBuiltinValueType, deserializeBuiltinValueTypeInto } from './compiled/builtin-value-type';
+
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
  *************************************************************************** */
 
 const SUPPORT_MIN_FORMAT_VERSION = 1;
 const EMPTY_PLACEHOLDER = 0;
-
-// Used for Data.ValueType.
-// If a value type is not registered in this list, it will be serialized to Data.Class.
-const BuiltinValueTypes: (typeof ValueType)[] = [
-    Vec2,   // 0
-    Vec3,   // 1
-    Vec4,   // 2
-    Quat,   // 3
-    Color,  // 4
-    Size,   // 5
-    Rect,   // 6
-    Mat4,   // 7
-];
-
-// Used for Data.ValueTypeCreated.
-function BuiltinValueTypeParsers_xyzw (obj: Vec4 | Quat, data: number[]): void {
-    obj.x = data[1];
-    obj.y = data[2];
-    obj.z = data[3];
-    obj.w = data[4];
-}
-const BuiltinValueTypeSetters: ((obj: any, data: number[]) => void)[] = [
-    (obj: Vec2, data: number[]): void => {
-        obj.x = data[1];
-        obj.y = data[2];
-    },
-    (obj: Vec3, data: number[]): void => {
-        obj.x = data[1];
-        obj.y = data[2];
-        obj.z = data[3];
-    },
-    BuiltinValueTypeParsers_xyzw,   // Vec4
-    BuiltinValueTypeParsers_xyzw,   // Quat
-    (obj: Color, data: number[]): void => {
-        obj._val = data[1];
-    },
-    (obj: Size, data: number[]): void => {
-        obj.width = data[1];
-        obj.height = data[2];
-    },
-    (obj: Rect, data: number[]): void => {
-        obj.x = data[1];
-        obj.y = data[2];
-        obj.width = data[3];
-        obj.height = data[4];
-    },
-    (obj: Mat4, data: number[]): void => {
-        Mat4.fromArray(obj, data, 1);
-    },
-];
-
-function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
-    const ctor = obj.constructor as typeof ValueType;
-    const typeId = BuiltinValueTypes.indexOf(ctor);
-    switch (ctor) {
-    case Vec2:
-        return [typeId, (obj as Vec2).x, (obj as Vec2).y];
-    case Vec3:
-        return [typeId, (obj as Vec3).x, (obj as Vec3).y, (obj as Vec3).z];
-    case Vec4:
-    case Quat:
-        return [typeId, (obj as Vec4).x, (obj as Vec4).y, (obj as Vec4).z, (obj as Vec4).w];
-    case Color:
-        return [typeId, (obj as Color)._val];
-    case Size:
-        return [typeId, (obj as Size).width, (obj as Size).height];
-    case Rect:
-        return [typeId, (obj as Rect).x, (obj as Rect).y, (obj as Rect).width, (obj as Rect).height];
-    case Mat4: {
-        const res: IValueTypeData = new Array<number>(1 + 16) as IValueTypeData;
-        res[VALUETYPE_SETTER] = typeId;
-        Mat4.toArray(res, obj as Mat4, 1);
-        return res;
-    }
-    default:
-        return null;
-    }
-}
 
 /** **************************************************************************
  * TYPE DECLARATIONS
@@ -331,7 +255,6 @@ interface ICustomObjectData extends Array<any> {
     [CUSTOM_OBJ_DATA_CONTENT]: ICustomObjectDataContent;
 }
 
-const VALUETYPE_SETTER = 0;
 type IValueTypeData = [
     // Predefined parsing function index
     number,
@@ -458,7 +381,7 @@ type IIntrudedFileDataMap = Omit<IFileDataMap, File.Version> & {
     [File.Context]: FileInfo & DeserializeContext;
 }
 
-type IIntrudedFileData = MapEnum<{
+export type IIntrudedFileData = MapEnum<{
     [x in keyof IIntrudedFileDataMap as `${x}`]: IIntrudedFileDataMap[x];
 }, 11 /* Currently we should manually specify the enumerators count. */>;
 
@@ -754,26 +677,6 @@ function parseCustomClass (data: IIntrudedFileData, owner: any, key: string, val
     owner[key] = deserializeCustomCCObject(data, ctor, value[CUSTOM_OBJ_DATA_CONTENT]);
 }
 
-function parseValueTypeCreated (data: IIntrudedFileData, owner: any, key: string, value: IValueTypeData): void {
-    /**BuiltinValueTypes index: Vec2=0, Vec3=1, Vec4=2, Quat=3, Color=4, Size=5, Rect=6, Mat4=7
-       The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
-       so we need to set to native after value changed
-     * */
-    if (JSB) {
-        const tmp = owner[key];
-        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](tmp, value);
-        owner[key] = tmp;
-    } else {
-        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
-    }
-}
-
-function parseValueType (data: IIntrudedFileData, owner: any, key: string, value: IValueTypeData): void {
-    const val: ValueType = new BuiltinValueTypes[value[VALUETYPE_SETTER]]();
-    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
-    owner[key] = val;
-}
-
 function parseTRS (data: IIntrudedFileData, owner: any, key: string, value: ITRSData): void {
     const typedArray = owner[key] as (Float32Array | Float64Array);
     typedArray.set(value);
@@ -814,10 +717,10 @@ ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
 ASSIGNMENTS[DataTypeID.Array_InstanceRef] = genArrayParser(assignInstanceRef);
 ASSIGNMENTS[DataTypeID.Array_AssetRefByInnerObj] = genArrayParser(parseAssetRefByInnerObj);
 ASSIGNMENTS[DataTypeID.Class] = parseClass;
-ASSIGNMENTS[DataTypeID.ValueTypeCreated] = parseValueTypeCreated;
+ASSIGNMENTS[DataTypeID.ValueTypeCreated] = deserializeBuiltinValueTypeInto;
 ASSIGNMENTS[DataTypeID.AssetRefByInnerObj] = parseAssetRefByInnerObj;
 ASSIGNMENTS[DataTypeID.TRS] = parseTRS;
-ASSIGNMENTS[DataTypeID.ValueType] = parseValueType;
+ASSIGNMENTS[DataTypeID.ValueType] = deserializeBuiltinValueType;
 ASSIGNMENTS[DataTypeID.Array_Class] = genArrayParser(parseClass);
 ASSIGNMENTS[DataTypeID.CustomizedClass] = parseCustomClass;
 ASSIGNMENTS[DataTypeID.Dict] = parseDict;
@@ -1188,8 +1091,6 @@ if (EDITOR || TEST) {
         ARRAY_ITEM_VALUES: typeof ARRAY_ITEM_VALUES,
         PACKED_SECTIONS: typeof PACKED_SECTIONS,
     };
-    deserialize._BuiltinValueTypes = BuiltinValueTypes;
-    deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
 }
 
 if (TEST) {
@@ -1231,7 +1132,6 @@ if (TEST) {
             Dict: DataTypeID.Dict,
             Array: DataTypeID.Array,
         },
-        BuiltinValueTypes,
         unpackJSONs,
     };
 }
