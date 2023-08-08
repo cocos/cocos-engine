@@ -16,8 +16,13 @@ vec4 vs_main() {
   vec4 velocity = vec4(a_texCoord1.xyz, 0);
 
   #if !CC_USE_WORLD_SPACE
-    pos = cc_matWorld * pos;
-    velocity = cc_matWorld * velocity;
+    #if CC_USE_LINE
+      mat4 transMat = cc_matWorld;
+    #else
+      mat4 transMat = worldTrans;
+    #endif
+    pos = transMat * pos;
+    velocity.xyz = mat3(transMat) * velocity.xyz;
   #endif
 
   float vertOffset = (a_texCoord.x - 0.5) * a_texCoord.y;

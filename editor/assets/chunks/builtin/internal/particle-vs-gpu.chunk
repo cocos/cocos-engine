@@ -262,9 +262,9 @@ vec4 gpvs_main () {
   pos.xyz += velocity.xyz * normalizedTime * a_dir_life.w;
 
   #if !CC_USE_WORLD_SPACE
-    pos = cc_matWorld * pos;
+    pos = worldTrans * pos;
     #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      velocity = rotateQuat(velocity, u_worldRot);
+      velocity.xyz = mat3(worldTrans) * velocity.xyz;
     #endif
   #endif
 

@@ -34,9 +34,11 @@ import type { ParticleSystem } from './particle-system';
 import { Mode } from './animator/curve-range';
 
 const _node_mat = new Mat4();
-const _node_parent_inv = new Mat4();
 const _node_rol = new Quat();
 const _node_scale = new Vec3();
+const _node_pos = new Vec3();
+const _trans_mat = new Mat4();
+const _rol_scale_mat = new Mat4();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -129,8 +131,20 @@ export class ParticleCuller {
 
         node.invalidateChildren(TransformBit.POSITION);
         if (ps.simulationSpace === Space.World) {
-            node.getWorldMatrix(_node_mat);
-            node.getWorldRotation(_node_rol);
+            ps.node.getWorldPosition(_node_pos);
+            ps.node.getWorldRotation(_node_rol);
+            switch (ps.scaleSpace) {
+            case Space.Local:
+                ps.node.getScale(_node_scale);
+                break;
+            case Space.World:
+                ps.node.getWorldScale(_node_scale);
+                break;
+            default:
+                break;
+            }
+            Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
+            Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
         }
 
         for (let i = 0; i < count; ++i) {
@@ -155,8 +169,8 @@ export class ParticleCuller {
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (ps.simulationSpace === Space.World) {
-                Vec3.transformMat4(particle.position, particle.position, _node_mat);
-                Vec3.transformQuat(particle.velocity, particle.velocity, _node_rol);
+                Vec3.transformMat4(particle.position, particle.position, _trans_mat);
+                Vec3.transformMat4(particle.velocity, particle.velocity, _rol_scale_mat);
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
@@ -187,6 +201,8 @@ export class ParticleCuller {
         const ps = this._particleSystem;
         ps.node.getWorldMatrix(_node_mat);
 
+        ps.node.getWorldPosition(_node_pos);
+        ps.node.getWorldRotation(_node_rol);
         switch (ps.scaleSpace) {
         case Space.Local:
             ps.node.getScale(_node_scale);
@@ -197,20 +213,15 @@ export class ParticleCuller {
         default:
             break;
         }
+        Mat4.fromRTS(_rol_scale_mat, _node_rol, Vec3.ZERO, _node_scale);
+        Mat4.fromRTS(_trans_mat, _node_rol, _node_pos, _node_scale);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps.simulationSpace, _node_mat);
+            value.update(ps.simulationSpace, _trans_mat);
         });
 
         if (ps.simulationSpace === Space.Local) {
-            const r: Quat = ps.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
-
-        if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_node_parent_inv);
-            _node_parent_inv.invert();
+            Mat4.transpose(this._localMat, _rol_scale_mat);
         }
 
         for (let i = 0; i < particleLst.length; ++i) {
@@ -229,10 +240,7 @@ export class ParticleCuller {
                     this._gravity.z = 0.0;
                     this._gravity.w = 1.0;
                     if (!approx(gravityFactor, 0.0, EPSILON)) {
-                        if (ps.node.parent) {
-                            this._gravity = this._gravity.transformMat4(_node_parent_inv);
-                        }
-                        this._gravity = this._gravity.transformMat4(this._localMat);
+                        Vec4.transformMat4(this._gravity, this._gravity, this._localMat);
 
                         p.velocity.x += this._gravity.x;
                         p.velocity.y += this._gravity.y;
@@ -271,7 +279,7 @@ export class ParticleCuller {
             }
         }
 
-        const worldMat = this._particleSystem.node.worldMatrix;
+        const worldMat = _trans_mat;
         for (let i = 0; i < this._particlesAll.length; ++i) {
             const p: Particle = this._particlesAll[i];
             Vec3.multiply(size, _node_scale, p.size);

@@ -47,6 +47,10 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
+const _trans_mat = new Mat4();
+const _rol_mat = new Mat4();
+const _scale_mat = new Mat4();
+
 // const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
 
 // let _bcIdx = 0; // <wireframe debug>
@@ -452,10 +456,24 @@ export default class TrailModule {
 
     public update () {
         this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
-        if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
+        if (this.space === Space.World && (this._particleSystem._simulationSpace === Space.Local || this._particleSystem._simulationSpace === Space.Custom)) {
             this._needTransform = true;
-            this._particleSystem.node.getWorldMatrix(_temp_xform);
             this._particleSystem.node.getWorldRotation(_temp_quat);
+            Quat.normalize(_temp_quat, _temp_quat);
+            if (this._particleSystem.scaleSpace === Space.World) {
+                // this._particleSystem.node.getWorldMatrix(_temp_xform);
+                Mat4.fromScaling(_scale_mat, this._particleSystem.node.getWorldScale());
+                Mat4.fromTranslation(_trans_mat, this._particleSystem.node.getWorldPosition());
+                Mat4.fromQuat(_rol_mat, _temp_quat);
+                Mat4.multiply(_temp_xform, _rol_mat, _scale_mat);
+                Mat4.multiply(_temp_xform, _trans_mat, _temp_xform);
+            } else {
+                Mat4.fromScaling(_scale_mat, this._particleSystem.node.getScale());
+                Mat4.fromTranslation(_trans_mat, this._particleSystem.node.getWorldPosition());
+                Mat4.fromQuat(_rol_mat, _temp_quat);
+                Mat4.multiply(_temp_xform, _rol_mat, _scale_mat);
+                Mat4.multiply(_temp_xform, _trans_mat, _temp_xform);
+            }
         } else {
             this._needTransform = false;
         }

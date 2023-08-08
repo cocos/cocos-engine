@@ -10,6 +10,7 @@ uniform Constants {
   vec4 frameTile_velLenScale;
   vec4 scale;
   vec4 nodeRotation;
+  mat4 worldTrans;
 };
 
 #include <builtin/uniforms/cc-global>
