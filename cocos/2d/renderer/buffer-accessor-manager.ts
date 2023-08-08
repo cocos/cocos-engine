@@ -30,35 +30,38 @@ import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 export class BufferAccessorManager {
     public static instance: BufferAccessorManager;
 
-    get currBufferAccessor (): StaticVBAccessor {
-        if (this._staticVBBuffer) return this._staticVBBuffer;
-        // create if not set
-        this._staticVBBuffer = this.switchBufferAccessor();
+    get currBufferAccessor (): StaticVBAccessor | null {
         return this._staticVBBuffer;
     }
 
-    public _staticVBBuffer: StaticVBAccessor | null = null;
-    public _currBID = -1;
+    get currBID (): number {
+        return this._currBID;
+    }
+    set currBID (val) {
+        this._currBID = val;
+    }
 
     private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
+    private _staticVBBuffer: StaticVBAccessor | null = null;
+    private _currBID = -1;
 
     /**
      * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
      * @en Switch the mesh buffer for corresponding vertex layout if necessary.
      * @param attributes use VertexFormat.vfmtPosUvColor by default
      */
-    public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor): StaticVBAccessor { // Native need
+    public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor): StaticVBAccessor {
         const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
         // If current accessor not compatible with the requested attributes
-        if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) { // 是不是当前用的这个 accessor
-            let accessor = this._bufferAccessors.get(strideBytes); // 不是的话就去取出来
-            if (!accessor) { // 如果没有的话就创建一个
-                accessor = new StaticVBAccessor(director.root!.device, attributes); // 新建一个，但要注意下这里会同步到 native // 通过它来触发
-                this._bufferAccessors.set(strideBytes, accessor); // 缓存到 map // 这儿的 key 是 strideBytes
+        if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
+            let accessor = this._bufferAccessors.get(strideBytes);
+            if (!accessor) {
+                accessor = new StaticVBAccessor(director.root!.device, attributes);
+                this._bufferAccessors.set(strideBytes, accessor);
             }
 
-            this._staticVBBuffer = accessor; // 赋值给当前的
-            this._currBID = -1; // 重置 // 因为切换了 accessor，所以当前的 bid 也要重置 // 这儿相当于用两个flag来标记是否合批，其实综合起来就是 meshBuffer
+            this._staticVBBuffer = accessor;
+            this._currBID = -1;
         }
         return this._staticVBBuffer;
     }

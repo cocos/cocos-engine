@@ -281,8 +281,8 @@ export class Batcher2D implements IBatcher {
     public updateBuffer (attributes: Attribute[], bid: number): void {
         const accessor = BufferAccessorManager.instance.switchBufferAccessor(attributes);
         // If accessor changed, then current bid will be reset to -1, this check will pass too
-        if (BufferAccessorManager.instance._currBID !== bid) {
-            BufferAccessorManager.instance._currBID = bid;
+        if (BufferAccessorManager.instance.currBID !== bid) {
+            BufferAccessorManager.instance.currBID = bid;
             this._indexStart = accessor.getMeshBuffer(bid).indexOffset;
         }
     }
@@ -557,7 +557,7 @@ export class Batcher2D implements IBatcher {
         }
         let ia;
         const rd = this._currRenderData as MeshRenderData;
-        const accessor = BufferAccessorManager.instance._staticVBBuffer;
+        const accessor = BufferAccessorManager.instance.currBufferAccessor;
         // Previous batch using mesh buffer
         if (rd && rd._isMeshBuffer) {
             ia = rd.requestIA(this.device);
@@ -566,7 +566,7 @@ export class Batcher2D implements IBatcher {
             }
         } else if (accessor) {
         // Previous batch using static vb buffer
-            const bid = BufferAccessorManager.instance._currBID;
+            const bid = BufferAccessorManager.instance.currBID;
             const buf = accessor.getMeshBuffer(bid);
             if (!buf) {
                 return;
@@ -582,7 +582,7 @@ export class Batcher2D implements IBatcher {
             // Update index tracker and bid
             this._indexStart = buf.indexOffset;
         }
-        BufferAccessorManager.instance._currBID = -1;
+        BufferAccessorManager.instance.currBID = -1;
 
         // Request ia failed
         if (!ia) {
