@@ -43,18 +43,22 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
-            (this._b2joint.Cast2MouseJoint()).SetTarget(tempB2Vec2);
+            (this._b2joint as B2.MouseJoint).SetTarget(tempB2Vec2);
         }
     }
     setFrequency (v: number): void {
-        (this._b2joint!.Cast2MouseJoint()).SetFrequency(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.MouseJoint).SetFrequency(v);
+        }
     }
     setDampingRatio (v: number): void {
-        (this._b2joint!.Cast2MouseJoint()).SetDampingRatio(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.MouseJoint).SetDampingRatio(v);
+        }
     }
     setMaxForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2MouseJoint()).SetMaxForce(v);
+            (this._b2joint as B2.MouseJoint).SetMaxForce(v);
         }
     }
 

@@ -33,7 +33,7 @@ export class B2SliderJoint extends B2Joint implements ISliderJoint {
     // limit
     enableLimit (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2PrismaticJoint()).EnableLimit(v);
+            (this._b2joint as B2.PrismaticJoint).EnableLimit(v);
         }
     }
     setLowerLimit (v: number): void {
@@ -45,24 +45,24 @@ export class B2SliderJoint extends B2Joint implements ISliderJoint {
     updateLimits (): void {
         if (this._b2joint) {
             const comp = this._jointComp as SliderJoint2D;
-            (this._b2joint.Cast2PrismaticJoint()).SetLimits(comp.lowerLimit / PHYSICS_2D_PTM_RATIO, comp.upperLimit / PHYSICS_2D_PTM_RATIO);
+            (this._b2joint as B2.PrismaticJoint).SetLimits(comp.lowerLimit / PHYSICS_2D_PTM_RATIO, comp.upperLimit / PHYSICS_2D_PTM_RATIO);
         }
     }
 
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2PrismaticJoint()).EnableMotor(v);
+            (this._b2joint as B2.PrismaticJoint).EnableMotor(v);
         }
     }
     setMaxMotorForce (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2PrismaticJoint()).SetMaxMotorForce(v);
+            (this._b2joint as B2.PrismaticJoint).SetMaxMotorForce(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2PrismaticJoint()).SetMotorSpeed(v);
+            (this._b2joint as B2.PrismaticJoint).SetMotorSpeed(v);
         }
     }
 

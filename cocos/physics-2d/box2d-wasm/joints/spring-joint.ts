@@ -43,7 +43,7 @@ export class B2SpringJoint extends B2Joint implements ISpringJoint {
     }
     setDistance (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2DistanceJoint()).SetLength(v);
+            (this._b2joint as B2.DistanceJoint).SetLength(v);
         }
     }
 
