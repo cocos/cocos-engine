@@ -23,8 +23,8 @@
 */
 
 //import b2, { Vec2 } from '@cocos/box2d';
-import { B2, addImplReference, removeImplReference } from '../instantiated';
-
+import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, removeImplPtrReference,
+    removeImplPtrReferenceWASM } from '../instantiated';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
 import { Rect, Vec3 } from '../../../core';
@@ -184,18 +184,10 @@ export class B2Shape2D implements IBaseShape {
             fixDef.restitution = comp.restitution;
             fixDef.SetShape(shape);
             fixDef.filter = filter;
-            // const fixDef: B2.FixtureDef = {
-            //     density: comp.density,
-            //     isSensor: comp.sensor,
-            //     friction: comp.friction,
-            //     restitution: comp.restitution,
-            //     shape,
-            //     filter,
-            // };
-
             const fixture = this._body.CreateFixture(fixDef);
             //fixture.m_userData = this;
-            addImplReference(this, fixture);
+            addImplPtrReference(this, getImplPtr(fixture));
+            addImplPtrReferenceWASM(fixture, getImplPtr(fixture));
 
             if (body?.enabledContactListener) {
                 (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).registerContactFixture(fixture);
@@ -217,7 +209,8 @@ export class B2Shape2D implements IBaseShape {
         for (let i = fixtures.length - 1; i >= 0; i--) {
             const fixture = fixtures[i];
             //fixture.m_userData = null;
-            removeImplReference(this, fixture);
+            removeImplPtrReference(getImplPtr(fixture));
+            removeImplPtrReferenceWASM(getImplPtr(fixture));
 
             (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).unregisterContactFixture(fixture);
 

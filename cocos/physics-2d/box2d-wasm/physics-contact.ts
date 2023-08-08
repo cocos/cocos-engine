@@ -22,10 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Fixture } from '@cocos/box2d';
-import { B2, addImplReference, getB2ObjectFromImpl, removeImplReference,
-    addImplPtrReference, getB2ObjectFromImplPtr, removeImplPtrReference,
-} from './instantiated';
+import { B2, addImplPtrReference, getTSObjectFromWASMObjectPtr, removeImplPtrReference } from './instantiated';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
@@ -77,7 +74,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     static put (b2contact: number): void {
-        const c = getB2ObjectFromImplPtr<PhysicsContact>(b2contact);
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
         if (!c) return;
 
         pools.push(c);
@@ -92,16 +89,16 @@ export class PhysicsContact implements IPhysics2DContact {
 
     private _impulsePtr: number = 0;
     private _inverted = false;
-    private _implPtr: number = 0;
-    private _b2WorldmanifoldPtr: number = 0;
+    private _implPtr: number = 0;   //wasm object pointer
+    private _b2WorldmanifoldPtr: number = 0; //wasm object pointer
 
     _setImpulse (impulse: number): void {
         this._impulsePtr = impulse;
     }
 
     init (b2contact: number): void {
-        this.colliderA = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact))).collider;
-        this.colliderB = (getB2ObjectFromImplPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact))).collider;
+        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact))).collider;
+        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact))).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulsePtr = 0;
@@ -122,7 +119,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this.disabled = false;
         this._impulsePtr = 0;
 
-        removeImplPtrReference(this, this._implPtr);
+        removeImplPtrReference(this._implPtr);
         this._implPtr = 0;
 
         B2.WorldManifoldDelete(this._b2WorldmanifoldPtr);
