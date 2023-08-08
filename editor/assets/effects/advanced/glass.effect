@@ -22,8 +22,8 @@ CCEffect %{
         mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         roughness:                        { value: 0.0, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        specularIntensity:                { value: 0.2, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        F0:                               { value: 0.7, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        F0:                               { value: 0.5, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         F90:                              { value: 0.9, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         gradientColor:                    { value: [0.0, 0.05, 0.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
         gradientIntensity:                { value: 0.2, target: emissiveScaleParam.z, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -96,7 +96,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_USE_TWO_SIDED: true }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, TECHNIQUE_TWO_SIDE: true }
       rasterizerState:
         cullMode: Front
       properties: &props
@@ -104,8 +104,8 @@ CCEffect %{
         mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         roughness:                        { value: 0.0, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        specularIntensity:                { value: 0.2, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        F0:                               { value: 0.7, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        F0:                               { value: 0.5, target: emissiveScaleParam.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         F90:                              { value: 0.9, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         gradientColor:                    { value: [0.0, 0.05, 0.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
         gradientIntensity:                { value: 0.2, target: emissiveScaleParam.z, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -117,7 +117,7 @@ CCEffect %{
       blendState: *b1
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_USE_TWO_SIDED: true }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, TECHNIQUE_TWO_SIDE: true }
       rasterizerState:
         cullMode: Back
       propertyIndex: 0
@@ -159,6 +159,10 @@ CCProgram macro-remapping %{
   // depend on UI macros
 #if USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+  // depend on technique macros
+#if TECHNIQUE_TWO_SIDE
+  #define CC_SURFACES_USE_TWO_SIDED 1
 #endif
 }%
 

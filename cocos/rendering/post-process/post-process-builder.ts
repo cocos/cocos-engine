@@ -47,11 +47,13 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(forward);
 
         this.addPass(new SkinPass());
+
+        // transparency should after tone mapping
+        this.addPass(new ToneMappingPass());
         this.addPass(new ForwardTransparencyPass());
 
         // pipeline related
         this.addPass(new HBAOPass());
-        this.addPass(new ToneMappingPass());
 
         // user post-processing
         this.addPass(new TAAPass());
