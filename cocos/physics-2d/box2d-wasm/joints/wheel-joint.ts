@@ -46,17 +46,17 @@ export class B2WheelJoint extends B2Joint implements IWheelJoint {
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2WheelJoint()).EnableMotor(v);
+            (this._b2joint as B2.WheelJoint).EnableMotor(v);
         }
     }
     setMaxMotorTorque (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2WheelJoint()).SetMaxMotorTorque(v);
+            (this._b2joint as B2.WheelJoint).SetMaxMotorTorque(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2WheelJoint()).SetMotorSpeed(v);
+            (this._b2joint as B2.WheelJoint).SetMotorSpeed(v);
         }
     }
 

@@ -32,7 +32,7 @@ import { toRadian } from '../../../core';
 export class B2HingeJoint extends B2Joint implements IHingeJoint {
     enableLimit (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2RevoluteJoint()).EnableLimit(v);
+            (this._b2joint as B2.RevoluteJoint).EnableLimit(v);
         }
     }
     setLowerAngle (v: number): void {
@@ -44,24 +44,24 @@ export class B2HingeJoint extends B2Joint implements IHingeJoint {
     updateLimits (): void {
         if (this._b2joint) {
             const comp = this._jointComp as HingeJoint2D;
-            (this._b2joint.Cast2RevoluteJoint()).SetLimits(toRadian(comp.lowerAngle), toRadian(comp.upperAngle));
+            (this._b2joint as B2.RevoluteJoint).SetLimits(toRadian(comp.lowerAngle), toRadian(comp.upperAngle));
         }
     }
 
     // motor
     enableMotor (v: boolean): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2RevoluteJoint()).EnableMotor(v);
+            (this._b2joint as B2.RevoluteJoint).EnableMotor(v);
         }
     }
     setMaxMotorTorque (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2RevoluteJoint()).SetMaxMotorTorque(v);
+            (this._b2joint as B2.RevoluteJoint).SetMaxMotorTorque(v);
         }
     }
     setMotorSpeed (v: number): void {
         if (this._b2joint) {
-            (this._b2joint.Cast2RevoluteJoint()).SetMotorSpeed(v);
+            (this._b2joint as B2.RevoluteJoint).SetMotorSpeed(v);
         }
     }
 
