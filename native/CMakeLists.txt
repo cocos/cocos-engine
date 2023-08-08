@@ -2509,7 +2509,6 @@ cocos_source_files(
 
 cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
-            cocos/bindings/manual/jsb_classtype.cpp
             cocos/bindings/manual/jsb_classtype.h
             cocos/bindings/manual/jsb_cocos_manual.cpp
             cocos/bindings/manual/jsb_cocos_manual.h
