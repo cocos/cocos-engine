@@ -1320,47 +1320,31 @@ class DevicePostSceneTask extends WebSceneTask {}
 
 class ExecutorPools {
     constructor (context: ExecutorContext) {
-        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 16);
-        this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
-        this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
-        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 8);
-        this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
-            priority: 0,
-            hash: 0,
-            depth: 0,
-            shaderId: 0,
-            subModel: null!,
-            passIdx: 0,
-        }), 64);
-    }
-    addPassInfo (): IRenderPass {
-        return this.passPool.add();
-    }
-    resetPassInfo (): void {
-        this.passPool.reset();
+        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 0);
+        this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 0);
+        this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 0);
+        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 0);
     }
     addDeviceQueue (): DeviceRenderQueue {
-        return this.deviceQueuePool.add();
+        return this.deviceQueuePool.addWithArgs();
     }
     addGraphScene (): GraphScene {
-        return this.graphScenePool.add();
+        return this.graphScenePool.addWithArgs();
     }
     addReflectionProbe (): RenderReflectionProbeQueue {
-        return this.reflectionProbe.add();
+        return this.reflectionProbe.addWithArgs();
     }
     addRasterPassInfo (): RasterPassInfo {
-        return this.rasterPassInfoPool.add();
+        return this.rasterPassInfoPool.addWithArgs();
     }
     reset (): void {
         this.deviceQueuePool.reset();
         this.graphScenePool.reset();
         this.reflectionProbe.reset();
-        this.resetPassInfo();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly graphScenePool: RecyclePool<GraphScene>;
     readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
-    readonly passPool: RecyclePool<IRenderPass>;
     readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
 }
 
