@@ -61,6 +61,7 @@ public class CocosHttpURLConnection {
     private static final HiLogLabel LABEL = new HiLogLabel(HiLog.LOG_APP, 0, "CocosHttpURLConnection");
     private static final String POST_METHOD = "POST";
     private static final String PUT_METHOD = "PUT";
+    private static final String PATCH_METHOD = "PATCH";
 
     @SuppressWarnings("unused")
     static HttpURLConnection createHttpURLConnection(String linkURL) {
