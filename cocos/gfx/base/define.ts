@@ -390,6 +390,18 @@ export enum TextureType {
     TEX2D_ARRAY,
 }
 
+export enum TextureViewType {
+    TEX1D,
+    TEX1D_ARRAY,
+    TEX2D,
+    TEX2D_ARRAY,
+    TEX2DMS,
+    TEX2DMS_ARRAY,
+    TEX3D,
+    CUBE,
+    CUBE_ARRAY
+}
+
 export enum TextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
