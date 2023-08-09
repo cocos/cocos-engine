@@ -130,6 +130,7 @@ module.exports = link(mixin({
             SafeArea: `${url}/${version}/manual/en/ui-system/components/editor/safearea.html`,
             Terrain: `${url}/${version}/manual/en/editor/terrain/`,
             TiledMap: `${url}/${version}/manual/en/editor/components/tiledmap.html`,
+            TiledTile: `${url}/${version}/manual/en/editor/components/tiledtile.html`,
             Spine: `${url}/${version}/manual/en/editor/components/spine.html`,
             DragonBones: `${url}/${version}/manual/en/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
@@ -145,6 +146,7 @@ module.exports = link(mixin({
             Skin: `${url}/${version}/manual/en/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/en/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/en/concepts/scene/light/probe/reflection-art-workflow.html`,
+            Sorting: `${url}/${version}/manual/en/engine/rendering/sorting.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
