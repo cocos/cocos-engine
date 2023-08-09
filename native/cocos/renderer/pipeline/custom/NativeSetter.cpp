@@ -63,6 +63,11 @@ void NativeSetter::setFloat(const ccstd::string &name, float v) {
     setFloatImpl(data, *layoutGraph, name, v);
 }
 
+void NativeSetter::setUInt(const ccstd::string &name, uint32_t v) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setUIntImpl(data, *layoutGraph, name, v);
+}
+
 void NativeSetter::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
     setArrayBufferImpl(data, *layoutGraph, name, *buffer);

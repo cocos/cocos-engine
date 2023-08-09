@@ -210,6 +210,7 @@ ccstd::hash_t Hasher<SamplerInfo>::operator()(const SamplerInfo &info) const {
     hash |= static_cast<uint32_t>(info.addressW) << 10;
     hash |= static_cast<uint32_t>(info.maxAnisotropy) << 12;
     hash |= static_cast<uint32_t>(info.cmpFunc) << 16;
+    hash |= static_cast<uint32_t>(info.reduction) << 19;
     return static_cast<ccstd::hash_t>(hash);
 }
 

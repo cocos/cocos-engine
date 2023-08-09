@@ -392,6 +392,12 @@ void RenderScene::removeModels() {
     _models.clear();
 }
 
+void RenderScene::addGPUMesh(Mesh* mesh) {
+    if (_gpuScene) {
+        _gpuScene->addMesh(mesh);
+    }
+}
+
 void RenderScene::addGPUModel(Model* model) {
     model->attachToScene(this);
     _gpuModels.emplace_back(model);

@@ -165,34 +165,33 @@ void GPUBatchPool::update(uint32_t stamp) {
     uint32_t batchId = 0U;
     const auto &meshPool = _gpuScene->getMeshPool();
 
-    for (auto &batch : _batches) {
-        auto &items = batch.second->getItems();
+    for (auto &lightmapBatch : _batches) {
+        for (auto &passBatch : lightmapBatch.second) {
+            auto &items = passBatch.second->getItems();
 
-        for (auto &item : items) {
-            item.first = first;
-            item.count = static_cast<uint32_t>(item.mesh2objects.size());
-            first += item.count;
+            for (auto &item : items) {
+                item.first = first;
+                item.count = static_cast<uint32_t>(item.mesh2objects.size());
+                first += item.count;
 
-            for (const auto &iter : item.mesh2objects) {
-                const auto meshIdx = iter.first;
-                const auto &meshData = meshPool->getSubMeshData(meshIdx);
+                for (const auto &iter : item.mesh2objects) {
+                    const auto meshIdx = iter.first;
+                    const auto &meshData = meshPool->getSubMeshData(meshIdx);
 
-                const auto indexCount = meshData.indexCount;
-                const auto firstIndex = meshData.firstIndex;
-                const auto firstVertex = static_cast<int32_t>(meshData.firstVertex);
-                const auto firstInstance = static_cast<uint32_t>(_instances.size());
-                const auto instanceCount = static_cast<uint32_t>(iter.second.size());
+                    const auto indexCount = meshData.indexCount;
+                    const auto firstIndex = meshData.firstIndex;
+                    const auto firstVertex = static_cast<int32_t>(meshData.firstVertex);
+                    const auto firstInstance = static_cast<uint32_t>(_instances.size());
+                    // const auto instanceCount = static_cast<uint32_t>(iter.second.size());
 
-#ifdef USE_CPU_INDIRECT_DRAW
-                _indirectCmds.push_back({indexCount, instanceCount, firstIndex, firstVertex, firstInstance});
-#else
-                _indirectCmds.push_back({indexCount, 0, firstIndex, firstVertex, firstInstance});
-#endif
-                for (const auto &objectIdx : iter.second) {
-                    _instances.push_back({objectIdx, batchId});
+                    _indirectCmds.push_back({indexCount, 0, firstIndex, firstVertex, firstInstance});
+
+                    for (const auto &objectIdx : iter.second) {
+                        _instances.push_back({objectIdx, batchId});
+                    }
+
+                    batchId++;
                 }
-
-                batchId++;
             }
         }
     }
@@ -201,7 +200,9 @@ void GPUBatchPool::update(uint32_t stamp) {
 }
 
 void GPUBatchPool::addModel(const Model* model) {
+    const auto *lightmap = model->getLightmap();
     const auto &subModels = model->getSubModels();
+
     for (const auto &subModel : subModels) {
         const auto &passes = *subModel->getPasses();
         const auto passCount = passes.size();
@@ -213,12 +214,17 @@ void GPUBatchPool::addModel(const Model* model) {
                 continue;
             }
 
-            auto iter = _batches.find(pass);
-            if (iter == _batches.cend()) {
-                iter = _batches.insert({pass, ccnew GPUBatch(_gpuScene, pass)}).first;
+            auto lightmapIter = _batches.find(lightmap);
+            if (lightmapIter == _batches.cend()) {
+                lightmapIter = _batches.insert({lightmap, PassBatchMap()}).first;
             }
 
-            iter->second->addSubModel(subModel, passIdx);
+            auto passIter = lightmapIter->second.find(pass);
+            if (passIter == lightmapIter->second.cend()) {
+                passIter = lightmapIter->second.insert({pass, ccnew GPUBatch(_gpuScene, pass)}).first;
+            }
+
+            passIter->second->addSubModel(subModel, passIdx);
         }
     }
 
@@ -226,7 +232,9 @@ void GPUBatchPool::addModel(const Model* model) {
 }
 
 void GPUBatchPool::removeModel(const Model* model) {
+    const auto *lightmap = model->getLightmap();
     const auto &subModels = model->getSubModels();
+
     for (const auto &subModel : subModels) {
         const auto &passes = *subModel->getPasses();
         const auto passCount = passes.size();
@@ -238,12 +246,17 @@ void GPUBatchPool::removeModel(const Model* model) {
                 continue;
             }
 
-            auto iter = _batches.find(pass);
-            if (iter == _batches.cend()) {
+            auto lightmapIter = _batches.find(lightmap);
+            if (lightmapIter == _batches.cend()) {
                 continue;
             }
 
-            iter->second->removeSubModel(subModel, passIdx);
+            auto passIter = lightmapIter->second.find(pass);
+            if (passIter == lightmapIter->second.cend()) {
+                continue;
+            }
+
+            passIter->second->removeSubModel(subModel, passIdx);
         }
     }
 
@@ -251,8 +264,10 @@ void GPUBatchPool::removeModel(const Model* model) {
 }
 
 void GPUBatchPool::removeAllModels() {
-    for (auto &batch : _batches) {
-        CC_SAFE_DESTROY_AND_DELETE(batch.second);
+    for (auto &lightMapBatch : _batches) {
+        for (auto &passBatch : lightMapBatch.second) {
+            CC_SAFE_DESTROY_AND_DELETE(passBatch.second);
+        }
     }
 
     _batches.clear();
@@ -262,8 +277,26 @@ void GPUBatchPool::removeAllModels() {
     _dirty = true;
 }
 
+// Use this struct while firstInstance is not supported.
+struct DrawIndexedIndirectCommandFallback {
+    uint32_t indexCount{0};
+    uint32_t instanceCount{0};
+    uint32_t firstIndex{0};
+    int32_t vertexOffset{0};
+    uint32_t reservedMustBeZero{0};
+    uint32_t firstInstance{0};
+};
+
+uint32_t GPUBatchPool::getIndirectStride() const {
+    auto *device = gfx::Device::getInstance();
+    return device->getCapabilities().supportFirstInstance ?
+        static_cast<uint32_t>(sizeof(gfx::DrawIndexedIndirectCommand)) :
+        static_cast<uint32_t>(sizeof(DrawIndexedIndirectCommandFallback));
+}
+
 void GPUBatchPool::createBuffers() {
     auto *device = gfx::Device::getInstance();
+
     const auto instanceStride = static_cast<uint32_t>(sizeof(InstanceData));
     const auto instanceSize = instanceStride * _instanceCapacity;
 
@@ -272,16 +305,19 @@ void GPUBatchPool::createBuffers() {
                                             instanceSize,
                                             instanceStride});
 
-    const auto indirectStride = static_cast<uint32_t>(sizeof(DrawIndirectCommand));
+    const auto indirectStride = getIndirectStride();
     const auto indirectSize = indirectStride * _indirectCapacity;
 
-    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::INDIRECT,
+    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::TRANSFER_SRC,
                                             gfx::MemoryUsageBit::DEVICE,
                                             indirectSize,
                                             indirectStride});
 }
 
 void GPUBatchPool::updateBuffers() {
+    auto *device = gfx::Device::getInstance();
+    const auto supportFirstInstance = device->getCapabilities().supportFirstInstance;
+
     const auto instanceCount = static_cast<uint32_t>(_instances.size());
     const auto instanceStride = static_cast<uint32_t>(sizeof(InstanceData));
 
@@ -295,8 +331,8 @@ void GPUBatchPool::updateBuffers() {
         _instanceBuffer->update(_instances.data(), instanceSize);
     }
 
-    const auto indirectCount = static_cast<uint32_t>(_indirectCmds.size());
-    const auto indirectStride = static_cast<uint32_t>(sizeof(DrawIndirectCommand));
+    const auto indirectCount =  static_cast<uint32_t>(_indirectCmds.size());
+    const auto indirectStride = getIndirectStride();
 
     if (indirectCount > _indirectCapacity) {
         _indirectCapacity = utils::nextPOT(indirectCount);
@@ -305,7 +341,20 @@ void GPUBatchPool::updateBuffers() {
 
     if (indirectCount > 0) {
         const auto indirectSize = indirectStride * indirectCount;
-        _indirectBuffer->update(_indirectCmds.data(), indirectSize);
+
+        if (supportFirstInstance) {
+            _indirectBuffer->update(_indirectCmds.data(), indirectSize);
+        } else {
+            ccstd::vector<DrawIndexedIndirectCommandFallback> indirectCmds;
+            indirectCmds.reserve(indirectCount);
+
+            for (auto i = 0; i < indirectCount; i++) {
+                const auto &cmd = _indirectCmds[i];
+                indirectCmds.push_back({cmd.indexCount, cmd.instanceCount, cmd.firstIndex, cmd.vertexOffset, 0, cmd.firstInstance});
+            }
+
+            _indirectBuffer->update(indirectCmds.data(), indirectSize);
+        }
     }
 }
 

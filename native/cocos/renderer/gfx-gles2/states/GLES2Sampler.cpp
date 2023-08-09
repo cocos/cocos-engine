@@ -39,6 +39,7 @@ GLES2Sampler::GLES2Sampler(const SamplerInfo &info) : Sampler(info) {
     _gpuSampler->addressU = _info.addressU;
     _gpuSampler->addressV = _info.addressV;
     _gpuSampler->addressW = _info.addressW;
+    _gpuSampler->reduction = _info.reduction;
 
     cmdFuncGLES2CreateSampler(GLES2Device::getInstance(), _gpuSampler);
 }

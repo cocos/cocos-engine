@@ -558,6 +558,13 @@ export class RenderScene {
     }
 
     /**
+     * Add a mesh to GPUScene.
+     * Only support in native.
+     * @internal
+     */
+    public addGPUMesh (m: Mesh): void {}
+
+    /**
      * @en Add a GPU Driven model, all models attached to the render scene will be submitted for rendering.
      * @zh 增加一个 GPU Driven 模型，渲染场景上挂载的所有模型都会被提交渲染。
      * @param m The model.

@@ -29,8 +29,10 @@
 #include "base/std/container/vector.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/unordered_set.h"
-#include "scene/gpu-scene/Define.h"
+#include "renderer/gfx-base/GFXDef-common.h"
+#include "scene/gpu-scene/Const.h"
 #include <climits>
+#include <utility>
 
 namespace cc {
 
@@ -38,6 +40,7 @@ namespace gfx {
 class Shader;
 class Buffer;
 class InputAssembler;
+class Texture;
 }
 
 namespace scene {
@@ -45,14 +48,6 @@ class Pass;
 class Model;
 class SubModel;
 class GPUScene;
-
-struct DrawIndirectCommand {
-    uint32_t indexCount{0U};
-    uint32_t instanceCount{0U};
-    uint32_t firstIndex{0U};
-    int32_t vertexOffset{0};
-    uint32_t firstInstance{0U};
-};
 
 struct InstanceData {
     uint32_t objectId{UINT_MAX};
@@ -75,7 +70,7 @@ struct CC_DLL BatchItem {
 
     /**
      * Map from MeshPool index to ObjectPool index list, 
-     * each key-value pair corresponds to a DrawIndirectCommand
+     * each key-value pair corresponds to a indirect command
      */
     ccstd::unordered_map<uint32_t, ObjectList> mesh2objects;
 };
@@ -103,6 +98,9 @@ private:
     BatchItemList _items;
 };
 
+using PassBatchMap = ccstd::unordered_map<Pass *, GPUBatch *>;
+using LightMapBatchMap = ccstd::unordered_map<const gfx::Texture *, PassBatchMap>;
+
 class CC_DLL GPUBatchPool final : public RefCounted {
 public:
     GPUBatchPool() = default;
@@ -116,7 +114,11 @@ public:
     void removeModel(const Model *model);
     void removeAllModels();
 
-    inline ccstd::unordered_map<Pass*, GPUBatch*> &getBatches() { return _batches; }
+    inline LightMapBatchMap &getBatches() { return _batches; }
+    inline uint32_t getIndirectCount() const { return static_cast<uint32_t>(_indirectCmds.size()); }
+    inline uint32_t getInstanceCount() const { return static_cast<uint32_t>(_instances.size()); }
+    uint32_t getIndirectStride() const;
+
     inline gfx::Buffer *getInstanceBuffer() { return _instanceBuffer.get(); }
     inline gfx::Buffer *getIndirectBuffer() { return _indirectBuffer.get(); }
 
@@ -125,9 +127,9 @@ private:
     void updateBuffers();
 
     GPUScene *_gpuScene{nullptr};
-    ccstd::unordered_map<Pass*, GPUBatch*> _batches;
+    LightMapBatchMap _batches;
     ccstd::vector<InstanceData> _instances;
-    ccstd::vector<DrawIndirectCommand> _indirectCmds;
+    ccstd::vector<gfx::DrawIndexedIndirectCommand> _indirectCmds;
 
     bool _dirty{false};
     IntrusivePtr<gfx::Buffer> _instanceBuffer;

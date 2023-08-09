@@ -43,7 +43,7 @@ struct GLES3GPUConstantRegistry {
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel mFBF{FBFSupportLevel::NONE};
-    uint32_t multiDrawIndirect = false;
+    bool multiDrawIndirect = false;
 };
 
 class GLES3GPUStateCache;
@@ -180,11 +180,13 @@ public:
     Address addressU = Address::CLAMP;
     Address addressV = Address::CLAMP;
     Address addressW = Address::CLAMP;
+    Reduction reduction = Reduction::WEIGHTED_AVERAGE;
     GLenum glMinFilter = 0;
     GLenum glMagFilter = 0;
     GLenum glWrapS = 0;
     GLenum glWrapT = 0;
     GLenum glWrapR = 0;
+    GLenum glReduction = 0;
 
     ~GLES3GPUSampler() {
         ccstd::vector<GLuint> glSampelrs;

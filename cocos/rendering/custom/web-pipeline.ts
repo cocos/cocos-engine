@@ -854,9 +854,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         return layoutName;
     }
 
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, cullingID = 0xFFFFFFFF): void {
         const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID);
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Camera', '', new RenderData(), false, this._vertID);
         const layoutName = this.getLayoutName();
         const scene: Scene = cclegacy.director.getScene();
         setCameraUBOValues(

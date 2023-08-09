@@ -296,6 +296,16 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
     return instancedBuffer;
 }
 
+bool Pass::isBlend() const {
+    for (const auto &target : _blendState.targets) {
+        if (target.blend) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void Pass::destroy() {
     if (!_buffers.empty()) {
         for (const auto &u : _shaderInfo->blocks) {

@@ -857,6 +857,7 @@ struct SceneData {
     const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
+    uint32_t cullingID = 0xFFFFFFFF;
 };
 
 struct Dispatch {

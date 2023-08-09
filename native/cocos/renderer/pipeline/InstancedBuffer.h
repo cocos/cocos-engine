@@ -35,7 +35,6 @@ namespace gfx {
 class Device;
 }
 namespace pipeline {
-struct PSOInfo;
 
 struct CC_DLL InstancedItem {
     uint32_t capacity = 0;

@@ -32,6 +32,7 @@ import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-util
 import { Color, warnID, Vec4, cclegacy, warn } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
+import { getPhaseID } from '../../rendering/pass-phase';
 
 const v4_1 = new Vec4();
 
@@ -537,6 +538,26 @@ export class Material extends Asset {
 
     public validate (): boolean {
         return !!this._effectAsset && !this._effectAsset.isDefault && this.passes.length > 0;
+    }
+
+    public isBlend (phaseName: string | number): boolean {
+        for (let i = 0; i < this._passes.length; i++) {
+            const pass = this._passes[i];
+            if (!pass) {
+                continue;
+            }
+
+            if (pass.phase !== getPhaseID(phaseName)) {
+                continue;
+            }
+
+            // If any matched pass is blend, return true.
+            if (pass.isBlend()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 

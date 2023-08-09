@@ -130,6 +130,13 @@ void setFloatImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::stri
     memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
 }
 
+void setUIntImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, uint32_t v) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(uint32_t) == 4, "sizeof(uint32_t) is not 4 bytes");
+    data.constants[nameID.value].resize(sizeof(uint32_t));
+    memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
+}
+
 void setArrayBufferImpl(
     RenderData &data, const LayoutGraphData &lg, std::string_view name,
     const ArrayBuffer &buffer) {

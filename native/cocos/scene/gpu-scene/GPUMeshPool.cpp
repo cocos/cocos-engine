@@ -35,6 +35,19 @@
 namespace cc {
 namespace scene {
 
+void MemoryBufferView::push(const uint8_t* data, uint32_t size, uint32_t cnt) {
+    CC_ASSERT(cnt * stride == size);
+    const auto offset = stride * count;
+    const auto free = buffer.size() - offset;
+    if (free < size) {
+        const auto newSize = (offset + size) * 2;
+        buffer.resize(newSize);
+    }
+
+    std::memcpy(&buffer[0] + offset, data, size);
+    count += cnt;
+}
+
 void GPUMeshPool::activate(GPUScene* scene) {
     _gpuScene = scene;
 }
@@ -43,124 +56,136 @@ void GPUMeshPool::destroy() {
     for (auto& iter : _vertexBuffers) {
         CC_SAFE_DESTROY_NULL(iter.second);
     }
-    _vertexBuffers.clear();
 
     for (auto& iter : _indexBuffers) {
         CC_SAFE_DESTROY_NULL(iter.second);
     }
-    _indexBuffers.clear();
 
+    _vertexBuffers.clear();
+    _indexBuffers.clear();
+    _vbs.clear();
+    _ibs.clear();
     _meshes.clear();
 }
 
 void GPUMeshPool::update(uint32_t stamp) {
     // Do nothing now.
+    std::ignore = stamp;
 }
 
-struct BufferView {
-    ccstd::vector<uint8_t> buffer;
-    uint32_t stride{0U};
-    uint32_t count{0U};
-
-    explicit BufferView(uint32_t inStride)
-    : stride(inStride) {}
-
-    void push(const uint8_t* data, uint32_t size, uint32_t cnt) {
-        CC_ASSERT(cnt * stride == size);
-        const auto offset = stride * count;
-        const auto free = buffer.size() - offset;
-        if (free < size) {
-            const auto newSize = (offset + size) * 4;
-            buffer.resize(newSize);
-        }
-
-        std::memcpy(&buffer[0] + offset, data, size);
-        count += cnt;
-    }
-};
-
 void GPUMeshPool::build(const ccstd::vector<Mesh*>& meshes) {
-    // Remove duplicated meshes
-    ccstd::unordered_set<Mesh*> meshSet;
-    for (auto* mesh : meshes) {
-        meshSet.insert(mesh);
+    for (const auto& mesh : meshes) {
+        addMesh(mesh);
     }
 
-    ccstd::unordered_map<ccstd::hash_t, BufferView> vbs;
-    ccstd::unordered_map<uint32_t, BufferView> ibs;
+    updateBuffers();
+}
 
-    for (const auto& mesh : meshSet) {
-        const auto& structInfo = mesh->getStruct();
-        const auto& data = mesh->getData();
-        const auto* buffer = data.buffer();
-        const auto& subMeshes = mesh->getRenderingSubMeshes();
+void GPUMeshPool::addMesh(Mesh* mesh) {
+    if (!mesh || mesh->isInGPUScene()) {
+        return;
+    }
 
-        for (const auto& subMesh : subMeshes) {
-            CC_ASSERT(subMesh->getSubMeshIdx().has_value());
-            const auto subMeshIndex = subMesh->getSubMeshIdx().value();
-            const auto& primitive = structInfo.primitives[subMeshIndex];
+    const auto& structInfo = mesh->getStruct();
+    const auto& data = mesh->getData();
+    const auto* buffer = data.buffer();
+    const auto& subMeshes = mesh->getRenderingSubMeshes();
 
-            CC_ASSERT(primitive.vertexBundelIndices.size() == 1);
-            const auto idx = primitive.vertexBundelIndices[0];
-            const auto& vertexBundle = structInfo.vertexBundles[idx];
+    for (const auto& subMesh : subMeshes) {
+        CC_ASSERT(subMesh->getSubMeshIdx().has_value());
+        const auto subMeshIndex = subMesh->getSubMeshIdx().value();
+        const auto& primitive = structInfo.primitives[subMeshIndex];
 
-            CC_ASSERT(primitive.indexView.has_value());
-            const auto& indexView = primitive.indexView.value();
+        CC_ASSERT(primitive.vertexBundelIndices.size() == 1);
+        const auto idx = primitive.vertexBundelIndices[0];
+        const auto& vertexBundle = structInfo.vertexBundles[idx];
 
-            const auto vbCount = vertexBundle.view.count;
-            const auto vbStride = vertexBundle.view.stride;
-            const auto ibCount = indexView.count;
-            const auto ibStride = indexView.stride;
-            const auto attrHash = computeAttributesHash(vertexBundle.attributes);
+        CC_ASSERT(primitive.indexView.has_value());
+        const auto& indexView = primitive.indexView.value();
 
-            auto vb = vbs.find(attrHash);
-            if (vb == vbs.cend()) {
-                vb = vbs.insert({attrHash, BufferView(vbStride)}).first;
-            }
+        const auto vbCount = vertexBundle.view.count;
+        const auto vbStride = vertexBundle.view.stride;
+        const auto ibCount = indexView.count;
+        const auto ibStride = indexView.stride;
+        const auto attrHash = computeAttributesHash(vertexBundle.attributes);
 
-            auto ib = ibs.find(ibStride);
-            if (ib == ibs.cend()) {
-                ib = ibs.insert({ibStride, BufferView(ibStride)}).first;
-            }
-
-            subMesh->setMeshPoolIndex(static_cast<uint32_t>(_meshes.size()));
-            _meshes.push_back({attrHash, ibStride, vb->second.count, ib->second.count, vbCount, ibCount});
-
-            vb->second.push(buffer->getData() + vertexBundle.view.offset, vertexBundle.view.length, vbCount);
-            ib->second.push(buffer->getData() + indexView.offset, indexView.length, ibCount);
-
-            // Destroy subMesh's private buffers
-            subMesh->destroy();
+        auto vb = _vbs.find(attrHash);
+        if (vb == _vbs.cend()) {
+            vb = _vbs.insert({attrHash, MemoryBufferView(vbStride)}).first;
         }
 
-        // Release CPU side data if necessary
-        if (!mesh->isAllowDataAccess()) {
-            mesh->releaseData();
+        auto ib = _ibs.find(ibStride);
+        if (ib == _ibs.cend()) {
+            ib = _ibs.insert({ibStride, MemoryBufferView(ibStride)}).first;
         }
+
+        subMesh->setMeshPoolIndex(static_cast<uint32_t>(_meshes.size()));
+        _meshes.push_back({attrHash, ibStride, vb->second.count, ib->second.count, vbCount, ibCount});
+
+        vb->second.push(buffer->getData() + vertexBundle.view.offset, vertexBundle.view.length, vbCount);
+        ib->second.push(buffer->getData() + indexView.offset, indexView.length, ibCount);
+
+        // Destroy subMesh's private buffers
+        subMesh->destroy();
+    }
+
+    mesh->setInGPUScene(true);
+
+    // Release CPU side data if necessary
+    if (!mesh->isAllowDataAccess()) {
+        mesh->releaseData();
+    }
+
+    _dirty = true;
+}
+
+void GPUMeshPool::updateBuffers() {
+    if (!_dirty) {
+        return;
     }
 
     auto* device = gfx::Device::getInstance();
-    for (const auto &iter : vbs) {
+    for (const auto& iter : _vbs) {
         const auto size = iter.second.stride * iter.second.count;
-        auto* vb = device->createBuffer({gfx::BufferUsageBit::VERTEX,
-                                         gfx::MemoryUsageBit::DEVICE,
-                                         size,
-                                         iter.second.stride});
+        auto vb = _vertexBuffers.find(iter.first);
+        if (vb == _vertexBuffers.cend()) {
+            auto* buffer = device->createBuffer({gfx::BufferUsageBit::VERTEX,
+                                                 gfx::MemoryUsageBit::DEVICE,
+                                                 size,
+                                                 iter.second.stride});
 
-        vb->update(iter.second.buffer.data(), size);
-        _vertexBuffers.insert({iter.first, vb});
+            buffer->update(iter.second.buffer.data(), size);
+            _vertexBuffers.insert({iter.first, buffer});
+        } else {
+            auto& buffer = vb->second;
+            if (buffer->getSize() != size) {
+                buffer->resize(size);
+                buffer->update(iter.second.buffer.data(), size);
+            }
+        }
     }
 
-    for (const auto& iter : ibs) {
+    for (const auto& iter : _ibs) {
         const auto size = iter.second.stride * iter.second.count;
-        auto* ib = device->createBuffer({gfx::BufferUsageBit::INDEX,
-                                         gfx::MemoryUsageBit::DEVICE,
-                                         size,
-                                         iter.second.stride});
+        auto ib = _indexBuffers.find(iter.first);
+        if (ib == _indexBuffers.cend()) {
+            auto* buffer = device->createBuffer({gfx::BufferUsageBit::INDEX,
+                                                 gfx::MemoryUsageBit::DEVICE,
+                                                 size,
+                                                 iter.second.stride});
 
-        ib->update(iter.second.buffer.data(), size);
-        _indexBuffers.insert({iter.first, ib});
+            buffer->update(iter.second.buffer.data(), size);
+            _indexBuffers.insert({iter.first, buffer});
+        } else {
+            auto& buffer = ib->second;
+            if (buffer->getSize() != size) {
+                buffer->resize(size);
+                buffer->update(iter.second.buffer.data(), size);
+            }
+        }
     }
+
+    _dirty = false;
 }
 
 } // namespace scene

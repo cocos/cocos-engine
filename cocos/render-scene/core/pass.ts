@@ -374,6 +374,16 @@ export class Pass {
         return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
     }
 
+    public isBlend (): boolean {
+        for (let i = 0; i < this.blendState.targets.length; i++) {
+            if (this.blendState.targets[i].blend) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @en Destroy the current pass.
      * @zh 销毁当前 pass。

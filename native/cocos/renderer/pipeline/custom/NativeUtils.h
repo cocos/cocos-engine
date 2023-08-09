@@ -61,6 +61,8 @@ void setVec2Impl(RenderData &data, const LayoutGraphData &lg, const ccstd::strin
 
 void setFloatImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, float v);
 
+void setUIntImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, uint32_t v);
+
 void setArrayBufferImpl(
     RenderData &data, const LayoutGraphData &lg, std::string_view name,
     const ArrayBuffer &buffer);

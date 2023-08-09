@@ -71,8 +71,6 @@ PipelineSceneData::~PipelineSceneData() {
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
 
-    _defaultBuffer = _device->createBuffer(gfx::BufferInfo{gfx::BufferUsageBit::STORAGE, gfx::MemoryUsageBit::DEVICE, 4, 4});
-
 #if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
 #endif
@@ -84,6 +82,10 @@ void PipelineSceneData::activate(gfx::Device *device) {
 #if CC_USE_OCCLUSION_QUERY
     initOcclusionQuery();
 #endif
+
+    if (isGPUDrivenEnabled()) {
+        initGPUDrivenMaterial();
+    }
 }
 
 void PipelineSceneData::destroy() {
@@ -95,7 +97,6 @@ void PipelineSceneData::destroy() {
     _occlusionQueryIndicesBuffer = nullptr;
     _standardSkinModel = nullptr;
     _skinMaterialModel = nullptr;
-    _defaultBuffer = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
@@ -152,6 +153,58 @@ void PipelineSceneData::initDebugRenderer() {
     }
 }
 
+void PipelineSceneData::initGPUDrivenMaterial() {
+    struct CullMacros {
+        bool useOcclusion;
+        bool isMainPass;
+    };
+
+    CullMacros defines[3] = {
+        {true, true},
+        {true, false},
+        {false, true},
+    };
+
+    const auto &caps = _device->getCapabilities();
+    const auto firstInstance = caps.supportFirstInstance;
+    const auto filterMinMax = caps.supportFilterMinMax;
+
+    for (auto i = 0; i < 3; i++) {
+        if (_gpuCullingMaterials[i]) {
+            continue;
+        }
+
+        _gpuCullingMaterials[i] = ccnew Material();
+        _gpuCullingMaterials[i]->setUuid("default-gpu-culling-material");
+
+        IMaterialInfo info;
+        MacroRecord macros{
+            {"CC_SUPPORT_FIRST_INSTANCE", firstInstance},
+            {"CC_USE_FRUSTUM_CULLING", true},
+            {"CC_USE_OCCLUSION_CULLING", defines[i].useOcclusion},
+            {"CC_GPU_CULLING_MAIN_PASS", defines[i].isMainPass},
+        };
+
+        info.defines = macros;
+        info.effectName = "pipeline/gpu-driven/gpu-culling";
+        _gpuCullingMaterials[i]->initialize(info);
+    }
+
+    if (!_hizMaterial) {
+        _hizMaterial = ccnew Material();
+        _hizMaterial->setUuid("default-hiz-material");
+
+        IMaterialInfo info;
+        MacroRecord macros{
+            {"CC_USE_SAMPLER_FILTER_MIN_MAX", filterMinMax},
+        };
+
+        info.defines = macros;
+        info.effectName = "pipeline/gpu-driven/hierarchical-z";
+        _hizMaterial->initialize(info);
+    }
+}
+
 gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create vertex buffer
     const float vertices[] = {-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1};
@@ -183,7 +236,7 @@ bool PipelineSceneData::isGPUDrivenEnabled() const {
 #if CC_EDITOR
     return false;
 #else
-    return _gpuDrivenEnabled && _device->getCapabilities().supportMultiDrawIndirect;
+    return _gpuDrivenEnabled && _device->getCapabilities().supportGPUDriven;
 #endif
 }
 

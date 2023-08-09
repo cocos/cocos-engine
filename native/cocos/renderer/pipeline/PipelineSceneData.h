@@ -86,6 +86,8 @@ public:
     inline const ccstd::vector<gfx::Shader *> &getGeometryRendererShaders() const { return _geometryRendererShaders; }
     inline scene::Pass *getDebugRendererPass() const { return _debugRendererPass; }
     inline gfx::Shader *getDebugRendererShader() const { return _debugRendererShader; }
+    inline Material *getGPUCullingMaterial(uint32_t index) const { return _gpuCullingMaterials[index].get(); }
+    inline Material *getHizMaterial() const { return _hizMaterial.get(); }
     inline void addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
     inline void clearRenderObjects() { _renderObjects.clear(); }
     inline void addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
@@ -94,7 +96,6 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
-    inline gfx::Buffer *getDefaultBuffer() { return _defaultBuffer.get(); }
     inline void setGPUDrivenEnabled(bool enable) { _gpuDrivenEnabled = enable; }
     bool isGPUDrivenEnabled() const;
     inline scene::Model *getStandardSkinModel() const { return _standardSkinModel.get(); }
@@ -106,6 +107,7 @@ protected:
     void initOcclusionQuery();
     void initGeometryRenderer();
     void initDebugRenderer();
+    void initGPUDrivenMaterial();
     gfx::InputAssembler *createOcclusionQueryIA();
 
     static constexpr uint32_t GEOMETRY_RENDERER_TECHNIQUE_COUNT{6};
@@ -115,6 +117,8 @@ protected:
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+    ccstd::array<IntrusivePtr<Material>, 3> _gpuCullingMaterials;
+    IntrusivePtr<Material> _hizMaterial{nullptr};
     IntrusivePtr<scene::Model> _standardSkinModel;
     IntrusivePtr<scene::Model> _skinMaterialModel;
 
@@ -156,8 +160,6 @@ protected:
     ccstd::vector<gfx::Shader *> _geometryRendererShaders; // weak reference
 
     ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> _shadowFrameBufferMap;
-
-    IntrusivePtr<gfx::Buffer> _defaultBuffer;
 };
 
 } // namespace pipeline

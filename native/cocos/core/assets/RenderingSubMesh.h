@@ -194,8 +194,6 @@ public:
     inline void setMeshPoolIndex(uint32_t index) { _meshPoolIndex = index; }
     inline uint32_t getMeshPoolIndex() const { return _meshPoolIndex; }
 
-    bool canUseGPUScene() const;
-
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
 

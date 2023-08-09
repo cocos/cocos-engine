@@ -970,7 +970,9 @@ export class MeshRenderer extends ModelRenderer {
             this._detachFromScene();
         }
 
-        if (this.isUseGPUScene()) {
+        if (this.supportGPUScene()) {
+            if (this.mesh) renderScene.addGPUMesh(this.mesh);
+
             renderScene.addGPUModel(this._model);
         } else {
             renderScene.addModel(this._model);
@@ -982,7 +984,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     public _detachFromScene (): void {
         if (this._model && this._model.scene) {
-            if (this.isUseGPUScene()) {
+            if (this.supportGPUScene()) {
                 this._model.scene.removeGPUModel(this._model);
             } else {
                 this._model.scene.removeModel(this._model);
@@ -993,7 +995,7 @@ export class MeshRenderer extends ModelRenderer {
     /**
      * @engineInternal
      */
-    public isUseGPUScene (): boolean {
+    public supportGPUScene (): boolean {
         const sceneData = cclegacy.director.root.pipeline.pipelineSceneData;
         if (!sceneData || !sceneData.isGPUDrivenEnabled()) {
             return false;
@@ -1003,9 +1005,22 @@ export class MeshRenderer extends ModelRenderer {
             return false;
         }
 
-        const useLightProbe = this.node.mobility === MobilityMode.Movable && this.bakeSettings.useLightProbe;
-        const useReflectionProbe = this.bakeSettings.reflectionProbe !== ReflectionProbeType.NONE;
-        return this.mesh!.canUseGPUScene() && !useLightProbe && !useReflectionProbe;
+        // skip transparent object
+        if (this._isBlend()) {
+            return false;
+        }
+
+        // skip light probe object
+        if (this.node.mobility === MobilityMode.Movable && this.bakeSettings.useLightProbe) {
+            return false;
+        }
+
+        // skip reflection probe object
+        if (this.bakeSettings.reflectionProbe !== ReflectionProbeType.NONE) {
+            return false;
+        }
+
+        return this.mesh!.supportGPUScene();
     }
 
     protected _updateModelParams (): void {
@@ -1013,6 +1028,7 @@ export class MeshRenderer extends ModelRenderer {
         this.node.hasChangedFlags |= TransformBit.POSITION;
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
+        this._model.isBlend = this._isBlend();
         const meshCount = this._mesh ? this._mesh.renderingSubMeshes.length : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
@@ -1092,6 +1108,7 @@ export class MeshRenderer extends ModelRenderer {
     public _onRebuildPSO (idx: number, material: Material): void {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
+        this._model.isBlend = this._isBlend();
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
         this._onUpdateLocalShadowBiasAndProbeId();
@@ -1205,6 +1222,16 @@ export class MeshRenderer extends ModelRenderer {
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
                 if (pass.batchingScheme) { return true; }
+            }
+        }
+        return false;
+    }
+
+    protected _isBlend (): boolean {
+        for (let i = 0; i < this._materials.length; ++i) {
+            const mat = this._materials[i];
+            if (mat && mat.isBlend('default')) {
+                return true;
             }
         }
         return false;

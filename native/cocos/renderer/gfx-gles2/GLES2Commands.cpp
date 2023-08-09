@@ -371,6 +371,12 @@ const GLenum GLES2_WRAPS[] = {
     GL_CLAMP_TO_EDGE,
 };
 
+const GLenum GLES2_REDUCTIONS[] = {
+    GL_WEIGHTED_AVERAGE_EXT,
+    GL_MIN,
+    GL_MAX,
+};
+
 const GLenum GLES2_CMP_FUNCS[] = {
     GL_NEVER,
     GL_LESS,
@@ -996,6 +1002,7 @@ void cmdFuncGLES2CreateSampler(GLES2Device * /*device*/, GLES2GPUSampler *gpuSam
     gpuSampler->glWrapS = GLES2_WRAPS[static_cast<int>(gpuSampler->addressU)];
     gpuSampler->glWrapT = GLES2_WRAPS[static_cast<int>(gpuSampler->addressV)];
     gpuSampler->glWrapR = GLES2_WRAPS[static_cast<int>(gpuSampler->addressW)];
+    gpuSampler->glReduction = GLES2_REDUCTIONS[toNumber(gpuSampler->reduction)];
 }
 
 void cmdFuncGLES2DestroySampler(GLES2Device *device, GLES2GPUSampler *gpuSampler) {
@@ -2403,6 +2410,17 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     }
                     GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER, gpuDescriptor->gpuSampler->glMagFilter));
                     gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
+                }
+
+                if (gpuTexture->glReduction != gpuDescriptor->gpuSampler->glReduction) {
+                    if (cache->texUint != unit) {
+                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                        cache->texUint = unit;
+                    }
+                    if (device->getCapabilities().supportFilterMinMax) {
+                        GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_REDUCTION_MODE_EXT, gpuDescriptor->gpuSampler->glReduction));
+                    }
+                    gpuTexture->glReduction = gpuDescriptor->gpuSampler->glReduction;
                 }
             }
         }

@@ -10,25 +10,25 @@
 
 mat4 CCGetWorld()
 {
-  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  uint objectId = cc_drawInstances[cc_InstanceIndex];
   return cc_objects[objectId].matWorld;
 }
 
 mat4 CCGetWorldIT()
 {
-  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  uint objectId = cc_drawInstances[cc_InstanceIndex];
   return cc_objects[objectId].matWorldIT;
 }
 
 vec4 CCGetLightingMapUVParam()
 {
-  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  uint objectId = cc_drawInstances[cc_InstanceIndex];
   return cc_objects[objectId].lightingMapUVParam;
 }
 
 vec4 CCGetLocalShadowBias()
 {
-  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  uint objectId = cc_drawInstances[cc_InstanceIndex];
   return cc_objects[objectId].localShadowBias;
 }
 

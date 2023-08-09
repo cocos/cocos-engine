@@ -508,6 +508,7 @@ using namespace cc;
 %attribute(cc::scene::Model, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
+%attribute(cc::scene::Model, bool, isBlend, isBlend, setBlend);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
 %attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);

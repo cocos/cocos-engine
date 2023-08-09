@@ -34,7 +34,9 @@
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/RenderScene.h"
+#include "cocos/scene/gpu-scene/GPUScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/base/Utils.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -176,6 +178,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) {
+    CC_EXPECTS(size);
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::BUFFER;
     desc.width = size;
@@ -200,6 +203,8 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    CC_EXPECTS(width);
+    CC_EXPECTS(height);
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -225,6 +230,8 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    CC_EXPECTS(width);
+    CC_EXPECTS(height);
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -236,8 +243,6 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
                  ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
-
-    CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
     gfx::SamplerInfo samplerInfo{};
     samplerInfo.magFilter = gfx::Filter::POINT;
@@ -263,6 +268,11 @@ uint32_t NativePipeline::addResource(
     gfx::Format format,
     uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
     gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
+    CC_EXPECTS(width);
+    CC_EXPECTS(height);
+    CC_EXPECTS(depth);
+    CC_EXPECTS(arraySize);
+    CC_EXPECTS(mipLevels);
     ResourceDesc desc{
         dimension,
         0,
@@ -275,15 +285,57 @@ uint32_t NativePipeline::addResource(
         residency == ResourceResidency::MEMORYLESS ? gfx::TextureFlagBit::LAZILY_ALLOCATED : gfx::TextureFlagBit::NONE,
         flags,
     };
-    return addVertex(
-        ManagedTextureTag{},
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(desc),
-        std::forward_as_tuple(ResourceTraits{residency}),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        resourceGraph);
+    switch (residency) {
+        case ResourceResidency::MANAGED: {
+            if (dimension == ResourceDimension::BUFFER) {
+                return addVertex(
+                    ManagedBufferTag{},
+                    std::forward_as_tuple(name.c_str()),
+                    std::forward_as_tuple(desc),
+                    std::forward_as_tuple(ResourceTraits{residency}),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    resourceGraph);
+            } else {
+                return addVertex(
+                    ManagedTextureTag{},
+                    std::forward_as_tuple(name.c_str()),
+                    std::forward_as_tuple(desc),
+                    std::forward_as_tuple(ResourceTraits{residency}),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    resourceGraph);
+            }
+        } break;
+        case ResourceResidency::PERSISTENT: {
+            if (dimension == ResourceDimension::BUFFER) {
+                return addVertex(
+                    PersistentBufferTag{},
+                    std::forward_as_tuple(name.c_str()),
+                    std::forward_as_tuple(desc),
+                    std::forward_as_tuple(ResourceTraits{residency}),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    resourceGraph);
+            } else {
+                return addVertex(
+                    PersistentTextureTag{},
+                    std::forward_as_tuple(name.c_str()),
+                    std::forward_as_tuple(desc),
+                    std::forward_as_tuple(ResourceTraits{residency}),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    resourceGraph);
+            }
+        } break;
+        default:
+            CC_EXPECTS(false);
+    }
+    return ResourceGraph::null_vertex();
 }
 
 namespace {
@@ -321,6 +373,39 @@ void updateResourceImpl(
                 resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
             }
         },
+        [&](IntrusivePtr<gfx::Texture> &tex) {
+            uint32_t depthOrArraySize = static_cast<uint16_t>(
+                desc.dimension == ResourceDimension::TEXTURE3D ? depth : arraySize);
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.depthOrArraySize, desc.mipLevels, desc.format, desc.sampleCount) !=
+                std::forward_as_tuple(width, height, depthOrArraySize, mipLevels, format, sampleCount);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
+                desc.depthOrArraySize = depthOrArraySize;
+                desc.mipLevels = mipLevels;
+                desc.format = format;
+                desc.sampleCount = sampleCount;
+                tex.reset();
+            }
+        },
+        [&](ManagedBuffer &buffer) {
+            bool invalidate =
+                std::forward_as_tuple(desc.width) !=
+                std::forward_as_tuple(width);
+            if (invalidate) {
+                desc.width = width;
+            }
+        },
+        [&](IntrusivePtr<gfx::Buffer> &buffer) {
+            bool invalidate =
+                std::forward_as_tuple(desc.width) !=
+                std::forward_as_tuple(width);
+            if (invalidate) {
+                desc.width = width;
+                buffer.reset();
+            }
+        },
         [](const auto & /*res*/) {});
 }
 
@@ -337,6 +422,8 @@ void NativePipeline::updateResource(const ccstd::string &name, gfx::Format forma
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    CC_EXPECTS(width);
+    CC_EXPECTS(height);
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -366,6 +453,8 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
 }
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height, ResourceResidency residency) {
+    CC_EXPECTS(width);
+    CC_EXPECTS(height);
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -720,48 +809,123 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
 
 namespace {
 
+constexpr uint32_t getGroupCount(uint32_t x, uint32_t batch) noexcept { // NOLINT(bugprone-easily-swappable-parameters)
+    return (x + batch - 1) / batch;
+}
+
+constexpr uint32_t getHalfSize(uint32_t x) noexcept {
+    x /= 2;
+    return x ? x : 1;
+}
+
+constexpr uint32_t getMipLevels(uint32_t width, uint32_t height) noexcept {
+    uint32_t result = 1;
+    uint32_t size = std::max(width, height);
+    CC_EXPECTS(size > 0);
+
+    while (size > 1) {
+        result++;
+        size /= 2;
+    }
+
+    return result;
+}
+
 void setupGpuDrivenResources(
-    NativePipeline &ppl, uint32_t cullingID, ResourceGraph &resg, const std::string &hzbName) {
+    NativePipeline &ppl, const scene::Camera *camera, scene::GPUScene *gpuScene,
+    uint32_t sceneID, uint32_t cullingID, ResourceGraph &resg, const std::string &hzbName) {
     ccstd::pmr::string name(resg.get_allocator());
-    { // init resource
-        name = "_GpuInit";
-        name.append(std::to_string(cullingID));
+
+    auto *objectBuffer = gpuScene->getObjectBuffer();
+    auto *instanceBuffer = gpuScene->getInstanceBuffer();
+    auto *indirectBuffer = gpuScene->getIndirectBuffer();
+    {
+        name = "CCObjectBuffer";
+        name.append(std::to_string(sceneID));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
+            ResourceDesc desc{};
+            desc.dimension = ResourceDimension::BUFFER;
+            desc.width = objectBuffer->getSize();
+            desc.height = 1;
+            desc.depthOrArraySize = 1;
+            desc.mipLevels = 1;
+            desc.format = gfx::Format::UNKNOWN;
+            desc.sampleCount = gfx::SampleCount::X1;
+            desc.textureFlags = gfx::TextureFlagBit::NONE;
+            desc.flags = ResourceFlags::STORAGE | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
+
             resID = addVertex(
                 PersistentBufferTag{},
                 std::forward_as_tuple(name.c_str()),
-                std::forward_as_tuple(),
+                std::forward_as_tuple(desc),
                 std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
                 std::forward_as_tuple(),
                 std::forward_as_tuple(),
-                std::forward_as_tuple(/*xxx*/),
+                std::forward_as_tuple(objectBuffer),
                 resg);
         } else {
             CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            // get(PersistentBufferTag{}, resID, resg) = xxx;
-        }
-    }
-    {
-        name = "CCObjectBuffer";
-        name.append(std::to_string(cullingID));
-        auto resID = findVertex(name, resg);
-        if (resID == ResourceGraph::null_vertex()) {
-            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
-        } else {
-            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+            get(PersistentBufferTag{}, resID, resg) = objectBuffer;
         }
     }
     {
         name = "CCInstanceBuffer";
-        name.append(std::to_string(cullingID));
+        name.append(std::to_string(sceneID));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
-            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+            ResourceDesc desc{};
+            desc.dimension = ResourceDimension::BUFFER;
+            desc.width = instanceBuffer->getSize();
+            desc.height = 1;
+            desc.depthOrArraySize = 1;
+            desc.mipLevels = 1;
+            desc.format = gfx::Format::UNKNOWN;
+            desc.sampleCount = gfx::SampleCount::X1;
+            desc.textureFlags = gfx::TextureFlagBit::NONE;
+            desc.flags = ResourceFlags::STORAGE | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
+
+            resID = addVertex(
+                PersistentBufferTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(instanceBuffer),
+                resg);
         } else {
             CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+            get(PersistentBufferTag{}, resID, resg) = instanceBuffer;
+        }
+    }
+    {
+        name = "CCIndirectBuffer";
+        name.append(std::to_string(sceneID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            ResourceDesc desc{};
+            desc.dimension = ResourceDimension::BUFFER;
+            desc.width = indirectBuffer->getSize();
+            desc.height = 1;
+            desc.depthOrArraySize = 1;
+            desc.mipLevels = 1;
+            desc.format = gfx::Format::UNKNOWN;
+            desc.sampleCount = gfx::SampleCount::X1;
+            desc.textureFlags = gfx::TextureFlagBit::NONE;
+            desc.flags = ResourceFlags::STORAGE | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST | ResourceFlags::INDIRECT;
+            resID = addVertex(
+                PersistentBufferTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(indirectBuffer),
+                resg);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            get(PersistentBufferTag{}, resID, resg) = indirectBuffer;
         }
     }
     {
@@ -769,10 +933,13 @@ void setupGpuDrivenResources(
         name.append(std::to_string(cullingID));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
-            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+            ppl.addResource(std::string(name), ResourceDimension::BUFFER, gfx::Format::UNKNOWN,
+                            indirectBuffer->getSize(), 1, 1, 1, 1, gfx::SampleCount::X1,
+                            ResourceFlags::INDIRECT | ResourceFlags::STORAGE | ResourceFlags::TRANSFER_DST,
+                            ResourceResidency::MANAGED);
         } else {
-            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+            CC_EXPECTS(holds<ManagedBufferTag>(resID, resg));
+            ppl.updateResource(std::string(name), gfx::Format::UNKNOWN, indirectBuffer->getSize(), 1, 1, 1, 1, gfx::SampleCount::X1);
         }
     }
     {
@@ -780,55 +947,86 @@ void setupGpuDrivenResources(
         name.append(std::to_string(cullingID));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
-            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+            ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, instanceBuffer->getSize(), ResourceResidency::MANAGED);
         } else {
-            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+            CC_EXPECTS(holds<ManagedBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), instanceBuffer->getSize(), gfx::Format::UNKNOWN);
         }
     }
     {
         name = "CCVisibilityBuffer";
         name.append(std::to_string(cullingID));
+        const auto bufferSize = gpuScene->getInstanceCount() * static_cast<uint32_t>(sizeof(uint32_t));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
-            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+            ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, bufferSize, ResourceResidency::MANAGED);
         } else {
-            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
-            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+            CC_EXPECTS(holds<ManagedBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), bufferSize, gfx::Format::UNKNOWN);
         }
     }
     if (!hzbName.empty()) {
+        name = hzbName;
+        const auto width = utils::previousPOT(camera->getWidth());
+        const auto height = utils::previousPOT(camera->getHeight());
+        const auto mipLevels = getMipLevels(width, height);
+
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            ppl.addResource(std::string(name), ResourceDimension::TEXTURE2D, gfx::Format::R32F, width, height, 1, 1,
+                            mipLevels, gfx::SampleCount::X1, ResourceFlags::SAMPLED | ResourceFlags::STORAGE, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<ManagedTextureTag>(resID, resg));
+            ppl.updateResource(std::string(name), gfx::Format::R32F, width, height, 1, 1, mipLevels, gfx::SampleCount::X1);
+        }
     }
 }
 
 } // namespace
 
-void NativePipeline::addBuiltinGpuCullingPass(
-    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
-    std::ignore = camera;
-    const uint32_t cullingID = ++nativeContext.sceneCulling.gpuCullingPassID;
-    setupGpuDrivenResources(*this, cullingID, resourceGraph, hzbName);
+void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID, 
+    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+    auto *scene = camera->getScene();
+    if (!scene) {
+        return;
+    }
+
+    auto *gpuScene = scene->getGPUScene();
+    if (!gpuScene) {
+        return;
+    }
+
+    auto &sceneCulling = nativeContext.sceneCulling;
+    auto iter = sceneCulling.sceneIDs.find(scene);
+    if (iter == sceneCulling.sceneIDs.cend()) {
+        iter = sceneCulling.sceneIDs.insert({scene, sceneCulling.sceneIDs.size()}).first;
+    }
+
+    const uint32_t sceneID = iter->second;
+    setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
 
     if (light) {
         // build light culling pass
         return;
     }
 
-    const std::string objectBuffer = "CCObjectBuffer" + std::to_string(cullingID);
-    const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(cullingID);
+    const std::string objectBuffer = "CCObjectBuffer" + std::to_string(sceneID);
+    const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(sceneID);
+    const std::string indirectBuffer = "CCIndirectBuffer" + std::to_string(sceneID);
     const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
     const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
     const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
 
-    // init indirected buffers
+    // init indirect buffers
     {
         CopyPass copyPass{renderGraph.get_allocator()};
         {
             CopyPair copyPair{renderGraph.get_allocator()};
-            copyPair.source = "xxx";
+            copyPair.source = indirectBuffer;
             copyPair.target = drawIndirectBuffer;
-            copyPair.mipLevels = 1;
-            copyPair.numSlices = 1;
+            copyPair.sourceOffset = 0;
+            copyPair.targetOffset = 0;
+            copyPair.bufferSize = gpuScene->getIndirectBuffer()->getSize();
             copyPass.copyPairs.emplace_back(std::move(copyPair));
         }
 
@@ -842,64 +1040,46 @@ void NativePipeline::addBuiltinGpuCullingPass(
             renderGraph);
         CC_ENSURES(copyID != RenderGraph::null_vertex());
     }
-    // run compute cullling pass
+    // run compute culling pass
     {
-        ComputePass computePass{renderGraph.get_allocator()};
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(drawIndirectBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCDrawIndirectBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
-        }
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(drawInstanceBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCDrawInstanceBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
-        }
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(visibilityBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCVisibilityBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        std::unique_ptr<ComputePassBuilder> gpuCullPass(addComputePass("gpu-culling-cs"));
+        gpuCullPass->addStorageBuffer(objectBuffer, AccessType::READ, "CCObjectBuffer");
+        gpuCullPass->addStorageBuffer(instanceBuffer, AccessType::READ, "CCInstanceBuffer");
+        gpuCullPass->addStorageBuffer(drawIndirectBuffer, AccessType::READ_WRITE, "CCDrawIndirectBuffer");
+        gpuCullPass->addStorageBuffer(drawInstanceBuffer, AccessType::WRITE, "CCDrawInstanceBuffer");
+        gpuCullPass->addStorageBuffer(visibilityBuffer, AccessType::READ_WRITE, "CCVisibilityBuffer");
+        if (!hzbName.empty()) {
+            auto *sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
+                                                gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
+
+            gpuCullPass->addTexture(hzbName, "CCDepthMap", sampler, 0);
         }
 
-        auto computePassID = addVertex2(
-            ComputeTag{},
-            std::forward_as_tuple("Scene"),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(std::move(computePass)),
-            renderGraph);
-        CC_ENSURES(computePassID != RenderGraph::null_vertex());
+        const auto materialIndex = hzbName.empty() ? 2 : (bMainPass ? 0 : 1);
+        const auto instanceCount = gpuScene->getInstanceCount();
+        const auto groupCount = getGroupCount(instanceCount, scene::CS_GPU_CULLING_LOCAL_SIZE);
+        std::unique_ptr<ComputeQueueBuilder> gpuCullQueue(gpuCullPass->addQueue());
+        gpuCullQueue->addDispatch(groupCount, 1, 1, pipelineSceneData->getGPUCullingMaterial(materialIndex), 0);
+
+        ccstd::vector<Vec4> planes;
+        const auto &frustum = camera->getFrustum();
+        for (auto *plane : frustum.planes) {
+            planes.push_back({plane->n.x, plane->n.y, plane->n.z, plane->d});
+        }
+        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(Vec4) * 6);
+        gpuCullPass->setMat4("cc_view", camera->getMatView());
+        gpuCullPass->setMat4("cc_proj", camera->getMatProj());
+        gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
+        gpuCullPass->setFloat("cc_znear", camera->getNearClip());
+        gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
+        gpuCullPass->setFloat("cc_depthWidth", utils::previousPOT(camera->getWidth()));
+        gpuCullPass->setFloat("cc_depthHeight", utils::previousPOT(camera->getHeight()));
+        gpuCullPass->setUInt("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
+        gpuCullPass->setUInt("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
+        gpuCullPass->setUInt("cc_instanceCount", instanceCount);
+        gpuCullPass->setUInt("cc_sceneFlags", 0); // Stanley TODO
     }
 }
-
-namespace {
-
-constexpr uint32_t getHalfSize(uint32_t x) noexcept {
-    x /= 2;
-    return x ? x : 1;
-}
-
-constexpr uint32_t getGroupCount(uint32_t x, uint32_t batch) noexcept { // NOLINT(bugprone-easily-swappable-parameters)
-    return (x + batch - 1) / batch;
-}
-
-} // namespace
 
 void NativePipeline::addBuiltinHzbGenerationPass(
     // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -914,7 +1094,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         return;
     }
 
-    const auto &targetDesc = get(ResourceGraph::DescTag{}, resourceGraph, targetID);
+    const auto targetDesc = get(ResourceGraph::DescTag{}, resourceGraph, targetID);
 
     boost::container::pmr::memory_resource *scratch = &unsyncPool;
     ccstd::pmr::string currMipName(scratch);
@@ -936,7 +1116,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             if (resID == ResourceGraph::null_vertex()) {
                 resID = addVertex(
                     ManagedTextureTag{},
-                    std::forward_as_tuple(name.c_str()),
+                    std::forward_as_tuple(currMipName.c_str()),
                     std::forward_as_tuple(),
                     std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
                     std::forward_as_tuple(),
@@ -1050,10 +1230,10 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             std::forward_as_tuple(),
             std::forward_as_tuple(),
             std::forward_as_tuple(
-                IntrusivePtr<Material>{},
+                pipelineSceneData->getHizMaterial(),
                 0,
-                getGroupCount(width, 32),
-                getGroupCount(height, 32),
+                getGroupCount(width, scene::CS_HIZ_LOCAL_SIZE),
+                getGroupCount(height, scene::CS_HIZ_LOCAL_SIZE),
                 1),
             renderGraph,
             queueID);
@@ -1087,7 +1267,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             std::forward_as_tuple(),
             std::forward_as_tuple(),
             std::forward_as_tuple(),
-            std::forward_as_tuple(),
+            std::forward_as_tuple(std::move(move)),
             renderGraph);
         CC_ENSURES(moveID != RenderGraph::null_vertex());
     }

@@ -449,8 +449,10 @@ public:
     void releaseData();
 
     bool isGPUMeshFormat() const;
-    inline bool canUseGPUScene() const { return _canUseGPUScene.has_value() && _canUseGPUScene.value(); }
-    inline void setUseGPUScene(bool enable) { _canUseGPUScene = enable; }
+    inline bool supportGPUScene() const { return _supportGPUScene.has_value() && _supportGPUScene.value(); }
+    inline void disableGPUScene() { _supportGPUScene = false; }
+    inline bool isInGPUScene() const { return _isInGPUScene; }
+    inline void setInGPUScene(bool b) { _isInGPUScene = b; }
 
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;
@@ -475,7 +477,8 @@ private:
     bool _initialized{false};
     bool _allowDataAccess{true};
     bool _isMeshDataUploaded{false};
-    ccstd::optional<bool> _canUseGPUScene;
+    bool _isInGPUScene{false};
+    ccstd::optional<bool> _supportGPUScene;
 
     RenderingSubMeshList _renderingSubMeshes;
 

@@ -26,6 +26,7 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "scene/gpu-scene/Const.h"
 #include "scene/gpu-scene/GPUMeshPool.h"
 #include "scene/gpu-scene/GPUObjectPool.h"
 #include "scene/gpu-scene/GPUBatchPool.h"
@@ -48,6 +49,7 @@ public:
 
     void build(const ccstd::vector<Mesh*>& meshes);
 
+    void addMesh(Mesh* mesh);
     void addModel(const Model* model);
     void removeModel(const Model* model);
     void removeAllModels();
@@ -56,6 +58,10 @@ public:
     inline GPUMeshPool* getMeshPool() const { return _meshPool.get(); }
     inline GPUObjectPool* getObjectPool() const { return _objectPool.get(); }
     inline GPUBatchPool* getBatchPool() const { return _batchPool.get(); }
+
+    inline uint32_t getIndirectCount() const { return _batchPool->getIndirectCount(); }
+    inline uint32_t getInstanceCount() const { return _batchPool->getInstanceCount(); }
+    inline bool empty() const { return _batchPool->getInstanceCount() == 0; }
 
     inline gfx::Buffer* getInstanceBuffer() { return _batchPool->getInstanceBuffer(); }
     inline gfx::Buffer* getIndirectBuffer() { return _batchPool->getIndirectBuffer(); }

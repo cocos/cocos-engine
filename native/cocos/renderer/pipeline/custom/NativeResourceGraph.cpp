@@ -214,6 +214,7 @@ void ResourceGraph::validateSwapchains() {
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;
+    const auto& traits = get(ResourceGraph::TraitsTag{}, *this, vertID);
     const auto& desc = get(ResourceGraph::DescTag{}, *this, vertID);
     visitObject(
         vertID, resg,
@@ -221,7 +222,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             // to be removed
         },
         [&](ManagedBuffer& buffer) {
-            if (!buffer.buffer) {
+            if (!buffer.buffer || buffer.buffer->getSize() != desc.width) {
                 auto info = getBufferInfo(desc);
                 buffer.buffer = device->createBuffer(info);
             }
@@ -236,9 +237,12 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
-            CC_EXPECTS(buffer);
-            std::ignore = buffer;
+        [&](IntrusivePtr<gfx::Buffer>& buffer) {
+            if (traits.residency != ResourceResidency::EXTERNAL && (!buffer || buffer->getSize() != desc.width)) {
+                auto info = getBufferInfo(desc);
+                buffer = device->createBuffer(info);
+            }
+            CC_ENSURES(buffer);
         },
         [&](const IntrusivePtr<gfx::Texture>& texture) {
             CC_EXPECTS(texture);

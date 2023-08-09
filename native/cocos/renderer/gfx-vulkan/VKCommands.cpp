@@ -257,6 +257,12 @@ void cmdFuncCCVKCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     createInfo.minLod = 0.0;
     createInfo.maxLod = VK_LOD_CLAMP_NONE;
 
+    VkSamplerReductionModeCreateInfoEXT createInfoReduction = {VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT};
+    if (device->getCapabilities().supportFilterMinMax) {
+        createInfoReduction.reductionMode = VK_SAMPLER_REDUCTION_MODES[toNumber(gpuSampler->reduction)];
+        createInfo.pNext = &createInfoReduction;
+    }
+
     VK_CHECK(vkCreateSampler(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuSampler->vkSampler));
 }
 

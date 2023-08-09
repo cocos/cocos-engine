@@ -1332,7 +1332,16 @@ export class Mesh extends Asset {
      * Only support in native.
      * @internal
      */
-    public canUseGPUScene (): boolean {
+    public supportGPUScene (): boolean {
+        return false;
+    }
+
+    /**
+     * Is already in GPUScene.
+     * Only support in native.
+     * @internal
+     */
+    public isInGPUScene (): boolean {
         return false;
     }
 }

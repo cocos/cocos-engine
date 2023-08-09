@@ -79,7 +79,8 @@ void GPUObjectPool::update(uint32_t stamp) {
 
             const auto& boxCenter = worldBound->getCenter();
             const auto& boxHalfExtents = worldBound->getHalfExtents();
-            const Vec4 center{boxCenter.x, boxCenter.y, boxCenter.z, 0.0F};
+            const auto radius = boxHalfExtents.length();
+            const Vec4 sphere{boxCenter.x, boxCenter.y, boxCenter.z, radius};
             const Vec4 halfExtents{boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z, 0.0F};
             const auto& lightmapUVParam = model->getLightmapUVParam();
             const auto& shadowBias = model->getShadowBiasParam();
@@ -90,8 +91,8 @@ void GPUObjectPool::update(uint32_t stamp) {
                 continue;
             }
 
-            _objects[index] = {worldMatrix, worldMatrixIT, center, halfExtents, lightmapUVParam, shadowBias};
-            _objectDirty = true;
+            _objects[index] = {worldMatrix, worldMatrixIT, sphere, halfExtents, lightmapUVParam, shadowBias};
+            _dirty = true;
         }
     }
 
@@ -112,7 +113,8 @@ void GPUObjectPool::addModel(const Model* model) {
     
     const auto& boxCenter = worldBound->getCenter();
     const auto& boxHalfExtents = worldBound->getHalfExtents();
-    const Vec4 center{boxCenter.x, boxCenter.y, boxCenter.z, 0.0F};
+    const auto radius = boxHalfExtents.length();
+    const Vec4 sphere{boxCenter.x, boxCenter.y, boxCenter.z, radius};
     const Vec4 halfExtents{boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z, 0.0F};
     const auto& lightmapUVParam = model->getLightmapUVParam();
     const auto& shadowBias = model->getShadowBiasParam();
@@ -120,13 +122,13 @@ void GPUObjectPool::addModel(const Model* model) {
     uint32_t index = 0;
     if (_freeSlots.empty()) {
         index = static_cast<uint32_t>(_objects.size());
-        _objects.push_back({worldMatrix, worldMatrixIT, center, halfExtents, lightmapUVParam, shadowBias});
+        _objects.push_back({worldMatrix, worldMatrixIT, sphere, halfExtents, lightmapUVParam, shadowBias});
     } else {
         index = _freeSlots.front();
-        _objects[index] = {worldMatrix, worldMatrixIT, center, halfExtents, lightmapUVParam, shadowBias};
+        _objects[index] = {worldMatrix, worldMatrixIT, sphere, halfExtents, lightmapUVParam, shadowBias};
         _freeSlots.pop_front();
     }
-    _objectDirty = true;
+    _dirty = true;
 
     // All submodels share the same object index
     for (const auto& subModel : subModels) {
@@ -146,7 +148,7 @@ void GPUObjectPool::removeModel(const Model* model) {
         _freeSlots.push_back(index);
     }
 
-    // Do not set _objectDirty = true here, because we don't change _objects for efficiency
+    // Do not set _dirty = true here, because we don't change _objects for efficiency
 }
 
 void GPUObjectPool::removeAllModels() {
@@ -166,7 +168,7 @@ void GPUObjectPool::createBuffer() {
 }
 
 void GPUObjectPool::updateBuffer() {
-    if (!_objectDirty) {
+    if (!_dirty) {
         return;
     }
 
@@ -183,7 +185,7 @@ void GPUObjectPool::updateBuffer() {
         _objectBuffer->update(_objects.data(), size);
     }
 
-    _objectDirty = false;
+    _dirty = false;
 }
 
 } // namespace scene

@@ -527,6 +527,12 @@ const GLenum GLES3_WRAPS[] = {
     GL_CLAMP_TO_EDGE,
 };
 
+const GLenum GLES3_REDUCTIONS[] = {
+    GL_WEIGHTED_AVERAGE_EXT,
+    GL_MIN,
+    GL_MAX,
+};
+
 const GLenum GLES3_CMP_FUNCS[] = {
     GL_NEVER,
     GL_LESS,
@@ -980,6 +986,7 @@ void cmdFuncGLES3PrepareSamplerInfo(GLES3Device * /*device*/, GLES3GPUSampler *g
     gpuSampler->glWrapS = GLES3_WRAPS[toNumber(gpuSampler->addressU)];
     gpuSampler->glWrapT = GLES3_WRAPS[toNumber(gpuSampler->addressV)];
     gpuSampler->glWrapR = GLES3_WRAPS[toNumber(gpuSampler->addressW)];
+    gpuSampler->glReduction = GLES3_REDUCTIONS[toNumber(gpuSampler->reduction)];
 }
 
 GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
@@ -994,6 +1001,9 @@ GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
         GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_R, glWrapR));
         GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MIN_LOD, static_cast<GLfloat>(minLod)));
         GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MAX_LOD, static_cast<GLfloat>(maxLod)));
+        if (GLES3Device::getInstance()->getCapabilities().supportFilterMinMax) {
+            GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_REDUCTION_MODE_EXT, glReduction));
+        }
         _cache[hash] = glSampler;
     }
     return _cache[hash];

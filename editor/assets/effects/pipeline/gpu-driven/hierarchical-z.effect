@@ -1,0 +1,37 @@
+// Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: hierarchical-z
+    passes:
+    - compute: hiz-main
+      pass: hiz-cs
+}%
+
+CCProgram hiz-main %{
+  precision highp float;
+
+  #pragma rate CCImageData pass
+  layout(std140) uniform CCImageData { vec2 imageSize; };
+
+  #pragma rate targetImage pass
+  layout(r32f) writeonly uniform image2D targetImage;
+
+  #pragma rate sourceImage pass
+  uniform sampler2D sourceImage;
+
+  layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+  void main()
+  {
+    uvec2 uv = gl_GlobalInvocationID.xy;
+
+    #if CC_USE_SAMPLER_FILTER_MIN_MAX
+      float depth = texture(sourceImage, (vec2(uv) + vec2(0.5)) / imageSize).x;
+    #else
+      vec4 texels = textureGather(sourceImage, (vec2(uv) + vec2(0.5)) / imageSize, 0);
+      float depth = max(max(texels.x, texels.y), max(texels.z, texels.w));
+    #endif
+
+    imageStore(targetImage, ivec2(uv), vec4(depth));
+  }
+}%

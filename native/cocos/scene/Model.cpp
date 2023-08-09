@@ -42,6 +42,7 @@
 #include "scene/ReflectionProbeManager.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "3d/assets/Mesh.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -109,6 +110,7 @@ void Model::destroy() {
     _transform = nullptr;
     _node = nullptr;
     _isDynamicBatching = false;
+    _isBlend = false;
 }
 
 void Model::updateTransform(uint32_t stamp) {
@@ -446,6 +448,65 @@ void Model::updateSHUBOs() {
     updateSHBuffer();
 }
 
+bool Model::isInGPUScene(index_t subModelIndex) const {
+    const auto &subModel = _subModels[subModelIndex];
+    if (!subModel) {
+        return false;
+    }
+
+    const auto *subMesh = subModel->getSubMesh();
+    if (!subMesh) {
+        return false;
+    }
+
+    const auto *mesh = subMesh->getMesh();
+    if (!mesh) {
+        return false;
+    }
+
+    return mesh->isInGPUScene();
+}
+
+bool Model::supportGPUScene(index_t subModelIndex) const {
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *sceneData = pipeline->getPipelineSceneData();
+    if (!sceneData || !sceneData->isGPUDrivenEnabled()) {
+        return false;
+    }
+
+    // skip transparent object
+    if (isBlend()) {
+        return false;
+    }
+
+    // skip light probe object
+    if (_useLightProbe) {
+        return false;
+    }
+
+    // skip reflection probe object
+    if (_reflectionProbeType != UseReflectionProbeType::NONE) {
+        return false;
+    }
+
+    const auto &subModel = _subModels[subModelIndex];
+    if (!subModel) {
+        return false;
+    }
+
+    const auto *subMesh = subModel->getSubMesh();
+    if (!subMesh) {
+        return false;
+    }
+
+    const auto *mesh = subMesh->getMesh();
+    if (!mesh) {
+        return false;
+    }
+    
+    return mesh->supportGPUScene();
+}
+
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -497,18 +558,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
     patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
-
-    const auto *pipeline = Root::getInstance()->getPipeline();
-    const auto *sceneData = pipeline->getPipelineSceneData();
-    const auto &subModel = _subModels[subModelIndex];
-    bool useGPUDriven = sceneData &&
-                        sceneData->isGPUDrivenEnabled() &&
-                        subModel &&
-                        subModel->getSubMesh() &&
-                        subModel->getSubMesh()->canUseGPUScene() &&
-                        !_useLightProbe &&
-                        _reflectionProbeType == UseReflectionProbeType::NONE;
-    patches.push_back({CC_USE_GPU_DRIVEN, useGPUDriven});
+    patches.push_back({CC_USE_GPU_DRIVEN, supportGPUScene(subModelIndex) && isInGPUScene(subModelIndex)});
 
     return patches;
 }

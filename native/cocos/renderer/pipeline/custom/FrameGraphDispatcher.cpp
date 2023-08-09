@@ -1588,7 +1588,8 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
                 pair.target,
                 pair.mipLevels, pair.numSlices,
                 0, 0, 0,
-                pair.targetMostDetailedMip, pair.targetFirstSlice, pair.targetPlaneSlice));
+                pair.targetMostDetailedMip, pair.targetFirstSlice, pair.targetPlaneSlice,
+                0, 0, 0));
             startCopyPass(graphs, passID, copyPass);
         }
     }
