@@ -307,15 +307,6 @@ export function CCClass<TFunction> (options: {
     const properties = options.properties;
     declareProperties(cls, name, properties, base);
 
-    const editor = options.editor;
-    if (editor) {
-        if (js.isChildClassOf(base, legacyCC.Component)) {
-            legacyCC.Component._registerEditorProps(cls, editor);
-        } else if (DEV) {
-            warnID(3623, name!);
-        }
-    }
-
     return cls;
 }
 

@@ -1293,6 +1293,7 @@ The editor property 'playOnFocus' should be used with 'executeInEditMode' in cla
 
 ### 3602
 
+<!-- DEPRECATED -->
 Unknown editor property '%s' in class '%s'.
 
 ### 3603
@@ -1382,6 +1383,7 @@ Unknown type of %s.%s, property should be defined in 'properties' or 'ctor'
 
 ### 3623
 
+<!-- DEPRECATED -->
 Can not use 'editor' attribute, '%s' not inherits from Components.
 
 ### 3624

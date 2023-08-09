@@ -31,10 +31,9 @@ import { IDGenerator } from '../core/utils/id-generator';
 import { getClassName, value } from '../core/utils/js';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';
-import * as RF from '../core/data/utils/requiring-frame';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
-import { errorID, warnID, assertID } from '../core/platform/debug';
+import { errorID, assertID } from '../core/platform/debug';
 import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 
@@ -733,81 +732,6 @@ if (EDITOR || TEST) {
     // TODO Keep temporarily, compatible with old version
     legacyCC._componentMenuItems = [];
 }
-
-// we make this non-enumerable, to prevent inherited by sub classes.
-value(Component, '_registerEditorProps', (cls, props): void => {
-    let reqComp = props.requireComponent;
-    if (reqComp) {
-        if (Array.isArray(reqComp)) {
-            reqComp = reqComp.filter(Boolean);
-        }
-        cls._requireComponent = reqComp;
-    }
-    const order = props.executionOrder;
-    if (order && typeof order === 'number') {
-        cls._executionOrder = order;
-    }
-    if (EDITOR || TEST) {
-        const name = getClassName(cls);
-        for (const key in props) {
-            const val = props[key];
-            switch (key) {
-            case 'executeInEditMode':
-                cls._executeInEditMode = !!val;
-                break;
-
-            case 'playOnFocus':
-                if (val) {
-                    const willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
-                    if (willExecuteInEditMode) {
-                        cls._playOnFocus = true;
-                    } else {
-                        warnID(3601, name);
-                    }
-                }
-                break;
-
-            case 'inspector':
-                value(cls, '_inspector', val, true);
-                break;
-
-            case 'icon':
-                value(cls, '_icon', val, true);
-                break;
-
-            case 'menu':
-            {
-                const frame = RF.peek();
-                let menu = val;
-                if (frame && !menu.includes('/')) {
-                    menu = `i18n:menu.custom_script/${menu}`;
-                }
-
-                EDITOR && EditorExtends.Component.removeMenu(cls);
-                EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
-                break;
-            }
-
-            case 'disallowMultiple':
-                cls._disallowMultiple = cls;
-                break;
-
-            case 'requireComponent':
-            case 'executionOrder':
-                // skip here
-                break;
-
-            case 'help':
-                cls._help = val;
-                break;
-
-            default:
-                warnID(3602, key, name);
-                break;
-            }
-        }
-    }
-});
 
 legacyCC.Component = Component;
 export { Component };

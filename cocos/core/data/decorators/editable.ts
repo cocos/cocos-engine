@@ -22,12 +22,16 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR, TEST } from 'internal:constants';
+import { warnID } from "../../platform";
+import { value } from "../../utils/js";
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
-import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator, makeEditorClassDecoratorFn, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
+import { LegacyPropertyDecorator, emptyDecorator, makeSmartClassDecorator, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
+
+import * as RF from "../utils/requiring-frame";
 
 /**
  * @en Makes a CCClass that inherits from component execute in edit mode.<br/>
@@ -47,7 +51,9 @@ import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator,
  * }
  * ```
  */
-export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('executeInEditMode', true) : emptySmartClassDecorator;
+export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
+    constructor._executeInEditMode = true;
+}) : emptySmartClassDecorator;
 
 /**
  * @en Add the current component to the specific menu path in `Add Component` selector of the inspector panel
@@ -65,7 +71,17 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
  * }
  * ```
  */
-export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
+export const menu: (path: string) => ClassDecorator = (EDITOR || TEST) ? ((path: string): ClassDecorator => {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        const frame = RF.peek();
+        if (frame && !path.includes('/')) {
+            path = `i18n:menu.custom_script/${path}`;
+        }
+
+        EditorExtends.Component.removeMenu(constructor);
+        EditorExtends.Component.addMenu(constructor, path /*, props.menuPriority */);
+    };
+}) : emptyDecoratorFn;
 
 /**
  * @en When [[_decorator.executeInEditMode]] is set,
@@ -84,7 +100,9 @@ export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDe
  * }
  * ```
  */
-export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator<boolean>('playOnFocus', true) : emptySmartClassDecorator;
+export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
+    constructor._playOnFocus = true;
+}) : emptySmartClassDecorator;
 
 /**
  * @en Use a customized inspector page in the **inspector**
@@ -102,7 +120,11 @@ export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
  * }
  * ```
  */
-export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('inspector') : emptyDecoratorFn;
+export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        value(constructor, '_inspector', url, true);
+    };
+}) : emptyDecoratorFn;
 
 /**
  * @en Define the icon of the component.
@@ -121,7 +143,11 @@ export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorCla
  * }
  * ```
  */
-export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
+export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        value(constructor, '_icon', url, true);
+    };
+}) : emptyDecoratorFn;
 
 /**
  * @en Define the help documentation URL,
@@ -140,7 +166,11 @@ export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDec
  * }
  * ```
  */
-export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecoratorFn('help') : emptyDecoratorFn;
+export const help: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        constructor._help = url;
+    };
+}) : emptyDecoratorFn;
 
 /**
  * @en

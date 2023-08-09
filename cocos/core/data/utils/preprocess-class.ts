@@ -234,17 +234,13 @@ export function preprocessAttrs (properties, className, cls): void {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base): false | undefined {
-    if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
-        // find class that defines this method as a property
-        const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
-        errorID(3648, className, funcName, baseClassName);
-        return false;
-    }
-    if (funcName === 'destroy'
-        && js.isChildClassOf(base, legacyCC.Component)
-        && !CALL_SUPER_DESTROY_REG_DEV.test(func)
-    ) {
-        error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
+export function validateOverrideMethods_DEV (cls, base, className): void {
+    const proto = cls.prototype;
+    const destroy = proto.destroy;
+    if (destroy && proto.hasOwnProperty?.('destroy')) {
+        if (js.isChildClassOf(base, legacyCC.Component)
+            && !CALL_SUPER_DESTROY_REG_DEV.test(destroy)) {
+            error(`Overwriting '${'destroy'}' function in '${className}' class without calling super is not allowed. Call the super function in '${'destroy'}' please.`);
+        }
     }
 }
