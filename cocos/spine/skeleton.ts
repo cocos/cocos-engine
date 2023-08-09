@@ -626,6 +626,7 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public onRestore (): void {
 
     }
@@ -1183,7 +1184,7 @@ export class Skeleton extends UIRenderer {
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode): void {
-        if (this._preCacheMode as AnimationCacheMode !== cacheMode) {
+        if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._updateSkeletonData();
