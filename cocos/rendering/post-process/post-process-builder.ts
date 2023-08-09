@@ -43,17 +43,20 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // rendering dependent data generation
         this.addPass(shadowPass);
 
-        // forward pipeline
+        // opaque objects forward lighting
         this.addPass(forward);
-
         this.addPass(new SkinPass());
 
-        // transparency should after tone mapping
-        this.addPass(new ToneMappingPass());
-        this.addPass(new ForwardTransparencyPass());
-
-        // pipeline related
+        // depth-based shading
         this.addPass(new HBAOPass());
+
+        // hdr
+        this.addPass(new ToneMappingPass());
+        // simple fog with LDR after tone-mapping, atmosphere with HDR before tone-mapping
+        // this.addPass(new FogPass());
+
+        // transparency should after hdr and depth-based shading
+        this.addPass(new ForwardTransparencyPass());
 
         // user post-processing
         this.addPass(new TAAPass());
