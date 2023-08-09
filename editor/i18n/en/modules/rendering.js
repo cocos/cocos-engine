@@ -45,7 +45,7 @@ module.exports = {
             'MeshRenderer': {
                 groups: {
                     DynamicShadow: {
-                        displayName: 'Dynamic Show Settings',
+                        displayName: 'Dynamic Shadow Settings',
                     },
                 },
                 properties: {
