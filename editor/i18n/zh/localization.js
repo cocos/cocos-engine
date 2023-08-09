@@ -130,6 +130,7 @@ module.exports = link(mixin({
             SafeArea: `${url}/${version}/manual/zh/ui-system/components/editor/safearea.html`,
             Terrain: `${url}/${version}/manual/zh/editor/terrain/`,
             TiledMap: `${url}/${version}/manual/zh/editor/components/tiledmap.html`,
+            TiledTile: `${url}/${version}/manual/zh/editor/components/tiledtile.html`,
             Spine: `${url}/${version}/manual/zh/editor/components/spine.html`,
             DragonBones: `${url}/${version}/manual/zh/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
