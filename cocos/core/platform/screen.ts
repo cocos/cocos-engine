@@ -29,13 +29,13 @@ import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
-import { warnID } from './debug';
+import { error, warn, warnID } from './debug';
 import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
-class Screen {
+export class Screen {
     /**
      * @internal
      */
@@ -157,7 +157,7 @@ class Screen {
         return screenAdapter.requestFullScreen().then((): void => {
             onFullScreenChange?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         }).catch((err): void => {
-            console.error(err);
+            error(err);
             onFullScreenError?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         });
     }
@@ -180,7 +180,7 @@ class Screen {
      * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
     public autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any): void {
-        this.requestFullScreen(element, onFullScreenChange)?.catch((e): void => {});
+        this.requestFullScreen(element, onFullScreenChange)?.catch((e): void => { warn(e); });
     }
 
     /**
@@ -198,7 +198,7 @@ class Screen {
      * @zh
      * 注册screen事件回调。
      */
-    public on (type: PalScreenEvent, callback: any, target?: any): void {
+    public on (type: PalScreenEvent, callback: (...args: any) => void, target?: any): void {
         screenAdapter.on(type, callback, target);
     }
 
@@ -208,7 +208,7 @@ class Screen {
      * @zh
      * 注册单次的screen事件回调。
      */
-    public once (type: PalScreenEvent, callback?: any, target?: any): void {
+    public once (type: PalScreenEvent, callback: (...args: any) => void, target?: any): void {
         screenAdapter.once(type, callback, target);
     }
 
@@ -218,7 +218,7 @@ class Screen {
      * @zh
      * 取消注册screen事件回调。
      */
-    public off (type: PalScreenEvent, callback?: any, target?: any): void {
+    public off (type: PalScreenEvent, callback?: (...args: any) => void, target?: any): void {
         screenAdapter.off(type, callback, target);
     }
 }
