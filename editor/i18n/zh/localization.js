@@ -145,6 +145,7 @@ module.exports = link(mixin({
             Skin: `${url}/${version}/manual/zh/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/zh/concepts/scene/light/probe/reflection-art-workflow.html`,
+            Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
