@@ -1016,6 +1016,14 @@ Object.defineProperty(nodeProto, '_siblingIndex', {
     },
 });
 
+Object.defineProperty(nodeProto, 'prefab', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return this._prefab;
+    },
+});
+
 // External classes need to access it through getter/setter
 Object.defineProperty(nodeProto, 'siblingIndex', {
     configurable: true,
