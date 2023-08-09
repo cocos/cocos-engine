@@ -298,6 +298,21 @@ void addRasterViewImpl(
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
     const auto slotID = getSlotID(pass, name, attachmentType);
     CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
+    auto nameIter = subpassData.rasterViews.find(name);
+
+    if (nameIter != subpassData.rasterViews.end()) {
+        auto &view = subpass.rasterViews.at(name.data());
+        if (!defaultAttachment(slotName)) {
+            nameIter->second.slotName = slotName;
+            view.slotName = slotName;
+        }
+        if (!defaultAttachment(slotName1)) {
+            nameIter->second.slotName1 = slotName1;
+            view.slotName1 = slotName1;
+        }
+        return;
+    }
+
     {
         auto res = subpassData.rasterViews.emplace(
             std::piecewise_construct,
@@ -321,6 +336,7 @@ void addRasterViewImpl(
             std::forward_as_tuple(name),
             std::forward_as_tuple(
                 ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                ccstd::pmr::string(slotName1, subpassData.get_allocator()),
                 accessType,
                 attachmentType,
                 loadOp,
@@ -533,18 +549,18 @@ void NativeRenderSubpassBuilderImpl::setShowStatistics(bool enable) {
 void NativeMultisampleRenderSubpassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
-    
+
     auto parentID = parent(nodeID, *renderGraph);
     auto &pass = get(RasterPassTag{}, parentID, *renderGraph);
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
-    
+
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         ResolveFlags::COLOR,
         gfx::ResolveMode::AVERAGE,
         gfx::ResolveMode::NONE);
-    
+
     subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
@@ -559,7 +575,7 @@ void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
     if (stencilMode != gfx::ResolveMode::NONE) {
         flags |= ResolveFlags::STENCIL;
     }
-    
+
     auto parentID = parent(nodeID, *renderGraph);
     auto &pass = get(RasterPassTag{}, parentID, *renderGraph);
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
@@ -570,7 +586,7 @@ void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
         flags,
         depthMode,
         stencilMode);
-    
+
     subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
@@ -1137,17 +1153,17 @@ void NativeMultisampleRenderPassBuilder::setShowStatistics(bool enable) {
 void NativeMultisampleRenderPassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
-    
+
     auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
-    
+
     subpass.resolvePairs.emplace_back(
         ccstd::pmr::string(source.data(), renderGraph->get_allocator()),
         ccstd::pmr::string(target.data(), renderGraph->get_allocator()),
         ResolveFlags::COLOR,
         gfx::ResolveMode::AVERAGE,
         gfx::ResolveMode::NONE);
-    
+
     subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 
@@ -1162,7 +1178,7 @@ void NativeMultisampleRenderPassBuilder::resolveDepthStencil(
     if (stencilMode != gfx::ResolveMode::NONE) {
         flags |= ResolveFlags::STENCIL;
     }
-    
+
     auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
 
@@ -1172,7 +1188,7 @@ void NativeMultisampleRenderPassBuilder::resolveDepthStencil(
         flags,
         depthMode,
         stencilMode);
-    
+
     subpassData.resolvePairs.emplace_back(subpass.resolvePairs.back());
 }
 

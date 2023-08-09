@@ -34,26 +34,76 @@ namespace cc {
 
 namespace render {
 
+ResourceAccessNode::ResourceAccessNode(const allocator_type& alloc) noexcept
+: resourceStatus(alloc) {}
+
+ResourceAccessNode::ResourceAccessNode(ResourceAccessNode&& rhs, const allocator_type& alloc)
+: resourceStatus(std::move(rhs.resourceStatus), alloc) {}
+
+ResourceAccessNode::ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc)
+: resourceStatus(rhs.resourceStatus, alloc) {}
+
+AttachmentInfo::AttachmentInfo(const allocator_type& alloc) noexcept
+: parentName(alloc) {}
+
+AttachmentInfo::AttachmentInfo(AttachmentInfo&& rhs, const allocator_type& alloc)
+: parentName(std::move(rhs.parentName), alloc),
+  attachmentIndex(rhs.attachmentIndex),
+  isResolveView(rhs.isResolveView) {}
+
+AttachmentInfo::AttachmentInfo(AttachmentInfo const& rhs, const allocator_type& alloc)
+: parentName(rhs.parentName, alloc),
+  attachmentIndex(rhs.attachmentIndex),
+  isResolveView(rhs.isResolveView) {}
+
+FGRenderPassInfo::FGRenderPassInfo(const allocator_type& alloc) noexcept
+: orderedViews(alloc),
+  viewIndex(alloc) {}
+
+FGRenderPassInfo::FGRenderPassInfo(FGRenderPassInfo&& rhs, const allocator_type& alloc)
+: colorAccesses(std::move(rhs.colorAccesses)),
+  dsAccess(rhs.dsAccess),
+  dsResolveAccess(rhs.dsResolveAccess),
+  rpInfo(std::move(rhs.rpInfo)),
+  orderedViews(std::move(rhs.orderedViews), alloc),
+  viewIndex(std::move(rhs.viewIndex), alloc),
+  resolveCount(rhs.resolveCount),
+  uniqueRasterViewCount(rhs.uniqueRasterViewCount) {}
+
+FGRenderPassInfo::FGRenderPassInfo(FGRenderPassInfo const& rhs, const allocator_type& alloc)
+: colorAccesses(rhs.colorAccesses),
+  dsAccess(rhs.dsAccess),
+  dsResolveAccess(rhs.dsResolveAccess),
+  rpInfo(rhs.rpInfo),
+  orderedViews(rhs.orderedViews, alloc),
+  viewIndex(rhs.viewIndex, alloc),
+  resolveCount(rhs.resolveCount),
+  uniqueRasterViewCount(rhs.uniqueRasterViewCount) {}
+
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : _vertices(alloc),
   passID(alloc),
-  access(alloc),
+  passResource(alloc),
+  rpInfo(alloc),
+  barrier(alloc),
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
   leafPasses(alloc),
   culledPasses(alloc),
-  accessRecord(alloc),
   resourceLifeRecord(alloc),
   topologicalOrder(alloc),
-  rpInfos(alloc),
-  subpassIndex(alloc) {}
+  resourceAccess(alloc),
+  movedTarget(alloc),
+  movedSourceStatus(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
     _vertices.reserve(sz);
     passID.reserve(sz);
-    access.reserve(sz);
+    passResource.reserve(sz);
+    rpInfo.reserve(sz);
+    barrier.reserve(sz);
 }
 
 ResourceAccessGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
@@ -91,13 +141,29 @@ RelationGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
+RenderingInfo::RenderingInfo(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+RenderingInfo::RenderingInfo(RenderingInfo&& rhs, const allocator_type& alloc)
+: renderpassInfo(std::move(rhs.renderpassInfo)),
+  framebufferInfo(std::move(rhs.framebufferInfo)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+RenderingInfo::RenderingInfo(RenderingInfo const& rhs, const allocator_type& alloc)
+: renderpassInfo(rhs.renderpassInfo),
+  framebufferInfo(rhs.framebufferInfo),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& renderGraphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
-  graph(graphIn),
+  renderGraph(renderGraphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
-  externalResMap(alloc),
   relationGraph(alloc) {}
 
 } // namespace render

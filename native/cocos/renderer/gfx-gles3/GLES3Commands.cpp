@@ -1375,16 +1375,21 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
     auto &attachments = gpuRenderPass->colorAttachments;
     auto &drawBuffers = gpuRenderPass->drawBuffers;
 
+    bool hasDS = (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN);
     gpuRenderPass->drawBuffers.resize(subPasses.size());
-    gpuRenderPass->indices.resize(attachments.size(), INVALID_BINDING);
+    gpuRenderPass->indices.resize(attachments.size() + hasDS, INVALID_BINDING);
 
     for (uint32_t i = 0; i < subPasses.size(); ++i) {
         auto &sub = subPasses[i];
         auto &drawBuffer = drawBuffers[i];
 
-        std::vector<bool> visited(gpuRenderPass->colorAttachments.size());
+        std::vector<bool> visited(gpuRenderPass->colorAttachments.size() + hasDS);
         for (auto &input : sub.inputs) {
             visited[input] = true;
+            if(input == gpuRenderPass->colorAttachments.size()) {
+                // ds input
+                continue;
+            }
             drawBuffer.emplace_back(gpuRenderPass->indices[input]);
         }
 
@@ -1411,8 +1416,14 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
             }
         }
 
-        gpuRenderPass->depthStencil = sub.depthStencil;
-        gpuRenderPass->depthStencilResolve = sub.depthStencilResolve;
+
+        if (sub.depthStencil != gfx::INVALID_BINDING) {
+            gpuRenderPass->depthStencil = sub.depthStencil;
+            gpuRenderPass->indices.back() = gpuRenderPass->depthStencil;
+        }
+        if (sub.depthStencilResolve != gfx::INVALID_BINDING) {
+            gpuRenderPass->depthStencilResolve = sub.depthStencilResolve;
+        }
     }
 }
 

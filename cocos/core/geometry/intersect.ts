@@ -413,10 +413,12 @@ const lineTriangle = (function (): (line: Line, triangle: Triangle, outPt?: Vec3
             const u = 1.0 - v - w;
 
             // outPt = u*a + v*d + w*c;
-            Vec3.set(outPt,
+            Vec3.set(
+                outPt,
                 triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
                 triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
-                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w);
+                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
+            );
         }
 
         return 1;
@@ -527,38 +529,54 @@ function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]): void {
 }
 
 function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Vec3[]): void {
-    Vec3.set(out[0],
+    Vec3.set(
+        out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z);
-    Vec3.set(out[1],
+        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z,
+    );
+    Vec3.set(
+        out[1],
         c.x - a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z);
-    Vec3.set(out[2],
+        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z,
+    );
+    Vec3.set(
+        out[2],
         c.x + a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z);
-    Vec3.set(out[3],
+        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z,
+    );
+    Vec3.set(
+        out[3],
         c.x + a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z);
-    Vec3.set(out[4],
+        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z,
+    );
+    Vec3.set(
+        out[4],
         c.x - a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z);
-    Vec3.set(out[5],
+        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z,
+    );
+    Vec3.set(
+        out[5],
         c.x + a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z);
-    Vec3.set(out[6],
+        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z,
+    );
+    Vec3.set(
+        out[6],
         c.x - a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z);
-    Vec3.set(out[7],
+        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z,
+    );
+    Vec3.set(
+        out[7],
         c.x - a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z);
+        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z,
+    );
 }
 
 function getInterval (vertices: any[] | Vec3[], axis: Vec3): number[] {

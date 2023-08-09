@@ -61,14 +61,20 @@ void updateGPUShaderSourceByRenderPass(GLES3GPUShader *gpuShader, GLES3GPURender
     }
 
     CC_ASSERT(subpassIndex < renderPass->subpasses.size());
-    if (renderPass->subpasses[subpassIndex].inputs.empty()) {
+    if (renderPass->subpasses.size() <= 1) {
         return;
     }
-    auto &drawBuffers = renderPass->drawBuffers.at(subpassIndex);
+    bool dsInput{false};
+    if (renderPass->depthStencil != INVALID_BINDING && !renderPass->subpasses[subpassIndex].inputs.empty()) {
+        const auto &inputs = renderPass->subpasses[subpassIndex].inputs;
+        // depth stencil input should always lies at the end of index list.
+        dsInput = inputs.back() == renderPass->depthStencil;
+    }
 
+    auto &drawBuffers = renderPass->drawBuffers.at(subpassIndex);
     ccstd::string::size_type offset = 0;
     for (uint32_t i = 0; i < drawBuffers.size(); ++i) {
-        const char* layoutPrefix = "layout(location = ";
+        const char *layoutPrefix = "layout(location = ";
 
         std::stringstream ss1;
         ss1 << layoutPrefix << i << ") out";
