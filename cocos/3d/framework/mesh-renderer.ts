@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
-import { displayName, displayOrder, group, range } from 'cc.decorator';
+import { displayOrder, group, range } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -44,7 +44,7 @@ import { SubModel } from '../../render-scene/scene';
 import { isEnableEffect } from '../../rendering/define';
 import type { Model } from '../../render-scene/scene';
 
-const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
+const { ccclass, help, executeInEditMode, executionOrder, menu, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
 
 let _phaseID = getPhaseID('specular-pass');
@@ -152,7 +152,7 @@ class ModelBakeSettings extends EventTarget {
      * @zh 模型是否是静态的并可以烘培光照贴图。
      * 注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0, style: 'section' })
+    @group({ id: 'LightMap', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightMap.displayName', displayOrder: 0, style: 'section' })
     @editable
     get bakeable (): boolean {
         return this._bakeable;
@@ -166,7 +166,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether to cast shadow in light map baking.
      * @zh 在光照贴图烘焙中是否投射阴影。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings' })
+    @group({ id: 'LightMap', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightMap.displayName' })
     @editable
     get castShadow (): boolean {
         return this._castShadow;
@@ -180,7 +180,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether to receive shadow in light map baking.
      * @zh 在光照贴图烘焙中是否接受阴影。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings' })
+    @group({ id: 'LightMap', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightMap.displayName' })
     @editable
     get receiveShadow (): boolean {
         return this._receiveShadow;
@@ -194,7 +194,7 @@ class ModelBakeSettings extends EventTarget {
      * @en The lightmap size.
      * @zh 光照图大小。
      */
-    @group({ id: 'LightMap', name: 'LightMapSettings' })
+    @group({ id: 'LightMap', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightMap.displayName' })
     @editable
     @type(CCInteger)
     @range([0, 1024])
@@ -210,7 +210,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether to use light probe which provides indirect light to dynamic objects.
      * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
      */
-    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1, style: 'section' })
+    @group({ id: 'LightProbe', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightProbe.displayName', displayOrder: 1, style: 'section' })
     @editable
     @type(CCBoolean)
     get useLightProbe (): boolean {
@@ -226,7 +226,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether the model is used to calculate light probe
      * @zh 模型是否用于计算光照探针
      */
-    @group({ id: 'LightProbe', name: 'LightProbeSettings' })
+    @group({ id: 'LightProbe', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.LightProbe.displayName' })
     @editable
     @type(CCBoolean)
     get bakeToLightProbe (): boolean {
@@ -241,7 +241,12 @@ class ModelBakeSettings extends EventTarget {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
-    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2, style: 'section' })
+    @group({
+        id: 'ReflectionProbe',
+        name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.ReflectionProbe.displayName',
+        displayOrder: 2,
+        style: 'section',
+    })
     @type(Enum(ReflectionProbeType))
     get reflectionProbe (): ReflectionProbeType {
         return this._reflectionProbeType;
@@ -256,7 +261,7 @@ class ModelBakeSettings extends EventTarget {
      * @en Whether the model can be render by the reflection probe
      * @zh 模型是否能被反射探针渲染
      */
-    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings' })
+    @group({ id: 'ReflectionProbe', name: 'i18n:ENGINE.classes.cc.ModelBakeSettings.groups.ReflectionProbe.displayName' })
     @type(CCBoolean)
     get bakeToReflectionProbe (): boolean {
         return this._bakeToReflectionProbe;
@@ -338,8 +343,12 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 实时光照下模型局部的阴影偏移。
      */
     @type(CCFloat)
-    @tooltip('i18n:model.shadow_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2, style: 'section' })
+    @group({
+        id: 'DynamicShadow',
+        name: 'i18n:ENGINE.classes.cc.MeshRenderer.groups.DynamicShadow.displayName',
+        displayOrder: 2,
+        style: 'section',
+    })
     @disallowAnimation
     get shadowBias (): number {
         return this._shadowBias;
@@ -356,8 +365,7 @@ export class MeshRenderer extends ModelRenderer {
    * @zh 实时光照下模型局部的阴影法线偏移。
    */
     @type(CCFloat)
-    @tooltip('i18n:model.shadow_normal_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @group({ id: 'DynamicShadow', name: 'i18n:ENGINE.classes.cc.MeshRenderer.groups.DynamicShadow.displayName' })
     @disallowAnimation
     get shadowNormalBias (): number {
         return this._shadowNormalBias;
@@ -374,8 +382,7 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 实时光照下阴影投射方式。
      */
     @type(ModelShadowCastingMode)
-    @tooltip('i18n:model.shadow_casting_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @group({ id: 'DynamicShadow', name: 'i18n:ENGINE.classes.cc.MeshRenderer.groups.DynamicShadow.displayName' })
     @disallowAnimation
     @visible(false)
     get shadowCastingMode (): number {
@@ -387,9 +394,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
     }
 
-    @displayName('Shadow Casting Mode')
-    @tooltip('i18n:model.shadow_casting_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @group({ id: 'DynamicShadow', name: 'i18n:ENGINE.classes.cc.MeshRenderer.groups.DynamicShadow.displayName' })
     @disallowAnimation
     get shadowCastingModeForInspector (): boolean {
         return this.shadowCastingMode === ModelShadowCastingMode.ON;
@@ -431,9 +436,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
     }
 
-    @displayName('Receive Shadow')
-    @tooltip('i18n:model.shadow_receiving_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @group({ id: 'DynamicShadow', name: 'i18n:ENGINE.classes.cc.MeshRenderer.groups.DynamicShadow.displayName' })
     @disallowAnimation
     get receiveShadowForInspector (): boolean {
         return this._shadowReceivingMode === ModelShadowReceivingMode.ON;
@@ -451,7 +454,6 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(Mesh)
     @displayOrder(1)
-    @tooltip('i18n:model.mesh')
     get mesh (): Mesh | null {
         return this._mesh;
     }
@@ -508,7 +510,6 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 设置是否是全局的4s标准模型组件
      */
     @type(CCBoolean)
-    @tooltip('i18n:model.standard_skin_model')
     @disallowAnimation
     get isGlobalStandardSkinObject (): boolean {
         return this._enabledGlobalStandardSkinObject;

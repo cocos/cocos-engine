@@ -286,15 +286,6 @@ module.exports = link(mixin({
         csmLayersTransition: '是否开启级联阴影层级过渡（提升质量，降低性能）',
         csmTransitionRange: '级联阴影层级过渡范围(NDC空间: 取值范围为 0 ~ 1)',
     },
-    model: {
-        shadow_receiving_model: '阴影接受方式',
-        shadow_casting_model: '阴影投射方式',
-        mesh: '模型的网格数据',
-        skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
-        shadow_bias: '模型额外增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
-        shadow_normal_bias: '模型额外增加法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
-        standard_skin_model: '模型额外设定全局唯一的标准皮肤模型',
-    },
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
         atlas: '图片资源所属的 Atlas 图集资源',
@@ -1298,6 +1289,7 @@ module.exports = link(mixin({
     },
 },
 
+require('./modules/rendering'),
 require('./animation'),
 
 ));
