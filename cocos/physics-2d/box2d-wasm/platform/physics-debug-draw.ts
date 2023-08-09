@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2 } from '../instantiated';
+import { B2, b2Mul } from '../instantiated';
 import { Color, warn } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
@@ -69,7 +69,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         for (let i = 0; i < vertexCount; i++) {
             _tmp_vec2.x = B2.GetFloat32(vertices, i * 2 + 0);
             _tmp_vec2.y = B2.GetFloat32(vertices, i * 2 + 1);
-            _tmp_vec2 = B2.TransformVector2(PhysicsDebugDraw._xf, _tmp_vec2);
+            _tmp_vec2 = b2Mul(PhysicsDebugDraw._xf, _tmp_vec2);
             const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
             const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
             if (i === 0) drawer.moveTo(x, y);
@@ -123,7 +123,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         }
         PhysicsDebugDraw._applyStrokeColor(color);
 
-        _tmp_vec2 = B2.TransformVector2(PhysicsDebugDraw._xf, p1);
+        _tmp_vec2 = b2Mul(PhysicsDebugDraw._xf, p1);
         drawer.moveTo(p1.x * PHYSICS_2D_PTM_RATIO, p1.y * PHYSICS_2D_PTM_RATIO);
         drawer.lineTo(p2.x * PHYSICS_2D_PTM_RATIO, p2.y * PHYSICS_2D_PTM_RATIO);
         drawer.stroke();
@@ -135,11 +135,11 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         drawer.strokeColor = RED_COLOR;
 
         _tmp_vec2.x = _tmp_vec2.y = 0;
-        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
         drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
         _tmp_vec2.x = 1; _tmp_vec2.y = 0;
-        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
         drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
         drawer.stroke();
@@ -147,11 +147,11 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         drawer.strokeColor = GREEN_COLOR;
 
         _tmp_vec2.x = _tmp_vec2.y = 0;
-        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
         drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
         _tmp_vec2.x = 0; _tmp_vec2.y = 1;
-        _tmp_vec2 = B2.TransformVector2(xf, _tmp_vec2);
+        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
         drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
 
         drawer.stroke();

@@ -90,6 +90,15 @@ export function getWASMObjectFromWASMObjectPtr<T> (implPtr: number): T {
     return WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
 }
 
+/**
+* ts implementation of c++ b2Mul
+*/
+export function b2Mul (T: any, v: any): any {
+    const x = (T.q.c * v.x - T.q.s * v.y) + T.p.x;
+    const y = (T.q.s * v.x + T.q.c * v.y) + T.p.y;
+    return { x, y };
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl): Promise<void> {
     return new Promise<void>((resolve, reject) => {
