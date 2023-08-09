@@ -649,10 +649,10 @@ public:
         addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
+        addTexture(name, slotName, nullptr, 0);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0xFFFFFFFF);
+        addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "default");
@@ -1002,10 +1002,10 @@ public:
         addDepthStencil(name, accessType, depthSlotName, stencilSlotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
+        addTexture(name, slotName, nullptr, 0);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0xFFFFFFFF);
+        addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "default");
@@ -1149,10 +1149,10 @@ public:
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
+        addTexture(name, slotName, nullptr, 0);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0xFFFFFFFF);
+        addTexture(name, slotName, sampler, 0);
     }
     ComputeQueueBuilder *addQueue() {
         return addQueue("default");
@@ -1308,10 +1308,10 @@ public:
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
+        addTexture(name, slotName, nullptr, 0);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0xFFFFFFFF);
+        addTexture(name, slotName, sampler, 0);
     }
     void addMaterialTexture(const ccstd::string &resourceName) {
         addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::COMPUTE);
