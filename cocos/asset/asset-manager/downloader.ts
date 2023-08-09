@@ -262,6 +262,18 @@ export class Downloader {
      */
     public downloadScript = downloadScript;
 
+    /**
+     * @engineInternal
+     * @internal
+     */
+    public _downloadArrayBuffer = downloadArrayBuffer;
+
+    /**
+     * @engineInternal
+     * @internal
+     */
+    public _downloadJson = downloadJson;
+
     // default handler map
     private _downloaders: Record<string, DownloadHandler> = {
         // Images
