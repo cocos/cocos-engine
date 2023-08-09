@@ -457,19 +457,6 @@ enum class TextureType : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(TextureType);
 
-enum class TextureViewType : uint32_t {
-    TEX1D,
-    TEX1D_ARRAY,
-    TEX2D,
-    TEX2D_ARRAY,
-    TEX2DMS,
-    TEX2DMS_ARRAY,
-    TEX3D,
-    CUBE,
-    CUBE_ARRAY
-};
-CC_ENUM_CONVERSION_OPERATOR(TextureViewType);
-
 enum class TextureUsageBit : uint32_t {
     NONE = 0,
     TRANSFER_SRC = 0x1,
