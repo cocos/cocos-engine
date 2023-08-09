@@ -60,21 +60,9 @@ struct LeafStatus {
     bool needCulling{false};
 };
 
-struct ResourceRange {
-    uint32_t width{0};
-    uint32_t height{0};
-    uint32_t depthOrArraySize{0};
-    uint32_t firstSlice{0};
-    uint32_t numSlices{0};
-    uint32_t mipLevel{0};
-    uint32_t levelCount{0};
-    uint32_t basePlane{0};
-    uint32_t planeCount{0};
-};
-
 struct AccessStatus {
     gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
-    ResourceRange range;
+    gfx::ResourceRange range;
 };
 
 struct ResourceAccessNode {
@@ -158,6 +146,21 @@ struct Barrier {
 struct BarrierNode {
     std::vector<Barrier> frontBarriers;
     std::vector<Barrier> rearBarriers;
+};
+
+struct SliceNode {
+    bool full{false};
+    ccstd::pmr::vector<uint32_t> mips;
+};
+
+struct TextureNode {
+    bool full{false};
+    ccstd::pmr::vector<SliceNode> slices;
+};
+
+struct ResourceNode {
+    bool full{false};
+    ccstd::pmr::vector<TextureNode> planes;
 };
 
 struct ResourceAccessGraph {
@@ -245,7 +248,7 @@ struct ResourceAccessGraph {
     using edges_size_type = uint32_t;
 
                     LayoutAccess getAccess(ccstd::pmr::string, RenderGraph::vertex_descriptor vertID);
-                
+
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -293,8 +296,9 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
-    PmrFlatMap<ccstd::pmr::string, ccstd::pmr::vector<ccstd::pmr::string>> movedTarget;
+    PmrFlatMap<ccstd::pmr::string, PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string>> movedTarget;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrFlatMap<ccstd::pmr::string, ResourceNode> movedTargetStatus;
 };
 
 struct RelationGraph {
@@ -453,7 +457,7 @@ struct FrameGraphDispatcher {
 
     // how much paralell-execution weights during pass reorder,
     // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
-    // 0 by default 
+    // 0 by default
     void setParalellWeight(float paralellExecWeight);
 
     void enableMemoryAliasing(bool enable);
@@ -465,9 +469,9 @@ struct FrameGraphDispatcher {
     const ResourceAccessNode& getAccessNode(RenderGraph::vertex_descriptor u) const;
 
     const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
-        
+
     RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
-        
+
     LayoutAccess getResourceAccess(ResourceGraph::vertex_descriptor r, RenderGraph::vertex_descriptor p) const;
 
     // those resource been moved point to another resID

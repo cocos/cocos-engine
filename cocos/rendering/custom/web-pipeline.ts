@@ -31,7 +31,7 @@ import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
+import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -255,16 +255,31 @@ export class WebSetter {
         this._data.samplers.set(num, sampler);
     }
     public setBuiltinCameraConstants (camera: Camera): void {
-
+        // TODO
     }
     public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
-
+        // TODO
     }
     public setBuiltinDirectionalLightViewConstants (light: DirectionalLight): void {
-
+        // TODO
     }
     public setBuiltinSpotLightViewConstants (light: SpotLight): void {
-
+        // TODO
+    }
+    public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
+        // TODO
+    }
+    public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
+        // TODO
+    }
+    public setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void {
+        // TODO
+    }
+    public setBuiltinPointLightConstants (light: PointLight, camera: Camera): void {
+        // TODO
+    }
+    public setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void {
+        // TODO
     }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
@@ -1084,7 +1099,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass.rasterViews.set(name, view);
     }
     resolveRenderTarget (source: string, target: string): void {
-
+        // TODO
     }
     resolveDepthStencil (
         source: string,
@@ -1092,7 +1107,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         depthMode?: ResolveMode,
         stencilMode?: ResolveMode,
     ): void {
-
+        // TODO
     }
     private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
         const view = new ComputeView(slotName);

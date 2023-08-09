@@ -85,10 +85,10 @@ std::pair<gfx::GFXObject*, gfx::GFXObject*> getBarrier(const ResourceBarrier& ba
         info.type = barrierInfo.barrierType;
         info.prevAccesses = getAccessFlags(usage, barrierInfo.beginStatus);
         info.nextAccesses = getAccessFlags(usage, barrierInfo.endStatus);
-        info.baseMipLevel = static_cast<uint32_t>(barrierInfo.mipRange.base);
-        info.levelCount = static_cast<uint32_t>(barrierInfo.mipRange.len);
-        info.baseSlice = static_cast<uint32_t>(barrierInfo.layerRange.base);
-        info.sliceCount = static_cast<uint32_t>(barrierInfo.layerRange.len);
+        info.range.mipLevel = static_cast<uint32_t>(barrierInfo.mipRange.base);
+        info.range.levelCount = static_cast<uint32_t>(barrierInfo.mipRange.len);
+        info.range.firstSlice = static_cast<uint32_t>(barrierInfo.layerRange.base);
+        info.range.numSlices = static_cast<uint32_t>(barrierInfo.layerRange.len);
 
         res.first = gfx::Device::getInstance()->getTextureBarrier(info);
         res.second = gfxTexture;

@@ -57,7 +57,10 @@ class GeometryRenderer;
 namespace scene {
 
 class DirectionalLight;
+class SphereLight;
 class SpotLight;
+class PointLight;
+class RangedDirectionalLight;
 class Model;
 class RenderScene;
 class RenderWindow;
@@ -452,6 +455,11 @@ public:
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
     virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
     virtual void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) = 0;
+    virtual void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
     virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light) {
@@ -480,7 +488,7 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
     virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
     virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     /**
@@ -519,6 +527,9 @@ public:
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
+    }
+    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+        addScene(camera, sceneFlags, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);
@@ -638,10 +649,10 @@ public:
         addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0);
+        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0);
+        addTexture(name, slotName, sampler, 0xFFFFFFFF);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "default");
