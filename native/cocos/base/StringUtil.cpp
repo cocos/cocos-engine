@@ -86,12 +86,19 @@ int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
 }
 
 ccstd::string StringUtil::format(const char *fmt, ...) {
-    char sz[4096];
     va_list args;
     va_start(args, fmt);
-    vprintf(sz, sz + sizeof(sz) - 1, fmt, args);
+    // Caculate the string length
+    int length = vsnprintf(nullptr, 0, fmt, args);
+    if (length <= 0) {
+        return "";
+    }
+    ccstd::string ret;
+    ret.resize(length, '\0');
+    int writtenLength = vsnprintf(const_cast<char*>(ret.data()), length + 1, fmt, args);
+    CC_ASSERT(writtenLength == length);
     va_end(args);
-    return sz;
+    return ret;
 }
 
 ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint32_t maxSplits) {
