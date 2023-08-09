@@ -34,7 +34,7 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, cclegacy } from '../../core';
+import { assert, cclegacy, warn } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';
 
@@ -99,7 +99,7 @@ export class UIMeshRenderer extends Component {
 
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
             return;
         }
         if (JSB) {
@@ -189,6 +189,7 @@ export class UIMeshRenderer extends Component {
             // please fix the type @holycanvas
             // issue: https://github.com/cocos/cocos-engine/issues/14637
             this._renderData = renderData as unknown as RenderData;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
@@ -201,6 +202,7 @@ export class UIMeshRenderer extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public postUpdateAssembler (render: IBatcher): void {
     }
 
@@ -252,12 +254,14 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setNodeDirty (): void {
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setTextureDirty (): void {
     }
 
