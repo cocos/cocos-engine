@@ -237,7 +237,9 @@ export class WebSetter {
     public offsetFloat (v: number, offset: number): void {
         this._copyToBuffer(v, offset, Type.FLOAT);
     }
-    public setBuffer (name: string, buffer: Buffer): void {}
+    public setBuffer (name: string, buffer: Buffer): void {
+        // TODO
+    }
     public setTexture (name: string, texture: Texture): void {
         if (this._getCurrDescriptorBlock(name) === -1) {
             return;
@@ -245,8 +247,12 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.textures.set(num, texture);
     }
-    public setReadWriteBuffer (name: string, buffer: Buffer): void {}
-    public setReadWriteTexture (name: string, texture: Texture): void {}
+    public setReadWriteBuffer (name: string, buffer: Buffer): void {
+        // TODO
+    }
+    public setReadWriteTexture (name: string, texture: Texture): void {
+        // TODO
+    }
     public setSampler (name: string, sampler: Sampler): void {
         if (this._getCurrDescriptorBlock(name) === -1) {
             return;
