@@ -261,6 +261,9 @@ bool XMLHttpRequest::open(const ccstd::string &method, const ccstd::string &url)
         requestType = HttpRequest::Type::HEAD;
     } else if (_method == "delete" || _method == "DELETE") {
         requestType = HttpRequest::Type::DELETE;
+    } else if (_method == "patch" || _method == "PATCH") {
+        requestType = HttpRequest::Type::PATCH;
+
     }
 
     CC_ASSERT(requestType != HttpRequest::Type::UNKNOWN);
@@ -513,7 +516,7 @@ void XMLHttpRequest::sendRequest() {
 
 void XMLHttpRequest::setHttpRequestData(const char *data, size_t len) {
     if (len > 0 &&
-        (_method == "post" || _method == "POST" || _method == "put" || _method == "PUT")) {
+        (_method == "post" || _method == "POST" || _method == "put" || _method == "PUT" || _method == "patch" || _method == "PATCH")) {
         _httpRequest->setRequestData(data, len);
     }
 }

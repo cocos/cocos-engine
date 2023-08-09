@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range, serializable, type } from 'cc.decorator';
+import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range, serializable, type } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
 import { Component } from '../scene-graph/component';
@@ -41,6 +41,7 @@ const MIN_INT16 = -1 << 15;
  */
 @ccclass('cc.Sorting')
 @menu('Sorting/Sorting')
+@help('i18n:cc.Sorting')
 @disallowMultiple
 @executeInEditMode
 export class Sorting extends Component {

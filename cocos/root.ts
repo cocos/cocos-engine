@@ -451,6 +451,10 @@ export class Root {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
 
+        if (this._pipeline!.pipelineSceneData.skybox.enabled) {
+            this._pipeline!.pipelineSceneData.skybox.model!.onGlobalPipelineStateChanged();
+        }
+
         this._pipeline!.onGlobalPipelineStateChanged();
     }
 

@@ -87,6 +87,8 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      rasterizerState:
+        cullMode: Front
       depthStencilState: &d1
         depthTest: true
         depthWrite: false
@@ -96,6 +98,14 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      rasterizerState:
+        cullMode: Back
+      depthStencilState: *d1
+      blendState: *b1
       properties: *props
     - *forward-add
     - *shadow-caster

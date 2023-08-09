@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "base/std/container/string.h"
 #include "renderer/core/PassUtils.h"
 
@@ -33,6 +35,17 @@ namespace scene {
 struct IMacroPatch {
     ccstd::string name;
     MacroValue value;
+
+    IMacroPatch() = default;
+    IMacroPatch(const ccstd::string& n, const MacroValue& v) {
+        name = n;
+        value = v;
+    }
+
+    IMacroPatch(const std::pair<const std::string, cc::MacroValue>& pair) {
+        name = pair.first;
+        value = pair.second;
+    }
 
     bool operator==(const IMacroPatch& rhs) const {
         return rhs.name == name && rhs.value == value;
