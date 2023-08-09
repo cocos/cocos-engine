@@ -88,9 +88,10 @@ int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
 ccstd::string StringUtil::format(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    // Caculate the string length
+    // Calculate the string length
     int length = vsnprintf(nullptr, 0, fmt, args);
     if (length <= 0) {
+        va_end(args);
         return "";
     }
     ccstd::string ret;
