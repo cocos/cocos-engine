@@ -37,9 +37,12 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { PointLight } from '../../render-scene/scene/point-light';
+import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
 import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Light, Model } from '../../render-scene/scene';
+import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
@@ -377,6 +380,11 @@ export interface Setter extends RenderNode {
     setSampler (name: string, sampler: Sampler): void;
     setBuiltinCameraConstants (camera: Camera): void;
     setBuiltinShadowMapConstants (light: DirectionalLight): void;
+    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
+    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
+    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
+    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
+    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
     setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
     setBuiltinSpotLightViewConstants (light: SpotLight): void;
 }
@@ -402,7 +410,10 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
-    addScene (camera: Camera, sceneFlags: SceneFlags): void;
+    addScene (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light?: Light | null): void;
     addSceneCulledByDirectionalLight (
         camera: Camera,
         sceneFlags: SceneFlags,
