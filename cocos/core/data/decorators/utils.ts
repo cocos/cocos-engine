@@ -22,10 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
-import { error } from '../../platform/debug';
-import { getClassName } from '../../utils/js-typed';
+import { ClassStash } from "../class-stash";
 
 export type Initializer = () => unknown;
 
@@ -106,13 +103,8 @@ export function makeSmartClassDecorator<TArg> (
 // caches for class construction
 export const CACHE_KEY = '__ccclassCache__';
 
-export function getClassCache (ctor, decoratorName?): any {
-    if (DEV && CCClass._isCCClass(ctor)) {
-        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
-        return null;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return getSubDict(ctor, CACHE_KEY);
+export function getClassCache (ctor): ClassStash {
+    return getSubDict(ctor, CACHE_KEY) as ClassStash;
 }
 
 export function getSubDict<T, TKey extends keyof T> (obj: T, key: TKey): NonNullable<T[TKey]> {

@@ -23,8 +23,9 @@
 */
 
 import { DEV, EDITOR, TEST } from 'internal:constants';
-import { warnID } from "../../platform";
-import { value } from "../../utils/js";
+import { error, warnID } from "../../platform";
+import { getClassName, value } from "../../utils/js";
+import { CCClass } from "../class";
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
@@ -52,6 +53,9 @@ import * as RF from "../utils/requiring-frame";
  * ```
  */
 export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
+    if (DEV && CCClass._isCCClass(constructor)) {
+        error('`@%s` should be used after @ccclass for class "%s"', 'executeInEditMode', getClassName(constructor));
+    }
     constructor._executeInEditMode = true;
 }) : emptySmartClassDecorator;
 
@@ -101,6 +105,9 @@ export const menu: (path: string) => ClassDecorator = (EDITOR || TEST) ? ((path:
  * ```
  */
 export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
+    if (DEV && CCClass._isCCClass(constructor)) {
+        error('`@%s` should be used after @ccclass for class "%s"', 'playOnFocus', getClassName(constructor));
+    }
     constructor._playOnFocus = true;
 }) : emptySmartClassDecorator;
 

@@ -75,7 +75,7 @@ export function property (
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
         descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ): void {
-        const classStash = getOrCreateClassStash(target);
+        const classStash = getClassCache(target.constructor);
         const propertyStash = getOrCreateEmptyPropertyStash(
             target,
             propertyKey,
@@ -138,11 +138,6 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
         return {};
     }
     return dummyObj;
-}
-
-function getOrCreateClassStash (target: Parameters<LegacyPropertyDecorator>[0]): ClassStash {
-    const cache = getClassCache(target.constructor) as ClassStash;
-    return cache;
 }
 
 function getOrCreateEmptyPropertyStash (
