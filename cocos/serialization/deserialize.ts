@@ -30,7 +30,7 @@ import { Asset } from '../asset/assets/asset';
 
 import { CCON } from './ccon';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
-import { decodeTypedArray, TypedArrayData } from './compiled/typed-array';
+import { deserializeTypedArray, TypedArrayData } from './compiled/typed-array';
 
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
@@ -419,7 +419,7 @@ type IPackedFileSection = [
     binaryStorage: [byteOffset: number, byteLength: number] | Empty,
 ];
 
-const PACKED_FILE_SECTION_BINARY_STORAGE_INDEX = 6;
+const PACKED_SECTION_BINARY_STORAGE_INDEX = 6;
 
 const PACKED_SECTIONS = File.Instances;
 
@@ -448,8 +448,8 @@ type ClassFinder = deserialize.ClassFinder;
 
 interface DeserializeContext extends ICustomHandler {
     _version?: number;
-    attachedBinary?: Uint8Array;
-    attachedBinaryDataViewCache?: DataView;
+    _attachedBinary?: Uint8Array;
+    _attachedBinaryDataViewCache?: DataView;
 }
 
 interface IOptions extends Partial<ICustomHandler> {
@@ -738,10 +738,6 @@ function parseArray (data: IRuntimeFileData, owner: any, key: string, value: IAr
     owner[key] = array;
 }
 
-function parseTypedArray (data: IRuntimeFileData, owner: any, key: string, value: TypedArrayData) {
-    owner[key] = decodeTypedArray(data, value);
-}
-
 const ASSIGNMENTS: {
     [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -754,12 +750,12 @@ ASSIGNMENTS[DataTypeID.Class] = parseClass;
 ASSIGNMENTS[DataTypeID.ValueTypeCreated] = deserializeBuiltinValueTypeInto;
 ASSIGNMENTS[DataTypeID.AssetRefByInnerObj] = parseAssetRefByInnerObj;
 ASSIGNMENTS[DataTypeID.TRS] = parseTRS;
+ASSIGNMENTS[DataTypeID.TypedArray] = deserializeTypedArray;
 ASSIGNMENTS[DataTypeID.ValueType] = deserializeBuiltinValueType;
 ASSIGNMENTS[DataTypeID.Array_Class] = genArrayParser(parseClass);
 ASSIGNMENTS[DataTypeID.CustomizedClass] = parseCustomClass;
 ASSIGNMENTS[DataTypeID.Dict] = parseDict;
 ASSIGNMENTS[DataTypeID.Array] = parseArray;
-ASSIGNMENTS[DataTypeID.TypedArray] = parseTypedArray;
 
 function parseInstances (data: IRuntimeFileData): RootInstanceIndex {
     const instances = data[File.Instances];
@@ -957,7 +953,7 @@ function initializeDeserializationContext(
     const context = options as IRuntimeFileData[File.Context];
     context._version = version;
     context.result = details;
-    context.attachedBinary = attachedBinary;
+    context._attachedBinary = attachedBinary;
     data[File.Context] = context;
 
     if (!preprocessed) {
@@ -1002,10 +998,7 @@ export function deserialize (data: IDeserializeInput | string | CCON | any, deta
             binary = data.chunks[0];
         } else {
             input = data as IDeserializeInput;
-            const binaryStorage = input[File.BinaryStorage_runtime];
-            if (ArrayBuffer.isView(binaryStorage)) {
-                binary = binaryStorage;
-            }
+            binary = input[File.BinaryStorage_runtime];
         }
         
         initializeDeserializationContext(
@@ -1033,8 +1026,8 @@ export function deserialize (data: IDeserializeInput | string | CCON | any, deta
 
         // Clean up our injections.
         {
-            context.attachedBinary = undefined;
-            context.attachedBinaryDataViewCache = undefined;
+            context._attachedBinary = undefined;
+            context._attachedBinaryDataViewCache = undefined;
         }
     }
 
@@ -1110,7 +1103,7 @@ export function unpackJSONs (
     const sections = data[PACKED_SECTIONS];
     for (let i = 0; i < sections.length; ++i) {
         const section = sections[i];
-        const binaryStorageSpan = section[PACKED_FILE_SECTION_BINARY_STORAGE_INDEX];
+        const binaryStorageSpan = section[PACKED_SECTION_BINARY_STORAGE_INDEX];
         (section as any[]).unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
         if (binaryStorageSpan !== EMPTY_PLACEHOLDER) {
             if (!binaryChunk) {

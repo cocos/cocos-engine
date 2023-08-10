@@ -57,7 +57,7 @@ export type TypedArrayDataJson = [
  *
  *   /// Automatically padding bytes to align the `arrayBufferBytes`.
  *   /// See comments on `arrayBufferBytes`.
- *   std::byte[] padding;
+ *   std::byte[] _padding;
  *
  *   /// Bytes of the underlying `ArrayBuffer` of this typed array.
  *   /// Should be aligned to `typedArrayConstructor.BYTES_PER_ELEMENT`
@@ -85,16 +85,16 @@ function calculatePaddingToAlignAs (v: number, align: number): number {
     return 0;
 }
 
-export function decodeTypedArray (data: IRuntimeFileData, value: TypedArrayData): ArrayBufferView {
+function decodeTypedArray (data: IRuntimeFileData, value: TypedArrayData): ArrayBufferView {
     if (Array.isArray(value)) {
         const [typeIndex, elements] = value;
         const TypedArrayConstructor = getTypedArrayConstructor(typeIndex);
         return new TypedArrayConstructor(elements);
     } else {
         const context = data[0];
-        const attachedBinary = context.attachedBinary;
+        const attachedBinary = context._attachedBinary;
         assertIsTrue(attachedBinary, `Incorrect data: binary is expected.`);
-        const dataView = (context.attachedBinaryDataViewCache
+        const dataView = (context._attachedBinaryDataViewCache
             ??= new DataView(attachedBinary.buffer, attachedBinary.byteOffset, attachedBinary.byteLength));
 
         let p = value;
@@ -122,4 +122,8 @@ export function decodeTypedArray (data: IRuntimeFileData, value: TypedArrayData)
         result.set(new TypedArrayConstructor(attachedBinary.buffer, attachedBinary.byteOffset + p, length));
         return result;
     }
+}
+
+export function deserializeTypedArray (data: IRuntimeFileData, owner: any, key: string, value: TypedArrayData): void {
+    owner[key] = decodeTypedArray(data, value);
 }
