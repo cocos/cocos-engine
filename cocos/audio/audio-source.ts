@@ -46,7 +46,7 @@ enum AudioOperationType {
 }
 
 interface AudioOperationInfo {
-    op: string;
+    op: AudioOperationType;
     params: any[] | null;
 }
 
@@ -454,7 +454,7 @@ export class AudioSource extends Component {
             this._player.loop = this._loop;
             this._player.volume = this._volume;
             this._operationsBeforeLoading.forEach((opInfo): void => {
-                if (opInfo.op === 'seek') {
+                if (opInfo.op === AudioOperationType.SEEK) {
                     this._cachedCurrentTime = (opInfo.params && opInfo.params[0]) as number;
                     if (this._player) {
                         // eslint-disable-next-line @typescript-eslint/no-empty-function
