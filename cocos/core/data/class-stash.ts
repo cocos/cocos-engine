@@ -37,14 +37,9 @@ export interface ClassStash {
     default?: unknown;
 
     /**
-     * Just a kind of organization.
+     * The property stashes.
      */
-    proto?: {
-        /**
-         * The property stashes.
-         */
-        properties?: Record<PropertyKey, PropertyStash>;
-    };
+    properties?: Record<PropertyKey, PropertyStash>;
 
     /**
      * The error properties.

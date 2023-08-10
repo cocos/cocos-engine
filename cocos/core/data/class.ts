@@ -140,31 +140,9 @@ function getDefault (defaultVal): any {
     return defaultVal;
 }
 
-function doDefine (className, baseClass, options): any {
-    const ctor = options.ctor;
-
-    if (DEV) {
-        // check ctor
-        if (CCClass._isCCClass(ctor)) {
-            errorID(3618, className);
-        }
-    }
-
-    js.value(ctor, CCCLASS_TAG, true, true);
-
-    const prototype = ctor.prototype;
-    if (baseClass) {
-        ctor.$super = baseClass;
-    }
-
-    js.setClassName(className, ctor);
-    return ctor;
-}
-
-function define (className, baseClass, options): any {
+function define (cls, className, baseClass): any {
     const Component = legacyCC.Component;
     const frame = RF.peek();
-
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
@@ -177,7 +155,20 @@ function define (className, baseClass, options): any {
         className = className || frame.script;
     }
 
-    const cls = doDefine(className, baseClass, options);
+    if (DEV) {
+        // check ctor
+        if (CCClass._isCCClass(cls)) {
+            errorID(3618, className);
+        }
+    }
+
+    js.value(cls, CCCLASS_TAG, true, true);
+
+    if (baseClass) {
+        cls.$super = baseClass;
+    }
+
+    js.setClassName(className, cls);
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
@@ -199,10 +190,6 @@ function define (className, baseClass, options): any {
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
         }
 
-        // Note: `options.ctor` should be the same as `cls` except if
-        // cc-class is defined by `cc.Class({/* ... */})`.
-        // In such case, `options.ctor` may be `undefined`.
-        // So we can not use `options.ctor`. Instead, we should use `cls` which is the "real" registered cc-class.
         EditorExtends.emit('class-registered', cls, frame, className);
     }
 
@@ -221,7 +208,6 @@ function define (className, baseClass, options): any {
             frame.cls = cls;
         }
     }
-    return cls;
 }
 
 function getNewValueTypeCodeJit (value): string {
@@ -282,18 +268,14 @@ function declareProperties (cls, className, properties, baseClass): void {
     cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
 }
 
-export function CCClass<TFunction> (options: {
-    name?: string;
-    extends: null | (Function & { __props__?: any; _sealed?: boolean });
-    ctor: TFunction;
-    properties?: any;
-    editor?: any;
-}): any {
-    let name = options.name;
-    const base = options.extends/* || CCObject */;
+export function CCClass<TFunction> (
+    cls: TFunction,
+    base: null | (Function & { __props__?: any; _sealed?: boolean }),
+    name?: string,
+    properties?: any,
+    ): any {
 
-    // create constructor
-    const cls = define(name, base, options);
+    define(cls, name, base);
     if (!name) {
         name = legacyCC.js.getClassName(cls);
     }
@@ -304,7 +286,6 @@ export function CCClass<TFunction> (options: {
     }
 
     // define Properties
-    const properties = options.properties;
     declareProperties(cls, name, properties, base);
 
     return cls;

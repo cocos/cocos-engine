@@ -144,9 +144,8 @@ function getOrCreateEmptyPropertyStash (
     target: Parameters<LegacyPropertyDecorator>[0],
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
 ): PropertyStash {
-    const classStash = getClassCache(target.constructor) as ClassStash;
-    const ccclassProto = getSubDict(classStash, 'proto');
-    const properties = getSubDict(ccclassProto, 'properties');
+    const classStash = getClassCache(target.constructor);
+    const properties = getSubDict(classStash, 'properties');
     const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
     return propertyStash;
 }
@@ -156,9 +155,8 @@ export function getOrCreatePropertyStash (
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): PropertyStash {
-    const classStash = getClassCache(target.constructor) as ClassStash;
-    const ccclassProto = getSubDict(classStash, 'proto');
-    const properties = getSubDict(ccclassProto, 'properties');
+    const classStash = getClassCache(target.constructor);
+    const properties = getSubDict(classStash, 'properties');
     const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
     propertyStash.__internalFlags |= PropertyStashInternalFlag.STANDALONE;
     if (descriptorOrInitializer && typeof descriptorOrInitializer !== 'function' && (descriptorOrInitializer.get || descriptorOrInitializer.set)) {

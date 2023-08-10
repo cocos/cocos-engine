@@ -23,7 +23,7 @@
 */
 
 import { DEV } from 'internal:constants';
-import { getSuper, mixin, getClassName } from '../../utils/js-typed';
+import { getSuper, getClassName, isChildClassOf } from '../../utils/js-typed';
 import { CCClass } from '../class';
 import { validateOverrideMethods_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
@@ -58,24 +58,13 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
         base = null;
     }
 
-    const proto = {
-        name,
-        extends: base,
-        ctor: constructor,
-    };
     const cache = constructor[CACHE_KEY];
+    const res = CCClass(constructor, base, name, cache?.properties);
+
     if (cache) {
-        const decoratedProto = cache.proto;
-        if (decoratedProto) {
-            // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
-            mixin(proto, decoratedProto);
-        }
         constructor[CACHE_KEY] = undefined;
     }
 
-    const res = CCClass(proto);
-
-    // validate methods
     if (DEV) {
         if (isChildClassOf(base, legacyCC.Component)) {
             if (constructor._playOnFocus && !constructor._executeInEditMode) {
