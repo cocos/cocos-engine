@@ -40,11 +40,13 @@ namespace render {
 inline void save(OutputArchive& ar, const LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
     save(ar, v.level);
+    save(ar, v.culledByLight);
 }
 
 inline void load(InputArchive& ar, LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
     load(ar, v.level);
+    load(ar, v.culledByLight);
 }
 
 inline void save(OutputArchive& ar, const Descriptor& v) {

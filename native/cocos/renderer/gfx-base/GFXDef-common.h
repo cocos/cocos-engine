@@ -1343,6 +1343,18 @@ struct RenderPassInfo {
     EXPOSE_COPY_FN(RenderPassInfo)
 };
 
+struct ResourceRange {
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t depthOrArraySize{0};
+    uint32_t firstSlice{0};
+    uint32_t numSlices{0};
+    uint32_t mipLevel{0};
+    uint32_t levelCount{0};
+    uint32_t basePlane{0};
+    uint32_t planeCount{0};
+};
+
 struct ALIGNAS(8) GeneralBarrierInfo {
     AccessFlags prevAccesses{AccessFlagBit::NONE};
     AccessFlags nextAccesses{AccessFlagBit::NONE};
@@ -1360,11 +1372,7 @@ struct ALIGNAS(8) TextureBarrierInfo {
 
     BarrierType type{BarrierType::FULL};
 
-    uint32_t baseMipLevel{0};
-    uint32_t levelCount{1};
-    uint32_t baseSlice{0};
-    uint32_t sliceCount{1};
-
+    ResourceRange range{};
     uint64_t discardContents{0}; // @ts-boolean
 
     Queue *srcQueue{nullptr}; // @ts-nullable

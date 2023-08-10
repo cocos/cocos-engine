@@ -60,21 +60,9 @@ struct LeafStatus {
     bool needCulling{false};
 };
 
-struct ResourceRange {
-    uint32_t width{0};
-    uint32_t height{0};
-    uint32_t depthOrArraySize{0};
-    uint32_t firstSlice{0};
-    uint32_t numSlices{0};
-    uint32_t mipLevel{0};
-    uint32_t levelCount{0};
-    uint32_t basePlane{0};
-    uint32_t planeCount{0};
-};
-
 struct AccessStatus {
     gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
-    ResourceRange range;
+    gfx::ResourceRange range;
 };
 
 struct ResourceAccessNode {
@@ -135,7 +123,7 @@ struct FGRenderPassInfo {
     FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) = default;
     FGRenderPassInfo& operator=(FGRenderPassInfo const& rhs) = default;
 
-    std::vector<LayoutAccess> colorAccesses;
+    ccstd::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
@@ -156,8 +144,23 @@ struct Barrier {
 };
 
 struct BarrierNode {
-    std::vector<Barrier> frontBarriers;
-    std::vector<Barrier> rearBarriers;
+    ccstd::vector<Barrier> frontBarriers;
+    ccstd::vector<Barrier> rearBarriers;
+};
+
+struct SliceNode {
+    bool full{false};
+    ccstd::vector<uint32_t> mips;
+};
+
+struct TextureNode {
+    bool full{false};
+    ccstd::vector<SliceNode> slices;
+};
+
+struct ResourceNode {
+    bool full{false};
+    ccstd::vector<TextureNode> planes;
 };
 
 struct ResourceAccessGraph {
@@ -293,8 +296,9 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
-    PmrFlatMap<ccstd::pmr::string, ccstd::pmr::vector<ccstd::pmr::string>> movedTarget;
+    PmrFlatMap<ccstd::pmr::string, PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string>> movedTarget;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrFlatMap<ccstd::pmr::string, ResourceNode> movedTargetStatus;
 };
 
 struct RelationGraph {
