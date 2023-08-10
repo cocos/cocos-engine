@@ -38,7 +38,14 @@ enum AudioSourceEventType {
     ENDED = 'ended',
 }
 
-interface DelayedOperation {
+enum AudioOperationType {
+     PLAY = 'play',
+     STOP = 'stop',
+     PAUSE = 'pause',
+     SEEK = 'seek'
+}
+
+interface AudioOperationInfo {
     op: string;
     params: any[] | null;
 }
@@ -76,7 +83,7 @@ export class AudioSource extends Component {
     private _cachedCurrentTime = -1;
 
     // An operation queue to store the operations before loading the AudioPlayer.
-    private _operationsBeforeLoading: DelayedOperation[] = [];
+    private _operationsBeforeLoading: AudioOperationInfo[] = [];
     private _isLoaded = false;
 
     private _lastSetClip: AudioClip | null = null;
@@ -356,7 +363,7 @@ export class AudioSource extends Component {
      */
     public play (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push({ op: 'play', params: null });
+            this._operationsBeforeLoading.push({ op: AudioOperationType.PLAY, params: null });
             return;
         }
         this._registerListener();
@@ -385,7 +392,7 @@ export class AudioSource extends Component {
      */
     public pause (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push({ op: 'pause', params: null });
+            this._operationsBeforeLoading.push({ op: AudioOperationType.PAUSE, params: null });
             return;
         }
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -400,7 +407,7 @@ export class AudioSource extends Component {
      */
     public stop (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push({ op: 'stop', params: null });
+            this._operationsBeforeLoading.push({ op: AudioOperationType.STOP, params: null });
             return;
         }
         if (this._player) {
@@ -473,7 +480,7 @@ export class AudioSource extends Component {
         if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push({ op: 'seek', params: [num] });
+            this._operationsBeforeLoading.push({ op: AudioOperationType.SEEK, params: [num] });
             return;
         }
         this._cachedCurrentTime = num;
