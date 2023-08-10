@@ -50,13 +50,12 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // depth-based shading
         this.addPass(new HBAOPass());
 
-        // hdr
-        this.addPass(new ToneMappingPass());
-        // simple fog with LDR after tone-mapping, atmosphere with HDR before tone-mapping
-        // this.addPass(new FogPass());
-
         // transparency should after hdr and depth-based shading
+        // temporary ignore CC_USE_FLOAT_OUTPUT
         this.addPass(new ForwardTransparencyPass());
+
+        // float output related processing: hdr + fog
+        this.addPass(new ToneMappingPass());
 
         // user post-processing
         this.addPass(new TAAPass());
