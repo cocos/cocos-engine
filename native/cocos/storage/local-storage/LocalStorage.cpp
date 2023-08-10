@@ -40,6 +40,7 @@
 #endif
 
 #include "base/Macros.h"
+#include "base/Log.h"
 
 static int _initialized = 0;
 static sqlite3 *_db;
@@ -109,8 +110,15 @@ void localStorageFree() {
         sqlite3_finalize(_stmt_select);
         sqlite3_finalize(_stmt_remove);
         sqlite3_finalize(_stmt_update);
+        sqlite3_finalize(_stmt_clear);
+        sqlite3_finalize(_stmt_key);
+        sqlite3_finalize(_stmt_count);
 
-        sqlite3_close(_db);
+        int ret = sqlite3_close(_db);
+        CC_ASSERT(ret == SQLITE_OK);
+        if (ret != SQLITE_OK) {
+            CC_LOG_ERROR("sqlite3_close failed, ret: %d", ret);
+        }
 
         _initialized = 0;
     }
