@@ -111,7 +111,7 @@ export class PassContext {
     //     return this;
     // }
 
-    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): PassContext {
+    addRasterView (name: string, format: Format, offscreen = true, residency: ResourceResidency = ResourceResidency.MANAGED): PassContext {
         const ppl = this.ppl;
         const camera = this.camera;
         const pass = this.pass;

@@ -1145,7 +1145,9 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     get graphScene (): GraphScene { return this._graphScene; }
-    public start (): void {}
+    public start (): void {
+        // do nothing
+    }
 
     protected _recordUI (): void {
         const batches = this.camera!.scene!.batches;
