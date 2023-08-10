@@ -129,7 +129,6 @@ export class BaseImageData {
                 data = new Uint8Array(rawBuffer);
             }
         } else {
-            //assert(false, 'ImageBitmap has no raw data!');
             return this.source;
         }
         return data;

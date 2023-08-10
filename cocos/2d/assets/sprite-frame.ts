@@ -246,20 +246,21 @@ export class SpriteFrame extends Asset {
     /**
      * @en Create a SpriteFrame object by an image asset or an native image asset.
      * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 资源。
-     * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource could be HTMLCanvasElement, HTMLImageElement, IMemoryImageSource.
-     *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
+     * @param imageSource @en ImageSource could be HTMLCanvasElement, HTMLImageElement, ImageBitmap.
+     *                    @zh 图像原始图像源支持 HTMLCanvasElement HTMLImageElement ImageBitmap 三种资源。
      * @returns @en SpriteFrame asset. @zh 精灵资源。
-     * @deprecated @en Recommended use of the ImageAsset object. @zh 推荐使用ImageAsset对象
+     * @deprecated @en Please use `createWithImage (memoryImageSourceOrImageAsset: ImageAsset | IMemoryImageSource)` instead.
+     *             @zh 请使用`createWithImage (memoryImageSourceOrImageAsset: ImageAsset | IMemoryImageSource)`代替。
      */
-    public static createWithImage (imageSourceOrImageAsset: HTMLCanvasElement | HTMLImageElement | ImageBitmap): SpriteFrame;
+    public static createWithImage (imageSource: HTMLCanvasElement | HTMLImageElement | ImageBitmap): SpriteFrame;
     /**
      * @en Create a SpriteFrame object by an image asset or an native image asset.
      * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 资源。
-     * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource could be HTMLCanvasElement, HTMLImageElement, IMemoryImageSource.
-     *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
+     * @param memoryImageSourceOrImageAsset @en ImageAsset or IMemoryImageSource.
+     *                                      @zh 图像资产或IMemoryImageSource。
      * @returns @en SpriteFrame asset. @zh 精灵资源。
      */
-    public static createWithImage (imageSourceOrImageAsset: ImageAsset | IMemoryImageSource): SpriteFrame;
+    public static createWithImage (memoryImageSourceOrImageAsset: ImageAsset | IMemoryImageSource): SpriteFrame;
     public static createWithImage (imageSourceOrImageAsset: ImageAsset | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap): SpriteFrame {
         const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset as IMemoryImageSource);
         const tex = new Texture2D();

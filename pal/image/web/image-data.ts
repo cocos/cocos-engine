@@ -23,7 +23,7 @@
 */
 import { BaseImageData } from '../base-image-data';
 import { ccwindow } from '../../../cocos/core/global-exports';
-// import { getError } from '../../../cocos/core/platform/debug';
+import { getError } from '../../../cocos/core/platform/debug';
 
 export class ImageData extends BaseImageData {
     static loadImage (urlOrBase64: string): Promise<ImageData> {
@@ -39,7 +39,7 @@ export class ImageData extends BaseImageData {
                 resolve(imageData);
             };
             image.onerror = (): void => {
-                //reject(new Error(getError(4930, urlOrBase64)));
+                reject(new Error(getError(4930, urlOrBase64)));
             };
 
             image.src = urlOrBase64;

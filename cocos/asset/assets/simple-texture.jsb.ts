@@ -27,7 +27,7 @@ import { js, macro, cclegacy } from '../../core';
 import './texture-base';
 import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
 import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';
-import { ImageAsset } from './image-asset';
+import { ImageData } from 'pal/image';
 
 declare const jsb: any;
 
@@ -46,13 +46,13 @@ simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     if(ArrayBuffer.isView(source)) {
         oldUpdateDataFunc.call(this, source, level, arrayIndex);
     } else {
-        let imageAsset;
-        if (source instanceof ImageAsset) {
-            imageAsset = source;
+        let imageData;
+        if (source instanceof ImageData) {
+            imageData = source;
         } else {
-            imageAsset = new ImageAsset(source);
+            imageData = new ImageData(source);
         }
-        oldUpdateDataFunc.call(this, imageAsset.data, level, arrayIndex);
+        oldUpdateDataFunc.call(this, imageData.data, level, arrayIndex);
     }
 };
 

@@ -5,7 +5,7 @@ declare module 'pal/image' {
     export type PixelFormat = import('cocos/asset/assets/asset-enum').PixelFormat;
     export type RawDataType = import('pal/image/types').RawDataType;
     export class ImageData {
-        constructor (imageAsset?: ImageSource | ArrayBufferView);
+        constructor (source?: ImageSource | ArrayBufferView);
         /**
          * Destroy resources.
          */

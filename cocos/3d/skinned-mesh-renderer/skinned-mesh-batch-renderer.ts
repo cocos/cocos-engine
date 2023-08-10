@@ -455,8 +455,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     protected cookTextures (target: Texture2D, prop: string, passIdx: number): void {
         const texImageDatas: ImageData[] = [];
-        const texImageRegions: BufferTextureCopy[] = [];
-        const texBufferRegions: BufferTextureCopy[] = [];
+        const texRegions: BufferTextureCopy[] = [];
         for (let u = 0; u < this.units.length; u++) {
             const unit = this.units[u];
             if (!unit.material) { continue; }
@@ -468,12 +467,12 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 region.texExtent.width = unit.size.x * this.atlasSize;
                 region.texExtent.height = unit.size.y * this.atlasSize;
                 texImageDatas.push(partial.image.imageData);
-                texImageRegions.push(region);
+                texRegions.push(region);
             }
         }
         const gfxTex = target.getGFXTexture()!;
         const { device } = cclegacy.director.root!;
-        if (texImageDatas.length > 0) { device.copyImageDatasToTexture(texImageDatas, gfxTex, texImageRegions); }
+        if (texImageDatas.length > 0) { device.copyImageDatasToTexture(texImageDatas, gfxTex, texRegions); }
     }
 
     protected createTexture (prop: string): Texture2D {

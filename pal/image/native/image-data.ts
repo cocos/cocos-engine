@@ -67,7 +67,6 @@ export class ImageData extends BaseImageData {
             this._rawData = imageSource._data;
         } else {
             this._rawData = imageSource;
-            //assert(false, 'ImageBitmap has no raw data!');
         }
         super.reset(imageSource);
     }

@@ -144,7 +144,7 @@ export class SimpleTexture extends TextureBase {
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      * @deprecated since v3.9, please use `uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView, level, arrayIndex)` instead.
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, level, arrayIndex): void;
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, level?: number, arrayIndex?: number): void;
     /**
      * @en Upload data to the given mipmap level.
      * The size of the image will affect how the mipmap is updated.
@@ -158,12 +158,12 @@ export class SimpleTexture extends TextureBase {
      * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
      * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
      * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
-     * @param source @en The source image or image data. @zh 源图像或图像数据。
+     * @param source @en The ImageData,IMemoryImageSource or ArrayBufferView. @zh 图像管理对象、内存图像数据或ArrayBufferView。
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
-    public uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView, level, arrayIndex): void;
-    public uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView | HTMLCanvasElement | HTMLImageElement  | ImageBitmap, level = 0, arrayIndex = 0): void {
+    public uploadData (source: ImageData | IMemoryImageSource | ArrayBufferView, level?: number, arrayIndex?: number): void;
+    public uploadData (source: ImageData | IMemoryImageSource | ArrayBufferView | HTMLCanvasElement | HTMLImageElement  | ImageBitmap, level: number = 0, arrayIndex: number  = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
@@ -178,18 +178,14 @@ export class SimpleTexture extends TextureBase {
         region.texExtent.height = this._textureHeight >> level;
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
-        if (ArrayBuffer.isView(source)) {
-            gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
+        let imageData;
+        if (source instanceof ImageData) {
+            imageData = source;
         } else {
-            let imageData;
-            if (source instanceof ImageAsset) {
-                imageData = source.imageData;
-            } else {
-                // This is a hack method, otherwise ts will just report an error.
-                imageData = new ImageData(source as IMemoryImageSource);
-            }
-            gfxDevice.copyImageDatasToTexture([imageData], this._gfxTexture, _regions);
+            // This is a hack method, otherwise ts will just report an error.
+            imageData = new ImageData(source as IMemoryImageSource);
         }
+        gfxDevice.copyImageDatasToTexture([imageData], this._gfxTexture, _regions);
     }
 
     /**
@@ -199,7 +195,7 @@ export class SimpleTexture extends TextureBase {
         if (!image.data) {
             return;
         }
-        this.uploadData(image, level, arrayIndex);
+        this.uploadData(image.imageData, level, arrayIndex);
         this._checkTextureLoaded();
 
         if (macro.CLEANUP_IMAGE_CACHE) {
