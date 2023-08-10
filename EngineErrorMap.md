@@ -1447,6 +1447,7 @@ Do not set default value to non-empty object, unless the object defines its own 
 
 ### 3637
 
+<!-- DEPRECATED -->
 Can not declare %s.%s, it is already defined in the prototype of %s
 
 ### 3638

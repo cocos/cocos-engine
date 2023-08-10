@@ -75,12 +75,10 @@ export function property (
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
         descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ): void {
-        const classStash = getClassCache(target.constructor);
-        const propertyStash = getOrCreateEmptyPropertyStash(
-            target,
-            propertyKey,
-        );
         const classConstructor = target.constructor;
+        const classStash = getClassCache(classConstructor);
+        const properties = getSubDict(classStash, 'properties');
+        const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
         mergePropertyOptions(
             classStash,
             propertyStash,
@@ -127,27 +125,15 @@ function getDefaultFromInitializer (initializer: Initializer): unknown {
 }
 
 function extractActualDefaultValues (classConstructor: new () => unknown): unknown {
-    let dummyObj: unknown;
     try {
         // eslint-disable-next-line new-cap
-        dummyObj = new classConstructor();
+        return new classConstructor();
     } catch (e) {
         if (DEV) {
             warnID(3652, getClassName(classConstructor), e);
         }
         return {};
     }
-    return dummyObj;
-}
-
-function getOrCreateEmptyPropertyStash (
-    target: Parameters<LegacyPropertyDecorator>[0],
-    propertyKey: Parameters<LegacyPropertyDecorator>[1],
-): PropertyStash {
-    const classStash = getClassCache(target.constructor);
-    const properties = getSubDict(classStash, 'properties');
-    const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
-    return propertyStash;
 }
 
 export function getOrCreatePropertyStash (

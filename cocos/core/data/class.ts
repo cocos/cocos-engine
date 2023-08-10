@@ -73,16 +73,6 @@ function appendProp (cls, name): void {
 }
 
 function defineProp (cls, className, propName, val): void {
-    if (DEV) {
-        // check base prototype to avoid name collision
-        if (CCClass.getInheritanceChain(cls)
-            // eslint-disable-next-line no-prototype-builtins
-            .some((x) => x.prototype.hasOwnProperty(propName))) {
-            errorID(3637, className, propName, className);
-            return;
-        }
-    }
-
     appendProp(cls, propName);
 
     // apply attributes
@@ -96,10 +86,7 @@ function defineProp (cls, className, propName, val): void {
 }
 
 function defineGetSet (cls, name, propName, val): void {
-    const getter = val.get;
-    const setter = val.set;
-
-    if (getter) {
+    if (val.get) {
         parseAttributes(cls, val, name, propName, true);
         if ((EDITOR && !window.Build) || TEST) {
             onAfterProps_ET.length = 0;
@@ -110,17 +97,11 @@ function defineGetSet (cls, name, propName, val): void {
         if (DEV) {
             // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
             appendProp(cls, propName);
-        }
-
-        if (EDITOR || DEV) {
             attributeUtils.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
-
-    if (setter) {
-        if (EDITOR || DEV) {
-            attributeUtils.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
-        }
+    if (DEV && val.set) {
+        attributeUtils.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
     }
 }
 
@@ -145,13 +126,9 @@ function define (cls, className, baseClass): any {
     const frame = RF.peek();
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
-        if (js.isChildClassOf(frame.cls, Component)) {
-            errorID(3615);
-            return null;
-        }
-        if (DEV && frame.uuid && className) {
-            // warnID(3616, className);
-        }
+        // if (DEV && frame.uuid && className) {
+        //     warnID(3616, className);
+        // }
         className = className || frame.script;
     }
 
@@ -196,14 +173,18 @@ function define (cls, className, baseClass): any {
     if (frame) {
         // 基础的 ts, js 脚本组件
         if (js.isChildClassOf(baseClass, Component)) {
-            const uuid = frame.uuid;
-            if (uuid) {
-                js._setClassId(uuid, cls);
-                if (EDITOR) {
-                    cls.prototype.__scriptUuid = EditorExtends.UuidUtils.decompressUuid(uuid);
+            if (DEV && js.isChildClassOf(frame.cls, Component)) {
+                errorID(3615);
+            } else {
+                const uuid = frame.uuid;
+                if (uuid) {
+                    js._setClassId(uuid, cls);
+                    if (EDITOR) {
+                        cls.prototype.__scriptUuid = EditorExtends.UuidUtils.decompressUuid(uuid);
+                    }
                 }
+                frame.cls = cls;
             }
-            frame.cls = cls;
         } else if (!js.isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
