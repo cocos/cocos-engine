@@ -1,8 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection, ReferenceReflection } from 'typedoc';
+import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, Serializer, SerializeEvent, ReferenceReflection } from 'typedoc';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
+import { cullEngineInternal } from './cull-engine-internal';
 
 const TAG_NAME_CC_CATEGORY = 'ccCategory';
 
@@ -53,6 +54,10 @@ export function load (app: Application) {
         visit(context.project, (reflection) => {
             handleLink(context, reflection);
         });
+    });
+
+    app.serializer.on(Serializer.EVENT_END, (serializeEvent: SerializeEvent) => {
+        cullEngineInternal(serializeEvent.output)
     });
 
     type ReflectionId = Reflection['id'];
@@ -114,6 +119,7 @@ export function load (app: Application) {
     }
 
     function onCreateSignature (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+        fixTypeArguments(_context, reflection, node);
         handleTagLegacyPublic(_context, reflection, node);
     }
 
@@ -161,6 +167,21 @@ export function load (app: Application) {
 
         comment.removeTags(TAG_NAME_LEGACY_PUBLIC);
         comment.tags.push(new CommentTag('deprecated', undefined, 'This key is reserved for internal usage.'));
+    }
+
+    // NOTE: this is a bug on typedoc, we fix in this plugin.
+    // should not generate typeArguments field in typeParameters' type field.
+    function fixTypeArguments (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+        if (reflection.typeParameters) {
+            for (const typeParam of reflection.typeParameters) {
+                // @ts-ignore
+                const typeArguments = typeParam.type?.typeArguments;
+                if (typeArguments?.[0]?.name === typeParam.name) {
+                    // @ts-ignore
+                    delete typeParam.type.typeArguments;
+                }
+            }
+        }
     }
 
     function setCategory (reflectionId: ReflectionId, categoryId: string, categoryConfig: CategoryConfig) {

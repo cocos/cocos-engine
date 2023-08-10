@@ -234,15 +234,19 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.mipmapLevelCount = _info.levelCount;
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
-    descriptor.storageMode = MTLStorageModePrivate;
+    bool memoryless = false;
     if (@available(macos 11.0, ios 10.0, *)) {
-        bool memoryless = hasFlag(_info.flags, TextureFlagBit::LAZILY_ALLOCATED) &&
-            hasFlag(_info.usage, TextureUsageBit::COLOR_ATTACHMENT) &&
-            hasFlag(_info.usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT);
+        memoryless = hasFlag(_info.flags, TextureFlagBit::LAZILY_ALLOCATED) &&
+            hasAllFlags(TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::INPUT_ATTACHMENT, _info.usage);
         if (memoryless) {
             descriptor.storageMode = MTLStorageModeMemoryless;
             _allocateMemory = false;
         }
+    }
+
+    if (!memoryless && !_isPVRTC) {
+        // pvrtc can not use blit encoder to upload data.
+        descriptor.storageMode = MTLStorageModePrivate;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());

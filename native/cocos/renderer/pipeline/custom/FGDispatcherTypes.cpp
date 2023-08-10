@@ -95,7 +95,8 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   topologicalOrder(alloc),
   resourceAccess(alloc),
   movedTarget(alloc),
-  movedSourceStatus(alloc) {}
+  movedSourceStatus(alloc),
+  movedTargetStatus(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {

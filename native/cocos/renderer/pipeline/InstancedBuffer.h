@@ -38,7 +38,6 @@ namespace pipeline {
 struct PSOInfo;
 
 struct CC_DLL InstancedItem {
-    uint32_t count = 0;
     uint32_t capacity = 0;
     gfx::Buffer *vb = nullptr;
     uint8_t *data = nullptr;
@@ -51,6 +50,7 @@ struct CC_DLL InstancedItem {
     gfx::Texture *reflectionProbePlanarMap = nullptr;
     uint32_t reflectionProbeType = 0;
     gfx::Texture *reflectionProbeBlendCubemap = nullptr;
+    gfx::DrawInfo drawInfo;
 };
 using InstancedItemList = ccstd::vector<InstancedItem>;
 using DynamicOffsetList = ccstd::vector<uint32_t>;
