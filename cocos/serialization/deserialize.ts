@@ -915,16 +915,15 @@ function parseResult (data: IRuntimeFileData): void {
 }
 
 export function isCompiledJson (json: unknown): boolean {
-    if (json instanceof CCON) {
-        // This is a very verbose check.
-        // Make sure we won't ran in infinite loop due to data error.
-        assertIsTrue(!(json.document instanceof CCON));
-        return isCompiledJson(json.document);
-    }
     if (Array.isArray(json)) {
         const version = json[0];
         // array[0] will not be a number in the editor version
         return typeof version === 'number' || version instanceof FileInfo;
+    } else if (json instanceof CCON) {
+        // This is a very verbose check.
+        // Make sure we won't ran in infinite loop due to data error.
+        assertIsTrue(!(json.document instanceof CCON));
+        return isCompiledJson(json.document);
     } else {
         return false;
     }
