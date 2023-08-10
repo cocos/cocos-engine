@@ -1111,12 +1111,13 @@ export function unpackJSONs (
             }
 
             const [byteOffset, byteLength] = binaryStorageSpan;
-            const span = new Uint8Array(
-                binaryChunk.buffer,
-                binaryChunk.byteOffset + byteOffset,
-                byteLength,
-            );
-            (section as unknown as IRuntimeFileData)[File.BinaryStorage_runtime] = span;
+
+            // Note: we do copy here.
+            // The reason is, if we don't copy instead of directly reference,
+            // the reference prevents the `binaryChunk` from being gc.
+            const sliceStart = binaryChunk.byteOffset + byteOffset;
+            const copy = binaryChunk.buffer.slice(sliceStart, sliceStart + byteLength);
+            (section as unknown as IRuntimeFileData)[File.BinaryStorage_runtime] = new Uint8Array(copy);
         }
     }
     return sections as unknown as IDeserializeInput[];
