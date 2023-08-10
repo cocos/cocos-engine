@@ -3,7 +3,7 @@ import { EDITOR } from 'internal:constants';
 import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
@@ -11,15 +11,15 @@ import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
-    clearColor = new Color()
-    clearDepthColor = new Color()
-    ppl: Pipeline| undefined
-    camera: Camera| undefined
-    material: Material| undefined
-    pass: RenderPassBuilder| undefined
-    rasterWidth = 0
-    rasterHeight = 0
-    layoutName = ''
+    clearColor = new Color();
+    clearDepthColor = new Color();
+    ppl: Pipeline| undefined;
+    camera: Camera| undefined;
+    material: Material| undefined;
+    pass: RenderPassBuilder| undefined;
+    rasterWidth = 0;
+    rasterHeight = 0;
+    layoutName = '';
 
     shadingScale = 1;
     viewport = new Rect();
@@ -154,10 +154,11 @@ export class PassContext {
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
             let loadOp = LoadOp.CLEAR;
-            if (clearFlag === ClearFlagBit.NONE) {
+            if (clearFlag === ClearFlagBit.NONE && !(this.clearFlag & SKYBOX_FLAG)) {
                 loadOp = LoadOp.LOAD;
+            } else if (this.clearFlag & SKYBOX_FLAG) {
+                clearColor.set(0, 0, 0, 1);
             }
-
             pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);
         }
         return this;
@@ -171,8 +172,10 @@ export class PassContext {
 
     blitScreen (passIdx = 0): PassContext {
         this.pass!.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            this.camera!, this.material!, passIdx,
-            SceneFlags.NONE,
+            this.camera!,
+this.material!,
+passIdx,
+SceneFlags.NONE,
         );
         return this;
     }

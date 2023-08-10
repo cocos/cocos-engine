@@ -59,7 +59,6 @@ import {
     Rect,
     RenderPass,
     RenderPassInfo,
-    Shader,
     StoreOp,
     SurfaceTransform,
     Swapchain,
@@ -76,7 +75,7 @@ import { Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -122,23 +121,19 @@ import {
     UpdateFrequency,
 } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
-import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
+import { WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
-    getDescBindingFromName,
     getDescriptorSetDataFromLayout,
     getDescriptorSetDataFromLayoutId,
     getRenderArea,
     mergeSrcToTargetDesc,
     updateGlobalDescBinding,
-    validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
-import { Texture2D } from '../../asset/assets/texture-2d';
 import { SceneCulling } from './scene-culling';
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -163,6 +158,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         // noop
     }
     persistentBuffer (value: Buffer): void {
+        // do nothing
     }
     persistentTexture (value: Texture): void {
         this.createDeviceTex(value);
@@ -174,8 +170,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.createDeviceTex(value);
     }
     formatView (value: FormatView): void {
+    // do nothing
     }
     subresourceView (value: SubresourceView): void {
+        // do nothing
     }
 }
 
@@ -884,7 +882,7 @@ class DeviceRenderPass {
             ia,
         );
         const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
-        mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet, true);
+        mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet);
         profilerViewport.width = rect.width;
         profilerViewport.height = rect.height;
         cmdBuff.setViewport(profilerViewport);
@@ -1258,7 +1256,7 @@ class DeviceSceneTask extends WebSceneTask {
 
         const layoutName = context.renderGraph.getLayout(rasterId);
         const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        mergeSrcToTargetDesc(descSetData!.descriptorSet, context.pipeline.descriptorSet, true);
+        mergeSrcToTargetDesc(descSetData!.descriptorSet, context.pipeline.descriptorSet);
         this._currentQueue.isUpdateUBO = true;
     }
 
@@ -1729,13 +1727,27 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             this.currPass.resetResource(this.passID, pass);
         }
     }
-    rasterSubpass (value: RasterSubpass): void {}
-    computeSubpass (value: ComputeSubpass): void {}
-    compute (value: ComputePass): void {}
-    resolve (value: ResolvePass): void {}
-    copy (value: CopyPass): void {}
-    move (value: MovePass): void {}
-    raytrace (value: RaytracePass): void {}
+    rasterSubpass (value: RasterSubpass): void {
+        // do nothing
+    }
+    computeSubpass (value: ComputeSubpass): void {
+        // do nothing
+    }
+    compute (value: ComputePass): void {
+        // do nothing
+    }
+    resolve (value: ResolvePass): void {
+        // do nothing
+    }
+    copy (value: CopyPass): void {
+        // do nothing
+    }
+    move (value: MovePass): void {
+        // do nothing
+    }
+    raytrace (value: RaytracePass): void {
+        // do nothing
+    }
     queue (value: RenderQueue): void {
         if (!this.rg.getValid(this.queueID)) return;
         const deviceQueue = context.pools.addDeviceQueue();
@@ -1763,7 +1775,9 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         graphScene.init(null, value, -1);
         this.currQueue!.addSceneTask(graphScene);
     }
-    dispatch (value: Dispatch): void {}
+    dispatch (value: Dispatch): void {
+        // do nothing
+    }
 }
 
 class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
@@ -1786,21 +1800,39 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         this.currPass.record();
         this.currPass.postPass();
     }
-    rasterSubpass (value: RasterSubpass): void {}
-    computeSubpass (value: ComputeSubpass): void {}
-    resolve (value: ResolvePass): void {}
-    compute (value: ComputePass): void {}
-    copy (value: CopyPass): void {}
-    move (value: MovePass): void {}
-    raytrace (value: RaytracePass): void {}
+    rasterSubpass (value: RasterSubpass): void {
+        // do nothing
+    }
+    computeSubpass (value: ComputeSubpass): void {
+        // do nothing
+    }
+    resolve (value: ResolvePass): void {
+        // do nothing
+    }
+    compute (value: ComputePass): void {
+        // do nothing
+    }
+    copy (value: CopyPass): void {
+        // do nothing
+    }
+    move (value: MovePass): void {
+        // do nothing
+    }
+    raytrace (value: RaytracePass): void {
+        // do nothing
+    }
     queue (value: RenderQueue): void {
         // collect scene results
     }
     scene (value: SceneData): void {
         // scene command list finished
     }
-    blit (value: Blit): void {}
-    dispatch (value: Dispatch): void {}
+    blit (value: Blit): void {
+        // do nothing
+    }
+    dispatch (value: Dispatch): void {
+        // do nothing
+    }
 }
 
 export class RenderVisitor extends DefaultVisitor {
