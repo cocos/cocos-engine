@@ -24,6 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { IMemoryImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
@@ -180,14 +181,14 @@ export class SimpleTexture extends TextureBase {
         if (ArrayBuffer.isView(source)) {
             gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
         } else {
-            let imageAsset;
+            let imageData;
             if (source instanceof ImageAsset) {
-                imageAsset = source;
+                imageData = source.imageData;
             } else {
                 // This is a hack method, otherwise ts will just report an error.
-                imageAsset = new ImageAsset(source as IMemoryImageSource);
+                imageData = new ImageData(source as IMemoryImageSource);
             }
-            gfxDevice.copyImagesToTexture([imageAsset], this._gfxTexture, _regions);
+            gfxDevice.copyImageDatasToTexture([imageData], this._gfxTexture, _regions);
         }
     }
 

@@ -92,7 +92,7 @@ export class BaseImageData {
         }
     }
 
-    public getRawData (): RawDataType | null {
+    get data (): RawDataType | null {
         if (this._source == null) {
             return null;
         }
@@ -129,7 +129,8 @@ export class BaseImageData {
                 data = new Uint8Array(rawBuffer);
             }
         } else {
-            assert(false, 'ImageBitmap has no raw data!');
+            //assert(false, 'ImageBitmap has no raw data!');
+            return this.source;
         }
         return data;
     }

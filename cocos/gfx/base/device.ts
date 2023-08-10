@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { ImageData } from 'pal/image';
 import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
@@ -47,7 +48,6 @@ import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { BufferBarrier } from './states/buffer-barrier';
 import { Swapchain } from './swapchain';
-import { ImageAsset } from '../../asset/assets';
 
 /**
  * @en GFX Device.
@@ -337,13 +337,13 @@ export abstract class Device {
     public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
-     * @en Copy image assets to texture.
+     * @en Copy image data to texture.
      * @zh 拷贝图像资产到纹理。
-     * @param imageAssets The image assets to be copied.
+     * @param imageData The image data to be copied.
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyImagesToTexture (imageAssets: Readonly<ImageAsset[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
+    public abstract copyImageDatasToTexture (imageData: Readonly<ImageData[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Whether the device has specific feature.

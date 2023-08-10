@@ -23,7 +23,8 @@
 */
 import { BaseImageData } from '../base-image-data';
 import { ImageSource, IMemoryImageSource, RawDataType } from '../types';
-import { getError, override, assert } from '../../../cocos/core';
+import { getError, assert } from '../../../cocos/core/platform/debug';
+import { override } from  '../../../cocos/core/data/decorators/override';
 
 declare const jsb: any;
 
@@ -44,7 +45,7 @@ export class ImageData extends BaseImageData {
     }
 
     @override
-    public getRawData (): RawDataType | null {
+    get data (): RawDataType | null {
         // TODO(qgh) :ImageBitmap without raw data.
         return this._rawData;
     }
@@ -65,7 +66,8 @@ export class ImageData extends BaseImageData {
         } else if ('_data' in imageSource) {
             this._rawData = imageSource._data;
         } else {
-            assert(false, 'ImageBitmap has no raw data!');
+            this._rawData = imageSource;
+            //assert(false, 'ImageBitmap has no raw data!');
         }
         super.reset(imageSource);
     }

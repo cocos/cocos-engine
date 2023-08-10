@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { ImageData } from 'pal/image';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -214,7 +215,7 @@ export class EmptyDevice extends Device {
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
     public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {}
     public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
-    public copyImagesToTexture (imageAssets: Readonly<ImageAsset[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
+    public copyImageDatasToTexture (imageAssets: Readonly<ImageData[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
 }
 
 cclegacy.EmptyDevice = EmptyDevice;

@@ -23,7 +23,7 @@
 */
 
 import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, warn, warnID } from '../../../core';
+import { Color, macro, warn, warnID, ImageData } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
@@ -260,7 +260,7 @@ export class LetterRenderTexture extends Texture2D {
         region.texOffset.y = y;
         region.texExtent.width = image.width;
         region.texExtent.height = image.height;
-        gfxDevice.copyImagesToTexture([image], gfxTexture, [region]);
+        gfxDevice.copyImageDatasToTexture([image.imageData], gfxTexture, [region]);
     }
 }
 

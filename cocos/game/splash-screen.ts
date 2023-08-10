@@ -381,7 +381,7 @@ export class SplashScreen {
         region.texExtent.height = this.bgImage.height;
         region.texExtent.depth = 1;
 
-        device.copyImagesToTexture([this.bgImage], this.bgTexture, [region]);
+        device.copyImageDatasToTexture([this.bgImage.imageData], this.bgTexture, [region]);
     }
 
     private initLogo (): void {
@@ -416,7 +416,7 @@ export class SplashScreen {
         region.texExtent.width = this.logoImage.width;
         region.texExtent.height = this.logoImage.height;
         region.texExtent.depth = 1;
-        device.copyImagesToTexture([this.logoImage], this.logoTexture, [region]);
+        device.copyImageDatasToTexture([this.logoImage.imageData], this.logoTexture, [region]);
 
         const logoRatio = this.logoImage.width / this.logoImage.height;
         if (logoRatio < 1) {

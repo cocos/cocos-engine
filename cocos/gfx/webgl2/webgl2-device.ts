@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
+import { ImageData } from 'pal/image';
 import { systemInfo } from 'pal/system-info';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
@@ -68,7 +68,6 @@ import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import type { WebGL2StateCache } from './webgl2-state-cache';
-import { ImageAsset } from '../../asset/assets';
 
 export class WebGL2Device extends Device {
     get gl (): WebGL2RenderingContext {
@@ -633,18 +632,18 @@ export class WebGL2Device extends Device {
         );
     }
 
-    public copyImagesToTexture (
-        imageAssets: Readonly<ImageAsset[]>,
+    public copyImageDatasToTexture (
+        imageDatas: Readonly<ImageData[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
     ): void {
         const texImages: TexImageSource[] = [];
         const buffers: ArrayBufferView[] = [];
-        imageAssets.forEach((item) => {
-            if (ArrayBuffer.isView(item.data)) {
+        imageDatas.forEach((item) => {
+            if ('_data' in item.source && ArrayBuffer.isView(item.data)) {
                 buffers.push(item.data);
             } else {
-                texImages.push(item.data as TexImageSource);
+                texImages.push(item.source as TexImageSource);
             }
         });
         if (texImages.length > 0) {

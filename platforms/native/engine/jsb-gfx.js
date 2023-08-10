@@ -55,11 +55,11 @@ deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
     oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);
 };
 
-deviceProto.copyImagesToTexture = function (imageAssets, texture, regions) {
+deviceProto.copyImageDatasToTexture = function (imageDatas, texture, regions) {
     const images = [];
-    if (imageAssets) {
-        for (let i = 0; i < imageAssets.length; ++i) {
-            const image = imageAssets[i];
+    if (imageDatas) {
+        for (let i = 0; i < imageDatas.length; ++i) {
+            const image = imageDatas[i];
             images.push(image.data);
         }
     }

@@ -537,13 +537,21 @@ export class ImageAsset extends Asset {
     get data (): ImageSource | RawDataType | null {
         if (deviceManager.gfxDevice.gfxAPI === API.WEBGL || deviceManager.gfxDevice.gfxAPI === API.WEBGL2) {
             if ('_data' in this._imageData.source) {
-                return this._imageData.getRawData();
+                return this._imageData.data;
             } else {
                 return this._imageData.source;
             }
         } else {
-            return this._imageData.getRawData();
+            return this._imageData.data;
         }
+    }
+
+    /**
+     * @en Return image data management object.
+     * @zh 返回图像数据管理对象。
+     */
+    get imageData (): ImageData {
+        return this._imageData;
     }
 
     /**

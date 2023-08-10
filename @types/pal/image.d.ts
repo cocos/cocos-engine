@@ -12,8 +12,15 @@ declare module 'pal/image' {
         destroy (): void;
 
         /**
+         * @en Get raw image data.Return `ImageBitmap` if source is `ImageBitmap`.
+         * @zh 获取原始图像数据。如果source是`ImageBitmap`类型，则返回ImageBitmap。
+         */
+        get data(): RawDataType | null;
+
+        /**
          * Get and set image data source.
          * @param value Image data source.
+         * @engineinternal
          */
         get source(): ImageSource;
         set source(value: ImageSource);
@@ -32,11 +39,6 @@ declare module 'pal/image' {
          * Load image via local url or web url.
          */
         static loadImage (urlAndBase64: string): Promise<ImageData>
-
-        /**
-         * Get raw image data, in web platform is image source(like data interface), in native platform is image raw data.
-         */
-        getRawData (): RawDataType | null;
 
         /**
          * Set image data source.

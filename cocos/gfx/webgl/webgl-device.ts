@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { ImageData } from 'pal/image';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -66,7 +67,6 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
 import type { WebGLStateCache } from './webgl-state-cache';
-import { ImageAsset } from '../../asset/assets';
 
 export class WebGLDevice extends Device {
     get gl (): WebGLRenderingContext {
@@ -566,18 +566,18 @@ export class WebGLDevice extends Device {
         );
     }
 
-    public copyImagesToTexture (
-        imageAssets: Readonly<ImageAsset[]>,
+    public copyImageDatasToTexture (
+        imageDatas: Readonly<ImageData[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
     ): void {
         const texImages: TexImageSource[] = [];
         const buffers: ArrayBufferView[] = [];
-        imageAssets.forEach((item) => {
-            if (ArrayBuffer.isView(item.data)) {
+        imageDatas.forEach((item) => {
+            if ('_data' in item.source && ArrayBuffer.isView(item.data)) {
                 buffers.push(item.data);
             } else {
-                texImages.push(item.data as TexImageSource);
+                texImages.push(item.source as TexImageSource);
             }
         });
         if (texImages.length > 0) {
