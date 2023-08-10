@@ -170,14 +170,20 @@ export default class ParticleBatchModel extends scene.Model {
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
         if (this._mesh && this._capacity > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -265,15 +271,21 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
             vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -330,41 +342,41 @@ export default class ParticleBatchModel extends scene.Model {
         if (!this._useInstance) {
             if (!this._mesh) {
                 let offset: number = index * this._vertAttrsFloatCount;
-                this._vdataF32![offset++] = pvdata[0].x; // position
-                this._vdataF32![offset++] = pvdata[0].y;
-                this._vdataF32![offset++] = pvdata[0].z;
-                this._vdataF32![offset++] = pvdata[1].x; // uv
-                this._vdataF32![offset++] = pvdata[1].y;
-                this._vdataF32![offset++] = pvdata[1].z; // frame idx
-                this._vdataF32![offset++] = pvdata[2].x; // size
-                this._vdataF32![offset++] = pvdata[2].y;
-                this._vdataF32![offset++] = pvdata[2].z;
-                this._vdataF32![offset++] = pvdata[3].x; // rotation
-                this._vdataF32![offset++] = pvdata[3].y;
-                this._vdataF32![offset++] = pvdata[3].z;
-                this._vdataUint32![offset++] = pvdata[4]; // color
-                if (pvdata[5]) {
-                    this._vdataF32![offset++] = pvdata[5].x; // velocity
-                    this._vdataF32![offset++] = pvdata[5].y;
-                    this._vdataF32![offset++] = pvdata[5].z;
+                this._vdataF32![offset++] = pvdata.position.x; // position
+                this._vdataF32![offset++] = pvdata.position.y;
+                this._vdataF32![offset++] = pvdata.position.z;
+                this._vdataF32![offset++] = pvdata.texcoord.x; // uv
+                this._vdataF32![offset++] = pvdata.texcoord.y;
+                this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
+                this._vdataF32![offset++] = pvdata.size.x; // size
+                this._vdataF32![offset++] = pvdata.size.y;
+                this._vdataF32![offset++] = pvdata.size.z;
+                this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+                this._vdataF32![offset++] = pvdata.rotation.y;
+                this._vdataF32![offset++] = pvdata.rotation.z;
+                this._vdataUint32![offset++] = pvdata.color; // color
+                if (pvdata.velocity) {
+                    this._vdataF32![offset++] = pvdata.velocity.x; // velocity
+                    this._vdataF32![offset++] = pvdata.velocity.y;
+                    this._vdataF32![offset++] = pvdata.velocity.z;
                 }
             } else {
                 for (let i = 0; i < this._vertCount; i++) {
                     let offset: number = (index * this._vertCount + i) * this._vertAttrsFloatCount;
-                    this._vdataF32![offset++] = pvdata[0].x; // position
-                    this._vdataF32![offset++] = pvdata[0].y;
-                    this._vdataF32![offset++] = pvdata[0].z;
+                    this._vdataF32![offset++] = pvdata.position.x; // position
+                    this._vdataF32![offset++] = pvdata.position.y;
+                    this._vdataF32![offset++] = pvdata.position.z;
                     offset += 2;
                     // this._vdataF32![offset++] = index;
-                    // this._vdataF32![offset++] = pvdata[1].y;
-                    this._vdataF32![offset++] = pvdata[1].z; // frame idx
-                    this._vdataF32![offset++] = pvdata[2].x; // size
-                    this._vdataF32![offset++] = pvdata[2].y;
-                    this._vdataF32![offset++] = pvdata[2].z;
-                    this._vdataF32![offset++] = pvdata[3].x; // rotation
-                    this._vdataF32![offset++] = pvdata[3].y;
-                    this._vdataF32![offset++] = pvdata[3].z;
-                    this._vdataUint32![offset++] = pvdata[4]; // color
+                    // this._vdataF32![offset++] = pvdata.texcoord.y;
+                    this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
+                    this._vdataF32![offset++] = pvdata.size.x; // size
+                    this._vdataF32![offset++] = pvdata.size.y;
+                    this._vdataF32![offset++] = pvdata.size.z;
+                    this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+                    this._vdataF32![offset++] = pvdata.rotation.y;
+                    this._vdataF32![offset++] = pvdata.rotation.z;
+                    this._vdataUint32![offset++] = pvdata.color; // color
                 }
             }
         } else {
@@ -375,44 +387,44 @@ export default class ParticleBatchModel extends scene.Model {
     private addParticleVertexDataIns (index: number, pvdata: PVData): void {
         let offset: number = index * this._vertAttrsFloatCount;
         if (!this._mesh) {
-            this._vdataF32![offset++] = pvdata[0].x; // position
-            this._vdataF32![offset++] = pvdata[0].y;
-            this._vdataF32![offset++] = pvdata[0].z;
-            this._vdataF32![offset++] = pvdata[1].z; // frame idx
+            this._vdataF32![offset++] = pvdata.position.x; // position
+            this._vdataF32![offset++] = pvdata.position.y;
+            this._vdataF32![offset++] = pvdata.position.z;
+            this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
 
-            this._vdataF32![offset++] = pvdata[2].x; // size
-            this._vdataF32![offset++] = pvdata[2].y;
-            this._vdataF32![offset++] = pvdata[2].z;
+            this._vdataF32![offset++] = pvdata.size.x; // size
+            this._vdataF32![offset++] = pvdata.size.y;
+            this._vdataF32![offset++] = pvdata.size.z;
 
-            this._vdataF32![offset++] = pvdata[3].x; // rotation
-            this._vdataF32![offset++] = pvdata[3].y;
-            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+            this._vdataF32![offset++] = pvdata.rotation.y;
+            this._vdataF32![offset++] = pvdata.rotation.z;
 
-            this._vdataUint32![offset++] = pvdata[4]; // color
-            if (pvdata[5]) {
-                this._vdataF32![offset++] = pvdata[5].x; // velocity
-                this._vdataF32![offset++] = pvdata[5].y;
-                this._vdataF32![offset++] = pvdata[5].z;
+            this._vdataUint32![offset++] = pvdata.color; // color
+            if (pvdata.velocity) {
+                this._vdataF32![offset++] = pvdata.velocity.x; // velocity
+                this._vdataF32![offset++] = pvdata.velocity.y;
+                this._vdataF32![offset++] = pvdata.velocity.z;
             }
         } else {
-            this._vdataF32![offset++] = pvdata[0].x; // position
-            this._vdataF32![offset++] = pvdata[0].y;
-            this._vdataF32![offset++] = pvdata[0].z;
-            this._vdataF32![offset++] = pvdata[1].z; // frame idx
+            this._vdataF32![offset++] = pvdata.position.x; // position
+            this._vdataF32![offset++] = pvdata.position.y;
+            this._vdataF32![offset++] = pvdata.position.z;
+            this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
 
-            this._vdataF32![offset++] = pvdata[2].x; // size
-            this._vdataF32![offset++] = pvdata[2].y;
-            this._vdataF32![offset++] = pvdata[2].z;
+            this._vdataF32![offset++] = pvdata.size.x; // size
+            this._vdataF32![offset++] = pvdata.size.y;
+            this._vdataF32![offset++] = pvdata.size.z;
 
-            this._vdataF32![offset++] = pvdata[3].x; // rotation
-            this._vdataF32![offset++] = pvdata[3].y;
-            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+            this._vdataF32![offset++] = pvdata.rotation.y;
+            this._vdataF32![offset++] = pvdata.rotation.z;
 
-            this._vdataUint32![offset++] = pvdata[4]; // color
+            this._vdataUint32![offset++] = pvdata.color; // color
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number): void {
+    public addGPUParticleVertexData (p: Particle, num: number, time: number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -451,7 +463,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number): void {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time: number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;

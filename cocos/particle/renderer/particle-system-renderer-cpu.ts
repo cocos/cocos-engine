@@ -138,9 +138,23 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
-// TODO: we should not use this type, should use a uniform array type instead.
-// Tracking issue: https://github.com/cocos/cocos-engine/issues/15553
-export type PVData = [Vec3, Vec3, Vec3, Vec3, number, Vec3 | null, null];
+export class PVData {
+    public position: Vec3;
+    public texcoord: Vec3;
+    public size: Vec3;
+    public rotation: Vec3;
+    public color: number;
+    public velocity: Vec3 | null;
+
+    constructor () {
+        this.position = new Vec3();
+        this.texcoord = new Vec3();
+        this.size = new Vec3();
+        this.rotation = new Vec3();
+        this.color = 0;
+        this.velocity = null;
+    }
+}
 
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
     private _defines: MacroRecord;
@@ -165,6 +179,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _gravity: Vec4 = new Vec4();
 
     constructor (info: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         super(info);
 
         this._model = null;
@@ -172,7 +187,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec3();
-        this._attrs = new Array(7) as PVData;
+        this._attrs = new PVData();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -233,6 +248,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultTrailMat;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setNewParticle (p: Particle): void {
     }
 
@@ -258,6 +274,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
             const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
             if (p) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this._runAnimateList.push(p);
             }
         }
@@ -518,28 +535,27 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillMeshData (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._attrs.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
+        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
+        Vec3.copy(this._attrs.size, p.size);
+        Vec3.copy(this._attrs.rotation, p.rotation);
+        this._attrs.color = p.color._val;
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
+                Vec3.copy(this._attrs.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = p.ultimateVelocity;
-                this._attrs[6] = null;
+                Vec3.copy(this._attrs.texcoord, _tempAttribUV);
+                Vec3.copy(this._attrs.size, p.size);
+                Vec3.copy(this._attrs.rotation, p.rotation);
+                this._attrs.color = p.color._val;
+                this._attrs.velocity = p.ultimateVelocity;
                 this._model!.addParticleVertexData(idx++, this._attrs);
             }
         } else {
@@ -549,28 +565,27 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillStrecthedDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._attrs.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = p.ultimateVelocity;
+        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
+        Vec3.copy(this._attrs.size, p.size);
+        Vec3.copy(this._attrs.rotation, p.rotation);
+        this._attrs.color = p.color._val;
+        this._attrs.velocity = p.ultimateVelocity;
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
     private _fillNormalData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
+                Vec3.copy(this._attrs.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = null;
+                Vec3.copy(this._attrs.texcoord, _tempAttribUV);
+                Vec3.copy(this._attrs.size, p.size);
+                Vec3.copy(this._attrs.rotation, p.rotation);
+                this._attrs.color = p.color._val;
                 this._model!.addParticleVertexData(idx++, this._attrs);
             }
         } else {
@@ -580,13 +595,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillNormalDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._attrs.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = null;
+        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
+        Vec3.copy(this._attrs.size, p.size);
+        Vec3.copy(this._attrs.rotation, p.rotation);
+        this._attrs.color = p.color._val;
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
