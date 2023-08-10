@@ -38,6 +38,7 @@
 #include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
+#include "NativeRenderGraphUtils.h"
 #include "RenderGraphGraphs.h"
 #include "base/Log.h"
 #include "boost/graph/depth_first_search.hpp"
@@ -56,7 +57,6 @@
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
-#include "NativeRenderGraphUtils.h"
 
 #ifndef BRANCH_CULLING
     #define BRANCH_CULLING 0
@@ -164,7 +164,6 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
     const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
     const PmrTransparentMap<ccstd::pmr::string, RasterView> &rasterViews,
     boost::container::pmr::memory_resource *scratch) const {
-
     auto resourceIndex = buildDescriptorIndex(computeViews, scratch);
     if (!rasterViews.empty()) {
         NameLocalID unused{128};
@@ -546,7 +545,7 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
             rag.leafPasses.erase(lastVertID);
         }
 
-        if(viewStatus.access != AccessType::WRITE) {
+        if (viewStatus.access != AccessType::WRITE) {
             subResourceFeedback(resourceGraph, resourceID, desc.format);
         }
     }
@@ -813,7 +812,7 @@ void fillRenderPassInfo(const AttachmentMap &colorMap,
     }
 };
 
-[[nodiscard("concat")]] ccstd::pmr::string concatResName(
+[[nodiscard]] ccstd::pmr::string concatResName(
     std::string_view name0,
     std::string_view name1,
     boost::container::pmr::memory_resource *scratch) {
@@ -851,22 +850,21 @@ void extractNames(const ccstd::pmr::string &resName,
     // cube
 
     // array
-    
+
     if (names.empty()) {
         names.emplace_back(resName, 0);
     }
 }
 
-[[nodiscard("subresName")]] ccstd::pmr::string getSubresName(const ccstd::pmr::string &resName,
-                                                            uint32_t planeID, const ResourceGraph& resg,
-                                                            boost::container::pmr::memory_resource* scratch) {
-    const auto& desc = get(ResourceGraph::DescTag{}, resg, vertex(resName, resg));
-    if(desc.format == gfx::Format::DEPTH_STENCIL) {
+[[nodiscard]] ccstd::pmr::string getSubresName(const ccstd::pmr::string &resName,
+                                               uint32_t planeID, const ResourceGraph &resg,
+                                               boost::container::pmr::memory_resource *scratch) {
+    const auto &desc = get(ResourceGraph::DescTag{}, resg, vertex(resName, resg));
+    if (desc.format == gfx::Format::DEPTH_STENCIL) {
         auto nameView = planeID == 0 ? DEPTH_PLANE_NAME : STENCIL_PLANE_NAME;
         const auto &subresName = concatResName(resName, nameView, scratch);
         return subresName;
     }
-    
 
     // cube
 
@@ -923,7 +921,7 @@ auto checkRasterViews(const Graphs &graphs,
 
         ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> names(resourceAccessGraph.get_allocator());
         extractNames(resName, rasterView, names);
-        for (const auto& [subresFullName, plane] : names) {
+        for (const auto &[subresFullName, plane] : names) {
             resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
         }
     }
@@ -964,9 +962,9 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
             tryAddEdge(lastVertId, ragVertID, relationGraph);
             dependent = lastVertId != EXPECT_START_ID;
-            
-            if(out_degree(resID, resourceGraph)) {
-                const auto& subresFullName = getSubresName(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
+
+            if (out_degree(resID, resourceGraph)) {
+                const auto &subresFullName = getSubresName(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
                 resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
             }
         }
@@ -1411,59 +1409,59 @@ bool rangeCheck(ccstd::pmr::map<ccstd::pmr::string, ResourceNode> &status,
     return check;
 }
 
-bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const ResourceGraph& resourceGraph) {
+bool moveValidation(const MovePass &pass, ResourceAccessGraph &rag, const ResourceGraph &resourceGraph) {
     bool check = true;
-     // ccstd::pmr::map<PmrString, ResourceNode> sourceCheck;
-     ccstd::pmr::map<PmrString, ResourceNode> targetCheck;
-     for (const auto &movePair : pass.movePairs) {
-         const auto &fromResName = movePair.source;
-         const auto fromResID = resourceGraph.valueIndex.at(fromResName);
-         const auto &fromResDesc = get(ResourceGraph::DescTag{}, resourceGraph, fromResID);
+    // ccstd::pmr::map<PmrString, ResourceNode> sourceCheck;
+    ccstd::pmr::map<PmrString, ResourceNode> targetCheck;
+    for (const auto &movePair : pass.movePairs) {
+        const auto &fromResName = movePair.source;
+        const auto fromResID = resourceGraph.valueIndex.at(fromResName);
+        const auto &fromResDesc = get(ResourceGraph::DescTag{}, resourceGraph, fromResID);
 
-         const auto &toResName = movePair.target;
-         const auto toResID = resourceGraph.valueIndex.at(toResName);
-         const auto &toResDesc = get(ResourceGraph::DescTag{}, resourceGraph, toResID);
+        const auto &toResName = movePair.target;
+        const auto toResID = resourceGraph.valueIndex.at(toResName);
+        const auto &toResDesc = get(ResourceGraph::DescTag{}, resourceGraph, toResID);
 
-         const auto &fromResTraits = get(ResourceGraph::TraitsTag{}, resourceGraph, fromResID);
-         const auto &toResTraits = get(ResourceGraph::TraitsTag{}, resourceGraph, toResID);
-         auto commonUsage = fromResDesc.flags | toResDesc.flags;
+        const auto &fromResTraits = get(ResourceGraph::TraitsTag{}, resourceGraph, fromResID);
+        const auto &toResTraits = get(ResourceGraph::TraitsTag{}, resourceGraph, toResID);
+        auto commonUsage = fromResDesc.flags | toResDesc.flags;
 
-         // bool sourceRangeValid = rangeCheck(targetCheck, toResDesc, fromResName, movePair.targetFirstSlice, movePair.numSlices, movePair.targetMostDetailedMip, movePair.mipLevels, movePair.targetPlaneSlice);
-         bool targetRangeValid = rangeCheck(targetCheck, toResDesc, toResName, movePair.targetFirstSlice, movePair.numSlices, movePair.targetMostDetailedMip, movePair.mipLevels, movePair.targetPlaneSlice);
+        // bool sourceRangeValid = rangeCheck(targetCheck, toResDesc, fromResName, movePair.targetFirstSlice, movePair.numSlices, movePair.targetMostDetailedMip, movePair.mipLevels, movePair.targetPlaneSlice);
+        bool targetRangeValid = rangeCheck(targetCheck, toResDesc, toResName, movePair.targetFirstSlice, movePair.numSlices, movePair.targetMostDetailedMip, movePair.mipLevels, movePair.targetPlaneSlice);
 
-         uint32_t validConditions[] = {
-             !fromResTraits.hasSideEffects(),
-             rag.movedSourceStatus.find(toResName) == rag.movedSourceStatus.end(),
-             rag.movedSourceStatus.find(fromResName) == rag.movedSourceStatus.end(),
-             targetRangeValid,
-             fromResTraits.residency != ResourceResidency::MEMORYLESS && toResTraits.residency != ResourceResidency::MEMORYLESS,
-             fromResDesc.dimension == toResDesc.dimension,
-             fromResDesc.width == toResDesc.width,
-             fromResDesc.height == toResDesc.height,
-             fromResDesc.format == toResDesc.format,
-             fromResDesc.sampleCount == toResDesc.sampleCount,
-             (fromResDesc.depthOrArraySize == toResDesc.depthOrArraySize) || (toResDesc.dimension != ResourceDimension::BUFFER), // full move if resource is buffer
-         };
-         bool val = std::min_element(std::begin(validConditions), std::end(validConditions));
-         check &= val;
-     }
+        uint32_t validConditions[] = {
+            !fromResTraits.hasSideEffects(),
+            rag.movedSourceStatus.find(toResName) == rag.movedSourceStatus.end(),
+            rag.movedSourceStatus.find(fromResName) == rag.movedSourceStatus.end(),
+            targetRangeValid,
+            fromResTraits.residency != ResourceResidency::MEMORYLESS && toResTraits.residency != ResourceResidency::MEMORYLESS,
+            fromResDesc.dimension == toResDesc.dimension,
+            fromResDesc.width == toResDesc.width,
+            fromResDesc.height == toResDesc.height,
+            fromResDesc.format == toResDesc.format,
+            fromResDesc.sampleCount == toResDesc.sampleCount,
+            (fromResDesc.depthOrArraySize == toResDesc.depthOrArraySize) || (toResDesc.dimension != ResourceDimension::BUFFER), // full move if resource is buffer
+        };
+        bool val = std::min_element(std::begin(validConditions), std::end(validConditions));
+        check &= val;
+    }
 
-     // full destination
-     check &= std::all_of(targetCheck.begin(), targetCheck.end(), [](const auto &pair) {
-         const ResourceNode &resNode = pair.second;
-         return std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
-             return textureNode.full;
-         });
-     });
+    // full destination
+    check &= std::all_of(targetCheck.begin(), targetCheck.end(), [](const auto &pair) {
+        const ResourceNode &resNode = pair.second;
+        return std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
+            return textureNode.full;
+        });
+    });
 
-     return check;
- }
+    return check;
+}
 
 void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) {
     const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
 
-    if(moveValidation(pass, resourceAccessGraph, resourceGraph)) {
-        for(const auto& pair : pass.movePairs) {
+    if (moveValidation(pass, resourceAccessGraph, resourceGraph)) {
+        for (const auto &pair : pass.movePairs) {
             auto srcResourceRange = getResourceRange(vertex(pair.source, resourceGraph), resourceGraph);
             srcResourceRange.firstSlice = pair.targetFirstSlice;
             srcResourceRange.mipLevel = pair.targetMostDetailedMip;
@@ -1489,7 +1487,7 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
             feedBack(pair.source, targetResID);
         }
     } else {
-        for(const auto& pair : pass.movePairs) {
+        for (const auto &pair : pass.movePairs) {
             CopyPass copyPass(resourceAccessGraph.get_allocator());
             copyPass.copyPairs.emplace_back(CopyPair(
                 pair.source,
