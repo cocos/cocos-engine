@@ -123,7 +123,7 @@ struct FGRenderPassInfo {
     FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) = default;
     FGRenderPassInfo& operator=(FGRenderPassInfo const& rhs) = default;
 
-    std::vector<LayoutAccess> colorAccesses;
+    ccstd::vector<LayoutAccess> colorAccesses;
     LayoutAccess dsAccess;
     LayoutAccess dsResolveAccess;
     gfx::RenderPassInfo rpInfo;
@@ -144,23 +144,23 @@ struct Barrier {
 };
 
 struct BarrierNode {
-    std::vector<Barrier> frontBarriers;
-    std::vector<Barrier> rearBarriers;
+    ccstd::vector<Barrier> frontBarriers;
+    ccstd::vector<Barrier> rearBarriers;
 };
 
 struct SliceNode {
     bool full{false};
-    std::vector<uint32_t> mips;
+    ccstd::vector<uint32_t> mips;
 };
 
 struct TextureNode {
     bool full{false};
-    std::vector<SliceNode> slices;
+    ccstd::vector<SliceNode> slices;
 };
 
 struct ResourceNode {
     bool full{false};
-    std::vector<TextureNode> planes;
+    ccstd::vector<TextureNode> planes;
 };
 
 struct ResourceAccessGraph {

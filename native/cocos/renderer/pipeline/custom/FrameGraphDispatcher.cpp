@@ -365,11 +365,11 @@ LayoutAccess FrameGraphDispatcher::getResourceAccess(ResourceGraph::vertex_descr
 using PmrString = ccstd::pmr::string;
 using EdgeList = std::pair<RelationGraph::edge_descriptor, RelationGraph::edge_descriptor>;
 using CloseCircuit = std::pair<EdgeList, EdgeList>;
-using CloseCircuits = std::vector<CloseCircuit>;
+using CloseCircuits = ccstd::vector<CloseCircuit>;
 using RelationVert = RelationGraph::vertex_descriptor;
-using RelationVerts = std::vector<RelationVert>;
+using RelationVerts = ccstd::vector<RelationVert>;
 using RelationEdge = RelationGraph::edge_descriptor;
-using RelationEdges = std::vector<RelationEdge>;
+using RelationEdges = ccstd::vector<RelationEdge>;
 using ScoreMap = std::map<RelationVert, std::pair<int64_t /*backward*/, int64_t /*forward*/>>;
 using RasterViewsMap = PmrTransparentMap<ccstd::pmr::string, RasterView>;
 using ComputeViewsMap = PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>;
@@ -2418,7 +2418,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
         boost::transitive_closure(relationGraph, relationGraphTc);
 
         CloseCircuits circuits;
-        std::vector<ResourceAccessGraph::edge_descriptor> crossEdges;
+        ccstd::vector<ResourceAccessGraph::edge_descriptor> crossEdges;
         PassVisitor visitor(relationGraphTc, circuits);
         auto colors = relationGraph.colors(scratch);
         boost::depth_first_search(relationGraph, visitor, get(colors, relationGraph));
@@ -2446,7 +2446,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
         RelationVerts candidates;
         candidates.push_back(EXPECT_START_ID);
 
-        std::vector<RelationVert> candidateBuffer;
+        ccstd::vector<RelationVert> candidateBuffer;
         uint32_t coloredVerts = 0;
         while (coloredVerts < relationGraph._vertices.size()) {
             // decreasing order, pop back from vector, push into queue, then it's ascending order.
