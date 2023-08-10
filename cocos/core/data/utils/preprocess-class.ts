@@ -38,48 +38,6 @@ const SerializableAttrs = {
     formerlySerializedAs: {},
 };
 
-/**
- * 预处理 notify 等扩展属性
- */
-function parseNotify (val, propName, notify, properties): void {
-    if (val.get || val.set) {
-        if (DEV) {
-            warnID(5500);
-        }
-        return;
-    }
-    if (val.hasOwnProperty('default')) {
-        // 添加新的内部属性，将原来的属性修改为 getter/setter 形式
-        // （以 _ 开头将自动设置property 为 visible: false）
-        const newKey = `_N$${propName}`;
-
-        val.get = function (): any {
-            return this[newKey];
-        };
-        val.set = function (value): void {
-            const oldValue = this[newKey];
-            this[newKey] = value;
-            notify.call(this, oldValue);
-        };
-
-        const newValue = {};
-        properties[newKey] = newValue;
-        // 将不能用于get方法中的属性移动到newValue中
-
-        for (const attr in SerializableAttrs) {
-            const v = SerializableAttrs[attr];
-            if (val.hasOwnProperty(attr)) {
-                newValue[attr] = val[attr];
-                if (!v.canUsedInGet) {
-                    delete val[attr];
-                }
-            }
-        }
-    } else if (DEV) {
-        warnID(5501);
-    }
-}
-
 function parseType (val, type, className, propName): void {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
@@ -217,15 +175,6 @@ export function preprocessAttrs (properties, className, cls): void {
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 warnID(5517, className, propName, baseClass, propName);
             }
-            const notify = val.notify;
-            if (notify) {
-                if (DEV) {
-                    error('not yet support notify attributes.');
-                } else {
-                    parseNotify(val, propName, notify, properties);
-                }
-            }
-
             if ('type' in val) {
                 parseType(val, val.type, className, propName);
             }

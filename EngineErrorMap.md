@@ -2222,10 +2222,12 @@ Class should be extended before assigning any prototype members.
 
 ### 5500
 
+<!-- DEPRECATED -->
 'notify' can not be used in 'get/set' !
 
 ### 5501
 
+<!-- DEPRECATED -->
 'notify' must be used with 'default' !
 
 ### 5502
