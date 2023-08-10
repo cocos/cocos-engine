@@ -50,9 +50,15 @@ namespace {
     return YES;
 }
 
-// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
+// Controls the application's screen edge gesture delay to prevent accidental touches
+- (UIRectEdge)preferredScreenEdgesDeferringSystemGestures
+{
+    return UIRectEdgeAll;
+}
+
+// Controls the application's preferred home indicator auto-showing otherwise preferredScreenEdgesDeferringSystemGestures is invalidation
 - (BOOL)prefersHomeIndicatorAutoHidden {
-    return YES;
+    return NO;
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
