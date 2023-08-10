@@ -122,7 +122,7 @@ ResourceGraph::vertex_descriptor FrameGraphDispatcher::realResourceID(const ccst
     return resourceAccessGraph.resourceIndex.at(name);
 }
 
-[[nodiscard("concat")]] ccstd::pmr::string concatResName(
+[[nodiscard]] ccstd::pmr::string concatResName(
     std::string_view name0,
     std::string_view name1,
     boost::container::pmr::memory_resource *scratch) {
@@ -132,7 +132,7 @@ ResourceGraph::vertex_descriptor FrameGraphDispatcher::realResourceID(const ccst
     return name;
 }
 
-[[nodiscard("subresName")]] ccstd::pmr::string getSubresNameByPlane(const ccstd::pmr::string &resName,
+[[nodiscard]] ccstd::pmr::string getSubresNameByPlane(const ccstd::pmr::string &resName,
                                                                     uint32_t planeID, const ResourceGraph &resg,
                                                                     boost::container::pmr::memory_resource *scratch) {
     const auto &desc = get(ResourceGraph::DescTag{}, resg, vertex(resName, resg));
@@ -1476,7 +1476,7 @@ bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const Resour
     return check;
 }
 
-[[nodiscard("subres_name")]] ccstd::pmr::string getSubresourceNameByRange(
+[[nodiscard]] ccstd::pmr::string getSubresourceNameByRange(
     const gfx::ResourceRange &range,
     boost::container::pmr::memory_resource *scratch) {
     ccstd::pmr::string subresName(scratch);
