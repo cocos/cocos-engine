@@ -32,10 +32,10 @@ import { passContext } from '../utils/pass-context';
 import { SettingPass } from './setting-pass';
 import { Root } from '../../../root';
 
-export class ToneMappingPass extends SettingPass {
-    name = 'ToneMappingPass'
-    effectName = 'pipeline/tone-mapping';
-    outputNames = ['ToneMapping']
+export class FloatOutputDeferredPass extends SettingPass {
+    name = 'FloatOutputDeferredPass';
+    effectName = 'pipeline/float-output-deferred';
+    outputNames = ['FloatOutputDeferred'];
 
     enableInAllEditorCamera = true;
     enable = true;
@@ -49,6 +49,7 @@ export class ToneMappingPass extends SettingPass {
         passContext.material = this.material;
 
         const input = this.lastPass!.slotName(camera, 0);
+        const inputDS = passContext.depthSlotName;
         const output = this.slotName(camera, 0);
         const layoutName = 'tone-mapping';
         const passName = `tone-mapping${cameraID}`;
@@ -59,6 +60,7 @@ export class ToneMappingPass extends SettingPass {
         passContext.updatePassViewPort()
             .addRenderPass(layoutName, passName)
             .setPassInput(input, 'u_texSampler')
+            .setPassInput(inputDS, 'DepthTex')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(passIndx)
             .version();
