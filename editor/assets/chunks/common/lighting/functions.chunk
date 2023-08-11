@@ -86,14 +86,18 @@ vec4 CalculatePlanarShadowPos(vec3 meshWorldPos, vec3 cameraPos, vec3 lightDir, 
   vec3 P = meshWorldPos;
   vec3 L = lightDir;
   vec3 N = plane.xyz;
-  float d = plane.w + 0.001;
+  float d = plane.w + EPSILON_LOWP;
   float dist = (-d - dot(P, N)) / (dot(L, N) + EPSILON_LOWP);
   vec3 shadowPos = P + L * dist;
 
-  // avoid z-fighting with shadow plane
-  vec3 view = normalize(cameraPos.xyz - shadowPos);
-  float viewLength = length(cameraPos.xyz - shadowPos);
-  shadowPos += view * min(1.0, 0.005 * viewLength);
-
   return vec4(shadowPos, dist);
+}
+// calculate planar clip pos from world pos
+vec4 CalculatePlanarShadowClipPos(vec4 shadowPos, vec3 cameraPos, mat4 matView, mat4 matProj, vec4 nearFar) {
+  vec4 camPos = matView * vec4(shadowPos.xyz, 1.0);
+  // avoid z-fighting with shadow receive plane, add camera bias with perspective correction
+  // notice that near plane should not be too small, assume near 1, far 1000
+  float lerpCoef = saturate((nearFar.z < 0.0 ? -camPos.z : camPos.z) / (nearFar.y - nearFar.x));
+  camPos.z += mix(nearFar.x * 0.01, nearFar.y * EPSILON_LOWP, lerpCoef);
+  return matProj * camPos;
 }

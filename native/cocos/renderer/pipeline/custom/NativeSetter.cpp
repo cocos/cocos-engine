@@ -148,6 +148,21 @@ void NativeSetter::setBuiltinShadowMapConstants(
     setShadowUBOView(*device, *layoutGraph, sceneData, *light, data);
 }
 
+void NativeSetter::setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) {
+}
+
+void NativeSetter::setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) {
+}
+
+void NativeSetter::setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) {
+}
+
+void NativeSetter::setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) {
+}
+
+void NativeSetter::setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) {
+}
+
 } // namespace render
 
 } // namespace cc

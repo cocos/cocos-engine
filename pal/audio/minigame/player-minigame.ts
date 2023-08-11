@@ -129,6 +129,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
             if (this._needSeek) {
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 this.seek(this._cacheTime).catch((e) => {});
             }
         };
@@ -168,6 +169,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._needSeek) {
                 this._needSeek = false;
                 if (this._cacheTime.toFixed(3) !== this._innerAudioContext.currentTime.toFixed(3)) {
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     this.seek(this._cacheTime).catch((e) => {});
                 } else {
                     this._needSeek = false;
@@ -189,7 +191,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
             });
-            // NOTE: innewAudioContext might not stop the audio playing, have to call it explicitly.
+            // NOTE: innerAudioContext might not stop the audio playing, have to call it explicitly.
             this._innerAudioContext.stop();
             this._innerAudioContext.destroy();
             // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'
@@ -202,6 +204,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 this._state = AudioState.INTERRUPTED;
                 this._readyToHandleOnShow = true;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         }
     }
@@ -214,6 +217,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         }
         this._readyToHandleOnShow = false;
@@ -235,6 +239,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 resolve(new AudioPlayerMinigame(innerAudioContext as InnerAudioContext));
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch((e) => {});
         });
     }
@@ -259,6 +264,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 clearTimeout(timer);
                 // eslint-disable-next-line no-console
                 console.error('failed to load innerAudioContext');
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 reject(new Error(err));
             }
             innerAudioContext.onCanplay(success);
@@ -270,6 +276,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve, reject) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(new (OneShotAudioMinigame as any)(innerAudioContext, volume));
             }).catch(reject);
         });
@@ -318,12 +325,15 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
                 this._seeking = true;
+                this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
-            } else if (this._cacheTime !== time) { // Skip the invalid seek
-                this._cacheTime = time;
-                this._needSeek = true;
+            } else {
+                if (this._cacheTime !== time) { // Skip the invalid seek
+                    this._cacheTime = time;
+                    this._needSeek = true;
+                }
+                resolve();
             }
-            resolve();
         });
     }
 
@@ -350,6 +360,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     stop (): Promise<void> {
         return new Promise((resolve) => {
+            if (AudioState.INIT === this._state) {
+                this._resetSeekCache();
+                resolve();
+                return;
+            }
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();
         });

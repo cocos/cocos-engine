@@ -416,17 +416,8 @@ void Pass::resetUBOs() {
             ofs += size;
         }
     };
-    auto *programLib = render::getProgramLibrary();
-    if (programLib) {
-        const auto &set = _shaderInfo->descriptors.at(
-            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
-        for (const auto &block : set.blocks) {
-            updateBuffer(block);
-        }
-    } else {
-        for (const auto &u : _shaderInfo->blocks) {
-            updateBuffer(u);
-        }
+    for (const auto &u : _shaderInfo->blocks) {
+        updateBuffer(u);
     }
     _rootBufferDirty = true;
 }

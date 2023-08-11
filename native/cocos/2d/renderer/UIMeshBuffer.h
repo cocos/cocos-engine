@@ -23,9 +23,12 @@
 ****************************************************************************/
 
 #pragma once
+#include "base/Ptr.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "renderer/gfx-base/GFXInputAssembler.h"
 #include "renderer/gfx-base/GFXDef-common.h"
+#include "renderer/gfx-base/GFXBuffer.h"
 
 namespace cc {
 
@@ -84,11 +87,11 @@ private:
     uint32_t _vertexFormatBytes{0};
     uint32_t _initVDataCount{0};
     uint32_t _initIDataCount{0};
-    uint32_t _nextFreeIAHandle{0};
 
     ccstd::vector<gfx::Attribute> _attributes;
-    ccstd::vector<gfx::InputAssembler*> _iaPool{};
-    gfx::InputAssemblerInfo _iaInfo;
+    IntrusivePtr<gfx::InputAssembler> _ia;
+    IntrusivePtr<gfx::Buffer> _vb;
+    IntrusivePtr<gfx::Buffer> _ib;
 
     bool _dirty{false};
     bool _needDeleteVData{false};

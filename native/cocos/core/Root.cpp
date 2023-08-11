@@ -48,6 +48,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "scene/Skybox.h"
 
 namespace cc {
 
@@ -356,6 +357,11 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 void Root::onGlobalPipelineStateChanged() {
     for (const auto &scene : _scenes) {
         scene->onGlobalPipelineStateChanged();
+    }
+
+    if (_pipelineRuntime->getPipelineSceneData()->getSkybox()->isEnabled())
+    {
+        _pipelineRuntime->getPipelineSceneData()->getSkybox()->getModel()->onGlobalPipelineStateChanged();
     }
 
     _pipelineRuntime->onGlobalPipelineStateChanged();

@@ -409,6 +409,7 @@ export enum TextureFlagBit {
     EXTERNAL_NORMAL = 0x8, // External normal texture
     MUTABLE_STORAGE = 0x10, //  Texture is mutable or not, default is immutable(only for webgl2)
     LAZILY_ALLOCATED = 0x20, // Try lazily allocated mode.
+    MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
 }
 
 export enum FormatFeatureBit {

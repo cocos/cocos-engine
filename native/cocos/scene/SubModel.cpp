@@ -201,6 +201,7 @@ void SubModel::destroy() {
     _priority = pipeline::RenderPriority::DEFAULT;
 
     _patches.clear();
+    _globalPatches.clear();
     _subMesh = nullptr;
     _passes.reset();
     _shaders.clear();
@@ -210,6 +211,20 @@ void SubModel::destroy() {
 }
 
 void SubModel::onPipelineStateChanged() {
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    ccstd::vector<IMacroPatch> pipelinePatches(pipeline->getMacros().begin(), pipeline->getMacros().end());
+    ccstd::vector<IMacroPatch> globalPatches(_globalPatches.begin(), _globalPatches.end());
+    if (pipelinePatches.empty() && globalPatches.empty()) {
+        return;
+    }
+
+    std::sort(pipelinePatches.begin(), pipelinePatches.end(), IMacroPatch::compare);
+    std::sort(globalPatches.begin(), globalPatches.end(), IMacroPatch::compare);
+    if (std::equal(std::begin(pipelinePatches), std::end(pipelinePatches), std::begin(globalPatches), std::end(globalPatches))) {
+        return;
+    }
+    _globalPatches = pipeline->getMacros();
+
     const auto &passes = *_passes;
     if (passes.empty()) return;
 

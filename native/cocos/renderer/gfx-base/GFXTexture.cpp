@@ -144,6 +144,8 @@ void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out) 
     out->_viewInfo.layerCount = out->_info.layerCount;
     out->_viewInfo.baseLevel = 0;
     out->_viewInfo.levelCount = out->_info.levelCount;
+    out->_viewInfo.basePlane = 0;
+    out->_viewInfo.planeCount = info.format == gfx::Format::DEPTH_STENCIL ? 2 : 1;
 }
 
 } // namespace gfx

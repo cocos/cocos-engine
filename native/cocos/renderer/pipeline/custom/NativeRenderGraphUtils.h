@@ -211,6 +211,19 @@ void addSubpassComputeViewImpl(
                subpassData.computeViews.find(std::string_view{name})->second.size());
 }
 
+inline bool defaultAttachment(std::string_view slotName) {
+    return slotName.empty() || slotName == "_";
+}
+
+static constexpr std::string_view DEPTH_PLANE_NAME = "depth";
+static constexpr std::string_view STENCIL_PLANE_NAME = "stencil";
+static constexpr std::string_view CUBE_TOP_NAME = "top";
+static constexpr std::string_view CUBE_BOTTOM_NAME = "bottom";
+static constexpr std::string_view CUBE_FRONT_NAME = "front";
+static constexpr std::string_view CUBE_REAR_NAME = "rear";
+static constexpr std::string_view CUBE_LEFT_NAME = "left";
+static constexpr std::string_view CUBE_RIGHT_NAME = "right";
+
 } // namespace render
 
 } // namespace cc

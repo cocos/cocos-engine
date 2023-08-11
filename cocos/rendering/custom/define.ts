@@ -44,9 +44,9 @@ import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert, nextPow2
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { RenderData } from './render-graph';
+import { RenderData, RenderGraph } from './render-graph';
 import { WebPipeline } from './web-pipeline';
-import { DescriptorSetData } from './layout-graph';
+import { DescriptorSetData, LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
 import { ReflectionProbeManager } from '../../3d/reflection-probe/reflection-probe-manager';
@@ -685,7 +685,7 @@ export function buildShadowPass (
     queue.addSceneOfCamera(
         camera,
         new LightInfo(light, level),
-        SceneFlags.SHADOW_CASTER,
+        SceneFlags.SHADOW_CASTER | SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT,
     );
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
@@ -706,6 +706,7 @@ export function buildReflectionProbePasss (
             } else if (EDITOR) {
                 for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
                     probe.updateCameraDir(faceIdx);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
                 }
                 probe.needRender = false;
@@ -1127,7 +1128,9 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
     const constants = data.constants;
     const samplers = data.samplers;
     const textures = data.textures;
-    const device = cclegacy.director.root.device;
+    const root = cclegacy.director.root;
+    const device = root.device;
+    const pipeline = root.pipeline as WebPipeline;
     const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
     const descriptorSet = descriptorSetData.descriptorSet!;
     for (const [key, value] of constants) {
@@ -1160,7 +1163,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
         const tex = descriptorSet.getTexture(bindId);
-        if (!tex || isUpdate) {
+        if (!tex || (isUpdate && value !== pipeline.defaultTexture)) {
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
@@ -1168,7 +1171,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
         const sampler = descriptorSet.getSampler(bindId);
-        if (!sampler || isUpdate) {
+        if (!sampler || (isUpdate && value !== pipeline.defaultSampler)) {
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
@@ -2439,4 +2442,54 @@ export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline): vo
 
     buildLightClusterBuildPass(camera, _clusterLightData, ppl);
     buildLightClusterCullingPass(camera, _clusterLightData, ppl);
+}
+
+function hashCombine (hash, currHash: number): number {
+    return currHash ^= (hash >>> 0) + 0x9e3779b9 + (currHash << 6) + (currHash >> 2);
+}
+
+export function hashCombineNum (val: number, currHash: number): number {
+    const hash = 5381;
+    return hashCombine((hash * 33) ^ val, currHash);
+}
+
+export function hashCombineStr (str: string, currHash: number): number {
+    // DJB2 HASH
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return hashCombine(hash, currHash);
+}
+
+export function bool (val): boolean {
+    return !!val;
+}
+
+export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: LayoutGraphData): number {
+    const queueId = rg.getParent(sceneId);
+    assert(queueId !== 0xFFFFFFFF);
+    const subpassOrPassID = rg.getParent(queueId);
+    assert(subpassOrPassID !== 0xFFFFFFFF);
+    const passId = rg.getParent(subpassOrPassID);
+    let layoutId = lg.nullVertex();
+    // single render pass
+    if (passId === rg.nullVertex()) {
+        const layoutName: string = rg.getLayout(subpassOrPassID);
+        assert(!!layoutName);
+        layoutId = lg.locateChild(lg.nullVertex(), layoutName);
+    } else {
+        const passLayoutName: string = rg.getLayout(passId);
+        assert(!!passLayoutName);
+        const passLayoutId = lg.locateChild(lg.nullVertex(), passLayoutName);
+        assert(passLayoutId !== lg.nullVertex());
+
+        const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
+        assert(!!subpassLayoutName);
+        const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
+        assert(subpassLayoutId !== lg.nullVertex());
+        layoutId = subpassLayoutId;
+    }
+    assert(layoutId !== lg.nullVertex());
+    return layoutId;
 }

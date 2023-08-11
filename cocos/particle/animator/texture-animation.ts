@@ -263,7 +263,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @internal
      */
     public init (p: Particle): void {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
+        p.startRow = Math.floor(random() * this.numTilesY);
     }
 
     /**

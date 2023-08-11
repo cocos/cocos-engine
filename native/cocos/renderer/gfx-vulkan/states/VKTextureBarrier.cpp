@@ -44,10 +44,10 @@ CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info) : Texture
     _gpuBarrier->barrier.prevLayout = getAccessLayout(info.prevAccesses);
     _gpuBarrier->barrier.nextLayout = getAccessLayout(info.nextAccesses);
     _gpuBarrier->barrier.discardContents = !!info.discardContents;
-    _gpuBarrier->barrier.subresourceRange.baseMipLevel = 0U;
-    _gpuBarrier->barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-    _gpuBarrier->barrier.subresourceRange.baseArrayLayer = 0U;
-    _gpuBarrier->barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    _gpuBarrier->barrier.subresourceRange.baseMipLevel = info.range.mipLevel;
+    _gpuBarrier->barrier.subresourceRange.levelCount = info.range.levelCount;
+    _gpuBarrier->barrier.subresourceRange.baseArrayLayer = info.range.firstSlice;
+    _gpuBarrier->barrier.subresourceRange.layerCount = info.range.numSlices;
     _gpuBarrier->barrier.srcQueueFamilyIndex = info.srcQueue
                                                    ? static_cast<CCVKQueue *>(info.srcQueue)->gpuQueue()->queueFamilyIndex
                                                    : VK_QUEUE_FAMILY_IGNORED;

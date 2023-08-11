@@ -36,6 +36,7 @@ float RoughnessToPerceptualRoughness(float roughness)
     #endif
   }
 
+  // for skybox IBL
   vec3 EnvReflection(samplerCube tex, vec3 R, float roughness, float mipCount) {
     // simulate GGX convolution
     #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
@@ -52,16 +53,13 @@ float RoughnessToPerceptualRoughness(float roughness)
 
   }
 
+  // for reflection probe
   vec3 EnvReflectionOfReflectionProbe(samplerCube tex, vec3 R, float roughness, float mipCount, bool isRGBE) {
     // simulate GGX convolution
     #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
       roughness = RoughnessToPerceptualRoughness(roughness);
     #endif
 
-    vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-    vec4 envmap = fragTextureLod(tex, rotationDir, roughness * (mipCount - 1.0));
-    if (isRGBE)
-      return unpackRGBE(envmap);
-    else
-      return SRGBToLinear(envmap.rgb);
+    vec4 envmap = fragTextureLod(tex, R, roughness * (mipCount - 1.0));
+    return isRGBE ? unpackRGBE(envmap) : SRGBToLinear(envmap.rgb);
   }
