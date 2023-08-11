@@ -181,7 +181,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape (): IBaseShape | null  {
+    public get shape (): IBaseShape | null {
         return this._shape;
     }
 
