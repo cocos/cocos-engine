@@ -24,7 +24,7 @@
 
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { TAOBAO, TAOBAO_MINIGAME, HUAWEI } from 'internal:constants';
+import { TAOBAO, TAOBAO_MINIGAME, HUAWEI, VIVO, OPPO } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -107,7 +107,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._cacheTime = 0;
         this._needSeek = false;
         this._seeking = false;
-        if (HUAWEI && this._innerAudioContext) {
+        if ((HUAWEI || VIVO || OPPO) && this._innerAudioContext) {
             this._innerAudioContext.startTime = 0;
         }
     }
@@ -305,7 +305,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
-        if (HUAWEI && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
+        if ((HUAWEI || VIVO || OPPO) && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
             return this._innerAudioContext.startTime;
         }
         if (this._state !== AudioState.PLAYING || this._needSeek || this._seeking) {
@@ -333,7 +333,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 this._innerAudioContext.seek(time);
             } else {
                 //TaoBao platform: after stop, regardless of whether the starttime has been set, the playback will always start from 0 again
-                if (HUAWEI && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
+                if ((HUAWEI || VIVO || OPPO) && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
                     this._innerAudioContext.startTime = time;
                 } else if (this._cacheTime !== time) { // Skip the invalid seek
                     this._cacheTime = time;
