@@ -81,7 +81,7 @@ exports.listeners = {
             snapshotLock(panel, true, panel.uuidList);
         }
 
-        const dump = event.target.dump;
+        const dump = target.dump;
         if (!dump || panel.isDialoging) {
             return;
         }
@@ -181,7 +181,7 @@ exports.listeners = {
 
         // Editor.Message.send('scene', 'snapshot');
         const undoID = await beginRecording(panel.uuidList);
-        const dump = event.target.dump;
+        const dump = target.dump;
         let cancel = false;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
@@ -214,7 +214,7 @@ exports.listeners = {
         clearTimeout(panel.previewTimeId);
 
         const undoID = await beginRecording(panel.uuidList);
-        const dump = event.target.dump;
+        const dump = target.dump;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
@@ -240,7 +240,7 @@ exports.listeners = {
             return;
         }
 
-        const dump = event.target.dump;
+        const dump = target.dump;
         if (!dump || panel.isDialoging) {
             return;
         }
