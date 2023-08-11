@@ -1594,7 +1594,12 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             if (lazilyAllocated &&                               // MS attachment should be memoryless
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 i < supportCount) {                              // extension limit
-                gpuFBO->framebuffer.bindColorMultiSample(resolveView, colorIndex, view->gpuTexture->glSamples, resolveDesc);
+                auto validateDesc = resolveDesc;
+                // implicit MS take color slot, so color loadOP should be used.
+                // resolve attachment with Store::Discard is meaningless.
+                validateDesc.loadOp = desc.loadOp;
+                validateDesc.storeOp = StoreOp::STORE;
+                gpuFBO->framebuffer.bindColorMultiSample(resolveView, colorIndex, view->gpuTexture->glSamples, validateDesc);
             } else {
                 // implicit MS not supported, fallback to MS Renderbuffer
                 gpuFBO->colorBlitPairs.emplace_back(colorIndex, resolveColorIndex);
@@ -1620,7 +1625,14 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 supportCount > 1 &&                              // extension limit
                 useDsResolve) {                                  // enable ds resolve
-                gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, resolveDesc);
+                auto validateDesc = resolveDesc;
+                // implicit MS take ds slot, so ds MS loadOP should be used.
+                // resolve attachment with Store::Discard is meaningless.
+                validateDesc.depthLoadOp = desc.depthLoadOp;
+                validateDesc.depthStoreOp = StoreOp::STORE;
+                validateDesc.stencilLoadOp = desc.stencilLoadOp;
+                validateDesc.stencilStoreOp = StoreOp::STORE;
+                gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, validateDesc);
             } else {
                 // implicit MS not supported, fallback to MS Renderbuffer
                 gpuFBO->dsResolveMask = getColorBufferMask(desc.format);
