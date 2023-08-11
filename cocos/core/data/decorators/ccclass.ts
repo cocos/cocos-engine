@@ -67,7 +67,7 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
 
     if (DEV) {
         if (isChildClassOf(base, legacyCC.Component)) {
-            if (constructor._playOnFocus && !constructor._executeInEditMode) {
+            if ((constructor as any)._playOnFocus && !(constructor as any)._executeInEditMode) {
                 warnID(3601, name!);
             }
         }

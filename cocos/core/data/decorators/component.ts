@@ -24,6 +24,15 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { makeSmartClassDecorator, emptySmartClassDecorator } from './utils';
+import { value } from "../../utils/js";
+
+export function assignEditorMetadata (constructor: Function, attrName: string, attrValue: any, inheritable: boolean) {
+    if (inheritable) {
+        constructor[attrName] = attrValue;
+    } else {
+        value(constructor, attrName, attrValue, true);
+    }
+}
 
 /**
  * @en Declare that the current component relies on another type of component.
@@ -47,7 +56,7 @@ export function requireComponent (requiredComponent: Function | Function[]): Cla
         if (Array.isArray(requiredComponent)) {
             requiredComponent = requiredComponent.filter(Boolean);
         }
-        constructor._requireComponent = requiredComponent;
+        assignEditorMetadata(constructor, '_requireComponent', requiredComponent, true);
     };
 }
 
@@ -71,7 +80,7 @@ export function requireComponent (requiredComponent: Function | Function[]): Cla
 export function executionOrder (priority: number): ClassDecorator {
     return <TFunction extends AnyFunction>(constructor: TFunction): void => {
         if (priority && typeof priority === 'number') {
-            constructor._executionOrder = priority;
+            assignEditorMetadata(constructor, '_executionOrder', priority, true);
         }
     };
 }
@@ -92,5 +101,5 @@ export function executionOrder (priority: number): ClassDecorator {
  * ```
  */
 export const disallowMultiple: ClassDecorator & (() => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
-    constructor._disallowMultiple = constructor;
+    assignEditorMetadata(constructor, '_disallowMultiple', constructor, true);
 }) : emptySmartClassDecorator;

@@ -23,9 +23,10 @@
 */
 
 import { DEV, EDITOR, TEST } from 'internal:constants';
-import { error, warnID } from "../../platform";
-import { getClassName, value } from "../../utils/js";
+import { error } from "../../platform";
+import { getClassName } from "../../utils/js";
 import { CCClass } from "../class";
+import { assignEditorMetadata } from "./component";
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
@@ -56,7 +57,7 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
     if (DEV && CCClass._isCCClass(constructor)) {
         error('`@%s` should be used after @ccclass for class "%s"', 'executeInEditMode', getClassName(constructor));
     }
-    constructor._executeInEditMode = true;
+    assignEditorMetadata(constructor, '_executeInEditMode', true, true);
 }) : emptySmartClassDecorator;
 
 /**
@@ -108,7 +109,7 @@ export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
     if (DEV && CCClass._isCCClass(constructor)) {
         error('`@%s` should be used after @ccclass for class "%s"', 'playOnFocus', getClassName(constructor));
     }
-    constructor._playOnFocus = true;
+    assignEditorMetadata(constructor, '_playOnFocus', true, true);
 }) : emptySmartClassDecorator;
 
 /**
@@ -129,7 +130,7 @@ export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
  */
 export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
     return <TFunction extends AnyFunction>(constructor: TFunction): void => {
-        value(constructor, '_inspector', url, true);
+        assignEditorMetadata(constructor, '_inspector', url, false);
     };
 }) : emptyDecoratorFn;
 
@@ -152,7 +153,7 @@ export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((u
  */
 export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
     return <TFunction extends AnyFunction>(constructor: TFunction): void => {
-        value(constructor, '_icon', url, true);
+        assignEditorMetadata(constructor, '_icon', url, false);
     };
 }) : emptyDecoratorFn;
 
@@ -175,7 +176,7 @@ export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: s
  */
 export const help: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
     return <TFunction extends AnyFunction>(constructor: TFunction): void => {
-        constructor._help = url;
+        assignEditorMetadata(constructor, '_help', url, true);
     };
 }) : emptyDecoratorFn;
 
