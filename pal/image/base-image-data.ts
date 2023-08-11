@@ -111,7 +111,7 @@ export class BaseImageData {
                 rawBuffer = buff;
                 data = new Uint8Array(rawBuffer);
             }
-        } else if (this._source instanceof HTMLImageElement || this._source instanceof ImageBitmap) {
+        } else if (this._source instanceof HTMLImageElement || this.isImageBitmap(this._source)) {
             const img = this._source;
             const canvas = ccwindow.document.createElement('canvas');
             canvas.width = img.width;
