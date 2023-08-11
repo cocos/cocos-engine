@@ -76,7 +76,7 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
  * }
  * ```
  */
-export const menu: (path: string) => ClassDecorator = (EDITOR || TEST) ? ((path: string): ClassDecorator => {
+export const menu: (path: string) => ClassDecorator = EDITOR ? ((path: string): ClassDecorator => {
     return <TFunction extends AnyFunction>(constructor: TFunction): void => {
         const frame = RF.peek();
         if (frame && !path.includes('/')) {
