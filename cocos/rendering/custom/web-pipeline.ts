@@ -38,7 +38,7 @@ import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
+import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -850,7 +850,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
 
     getLayoutName (): string {
         const parId = this._renderGraph.getParent(this._vertID);
-        const layoutName = isEnableEffect() ? this._renderGraph.getLayout(parId) : 'default';
+        const layoutName = this._renderGraph.getLayout(parId);
         return layoutName;
     }
 
@@ -1608,8 +1608,7 @@ export class WebPipeline implements BasicPipeline {
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
         this._globalDescriptorSetInfo = new DescriptorSetInfo(this._globalDescriptorSetLayout!);
-        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(this._globalDescriptorSetInfo)
-            : this._globalDescSetData.descriptorSet;
+        this._globalDescriptorSet = this._device.createDescriptorSet(this._globalDescriptorSetInfo);
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this._compileMaterial();
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
@@ -1954,7 +1953,7 @@ export class WebPipeline implements BasicPipeline {
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(RenderGraphValue.RasterPass, pass, name, layoutName, data, false);
         const result = new WebRenderPassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
-        this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');
+        this._updateRasterPassConstants(result, width, height, layoutName);
         initGlobalDescBinding(data, layoutName);
         return result;
     }

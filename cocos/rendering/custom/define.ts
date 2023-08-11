@@ -1206,33 +1206,13 @@ export function updateGlobalDescBinding (data: RenderData, layoutName = 'default
     applyGlobalDescBinding(data, layoutName, true);
 }
 
-export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false): number[] {
+export function mergeSrcToTargetDesc (fromDesc, toDesc): number[] {
     fromDesc.update();
     const fromGpuDesc = fromDesc.gpuDescriptorSet;
     const toGpuDesc = toDesc.gpuDescriptorSet;
     const extResId: number[] = [];
-    if (isForce) {
-        toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
-        toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
-        return extResId;
-    }
-    for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
-        const fromRes = fromGpuDesc.gpuDescriptors[i];
-        if (!fromRes) continue;
-        const currRes = toGpuDesc.gpuDescriptors[i];
-        if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
-            currRes.gpuBuffer = fromRes.gpuBuffer;
-            extResId.push(i);
-        } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
-            currRes.gpuTextureView = fromRes.gpuTextureView;
-            currRes.gpuSampler = fromRes.gpuSampler;
-            extResId.push(i);
-        } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
-            currRes.gpuTexture = fromRes.gpuTexture;
-            currRes.gpuSampler = fromRes.gpuSampler;
-            extResId.push(i);
-        }
-    }
+    toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
+    toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
     return extResId;
 }
 

@@ -12,7 +12,7 @@ import { BasePass } from './base-pass';
 
 export class ForwardFinalPass extends BasePass {
     name = 'ForwardFinalPass';
-    outputNames = ['ForwardFinalColor']
+    outputNames = ['ForwardFinalColor'];
 
     enableInAllEditorCamera = true;
 
@@ -21,7 +21,7 @@ export class ForwardFinalPass extends BasePass {
             return;
         }
 
-        passContext.clearFlag = camera.clearFlag & ClearFlagBit.COLOR;
+        passContext.clearFlag = camera.clearFlag;
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
 
         passContext.material = this.material;
