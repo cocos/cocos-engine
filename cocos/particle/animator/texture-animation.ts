@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
-import { lerp, pseudoRandom, repeat, Enum, error } from '../../core';
+import { lerp, pseudoRandom, repeat, Enum, random, error } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
