@@ -4,7 +4,7 @@ import { Vec4 } from '../../../core';
 import { director } from '../../../game';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
@@ -21,7 +21,7 @@ export class ForwardFinalPass extends BasePass {
             return;
         }
 
-        passContext.clearFlag = camera.clearFlag;
+        passContext.clearFlag = camera.clearFlag & ClearFlagBit.COLOR  | (camera.clearFlag & SKYBOX_FLAG);
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
 
         passContext.material = this.material;
