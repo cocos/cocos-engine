@@ -375,12 +375,6 @@ export class DescriptorBlockIndex {
         this.descriptorType = descriptorType;
         this.visibility = visibility;
     }
-    reset (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE): void {
-        this.updateFrequency = updateFrequency;
-        this.parameterType = parameterType;
-        this.descriptorType = descriptorType;
-        this.visibility = visibility;
-    }
     updateFrequency: UpdateFrequency;
     parameterType: ParameterType;
     descriptorType: DescriptorTypeOrder;
