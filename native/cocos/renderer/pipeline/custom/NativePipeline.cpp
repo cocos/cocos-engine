@@ -1100,6 +1100,9 @@ void NativePipeline::addBuiltinHzbGenerationPass(
     ccstd::pmr::string currMipName(scratch);
     currMipName.reserve(targetHzbName.size() + 6);
     currMipName.append(targetHzbName);
+
+    MovePass move(renderGraph.get_allocator());
+    move.movePairs.reserve(targetDesc.mipLevels);
     // register all mips
     {
         CC_EXPECTS(targetDesc.mipLevels && targetDesc.mipLevels != std::numeric_limits<decltype(targetDesc.mipLevels)>::max());
@@ -1107,28 +1110,38 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         desc.mipLevels = 1;
         CC_EXPECTS(desc.depthOrArraySize == 1);
         CC_EXPECTS(desc.sampleCount == gfx::SampleCount::X1);
+
         for (uint32_t k = 0; k != targetDesc.mipLevels; ++k) {
             currMipName.resize(targetHzbName.size());
             CC_ENSURES(currMipName == std::string_view{targetHzbName});
             currMipName.append("_Mip");
             currMipName.append(std::to_string(k));
+
             auto resID = findVertex(currMipName, resourceGraph);
             if (resID == ResourceGraph::null_vertex()) {
                 resID = addVertex(
                     ManagedTextureTag{},
                     std::forward_as_tuple(currMipName.c_str()),
-                    std::forward_as_tuple(),
+                    std::forward_as_tuple(desc),
                     std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
                     std::forward_as_tuple(),
                     std::forward_as_tuple(),
                     std::forward_as_tuple(),
                     resourceGraph);
+
+                    MovePair pair(move.get_allocator());
+                    pair.source = currMipName;
+                    pair.target = targetHzbName;
+                    pair.mipLevels = 1;
+                    pair.numSlices = 1;
+                    pair.targetMostDetailedMip = k;
+                    move.movePairs.emplace_back(std::move(pair));
             } else {
                 CC_EXPECTS(holds<ManagedTextureTag>(resID, resourceGraph));
                 updateResourceImpl(
                     resourceGraph,
                     currMipName,
-                    gfx::Format::UNKNOWN,
+                    desc.format,
                     desc.width,
                     desc.height,
                     1, 1, 1, gfx::SampleCount::X1);
@@ -1267,24 +1280,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         height = getHalfSize(height);
     }
 
-    // add MovePass
-    {
-        MovePass move(renderGraph.get_allocator());
-        move.movePairs.reserve(targetDesc.mipLevels);
-        for (uint32_t k = 0; k != targetDesc.mipLevels; ++k) {
-            currMipName.resize(targetHzbName.size());
-            CC_ENSURES(currMipName == std::string_view{targetHzbName});
-            currMipName.append("_Mip");
-            currMipName.append(std::to_string(k));
-            MovePair pair(move.get_allocator());
-            pair.source = currMipName;
-            pair.target = targetHzbName;
-            pair.mipLevels = 1;
-            pair.numSlices = 1;
-            pair.targetMostDetailedMip = k;
-            move.movePairs.emplace_back(std::move(pair));
-        }
-
+    if (!move.movePairs.empty()) {
         auto moveID = addVertex2(
             MoveTag{},
             std::forward_as_tuple("HZMove"),

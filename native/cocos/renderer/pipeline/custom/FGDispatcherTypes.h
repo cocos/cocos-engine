@@ -163,6 +163,21 @@ struct ResourceNode {
     ccstd::vector<TextureNode> planes;
 };
 
+struct SliceNode {
+    bool full{false};
+    std::vector<uint32_t> mips;
+};
+
+struct TextureNode {
+    bool full{false};
+    std::vector<SliceNode> slices;
+};
+
+struct ResourceNode {
+    bool full{false};
+    std::vector<TextureNode> planes;
+};
+
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT

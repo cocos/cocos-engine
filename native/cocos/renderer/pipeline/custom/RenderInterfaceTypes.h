@@ -658,10 +658,10 @@ public:
         addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0);
+        addTexture(name, slotName, nullptr, 0xFFFFFFFF);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0);
+        addTexture(name, slotName, sampler, 0xFFFFFFFF);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "default");
