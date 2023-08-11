@@ -78,7 +78,9 @@ export abstract class Motion extends EditorExtendable {
      * // TODO: HACK
      * @internal
      */
-    __callOnAfterDeserializeRecursive (): void { }
+    __callOnAfterDeserializeRecursive (): void {
+        // Can be overrode in subclasses.
+    }
 }
 
 export interface MotionPort {
