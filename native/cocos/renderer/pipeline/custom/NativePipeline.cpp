@@ -1138,6 +1138,21 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         }
     }
 
+    gfx::Sampler* sampler = nullptr;
+    if (device->getCapabilities().supportFilterMinMax) {
+        sampler = device->getSampler({
+            gfx::Filter::POINT,
+            gfx::Filter::POINT,
+            gfx::Filter::NONE,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+            0,
+            gfx::ComparisonFunc::ALWAYS,
+            gfx::Reduction::MAX,
+        });
+    }
+
     // add passes
     ccstd::pmr::string prevMipName(scratch);
     prevMipName.reserve(targetHzbName.size() + 6);
@@ -1185,6 +1200,15 @@ void NativePipeline::addBuiltinHzbGenerationPass(
             view.accessType = AccessType::READ;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
         }
+
+        if (sampler) {
+            auto iter = lg.attributeIndex.find(std::string_view{"sourceImage"});
+            if (iter != lg.attributeIndex.end()) {
+                auto &data = get(RenderGraph::DataTag{}, renderGraph, passID);
+                data.samplers[iter->second.value] = sampler;
+            }
+        }
+
         // target
         currMipName.resize(targetHzbName.size());
         CC_ENSURES(currMipName == std::string_view{targetHzbName});

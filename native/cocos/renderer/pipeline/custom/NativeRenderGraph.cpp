@@ -773,7 +773,7 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
             drawInstanceBuffer.append(std::to_string(cullingID));
 
             auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
-            if (rasterPass.computeViews.find(objectBuffer) != rasterPass.computeViews.end()) {
+            if (rasterPass.computeViews.find(objectBuffer) == rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(objectBuffer),
@@ -784,7 +784,7 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
             }
-            if (rasterPass.computeViews.find(drawInstanceBuffer) != rasterPass.computeViews.end()) {
+            if (rasterPass.computeViews.find(drawInstanceBuffer) == rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(drawInstanceBuffer),

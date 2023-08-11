@@ -168,6 +168,7 @@ void PipelineSceneData::initGPUDrivenMaterial() {
     const auto &caps = _device->getCapabilities();
     const auto firstInstance = caps.supportFirstInstance;
     const auto filterMinMax = caps.supportFilterMinMax;
+    const auto frustumCulling = true;
 
     for (auto i = 0; i < 3; i++) {
         if (_gpuCullingMaterials[i]) {
@@ -180,7 +181,7 @@ void PipelineSceneData::initGPUDrivenMaterial() {
         IMaterialInfo info;
         MacroRecord macros{
             {"CC_SUPPORT_FIRST_INSTANCE", firstInstance},
-            {"CC_USE_FRUSTUM_CULLING", true},
+            {"CC_USE_FRUSTUM_CULLING", frustumCulling},
             {"CC_USE_OCCLUSION_CULLING", defines[i].useOcclusion},
             {"CC_GPU_CULLING_MAIN_PASS", defines[i].isMainPass},
         };
