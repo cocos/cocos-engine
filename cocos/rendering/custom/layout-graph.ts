@@ -587,6 +587,12 @@ export class UniformData {
         this.uniformType = uniformType;
         this.offset = offset;
     }
+    reset (uniformID = 0xFFFFFFFF, uniformType: Type = Type.UNKNOWN, offset = 0): void {
+        this.uniformID = uniformID;
+        this.uniformType = uniformType;
+        this.offset = offset;
+        this.size = 0;
+    }
     uniformID: number;
     uniformType: Type;
     offset: number;
@@ -604,6 +610,11 @@ export class DescriptorData {
         this.type = type;
         this.count = count;
     }
+    reset (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1): void {
+        this.descriptorID = descriptorID;
+        this.type = type;
+        this.count = count;
+    }
     descriptorID: number;
     type: Type;
     count: number;
@@ -614,6 +625,13 @@ export class DescriptorBlockData {
         this.type = type;
         this.visibility = visibility;
         this.capacity = capacity;
+    }
+    reset (type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0): void {
+        this.type = type;
+        this.visibility = visibility;
+        this.offset = 0;
+        this.capacity = capacity;
+        this.descriptors.length = 0;
     }
     type: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
@@ -636,6 +654,18 @@ export class DescriptorSetLayoutData {
         this.uniformBlocks = uniformBlocks;
         this.bindingMap = bindingMap;
     }
+    reset (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+    ): void {
+        this.slot = slot;
+        this.capacity = capacity;
+        this.uniformBlockCapacity = 0;
+        this.samplerTextureCapacity = 0;
+        this.descriptorBlocks.length = 0;
+        this.uniformBlocks.clear();
+        this.bindingMap.clear();
+    }
     slot: number;
     capacity: number;
     uniformBlockCapacity = 0;
@@ -648,6 +678,12 @@ export class DescriptorSetLayoutData {
 export class DescriptorSetData {
     constructor (descriptorSetLayoutData: DescriptorSetLayoutData = new DescriptorSetLayoutData(), descriptorSetLayout: DescriptorSetLayout | null = null, descriptorSet: DescriptorSet | null = null) {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
+        this.descriptorSetLayout = descriptorSetLayout;
+        this.descriptorSet = descriptorSet;
+    }
+    reset (descriptorSetLayout: DescriptorSetLayout | null = null, descriptorSet: DescriptorSet | null = null): void {
+        this.descriptorSetLayoutData.reset();
+        this.descriptorSetLayoutInfo.reset();
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
@@ -1263,7 +1299,7 @@ export class LayoutGraphData implements BidirectionalGraph
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {
     ar.writeNumber(v.blocks.size); // Map<string, DescriptorBlock>
     for (const [k1, v1] of v.blocks) {
-        saveDescriptorBlockIndex(ar, JSON.parse(k1));
+        saveDescriptorBlockIndex(ar, JSON.parse(k1) as DescriptorBlockIndex);
         saveDescriptorBlock(ar, v1);
     }
 }

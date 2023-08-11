@@ -293,6 +293,11 @@ export class LightInfo {
         this.level = level;
         this.culledByLight = culledByLight;
     }
+    reset (light: Light | null = null, level = 0, culledByLight = false): void {
+        this.light = light;
+        this.level = level;
+        this.culledByLight = culledByLight;
+    }
     /*refcount*/ light: Light | null;
     level: number;
     culledByLight: boolean;
@@ -339,6 +344,10 @@ export class Descriptor {
     constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
     }
+    reset (type: Type = Type.UNKNOWN): void {
+        this.type = type;
+        this.count = 1;
+    }
     type: Type;
     count = 1;
 }
@@ -361,6 +370,12 @@ export class DescriptorBlockFlattened {
 
 export class DescriptorBlockIndex {
     constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+        this.updateFrequency = updateFrequency;
+        this.parameterType = parameterType;
+        this.descriptorType = descriptorType;
+        this.visibility = visibility;
+    }
+    reset (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE): void {
         this.updateFrequency = updateFrequency;
         this.parameterType = parameterType;
         this.descriptorType = descriptorType;
@@ -393,6 +408,19 @@ export class ResolvePair {
         this.mode = mode;
         this.mode1 = mode1;
     }
+    reset (
+        source = '',
+        target = '',
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
+        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+    ): void {
+        this.source = source;
+        this.target = target;
+        this.resolveFlags = resolveFlags;
+        this.mode = mode;
+        this.mode1 = mode1;
+    }
     source: string;
     target: string;
     resolveFlags: ResolveFlags;
@@ -413,6 +441,29 @@ export class CopyPair {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.sourceMostDetailedMip = sourceMostDetailedMip;
+        this.sourceFirstSlice = sourceFirstSlice;
+        this.sourcePlaneSlice = sourcePlaneSlice;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    reset (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        sourceMostDetailedMip = 0,
+        sourceFirstSlice = 0,
+        sourcePlaneSlice = 0,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
         this.source = source;
         this.target = target;
         this.mipLevels = mipLevels;
@@ -454,6 +505,22 @@ export class UploadPair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
+    reset (
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
+        // source: Uint8Array size unchanged
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
     readonly source: Uint8Array;
     target: string;
     mipLevels: number;
@@ -473,6 +540,23 @@ export class MovePair {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    reset (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
         this.source = source;
         this.target = target;
         this.mipLevels = mipLevels;
