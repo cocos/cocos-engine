@@ -107,6 +107,7 @@ ccstd::hash_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) con
     ccstd::hash_t seed = 4;
     ccstd::hash_combine(seed, info.colorAttachments);
     ccstd::hash_combine(seed, info.depthStencilAttachment);
+    ccstd::hash_combine(seed, info.depthStencilResolveAttachment);
     ccstd::hash_combine(seed, info.subpasses);
     ccstd::hash_combine(seed, info.dependencies);
     return seed;
@@ -115,6 +116,7 @@ ccstd::hash_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) con
 bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
     return lhs.colorAttachments == rhs.colorAttachments &&
            lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
+           lhs.depthStencilResolveAttachment == rhs.depthStencilResolveAttachment &&
            lhs.subpasses == rhs.subpasses &&
            lhs.dependencies == rhs.dependencies;
 }
@@ -122,19 +124,17 @@ bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
 template <>
 ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     // render pass is mostly irrelevant
-    ccstd::hash_t seed;
+    ccstd::hash_t seed = static_cast<ccstd::hash_t>(info.colorTextures.size()) +
+                         static_cast<ccstd::hash_t>(info.depthStencilTexture != nullptr) +
+                         static_cast<ccstd::hash_t>(info.depthStencilResolveTexture != nullptr);
     if (info.depthStencilTexture) {
-        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 1;
-        ccstd::hash_combine(seed, info.depthStencilTexture);
-        ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
-        ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
-    } else {
-        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 1;
+        ccstd::hash_combine(seed, info.depthStencilTexture->getObjectID());
+    }
+    if (info.depthStencilResolveTexture) {
+        ccstd::hash_combine(seed, info.depthStencilResolveTexture->getObjectID());
     }
     for (auto *colorTexture : info.colorTextures) {
-        ccstd::hash_combine(seed, colorTexture);
-        ccstd::hash_combine(seed, colorTexture->getRaw());
-        ccstd::hash_combine(seed, colorTexture->getHash());
+        ccstd::hash_combine(seed, colorTexture->getObjectID());
     }
     ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
@@ -147,6 +147,10 @@ bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
 
     if (res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
+    }
+
+    if (res) {
+        res = lhs.depthStencilResolveTexture == rhs.depthStencilResolveTexture;
     }
 
     if (res) {

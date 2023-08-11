@@ -22,10 +22,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/graph/depth_first_search.hpp>
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "details/GraphView.h"
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
@@ -126,7 +128,7 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
 
     // usage
-    TextureUsage usage = TextureUsage::SAMPLED | TextureUsage::TRANSFER_SRC | TextureUsage::TRANSFER_DST;
+    TextureUsage usage = TextureUsage::NONE;
     if (any(desc.flags & ResourceFlags::COLOR_ATTACHMENT)) {
         usage |= TextureUsage::COLOR_ATTACHMENT;
     }
@@ -142,6 +144,15 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
     if (any(desc.flags & ResourceFlags::SHADING_RATE)) {
         usage |= TextureUsage::SHADING_RATE;
+    }
+    if (any(desc.flags & ResourceFlags::SAMPLED)) {
+        usage |= TextureUsage::SAMPLED;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_SRC)) {
+        usage |= TextureUsage::TRANSFER_SRC;
+    }
+    if (any(desc.flags & ResourceFlags::TRANSFER_DST)) {
+        usage |= TextureUsage::TRANSFER_DST;
     }
 
     return {
@@ -159,6 +170,23 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     };
 }
 
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, const ResourceDesc& desc, bool bCube = false) {
+    using namespace gfx; // NOLINT(google-build-using-namespace)
+
+    const auto& textureInfo = getTextureInfo(desc, bCube);
+
+    return {
+        nullptr,
+        textureInfo.type,
+        subresView.format,
+        subresView.indexOrFirstMipLevel,
+        subresView.numMipLevels,
+        subresView.firstArraySlice,
+        subresView.numArraySlices,
+        subresView.firstPlane,
+        subresView.numPlanes,
+    };
+}
 } // namespace
 
 bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
@@ -236,17 +264,28 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID);
         },
-        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
-            std::ignore = view;
+        [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
+            SubresourceView originView = view;
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
             while (resg.isTextureView(parentID)) {
+                const auto& prtView = get(SubresourceViewTag{}, parentID, resg);
+                originView.firstPlane += prtView.firstPlane;
+                originView.firstArraySlice += prtView.firstArraySlice;
+                originView.indexOrFirstMipLevel += prtView.indexOrFirstMipLevel;
                 parentID = parent(parentID, resg);
             }
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-            mount(device, parentID);
+            mount(device, parentID); // NOLINT(misc-no-recursion)
+            auto* parentTexture = resg.getTexture(parentID);
+            const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+            if (!view.textureView) {
+                auto textureViewInfo = getTextureViewInfo(originView, desc);
+                textureViewInfo.texture = parentTexture;
+                view.textureView = device->createTexture(textureViewInfo);
+            }
         });
 }
 
@@ -353,8 +392,7 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const SubresourceView& view) {
             // TODO(zhouzhenglong): add ImageView support
-            std::ignore = view;
-            CC_EXPECTS(false);
+            texture = view.textureView;
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

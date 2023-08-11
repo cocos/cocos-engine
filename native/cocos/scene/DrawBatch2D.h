@@ -47,12 +47,15 @@ public:
 
     void clear();
     void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const ccstd::vector<IMacroPatch> *patches = nullptr);
+    void setInputAssembler(gfx::InputAssembler *ia);
+    inline void setFirstIndex(uint32_t index) { _drawInfo.firstIndex = index; }
+    inline void setIndexCount(uint32_t count) { _drawInfo.indexCount = count; }
 
-    inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
     inline void setVisFlags(uint32_t flags) { _visFlags = flags; }
     inline void setModel(Model *model) { _model = model; }
 
+    inline const gfx::DrawInfo &getDrawInfo() const { return _drawInfo; }
     inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline uint32_t getVisFlags() const { return _visFlags; }
@@ -68,6 +71,7 @@ protected:
     ccstd::vector<gfx::Shader *> _shaders;
 
     Model *_model{nullptr};
+    gfx::DrawInfo _drawInfo;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(DrawBatch2D);
 };

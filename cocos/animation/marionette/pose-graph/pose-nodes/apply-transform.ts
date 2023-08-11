@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { ccclass, editable, serializable, type, visible } from '../../../../core/data/decorators';
+import { ccclass, editable, range, serializable, type, visible } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
 import {
@@ -17,7 +17,7 @@ import { PoseGraphType } from '../foundation/type-system';
 import { TransformSpace } from './transform-space';
 import { Transform } from '../../../core/transform';
 
-enum TransformOperation {
+export enum TransformOperation {
     LEAVE_UNCHANGED,
 
     REPLACE,
@@ -47,7 +47,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.VEC3 })
-    @visible(function visible(this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible (this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public position = new Vec3();
 
     @serializable
@@ -58,11 +58,12 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.QUAT })
-    @visible(function visible(this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible (this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public rotation = new Quat();
 
     @serializable
     @editable
+    @range([0.0, 1.0, 0.01])
     public intensity = new IntensitySpecification();
 
     @serializable

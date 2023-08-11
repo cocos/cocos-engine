@@ -132,7 +132,7 @@ exports.template = /* html */`
         </div>
         <div class="lod-items"></div>
         <div class="not-lod-mesh-label" hidden></div>
-        <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
+        <div class="no-lod-label" hidden>There is no LOD group found in the source file. If you want to generate LODs for this model, please use above settings.</div>
         <div class="load-mask">
             <ui-loading></ui-loading>
         </div>
@@ -889,6 +889,27 @@ const Elements = {
         },
     },
     // lods end
+    // when lang change
+    i18n: {
+        ready() {
+            const panel = this;
+
+            Elements.i18n.changeBind = Elements.i18n.change.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.i18n.changeBind);
+        },
+        close() {
+            Editor.Message.removeBroadcastListener('i18n:change', Elements.i18n.changeBind);
+            Elements.i18n.changeBind = undefined;
+        },
+        change() {
+            const panel = this;
+
+            Elements.normals.update.call(panel);
+            Elements.tangents.update.call(panel);
+            Elements.morphNormals.update.call(panel);
+            Elements.meshOptimizerAlgorithm.update.call(panel);
+        },
+    },
 };
 
 exports.methods = {

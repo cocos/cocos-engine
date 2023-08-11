@@ -1012,7 +1012,15 @@ Object.defineProperty(nodeProto, '_siblingIndex', {
         return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
     set(v) {
-        this.setSiblingIndex(v);
+        this._sharedInt32Arr[0] = v;
+    },
+});
+
+Object.defineProperty(nodeProto, 'prefab', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return this._prefab;
     },
 });
 
@@ -1024,10 +1032,11 @@ Object.defineProperty(nodeProto, 'siblingIndex', {
         return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
     set(v) {
-        this.setSiblingIndex(v);
+        this._sharedInt32Arr[0] = v;
     },
 });
 
+// note: setSiblingIndex is a JSB function, DO NOT override it
 nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
@@ -1213,11 +1222,25 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
         // discard props disallow to synchronize
         const isRoot = this._prefab?.root === this;
         if (isRoot) {
-            serializationOutput.writeProperty('_objFlags', this._objFlags);
-            serializationOutput.writeProperty('_parent', this._parent);
-            serializationOutput.writeProperty('_prefab', this._prefab);
-            if (context.customArguments.keepNodeUuid) {
-                serializationOutput.writeProperty('_id', this._id);
+            // if B prefab is in A prefab,B can be referenced by component.We should discard it.because B is not the root of prefab
+            let isNestedPrefab = false;
+            let parent = this.getParent();
+            while (parent) {
+                const nestedRoots = parent._prefab?.nestedPrefabInstanceRoots;
+                if (nestedRoots && nestedRoots.length > 0) {
+                    // if this node is not in nestedPrefabInstanceRoots,it means this node is not the root of prefab,so it should be discarded.
+                    isNestedPrefab = !nestedRoots.some((root) => root === this);
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            if (!isNestedPrefab) {
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
             }
             // TODO: editorExtrasTag may be a symbol in the future
             serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
@@ -1303,18 +1326,11 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     const newPrefabInfo = (cloned as any)._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
+            EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
             // newPrefabInfo.fileId = '';
         } else {
             // var PrefabUtils = Editor.require('scene://utils/prefab');
             // PrefabUtils.unlinkPrefab(cloned);
-        }
-    }
-    if (EDITOR_NOT_IN_PREVIEW) {
-        // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
-        // issue: https://github.com/cocos/cocos-engine/issues/14643
-        const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;
-        if (!syncing) {
-            cloned.name += ' (Clone)';
         }
     }
 

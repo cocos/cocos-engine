@@ -106,7 +106,7 @@ describe(`Pose transform space`, () => {
                     hierarchy.getComponentToWorldTransform(), // Component -> World
                     hierarchy.computeComponentSpaceTransform( // Local -> Component
                         localSpacePoseRecord,
-                        nodeName,
+                        hierarchy.getParentNodeName(nodeName),
                     ),
                 );
             }],
@@ -116,7 +116,7 @@ describe(`Pose transform space`, () => {
             [PoseTransformSpace.LOCAL, TransformSpace.COMPONENT, (hierarchy, localSpacePoseRecord, nodeName) => {
                 return hierarchy.computeComponentSpaceTransform(
                     localSpacePoseRecord,
-                    nodeName,
+                    hierarchy.getParentNodeName(nodeName),
                 );
             }],
 

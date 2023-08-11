@@ -182,10 +182,8 @@ CCProgram surface-fragment %{
     float distance = 1.0;
     #if USE_THICKNESS_MAP
       distance = texture(thicknessMap, FSInput_texcoord).r;
-      distance = pow(distance, 1.0) * 1.0;
     #elif USE_ALBEDO_MAP
       distance = length(texture(albedoMap, FSInput_texcoord).rgb);
-      distance = pow(distance, 10.0) * 1.0;
     #endif
 
     return vec4(scatterParams.y, 0.0, 1.0, distance * scatterParams.z);

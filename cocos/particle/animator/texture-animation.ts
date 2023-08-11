@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
-import { lerp, pseudoRandom, repeat, Enum } from '../../core';
+import { lerp, pseudoRandom, repeat, Enum, random, error } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -117,7 +117,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
 
     set mode (val) {
         if (val !== Mode.Grid) {
-            console.error('particle texture animation\'s sprites is not supported!');
+            error('particle texture animation\'s sprites is not supported!');
         }
     }
 
@@ -207,7 +207,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set flipU (val) {
-        console.error('particle texture animation\'s flipU is not supported!');
+        error('particle texture animation\'s flipU is not supported!');
     }
 
     @serializable
@@ -218,7 +218,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set flipV (val) {
-        console.error('particle texture animation\'s flipV is not supported!');
+        error('particle texture animation\'s flipV is not supported!');
     }
 
     @serializable
@@ -229,7 +229,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set uvChannelMask (val) {
-        console.error('particle texture animation\'s uvChannelMask is not supported!');
+        error('particle texture animation\'s uvChannelMask is not supported!');
     }
 
     /**
@@ -263,7 +263,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @internal
      */
     public init (p: Particle): void {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
+        p.startRow = Math.floor(random() * this.numTilesY);
     }
 
     /**

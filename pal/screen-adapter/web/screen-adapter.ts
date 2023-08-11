@@ -30,6 +30,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 interface ICachedStyle {
     width: string;
@@ -562,3 +563,5 @@ class ScreenAdapter extends EventTarget {
 }
 
 export const screenAdapter = new ScreenAdapter();
+
+checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

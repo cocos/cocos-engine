@@ -79,14 +79,14 @@ Class *Class::create(const ccstd::string &clsName, Object *parent, Object *paren
 
 Class *Class::create(const std::initializer_list<const char *> &classPath, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
     se::AutoHandleScope scope;
-    se::Object *currentParent = parent;
-    se::Value tmp;
+    se::Value currentParent{parent};
     for (auto i = 0; i < classPath.size() - 1; i++) {
-        bool ok = currentParent->getProperty(*(classPath.begin() + i), &tmp);
+        se::Value tmp;
+        bool ok = currentParent.toObject()->getProperty(*(classPath.begin() + i), &tmp);
         CC_ASSERT(ok); // class or namespace in path is not defined
-        currentParent = tmp.toObject();
+        currentParent = tmp;
     }
-    return create(*(classPath.end() - 1), currentParent, parentProto, ctor, data);
+    return create(*(classPath.end() - 1), currentParent.toObject(), parentProto, ctor, data);
 }
 
 bool Class::init(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {

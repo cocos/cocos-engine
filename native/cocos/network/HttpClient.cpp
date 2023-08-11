@@ -76,6 +76,7 @@ static int processGetTask(HttpClient *client, HttpRequest *request, write_callba
 static int processPostTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processPutTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
 
 // Worker thread
@@ -167,11 +168,13 @@ static bool configureCURL(HttpClient *client, HttpRequest *request, CURL *handle
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, request->getTimeout());
+    // In the openharmony platform, the long type must be used, otherwise there will be an exception.
+    long timeout = static_cast<long>(request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }
@@ -302,6 +305,13 @@ static int processHeadTask(HttpClient *client, HttpRequest *request, write_callb
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
     bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "DELETE") && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
+    return ok ? 0 : 1;
+}
+
+//Process PATCH Request
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
+    CURLRaii curl;
+    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "PATCH") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
@@ -507,6 +517,16 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
                                          writeHeaderData,
                                          response->getResponseHeader(),
                                          responseMessage);
+            break;
+
+        case HttpRequest::Type::PATCH:
+            retValue = processPatchTask(this, request,
+                                      writeData,
+                                      response->getResponseData(),
+                                      &responseCode,
+                                      writeHeaderData,
+                                      response->getResponseHeader(),
+                                      responseMessage);
             break;
 
         default:

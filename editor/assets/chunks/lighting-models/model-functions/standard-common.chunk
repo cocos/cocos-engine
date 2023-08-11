@@ -62,6 +62,7 @@ vec3 CalculateDirectSpecular(in LightingIntermediateData lightingData, in vec4 l
   }
 #endif
 
+// for skybox IBL
 vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount)
 {
     vec3 envSpec = vec3(0.0);
@@ -84,6 +85,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
+// for reflection probe
 vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
 {
     vec3 envSpec = vec3(0.0);

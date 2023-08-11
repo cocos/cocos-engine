@@ -98,11 +98,11 @@ export const simple: IAssembler = {
             const batcher = director.root!.batcher2D;
             const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
             if (useTint) {
-                accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
+                accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount as number);
                 // Register to batcher so that batcher can upload buffers after batching process
                 batcher.registerBufferAccessor(Number.parseInt('SPINETINT', 36), _tintAccessor);
             } else {
-                accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
+                accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount as number);
                 // Register to batcher so that batcher can upload buffers after batching process
                 batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
             }
@@ -131,6 +131,7 @@ export const simple: IAssembler = {
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     comp.drawList.reset();
     if (comp.color.a === 0) return;
+    comp._updateColor();
     _premultipliedAlpha = comp.premultipliedAlpha;
     _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {
@@ -147,8 +148,8 @@ function realTimeTraverse (comp: Skeleton): void {
     const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
     if (!model) return;
-    const vc = model.vCount;
-    const ic = model.iCount;
+    const vc = model.vCount as number;
+    const ic = model.iCount as number;
     const rd = comp.renderData!;
 
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
@@ -164,7 +165,7 @@ function realTimeTraverse (comp: Skeleton): void {
     const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const vData = spine.wasmUtil.wasm.HEAPU8.subarray(vPtr, vPtr + vLength);
-    vUint8Buf.set(vData);
+    vUint8Buf.set(vData as TypedArray);
 
     const iPtr = model.iPtr;
     const ibuf = rd.indices!;
@@ -172,7 +173,7 @@ function realTimeTraverse (comp: Skeleton): void {
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
     const iUint8Buf = new Uint8Array(ibuf.buffer);
-    iUint8Buf.set(iData);
+    iUint8Buf.set(iData as TypedArray);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
         ibuf[i] += chunkOffset;
@@ -184,8 +185,8 @@ function realTimeTraverse (comp: Skeleton): void {
     let indexCount = 0;
     for (let i = 0; i < count; i++) {
         const mesh = meshes.get(i);
-        const material = _getSlotMaterial(mesh.blendMode, comp);
-        const textureID = mesh.textureID;
+        const material = _getSlotMaterial(mesh.blendMode as number, comp);
+        const textureID = mesh.textureID as number;
         indexCount = mesh.iCount;
         comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
@@ -275,9 +276,10 @@ function realTimeTraverse (comp: Skeleton): void {
 
 function cacheTraverse (comp: Skeleton): void {
     const model = comp.updateRenderData();
+    if (!model) return;
 
-    const vc = model.vCount;
-    const ic = model.iCount;
+    const vc = model.vCount as number;
+    const ic = model.iCount as number;
     const rd = comp.renderData!;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
@@ -287,7 +289,7 @@ function cacheTraverse (comp: Skeleton): void {
 
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
-    vUint8Buf.set(model.vData);
+    vUint8Buf.set(model.vData as TypedArray);
 
     const nodeColor = comp.color;
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
@@ -316,7 +318,7 @@ function cacheTraverse (comp: Skeleton): void {
     }
 
     const iUint16Buf = rd.indices!;
-    iUint16Buf.set(model.iData);
+    iUint16Buf.set(model.iData as TypedArray);
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) {
         iUint16Buf[i] += chunkOffset;
@@ -328,10 +330,10 @@ function cacheTraverse (comp: Skeleton): void {
     let indexCount = 0;
     for (let i = 0; i < count; i++) {
         const mesh = meshes[i];
-        const material = _getSlotMaterial(mesh.blendMode, comp);
+        const material = _getSlotMaterial(mesh.blendMode as number, comp);
         const textureID = mesh.textureID;
         indexCount = mesh.iCount;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        comp.requestDrawData(material, textureID as number, indexOffset, indexCount);
         indexOffset += indexCount;
     }
 

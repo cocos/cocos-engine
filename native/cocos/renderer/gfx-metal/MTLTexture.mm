@@ -144,8 +144,10 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
         return;
     }
 
-    CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
-    CC_PROFILE_MEMORY_INC(Texture, _size);
+    if (_allocateMemory) {
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
+    }
 }
 
 void CCMTLTexture::doInit(const TextureViewInfo &info) {
@@ -160,8 +162,14 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
     }
     _convertedFormat = mu::convertGFXPixelFormat(_viewInfo.format);
     auto mtlTextureType = mu::toMTLTextureType(_viewInfo.type);
+
+    MTLPixelFormat format = mu::toMTLPixelFormat(_convertedFormat);
+    if(_viewInfo.format == Format::DEPTH_STENCIL) {
+        format = _viewInfo.basePlane == 0 ? mu::toMTLPixelFormat(_viewInfo.texture->getFormat()) : MTLPixelFormatX32_Stencil8;
+    }
+
     _mtlTextureView = [static_cast<CCMTLTexture *>(_viewInfo.texture)->_mtlTexture
-        newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+        newTextureViewWithPixelFormat:format
                           textureType:mtlTextureType
                                levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
                                slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
@@ -218,31 +226,26 @@ bool CCMTLTexture::createMTLTexture() {
         return false;
 
     descriptor.usage = mu::toMTLTextureUsage(_info.usage);
+    if(hasFlag(_info.flags, TextureFlags::MUTABLE_VIEW_FORMAT)) {
+        descriptor.usage |= MTLTextureUsagePixelFormatView;
+    }
     descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
     descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
     descriptor.mipmapLevelCount = _info.levelCount;
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
-    if (hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
-#if MEMLESS_ON
-        // mac SDK mem_less unavailable before 11.0
-    #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_IOS
-        //xcode OS version warning
-        if (@available(macOS 11.0, *)) {
+    bool memoryless = false;
+    if (@available(macos 11.0, ios 10.0, *)) {
+        memoryless = hasFlag(_info.flags, TextureFlagBit::LAZILY_ALLOCATED) &&
+            hasAllFlags(TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::INPUT_ATTACHMENT, _info.usage);
+        if (memoryless) {
             descriptor.storageMode = MTLStorageModeMemoryless;
-        } else {
-            descriptor.storageMode = MTLStorageModePrivate;
+            _allocateMemory = false;
         }
-    #else
-        descriptor.storageMode = MTLStorageModePrivate;
-    #endif
-#else
-        descriptor.storageMode = MTLStorageModePrivate;
-#endif
-    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT) ||
-               hasFlag(_info.usage, TextureUsage::STORAGE)) {
+    }
+
+    if (!memoryless && !_isPVRTC) {
+        // pvrtc can not use blit encoder to upload data.
         descriptor.storageMode = MTLStorageModePrivate;
     }
 
@@ -262,8 +265,9 @@ const TextureInfo &CCMTLTexture::textureInfo() {
 
 void CCMTLTexture::doDestroy() {
     //decrease only non-swapchain tex and have had been inited.
-    if (!_swapchain && _mtlTexture) {
+    if (!_swapchain && _mtlTexture && _allocateMemory) {
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
 
     if (_swapchain) {
@@ -280,8 +284,6 @@ void CCMTLTexture::doDestroy() {
         mtlTexure = _mtlTexture;
         _mtlTexture = nil;
     }
-
-    CC_PROFILE_MEMORY_DEC(Texture, _size);
 
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
@@ -319,7 +321,7 @@ void CCMTLTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     // texture is a wrapper of drawable when _swapchain is active, drawable is not a resource alloc by gfx,
     // but the system so skip here.
-    if (!_swapchain) {
+    if (!_swapchain && _allocateMemory) {
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_DEC(Texture, oldSize);

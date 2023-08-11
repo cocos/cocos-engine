@@ -16,8 +16,8 @@ function testCharacterControllerAPIs(cct: physics.CharacterController){
     cct.slopeLimit = 60;
     expect(cct.slopeLimit === 60).toBe(true);
 
-    cct.contactOffset = 0.01;
-    expect(cct.contactOffset === 0.01).toBe(true);
+    cct.skinWidth = 0.01;
+    expect(cct.skinWidth === 0.01).toBe(true);
 
     cct.center = new Vec3(0, 0.5, 0);
     expect(Vec3.equals(cct.center, new Vec3(0, 0.5, 0))).toBe(true);

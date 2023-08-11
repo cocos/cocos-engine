@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { AudioPlayer } from 'pal/audio';
+import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
@@ -36,6 +36,18 @@ const _LOADED_EVENT = 'audiosource-loaded';
 enum AudioSourceEventType {
     STARTED = 'started',
     ENDED = 'ended',
+}
+
+enum AudioOperationType {
+     PLAY = 'play',
+     STOP = 'stop',
+     PAUSE = 'pause',
+     SEEK = 'seek'
+}
+
+interface AudioOperationInfo {
+    op: AudioOperationType;
+    params: any[] | null;
 }
 
 /**
@@ -59,6 +71,7 @@ export class AudioSource extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
     protected _player: AudioPlayer | null = null;
+    private _hasRegisterListener: boolean = false;
 
     @serializable
     protected _loop = false;
@@ -67,10 +80,10 @@ export class AudioSource extends Component {
     @serializable
     protected _volume = 1;
 
-    private _cachedCurrentTime = 0;
+    private _cachedCurrentTime = -1;
 
     // An operation queue to store the operations before loading the AudioPlayer.
-    private _operationsBeforeLoading: string[] = [];
+    private _operationsBeforeLoading: AudioOperationInfo[] = [];
     private _isLoaded = false;
 
     private _lastSetClip: AudioClip | null = null;
@@ -78,9 +91,7 @@ export class AudioSource extends Component {
     private _resetPlayer (): void {
         if (this._player) {
             audioManager.removePlaying(this._player);
-            this._player.offEnded();
-            this._player.offInterruptionBegin();
-            this._player.offInterruptionEnd();
+            this._unregisterListener();
             this._player.destroy();
             this._player = null;
         }
@@ -114,6 +125,7 @@ export class AudioSource extends Component {
             return;
         }
         if (!clip._nativeAsset) {
+            // eslint-disable-next-line no-console
             console.error('Invalid audio clip');
             return;
         }
@@ -137,6 +149,15 @@ export class AudioSource extends Component {
             // clear old player
             this._resetPlayer();
             this._player = player;
+            this._syncStates();
+            this.node?.emit(_LOADED_EVENT);
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        }).catch((e) => {});
+    }
+
+    private _registerListener (): void {
+        if (!this._hasRegisterListener && this._player) {
+            const player = this._player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
                 this.node?.emit(AudioSourceEventType.ENDED, this);
@@ -145,11 +166,21 @@ export class AudioSource extends Component {
                 audioManager.removePlaying(player);
             });
             player.onInterruptionEnd(() => {
-                audioManager.addPlaying(player);
+                if (this._player === player) {
+                    audioManager.addPlaying(player);
+                }
             });
-            this._syncStates();
-            this.node?.emit(_LOADED_EVENT);
-        }).catch((e) => {});
+            this._hasRegisterListener = true;
+        }
+    }
+
+    private _unregisterListener (): void {
+        if (this._player && this._hasRegisterListener) {
+            this._player.offEnded();
+            this._player.offInterruptionBegin();
+            this._player.offInterruptionEnd();
+            this._hasRegisterListener = false;
+        }
     }
 
     /**
@@ -161,7 +192,9 @@ export class AudioSource extends Component {
     @tooltip('i18n:audio.loop')
     set loop (val) {
         this._loop = val;
-        this._player && (this._player.loop = val);
+        if (this._player) {
+            this._player.loop = val;
+        }
     }
     get loop (): boolean {
         return this._loop;
@@ -197,6 +230,7 @@ export class AudioSource extends Component {
     @range([0.0, 1.0])
     @tooltip('i18n:audio.volume')
     set volume (val) {
+        // eslint-disable-next-line no-console
         if (Number.isNaN(val)) { console.warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);
         if (this._player) {
@@ -231,8 +265,7 @@ export class AudioSource extends Component {
 
     public onDestroy (): void {
         this.stop();
-        this._player?.destroy();
-        this._player = null;
+        this.clip = null;// It will trigger _syncPlayer then call resetPlayer
     }
     /**
      * @en
@@ -259,6 +292,7 @@ export class AudioSource extends Component {
     public getPCMData (channelIndex: number): Promise<AudioPCMDataView | undefined> {
         return new Promise((resolve) => {
             if (channelIndex !== 0 && channelIndex !== 1) {
+                // eslint-disable-next-line no-console
                 console.warn('Only support channel index 0 or 1 to get buffer');
                 resolve(undefined);
                 return;
@@ -329,19 +363,25 @@ export class AudioSource extends Component {
      */
     public play (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push('play');
+            this._operationsBeforeLoading.push({ op: AudioOperationType.PLAY, params: null });
             return;
         }
+        this._registerListener();
         audioManager.discardOnePlayingIfNeeded();
         // Replay if the audio is playing
         if (this.state === AudioState.PLAYING) {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             this._player?.stop().catch((e) => {});
         }
         const player = this._player;
-        this._player?.play().then(() => {
-            audioManager.addPlaying(player!);
-            this.node?.emit(AudioSourceEventType.STARTED, this);
-        }).catch((e) => {});
+        if (player) {
+            player.play().then(() => {
+                this.node?.emit(AudioSourceEventType.STARTED, this);
+            }).catch((e) => {
+                audioManager.removePlaying(player);
+            });
+            audioManager.addPlaying(player);
+        }
     }
 
     /**
@@ -352,13 +392,11 @@ export class AudioSource extends Component {
      */
     public pause (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push('pause');
+            this._operationsBeforeLoading.push({ op: AudioOperationType.PAUSE, params: null });
             return;
         }
-        const player = this._player;
-        this._player?.pause().then(() => {
-            audioManager.removePlaying(player!);
-        }).catch((e) => {});
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        this._player?.pause().catch((e) => {});
     }
 
     /**
@@ -369,13 +407,14 @@ export class AudioSource extends Component {
      */
     public stop (): void {
         if (!this._isLoaded && this.clip) {
-            this._operationsBeforeLoading.push('stop');
+            this._operationsBeforeLoading.push({ op: AudioOperationType.STOP, params: null });
             return;
         }
-        const player = this._player;
-        this._player?.stop().then(() => {
-            audioManager.removePlaying(player!);
-        }).catch((e) => {});
+        if (this._player) {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            this._player.stop().catch((e) => {});
+            audioManager.removePlaying(this._player);
+        }
     }
 
     /**
@@ -388,33 +427,45 @@ export class AudioSource extends Component {
      */
     public playOneShot (clip: AudioClip, volumeScale = 1): void {
         if (!clip._nativeAsset) {
+            // eslint-disable-next-line no-console
             console.error('Invalid audio clip');
             return;
         }
+        let player: OneShotAudio;
         AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
+            player = oneShotAudio;
             audioManager.discardOnePlayingIfNeeded();
-            oneShotAudio.onPlay = (): void => {
-                audioManager.addPlaying(oneShotAudio);
-            };
             oneShotAudio.onEnd = (): void => {
                 audioManager.removePlaying(oneShotAudio);
             };
             oneShotAudio.play();
-        }).catch((e): void => {});
+            audioManager.addPlaying(oneShotAudio);
+        }).catch((e): void => {
+            if (player) {
+                audioManager.removePlaying(player);
+            }
+        });
     }
 
     protected _syncStates (): void {
-        if (!this._player) { return; }
-        this._player.seek(this._cachedCurrentTime).then((): void => {
-            if (this._player) {
-                this._player.loop = this._loop;
-                this._player.volume = this._volume;
-                this._operationsBeforeLoading.forEach((opName): void => { this[opName]?.(); });
-                this._operationsBeforeLoading.length = 0;
-            }
-        }).catch((e): void => {});
+        if (this._player) {
+            this._player.loop = this._loop;
+            this._player.volume = this._volume;
+            this._operationsBeforeLoading.forEach((opInfo): void => {
+                if (opInfo.op === AudioOperationType.SEEK) {
+                    this._cachedCurrentTime = (opInfo.params && opInfo.params[0]) as number;
+                    if (this._player) {
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
+                        this._player.seek(this._cachedCurrentTime).catch((e): void => {});
+                    }
+                } else {
+                    this[opInfo.op]?.();
+                }
+            });
+            this._operationsBeforeLoading.length = 0;
+        }
     }
 
     /**
@@ -425,9 +476,15 @@ export class AudioSource extends Component {
      * @param num playback time to jump to.
      */
     set currentTime (num: number) {
+        // eslint-disable-next-line no-console
         if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
+        if (!this._isLoaded && this.clip) {
+            this._operationsBeforeLoading.push({ op: AudioOperationType.SEEK, params: [num] });
+            return;
+        }
         this._cachedCurrentTime = num;
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         this._player?.seek(this._cachedCurrentTime).catch((e): void => {});
     }
 
@@ -438,7 +495,7 @@ export class AudioSource extends Component {
      * 以秒为单位获取当前播放时间。
      */
     get currentTime (): number {
-        return this._player ? this._player.currentTime : this._cachedCurrentTime;
+        return this._player ? this._player.currentTime : (this._cachedCurrentTime < 0 ? 0 : this._cachedCurrentTime);
     }
 
     /**

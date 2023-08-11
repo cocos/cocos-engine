@@ -42,7 +42,7 @@ CCProgram lighting-fs-tiled %{
   #include <legacy/fog-base>
   #include <common/math/octahedron-transform>
   #include <common/math/coordinates>
-  #include <common/debug/debug-view-define>
+  #include <common/common-define>
 
   #pragma subpass
   #pragma subpassColor in albedoMap
@@ -123,7 +123,7 @@ CCProgram lighting-fs %{
   #include <legacy/fog-base>
   #include <common/math/octahedron-transform>
   #include <common/math/coordinates>
-  #include <common/debug/debug-view-define>
+  #include <common/common-define>
 
   in vec2 v_uv;
   #pragma rate albedoMap pass

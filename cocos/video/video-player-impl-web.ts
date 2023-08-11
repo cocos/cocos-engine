@@ -165,6 +165,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public seekTo (val: number): void {
         if (this.video) {
             this.video.currentTime = val;
+            this._cachedCurrentTime = this.video.currentTime;
         }
     }
 

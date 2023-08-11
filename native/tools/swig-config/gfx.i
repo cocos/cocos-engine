@@ -65,6 +65,7 @@ namespace cc { namespace gfx {
 
 %ignore CommandBuffer::execute;
 %ignore CommandBuffer::updateBuffer;
+%ignore CommandBuffer::resolveTexture;
 %ignore CommandBuffer::copyBuffersToTexture;
 %rename(drawWithInfo) CommandBuffer::draw(const DrawInfo&);
 

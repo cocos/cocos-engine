@@ -138,6 +138,10 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
+void GLES3PrimaryCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    copyTexture(srcTexture, dstTexture, regions, count);
+}
+
 void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
     GLES3GPUTexture *gpuTextureSrc = nullptr;
     GLES3GPUTexture *gpuTextureDst = nullptr;

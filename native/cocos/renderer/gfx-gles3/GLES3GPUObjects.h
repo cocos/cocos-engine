@@ -130,10 +130,11 @@ struct GLES3GPUTexture {
     uint32_t size{0};
     uint32_t arrayLayer{1};
     uint32_t mipLevel{1};
-    SampleCount samples{SampleCount::ONE};
     TextureFlags flags{TextureFlagBit::NONE};
+    bool immutable{true};
     bool isPowerOf2{false};
-    bool memoryless{false};
+    bool useRenderBuffer{false};
+    bool memoryAllocated{true}; // false if swapchain image or implicit ms render buffer.
     GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};
@@ -155,6 +156,8 @@ struct GLES3GPUTextureView {
     Format format = Format::UNKNOWN;
     uint32_t baseLevel = 0U;
     uint32_t levelCount = 1U;
+    uint32_t basePlane = 0U;
+    uint32_t planeCount = 0U;
 };
 
 using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;
@@ -320,63 +323,63 @@ struct GLES3GPUGeneralBarrier {
     GLbitfield glBarriersByRegion = 0U;
 };
 
-using DrawBuffer = std::vector<GLenum>;
+using DrawBuffer = ccstd::vector<GLenum>;
 struct GLES3GPURenderPass {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    DepthStencilAttachment depthStencilResolveAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
-    std::vector<uint32_t> colors;
-    std::vector<uint32_t> resolves;
+    ccstd::vector<uint32_t> colors;
+    ccstd::vector<uint32_t> resolves;
     uint32_t depthStencil = INVALID_BINDING;
-    std::vector<uint32_t> indices; // offsets to GL_COLOR_ATTACHMENT_0
-    std::vector<DrawBuffer> drawBuffers;
+    uint32_t depthStencilResolve = INVALID_BINDING;
+    ccstd::vector<uint32_t> indices; // offsets to GL_COLOR_ATTACHMENT_0
+    ccstd::vector<DrawBuffer> drawBuffers;
 };
 
 class GLES3GPUFramebufferCacheMap;
+struct GLES3GPUFramebufferObject {
+    void initialize(GLES3GPUSwapchain *swc = nullptr);
+
+    void bindColor(const GLES3GPUTextureView *texture, uint32_t colorIndex, const ColorAttachment &attachment);
+    void bindColorMultiSample(const GLES3GPUTextureView *texture, uint32_t colorIndex, GLint samples, const ColorAttachment &attachment);
+    void bindDepthStencil(const GLES3GPUTextureView *texture, const DepthStencilAttachment &attachment);
+    void bindDepthStencilMultiSample(const GLES3GPUTextureView *texture, GLint samples, const DepthStencilAttachment &attachment);
+
+    bool isActive() const;
+    void finalize(GLES3GPUStateCache *cache);
+    void processLoad(GLenum target);
+    void processStore(GLenum target);
+    void destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap);
+
+    using Reference = std::pair<const GLES3GPUTextureView*, GLint>;
+
+    GLuint handle{0};
+    GLES3GPUSwapchain *swapchain{nullptr};
+
+    ccstd::vector<Reference> colors;
+    Reference depthStencil{nullptr, 1};
+    GLenum dsAttachment{GL_NONE};
+
+    ccstd::vector<GLenum> loadInvalidates;
+    ccstd::vector<GLenum> storeInvalidates;
+};
+
 class GLES3GPUFramebuffer final {
 public:
     GLES3GPURenderPass *gpuRenderPass{nullptr};
     GLES3GPUTextureViewList gpuColorViews;
     GLES3GPUTextureView *gpuDepthStencilView{nullptr};
+    GLES3GPUTextureView *gpuDepthStencilResolveView{nullptr};
 
-    struct GLFramebufferInfo {
-        GLuint glFramebuffer{0U};
-        uint32_t width{UINT_MAX};
-        uint32_t height{UINT_MAX};
-    };
-    struct GLFramebuffer {
-        inline void initialize(GLES3GPUSwapchain *sc) { swapchain = sc; }
-        inline void initialize(const GLFramebufferInfo &info) {
-            _glFramebuffer = info.glFramebuffer;
-            _width = info.width;
-            _height = info.height;
-        }
-        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
-        inline uint32_t getWidth() const { return swapchain ? swapchain->gpuColorTexture->width : _width; }
-        inline uint32_t getHeight() const { return swapchain ? swapchain->gpuColorTexture->height : _height; }
-
-        void destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap);
-
-        GLES3GPUSwapchain *swapchain{nullptr};
-
-    private:
-        GLuint _glFramebuffer{0U};
-        uint32_t _width{0U};
-        uint32_t _height{0U};
-    };
-
-    struct Framebuffer {
-        GLFramebuffer framebuffer;
-
-        // for blit-based manual resolving
-        GLbitfield resolveMask{0U};
-        GLFramebuffer resolveFramebuffer;
-    };
-
-    // one per subpass, if not using FBF
-    Framebuffer frameBuffer;
+    uint32_t width{UINT_MAX};
+    uint32_t height{UINT_MAX};
+    GLbitfield dsResolveMask = 0;
+    std::vector<std::pair<uint32_t, uint32_t>> colorBlitPairs;
+    GLES3GPUFramebufferObject framebuffer;
+    GLES3GPUFramebufferObject resolveFramebuffer;
 };
 
 struct GLES3GPUDescriptorSetLayout {

@@ -1,6 +1,18 @@
 jest.mock(
     'internal:constants',
-    () => jest.requireActual('./constants-for-test'),
+    () => {
+        const actual = jest.requireActual('./constants-for-test');
+        const { getCurrentTestSuiteConfig } = jest.requireActual('./utils/test-suite-config') as
+            typeof import('./utils/test-suite-config');
+        const config = getCurrentTestSuiteConfig();
+        if (!config.constantOverrides) {
+            return actual;
+        }
+        return {
+            ...actual,
+            ...config.constantOverrides,
+        };
+    },
     { virtual: true, },
 );
 
@@ -171,7 +183,8 @@ const config: IGameConfig = {
         }
     }
 }
-globalThis.waitThis((async () => {
+
+async function bootstrap() {
     game.on(Game.EVENT_POST_SUBSYSTEM_INIT, () => {
         effects.forEach((e, effectIndex) => {
             const effect = Object.assign(new EffectAsset(), e);
@@ -190,4 +203,6 @@ globalThis.waitThis((async () => {
     initBuiltinPhysicsMaterial();
     await game.init(config);
     await game.run();
-})());
+}
+
+module.exports = bootstrap;

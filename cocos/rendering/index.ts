@@ -35,7 +35,7 @@ export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
 export { PipelineSceneData } from './pipeline-scene-data';
 
-export { ForwardPipeline } from './forward/forward-pipeline';
+export { ForwardPipeline, createDefaultPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';
 export { ForwardStage } from './forward/forward-stage';
 export { DeferredPipeline } from './deferred/deferred-pipeline';
@@ -55,9 +55,3 @@ export { DebugView } from './debug-view';
 
 export { ReflectionProbeFlow } from './reflection-probe/reflection-probe-flow';
 export { ReflectionProbeStage } from './reflection-probe/reflection-probe-stage';
-
-export function createDefaultPipeline (): ForwardPipeline {
-    const rppl = new ForwardPipeline();
-    rppl.initialize({ flows: [] });
-    return rppl;
-}

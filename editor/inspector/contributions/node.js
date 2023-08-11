@@ -312,162 +312,169 @@ exports.listeners = {
 
 exports.template = /* html*/`
 <ui-drag-area class="container">
-    <section class="prefab" hidden missing>
-        <ui-label value="Prefab"></ui-label>
-        <ui-button role="edit" tooltip="i18n:ENGINE.prefab.edit">
-            <ui-icon value="edit"></ui-icon>
-        </ui-button>
-        <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink">
-            <ui-icon value="unlink"></ui-icon>
-        </ui-button>
-        <ui-button role="local" tooltip="i18n:ENGINE.prefab.local">
-            <ui-icon value="location"></ui-icon>
-        </ui-button>
-        <ui-button role="reset" tooltip="i18n:ENGINE.prefab.reset">
-            <ui-icon value="reset"></ui-icon>
-        </ui-button>
-        <ui-button role="save" tooltip="i18n:ENGINE.prefab.save">
-            <ui-icon value="save-o"></ui-icon>
-        </ui-button>
-    </section>
-
     <header class="header">
-        <ui-checkbox class="active"></ui-checkbox>
-        <ui-input class="name"></ui-input>
+        <section class="prefab" hidden>
+            <ui-label value="Prefab"></ui-label>
+            <ui-button role="edit" tooltip="i18n:ENGINE.prefab.edit">
+                <ui-icon value="edit"></ui-icon>
+            </ui-button>
+            <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink">
+                <ui-icon value="unlink"></ui-icon>
+            </ui-button>
+            <ui-button role="local" tooltip="i18n:ENGINE.prefab.local">
+                <ui-icon value="location"></ui-icon>
+            </ui-button>
+            <ui-button role="reset" tooltip="i18n:ENGINE.prefab.reset">
+                <ui-icon value="reset"></ui-icon>
+            </ui-button>
+            <ui-button role="save" tooltip="i18n:ENGINE.prefab.save">
+                <ui-icon value="save-o"></ui-icon>
+            </ui-button>
+        </section>
+
+        <section class="node">
+            <ui-checkbox class="active"></ui-checkbox>
+            <ui-input class="name"></ui-input>
+        </section>
     </header>
 
-    <section class="component scene">
-        <ui-prop class="release" type="dump" ui-section-config></ui-prop>
-        <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
-        <ui-section class="skybox config" expand>
-            <div slot="header" class="component-header">
-                <span>Skybox</span>
-                <ui-link tooltip="i18n:scene.menu.help_url">
+    <section class="body">
+        <section class="component scene">
+            <ui-prop class="release" type="dump"></ui-prop>
+            <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
+            <ui-section class="skybox config" expand>
+                <div slot="header" class="component-header">
+                    <span>Skybox</span>
+                    <ui-link tooltip="i18n:scene.menu.help_url">
+                        <ui-icon value="help"></ui-icon>
+                    </ui-link>
+                </div>
+                <div class="before"></div>
+                <ui-section class="envmap" expand>
+                    <ui-label slot="header" value="Envmap"></ui-label>
+                    <ui-radio-group class="useHDR" default-value="HDR" value="HDR">
+                        <ui-prop class="envmap-prop">
+                            <ui-radio class="envmap-radio" slot="label" type="single" value="HDR" tabindex="0">
+                                <ui-label value="HDR"></ui-label>
+                            </ui-radio>
+                            <ui-prop slot="content" class="envmapHDR" type="dump" no-label ui-section-config></ui-prop>
+                        </ui-prop>
+                        <ui-prop class="envmap-prop">
+                            <ui-radio class="envmap-radio" slot="label" type="single" value="LDR" tabindex="0">
+                                <ui-label value="LDR"></ui-label>
+                            </ui-radio>
+                            <ui-prop slot="content" class="envmapLDR" type="dump" no-label ui-section-config></ui-prop>
+                        </ui-prop>
+                    </ui-radio-group>
+                    <ui-prop class="reflection">
+                        <ui-label slot="label">Reflection Convolution</ui-label>
+                        <div slot="content">
+                            <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                            <ui-button class="blue bake" style="display:none;">Bake</ui-button>
+                            <ui-button class="red remove" style="display:none;">Remove</ui-button>
+                        </div>
+                    </ui-prop>
+                </ui-section>
+                <div class="after"></div>
+            </ui-section>
+            <ui-prop class="fog" type="dump" ui-section-config></ui-prop>
+            <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
+            <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
+            <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
+            <ui-prop class="postSettings" type="dump" ui-section-config></ui-prop>
+        </section>
+
+        <ui-section class="component node config" expand>
+            <header class="component-header" slot="header">
+                <span class="name">Node</span>
+                <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                     <ui-icon value="help"></ui-icon>
                 </ui-link>
-            </div>
-            <div class="before"></div>
-            <ui-section class="envmap" expand>
-                <ui-label slot="header" value="Envmap"></ui-label>
-                <ui-radio-group class="useHDR" default-value="HDR" value="HDR">
-                    <ui-prop class="envmap-prop">
-                        <ui-radio class="envmap-radio" slot="label" type="single" value="HDR" tabindex="0">
-                            <ui-label value="HDR"></ui-label>
-                        </ui-radio>
-                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label ui-section-config></ui-prop>
-                    </ui-prop>
-                    <ui-prop class="envmap-prop">
-                        <ui-radio class="envmap-radio" slot="label" type="single" value="LDR" tabindex="0">
-                            <ui-label value="LDR"></ui-label>
-                        </ui-radio>
-                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label ui-section-config></ui-prop>
-                    </ui-prop>
-                </ui-radio-group>
-                <ui-prop class="reflection">
-                    <ui-label slot="label">Reflection Convolution</ui-label>
-                    <div slot="content">
-                        <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
-                        <ui-button class="blue bake" style="display:none;">Bake</ui-button>
-                        <ui-button class="red remove" style="display:none;">Remove</ui-button>
-                    </div>
-                </ui-prop>
-            </ui-section>
-            <div class="after"></div>
+                <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+            </header>
+
+            <ui-prop class="position" type="dump"></ui-prop>
+            <ui-prop class="rotation" type="dump"></ui-prop>
+            <ui-prop class="scale" type="dump"></ui-prop>
+            <ui-prop class="mobility" type="dump"></ui-prop>
+            <ui-prop class="layer">
+                <ui-label slot="label" value="Layer"></ui-label>
+                <div class="layer-content" slot="content">
+                    <ui-prop class="layer-select" type="dump" no-label></ui-prop>
+                    <ui-button class="layer-edit">Edit</ui-button>
+                </div>
+            </ui-prop>
+            <div class="node-section"></div>
         </ui-section>
-        <ui-prop class="fog" type="dump" ui-section-config></ui-prop>
-        <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
-        <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
-        <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
+
+        <section class="section-body"></section>
+        <section class="section-missing"></section>
+
+        <footer class="footer">
+            <ui-button class="add-component" size="medium">
+                <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
+            </ui-button>
+        </footer>
+
+        <section class="section-asset"></section>
     </section>
-
-    <ui-section class="component node config" expand>
-        <header class="component-header" slot="header">
-            <span class="name">Node</span>
-            <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
-                <ui-icon value="help"></ui-icon>
-            </ui-link>
-            <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
-        </header>
-
-        <ui-prop class="position" type="dump"></ui-prop>
-        <ui-prop class="rotation" type="dump"></ui-prop>
-        <ui-prop class="scale" type="dump"></ui-prop>
-        <ui-prop class="mobility" type="dump"></ui-prop>
-        <ui-prop class="layer">
-            <ui-label slot="label" value="Layer"></ui-label>
-            <div class="layer-content" slot="content">
-                <ui-prop class="layer-select" type="dump" no-label></ui-prop>
-                <ui-button class="layer-edit">Edit</ui-button>
-            </div>
-        </ui-prop>
-        <div class="node-section"></div>
-    </ui-section>
-
-    <section class="section-body"></section>
-    <section class="section-missing"></section>
-
-    <footer class="footer">
-        <ui-button class="add-component" size="medium">
-            <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
-        </ui-button>
-    </footer>
-
-    <section class="section-asset"></section>
 </ui-drag-area>
 `;
 exports.style = fs.readFileSync(path.join(__dirname, './node.css'), 'utf8');
 
 exports.$ = {
     container: '.container',
+    header: '.container > .header',
+    body: '.container > .body',
 
-    prefab: '.prefab',
-    prefabUnlink: '.prefab > [role="unlink"]',
-    prefabLocal: '.prefab > [role="local"]',
-    prefabReset: '.prefab > [role="reset"]',
-    prefabSave: '.prefab > [role="save"]',
-    prefabEdit: '.prefab > [role="edit"]',
+    prefab: '.container > .header > .prefab',
+    prefabUnlink: '.container > .header > .prefab > [role="unlink"]',
+    prefabLocal: '.container > .header > .prefab > [role="local"]',
+    prefabReset: '.container > .header > .prefab > [role="reset"]',
+    prefabSave: '.container > .header > .prefab > [role="save"]',
+    prefabEdit: '.container > .header > .prefab > [role="edit"]',
 
-    header: '.header',
-    active: '.active',
-    name: '.name',
+    active: '.container > .header > .node > .active',
+    name: '.container > .header > .node > .name',
 
-    scene: '.scene',
-    sceneRelease: '.scene > .release',
-    sceneAmbient: '.scene > .ambient',
-    sceneFog: '.scene > .fog',
-    sceneShadows: '.scene > .shadows',
-    sceneSkybox: '.scene > .skybox',
-    sceneSkyboxBefore: '.scene > .skybox > .before',
-    sceneSkyboxUseHDR: '.scene > .skybox .useHDR',
-    sceneSkyboxEnvmapHDR: '.scene > .skybox .envmapHDR',
-    sceneSkyboxEnvmapLDR: '.scene > .skybox .envmapLDR',
-    sceneSkyboxReflection: '.scene > .skybox .reflection',
-    sceneSkyboxReflectionLoading: '.scene > .skybox .reflection ui-loading',
-    sceneSkyboxReflectionBake: '.scene > .skybox .reflection .bake',
-    sceneSkyboxReflectionRemove: '.scene > .skybox .reflection .remove',
-    sceneSkyboxAfter: '.scene > .skybox > .after',
-    sceneOctree: '.scene > .octree',
-    sceneSkin: '.scene > .skin',
+    scene: '.container > .body > .scene',
+    sceneRelease: '.container > .body > .scene > .release',
+    sceneAmbient: '.container > .body > .scene > .ambient',
+    sceneFog: '.container > .body > .scene > .fog',
+    sceneShadows: '.container > .body > .scene > .shadows',
+    sceneSkybox: '.container > .body > .scene > .skybox',
+    sceneSkyboxBefore: '.container > .body > .scene > .skybox > .before',
+    sceneSkyboxUseHDR: '.container > .body > .scene > .skybox .useHDR',
+    sceneSkyboxEnvmapHDR: '.container > .body > .scene > .skybox .envmapHDR',
+    sceneSkyboxEnvmapLDR: '.container > .body > .scene > .skybox .envmapLDR',
+    sceneSkyboxReflection: '.container > .body > .scene > .skybox .reflection',
+    sceneSkyboxReflectionLoading: '.container > .body > .scene > .skybox .reflection ui-loading',
+    sceneSkyboxReflectionBake: '.container > .body > .scene > .skybox .reflection .bake',
+    sceneSkyboxReflectionRemove: '.container > .body > .scene > .skybox .reflection .remove',
+    sceneSkyboxAfter: '.container > .body > .scene > .skybox > .after',
+    sceneOctree: '.container > .body > .scene > .octree',
+    sceneSkin: '.container > .body > .scene > .skin',
+    scenePostSettings: '.scene > .postSettings',
 
-    node: '.node',
-    nodeHeader: '.node > header',
-    nodeSection: '.node-section',
-    nodeMenu: '.node > header > .menu',
-    nodeLink: '.node > header > .link',
+    node: '.container > .body > .node',
+    nodeHeader: '.container > .body > .node > .component-header',
+    nodeSection: '.container > .body > .node >.node-section',
+    nodeMenu: '.container > .body > .node > .component-header > .menu',
+    nodeLink: '.container > .body > .node > .component-header > .link',
 
-    nodePosition: '.node > .position',
-    nodeRotation: '.node > .rotation',
-    nodeScale: '.node > .scale',
-    nodeMobility: '.node > .mobility',
-    nodeLayerSelect: '.node > .layer .layer-select',
-    nodeLayerButton: '.node > .layer .layer-edit',
+    nodePosition: '.container > .body > .node > .position',
+    nodeRotation: '.container > .body > .node > .rotation',
+    nodeScale: '.container > .body > .node > .scale',
+    nodeMobility: '.container > .body > .node > .mobility',
+    nodeLayerSelect: '.container > .body > .node > .layer .layer-select',
+    nodeLayerButton: '.container > .body > .node > .layer .layer-edit',
 
-    sectionBody: '.section-body',
-    sectionMissing: '.section-missing',
-    sectionAsset: '.section-asset',
+    sectionBody: '.container > .body > .section-body',
+    sectionMissing: '.container > .body > .section-missing',
+    sectionAsset: '.container > .body > .section-asset',
 
-    footer: '.footer',
-    componentAdd: '.footer .add-component',
+    footer: '.container > .body > .footer',
+    componentAdd: '.container > .body > .footer .add-component',
 };
 
 const Elements = {
@@ -595,9 +602,7 @@ const Elements = {
             panel.assets = {};
 
             if (panel.dump) {
-                panel.$.container.style.display = 'flex';
-                panel.$.header.style.display = 'flex';
-                panel.$.footer.style.display = 'block';
+                panel.$.container.removeAttribute('hidden');
 
                 // 以第一个节点的类型，过滤多选的其他不同类型，比如 node 和 sceneNode 就不能混为多选编辑
                 const type = panel.dump.__type__;
@@ -611,7 +616,7 @@ const Elements = {
                 // 补充缺失的 dump 数据，如 path values 等，收集节点内的资源
                 utils.translationDump(panel.dump, panel.dumps.length > 1 ? panel.dumps : undefined, panel.assets);
             } else {
-                panel.$.container.style.display = 'none';
+                panel.$.container.setAttribute('hidden', '');
             }
         },
         close() {
@@ -637,20 +642,6 @@ const Elements = {
                 }
 
                 const role = button.getAttribute('role');
-
-                const recordings = [];
-                for (const dump of panel.dumps) {
-                    const prefab = dump.__prefab__;
-                    switch (role) {
-                        case 'reset': {
-                            recordings.push(prefab.rootUuid);
-                        }
-                    }
-                }
-                let undoID;
-                if (recordings.length) {
-                    undoID = await beginRecording(recordings);
-                }
 
                 for (const dump of panel.dumps) {
                     const prefab = dump.__prefab__;
@@ -682,10 +673,6 @@ const Elements = {
                             break;
                         }
                     }
-                }
-
-                if (recordings.length && undoID) {
-                    await endRecording(undoID);
                 }
             });
         },
@@ -740,6 +727,7 @@ const Elements = {
                 }
             } else {
                 panel.$.prefab.setAttribute('missing', '');
+                panel.$.prefabEdit.setAttribute('disabled', '');
                 panel.$.prefabLocal.setAttribute('disabled', '');
                 panel.$.prefabReset.setAttribute('disabled', '');
                 panel.$.prefabSave.setAttribute('disabled', '');
@@ -949,6 +937,9 @@ const Elements = {
             panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
+            panel.dump._globals.postSettings.displayName = 'PostSettings';
+            panel.$.scenePostSettings.render(panel.dump._globals.postSettings);
+
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType') {
@@ -1085,6 +1076,8 @@ const Elements = {
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
+
+            panel.$.scenePostSettings.style.display = useHDR ? 'inline-flex' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -1120,6 +1113,8 @@ const Elements = {
         },
         async update() {
             const panel = this;
+
+            panel.componentCacheExpand = {};
 
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -1203,7 +1198,15 @@ const Elements = {
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component config');
-                    $section.setAttribute('cache-expand', `${component.path}:${component.type}`);
+
+                    let cacheExpandKey = `node-component:${component.type}`;
+                    if (panel.componentCacheExpand[cacheExpandKey]) {
+                        // when exist duplicated component, use uuid as key;
+                        cacheExpandKey = `node-component:${component.value.uuid.value}`;
+                    }
+                    panel.componentCacheExpand[cacheExpandKey] = true;
+                    $section.setAttribute('cache-expand', `${cacheExpandKey}`);
+
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
@@ -1530,6 +1533,7 @@ const Elements = {
                     materialPanel.injectionStyle(injectionStyle);
                     materialPanel.setAttribute('src', panel.typeManager[materialPanelType]);
                     materialPanel.setAttribute('type', materialPanelType);
+                    materialPanel.setAttribute('sub-type', 'unknown');
                     materialPanel.setAttribute('uuid', materialUuid);
 
                     materialPanel.panelObject.replaceContainerWithUISection({

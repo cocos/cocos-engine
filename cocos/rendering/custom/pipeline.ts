@@ -30,15 +30,20 @@
 /* eslint-disable max-len */
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
+import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
+import { PointLight } from '../../render-scene/scene/point-light';
+import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
+import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Model } from '../../render-scene/scene';
+import { Light, Model } from '../../render-scene/scene';
+import { SphereLight } from '../../render-scene/scene/sphere-light';
+import { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
  * @engineInternal
@@ -249,6 +254,11 @@ export enum SubpassCapabilities {
      * @zh 支持读取当前像素任意颜色值
      */
     INPUT_COLOR_MRT = 1 << 2,
+    /**
+     * @en Each subpass has its own sample count.
+     * @zh 每个Subpass拥有不同的采样数
+     */
+    HETEROGENEOUS_SAMPLE_COUNT = 1 << 3,
 }
 
 /**
@@ -368,6 +378,15 @@ export interface Setter extends RenderNode {
      * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
      */
     setSampler (name: string, sampler: Sampler): void;
+    setBuiltinCameraConstants (camera: Camera): void;
+    setBuiltinShadowMapConstants (light: DirectionalLight): void;
+    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
+    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
+    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
+    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
+    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
+    setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
+    setBuiltinSpotLightViewConstants (light: SpotLight): void;
 }
 
 /**
@@ -391,6 +410,19 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
+    addScene (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light?: Light | null): void;
+    addSceneCulledByDirectionalLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: DirectionalLight,
+        level: number): void;
+    addSceneCulledBySpotLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: SpotLight): void;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -528,6 +560,15 @@ export interface BasicRenderPassBuilder extends Setter {
     showStatistics: boolean;
 }
 
+export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilder {
+    resolveRenderTarget (source: string, target: string): void;
+    resolveDepthStencil (
+        source: string,
+        target: string,
+        depthMode?: ResolveMode,
+        stencilMode?: ResolveMode): void;
+}
+
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -643,6 +684,27 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
+    addResource (
+        name: string,
+        dimension: ResourceDimension,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateResource (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -690,7 +752,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         count: number,
         quality: number,
-        passName?: string): BasicRenderPassBuilder;
+        passName?: string): BasicMultisampleRenderPassBuilder;
     /**
      * @deprecated Method will be removed in 3.9.0
      */
@@ -1054,6 +1116,17 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPassBuilder {
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+}
+
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1131,38 +1204,6 @@ export interface ComputePassBuilder extends Setter {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneVisitor {
-    readonly pipelineSceneData: PipelineSceneData;
-    setViewport (vp: Viewport): void;
-    setScissor (rect: Rect): void;
-    bindPipelineState (pso: PipelineState): void;
-    bindInputAssembler (ia: InputAssembler): void;
-    draw (info: DrawInfo): void;
-
-    bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
-    updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneTask {
-    readonly taskType: TaskType;
-    start (): void;
-    join (): void;
-    submit (): void;
-}
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-export interface SceneTransversal {
-    transverse (visitor: SceneVisitor): SceneTask;
 }
 
 /**
@@ -1259,6 +1300,12 @@ export interface Pipeline extends BasicPipeline {
         width: number,
         height: number,
         passName: string): RenderPassBuilder;
+    addMultisampleRenderPass (
+        width: number,
+        height: number,
+        count: number,
+        quality: number,
+        passName: string): MultisampleRenderPassBuilder;
     /**
      * @en Add compute pass
      * @zh 添加计算通道
@@ -1308,6 +1355,11 @@ export interface Pipeline extends BasicPipeline {
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     addMovePass (movePairs: MovePair[]): void;
+    addBuiltinGpuCullingPass (
+        camera: Camera,
+        hzbName?: string,
+        light?: Light | null): void;
+    addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental
      */

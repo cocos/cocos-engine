@@ -27,11 +27,11 @@ import { isEnableEffect, SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Pass, BatchingSchemes } from '../render-scene/core/pass';
+import { Pass, BatchingSchemes, IMacroPatch } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
-import { Camera, ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
+import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
+import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { PipelineRuntime } from './custom/pipeline';
-import { IMacroPatch, RenderScene } from '../render-scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { cclegacy, geometry } from '../core';
 import { Layers } from '../scene-graph/layers';
@@ -77,7 +77,7 @@ export class RenderReflectionProbeQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
-    private _rgbeSubModelsArray: SubModel[]=[]
+    private _rgbeSubModelsArray: SubModel[] = [];
     private _instancedQueue: RenderInstancedQueue;
     private _patches: IMacroPatch[] = [];
 

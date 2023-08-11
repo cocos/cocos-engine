@@ -23,6 +23,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/Skin.h"
+#include "scene/PostSettings.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
@@ -103,6 +104,8 @@ using namespace cc;
 
 %ignore cc::Root::getEventProcessor;
 %ignore cc::Node::getEventProcessor;
+
+%ignore cc::scene::IMacroPatch::IMacroPatch(const std::pair<const std::string, cc::MacroValue>&);
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
@@ -442,6 +445,8 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::pipeline::GeometryRenderer *, geometryRenderer, getGeometryRenderer);
 %attribute(cc::scene::Camera, uint32_t, systemWindowId, getSystemWindowId);
 %attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
+%attribute(cc::scene::Camera, cc::scene::TrackingType, trackingType, getTrackingType, setTrackingType);
+%attribute(cc::scene::Camera, cc::scene::CameraType, cameraType, getCameraType, setCameraType);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
@@ -477,6 +482,8 @@ using namespace cc;
 %attribute(cc::scene::Skin, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
 %attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
+
+%attribute(cc::scene::PostSettings, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
 
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
@@ -578,6 +585,8 @@ using namespace cc;
 %attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
 
+%attribute(cc::scene::PostSettingsInfo, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
+
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
 %attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
@@ -678,6 +687,7 @@ using namespace cc;
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
 %include "scene/Skin.h"
+%include "scene/PostSettings.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"

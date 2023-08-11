@@ -1,16 +1,11 @@
-#include "LayoutGraphGraphs.h"
-#include "NativePipelineTypes.h"
-#include "NativeUtils.h"
-#include "RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
-#include "details/GslUtils.h"
-#include "details/Range.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
-#include "pipeline/custom/NativeUtils.h"
-#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
@@ -19,10 +14,8 @@ namespace render {
 void NativeRenderQueue::clear() noexcept {
     opaqueQueue.instances.clear();
     transparentQueue.instances.clear();
-    opaqueInstancingQueue.batches.clear();
-    opaqueInstancingQueue.sortedBatches.clear();
-    transparentInstancingQueue.batches.clear();
-    transparentInstancingQueue.sortedBatches.clear();
+    opaqueInstancingQueue.clear();
+    transparentInstancingQueue.clear();
     sceneFlags = SceneFlags::NONE;
     subpassOrPassLayoutID = 0xFFFFFFFF;
 }
@@ -30,10 +23,8 @@ void NativeRenderQueue::clear() noexcept {
 bool NativeRenderQueue::empty() const noexcept {
     return opaqueQueue.instances.empty() &&
            transparentQueue.instances.empty() &&
-           opaqueInstancingQueue.batches.empty() &&
-           opaqueInstancingQueue.sortedBatches.empty() &&
-           transparentInstancingQueue.batches.empty() &&
-           transparentInstancingQueue.sortedBatches.empty();
+           opaqueInstancingQueue.empty() &&
+           transparentInstancingQueue.empty();
 }
 
 uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
@@ -113,7 +104,7 @@ void SceneCulling::collectCullingQueries(
 }
 
 namespace {
-
+const pipeline::PipelineSceneData* pSceneData = nullptr;
 bool isNodeVisible(const Node* node, uint32_t visibility) {
     return node && ((visibility & node->getLayer()) == node->getLayer());
 }
@@ -122,9 +113,18 @@ uint32_t isModelVisible(const scene::Model& model, uint32_t visibility) {
     return visibility & static_cast<uint32_t>(model.getVisFlags());
 }
 
-bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustum) {
+bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustum, bool castShadow) {
     const auto* const modelWorldBounds = model.getWorldBounds();
-    return !modelWorldBounds || modelWorldBounds->aabbFrustum(frustum);
+    if (!modelWorldBounds) {
+        return true;
+    }
+    geometry::AABB transWorldBounds{};
+    transWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
+    const scene::Shadows& shadows = *pSceneData->getShadows();
+    if (shadows.getType() == scene::ShadowType::PLANAR && castShadow) {
+        modelWorldBounds->transform(shadows.getMatLight(), &transWorldBounds);
+    }
+    return transWorldBounds.aabbFrustum(frustum);
 }
 
 void octreeCulling(
@@ -192,7 +192,7 @@ void bruteForceCulling(
         // filter model by view visibility
         if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
             // frustum culling
-            if (!isFrustumVisible(model, cameraOrLightFrustum)) {
+            if (!isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) {
                 continue;
             }
             // is skybox, skip
@@ -257,14 +257,23 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        const auto& csmLayers = *pplSceneData.getCSMLayers();
+                        auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
                         const auto& csmLevel = mainLight->getCSMLevel();
                         const geometry::Frustum* frustum = nullptr;
-                        if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-                            frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
+                        const auto& shadows = *pplSceneData.getShadows();
+                        if (shadows.getType() == scene::ShadowType::PLANAR) {
+                            frustum = &camera.getFrustum();
                         } else {
-                            frustum = &csmLayers.getLayers()[level]->getValidFrustum();
+                            if (shadows.isEnabled() && shadows.getType() == scene::ShadowType::SHADOW_MAP && mainLight && mainLight->getNode()) {
+                                csmLayers.update(&pplSceneData, &camera);
+                            }
+                            // const
+                            if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
+                                frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
+                            } else {
+                                frustum = &csmLayers.getLayers()[level]->getValidFrustum();
+                            }
                         }
                         sceneCulling(
                             skyboxModelToSkip,
@@ -290,7 +299,6 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
 }
 
 namespace {
-
 bool isBlend(const scene::Pass& pass) {
     bool bBlend = false;
     for (const auto& target : pass.getBlendState()->targets) {
@@ -316,7 +324,6 @@ void addRenderObject(
     LayoutGraphData::vertex_descriptor phaseLayoutID,
     const bool bDrawOpaqueOrMask,
     const bool bDrawBlend,
-    const bool bDrawShadowCaster,
     const scene::Camera& camera,
     const scene::Model& model,
     NativeRenderQueue& queue) {
@@ -337,25 +344,21 @@ void addRenderObject(
             // check scene flags
             const bool bBlend = isBlend(pass);
             const bool bOpaqueOrMask = !bBlend;
-            if (!bDrawShadowCaster) {
-                if (!bDrawBlend && bBlend) {
-                    // skip transparent object
-                    continue;
-                }
-                if (!bDrawOpaqueOrMask && bOpaqueOrMask) {
-                    // skip opaque object
-                    continue;
-                }
+            if (!bDrawBlend && bBlend) {
+                // skip transparent object
+                continue;
+            }
+            if (!bDrawOpaqueOrMask && bOpaqueOrMask) {
+                // skip opaque object
+                continue;
             }
 
             // add object to queue
             if (pass.getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                auto& instancedBuffer = *pass.getInstancedBuffer();
-                instancedBuffer.merge(subModel, passIdx);
                 if (bBlend) {
-                    queue.transparentInstancingQueue.add(instancedBuffer);
+                    queue.transparentInstancingQueue.add(pass, *subModel, passIdx);
                 } else {
-                    queue.opaqueInstancingQueue.add(instancedBuffer);
+                    queue.opaqueInstancingQueue.add(pass, *subModel, passIdx);
                 }
             } else {
                 // TODO(zhouzhenglong): change camera to frustum
@@ -428,7 +431,7 @@ void SceneCulling::fillRenderQueues(
         // fill native queue
         for (const auto* const model : sourceModels) {
             addRenderObject(
-                phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend, bDrawShadowCaster,
+                phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
                 *sceneData.camera, *model, nativeQueue);
         }
 
@@ -440,6 +443,7 @@ void SceneCulling::fillRenderQueues(
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
     const pipeline::PipelineSceneData& pplSceneData) {
+    pSceneData = &pplSceneData;
     collectCullingQueries(rg, lg);
     batchCulling(pplSceneData);
     fillRenderQueues(rg, pplSceneData);

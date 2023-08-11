@@ -44,8 +44,8 @@ const CollisionEventObject = {
 
 const CCTShapeEventObject = {
     type: 'onControllerColliderHit',
-    selfController: null,
-    otherCollider: null,
+    controller: null,
+    collider: null,
     worldPosition: null,
     worldNormal: null,
     motionDirection: null,
@@ -164,8 +164,8 @@ function emitCCTShapeEvent (t, cct, collider, b) {
     CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
     CCTShapeEventObject.motionDirection = new cc.Vec3(b[6], b[7], b[8]);
     CCTShapeEventObject.motionLength = b[9];
-    CCTShapeEventObject.selfController = cct;
-    CCTShapeEventObject.otherCollider = collider;
+    CCTShapeEventObject.controller = cct;
+    CCTShapeEventObject.collider = collider;
     cct.emit(t, CCTShapeEventObject);
 }
 
@@ -470,6 +470,7 @@ class RigidBody {
         this._com = v;
         this._impl.initialize(v.node, v.type, v._group);
         bookNode(v.node);
+        this._impl.setSleepThreshold(cc.PhysicsSystem.instance.sleepThreshold);
     }
 
     onEnable () {
@@ -956,7 +957,7 @@ class CharacterController {
         this.setCenter(this._com.center);
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
-        this.setContactOffset(this._com.contactOffset);
+        this.setContactOffset(this._com.skinWidth);
         this.setDetectCollisions(true);//this._com.detectCollisions);
         this.setOverlapRecovery(true);//this._com.enableOverlapRecovery);
     }

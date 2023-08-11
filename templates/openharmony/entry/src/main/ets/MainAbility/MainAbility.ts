@@ -27,7 +27,7 @@ import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
 import window from '@ohos.window';
 import resourceManager from '@ohos.resourceManager';
-import avsession from '@ohos.multimedia.avsession';
+//import avsession from '@ohos.multimedia.avsession';
 
 const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);
 const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
@@ -41,11 +41,11 @@ export default class MainAbility extends UIAbility {
         // TODO(qgh): This is a temporary fix for audio not continuing to play when switching from background to foreground.
         // The principle of the fix is to allow the app to continue playing audio after switching background, similar to music apps.
         // After a while it will be killed by the system.
-        // @ts-ignore
-        avsession.createAVSession(this.context, tag, 'audio').then(async (session) =>{
-            globalThis.avsessionManager = session;
-            await globalThis.avsessionManager.activate();
-        })
+        // This will cause a crash on harmonyos.
+        // avsession.createAVSession(this.context, tag, 'audio').then(async (session) =>{
+        //     globalThis.avsessionManager = session;
+        //     await globalThis.avsessionManager.activate();
+        // })
     }
 
     onDestroy() {
@@ -61,9 +61,9 @@ export default class MainAbility extends UIAbility {
             }
         });
         // Set full screen
-        //windowStage.getMainWindow().then((window: window.Window) => {
-        //    window.setFullScreen(true);
-        //});
+        windowStage.getMainWindow().then((window: window.Window) => {
+            window.setWindowSystemBarEnable([]);
+        });
         nativeContext.writablePathInit(this.context.cacheDir);
     }
 
