@@ -107,9 +107,7 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number): void {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
-        while (this._capacity > this._bufferSize) {
-            this._bufferSize = Math.max(this._capacity, 16);
-        }
+        this._bufferSize = Math.max(this._capacity, 16);
         if (this._subMeshData && capChanged) {
             this.rebuild();
         }
