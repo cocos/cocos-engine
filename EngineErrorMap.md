@@ -1491,6 +1491,7 @@ Unknown 'type' parameter of %s.%s：%s
 
 ### 3647
 
+<!-- DEPRECATED -->
 The length of range array must be equal or greater than 2
 
 ### 3648
@@ -2282,14 +2283,17 @@ Can not serialize '%s.%s' because the specified type is anonymous, please provid
 
 ### 5513
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' should not be used with a 'get' function.
 
 ### 5514
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' should not be used with a 'set' function.
 
 ### 5515
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' can not be an constructor. Set default to null please.
 
 ### 5516

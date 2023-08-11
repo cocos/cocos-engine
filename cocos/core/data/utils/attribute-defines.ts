@@ -100,7 +100,7 @@ export interface IExposedAttributes {
     /**
      * 当该属性为数值类型时，指定了该属性允许的范围。
      */
-    range?: number[];
+    range?: [number, number, number?];
 
     /**
      * 当该属性为数值类型时，是否在编辑器中提供滑动条来调节值。

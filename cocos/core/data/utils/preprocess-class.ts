@@ -70,6 +70,11 @@ function parseType (val, type, className, propName): void {
                 warnID(3610, `"${className}.${propName}"`);
             }
         }
+        if (EDITOR) {
+            if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
+                warnID(5512, className, propName, className, propName);
+            }
+        }
     } else if (STATIC_CHECK) {
         switch (type) {
         case 'Number':
@@ -90,12 +95,6 @@ function parseType (val, type, className, propName): void {
         case null:
             warnID(5511, className, propName);
             break;
-        }
-    }
-
-    if (EDITOR && typeof type === 'function') {
-        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
-            warnID(5512, className, propName, className, propName);
         }
     }
 }
@@ -158,18 +157,6 @@ export function preprocessAttrs (properties, className, cls): void {
             val = properties[propName] = fullForm;
         }
         if (val) {
-            if (EDITOR) {
-                if ('default' in val) {
-                    if (val.get) {
-                        errorID(5513, className, propName);
-                    } else if (val.set) {
-                        errorID(5514, className, propName);
-                    } else if (legacyCC.Class._isCCClass(val.default)) {
-                        val.default = null;
-                        errorID(5515, className, propName);
-                    }
-                }
-            }
             if (DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));

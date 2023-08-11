@@ -26,7 +26,7 @@
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
-import { getSuper } from '../utils/js';
+import { getSuper, isChildClassOf } from '../utils/js';
 import { BitMask } from '../value-types';
 import { Enum } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
@@ -124,7 +124,7 @@ function getDefault (defaultVal): any {
 function define (cls, className, baseClass): any {
     const Component = legacyCC.Component;
     const frame = RF.peek();
-    if (frame && js.isChildClassOf(baseClass, Component)) {
+    if (frame && isChildClassOf(baseClass, Component)) {
         // project component
         // if (DEV && frame.uuid && className) {
         //     warnID(3616, className);
@@ -149,21 +149,16 @@ function define (cls, className, baseClass): any {
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
-        const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
-        const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
-        const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
-        const isRender = isRenderPipeline || isRenderFlow || isRenderStage;
-        if (isRender) {
             let renderName = '';
-            if (isRenderPipeline) {
+        if (isChildClassOf(baseClass, legacyCC.RenderPipeline)) {
                 renderName = 'render_pipeline';
-            } else if (isRenderFlow) {
+        } else if (isChildClassOf(baseClass, legacyCC.RenderFlow)) {
                 renderName = 'render_flow';
-            } else if (isRenderStage) {
+        } else if (isChildClassOf(baseClass, legacyCC.RenderStage)) {
                 renderName = 'render_stage';
             }
+        if (renderName) {
             // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
-
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
         }
 
@@ -171,9 +166,9 @@ function define (cls, className, baseClass): any {
     }
 
     if (frame) {
-        // 基础的 ts, js 脚本组件
-        if (js.isChildClassOf(baseClass, Component)) {
-            if (DEV && js.isChildClassOf(frame.cls, Component)) {
+        // project scripts
+        if (isChildClassOf(baseClass, Component)) {
+            if (DEV && isChildClassOf(frame.cls, Component)) {
                 errorID(3615);
             } else {
                 const uuid = frame.uuid;
@@ -185,7 +180,7 @@ function define (cls, className, baseClass): any {
                 }
                 frame.cls = cls;
             }
-        } else if (!js.isChildClassOf(frame.cls, Component)) {
+        } else if (!isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
     }
@@ -249,9 +244,13 @@ function declareProperties (cls, className, properties, baseClass): void {
     cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
 }
 
+interface ISealable {
+    _sealed?: boolean;
+}
+
 export function CCClass<TFunction> (
-    cls: TFunction,
-    base: null | (Function & { __props__?: any; _sealed?: boolean }),
+    cls: TFunction & ISealable,
+    base: null | (Function & { __props__?: any } & ISealable),
     name?: string,
     properties?: any,
     ): any {
@@ -364,15 +363,7 @@ interface IParsedAttribute extends IAcceptableAttributes {
 type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
 const onAfterProps_ET: OnAfterProp[] = [];
 
-interface AttributesRecord {
-    get?: unknown;
-    set?: unknown;
-    default?: unknown;
-}
-
 function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
-    const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
-
     let attrs: IParsedAttribute | null = null;
     let propertyNamePrefix = '';
     function initAttrs (): any {
@@ -384,7 +375,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         onAfterProps_ET.length = 0;
     }
 
-    if ('type' in attributes && typeof attributes.type === 'undefined') {
+    if (DEV && 'type' in attributes && typeof attributes.type === 'undefined') {
         warnID(3660, propertyName, className);
     }
 
@@ -435,47 +426,40 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
 
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
-    } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
+    }
         // TODO: we close this warning for now:
         // issue: https://github.com/cocos/3d-tasks/issues/14887
+    // else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
         // warnID(3654, className, propertyName);
-    }
+    // }
 
-    const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string): void => {
+    const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes): void => {
         if (attributeName in attributes) {
             const val = attributes[attributeName];
-            if (typeof val === expectType) {
                 (attrs || initAttrs())[propertyNamePrefix + attributeName] = val;
-            } else if (DEV) {
-                error(ERR_Type, attributeName, className, propertyName, expectType);
-            }
         }
     };
 
-    if (attributes.editorOnly) {
-        if (DEV && usedInGetter) {
+    if (DEV && attributes.editorOnly) {
+        if (usedInGetter) {
             errorID(3613, 'editorOnly', className, propertyName);
         } else {
             (attrs || initAttrs())[`${propertyNamePrefix}editorOnly`] = true;
         }
     }
-    // parseSimpleAttr('preventDeferredLoad', 'boolean');
+    // parseSimpleAttr('preventDeferredLoad');
     if (DEV) {
-        parseSimpleAttribute('displayName', 'string');
-        parseSimpleAttribute('displayOrder', 'number');
-        parseSimpleAttribute('multiline', 'boolean');
-        parseSimpleAttribute('radian', 'boolean');
-        if (attributes.readonly) {
-            (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = attributes.readonly;
-        }
-        parseSimpleAttribute('tooltip', 'string');
-        if (attributes.group) {
-            (attrs || initAttrs())[`${propertyNamePrefix}group`] = attributes.group;
-        }
-        parseSimpleAttribute('slide', 'boolean');
-        parseSimpleAttribute('unit', 'string');
-        parseSimpleAttribute('userData', 'object');
-        parseSimpleAttribute('radioGroup', 'boolean');
+        parseSimpleAttribute('displayName');
+        parseSimpleAttribute('displayOrder');
+        parseSimpleAttribute('multiline');
+        parseSimpleAttribute('radian');
+        parseSimpleAttribute('readonly');
+        parseSimpleAttribute('tooltip');
+        parseSimpleAttribute('group');
+        parseSimpleAttribute('slide');
+        parseSimpleAttribute('unit');
+        parseSimpleAttribute('userData');
+        parseSimpleAttribute('radioGroup');
     }
 
     const isStandaloneMode = attributes.__internalFlags & PropertyStashInternalFlag.STANDALONE;
@@ -494,12 +478,10 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = normalizedSerializable;
     }
 
-    parseSimpleAttribute('formerlySerializedAs', 'string');
+    parseSimpleAttribute('formerlySerializedAs');
 
     if (DEV) {
-        if ('animatable' in attributes) {
-            (attrs || initAttrs())[`${propertyNamePrefix}animatable`] = attributes.animatable;
-        }
+        parseSimpleAttribute('animatable');
     }
 
     if (DEV) {
@@ -528,25 +510,19 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         }
     }
 
+    if (DEV) {
     const range = attributes.range;
     if (range) {
-        if (Array.isArray(range)) {
-            if (range.length >= 2) {
                 (attrs || initAttrs())[`${propertyNamePrefix}min`] = range[0];
                 attrs![`${propertyNamePrefix}max`] = range[1];
                 if (range.length > 2) {
                     attrs![`${propertyNamePrefix}step`] = range[2];
                 }
-            } else if (DEV) {
-                errorID(3647);
-            }
-        } else if (DEV) {
-            error(ERR_Type, 'range', className, propertyName, 'array');
         }
+        parseSimpleAttribute('min');
+        parseSimpleAttribute('max');
+        parseSimpleAttribute('step');
     }
-    parseSimpleAttribute('min', 'number');
-    parseSimpleAttribute('max', 'number');
-    parseSimpleAttribute('step', 'number');
 }
 
 CCClass.isArray = function (defaultVal): boolean {
