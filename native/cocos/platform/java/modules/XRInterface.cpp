@@ -45,7 +45,7 @@
     #include "gfx-vulkan/VKDevice.h"
 #endif
 #ifdef CC_USE_GLES3
-    #include "gfx-gles-common/gles3w.h"
+    #include "gfx-gles-common/loader/gles3w.h"
     #include "gfx-gles3/GLES3Device.h"
     #include "renderer/gfx-gles3/GLES3GPUObjects.h"
 #endif

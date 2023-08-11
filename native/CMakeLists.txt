@@ -62,6 +62,7 @@ elseif(ANDROID OR WINDOWS OR OHOS)
     cc_set_if_undefined(CC_USE_GLES3 ON)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
+    cc_set_if_undefined(CC_USE_GLES_NEW OFF)
 elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_METAL ON)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
@@ -461,6 +462,8 @@ cocos_source_files(
     cocos/base/TypeDef.h
     cocos/base/BinaryArchive.cpp
     cocos/base/BinaryArchive.h
+    cocos/base/DynamicLibrary.cpp
+    cocos/base/DynamicLibrary.h
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -1169,6 +1172,7 @@ cocos_source_files(
                  cocos/renderer/core/TextureBufferPool.h
                  cocos/renderer/core/TextureBufferPool.cpp
 
+                 cocos/renderer/GFXDeviceManager.cpp
                  cocos/renderer/GFXDeviceManager.h
 
                  cocos/renderer/gfx-base/SPIRVUtils.h
@@ -1612,20 +1616,77 @@ cocos_source_files(
 # )
 
 if(CC_USE_GLES2 OR CC_USE_GLES3)
+    if(CC_USE_GLES_NEW)
+        cocos_source_files(
+            cocos/renderer/gfx-gles-common/egl/Context.cpp
+            cocos/renderer/gfx-gles-common/egl/Context.h
+            cocos/renderer/gfx-gles-common/egl/Surface.cpp
+            cocos/renderer/gfx-gles-common/egl/Surface.h
+            cocos/renderer/gfx-gles-common/egl/Instance.cpp
+            cocos/renderer/gfx-gles-common/egl/Instance.h
+        )
+
+        cocos_source_files(
+            cocos/renderer/gfx-gles-common/common/GLESQueue.cpp
+            cocos/renderer/gfx-gles-common/common/GLESQueue.h
+            cocos/renderer/gfx-gles-common/common/GLESCommandStorage.cpp
+            cocos/renderer/gfx-gles-common/common/GLESCommandStorage.h
+
+            cocos/renderer/gfx-gles-common/common/GLESCommands.cpp
+            cocos/renderer/gfx-gles-common/common/GLESCommands.h
+            cocos/renderer/gfx-gles-common/common/GLESCommandBuffer.cpp
+            cocos/renderer/gfx-gles-common/common/GLESCommandBuffer.h
+            cocos/renderer/gfx-gles-common/common/GLESBuffer.cpp
+            cocos/renderer/gfx-gles-common/common/GLESBuffer.h
+            cocos/renderer/gfx-gles-common/common/GLESDescriptorSet.cpp
+            cocos/renderer/gfx-gles-common/common/GLESDescriptorSet.h
+            cocos/renderer/gfx-gles-common/common/GLESDescriptorSetLayout.cpp
+            cocos/renderer/gfx-gles-common/common/GLESDescriptorSetLayout.h
+            cocos/renderer/gfx-gles-common/common/GLESDevice.cpp
+            cocos/renderer/gfx-gles-common/common/GLESDevice.h
+            cocos/renderer/gfx-gles-common/common/GLESFramebuffer.cpp
+            cocos/renderer/gfx-gles-common/common/GLESFramebuffer.h
+            cocos/renderer/gfx-gles-common/common/GLESInputAssembler.cpp
+            cocos/renderer/gfx-gles-common/common/GLESInputAssembler.h
+            cocos/renderer/gfx-gles-common/common/GLESPipelineLayout.cpp
+            cocos/renderer/gfx-gles-common/common/GLESPipelineLayout.h
+            cocos/renderer/gfx-gles-common/common/GLESPipelineState.cpp
+            cocos/renderer/gfx-gles-common/common/GLESPipelineState.h
+            cocos/renderer/gfx-gles-common/common/GLESRenderPass.cpp
+            cocos/renderer/gfx-gles-common/common/GLESRenderPass.h
+            cocos/renderer/gfx-gles-common/common/GLESSampler.cpp
+            cocos/renderer/gfx-gles-common/common/GLESSampler.h
+            cocos/renderer/gfx-gles-common/common/GLESShader.cpp
+            cocos/renderer/gfx-gles-common/common/GLESShader.h
+            cocos/renderer/gfx-gles-common/common/GLESSwapchain.cpp
+            cocos/renderer/gfx-gles-common/common/GLESSwapchain.h
+            cocos/renderer/gfx-gles-common/common/GLESTexture.cpp
+            cocos/renderer/gfx-gles-common/common/GLESTexture.h
+            cocos/renderer/gfx-gles-common/common/GLESGPUObjects.h
+            cocos/renderer/gfx-gles-common/common/GLESGeneralBarrier.cpp
+            cocos/renderer/gfx-gles-common/common/GLESGeneralBarrier.h
+            cocos/renderer/gfx-gles-common/common/GLESPipelineCache.cpp
+            cocos/renderer/gfx-gles-common/common/GLESPipelineCache.h
+            cocos/renderer/gfx-gles-common/common/GLESRecycleBin.cpp
+            cocos/renderer/gfx-gles-common/common/GLESRecycleBin.h
+        )
+    endif()
+
     cocos_source_files(
         cocos/renderer/gfx-gles-common/GLESCommandPool.h
-        cocos/renderer/gfx-gles-common/eglw.cpp
-        cocos/renderer/gfx-gles-common/gles2w.cpp
+        cocos/renderer/gfx-gles-common/loader/eglw.cpp
+        cocos/renderer/gfx-gles-common/loader/gles2w.cpp
     )
     if(CC_USE_GLES3)
         cocos_source_files(
-            cocos/renderer/gfx-gles-common/gles3w.cpp
+            cocos/renderer/gfx-gles-common/loader/gles3w.cpp
         )
     endif()
 endif()
 
 if(CC_USE_GLES2)
-    cocos_source_files(
+#    if(!CC_USE_GLES_NEW)
+        cocos_source_files(
                      cocos/renderer/gfx-gles2/GLES2Buffer.cpp
                      cocos/renderer/gfx-gles2/GLES2Buffer.h
                      cocos/renderer/gfx-gles2/GLES2CommandBuffer.cpp
@@ -1667,11 +1728,21 @@ if(CC_USE_GLES2)
                      cocos/renderer/gfx-gles2/GLES2Wrangler.h
                      cocos/renderer/gfx-gles2/states/GLES2Sampler.cpp
                      cocos/renderer/gfx-gles2/states/GLES2Sampler.h
-    )
+        )
+#    else()
+        cocos_source_files(
+                     cocos/renderer/gfx-gles-common/gles2/GLES2Commands.cpp
+                     cocos/renderer/gfx-gles-common/gles2/GLES2Commands.h
+                     cocos/renderer/gfx-gles-common/gles2/GLES2Features.cpp
+                     cocos/renderer/gfx-gles-common/gles2/GLES2CommandEncoder.cpp
+                     cocos/renderer/gfx-gles-common/gles2/GLES2CommandEncoder.h
+        )
+#    endif()
 endif()
 
 if(CC_USE_GLES3)
-    cocos_source_files(
+#    if(!CC_USE_GLES_NEW)
+        cocos_source_files(
                      cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
@@ -1717,7 +1788,16 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.h
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.h
-    )
+        )
+#    else()
+        cocos_source_files(
+                     cocos/renderer/gfx-gles-common/gles3/GLES3Commands.cpp
+                     cocos/renderer/gfx-gles-common/gles3/GLES3Commands.h
+                     cocos/renderer/gfx-gles-common/gles3/GLES3Features.cpp
+                     cocos/renderer/gfx-gles-common/gles3/GLES3CommandEncoder.cpp
+                     cocos/renderer/gfx-gles-common/gles3/GLES3CommandEncoder.h
+        )
+#    endif()
 endif()
 
 if(CC_USE_METAL)
@@ -2374,7 +2454,7 @@ if(USE_MIDDLEWARE)
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                                      cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
-                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h                                  
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
 
         )
         cocos_source_files(
@@ -3136,6 +3216,10 @@ if(CC_USE_GLES2)
     target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_GLES2)
 endif()
 
+if(CC_USE_GLES_NEW)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_GLES_NEW)
+endif()
+
 target_include_directories(${ENGINE_NAME}
     PUBLIC
         ${CC_EXTERNAL_INCLUDES}
@@ -3327,7 +3411,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED) 
+    if(IS_GENERATED)
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()

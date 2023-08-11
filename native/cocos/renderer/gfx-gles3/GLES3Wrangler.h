@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include "../gfx-gles-common/eglw.h"
-#include "../gfx-gles-common/gles2w.h"
-#include "../gfx-gles-common/gles3w.h"
+#include "../gfx-gles-common/loader/eglw.h"
+#include "../gfx-gles-common/loader/gles2w.h"
+#include "../gfx-gles-common/loader/gles3w.h"
 
 PFNGLES3WLOADPROC pfnGLES3wLoadProc();
 bool gles3wInit();
