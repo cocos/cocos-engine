@@ -326,14 +326,12 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
         }
-        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged, this);
     }
     onDisable (): void {
         if (this._probe) {
             ReflectionProbeManager.probeManager.unregister(this._probe);
             this._probe.disable();
         }
-        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged);
     }
 
     public start (): void {
@@ -373,6 +371,14 @@ export class ReflectionProbe extends Component {
                 this.probe.renderPlanarReflection(this.sourceCamera.camera);
             }
         }
+
+        if (this.node.hasChangedFlags) {
+            this.probe.updateBoundingBox();
+        }
+        if (this.node.hasChangedFlags & TransformBit.POSITION) {
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.updateProbeData();
+        }
     }
 
     /**
@@ -383,14 +389,6 @@ export class ReflectionProbe extends Component {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
         ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
-    }
-
-    private _onProbeTransformChanged (type: TransformBit): void {
-        this.probe.updateBoundingBox();
-        if (type & Node.TransformBit.POSITION) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
-            ReflectionProbeManager.probeManager.updateProbeData();
-        }
     }
 
     private _createProbe (): void {
