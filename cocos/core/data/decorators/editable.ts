@@ -23,17 +23,17 @@
 */
 
 import { DEV, EDITOR, TEST } from 'internal:constants';
-import { error } from "../../platform";
-import { getClassName } from "../../utils/js";
-import { CCClass } from "../class";
-import { assignEditorMetadata } from "./component";
+import { error } from '../../platform';
+import { getClassName } from '../../utils/js';
+import { CCClass } from '../class';
+import { assignEditorMetadata } from './component';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
 import { LegacyPropertyDecorator, emptyDecorator, makeSmartClassDecorator, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
 
-import * as RF from "../utils/requiring-frame";
+import * as RF from '../utils/requiring-frame';
 
 /**
  * @en Makes a CCClass that inherits from component execute in edit mode.<br/>
@@ -53,12 +53,13 @@ import * as RF from "../utils/requiring-frame";
  * }
  * ```
  */
-export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
-    if (DEV && CCClass._isCCClass(constructor)) {
-        error('`@%s` should be used after @ccclass for class "%s"', 'executeInEditMode', getClassName(constructor));
-    }
-    assignEditorMetadata(constructor, '_executeInEditMode', true, true);
-}) : emptySmartClassDecorator;
+export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) = (EDITOR || TEST) ?
+    makeSmartClassDecorator((constructor): void => {
+        if (DEV && CCClass._isCCClass(constructor)) {
+            error('`@%s` should be used after @ccclass for class "%s"', 'executeInEditMode', getClassName(constructor));
+        }
+        assignEditorMetadata(constructor, '_executeInEditMode', true, true);
+    }) : emptySmartClassDecorator;
 
 /**
  * @en Add the current component to the specific menu path in `Add Component` selector of the inspector panel
@@ -76,8 +77,8 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
  * }
  * ```
  */
-export const menu: (path: string) => ClassDecorator = EDITOR ? ((path: string): ClassDecorator => {
-    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+export const menu: (path: string) => ClassDecorator = EDITOR ? ((path: string): ClassDecorator =>
+    <TFunction extends AnyFunction>(constructor: TFunction): void => {
         const frame = RF.peek();
         if (frame && !path.includes('/')) {
             path = `i18n:menu.custom_script/${path}`;
@@ -85,8 +86,8 @@ export const menu: (path: string) => ClassDecorator = EDITOR ? ((path: string): 
 
         EditorExtends.Component.removeMenu(constructor);
         EditorExtends.Component.addMenu(constructor, path /*, props.menuPriority */);
-    };
-}) : emptyDecoratorFn;
+    }
+) : emptyDecoratorFn;
 
 /**
  * @en When [[_decorator.executeInEditMode]] is set,
@@ -128,11 +129,11 @@ export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
  * }
  * ```
  */
-export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
-    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator =>
+    <TFunction extends AnyFunction>(constructor: TFunction): void => {
         assignEditorMetadata(constructor, '_inspector', url, false);
-    };
-}) : emptyDecoratorFn;
+    }
+) : emptyDecoratorFn;
 
 /**
  * @en Define the icon of the component.
@@ -151,11 +152,11 @@ export const inspector: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((u
  * }
  * ```
  */
-export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
-    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator =>
+    <TFunction extends AnyFunction>(constructor: TFunction): void => {
         assignEditorMetadata(constructor, '_icon', url, false);
-    };
-}) : emptyDecoratorFn;
+    }
+) : emptyDecoratorFn;
 
 /**
  * @en Define the help documentation URL,
@@ -174,11 +175,11 @@ export const icon: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: s
  * }
  * ```
  */
-export const help: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator => {
-    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+export const help: (url: string) => ClassDecorator = (EDITOR || TEST) ? ((url: string): ClassDecorator =>
+    <TFunction extends AnyFunction>(constructor: TFunction): void => {
         assignEditorMetadata(constructor, '_help', url, true);
-    };
-}) : emptyDecoratorFn;
+    }
+) : emptyDecoratorFn;
 
 /**
  * @en

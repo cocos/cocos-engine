@@ -24,9 +24,9 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { makeSmartClassDecorator, emptySmartClassDecorator } from './utils';
-import { value } from "../../utils/js";
+import { value } from '../../utils/js';
 
-export function assignEditorMetadata (constructor: Function, attrName: string, attrValue: any, inheritable: boolean) {
+export function assignEditorMetadata (constructor: Function, attrName: string, attrValue: any, inheritable: boolean): void {
     if (inheritable) {
         constructor[attrName] = attrValue;
     } else {

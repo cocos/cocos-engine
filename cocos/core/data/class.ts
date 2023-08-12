@@ -149,14 +149,14 @@ function define (cls, className, baseClass): any {
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
-            let renderName = '';
+        let renderName = '';
         if (isChildClassOf(baseClass, legacyCC.RenderPipeline)) {
-                renderName = 'render_pipeline';
+            renderName = 'render_pipeline';
         } else if (isChildClassOf(baseClass, legacyCC.RenderFlow)) {
-                renderName = 'render_flow';
+            renderName = 'render_flow';
         } else if (isChildClassOf(baseClass, legacyCC.RenderStage)) {
-                renderName = 'render_stage';
-            }
+            renderName = 'render_stage';
+        }
         if (renderName) {
             // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
@@ -250,7 +250,7 @@ interface ISealable {
 
 export function CCClass<TFunction> (
     cls: TFunction & ISealable,
-    base: null | (Function & { __props__?: any } & ISealable),
+    base: null | (TFunction & { __props__?: any } & ISealable),
     name?: string,
     properties?: any,
     ): any {
@@ -427,16 +427,16 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
     }
-        // TODO: we close this warning for now:
-        // issue: https://github.com/cocos/3d-tasks/issues/14887
+    // TODO: we close this warning for now:
+    // issue: https://github.com/cocos/3d-tasks/issues/14887
     // else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
-        // warnID(3654, className, propertyName);
+    //     warnID(3654, className, propertyName);
     // }
 
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes): void => {
         if (attributeName in attributes) {
             const val = attributes[attributeName];
-                (attrs || initAttrs())[propertyNamePrefix + attributeName] = val;
+            (attrs || initAttrs())[propertyNamePrefix + attributeName] = val;
         }
     };
 
@@ -489,20 +489,20 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
 
         let normalizedVisible: undefined | boolean | (() => boolean);
         switch (typeof visible) {
-        case 'boolean':
-        case 'function':
-            normalizedVisible = visible;
-            break;
-        default: {
-            if (isStandaloneMode) {
-                normalizedVisible = (attributes.__internalFlags & PropertyStashInternalFlag.IMPLICIT_VISIBLE) !== 0;
-            } else {
-                const startsWithUS = (propertyName.charCodeAt(0) === 95);
-                if (startsWithUS) {
-                    normalizedVisible = false;
+            case 'boolean':
+            case 'function':
+                normalizedVisible = visible;
+                break;
+            default: {
+                if (isStandaloneMode) {
+                    normalizedVisible = (attributes.__internalFlags & PropertyStashInternalFlag.IMPLICIT_VISIBLE) !== 0;
+                } else {
+                    const startsWithUS = (propertyName.charCodeAt(0) === 95);
+                    if (startsWithUS) {
+                        normalizedVisible = false;
+                    }
                 }
             }
-        }
         }
 
         if (typeof normalizedVisible !== 'undefined') {
@@ -511,13 +511,13 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     }
 
     if (DEV) {
-    const range = attributes.range;
-    if (range) {
-                (attrs || initAttrs())[`${propertyNamePrefix}min`] = range[0];
-                attrs![`${propertyNamePrefix}max`] = range[1];
-                if (range.length > 2) {
-                    attrs![`${propertyNamePrefix}step`] = range[2];
-                }
+        const range = attributes.range;
+        if (range) {
+            (attrs || initAttrs())[`${propertyNamePrefix}min`] = range[0];
+            attrs![`${propertyNamePrefix}max`] = range[1];
+            if (range.length > 2) {
+                attrs![`${propertyNamePrefix}step`] = range[2];
+            }
         }
         parseSimpleAttribute('min');
         parseSimpleAttribute('max');

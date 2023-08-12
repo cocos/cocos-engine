@@ -27,8 +27,8 @@ import { getSuper, getClassName, isChildClassOf } from '../../utils/js-typed';
 import { CCClass } from '../class';
 import { validateOverrideMethods_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
-import { legacyCC } from "../../global-exports";
-import { warnID } from "../../platform";
+import { legacyCC } from '../../global-exports';
+import { warnID } from '../../platform';
 
 /**
  * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/en/scripting/ccclass.html)
