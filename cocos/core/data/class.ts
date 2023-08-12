@@ -24,9 +24,10 @@
 */
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
-import { errorID, warnID, error } from '../platform/debug';
+import { errorID, warnID, error, log } from '../platform/debug';
 import * as js from '../utils/js';
-import { getSuper, isChildClassOf } from '../utils/js';
+import { getSuper, isChildClassOf, getClassName, formatStr } from '../utils/js';
+import { isPlainEmptyObj_DEV } from '../utils/misc';
 import { BitMask } from '../value-types';
 import { Enum } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
@@ -77,20 +78,11 @@ function defineProp (cls, className, propName, val): void {
 
     // apply attributes
     parseAttributes(cls, val, className, propName, false);
-    if ((EDITOR && !window.Build) || TEST) {
-        for (let i = 0; i < onAfterProps_ET.length; i++) {
-            onAfterProps_ET[i](cls, propName);
-        }
-        onAfterProps_ET.length = 0;
-    }
 }
 
 function defineGetSet (cls, name, propName, val): void {
     if (val.get) {
         parseAttributes(cls, val, name, propName, true);
-        if ((EDITOR && !window.Build) || TEST) {
-            onAfterProps_ET.length = 0;
-        }
 
         attributeUtils.setClassAttr(cls, propName, 'serializable', false);
 
@@ -348,11 +340,11 @@ CCClass.getInheritanceChain = getInheritanceChain;
 const PrimitiveTypes = {
     // Specify that the input value must be integer in Properties.
     // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.
-    Integer: 'Number',
+    Integer: 'number',
     // Indicates that the type of elements in array or the type of value in dictionary is double.
-    Float: 'Number',
-    Boolean: 'Boolean',
-    String: 'String',
+    Float: 'number',
+    Boolean: 'boolean',
+    String: 'string',
 };
 
 interface IParsedAttribute extends IAcceptableAttributes {
@@ -360,8 +352,6 @@ interface IParsedAttribute extends IAcceptableAttributes {
     enumList?: readonly any[];
     bitmaskList?: any[];
 }
-type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
-const onAfterProps_ET: OnAfterProp[] = [];
 
 function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
     let attrs: IParsedAttribute | null = null;
@@ -371,14 +361,6 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         return attrs = attributeUtils.getClassAttrs(constructor);
     }
 
-    if ((EDITOR && !window.Build) || TEST) {
-        onAfterProps_ET.length = 0;
-    }
-
-    if (DEV && 'type' in attributes && typeof attributes.type === 'undefined') {
-        warnID(3660, propertyName, className);
-    }
-
     let warnOnNoDefault = true;
 
     const type = attributes.type;
@@ -386,8 +368,27 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         const primitiveType = PrimitiveTypes[type];
         if (primitiveType) {
             (attrs || initAttrs())[`${propertyNamePrefix}type`] = type;
+
+            // Ensures the type matches its default value
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
-                onAfterProps_ET.push(attributeUtils.getTypeChecker_ET(primitiveType, `cc.${type}`));
+                if ('default' in attributes) {
+                    const defaultValue = attributes.default;
+                    const defaultType: string = typeof defaultValue;
+                    if (defaultType === primitiveType) {
+                        if ((defaultType === 'boolean' || defaultType === 'string')) {
+                            warnID(3606, `cc.${type}`, `"${className}.${propertyName}"`, defaultType);
+                        }
+                    } else if (type == attributeUtils.CCString && defaultValue == null) {
+                        warnID(3607, `"${className}.${propertyName}"`);
+                    } else {
+                        // just check default loosely
+                        const isDefaultAvailable = !(Array.isArray(defaultValue) || isPlainEmptyObj_DEV(defaultValue))
+                                                    && defaultType !== 'function';
+                        if (isDefaultAvailable && defaultValue !== undefined) {
+                            warnID(3611, `cc.${type}`, `"${className}.${propertyName}"`, defaultType);
+                        }
+                    }
+                }
             }
         } else if (type === 'Object') {
             if (DEV) {
@@ -416,12 +417,35 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             warnOnNoDefault = false;
             (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Object';
             attrs![`${propertyNamePrefix}ctor`] = type;
+
+            // Ensures the type matches its default value
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
-                onAfterProps_ET.push(attributeUtils.getObjTypeChecker_ET(type));
+                const defaultValue = getDefault(attributes.default);
+                // just check default loosely
+                const isDefaultAvailable = !(Array.isArray(defaultValue) || isPlainEmptyObj_DEV(defaultValue));
+                if (isDefaultAvailable) {
+                    if (defaultValue != null && !(defaultValue instanceof type)) {
+                        warnID(3605, `"${className}.${propertyName}"`, getClassName(type));
+                    }
+                    if (!usedInGetter && isChildClassOf(type, legacyCC.ValueType)) {
+                        // check ValueType
+                        const typename = getClassName(type);
+                        const info = formatStr("There's no necessity to designate the 'type' for '%s.%s' as %s inherently is a ValueType.",
+                                                className, propertyName, typename);
+                        if (defaultValue) {
+                            log(info);
+                        } else {
+                            warnID(3612, info, typename);
+                        }
+                    }
+                }
             }
         } else if (DEV) {
             errorID(3646, className, propertyName, type);
         }
+    }
+    else if (DEV && 'type' in attributes && typeof type === 'undefined') {
+        warnID(3660, propertyName, className);
     }
 
     if ('default' in attributes) {

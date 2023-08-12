@@ -1302,6 +1302,7 @@ Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please.
 
 ### 3604
 
+<!-- DEPRECATED -->
 Can only indicate one type attribute for %s.
 
 ### 3605
@@ -1334,7 +1335,7 @@ Can not indicate the '%s' attribute for %s, which its default value is type of %
 
 ### 3612
 
-%s Just set the default value to 'new %s()' and it will be handled properly.
+%s Simply assign 'new %s()' as the default value, and it will be managed correctly.
 
 ### 3613
 
