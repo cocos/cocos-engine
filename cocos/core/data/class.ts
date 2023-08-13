@@ -354,20 +354,15 @@ interface IParsedAttribute extends IAcceptableAttributes {
 }
 
 function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
-    let attrs: IParsedAttribute | null = null;
-    let propertyNamePrefix = '';
-    function initAttrs (): any {
-        propertyNamePrefix = propertyName + DELIMETER;
-        return attrs = attributeUtils.getClassAttrs(constructor);
-    }
-
+    const attrs: IParsedAttribute = attributeUtils.getClassAttrs(constructor);
+    const propertyNamePrefix = propertyName + DELIMETER;
     let warnOnNoDefault = true;
 
     const type = attributes.type;
     if (type) {
         const primitiveType = PrimitiveTypes[type];
         if (primitiveType) {
-            (attrs || initAttrs())[`${propertyNamePrefix}type`] = type;
+            attrs[`${propertyNamePrefix}type`] = type;
 
             // Ensures the type matches its default value
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
@@ -407,21 +402,21 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
                 setPropertyEnumTypeOnAttrs(
-                    attrs || initAttrs(),
+                    attrs,
                     propertyName,
                     type,
                 );
             } else if (BitMask.isBitMask(type)) {
-                (attrs || initAttrs())[`${propertyNamePrefix}type`] = BITMASK_TAG;
-                attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
+                attrs[`${propertyNamePrefix}type`] = BITMASK_TAG;
+                attrs[`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
             } else if (DEV) {
                 errorID(3645, className, propertyName, type);
             }
         } else if (typeof type === 'function') {
             // Do not warn missing-default if the type is object
             warnOnNoDefault = false;
-            (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Object';
-            attrs![`${propertyNamePrefix}ctor`] = type;
+            attrs[`${propertyNamePrefix}type`] = 'Object';
+            attrs[`${propertyNamePrefix}ctor`] = type;
 
             // Ensures the type matches its default value
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
@@ -454,7 +449,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     }
 
     if ('default' in attributes) {
-        (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
+        attrs[`${propertyNamePrefix}default`] = attributes.default;
     }
     // TODO: we close this warning for now:
     // issue: https://github.com/cocos/3d-tasks/issues/14887
@@ -463,9 +458,9 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     // }
 
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes): void => {
-        if (attributeName in attributes) {
-            const val = attributes[attributeName];
-            (attrs || initAttrs())[propertyNamePrefix + attributeName] = val;
+        const val = attributes[attributeName];
+        if (val || attributeName in attributes) {
+            attrs[propertyNamePrefix + attributeName] = val;
         }
     };
 
@@ -473,7 +468,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         if (usedInGetter) {
             errorID(3613, 'editorOnly', className, propertyName);
         } else {
-            (attrs || initAttrs())[`${propertyNamePrefix}editorOnly`] = true;
+            attrs[`${propertyNamePrefix}editorOnly`] = true;
         }
     }
     if (DEV) {
@@ -503,7 +498,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         }
     }
     if (typeof normalizedSerializable !== 'undefined') {
-        (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = normalizedSerializable;
+        attrs[`${propertyNamePrefix}serializable`] = normalizedSerializable;
     }
 
     parseSimpleAttribute('formerlySerializedAs');
@@ -534,17 +529,17 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         }
 
         if (typeof normalizedVisible !== 'undefined') {
-            (attrs || initAttrs())[`${propertyNamePrefix}visible`] = normalizedVisible;
+            attrs[`${propertyNamePrefix}visible`] = normalizedVisible;
         }
     }
 
     if (DEV) {
         const range = attributes.range;
         if (range) {
-            (attrs || initAttrs())[`${propertyNamePrefix}min`] = range[0];
-            attrs![`${propertyNamePrefix}max`] = range[1];
+            attrs[`${propertyNamePrefix}min`] = range[0];
+            attrs[`${propertyNamePrefix}max`] = range[1];
             if (range.length > 2) {
-                attrs![`${propertyNamePrefix}step`] = range[2];
+                attrs[`${propertyNamePrefix}step`] = range[2];
             }
         }
         parseSimpleAttribute('min');
