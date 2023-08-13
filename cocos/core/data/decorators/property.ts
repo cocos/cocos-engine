@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
+import { DEV } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor, Initializer } from './utils';
-import { warnID, errorID } from '../../platform/debug';
+import { warnID } from '../../platform/debug';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 import { getClassName, mixin } from '../../utils/js-typed';
@@ -91,9 +91,10 @@ export function property (
 
     if (target === undefined) {
         // @property() => LegacyPropertyDecorator
-        return property({
+        options = {
             type: undefined,
-        });
+        };
+        return normalized;
     } else if (typeof propertyKey === 'undefined') {
         // @property(options) => LegacyPropertyDescriptor
         // @property(type) => LegacyPropertyDescriptor
@@ -120,6 +121,8 @@ function getDefaultFromInitializer (initializer: Initializer): unknown {
     } else {
         // The default attribute will not be used in the ES6 constructor actually,
         // so we don't need to simplify into `{}` or `[]` or vec2 completely.
+        // TODO: support {} / [] / ValueType...
+        // see https://github.com/cocos/cocos-engine/pull/1572/files#diff-94c9ffb3c1e67c58591d8465bc7798f80d3990e06a9ddf5e4a9f4ae54ddf48daR126
         return initializer;
     }
 }
@@ -182,13 +185,6 @@ function mergePropertyOptions (
 
     if (isGetset) {
         // typescript or babel
-        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
-            const errorProps = getSubDict(cache, 'errorProps');
-            if (!errorProps[(propertyKey as string)]) {
-                errorProps[(propertyKey as string)] = true;
-                warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
-            }
-        }
         if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
             propertyRecord.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
         }
@@ -196,12 +192,6 @@ function mergePropertyOptions (
             propertyRecord.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
         }
     } else { // Target property is non-accessor
-        if (DEV && (propertyRecord.get || propertyRecord.set)) {
-            // Specify "accessor options" for non-accessor property is forbidden.
-            errorID(3655, propertyKey as string, getClassName(ctor), propertyKey  as string, propertyKey  as string);
-            return;
-        }
-
         setDefaultValue(
             cache,
             propertyRecord,
@@ -209,13 +199,6 @@ function mergePropertyOptions (
             propertyKey,
             descriptorOrInitializer,
         );
-
-        if ((EDITOR && !window.Build) || TEST) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (!fullOptions && options && options.hasOwnProperty('default')) {
-                warnID(3653, propertyKey as string, getClassName(ctor));
-            }
-        }
     }
 }
 

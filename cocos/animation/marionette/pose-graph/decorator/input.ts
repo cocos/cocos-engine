@@ -3,6 +3,7 @@
 import { error, js } from '../../../../core';
 import { PropertyStashInternalFlag } from '../../../../core/data/class-stash';
 import { getOrCreatePropertyStash } from '../../../../core/data/decorators/property';
+import { LegacyPropertyDecorator } from '../../../../core/data/decorators/utils';
 import { PoseGraphNodeInputMappingOptions, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseNode } from '../pose-node';
@@ -38,8 +39,8 @@ export type { PoseGraphNodeInputMappingOptions };
  * If the decorating property is **NOT** an array, the property will be mapped as an input.
  * Otherwise, each element of the property will be mapped as an input.
  */
-export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
-    return (target, propertyKey): void => {
+export function input (options: PoseGraphNodeInputMappingOptions): LegacyPropertyDecorator {
+    return (target, propertyKey, descriptorOrInitializer): void => {
         const targetConstructor = target.constructor;
         if (options.type === PoseGraphType.POSE) {
             if (!js.isChildClassOf(targetConstructor, PoseNode)) {
@@ -53,7 +54,7 @@ export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecor
             error(`@input can be only applied to fields of subclasses of PoseNode or PureValueNode.`);
             return;
         }
-        inputUnchecked(options)(target, propertyKey);
+        inputUnchecked(options)(target, propertyKey, descriptorOrInitializer);
     };
 }
 
@@ -61,8 +62,8 @@ export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecor
  * Unchecked version of `@input()`.
  * @internal
  */
-export function inputUnchecked (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
-    return (target, propertyKey) => {
+export function inputUnchecked (options: PoseGraphNodeInputMappingOptions): LegacyPropertyDecorator {
+    return (target, propertyKey, descriptorOrInitializer) => {
         if (typeof propertyKey !== 'string') {
             error(`@input can be only applied to string-named fields.`);
             return;
@@ -71,7 +72,7 @@ export function inputUnchecked (options: PoseGraphNodeInputMappingOptions): Prop
         const targetConstructor = target.constructor;
         globalPoseGraphNodeInputManager.setPropertyNodeInputRecord(targetConstructor, propertyKey, options);
 
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey);
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.__internalFlags |= (PropertyStashInternalFlag.STANDALONE | PropertyStashInternalFlag.IMPLICIT_VISIBLE);
     };
 }

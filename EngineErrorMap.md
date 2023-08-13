@@ -1522,6 +1522,7 @@ Please ensure the constructor can be called during the script's initialization.
 
 ### 3653
 
+<!-- DEPRECATED -->
 Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.
 Default value must be initialized at their declaration:
 
@@ -1554,6 +1555,7 @@ myProp = 0;
 
 ### 3655
 
+<!-- DEPRECATED -->
 Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.
 Please use:
 
