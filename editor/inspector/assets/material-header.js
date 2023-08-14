@@ -92,7 +92,7 @@ exports.methods = {
     },
 };
 
-exports.ready = async function() {
+exports.ready = async function () {
     const panel = this;
 
     callMaterialPreviewFunction('resetCamera');
@@ -111,14 +111,6 @@ exports.ready = async function() {
     panel.$.canvas.addEventListener('mousedown', async (event) => {
         await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
-        async function keydown(event) {
-            await callMaterialPreviewFunction('onKeyDown', {
-                code: event.code,
-                keyCode: event.keyCode,
-            });
-            panel.isPreviewDataDirty = true;
-        }
-
         async function mousemove(event) {
             await callMaterialPreviewFunction('onMouseMove', {
                 movementX: event.movementX,
@@ -136,13 +128,11 @@ exports.ready = async function() {
 
             document.removeEventListener('mousemove', mousemove);
             document.removeEventListener('mouseup', mouseup);
-            document.removeEventListener('keydown', keydown);
 
             panel.isPreviewDataDirty = false;
         }
         document.addEventListener('mousemove', mousemove);
         document.addEventListener('mouseup', mouseup);
-        document.addEventListener('keydown', keydown);
 
         panel.isPreviewDataDirty = true;
     });
@@ -170,7 +160,7 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     const panel = this;
     callMaterialPreviewFunction('resetCamera');
 
@@ -193,7 +183,7 @@ exports.update = async function(assetList, metaList) {
     panel.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);

@@ -51,14 +51,6 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await callSkeletonPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
-                async function keydown(event) {
-                    await callSkeletonPreviewFunction('onKeyDown', {
-                        code: event.code,
-                        keyCode: event.keyCode,
-                    });
-                    panel.isPreviewDataDirty = true;
-                }
-
                 async function mousemove(event) {
                     await callSkeletonPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
@@ -76,14 +68,12 @@ const Elements = {
 
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
-                    document.removeEventListener('keydown', keydown);
 
                     panel.isPreviewDataDirty = false;
                 }
 
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
-                document.addEventListener('keydown', keydown);
 
 
                 panel.isPreviewDataDirty = true;
@@ -194,7 +184,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -203,7 +193,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -217,7 +207,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
