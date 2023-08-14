@@ -1399,6 +1399,26 @@ export class LayoutGraphObjectPool {
         this._renderPhaseData = new RecyclePool<RenderPhaseData>(() => new RenderPhaseData(), settings.renderPhaseDataBatchSize);
         this._layoutGraphData = new RecyclePool<LayoutGraphData>(() => new LayoutGraphData(), settings.layoutGraphDataBatchSize);
     }
+    reset (): void {
+        this._descriptorDB.reset();
+        this._renderPhase.reset();
+        this._layoutGraph.reset();
+        this._uniformData.reset();
+        this._uniformBlockData.reset();
+        this._descriptorData.reset();
+        this._descriptorBlockData.reset();
+        this._descriptorSetLayoutData.reset();
+        this._descriptorSetData.reset();
+        this._pipelineLayoutData.reset();
+        this._shaderBindingData.reset();
+        this._shaderLayoutData.reset();
+        this._techniqueData.reset();
+        this._effectData.reset();
+        this._shaderProgramData.reset();
+        this._renderStageData.reset();
+        this._renderPhaseData.reset();
+        this._layoutGraphData.reset();
+    }
     public readonly renderCommon: RenderCommonObjectPool;
     private readonly _descriptorDB: RecyclePool<DescriptorDB>;
     private readonly _renderPhase: RecyclePool<RenderPhase>;

@@ -2565,6 +2565,39 @@ export class RenderGraphObjectPool {
         this._renderData = new RecyclePool<RenderData>(() => new RenderData(), settings.renderDataBatchSize);
         this._renderGraph = new RecyclePool<RenderGraph>(() => new RenderGraph(), settings.renderGraphBatchSize);
     }
+    reset (): void {
+        this._clearValue.reset();
+        this._rasterView.reset();
+        this._computeView.reset();
+        this._resourceDesc.reset();
+        this._resourceTraits.reset();
+        this._renderSwapchain.reset();
+        this._resourceStates.reset();
+        this._managedBuffer.reset();
+        this._managedTexture.reset();
+        this._managedResource.reset();
+        this._subpass.reset();
+        this._subpassGraph.reset();
+        this._rasterSubpass.reset();
+        this._computeSubpass.reset();
+        this._rasterPass.reset();
+        this._persistentRenderPassAndFramebuffer.reset();
+        this._formatView.reset();
+        this._subresourceView.reset();
+        this._resourceGraph.reset();
+        this._computePass.reset();
+        this._resolvePass.reset();
+        this._copyPass.reset();
+        this._movePass.reset();
+        this._raytracePass.reset();
+        this._clearView.reset();
+        this._renderQueue.reset();
+        this._sceneData.reset();
+        this._dispatch.reset();
+        this._blit.reset();
+        this._renderData.reset();
+        this._renderGraph.reset();
+    }
     public readonly renderCommon: RenderCommonObjectPool;
     private readonly _clearValue: RecyclePool<ClearValue>;
     private readonly _rasterView: RecyclePool<RasterView>;

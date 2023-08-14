@@ -648,6 +648,18 @@ export class RenderCommonObjectPool {
         this._movePair = new RecyclePool<MovePair>(() => new MovePair(), settings.movePairBatchSize);
         this._pipelineStatistics = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), settings.pipelineStatisticsBatchSize);
     }
+    reset (): void {
+        this._lightInfo.reset();
+        this._descriptor.reset();
+        this._descriptorBlock.reset();
+        this._descriptorBlockFlattened.reset();
+        this._descriptorBlockIndex.reset();
+        this._resolvePair.reset();
+        this._copyPair.reset();
+        this._uploadPair.reset();
+        this._movePair.reset();
+        this._pipelineStatistics.reset();
+    }
     private readonly _lightInfo: RecyclePool<LightInfo>;
     private readonly _descriptor: RecyclePool<Descriptor>;
     private readonly _descriptorBlock: RecyclePool<DescriptorBlock>;
