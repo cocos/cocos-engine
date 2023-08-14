@@ -267,7 +267,6 @@ export class Graphics extends UIRenderer {
     }
 
     public onDestroy (): void {
-        this._sceneGetter = null;
         if (JSB) {
             this._graphicsNativeProxy.destroy();
             this.model = null;

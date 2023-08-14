@@ -99,7 +99,10 @@ export class ModelRenderer extends Renderer {
         this._updatePriority();
     }
 
-    protected _attachToScene (): void {
+    /**
+     * @engineInternal
+     */
+    public _attachToScene (): void {
     }
 
     /**

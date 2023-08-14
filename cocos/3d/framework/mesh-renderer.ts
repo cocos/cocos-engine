@@ -961,7 +961,10 @@ export class MeshRenderer extends ModelRenderer {
         }
     }
 
-    protected _attachToScene (): void {
+    /**
+     * @engineInternal
+     */
+    public _attachToScene (): void {
         if (!this.node.scene || !this._model) {
             return;
         }

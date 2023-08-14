@@ -118,7 +118,9 @@ export class UIMeshRenderer extends Component {
             return;
         }
 
-        this._modelComponent._sceneGetter = null;
+        if (this._modelComponent.enabledInHierarchy) {
+            this._modelComponent._attachToScene();
+        }
     }
 
     /**
