@@ -96,9 +96,7 @@ class GeometryVertexBuffer {
         this._buffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-
             maxVertices * stride,
-
             stride,
         ));
         this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
