@@ -325,6 +325,8 @@ const parsePlist = function (url, options, onComplete) {
 };
 
 downloader.downloadScript = downloadScript;
+downloader._downloadArrayBuffer = downloadArrayBuffer;
+downloader._downloadJson = downloadJson;
 parser.parsePVRTex = parsePVRTex;
 parser.parsePKMTex = parsePKMTex;
 parser.parseASTCTex = parseASTCTex;

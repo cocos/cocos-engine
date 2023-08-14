@@ -26,45 +26,45 @@ import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { sys, js, misc, path, cclegacy } from '../../core';
 import Cache from './cache';
 import downloadDomImage from './download-dom-image';
-import downloadFile from './download-file';
+import downloadFile, { FileProgressCallback } from './download-file';
 import downloadScript from './download-script';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
 
-export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
+export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void;
 
 interface IDownloadRequest {
     id: string;
     priority: number;
     url: string;
     options: Record<string, any>;
-    done: ((err: Error | null, data?: any | null) => void);
+    done: ((err: Error | null, data?: any) => void);
     handler: DownloadHandler;
 }
 
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
-const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
+const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
-const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
+const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     options.xhrResponseType = 'blob';
-    downloadFile(url, options, options.onFileProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
 };
 
 const downloadJson = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)): void => {
     options.xhrResponseType = 'json';
-    downloadFile(url, options, options.onFileProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
 };
 
-const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
+const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     options.xhrResponseType = 'arraybuffer';
-    downloadFile(url, options, options.onFileProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
 };
 
 const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
@@ -75,7 +75,7 @@ const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((e
         }
         const cconPreface = parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk): Promise<Uint8Array> => new Promise<Uint8Array>((resolve, reject): void => {
-            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer): void => {
+            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer: ArrayBuffer): void => {
                 if (err) {
                     reject(err);
                 } else {
@@ -86,7 +86,7 @@ const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((e
         chunkPromises.then((chunks): void => {
             const ccon = new CCON(cconPreface.document, chunks);
             onComplete(null, ccon);
-        }).catch((err): void => {
+        }).catch((err: Error): void => {
             onComplete(err);
         });
     });
@@ -107,12 +107,12 @@ const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((
     });
 };
 
-const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
+const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     options.xhrResponseType = 'text';
-    downloadFile(url, options, options.onFileProgress, onComplete);
+    downloadFile(url, options, options.onFileProgress as FileProgressCallback, onComplete);
 };
 
-const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
+const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void => {
     const bundleName = path.basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) {
@@ -262,6 +262,16 @@ export class Downloader {
      */
     public downloadScript = downloadScript;
 
+    /**
+     * @engineInternal
+     */
+    public _downloadArrayBuffer = downloadArrayBuffer;
+
+    /**
+     * @engineInternal
+     */
+    public _downloadJson = downloadJson;
+
     // default handler map
     private _downloaders: Record<string, DownloadHandler> = {
         // Images
@@ -310,7 +320,7 @@ export class Downloader {
         default: downloadText,
     };
 
-    private _downloading = new Cache<((err: Error | null, data?: any | null) => void)[]>();
+    private _downloading = new Cache<((err: Error | null, data?: any) => void)[]>();
     private _queue: IDownloadRequest[] = [];
     private _queueDirty = false;
     // the number of loading thread
@@ -360,11 +370,11 @@ export class Downloader {
      *                      '.ext': (url, options, onComplete) => onComplete(null, null)});
      *
      */
-    public register (type: string, handler: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void): void;
-    public register (map: Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>): void;
+    public register (type: string, handler: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void): void;
+    public register (map: Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void>): void;
     public register (
-        type: string | Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
-        handler?: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
+        type: string | Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void>,
+        handler?: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)) => void,
     ): void {
         if (typeof type === 'object') {
             js.mixin(this._downloaders, type);
@@ -397,7 +407,7 @@ export class Downloader {
      * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => console.log(loaded/total) },
      *      onComplete: (err) => console.log(err));
      */
-    public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
+    public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any) => void)): void {
         // if it is downloaded, don't download again
         const file = files.get(id);
         if (file) {
@@ -419,9 +429,9 @@ export class Downloader {
         }
 
         // if download fail, should retry
-        const maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount : this.maxRetryCount;
-        const maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency : this.maxConcurrency;
-        const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
+        const maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount as number : this.maxRetryCount;
+        const maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency as number : this.maxConcurrency;
+        const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame as number : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
         const process: RetryFunction = (index, callback): void => {
@@ -437,7 +447,7 @@ export class Downloader {
             // refresh
             this._updateTime();
 
-            const done: ((err: Error | null, data?: any | null) => void) = (err, data): void => {
+            const done: ((err: Error | null, data?: any) => void) = (err, data): void => {
                 // when finish downloading, update _totalNum
                 this._totalNum--;
                 this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
@@ -458,9 +468,9 @@ export class Downloader {
         };
 
         // when retry finished, invoke callbacks
-        const finale = (err, result): void => {
+        const finale = (err: Error | null, result : any): void => {
             if (!err) { files.add(id, result); }
-            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any | null) => void)[];
+            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
                 callbacks[i](err, result);
             }

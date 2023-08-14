@@ -291,6 +291,8 @@ parser.parsePKMTex = downloader.downloadDomImage;
 parser.parseASTCTex = downloader.downloadDomImage;
 parser.parsePlist = parsePlist;
 downloader.downloadScript = downloadScript;
+downloader._downloadArrayBuffer = downloadArrayBuffer;
+downloader._downloadJson = downloadJson;
 
 function loadAudioPlayer (url, options, onComplete) {
     cc.AudioPlayer.load(url).then((player) => {
