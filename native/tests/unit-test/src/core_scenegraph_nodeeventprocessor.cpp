@@ -412,5 +412,5 @@ TEST(NodeTransform, test_node_transform) {
     EXPECT_FALSE(node2->getWorldPosition().approxEquals(globalPosition));
     EXPECT_FALSE(node2->getWorldMatrix().approxEquals(worldMat));
     float v = node2->getWorldMatrix().determinant();
-    EXPECT_TRUE(0 <= v && v <= 6);
+    EXPECT_TRUE((0.F - FLT_EPSILON) <= v && v <= (6.F + FLT_EPSILON));
 }
