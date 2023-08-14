@@ -68,14 +68,14 @@ const downloadArrayBuffer = (url: string, options: Record<string, any>, onComple
 };
 
 const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloadJson(url, options, (err, json): void => {
+    downloader._downloadJson(url, options, (err, json): void => {
         if (err) {
             onComplete(err);
             return;
         }
         const cconPreface = parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk): Promise<Uint8Array> => new Promise<Uint8Array>((resolve, reject): void => {
-            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer: ArrayBuffer): void => {
+            downloader._downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer: ArrayBuffer): void => {
                 if (err) {
                     reject(err);
                 } else {
@@ -93,7 +93,7 @@ const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((e
 };
 
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
+    downloader._downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
         if (err) {
             onComplete(err);
             return;
@@ -468,7 +468,7 @@ export class Downloader {
         };
 
         // when retry finished, invoke callbacks
-        const finale = (err: Error | null, result : any): void => {
+        const finale = (err: Error | null, result: any): void => {
             if (!err) { files.add(id, result); }
             const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
