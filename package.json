@@ -8,9 +8,11 @@
     "AUTHORS.txt"
   ],
   "module": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "preinstall": "node ./scripts/detect-npm-version.js",
     "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
