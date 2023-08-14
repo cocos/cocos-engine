@@ -264,7 +264,6 @@ export class Downloader {
 
     /**
      * @engineInternal
-     * @internal
      */
     public _downloadArrayBuffer = downloadArrayBuffer;
 
