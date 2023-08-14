@@ -43,14 +43,14 @@ const extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.as
 // TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
 const imageAssetProto: any = ImageAsset.prototype;
 
-imageAssetProto._ctor = function (nativeAsset?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
+imageAssetProto._ctor = function (imageSource?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
     this._height = 0;
-    if (nativeAsset instanceof ImageData) {
-        this._imageData = nativeAsset;
+    if (imageSource instanceof ImageData) {
+        this._imageData = imageSource;
     } else {
-        this._imageData = new ImageData(nativeAsset);
+        this._imageData = new ImageData(imageSource);
     }
 };
 
