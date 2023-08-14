@@ -309,8 +309,8 @@ void GLES3CommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture
 
 void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
-    if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
-    if (dstTexture) cmd->gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
+    if (srcTexture) cmd->gpuTextureSrcView = static_cast<GLES3Texture *>(srcTexture)->gpuTextureView();
+    if (dstTexture) cmd->gpuTextureDstView = static_cast<GLES3Texture *>(dstTexture)->gpuTextureView();
     cmd->regions = regions;
     cmd->count = count;
     cmd->filter = filter;

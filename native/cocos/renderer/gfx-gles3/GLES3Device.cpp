@@ -604,7 +604,7 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(GLES3DeviceCopyTextureToBuffers);
-    cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
+    cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTextureView(), buffers, regions, count);
 }
 
 void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
