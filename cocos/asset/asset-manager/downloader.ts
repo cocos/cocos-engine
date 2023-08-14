@@ -320,7 +320,7 @@ export class Downloader {
         default: downloadText,
     };
 
-    private _downloading = new Cache<((err: Error | null, data?: any | null) => void)[]>();
+    private _downloading = new Cache<((err: Error | null, data?: any) => void)[]>();
     private _queue: IDownloadRequest[] = [];
     private _queueDirty = false;
     // the number of loading thread
@@ -429,9 +429,9 @@ export class Downloader {
         }
 
         // if download fail, should retry
-        const maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount : this.maxRetryCount;
-        const maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency : this.maxConcurrency;
-        const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
+        const maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount as number : this.maxRetryCount;
+        const maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency as number : this.maxConcurrency;
+        const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame as number : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
         const process: RetryFunction = (index, callback): void => {
@@ -447,7 +447,7 @@ export class Downloader {
             // refresh
             this._updateTime();
 
-            const done: ((err: Error | null, data?: any | null) => void) = (err, data): void => {
+            const done: ((err: Error | null, data?: any) => void) = (err, data): void => {
                 // when finish downloading, update _totalNum
                 this._totalNum--;
                 this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
@@ -468,9 +468,9 @@ export class Downloader {
         };
 
         // when retry finished, invoke callbacks
-        const finale = (err, result): void => {
+        const finale = (err: Error | null, result : any): void => {
             if (!err) { files.add(id, result); }
-            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any | null) => void)[];
+            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
                 callbacks[i](err, result);
             }
