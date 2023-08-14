@@ -190,7 +190,9 @@ bool CCVKGPUContext::initialize() {
             break;
         }
     }
+#endif
 
+#if CC_DEBUG
     // Check if VK_EXT_debug_utils is supported, which supersedes VK_EXT_Debug_Report
     bool debugUtils = false;
     if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, supportedExtensions)) {
@@ -338,7 +340,6 @@ bool CCVKGPUContext::initialize() {
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyPropertiesCount, nullptr);
     queueFamilyProperties.resize(queueFamilyPropertiesCount);
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyPropertiesCount, queueFamilyProperties.data());
-
     return true;
 }
 

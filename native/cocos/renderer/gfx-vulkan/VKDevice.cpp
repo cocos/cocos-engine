@@ -123,6 +123,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
     requestedExtensions.push_back(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
+#if CC_DEBUG
+    requestedExtensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+#endif
     if (_gpuDevice->minorVersion < 2) {
         requestedExtensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
     }
@@ -769,6 +772,17 @@ void CCVKDevice::initDeviceFeature() {
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
     _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = checkExtension("VK_KHR_depth_stencil_resolve");
+
+    _gpuContext->debugReport = _gpuContext->checkExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME) &&
+        checkExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME) &&
+        (vkCmdDebugMarkerBeginEXT != nullptr) &&
+        (vkCmdDebugMarkerInsertEXT != nullptr) &&
+        (vkCmdDebugMarkerEndEXT != nullptr);
+    _gpuContext->debugUtils = _gpuContext->checkExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) &&
+        (vkCmdBeginDebugUtilsLabelEXT != nullptr) &&
+        (vkCmdInsertDebugUtilsLabelEXT != nullptr) &&
+        (vkCmdEndDebugUtilsLabelEXT != nullptr);
+    _features[toNumber(Feature::DEBUG_MARKER)] = _gpuContext->debugUtils || _gpuContext->debugReport;
 }
 
 void CCVKDevice::initFormatFeature() {
