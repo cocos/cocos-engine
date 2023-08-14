@@ -264,13 +264,11 @@ export class Downloader {
 
     /**
      * @engineInternal
-     * @internal
      */
     public _downloadArrayBuffer = downloadArrayBuffer;
 
     /**
      * @engineInternal
-     * @internal
      */
     public _downloadJson = downloadJson;
 
