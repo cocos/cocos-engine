@@ -47,6 +47,7 @@ import type { UIRenderer } from '../framework/ui-renderer';
  * @zh
  * UI 模型基础组件。
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[ParticleSystem]] 组件的节点上。
+ * @deprecated This component is not recommended to be used, and the capabilities of this component will be provided in other ways in the future.
  */
 @ccclass('cc.UIMeshRenderer')
 @help('i18n:cc.UIMeshRenderer')
