@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { ImageData } from 'pal/image';
 import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
@@ -334,6 +335,15 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
+
+    /**
+     * @en Copy image data to texture.
+     * @zh 拷贝图像资产到纹理。
+     * @param imageData The image data to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
+     */
+    public abstract copyImageDatasToTexture (imageData: Readonly<ImageData[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Whether the device has specific feature.

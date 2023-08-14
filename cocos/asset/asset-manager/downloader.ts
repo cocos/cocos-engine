@@ -25,13 +25,13 @@
 import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { sys, js, misc, path, cclegacy } from '../../core';
 import Cache from './cache';
-import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
+import downloadDomImage from './download-dom-image';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
@@ -47,7 +47,7 @@ interface IDownloadRequest {
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void => {
-    // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
+    // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use ImageData to load
     const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };

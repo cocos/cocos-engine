@@ -3,6 +3,7 @@ import { ImageAsset } from "../../cocos/asset/assets";
 import { AssetManager, assetManager, loader, resources } from "../../cocos/asset/asset-manager";
 import { js } from "../../cocos/core";
 import { TestSprite } from "./common-class";
+import { IMemoryImageSource, ImageData } from "pal/image";
 
 describe('asset-manager', function () {
     const assetDir = './tests/fixtures';
@@ -57,7 +58,7 @@ describe('asset-manager', function () {
 
         assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
             if (item.uuid === image1) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else if (item.uuid === json1) {
                 expect(item.content.width).toBe(89);
@@ -70,7 +71,7 @@ describe('asset-manager', function () {
             }
         }, function (err, assets) {
             expect(assets.length).toBe(3);
-            expect(assets[0]).toBeInstanceOf(Image);
+            expect(assets[0]).toBeInstanceOf(ImageData);
             expect(assets[1].width).toBe(89);
             expect(assets[2]._native).toBe('YouKnowEverything');
             expect(assetManager.assets.has(image1)).toBeFalsy();
@@ -85,14 +86,14 @@ describe('asset-manager', function () {
 
         assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else {
                 fail('should not load an unknown url');
             }
         }, function (error, image) {
             expect(error).toBeFalsy();
-            expect(image).toBeInstanceOf(Image);
+            expect(image).toBeInstanceOf(ImageData);
             expect(assetManager.assets.has(image1)).toBeFalsy();
             done();
         });
@@ -112,7 +113,7 @@ describe('asset-manager', function () {
 
         const progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else if (item.uuid === font.url) {
                 expect(item.content).toBe('Thonburi_LABEL');
@@ -124,7 +125,7 @@ describe('asset-manager', function () {
 
         assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
             expect(assets.length).toBe(2);
-            expect(assets[0]).toBeInstanceOf(Image);
+            expect(assets[0]).toBeInstanceOf(ImageData);
             expect(assets[1]).toBe('Thonburi_LABEL');
             expect(progressCallback).toBeCalledTimes(total);
             done();
@@ -136,8 +137,8 @@ describe('asset-manager', function () {
         const image2 = assetDir + '/button.png?url=http://.../2';
         assetManager.loadAny({url: image1, ext: '.png' }, function (error, image1) {
             assetManager.loadAny({url: image2, ext: '.png' }, function (error, image2) {
-                expect(image1).toBeInstanceOf(Image);;
-                expect(image2).toBeInstanceOf(Image);;
+                expect(image1).toBeInstanceOf(ImageData);;
+                expect(image2).toBeInstanceOf(ImageData);;
                 expect(image1 !== image2).toBeTruthy();
                 done();
             });
@@ -147,8 +148,11 @@ describe('asset-manager', function () {
     test('Loading remote image', function (done) {
         const image = assetDir + '/button.png';
         assetManager.loadRemote(image, function (error, texture) {
-            expect(texture).toBeInstanceOf(ImageAsset);;
-            expect(texture._nativeAsset).toBeInstanceOf(Image);;
+            expect(texture).toBeInstanceOf(ImageAsset);
+            // texture._nativeAsset should return `IMemoryImageSource`.
+            // But we can't use toBeInstanceOf. Because IMemoryImageSource is an interface.
+            console.log(texture._nativeAsset);
+            expect('_data' in texture._nativeAsset).toBeTruthy();
             expect(texture.refCount === 0).toBeTruthy();
             done();
         });

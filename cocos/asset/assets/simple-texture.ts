@@ -24,6 +24,9 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
+import { ImageData } from 'pal/image';
+import { IMemoryImageSource } from '../../../pal/image/types';
+
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
 import { Filter } from './asset-enum';
@@ -139,8 +142,28 @@ export class SimpleTexture extends TextureBase {
      * @param source @en The source image or image data. @zh 源图像或图像数据。
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
+     * @deprecated since v3.9, please use `uploadData (source: ImageAsset | IMemoryImageSource | ArrayBufferView, level, arrayIndex)` instead.
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0): void {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, level?: number, arrayIndex?: number): void;
+    /**
+     * @en Upload data to the given mipmap level.
+     * The size of the image will affect how the mipmap is updated.
+     * - When the image is an ArrayBuffer, the size of the image must match the mipmap size.
+     * - If the image size matches the mipmap size, the mipmap data will be updated entirely.
+     * - If the image size is smaller than the mipmap size, the mipmap will be updated from top left corner.
+     * - If the image size is larger, an error will be raised
+     * @zh 上传图像数据到指定层级的 Mipmap 中。
+     * 图像的尺寸影响 Mipmap 的更新范围：
+     * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
+     * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
+     * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
+     * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
+     * @param source @en The ImageData,IMemoryImageSource or ArrayBufferView. @zh 图像管理对象、内存图像数据或ArrayBufferView。
+     * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
+     * @param arrayIndex @en The array index. @zh 要上传的数组索引。
+     */
+    public uploadData (source: ImageData | IMemoryImageSource | ArrayBufferView, level?: number, arrayIndex?: number): void;
+    public uploadData (source: ImageData | IMemoryImageSource | ArrayBufferView | HTMLCanvasElement | HTMLImageElement  | ImageBitmap, level: number = 0, arrayIndex: number  = 0): void {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
@@ -155,32 +178,24 @@ export class SimpleTexture extends TextureBase {
         region.texExtent.height = this._textureHeight >> level;
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
-
-        if (DEV) {
-            if (source instanceof HTMLElement) {
-                if (source.height > region.texExtent.height
-                    || source.width > region.texExtent.width) {
-                    error(`Image source(${this.name}) bounds override.`);
-                }
-            }
-        }
-
-        if (ArrayBuffer.isView(source)) {
-            gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
+        let imageData;
+        if (source instanceof ImageData) {
+            imageData = source;
         } else {
-            gfxDevice.copyTexImagesToTexture([source], this._gfxTexture, _regions);
+            // This is a hack method, otherwise ts will just report an error.
+            imageData = new ImageData(source as IMemoryImageSource);
         }
+        gfxDevice.copyImageDatasToTexture([imageData], this._gfxTexture, _regions);
     }
 
     /**
      * @engineInternal
      */
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number): void {
-        const data = image.data;
-        if (!data) {
+        if (!image.data) {
             return;
         }
-        this.uploadData(data, level, arrayIndex);
+        this.uploadData(image.imageData, level, arrayIndex);
         this._checkTextureLoaded();
 
         if (macro.CLEANUP_IMAGE_CACHE) {

@@ -25,7 +25,9 @@
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
+import { ImageData } from 'pal/image';
+import { ImageSource, IMemoryImageSource, RawDataType } from '../../../pal/image/types';
+import { Device, Format, FormatFeatureBit, deviceManager, API } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy, warn } from '../../core';
@@ -135,46 +137,6 @@ function readBEUint16 (header, offset: number): number {
 }
 
 /**
- * @en Image source in memory
- * @zh 内存图像源。
- */
-export interface IMemoryImageSource {
-    _data: ArrayBufferView | null;
-    _compressed: boolean;
-    width: number;
-    height: number;
-    format: number;
-    mipmapLevelDataSize?: number[];
-}
-
-/**
- * @en The image source, can be HTML canvas, image type or image in memory data
- * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
- */
-export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
-
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
-    return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
-}
-
-function fetchImageSource (imageSource: ImageSource): HTMLCanvasElement | HTMLImageElement | ImageBitmap | ArrayBufferView | null {
-    return '_data' in imageSource ? imageSource._data : imageSource;
-}
-
-// 返回该图像源是否是平台提供的图像对象。
-function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || TAOBAO || TAOBAO_MINIGAME || XIAOMI || BAIDU || WECHAT_MINI_PROGRAM) {
-        // We're unable to grab the constructors of Alipay native image or canvas object.
-        return !('_data' in imageSource);
-    }
-    if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
-        return false;
-    }
-
-    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
-}
-
-/**
  * @en Image Asset. The image resource stores the raw data of the image and you can use this resource to create any Texture resource.
  * @zh 图像资源。图像资源存储了图像的原始数据，你可以使用此资源来创建任意 [[TextureBase]] 资源。
  */
@@ -231,8 +193,11 @@ export class ImageAsset extends Asset {
             let dataOffset = fileHeaderLength;
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-                    file.byteLength, true); //add file data size
+                outView.setUint32(
+                    COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                    file.byteLength,
+                    true,
+                ); //add file data size
 
                 // Append compresssed file
                 if (file instanceof ArrayBuffer) {
@@ -305,8 +270,14 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
+    public static parseCompressedTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        type: number,
+        out: IMemoryImageSource,
+    ): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -331,8 +302,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePVRTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -383,8 +359,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePKMTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -417,8 +398,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parseASTCTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -523,27 +509,49 @@ export class ImageAsset extends Asset {
     @override
     get _nativeAsset (): any {
         // Maybe returned to pool in webgl.
-        return this._nativeData;
+        return this._imageData.source;
     }
     // TODO: Property 'format' does not exist on type 'ImageBitmap'
     // set _nativeAsset (value: ImageSource) {
     set _nativeAsset (value: any) {
-        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
-            value.format = value.format || this._format;
+        if (value instanceof ImageData) {
+            this._imageData = value;
+        } else {
+            // This is a hack method, otherwise ts will just report an error.
+            this.reset(value as IMemoryImageSource);
         }
-        this.reset(value);
     }
 
     /**
-     * @en Image data.
-     * @zh 此图像资源的图像数据。
+     * @en Return image data.
+     *     If using a webgl backend:
+     *        - Return source if source is HTMLCanvasElement | HTMLImageElement | ImageBitmap.
+     *        - If source is IMemoryImageSource then return raw image data.
+     *     Other rendering backends that return raw image data.
+     * @zh 返回图像数据。
+     *     如果是webgl的渲染后端：
+     *        - 如果source是HTMLCanvasElement | HTMLImageElement | ImageBitmap则直接返回source.
+     *        - 如果source是IMemoryImageSource则返回原始图像数据.
+     *     其他的渲染后端，返回的都是原始图像数据。
      */
-    get data (): ArrayBufferView | HTMLCanvasElement | HTMLImageElement | ImageBitmap | null {
-        if (isNativeImage(this._nativeData)) {
-            return this._nativeData;
+    get data (): ImageSource | RawDataType | null {
+        if (deviceManager.gfxDevice.gfxAPI === API.WEBGL || deviceManager.gfxDevice.gfxAPI === API.WEBGL2) {
+            if ('_data' in this._imageData.source) {
+                return this._imageData.data;
+            } else {
+                return this._imageData.source;
+            }
+        } else {
+            return this._imageData.data;
         }
+    }
 
-        return this._nativeData && this._nativeData._data;
+    /**
+     * @en Return image data management object.
+     * @zh 返回图像数据管理对象。
+     */
+    get imageData (): ImageData {
+        return this._imageData;
     }
 
     /**
@@ -551,7 +559,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素宽度。
      */
     get width (): number {
-        return this._nativeData.width || this._width;
+        return this._imageData.width || this._width;
     }
 
     /**
@@ -559,7 +567,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素高度。
      */
     get height (): number {
-        return this._nativeData.height || this._height;
+        return this._imageData.height || this._height;
     }
 
     /**
@@ -567,7 +575,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素格式。
      */
     get format (): PixelFormat {
-        return this._format;
+        return (this._nativeAsset as IMemoryImageSource).format;
     }
 
     /**
@@ -585,7 +593,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     get mipmapLevelDataSize (): number[] | undefined {
-        return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
+        return (this._nativeAsset as IMemoryImageSource).mipmapLevelDataSize;
     }
 
     /**
@@ -599,7 +607,7 @@ export class ImageAsset extends Asset {
 
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
-    private _nativeData: ImageSource;
+    private _imageData: ImageData;
 
     private _exportedExts: string[] | null | undefined = undefined;
 
@@ -609,24 +617,29 @@ export class ImageAsset extends Asset {
 
     private _height = 0;
 
-    constructor (nativeAsset?: ImageSource) {
+    /**
+     * @en Constructing an ImageSource object.
+     * @zh 构造ImageSource对象
+     * @param data @en The image source. @zh 图像数据源。
+     * @deprecated @en please use `constructor(imageSource?: ImageData | IMemoryImageSource)` instead.
+     */
+    constructor (imageSource: HTMLCanvasElement | HTMLImageElement | ImageBitmap);
+    /**
+     * @en Constructing an ImageSource object.
+     * @zh 构造ImageSource对象
+     * @param data @en The image source. @zh 图像数据源。
+     */
+    constructor (imageSource?: ImageData | IMemoryImageSource);
+    constructor (imageSource?: ImageData | IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap) {
         super();
-
-        this._nativeData = {
-            _data: null,
-            width: 0,
-            height: 0,
-            format: 0,
-            _compressed: false,
-            mipmapLevelDataSize: [],
-        };
 
         if (EDITOR) {
             this._exportedExts = null;
         }
-
-        if (nativeAsset !== undefined) {
-            this.reset(nativeAsset);
+        if (imageSource instanceof ImageData) {
+            this._imageData = imageSource;
+        } else {
+            this._imageData = new ImageData(imageSource);
         }
     }
 
@@ -634,31 +647,28 @@ export class ImageAsset extends Asset {
      * @en Reset the source of the image asset.
      * @zh 重置此图像资源使用的原始图像源。
      * @param data @en The new source. @zh 新的图片数据源。
+     * @deprecated @en please use `reset(data: IMemoryImageSource)` instead. @zh 请使用`reset(data: IMemoryImageSource)`替换
      */
-    public reset (data: ImageSource): void {
-        if (isImageBitmap(data)) {
-            this._nativeData = data;
-        } else if (!(data instanceof HTMLElement)) {
-            // this._nativeData = Object.create(data);
-            this._nativeData = data;
-            this._format = data.format;
-        } else {
-            this._nativeData = data;
+    public reset (data: HTMLCanvasElement | HTMLImageElement | ImageBitmap): void;
+    /**
+     * @en Reset the source of the image asset.
+     * @zh 重置此图像资源使用的原始图像源。
+     * @param data @en The new source. @zh 新的图片数据源。
+     */
+    public reset (data: IMemoryImageSource): void;
+    public reset (data: IMemoryImageSource | HTMLCanvasElement | HTMLImageElement | ImageBitmap): void {
+        this._imageData.reset(data);
+        if ('_data' in data) {
+            const format = data.format;
+            if (format != null) {
+                this._format = format;
+            }
         }
     }
 
     public destroy (): boolean {
-        if (this.data && this.data instanceof HTMLImageElement) {
-            this.data.src = '';
-            this._setRawAsset('');
-            // JSB element should destroy native data.
-            // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
-            // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
-            // issue: https://github.com/cocos/cocos-engine/issues/14646
-            if (JSB) (this.data as any).destroy();
-        } else if (isImageBitmap(this.data)) {
-            this.data?.close();
-        }
+        this._setRawAsset('');
+        this._imageData.destroy();
         return super.destroy();
     }
 

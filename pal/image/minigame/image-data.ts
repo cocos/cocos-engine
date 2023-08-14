@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,28 +21,29 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { ALIPAY, XIAOMI, JSB, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { BaseImageData } from '../base-image-data';
+import { ccwindow } from '../../../cocos/core/global-exports';
+import { getError } from '../../../cocos/core/platform/debug';
 
-import './deprecated';
+export class ImageData extends BaseImageData {
+    static loadImage (url: string): Promise<ImageData> {
+        return new Promise((resolve, reject) => {
+            const image = new ccwindow.Image();
 
-export * from './sys';
-export * from './macro';
-export * from './visible-rect';
-export {
-    debug,
-    log,
-    error,
-    warn,
-    assert,
-    logID,
-    errorID,
-    warnID,
-    assertID,
-    isDisplayStats,
-    setDisplayStats,
-    getError,
-    DebugMode,
-} from './debug';
+            if (ccwindow.location.protocol !== 'file:' || XIAOMI) {
+                image.crossOrigin = 'anonymous';
+            }
 
-export { screen } from './screen';
-export type { Screen } from './screen';
-export { ImageData } from 'pal/image';
+            image.onload = (): void => {
+                const imageData = new ImageData(image);
+                resolve(imageData);
+            };
+            image.onerror = (): void => {
+                reject(new Error(getError(4930, url)));
+            };
+
+            image.src = url;
+        });
+    }
+}

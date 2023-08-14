@@ -1,6 +1,7 @@
 import downloader from '../../cocos/asset/asset-manager/downloader';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
+import { ImageData } from '../../exports/base';
 
 function downloadArrayBuffer (url, option, cb) {
     fs.readFile(url, null, (err, data) => {
@@ -41,11 +42,10 @@ function downloadImage (url: string, options: any, cb) {
         if (err) {
             cb(err);
         } else {
-            var image = new Image();
             var png = new PNG();
             png.on('metadata', (meta) => {
-                image.width = meta.width;
-                image.height = meta.height;
+                // Not caring about the parsed image data, a fake test data is assigned here.
+                var image = new ImageData({with:meta.width, height:meta.height, _data: '123'});
                 cb(err, image);
             });
             png.parse(data);

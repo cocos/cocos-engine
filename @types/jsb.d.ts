@@ -339,6 +339,10 @@ declare namespace jsb {
         setVerifyCallback (verifyCallback: (path: string, asset: ManifestAsset) => boolean): void;
         setEventCallback (eventCallback: (event: EventAssetsManager) => void): void;
     }
+
+    export class JSBNativeDataHolder {
+
+    }
 }
 
 declare namespace ns {

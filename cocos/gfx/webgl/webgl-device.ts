@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { ImageData } from 'pal/image';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -563,5 +564,37 @@ export class WebGLDevice extends Device {
             (texture as WebGLTexture).gpuTexture,
             regions,
         );
+    }
+
+    public copyImageDatasToTexture (
+        imageDatas: Readonly<ImageData[]>,
+        texture: Texture,
+        regions: Readonly<BufferTextureCopy[]>,
+    ): void {
+        const texImages: TexImageSource[] = [];
+        const buffers: ArrayBufferView[] = [];
+        imageDatas.forEach((item) => {
+            if ('_data' in item.source && ArrayBuffer.isView(item.data)) {
+                buffers.push(item.data);
+            } else {
+                texImages.push(item.source as TexImageSource);
+            }
+        });
+        if (texImages.length > 0) {
+            WebGLCmdFuncCopyTexImagesToTexture(
+                this,
+                texImages,
+                (texture as WebGLTexture).gpuTexture,
+                regions,
+            );
+        }
+        if (buffers.length > 0) {
+            WebGLCmdFuncCopyBuffersToTexture(
+                this,
+                buffers,
+                (texture as WebGLTexture).gpuTexture,
+                regions,
+            );
+        }
     }
 }

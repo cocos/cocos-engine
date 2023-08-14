@@ -263,6 +263,6 @@ export class DynamicAtlasTexture extends Texture2D {
         region.texOffset.y = y;
         region.texExtent.width = image.width;
         region.texExtent.height = image.height;
-        gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
+        gfxDevice.copyImageDatasToTexture([image.imageData], gfxTexture, [region]);
     }
 }

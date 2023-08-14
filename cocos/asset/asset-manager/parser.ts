@@ -22,7 +22,9 @@
  THE SOFTWARE.
 */
 
-import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
+import { ImageData } from 'pal/image';
+import { IMemoryImageSource } from '../../../pal/image/types';
+import { ImageAsset } from '../assets/image-asset';
 import { js, warn } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
@@ -80,14 +82,14 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)): void {
-        if (file instanceof HTMLImageElement) {
+    public parseImage (file: ImageData | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageData | null) => void)): void {
+        if (file instanceof ImageData) {
             onComplete(null, file);
             return;
         }
         createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
-            onComplete(null, result);
-        }, (err): void => {
+            onComplete(null, new ImageData(result));
+        }, (err: Error): void => {
             onComplete(err, null);
         });
     }

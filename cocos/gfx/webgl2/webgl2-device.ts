@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
+import { ImageData } from 'pal/image';
 import { systemInfo } from 'pal/system-info';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
@@ -630,5 +630,37 @@ export class WebGL2Device extends Device {
             (texture as WebGL2Texture).gpuTexture,
             regions,
         );
+    }
+
+    public copyImageDatasToTexture (
+        imageDatas: Readonly<ImageData[]>,
+        texture: Texture,
+        regions: Readonly<BufferTextureCopy[]>,
+    ): void {
+        const texImages: TexImageSource[] = [];
+        const buffers: ArrayBufferView[] = [];
+        imageDatas.forEach((item) => {
+            if ('_data' in item.source && ArrayBuffer.isView(item.data)) {
+                buffers.push(item.data);
+            } else {
+                texImages.push(item.source as TexImageSource);
+            }
+        });
+        if (texImages.length > 0) {
+            WebGL2CmdFuncCopyTexImagesToTexture(
+                this,
+                texImages,
+                (texture as WebGL2Texture).gpuTexture,
+                regions,
+            );
+        }
+        if (buffers.length > 0) {
+            WebGL2CmdFuncCopyBuffersToTexture(
+                this,
+                buffers,
+                (texture as WebGL2Texture).gpuTexture,
+                regions,
+            );
+        }
     }
 }

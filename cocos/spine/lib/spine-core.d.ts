@@ -855,9 +855,9 @@ declare namespace spine {
         constructor(index: number, name: string, boneData: BoneData);
     }
     abstract class Texture {
-        protected _image: HTMLImageElement | ImageBitmap;
-        constructor(image: HTMLImageElement | ImageBitmap);
-        getImage(): HTMLImageElement | ImageBitmap;
+        protected _image: ImageData;
+        constructor(image: ImageData);
+        getImage(): ImageData;
         abstract setFilters(minFilter: TextureFilter, magFilter: TextureFilter): void;
         abstract setWraps(uWrap: TextureWrap, vWrap: TextureWrap): void;
         abstract dispose(): void;

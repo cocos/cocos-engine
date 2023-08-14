@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,27 +22,23 @@
  THE SOFTWARE.
 */
 
-import './deprecated';
+/**
+ * @en Image source in memory
+ * @zh 内存图像源。
+ */
+export interface IMemoryImageSource {
+    _data: ArrayBufferView | null;
+    _compressed: boolean;
+    width: number;
+    height: number;
+    format: number;
+    mipmapLevelDataSize?: number[];
+}
 
-export * from './sys';
-export * from './macro';
-export * from './visible-rect';
-export {
-    debug,
-    log,
-    error,
-    warn,
-    assert,
-    logID,
-    errorID,
-    warnID,
-    assertID,
-    isDisplayStats,
-    setDisplayStats,
-    getError,
-    DebugMode,
-} from './debug';
+/**
+ * @en The image source, can be HTML canvas, image type or image in memory data
+ * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
+ */
+export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-export { screen } from './screen';
-export type { Screen } from './screen';
-export { ImageData } from 'pal/image';
+export type RawDataType = ArrayBufferView | jsb.JSBNativeDataHolder;

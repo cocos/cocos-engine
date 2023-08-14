@@ -73,6 +73,12 @@ jest.mock(
     { virtual: true, },
 );
 
+jest.mock(
+    'pal/image',
+    () => jest.requireActual('../pal/image/web/image-data'),
+    { virtual: true, },
+);
+
 // Mock external wasm module here
 [
     'external:emscripten/bullet/bullet.wasm',

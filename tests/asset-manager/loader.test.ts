@@ -1,5 +1,6 @@
 import { assetManager, loader } from "../../cocos/asset/asset-manager";
 import { ImageAsset } from "../../cocos/asset/assets/image-asset";
+import { ImageData } from "pal/image";
 
 describe('Loader', () => {
     const assetDir = './tests/fixtures';
@@ -18,7 +19,7 @@ describe('Loader', () => {
     
         loader.load(resources, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else if (item.uuid === json1) {
                 expect(item.content.width).toBe(89);
@@ -43,7 +44,7 @@ describe('Loader', () => {
     
         loader.load(image1, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else {
                 fail('should not load an unknown url');
@@ -152,7 +153,7 @@ describe('Loader', () => {
     
         const progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
-                expect(item.content).toBeInstanceOf(Image);
+                expect(item.content).toBeInstanceOf(ImageData);
             }
             else if (item.uuid === font.url) {
                 expect(item.content).toBe('Thonburi_LABEL');

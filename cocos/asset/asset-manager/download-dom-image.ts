@@ -23,36 +23,16 @@
  THE SOFTWARE.
 */
 
-import { XIAOMI } from 'internal:constants';
-import { getError } from '../../core';
-import { ccwindow } from '../../core/global-exports';
+import { ImageData } from 'pal/image';
 
 export default function downloadDomImage (
     url: string,
     options: Record<string, any>,
-    onComplete: ((err: Error | null, data?: HTMLImageElement | null) => void),
-): HTMLImageElement {
-    const img = new ccwindow.Image();
-
-    // NOTE: on xiaomi platform, we need to force setting img.crossOrigin as 'anonymous'
-    if (ccwindow.location.protocol !== 'file:' || XIAOMI) {
-        img.crossOrigin = 'anonymous';
-    }
-
-    function loadCallback (): void {
-        img.removeEventListener('load', loadCallback);
-        img.removeEventListener('error', errorCallback);
-        if (onComplete) { onComplete(null, img); }
-    }
-
-    function errorCallback (): void {
-        img.removeEventListener('load', loadCallback);
-        img.removeEventListener('error', errorCallback);
-        if (onComplete) { onComplete(new Error(getError(4930, url))); }
-    }
-
-    img.addEventListener('load', loadCallback);
-    img.addEventListener('error', errorCallback);
-    img.src = url;
-    return img;
+    onComplete: ((err: Error | null, data?: ImageData | null) => void),
+): void {
+    ImageData.loadImage(url).then((imageData) => {
+        onComplete(null, imageData);
+    }).catch((err: Error) => {
+        onComplete(err);
+    });
 }

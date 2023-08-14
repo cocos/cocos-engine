@@ -23,6 +23,7 @@
 */
 
 import { EDITOR, TAOBAO } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {
@@ -34,6 +35,7 @@ import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
+import { ImageAsset } from '../asset/assets';
 
 const v2_0 = new Vec2();
 type SplashLogoType = 'default' | 'none' | 'custom';
@@ -80,11 +82,11 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private bgImage!: HTMLImageElement;
+    private bgImage!: ImageAsset;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private logoImage!: HTMLImageElement;
+    private logoImage!: ImageAsset;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
@@ -148,28 +150,24 @@ export class SplashScreen {
             let logoPromise = Promise.resolve();
             if (this.settings.background.type === 'custom') {
                 bgPromise = new Promise<void>((resolve, reject): void => {
-                    this.bgImage = new ccwindow.Image();
-                    this.bgImage.onload = (): void => {
+                    ImageData.loadImage(this.settings.background!.base64!).then((imageData) => {
+                        this.bgImage = new ImageAsset(imageData);
                         this.initBG();
                         resolve();
-                    };
-                    this.bgImage.onerror = (): void => {
-                        reject();
-                    };
-                    this.bgImage.src = this.settings.background!.base64!;
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 });
             }
             if (this.settings.logo.type !== 'none') {
                 logoPromise = new Promise<void>((resolve, reject): void => {
-                    this.logoImage = new ccwindow.Image();
-                    this.logoImage.onload = (): void => {
+                    ImageData.loadImage(this.settings.logo!.base64!).then((imageData) => {
+                        this.logoImage = new ImageAsset(imageData);
                         this.initLogo();
                         resolve();
-                    };
-                    this.logoImage.onerror = (): void => {
-                        reject();
-                    };
-                    this.logoImage.src = this.settings.logo!.base64!;
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 });
             }
             return Promise.all([bgPromise, logoPromise]);
@@ -382,7 +380,8 @@ export class SplashScreen {
         region.texExtent.width = this.bgImage.width;
         region.texExtent.height = this.bgImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.bgImage], this.bgTexture, [region]);
+
+        device.copyImageDatasToTexture([this.bgImage.imageData], this.bgTexture, [region]);
     }
 
     private initLogo (): void {
@@ -417,7 +416,7 @@ export class SplashScreen {
         region.texExtent.width = this.logoImage.width;
         region.texExtent.height = this.logoImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.logoImage], this.logoTexture, [region]);
+        device.copyImageDatasToTexture([this.logoImage.imageData], this.logoTexture, [region]);
 
         const logoRatio = this.logoImage.width / this.logoImage.height;
         if (logoRatio < 1) {

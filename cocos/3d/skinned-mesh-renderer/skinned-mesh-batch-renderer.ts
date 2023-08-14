@@ -26,6 +26,7 @@ import { EDITOR } from 'internal:constants';
 import {
     ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable,
 } from 'cc.decorator';
+import { ImageData } from 'pal/image';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../asset/assets/asset-enum';
 import { Material } from '../../asset/assets/material';
@@ -453,10 +454,8 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     }
 
     protected cookTextures (target: Texture2D, prop: string, passIdx: number): void {
-        const texImages: TexImageSource[] = [];
-        const texImageRegions: BufferTextureCopy[] = [];
-        const texBuffers: ArrayBufferView[] = [];
-        const texBufferRegions: BufferTextureCopy[] = [];
+        const texImageDatas: ImageData[] = [];
+        const texRegions: BufferTextureCopy[] = [];
         for (let u = 0; u < this.units.length; u++) {
             const unit = this.units[u];
             if (!unit.material) { continue; }
@@ -467,20 +466,13 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 region.texOffset.y = unit.offset.y * this.atlasSize;
                 region.texExtent.width = unit.size.x * this.atlasSize;
                 region.texExtent.height = unit.size.y * this.atlasSize;
-                const { data } = partial.image;
-                if (!ArrayBuffer.isView(data)) {
-                    texImages.push(data);
-                    texImageRegions.push(region);
-                } else {
-                    texBuffers.push(data);
-                    texBufferRegions.push(region);
-                }
+                texImageDatas.push(partial.image.imageData);
+                texRegions.push(region);
             }
         }
         const gfxTex = target.getGFXTexture()!;
         const { device } = cclegacy.director.root!;
-        if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
-        if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
+        if (texImageDatas.length > 0) { device.copyImageDatasToTexture(texImageDatas, gfxTex, texRegions); }
     }
 
     protected createTexture (prop: string): Texture2D {
