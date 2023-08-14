@@ -19,7 +19,7 @@ export class FSR extends PostProcessSetting {
     get sharpness (): number {
         return this._sharpness;
     }
-    set sharpness (v) {
+    set sharpness (v: number) {
         this._sharpness = v;
     }
 }

@@ -15,10 +15,10 @@ export class TAA extends PostProcessSetting {
     @slide
     @range([0.01, 5, 0.01])
     @property
-    get sampleScale () {
+    get sampleScale (): number {
         return this._sampleScale;
     }
-    set sampleScale (v) {
+    set sampleScale (v: number) {
         this._sampleScale = v;
     }
 
@@ -28,10 +28,10 @@ export class TAA extends PostProcessSetting {
     @slide
     @range([0.0, 1, 0.01])
     @property
-    get feedback () {
+    get feedback (): number {
         return this._feedback;
     }
-    set feedback (v) {
+    set feedback (v: number) {
         this._feedback = v;
     }
 }
