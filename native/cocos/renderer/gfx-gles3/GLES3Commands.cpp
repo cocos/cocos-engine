@@ -1387,16 +1387,21 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
     auto &attachments = gpuRenderPass->colorAttachments;
     auto &drawBuffers = gpuRenderPass->drawBuffers;
 
+    bool hasDS = (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN);
     gpuRenderPass->drawBuffers.resize(subPasses.size());
-    gpuRenderPass->indices.resize(attachments.size(), INVALID_BINDING);
+    gpuRenderPass->indices.resize(attachments.size() + hasDS, INVALID_BINDING);
 
     for (uint32_t i = 0; i < subPasses.size(); ++i) {
         auto &sub = subPasses[i];
         auto &drawBuffer = drawBuffers[i];
 
-        std::vector<bool> visited(gpuRenderPass->colorAttachments.size());
+        std::vector<bool> visited(gpuRenderPass->colorAttachments.size() + hasDS);
         for (auto &input : sub.inputs) {
             visited[input] = true;
+            if(input == gpuRenderPass->colorAttachments.size()) {
+                // ds input
+                continue;
+            }
             drawBuffer.emplace_back(gpuRenderPass->indices[input]);
         }
 
@@ -1423,8 +1428,14 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
             }
         }
 
-        gpuRenderPass->depthStencil = sub.depthStencil;
-        gpuRenderPass->depthStencilResolve = sub.depthStencilResolve;
+
+        if (sub.depthStencil != gfx::INVALID_BINDING) {
+            gpuRenderPass->depthStencil = sub.depthStencil;
+            gpuRenderPass->indices.back() = gpuRenderPass->depthStencil;
+        }
+        if (sub.depthStencilResolve != gfx::INVALID_BINDING) {
+            gpuRenderPass->depthStencilResolve = sub.depthStencilResolve;
+        }
     }
 }
 
@@ -1595,7 +1606,12 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             if (lazilyAllocated &&                               // MS attachment should be memoryless
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 i < supportCount) {                              // extension limit
-                gpuFBO->framebuffer.bindColorMultiSample(resolveView, colorIndex, view->gpuTexture->glSamples, resolveDesc);
+                auto validateDesc = resolveDesc;
+                // implicit MS take color slot, so color loadOP should be used.
+                // resolve attachment with Store::Discard is meaningless.
+                validateDesc.loadOp = desc.loadOp;
+                validateDesc.storeOp = StoreOp::STORE;
+                gpuFBO->framebuffer.bindColorMultiSample(resolveView, colorIndex, view->gpuTexture->glSamples, validateDesc);
             } else {
                 // implicit MS not supported, fallback to MS Renderbuffer
                 gpuFBO->colorBlitPairs.emplace_back(colorIndex, resolveColorIndex);
@@ -1621,7 +1637,14 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 supportCount > 1 &&                              // extension limit
                 useDsResolve) {                                  // enable ds resolve
-                gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, resolveDesc);
+                auto validateDesc = resolveDesc;
+                // implicit MS take ds slot, so ds MS loadOP should be used.
+                // resolve attachment with Store::Discard is meaningless.
+                validateDesc.depthLoadOp = desc.depthLoadOp;
+                validateDesc.depthStoreOp = StoreOp::STORE;
+                validateDesc.stencilLoadOp = desc.stencilLoadOp;
+                validateDesc.stencilStoreOp = StoreOp::STORE;
+                gpuFBO->framebuffer.bindDepthStencilMultiSample(resolveView, view->gpuTexture->glSamples, validateDesc);
             } else {
                 // implicit MS not supported, fallback to MS Renderbuffer
                 gpuFBO->dsResolveMask = getColorBufferMask(desc.format);

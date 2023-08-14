@@ -105,6 +105,8 @@ using namespace cc;
 %ignore cc::Root::getEventProcessor;
 %ignore cc::Node::getEventProcessor;
 
+%ignore cc::scene::IMacroPatch::IMacroPatch(const std::pair<const std::string, cc::MacroValue>&);
+
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
@@ -444,6 +446,8 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::pipeline::GeometryRenderer *, geometryRenderer, getGeometryRenderer);
 %attribute(cc::scene::Camera, uint32_t, systemWindowId, getSystemWindowId);
 %attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
+%attribute(cc::scene::Camera, cc::scene::TrackingType, trackingType, getTrackingType, setTrackingType);
+%attribute(cc::scene::Camera, cc::scene::CameraType, cameraType, getCameraType, setCameraType);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);

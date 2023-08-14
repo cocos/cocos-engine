@@ -130,6 +130,7 @@ module.exports = link(mixin({
             SafeArea: `${url}/${version}/manual/zh/ui-system/components/editor/safearea.html`,
             Terrain: `${url}/${version}/manual/zh/editor/terrain/`,
             TiledMap: `${url}/${version}/manual/zh/editor/components/tiledmap.html`,
+            TiledTile: `${url}/${version}/manual/zh/editor/components/tiledtile.html`,
             Spine: `${url}/${version}/manual/zh/editor/components/spine.html`,
             DragonBones: `${url}/${version}/manual/zh/editor/components/dragonbones.html`,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
@@ -145,6 +146,7 @@ module.exports = link(mixin({
             Skin: `${url}/${version}/manual/zh/shader/advanced-shader/skin.html`,
             RenderRoot2D: `${url}/${version}/manual/zh/ui-system/components/editor/renderroot2d.html`,
             ReflectionProbe: `${url}/${version}/manual/zh/concepts/scene/light/probe/reflection-art-workflow.html`,
+            Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -285,15 +287,6 @@ module.exports = link(mixin({
         shadowAdvancedOptions: '阴影高级选项',
         csmLayersTransition: '是否开启级联阴影层级过渡（提升质量，降低性能）',
         csmTransitionRange: '级联阴影层级过渡范围(NDC空间: 取值范围为 0 ~ 1)',
-    },
-    model: {
-        shadow_receiving_model: '阴影接受方式',
-        shadow_casting_model: '阴影投射方式',
-        mesh: '模型的网格数据',
-        skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
-        shadow_bias: '模型额外增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
-        shadow_normal_bias: '模型额外增加法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
-        standard_skin_model: '模型额外设定全局唯一的标准皮肤模型',
     },
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
@@ -1298,6 +1291,7 @@ module.exports = link(mixin({
     },
 },
 
+require('./modules/rendering'),
 require('./animation'),
 
 ));

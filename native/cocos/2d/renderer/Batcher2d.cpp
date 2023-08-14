@@ -332,9 +332,14 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
         return;
     }
     gfx::InputAssembler* ia = nullptr;
+
+    uint32_t indexOffset = 0;
+    uint32_t indexCount = 0;
     if (drawInfo->getIsMeshBuffer()) {
         // Todo MeshBuffer RenderData
         ia = drawInfo->requestIA(getDevice());
+        indexOffset = drawInfo->getIndexOffset();
+        indexCount = drawInfo->getIbCount();
         _meshRenderDrawInfo.emplace_back(drawInfo);
     } else {
         UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
@@ -342,13 +347,11 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
         currMeshBuffer->setDirty(true);
 
         ia = currMeshBuffer->requireFreeIA(getDevice());
-        uint32_t indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
+        indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
         if (ia == nullptr) {
             return;
         }
-
-        ia->setFirstIndex(_indexStart);
-        ia->setIndexCount(indexCount);
+        indexOffset = _indexStart;
         _indexStart = currMeshBuffer->getIndexOffset();
     }
 
@@ -364,6 +367,8 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
+    curdrawBatch->setFirstIndex(indexOffset);
+    curdrawBatch->setIndexCount(indexCount);
     curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
 
@@ -392,8 +397,6 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
 
     meshBuffer->setDirty(true);
     gfx::InputAssembler* ia = meshBuffer->requireFreeIA(getDevice());
-    ia->setFirstIndex(drawInfo->getIndexOffset());
-    ia->setIndexCount(drawInfo->getIbCount());
 
     // stencilstage
     auto stencilStage = _stencilManager->getStencilStage();
@@ -403,6 +406,8 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
+    curdrawBatch->setFirstIndex(drawInfo->getIndexOffset());
+    curdrawBatch->setIndexCount(drawInfo->getIbCount());
     curdrawBatch->fillPass(material, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
     if (entity->getUseLocal()) {

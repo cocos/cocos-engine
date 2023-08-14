@@ -657,10 +657,12 @@ class _Deserializer {
                     }
 
                     const rawDeserialize: CompiledDeserializeFn = deserialize;
-                    deserialize = function (deserializer: _Deserializer,
+                    deserialize = function (
+                        deserializer: _Deserializer,
                         object: Record<string, unknown>,
                         deserialized: Record<string, unknown>,
-                        constructor: AnyFunction): void {
+                        constructor: AnyFunction,
+                    ): void {
                         rawDeserialize(deserializer, object, deserialized, constructor);
                         if (!object._$erialized) {
                             error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
@@ -828,13 +830,15 @@ class _Deserializer {
     }
 }
 
-export function deserializeDynamic (data: SerializedData | CCON, details: Details, options?: {
+export interface DeserializeDynamicOptions {
     classFinder?: ClassFinder;
     ignoreEditorOnly?: boolean;
     createAssetRefs?: boolean;
     customEnv?: unknown;
     reportMissingClass?: ReportMissingClass;
-}): any {
+}
+
+export function deserializeDynamic (data: SerializedData | CCON, details: Details, options?: DeserializeDynamicOptions): any {
     options = options || {};
     const classFinder = options.classFinder || js.getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;

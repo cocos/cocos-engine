@@ -72,6 +72,7 @@ public:
         PUT,
         DELETE,
         HEAD,
+        PATCH,
         UNKNOWN,
     };
 

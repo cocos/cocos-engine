@@ -219,13 +219,15 @@ inline void remove_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAcce
 
     // remove components
     g.passID.erase(g.passID.begin() + static_cast<std::ptrdiff_t>(u));
-    g.access.erase(g.access.begin() + static_cast<std::ptrdiff_t>(u));
+    g.passResource.erase(g.passResource.begin() + static_cast<std::ptrdiff_t>(u));
+    g.rpInfo.erase(g.rpInfo.begin() + static_cast<std::ptrdiff_t>(u));
+    g.barrier.erase(g.barrier.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
-template <class Component0, class Component1>
+template <class Component0, class Component1, class Component2, class Component3>
 inline ResourceAccessGraph::vertex_descriptor
-addVertex(Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ResourceAccessGraph& g) {
     auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g._vertices.size());
 
     g._vertices.emplace_back();
@@ -236,14 +238,16 @@ addVertex(Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
         CC_ENSURES(res.second);
     }
     g.passID.emplace_back(std::forward<Component0>(c0));
-    g.access.emplace_back(std::forward<Component1>(c1));
+    g.passResource.emplace_back(std::forward<Component1>(c1));
+    g.rpInfo.emplace_back(std::forward<Component2>(c2));
+    g.barrier.emplace_back(std::forward<Component3>(c3));
 
     return v;
 }
 
-template <class Component0, class Component1>
+template <class Component0, class Component1, class Component2, class Component3>
 inline ResourceAccessGraph::vertex_descriptor
-addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
+addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ResourceAccessGraph& g) {
     auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g._vertices.size());
 
     g._vertices.emplace_back();
@@ -265,9 +269,21 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
 
     std::apply(
         [&](auto&&... args) {
-            g.access.emplace_back(std::forward<decltype(args)>(args)...);
+            g.passResource.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.rpInfo.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component2>(c2));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.barrier.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component3>(c3));
 
     return v;
 }
@@ -528,7 +544,7 @@ struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessG
 
 // Vertex Component
 template <>
-struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::AccessNodeTag> {
+struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::PassNodeTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
@@ -560,6 +576,78 @@ struct property_map<cc::render::ResourceAccessGraph, T cc::render::ResourceAcces
         T,
         T&,
         T cc::render::ResourceAccessNode::*>;
+};
+
+// Vertex Component
+template <>
+struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::RenderPassInfoTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::ResourceAccessGraph,
+        const ccstd::pmr::vector<cc::render::FGRenderPassInfo>,
+        cc::render::FGRenderPassInfo,
+        const cc::render::FGRenderPassInfo&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::ResourceAccessGraph,
+        ccstd::pmr::vector<cc::render::FGRenderPassInfo>,
+        cc::render::FGRenderPassInfo,
+        cc::render::FGRenderPassInfo&>;
+};
+
+// Vertex ComponentMember
+template <class T>
+struct property_map<cc::render::ResourceAccessGraph, T cc::render::FGRenderPassInfo::*> {
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::ResourceAccessGraph,
+        const ccstd::pmr::vector<cc::render::FGRenderPassInfo>,
+        T,
+        const T&,
+        T cc::render::FGRenderPassInfo::*>;
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::ResourceAccessGraph,
+        ccstd::pmr::vector<cc::render::FGRenderPassInfo>,
+        T,
+        T&,
+        T cc::render::FGRenderPassInfo::*>;
+};
+
+// Vertex Component
+template <>
+struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::BarrierTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::ResourceAccessGraph,
+        const ccstd::pmr::vector<cc::render::BarrierNode>,
+        cc::render::BarrierNode,
+        const cc::render::BarrierNode&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::ResourceAccessGraph,
+        ccstd::pmr::vector<cc::render::BarrierNode>,
+        cc::render::BarrierNode,
+        cc::render::BarrierNode&>;
+};
+
+// Vertex ComponentMember
+template <class T>
+struct property_map<cc::render::ResourceAccessGraph, T cc::render::BarrierNode::*> {
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::ResourceAccessGraph,
+        const ccstd::pmr::vector<cc::render::BarrierNode>,
+        T,
+        const T&,
+        T cc::render::BarrierNode::*>;
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::ResourceAccessGraph,
+        ccstd::pmr::vector<cc::render::BarrierNode>,
+        T,
+        T&,
+        T cc::render::BarrierNode::*>;
 };
 
 // Vertex Index
@@ -620,27 +708,75 @@ get(ResourceAccessGraph::PassIDTag /*tag*/, ResourceAccessGraph& g) noexcept {
 }
 
 // Vertex Component
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodeTag>::const_type
-get(ResourceAccessGraph::AccessNodeTag /*tag*/, const ResourceAccessGraph& g) noexcept {
-    return {g.access};
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::PassNodeTag>::const_type
+get(ResourceAccessGraph::PassNodeTag /*tag*/, const ResourceAccessGraph& g) noexcept {
+    return {g.passResource};
 }
 
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodeTag>::type
-get(ResourceAccessGraph::AccessNodeTag /*tag*/, ResourceAccessGraph& g) noexcept {
-    return {g.access};
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::PassNodeTag>::type
+get(ResourceAccessGraph::PassNodeTag /*tag*/, ResourceAccessGraph& g) noexcept {
+    return {g.passResource};
 }
 
 // Vertex ComponentMember
 template <class T>
 inline typename boost::property_map<ResourceAccessGraph, T ResourceAccessNode::*>::const_type
 get(T ResourceAccessNode::*memberPointer, const ResourceAccessGraph& g) noexcept {
-    return {g.access, memberPointer};
+    return {g.passResource, memberPointer};
 }
 
 template <class T>
 inline typename boost::property_map<ResourceAccessGraph, T ResourceAccessNode::*>::type
 get(T ResourceAccessNode::*memberPointer, ResourceAccessGraph& g) noexcept {
-    return {g.access, memberPointer};
+    return {g.passResource, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::RenderPassInfoTag>::const_type
+get(ResourceAccessGraph::RenderPassInfoTag /*tag*/, const ResourceAccessGraph& g) noexcept {
+    return {g.rpInfo};
+}
+
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::RenderPassInfoTag>::type
+get(ResourceAccessGraph::RenderPassInfoTag /*tag*/, ResourceAccessGraph& g) noexcept {
+    return {g.rpInfo};
+}
+
+// Vertex ComponentMember
+template <class T>
+inline typename boost::property_map<ResourceAccessGraph, T FGRenderPassInfo::*>::const_type
+get(T FGRenderPassInfo::*memberPointer, const ResourceAccessGraph& g) noexcept {
+    return {g.rpInfo, memberPointer};
+}
+
+template <class T>
+inline typename boost::property_map<ResourceAccessGraph, T FGRenderPassInfo::*>::type
+get(T FGRenderPassInfo::*memberPointer, ResourceAccessGraph& g) noexcept {
+    return {g.rpInfo, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::BarrierTag>::const_type
+get(ResourceAccessGraph::BarrierTag /*tag*/, const ResourceAccessGraph& g) noexcept {
+    return {g.barrier};
+}
+
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::BarrierTag>::type
+get(ResourceAccessGraph::BarrierTag /*tag*/, ResourceAccessGraph& g) noexcept {
+    return {g.barrier};
+}
+
+// Vertex ComponentMember
+template <class T>
+inline typename boost::property_map<ResourceAccessGraph, T BarrierNode::*>::const_type
+get(T BarrierNode::*memberPointer, const ResourceAccessGraph& g) noexcept {
+    return {g.barrier, memberPointer};
+}
+
+template <class T>
+inline typename boost::property_map<ResourceAccessGraph, T BarrierNode::*>::type
+get(T BarrierNode::*memberPointer, ResourceAccessGraph& g) noexcept {
+    return {g.barrier, memberPointer};
 }
 
 // Vertex Constant Getter
@@ -713,7 +849,9 @@ add_vertex(ResourceAccessGraph& g, const RenderGraph::vertex_descriptor& key) { 
     return addVertex(
         std::piecewise_construct,
         std::forward_as_tuple(key), // passID
-        std::forward_as_tuple(), // access
+        std::forward_as_tuple(), // passResource
+        std::forward_as_tuple(), // rpInfo
+        std::forward_as_tuple(), // barrier
         g);
 }
 

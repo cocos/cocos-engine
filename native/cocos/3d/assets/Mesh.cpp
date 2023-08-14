@@ -446,9 +446,11 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
+#if !CC_EDITOR
         if (!_allowDataAccess && !canUseGPUScene()) {
             releaseData();
         }
+#endif
     }
 }
 
@@ -1267,9 +1269,11 @@ void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 
 void Mesh::setAllowDataAccess(bool allowDataAccess) {
     _allowDataAccess = allowDataAccess;
+#if !CC_EDITOR
     if (_isMeshDataUploaded && !_allowDataAccess) {
         releaseData();
     }
+#endif
 }
 
 void Mesh::releaseData() {
