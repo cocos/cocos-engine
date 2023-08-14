@@ -52,7 +52,7 @@ const CCTShapeEventObject = {
     motionLength: 0,
 };
 
-const CCTTriggerEventObject = {
+const CharacterTriggerEventObject = {
     type: 'onControllerTriggerEnter',
     characterController: null,
     collider: null,
@@ -75,13 +75,15 @@ function emitTriggerEvent (t, c0, c1, impl) {
 }
 
 function emitCCTTriggerEvent (t, cct, collider, impl) {
-    CCTTriggerEventObject.type = t;
-    CCTTriggerEventObject.impl = impl;
+    CharacterTriggerEventObject.type = t;
+    CharacterTriggerEventObject.impl = impl;
+    CharacterTriggerEventObject.characterController = cct;
+    CharacterTriggerEventObject.collider = collider;
     if (collider.needTriggerEvent) {
-        CCTTriggerEventObject.characterController = cct;
-        CCTTriggerEventObject.collider = collider;
-        cct.emit(t, CCTTriggerEventObject);
-        collider.emit(t, CCTTriggerEventObject);
+        collider.emit(t, CharacterTriggerEventObject);
+    }
+    if (cct.needTriggerEvent) {
+        cct.emit(t, CharacterTriggerEventObject);
     }
 }
 
