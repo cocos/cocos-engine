@@ -332,7 +332,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
             } else {
-                //TaoBao platform: after stop, regardless of whether the starttime has been set, the playback will always start from 0 again
+                //Huawei, vivo, Oppo platform, after stop, regardless of whether the seek has been called, the playback will always start from 0 again
                 if ((HUAWEI || VIVO || OPPO) && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
                     this._innerAudioContext.startTime = time;
                 } else if (this._cacheTime !== time) { // Skip the invalid seek
