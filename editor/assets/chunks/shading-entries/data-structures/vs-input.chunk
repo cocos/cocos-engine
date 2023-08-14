@@ -56,3 +56,13 @@ layout(location = 2) in vec2 a_texCoord;
     in float a_vertexId;
   #endif
 #endif
+
+#if CC_MESH_QUANTIZED
+vec3 dequantize_normal(uint v) {
+  return vec3(1.0);
+}
+
+vec3 dequantize_tangent(uint v) {
+  return vec3(1.0);
+}
+#endif

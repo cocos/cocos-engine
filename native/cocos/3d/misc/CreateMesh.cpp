@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include "3d/misc/CreateMesh.h"
+#include <zlib.h>
 #include <algorithm>
 #include "3d/misc/Buffer.h"
 #include "3d/misc/BufferBlob.h"
@@ -401,6 +402,23 @@ Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geome
     Mesh::ICreateInfo createInfo;
     createInfo.structInfo = std::move(meshStruct);
     createInfo.data = Uint8Array(dataSize);
+    return createInfo;
+}
+
+Mesh::ICreateInfo MeshUtils::inflateMesh(const Mesh::ICreateInfo meshInfo) {
+    auto uncompressedSize = 0U;
+    for (const auto &prim : meshInfo.structInfo.primitives) {
+        uncompressedSize += prim.indexView.length;
+    }
+    for (const auto &vb : meshInfo.structInfo.vertexBundles) {
+        uncompressedSize += vb.view.length;
+    }
+    auto uncompressedData = Uint8Array(uncompressedSize);
+    auto res = uncompress(uncompressedData.data(), &uncompressedSize, meshInfo.data.data(), meshInfo.data.size());
+    auto createInfo = Mesh::ICreateInfo{
+        meshInfo.structInfo,
+        uncompressedData,
+    };
     return createInfo;
 }
 

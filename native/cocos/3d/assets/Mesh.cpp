@@ -293,6 +293,13 @@ void Mesh::initialize() {
 
     _initialized = true;
 
+    if (_struct.compressed) {
+        // decompress
+    }
+    if (_struct.encoded) {
+        // decode
+    }
+
     if (_struct.dynamic.has_value()) {
         auto *device = gfx::Device::getInstance();
         gfx::BufferList vertexBuffers;

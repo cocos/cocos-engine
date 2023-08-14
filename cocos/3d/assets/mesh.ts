@@ -36,6 +36,7 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
+import { decodeMesh, inflateMesh } from '../misc/create-mesh';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -77,8 +78,8 @@ export declare namespace Mesh {
         attributes: Attribute[];
     }
 
-    export interface IMeshLet {
-        meshletsView: IBufferView;
+    export interface IMeshCluster {
+        clusterView: IBufferView;
         triangleView: IBufferView;
         vertexView: IBufferView;
         coneView?: IBufferView;
@@ -117,7 +118,7 @@ export declare namespace Mesh {
         /**
          * @en The meshlet data of the sub mesh
          */
-        meshlet?: IMeshLet;
+        cluster?: IMeshCluster;
     }
 
     /**
@@ -217,16 +218,22 @@ export declare namespace Mesh {
         quantized?: boolean;
 
         /**
+         * @en Whether the mesh data is encoded to reduce memory usage
+         * @zh
+         */
+        encoded?: boolean;
+
+        /**
          * @en Whether the mesh data is compressed to reduce memory usage
          * @zh 此网格数据是否经过压缩以减少内存占用。
          */
         compressed?: boolean;
 
         /**
-         * @en Whether the mesh is constructed as meshlet
-         * @zh 此网格是否以 meshlet 的形式构建。
+         * @en Whether the mesh is constructed as cluster
+         * @zh 此网格是否以 cluster 的形式构建。
          */
-        meshlet?: boolean;
+        cluster?: boolean;
     }
 
     /**
@@ -392,8 +399,23 @@ export class Mesh extends Asset {
         if (this._initialized) {
             return;
         }
-
         this._initialized = true;
+
+        let info = { struct: this.struct, data: this.data };
+        console.log('[Mesh] decode mesh data: ', info.data.byteLength / 1024, 'KB');
+        const start_time = sys.now();
+        if (info.struct.compressed) { // decompress mesh data
+            info = inflateMesh(info);
+        }
+        if (this.struct.encoded) { // decode mesh data
+            info = decodeMesh(info);
+        }
+        const end_time = sys.now();
+        console.log('[Mesh] decode mesh data: ', info.data.byteLength / 1024, 'KB');
+        console.log(`[Mesh] decode mesh data time: ${end_time - start_time} ms`);
+
+        this._struct = info.struct;
+        this._data = info.data;
 
         if (this._struct.dynamic) {
             const device: Device = deviceManager.gfxDevice;
@@ -694,12 +716,14 @@ export class Mesh extends Asset {
      */
     public reset (info: Mesh.ICreateInfo): void {
         this.destroyRenderingMesh();
+        // if (info.struct.compressed) {
+        //     info = inflateMesh(info);
+        // }
+        // if (info.struct.encoded) {
+        //     info = decodeMesh(info);
+        // }
         this._struct = info.struct;
-        if (this._struct.compressed) {
-            // TODO (yiwenxue): decompress the data
-        } else {
-            this._data = info.data;
-        }
+        this._data = info.data;
         this._hash = 0;
     }
 
