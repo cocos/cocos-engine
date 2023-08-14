@@ -583,11 +583,6 @@ export class Button extends Component {
             this.target = this.node;
         }
 
-        const sprite = this.node.getComponent(Sprite);
-        if (sprite) {
-            this._normalSprite = sprite.spriteFrame;
-        }
-
         this._applyTarget();
         this._resetState();
     }
