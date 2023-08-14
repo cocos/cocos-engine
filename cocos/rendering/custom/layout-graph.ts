@@ -33,6 +33,7 @@ import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLa
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
+import { RecyclePool } from '../../core/memop';
 
 export class DescriptorDB {
     reset (): void {
@@ -1377,10 +1378,46 @@ export class LayoutGraphObjectPoolSettings {
 }
 
 export class LayoutGraphObjectPool {
-    constructor (renderCommon: RenderCommonObjectPool) {
-        this._renderCommon = renderCommon;
+    constructor (settings: LayoutGraphObjectPoolSettings, renderCommon: RenderCommonObjectPool) {
+        this.renderCommon = renderCommon;
+        this._descriptorDB = new RecyclePool<DescriptorDB>(() => new DescriptorDB(), settings.descriptorDBBatchSize);
+        this._renderPhase = new RecyclePool<RenderPhase>(() => new RenderPhase(), settings.renderPhaseBatchSize);
+        this._layoutGraph = new RecyclePool<LayoutGraph>(() => new LayoutGraph(), settings.layoutGraphBatchSize);
+        this._uniformData = new RecyclePool<UniformData>(() => new UniformData(), settings.uniformDataBatchSize);
+        this._uniformBlockData = new RecyclePool<UniformBlockData>(() => new UniformBlockData(), settings.uniformBlockDataBatchSize);
+        this._descriptorData = new RecyclePool<DescriptorData>(() => new DescriptorData(), settings.descriptorDataBatchSize);
+        this._descriptorBlockData = new RecyclePool<DescriptorBlockData>(() => new DescriptorBlockData(), settings.descriptorBlockDataBatchSize);
+        this._descriptorSetLayoutData = new RecyclePool<DescriptorSetLayoutData>(() => new DescriptorSetLayoutData(), settings.descriptorSetLayoutDataBatchSize);
+        this._descriptorSetData = new RecyclePool<DescriptorSetData>(() => new DescriptorSetData(), settings.descriptorSetDataBatchSize);
+        this._pipelineLayoutData = new RecyclePool<PipelineLayoutData>(() => new PipelineLayoutData(), settings.pipelineLayoutDataBatchSize);
+        this._shaderBindingData = new RecyclePool<ShaderBindingData>(() => new ShaderBindingData(), settings.shaderBindingDataBatchSize);
+        this._shaderLayoutData = new RecyclePool<ShaderLayoutData>(() => new ShaderLayoutData(), settings.shaderLayoutDataBatchSize);
+        this._techniqueData = new RecyclePool<TechniqueData>(() => new TechniqueData(), settings.techniqueDataBatchSize);
+        this._effectData = new RecyclePool<EffectData>(() => new EffectData(), settings.effectDataBatchSize);
+        this._shaderProgramData = new RecyclePool<ShaderProgramData>(() => new ShaderProgramData(), settings.shaderProgramDataBatchSize);
+        this._renderStageData = new RecyclePool<RenderStageData>(() => new RenderStageData(), settings.renderStageDataBatchSize);
+        this._renderPhaseData = new RecyclePool<RenderPhaseData>(() => new RenderPhaseData(), settings.renderPhaseDataBatchSize);
+        this._layoutGraphData = new RecyclePool<LayoutGraphData>(() => new LayoutGraphData(), settings.layoutGraphDataBatchSize);
     }
-    _renderCommon: RenderCommonObjectPool;
+    public readonly renderCommon: RenderCommonObjectPool;
+    private readonly _descriptorDB: RecyclePool<DescriptorDB>;
+    private readonly _renderPhase: RecyclePool<RenderPhase>;
+    private readonly _layoutGraph: RecyclePool<LayoutGraph>;
+    private readonly _uniformData: RecyclePool<UniformData>;
+    private readonly _uniformBlockData: RecyclePool<UniformBlockData>;
+    private readonly _descriptorData: RecyclePool<DescriptorData>;
+    private readonly _descriptorBlockData: RecyclePool<DescriptorBlockData>;
+    private readonly _descriptorSetLayoutData: RecyclePool<DescriptorSetLayoutData>;
+    private readonly _descriptorSetData: RecyclePool<DescriptorSetData>;
+    private readonly _pipelineLayoutData: RecyclePool<PipelineLayoutData>;
+    private readonly _shaderBindingData: RecyclePool<ShaderBindingData>;
+    private readonly _shaderLayoutData: RecyclePool<ShaderLayoutData>;
+    private readonly _techniqueData: RecyclePool<TechniqueData>;
+    private readonly _effectData: RecyclePool<EffectData>;
+    private readonly _shaderProgramData: RecyclePool<ShaderProgramData>;
+    private readonly _renderStageData: RecyclePool<RenderStageData>;
+    private readonly _renderPhaseData: RecyclePool<RenderPhaseData>;
+    private readonly _layoutGraphData: RecyclePool<LayoutGraphData>;
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {

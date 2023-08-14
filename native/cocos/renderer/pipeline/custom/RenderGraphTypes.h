@@ -389,6 +389,7 @@ struct RasterSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
+    RasterSubpass(const allocator_type& alloc) noexcept; // NOLINT
     RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept;
     RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc);
     RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc);
@@ -414,6 +415,7 @@ struct ComputeSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
+    ComputeSubpass(const allocator_type& alloc) noexcept; // NOLINT
     ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept;
     ComputeSubpass(ComputeSubpass&& rhs, const allocator_type& alloc);
     ComputeSubpass(ComputeSubpass const& rhs, const allocator_type& alloc);

@@ -32,6 +32,7 @@ import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
+import { RecyclePool } from '../../core/memop';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
@@ -635,6 +636,28 @@ export class RenderCommonObjectPoolSettings {
 }
 
 export class RenderCommonObjectPool {
+    constructor (settings: RenderCommonObjectPoolSettings) {
+        this._lightInfo = new RecyclePool<LightInfo>(() => new LightInfo(), settings.lightInfoBatchSize);
+        this._descriptor = new RecyclePool<Descriptor>(() => new Descriptor(), settings.descriptorBatchSize);
+        this._descriptorBlock = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), settings.descriptorBlockBatchSize);
+        this._descriptorBlockFlattened = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), settings.descriptorBlockFlattenedBatchSize);
+        this._descriptorBlockIndex = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), settings.descriptorBlockIndexBatchSize);
+        this._resolvePair = new RecyclePool<ResolvePair>(() => new ResolvePair(), settings.resolvePairBatchSize);
+        this._copyPair = new RecyclePool<CopyPair>(() => new CopyPair(), settings.copyPairBatchSize);
+        this._uploadPair = new RecyclePool<UploadPair>(() => new UploadPair(), settings.uploadPairBatchSize);
+        this._movePair = new RecyclePool<MovePair>(() => new MovePair(), settings.movePairBatchSize);
+        this._pipelineStatistics = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), settings.pipelineStatisticsBatchSize);
+    }
+    private readonly _lightInfo: RecyclePool<LightInfo>;
+    private readonly _descriptor: RecyclePool<Descriptor>;
+    private readonly _descriptorBlock: RecyclePool<DescriptorBlock>;
+    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened>;
+    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex>;
+    private readonly _resolvePair: RecyclePool<ResolvePair>;
+    private readonly _copyPair: RecyclePool<CopyPair>;
+    private readonly _uploadPair: RecyclePool<UploadPair>;
+    private readonly _movePair: RecyclePool<MovePair>;
+    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {

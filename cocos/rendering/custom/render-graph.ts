@@ -35,6 +35,7 @@ import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp
 import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
+import { RecyclePool } from '../../core/memop';
 
 export class ClearValue {
     constructor (x = 0, y = 0, z = 0, w = 0) {
@@ -551,12 +552,12 @@ export class SubpassGraph implements BidirectionalGraph
 }
 
 export class RasterSubpass {
-    constructor (subpassID: number, count: number, quality: number) {
+    constructor (subpassID = 0xFFFFFFFF, count = 1, quality = 0) {
         this.subpassID = subpassID;
         this.count = count;
         this.quality = quality;
     }
-    reset (subpassID: number, count: number, quality: number): void {
+    reset (subpassID = 0xFFFFFFFF, count = 1, quality = 0): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.resolvePairs.length = 0;
@@ -577,10 +578,10 @@ export class RasterSubpass {
 }
 
 export class ComputeSubpass {
-    constructor (subpassID: number) {
+    constructor (subpassID = 0xFFFFFFFF) {
         this.subpassID = subpassID;
     }
-    reset (subpassID: number): void {
+    reset (subpassID = 0xFFFFFFFF): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.subpassID = subpassID;
@@ -624,19 +625,19 @@ export class RasterPass {
 }
 
 export class PersistentRenderPassAndFramebuffer {
-    constructor (renderPass: RenderPass, framebuffer: Framebuffer) {
+    constructor (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null) {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
     }
-    reset (renderPass: RenderPass, framebuffer: Framebuffer): void {
+    reset (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null): void {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
         this.clearColors.length = 0;
         this.clearDepth = 0;
         this.clearStencil = 0;
     }
-    /*refcount*/ renderPass: RenderPass;
-    /*refcount*/ framebuffer: Framebuffer;
+    /*refcount*/ renderPass: RenderPass | null;
+    /*refcount*/ framebuffer: Framebuffer | null;
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
@@ -1512,11 +1513,11 @@ export class SceneData {
 
 export class Dispatch {
     constructor (
-        material: Material | null,
-        passID: number,
-        threadGroupCountX: number,
-        threadGroupCountY: number,
-        threadGroupCountZ: number,
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
     ) {
         this.material = material;
         this.passID = passID;
@@ -1525,11 +1526,11 @@ export class Dispatch {
         this.threadGroupCountZ = threadGroupCountZ;
     }
     reset (
-        material: Material | null,
-        passID: number,
-        threadGroupCountX: number,
-        threadGroupCountY: number,
-        threadGroupCountZ: number,
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
     ): void {
         this.material = material;
         this.passID = passID;
@@ -1545,13 +1546,13 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null) {
+    constructor (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null) {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    reset (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null): void {
+    reset (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
@@ -2530,8 +2531,70 @@ export class RenderGraphObjectPoolSettings {
 }
 
 export class RenderGraphObjectPool {
-    constructor (renderCommon: RenderCommonObjectPool) {
-        this._renderCommon = renderCommon;
+    constructor (settings: RenderGraphObjectPoolSettings, renderCommon: RenderCommonObjectPool) {
+        this.renderCommon = renderCommon;
+        this._clearValue = new RecyclePool<ClearValue>(() => new ClearValue(), settings.clearValueBatchSize);
+        this._rasterView = new RecyclePool<RasterView>(() => new RasterView(), settings.rasterViewBatchSize);
+        this._computeView = new RecyclePool<ComputeView>(() => new ComputeView(), settings.computeViewBatchSize);
+        this._resourceDesc = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), settings.resourceDescBatchSize);
+        this._resourceTraits = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), settings.resourceTraitsBatchSize);
+        this._renderSwapchain = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), settings.renderSwapchainBatchSize);
+        this._resourceStates = new RecyclePool<ResourceStates>(() => new ResourceStates(), settings.resourceStatesBatchSize);
+        this._managedBuffer = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), settings.managedBufferBatchSize);
+        this._managedTexture = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), settings.managedTextureBatchSize);
+        this._managedResource = new RecyclePool<ManagedResource>(() => new ManagedResource(), settings.managedResourceBatchSize);
+        this._subpass = new RecyclePool<Subpass>(() => new Subpass(), settings.subpassBatchSize);
+        this._subpassGraph = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), settings.subpassGraphBatchSize);
+        this._rasterSubpass = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), settings.rasterSubpassBatchSize);
+        this._computeSubpass = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), settings.computeSubpassBatchSize);
+        this._rasterPass = new RecyclePool<RasterPass>(() => new RasterPass(), settings.rasterPassBatchSize);
+        this._persistentRenderPassAndFramebuffer = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), settings.persistentRenderPassAndFramebufferBatchSize);
+        this._formatView = new RecyclePool<FormatView>(() => new FormatView(), settings.formatViewBatchSize);
+        this._subresourceView = new RecyclePool<SubresourceView>(() => new SubresourceView(), settings.subresourceViewBatchSize);
+        this._resourceGraph = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), settings.resourceGraphBatchSize);
+        this._computePass = new RecyclePool<ComputePass>(() => new ComputePass(), settings.computePassBatchSize);
+        this._resolvePass = new RecyclePool<ResolvePass>(() => new ResolvePass(), settings.resolvePassBatchSize);
+        this._copyPass = new RecyclePool<CopyPass>(() => new CopyPass(), settings.copyPassBatchSize);
+        this._movePass = new RecyclePool<MovePass>(() => new MovePass(), settings.movePassBatchSize);
+        this._raytracePass = new RecyclePool<RaytracePass>(() => new RaytracePass(), settings.raytracePassBatchSize);
+        this._clearView = new RecyclePool<ClearView>(() => new ClearView(), settings.clearViewBatchSize);
+        this._renderQueue = new RecyclePool<RenderQueue>(() => new RenderQueue(), settings.renderQueueBatchSize);
+        this._sceneData = new RecyclePool<SceneData>(() => new SceneData(), settings.sceneDataBatchSize);
+        this._dispatch = new RecyclePool<Dispatch>(() => new Dispatch(), settings.dispatchBatchSize);
+        this._blit = new RecyclePool<Blit>(() => new Blit(), settings.blitBatchSize);
+        this._renderData = new RecyclePool<RenderData>(() => new RenderData(), settings.renderDataBatchSize);
+        this._renderGraph = new RecyclePool<RenderGraph>(() => new RenderGraph(), settings.renderGraphBatchSize);
     }
-    _renderCommon: RenderCommonObjectPool;
+    public readonly renderCommon: RenderCommonObjectPool;
+    private readonly _clearValue: RecyclePool<ClearValue>;
+    private readonly _rasterView: RecyclePool<RasterView>;
+    private readonly _computeView: RecyclePool<ComputeView>;
+    private readonly _resourceDesc: RecyclePool<ResourceDesc>;
+    private readonly _resourceTraits: RecyclePool<ResourceTraits>;
+    private readonly _renderSwapchain: RecyclePool<RenderSwapchain>;
+    private readonly _resourceStates: RecyclePool<ResourceStates>;
+    private readonly _managedBuffer: RecyclePool<ManagedBuffer>;
+    private readonly _managedTexture: RecyclePool<ManagedTexture>;
+    private readonly _managedResource: RecyclePool<ManagedResource>;
+    private readonly _subpass: RecyclePool<Subpass>;
+    private readonly _subpassGraph: RecyclePool<SubpassGraph>;
+    private readonly _rasterSubpass: RecyclePool<RasterSubpass>;
+    private readonly _computeSubpass: RecyclePool<ComputeSubpass>;
+    private readonly _rasterPass: RecyclePool<RasterPass>;
+    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer>;
+    private readonly _formatView: RecyclePool<FormatView>;
+    private readonly _subresourceView: RecyclePool<SubresourceView>;
+    private readonly _resourceGraph: RecyclePool<ResourceGraph>;
+    private readonly _computePass: RecyclePool<ComputePass>;
+    private readonly _resolvePass: RecyclePool<ResolvePass>;
+    private readonly _copyPass: RecyclePool<CopyPass>;
+    private readonly _movePass: RecyclePool<MovePass>;
+    private readonly _raytracePass: RecyclePool<RaytracePass>;
+    private readonly _clearView: RecyclePool<ClearView>;
+    private readonly _renderQueue: RecyclePool<RenderQueue>;
+    private readonly _sceneData: RecyclePool<SceneData>;
+    private readonly _dispatch: RecyclePool<Dispatch>;
+    private readonly _blit: RecyclePool<Blit>;
+    private readonly _renderData: RecyclePool<RenderData>;
+    private readonly _renderGraph: RecyclePool<RenderGraph>;
 }
