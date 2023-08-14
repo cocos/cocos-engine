@@ -10,7 +10,7 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class FSR extends PostProcessSetting {
     @serializable
-    _sharpness = 0.8
+    protected _sharpness = 0.8
 
     @tooltip('i18n:fsr.sharpness')
     @slide

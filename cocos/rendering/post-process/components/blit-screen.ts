@@ -60,10 +60,10 @@ export class BlitScreen extends PostProcessSetting {
                 globalThis.cce.Engine.repaintInEditMode();
             }, 50);
         }
-        this.updateActiveMateirals();
+        this.updateActiveMaterials();
     }
 
-    updateActiveMateirals (): void {
+    updateActiveMaterials (): void {
         const materials = this._materials;
         this._activeMaterials.length = 0;
         for (let i = 0; i < materials.length; i++) {
@@ -75,6 +75,6 @@ export class BlitScreen extends PostProcessSetting {
     }
 
     onLoad (): void {
-        this.updateActiveMateirals();
+        this.updateActiveMaterials();
     }
 }
