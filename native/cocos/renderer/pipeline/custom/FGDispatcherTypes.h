@@ -150,21 +150,6 @@ struct BarrierNode {
 
 struct SliceNode {
     bool full{false};
-    ccstd::vector<uint32_t> mips;
-};
-
-struct TextureNode {
-    bool full{false};
-    ccstd::vector<SliceNode> slices;
-};
-
-struct ResourceNode {
-    bool full{false};
-    ccstd::vector<TextureNode> planes;
-};
-
-struct SliceNode {
-    bool full{false};
     std::vector<uint32_t> mips;
 };
 

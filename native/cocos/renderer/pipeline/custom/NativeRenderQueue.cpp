@@ -182,6 +182,10 @@ void RenderBatchingQueue::recordCommandBuffer(
     const ResourceGraph& resg,
     gfx::Device *device, const scene::Camera *camera, 
     gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const {
+    if (!any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
+        return;
+    }
+
     auto *gpuScene = camera->getScene() ? camera->getScene()->getGPUScene() : nullptr;
     if (!gpuScene) {
         return;

@@ -1364,6 +1364,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.opaqueInstancingQueue.recordCommandBuffer(
             ctx.currentPass, ctx.cmdBuff);
+        queue.opaqueBatchingQueue.recordCommandBuffer(ctx.resourceGraph, ctx.device, camera, 
+            ctx.currentPass, ctx.cmdBuff, queue.sceneFlags, sceneData.cullingID);
         queue.transparentQueue.recordCommandBuffer(
         ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.transparentInstancingQueue.recordCommandBuffer(
