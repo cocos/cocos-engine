@@ -148,6 +148,18 @@ export class ComputeView {
 }
 
 export class ResourceDesc {
+    reset (): void {
+        this.dimension = ResourceDimension.BUFFER;
+        this.alignment = 0;
+        this.width = 0;
+        this.height = 0;
+        this.depthOrArraySize = 0;
+        this.mipLevels = 0;
+        this.format = Format.UNKNOWN;
+        this.sampleCount = SampleCount.X1;
+        this.textureFlags = TextureFlagBit.NONE;
+        this.flags = ResourceFlags.NONE;
+    }
     dimension: ResourceDimension = ResourceDimension.BUFFER;
     alignment = 0;
     width = 0;
@@ -189,6 +201,9 @@ export class RenderSwapchain {
 }
 
 export class ResourceStates {
+    reset (): void {
+        this.states = AccessFlagBit.NONE;
+    }
     states: AccessFlagBit = AccessFlagBit.NONE;
 }
 
@@ -217,10 +232,18 @@ export class ManagedTexture {
 }
 
 export class ManagedResource {
+    reset (): void {
+        this.unused = 0;
+    }
     unused = 0;
 }
 
 export class Subpass {
+    reset (): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
+        this.resolvePairs.length = 0;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly resolvePairs: ResolvePair[] = [];
@@ -568,6 +591,22 @@ export class ComputeSubpass {
 }
 
 export class RasterPass {
+    reset (): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
+        this.attachmentIndexMap.clear();
+        this.textures.clear();
+        this.subpassGraph.clear();
+        this.width = 0;
+        this.height = 0;
+        this.count = 1;
+        this.quality = 0;
+        this.viewport.reset();
+        this.versionName = '';
+        this.version = 0;
+        this.hashValue = 0;
+        this.showStatistics = false;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
@@ -604,10 +643,23 @@ export class PersistentRenderPassAndFramebuffer {
 }
 
 export class FormatView {
+    reset (): void {
+        this.format = Format.UNKNOWN;
+    }
     format: Format = Format.UNKNOWN;
 }
 
 export class SubresourceView {
+    reset (): void {
+        this.textureView = null;
+        this.format = Format.UNKNOWN;
+        this.indexOrFirstMipLevel = 0;
+        this.numMipLevels = 0;
+        this.firstArraySlice = 0;
+        this.numArraySlices = 0;
+        this.firstPlane = 0;
+        this.numPlanes = 0;
+    }
     /*refcount*/ textureView: Texture | null = null;
     format: Format = Format.UNKNOWN;
     indexOrFirstMipLevel = 0;
@@ -1370,24 +1422,41 @@ export class ResourceGraph implements BidirectionalGraph
 }
 
 export class ComputePass {
+    reset (): void {
+        this.computeViews.clear();
+        this.textures.clear();
+    }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
 }
 
 export class ResolvePass {
+    reset (): void {
+        this.resolvePairs.length = 0;
+    }
     readonly resolvePairs: ResolvePair[] = [];
 }
 
 export class CopyPass {
+    reset (): void {
+        this.copyPairs.length = 0;
+        this.uploadPairs.length = 0;
+    }
     readonly copyPairs: CopyPair[] = [];
     readonly uploadPairs: UploadPair[] = [];
 }
 
 export class MovePass {
+    reset (): void {
+        this.movePairs.length = 0;
+    }
     readonly movePairs: MovePair[] = [];
 }
 
 export class RaytracePass {
+    reset (): void {
+        this.computeViews.clear();
+    }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
@@ -1495,6 +1564,13 @@ export class Blit {
 }
 
 export class RenderData {
+    reset (): void {
+        this.constants.clear();
+        this.buffers.clear();
+        this.textures.clear();
+        this.samplers.clear();
+        this.custom = '';
+    }
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();

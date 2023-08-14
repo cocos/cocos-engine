@@ -353,6 +353,12 @@ export class Descriptor {
 }
 
 export class DescriptorBlock {
+    reset (): void {
+        this.descriptors.clear();
+        this.uniformBlocks.clear();
+        this.capacity = 0;
+        this.count = 0;
+    }
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
     capacity = 0;
@@ -360,6 +366,14 @@ export class DescriptorBlock {
 }
 
 export class DescriptorBlockFlattened {
+    reset (): void {
+        this.descriptorNames.length = 0;
+        this.uniformBlockNames.length = 0;
+        this.descriptors.length = 0;
+        this.uniformBlocks.length = 0;
+        this.capacity = 0;
+        this.count = 0;
+    }
     readonly descriptorNames: string[] = [];
     readonly uniformBlockNames: string[] = [];
     readonly descriptors: Descriptor[] = [];
@@ -569,6 +583,19 @@ export class MovePair {
 }
 
 export class PipelineStatistics {
+    reset (): void {
+        this.numRenderPasses = 0;
+        this.numManagedTextures = 0;
+        this.totalManagedTextures = 0;
+        this.numUploadBuffers = 0;
+        this.numUploadBufferViews = 0;
+        this.numFreeUploadBuffers = 0;
+        this.numFreeUploadBufferViews = 0;
+        this.numDescriptorSets = 0;
+        this.numFreeDescriptorSets = 0;
+        this.numInstancingBuffers = 0;
+        this.numInstancingUniformBlocks = 0;
+    }
     numRenderPasses = 0;
     numManagedTextures = 0;
     totalManagedTextures = 0;

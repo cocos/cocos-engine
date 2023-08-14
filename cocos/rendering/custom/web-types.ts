@@ -54,6 +54,10 @@ export class ProgramInfo {
 }
 
 export class ProgramGroup {
+    reset (): void {
+        this.programInfos.clear();
+        this.programProxies.clear();
+    }
     readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
     readonly programProxies: Map<string, ProgramProxy> = new Map<string, ProgramProxy>();
 }

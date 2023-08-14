@@ -35,10 +35,16 @@ import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 
 export class DescriptorDB {
+    reset (): void {
+        this.blocks.clear();
+    }
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
 
 export class RenderPhase {
+    reset (): void {
+        this.shaders.clear();
+    }
     readonly shaders: Set<string> = new Set<string>();
 }
 
@@ -600,6 +606,10 @@ export class UniformData {
 }
 
 export class UniformBlockData {
+    reset (): void {
+        this.bufferSize = 0;
+        this.uniforms.length = 0;
+    }
     bufferSize = 0;
     readonly uniforms: UniformData[] = [];
 }
@@ -694,36 +704,65 @@ export class DescriptorSetData {
 }
 
 export class PipelineLayoutData {
+    reset (): void {
+        this.descriptorSets.clear();
+    }
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
 }
 
 export class ShaderBindingData {
+    reset (): void {
+        this.descriptorBindings.clear();
+    }
     readonly descriptorBindings: Map<number, number> = new Map<number, number>();
 }
 
 export class ShaderLayoutData {
+    reset (): void {
+        this.layoutData.clear();
+        this.bindingData.clear();
+    }
     readonly layoutData: Map<UpdateFrequency, DescriptorSetLayoutData> = new Map<UpdateFrequency, DescriptorSetLayoutData>();
     readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
 }
 
 export class TechniqueData {
+    reset (): void {
+        this.passes.length = 0;
+    }
     readonly passes: ShaderLayoutData[] = [];
 }
 
 export class EffectData {
+    reset (): void {
+        this.techniques.clear();
+    }
     readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
 }
 
 export class ShaderProgramData {
+    reset (): void {
+        this.layout.reset();
+        this.pipelineLayout = null;
+    }
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class RenderStageData {
+    reset (): void {
+        this.descriptorVisibility.clear();
+    }
     readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
 }
 
 export class RenderPhaseData {
+    reset (): void {
+        this.rootSignature = '';
+        this.shaderPrograms.length = 0;
+        this.shaderIndex.clear();
+        this.pipelineLayout = null;
+    }
     rootSignature = '';
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
