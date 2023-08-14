@@ -23,8 +23,9 @@
 */
 
 import { Pass } from '../render-scene';
-import { IInstancedAttributeBlock, SubModel } from '../render-scene/scene';
-import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
+import { SubModel } from '../render-scene/scene';
+import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
