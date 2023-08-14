@@ -51,7 +51,6 @@ void GPUScene::destroy() {
 }
 
 void GPUScene::update(uint32_t stamp) {
-    _meshPool->update(stamp);
     _objectPool->update(stamp);
     _batchPool->update(stamp);
 }

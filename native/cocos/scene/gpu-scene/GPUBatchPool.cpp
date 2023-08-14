@@ -287,7 +287,7 @@ struct DrawIndexedIndirectCommandFallback {
     uint32_t firstInstance{0};
 };
 
-uint32_t GPUBatchPool::getIndirectStride() const {
+uint32_t GPUBatchPool::getIndirectStride() {
     auto *device = gfx::Device::getInstance();
     return device->getCapabilities().supportFirstInstance ?
         static_cast<uint32_t>(sizeof(gfx::DrawIndexedIndirectCommand)) :

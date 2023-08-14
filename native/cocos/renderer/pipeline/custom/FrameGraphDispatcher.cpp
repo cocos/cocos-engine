@@ -1483,7 +1483,6 @@ bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const Resour
             fromResDesc.sampleCount == toResDesc.sampleCount,
             (fromResDesc.depthOrArraySize == toResDesc.depthOrArraySize) || (toResDesc.dimension != ResourceDimension::BUFFER), // full move if resource is buffer
         };
-        auto num = std::min_element(std::begin(validConditions), std::end(validConditions));
         bool val = *std::min_element(std::begin(validConditions), std::end(validConditions));
         check &= val;
     }

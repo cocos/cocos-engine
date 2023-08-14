@@ -297,13 +297,9 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
 }
 
 bool Pass::isBlend() const {
-    for (const auto &target : _blendState.targets) {
-        if (target.blend) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(_blendState.targets.begin(), _blendState.targets.end(), [&](const auto &target) {
+        return target.blend;
+    });
 }
 
 void Pass::destroy() {

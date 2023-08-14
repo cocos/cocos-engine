@@ -175,7 +175,7 @@ struct HalfRaw {
 #if defined(CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC)
     explicit HalfRaw(uint16_t raw) : x(numext::bit_cast<__fp16>(raw)) {
     }
-    __fp16 x;
+    __fp16 x; // NOLINT(modernize-use-default-member-init)
 #else
     explicit constexpr HalfRaw(uint16_t raw) : x(raw) {}
     uint16_t x; // NOLINT(modernize-use-default-member-init)

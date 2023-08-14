@@ -211,7 +211,7 @@ void RenderBatchingQueue::recordCommandBuffer(
     const auto supportFirstInstance = device->getCapabilities().supportFirstInstance;
     auto *batchPool = gpuScene->getBatchPool();
     gfx::PipelineState *lastPSO = nullptr;
-    const auto indirectStride = batchPool->getIndirectStride();
+    const auto indirectStride = scene::GPUBatchPool::getIndirectStride();
 
     for (const auto &lightmapIter : batchPool->getBatches()) {
         const auto *lightmap = lightmapIter.first;

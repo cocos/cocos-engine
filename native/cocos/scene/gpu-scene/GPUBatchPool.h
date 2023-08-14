@@ -117,7 +117,7 @@ public:
     inline LightMapBatchMap &getBatches() { return _batches; }
     inline uint32_t getIndirectCount() const { return static_cast<uint32_t>(_indirectCmds.size()); }
     inline uint32_t getInstanceCount() const { return static_cast<uint32_t>(_instances.size()); }
-    uint32_t getIndirectStride() const;
+    static uint32_t getIndirectStride();
 
     inline gfx::Buffer *getInstanceBuffer() { return _instanceBuffer.get(); }
     inline gfx::Buffer *getIndirectBuffer() { return _indirectBuffer.get(); }

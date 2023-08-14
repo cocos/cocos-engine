@@ -68,11 +68,6 @@ void GPUMeshPool::destroy() {
     _meshes.clear();
 }
 
-void GPUMeshPool::update(uint32_t stamp) {
-    // Do nothing now.
-    std::ignore = stamp;
-}
-
 void GPUMeshPool::build(const ccstd::vector<Mesh*>& meshes) {
     for (const auto& mesh : meshes) {
         addMesh(mesh);

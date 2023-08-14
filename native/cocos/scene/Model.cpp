@@ -530,7 +530,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
-    patches.push_back({CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType)});
+    patches.emplace_back(IMacroPatch{CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType)});
 
     if (_lightmap != nullptr) {
         bool stationary = false;
@@ -557,8 +557,8 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
             }
         }
     }
-    patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
-    patches.push_back({CC_USE_GPU_DRIVEN, supportGPUScene(subModelIndex) && isInGPUScene(subModelIndex)});
+    patches.emplace_back(IMacroPatch{CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
+    patches.emplace_back(IMacroPatch{CC_USE_GPU_DRIVEN, supportGPUScene(subModelIndex) && isInGPUScene(subModelIndex)});
 
     return patches;
 }

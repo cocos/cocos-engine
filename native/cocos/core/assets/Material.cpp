@@ -451,22 +451,19 @@ bool Material::isBlend(const ccstd::string &phaseName) const {
     }
 
     const auto &passes = *_passes;
-    for (const auto &pass : passes) {
+
+    // If any matched pass is blend, return true.
+    return std::any_of(passes.begin(), passes.end(), [&](const auto &pass) {
         if (!pass) {
-            continue;
+            return false;
         }
 
         if (pass->getPhaseID() != pipeline::getPhaseID(phaseName)) {
-            continue;
+            return false;
         }
 
-        // If any matched pass is blend, return true.
-        if (pass->isBlend()) {
-            return true;
-        }
-    }
-
-    return false;
+        return pass->isBlend();
+    });
 }
 
 } // namespace cc

@@ -297,17 +297,16 @@ uint32_t NativePipeline::addResource(
                     std::forward_as_tuple(),
                     std::forward_as_tuple(),
                     resourceGraph);
-            } else {
-                return addVertex(
-                    ManagedTextureTag{},
-                    std::forward_as_tuple(name.c_str()),
-                    std::forward_as_tuple(desc),
-                    std::forward_as_tuple(ResourceTraits{residency}),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(),
-                    resourceGraph);
             }
+            return addVertex(
+                ManagedTextureTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{residency}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                resourceGraph);
         } break;
         case ResourceResidency::PERSISTENT: {
             if (dimension == ResourceDimension::BUFFER) {
@@ -320,17 +319,16 @@ uint32_t NativePipeline::addResource(
                     std::forward_as_tuple(),
                     std::forward_as_tuple(),
                     resourceGraph);
-            } else {
-                return addVertex(
-                    PersistentTextureTag{},
-                    std::forward_as_tuple(name.c_str()),
-                    std::forward_as_tuple(desc),
-                    std::forward_as_tuple(ResourceTraits{residency}),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(),
-                    resourceGraph);
             }
+            return addVertex(
+                PersistentTextureTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{residency}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                resourceGraph);
         } break;
         default:
             CC_EXPECTS(false);
@@ -390,6 +388,7 @@ void updateResourceImpl(
             }
         },
         [&](ManagedBuffer &buffer) {
+            std::ignore = buffer;
             bool invalidate =
                 std::forward_as_tuple(desc.width) !=
                 std::forward_as_tuple(width);
@@ -1064,7 +1063,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         ccstd::vector<Vec4> planes;
         const auto &frustum = camera->getFrustum();
         for (auto *plane : frustum.planes) {
-            planes.push_back({plane->n.x, plane->n.y, plane->n.z, plane->d});
+            planes.emplace_back(Vec4{plane->n.x, plane->n.y, plane->n.z, plane->d});
         }
         ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(Vec4) * 6);
         gpuCullPass->setMat4("cc_view", camera->getMatView());
