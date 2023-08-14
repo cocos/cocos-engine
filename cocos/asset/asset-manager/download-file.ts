@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-type FileProgressCallback = (loaded: number, total: number) => void;
+export type FileProgressCallback = (loaded: number, total: number) => void;
 
 export default function downloadFile (
     url: string,
