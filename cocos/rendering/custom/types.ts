@@ -623,16 +623,16 @@ export class RenderCommonObjectPoolSettings {
         this.movePairBatchSize = batchSize;
         this.pipelineStatisticsBatchSize = batchSize;
     }
-    lightInfoBatchSize = 0;
-    descriptorBatchSize = 0;
-    descriptorBlockBatchSize = 0;
-    descriptorBlockFlattenedBatchSize = 0;
-    descriptorBlockIndexBatchSize = 0;
-    resolvePairBatchSize = 0;
-    copyPairBatchSize = 0;
-    uploadPairBatchSize = 0;
-    movePairBatchSize = 0;
-    pipelineStatisticsBatchSize = 0;
+    lightInfoBatchSize = 16;
+    descriptorBatchSize = 16;
+    descriptorBlockBatchSize = 16;
+    descriptorBlockFlattenedBatchSize = 16;
+    descriptorBlockIndexBatchSize = 16;
+    resolvePairBatchSize = 16;
+    copyPairBatchSize = 16;
+    uploadPairBatchSize = 16;
+    movePairBatchSize = 16;
+    pipelineStatisticsBatchSize = 16;
 }
 
 export class RenderCommonObjectPool {

@@ -1357,24 +1357,24 @@ export class LayoutGraphObjectPoolSettings {
         this.renderPhaseDataBatchSize = batchSize;
         this.layoutGraphDataBatchSize = batchSize;
     }
-    descriptorDBBatchSize = 0;
-    renderPhaseBatchSize = 0;
-    layoutGraphBatchSize = 0;
-    uniformDataBatchSize = 0;
-    uniformBlockDataBatchSize = 0;
-    descriptorDataBatchSize = 0;
-    descriptorBlockDataBatchSize = 0;
-    descriptorSetLayoutDataBatchSize = 0;
-    descriptorSetDataBatchSize = 0;
-    pipelineLayoutDataBatchSize = 0;
-    shaderBindingDataBatchSize = 0;
-    shaderLayoutDataBatchSize = 0;
-    techniqueDataBatchSize = 0;
-    effectDataBatchSize = 0;
-    shaderProgramDataBatchSize = 0;
-    renderStageDataBatchSize = 0;
-    renderPhaseDataBatchSize = 0;
-    layoutGraphDataBatchSize = 0;
+    descriptorDBBatchSize = 16;
+    renderPhaseBatchSize = 16;
+    layoutGraphBatchSize = 16;
+    uniformDataBatchSize = 16;
+    uniformBlockDataBatchSize = 16;
+    descriptorDataBatchSize = 16;
+    descriptorBlockDataBatchSize = 16;
+    descriptorSetLayoutDataBatchSize = 16;
+    descriptorSetDataBatchSize = 16;
+    pipelineLayoutDataBatchSize = 16;
+    shaderBindingDataBatchSize = 16;
+    shaderLayoutDataBatchSize = 16;
+    techniqueDataBatchSize = 16;
+    effectDataBatchSize = 16;
+    shaderProgramDataBatchSize = 16;
+    renderStageDataBatchSize = 16;
+    renderPhaseDataBatchSize = 16;
+    layoutGraphDataBatchSize = 16;
 }
 
 export class LayoutGraphObjectPool {
