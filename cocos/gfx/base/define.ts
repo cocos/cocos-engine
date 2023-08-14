@@ -1116,46 +1116,6 @@ export class BufferViewInfo {
     }
 }
 
-export class DrawIndirectCommand {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public vertexCount: number = 0,
-        public instanceCount: number = 0,
-        public firstVertex: number = 0,
-        public firstInstance: number = 0,
-    ) {}
-
-    public copy (info: Readonly<DrawIndirectCommand>) {
-        this.vertexCount = info.vertexCount;
-        this.instanceCount = info.instanceCount;
-        this.firstVertex = info.firstVertex;
-        this.firstInstance = info.firstInstance;
-        return this;
-    }
-}
-
-export class DrawIndexedIndirectCommand {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public indexCount: number = 0,
-        public instanceCount: number = 0,
-        public firstIndex: number = 0,
-        public vertexOffset: number = 0,
-        public firstInstance: number = 0,
-    ) {}
-
-    public copy (info: Readonly<DrawIndexedIndirectCommand>) {
-        this.indexCount = info.indexCount;
-        this.instanceCount = info.instanceCount;
-        this.firstIndex = info.firstIndex;
-        this.vertexOffset = info.vertexOffset;
-        this.firstInstance = info.firstInstance;
-        return this;
-    }
-}
-
 export class DrawInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
