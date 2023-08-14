@@ -234,6 +234,9 @@ export class WebSetter {
     public setFloat (name: string, v: number, idx = 0): void {
         this._applyCurrConstantBuffer(name, v, Type.FLOAT, idx);
     }
+    public setUint (name: string, v: number, idx = 0): void {
+        this._applyCurrConstantBuffer(name, v, Type.UINT, idx);
+    }
     public offsetFloat (v: number, offset: number): void {
         this._copyToBuffer(v, offset, Type.FLOAT);
     }

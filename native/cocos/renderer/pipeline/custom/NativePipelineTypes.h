@@ -81,7 +81,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) /*implements*/;
     void setVec2(const ccstd::string &name, const Vec2 &vec) /*implements*/;
     void setFloat(const ccstd::string &name, float v) /*implements*/;
-    void setUInt(const ccstd::string &name, uint32_t v) /*implements*/;
+    void setUint(const ccstd::string &name, uint32_t v) /*implements*/;
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) /*implements*/;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
@@ -158,8 +158,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -254,8 +254,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -368,8 +368,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -485,8 +485,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -575,8 +575,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -677,8 +677,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -778,8 +778,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -863,8 +863,8 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
-    void setUInt(const ccstd::string &name, uint32_t v) override {
-        NativeSetter::setUInt(name, v);
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -965,7 +965,7 @@ struct RenderBatchingQueue {
     RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
     RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
 
-    void recordCommandBuffer(const ResourceGraph& resg, gfx::Device *device, const scene::Camera *camera, 
+    void recordCommandBuffer(const ResourceGraph& resg, gfx::Device *device, const scene::Camera *camera,
         gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const;
 
     ccstd::pmr::vector<uint32_t> batches;
@@ -1246,7 +1246,7 @@ struct NativeRenderQueueDesc {
 struct SceneCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {sceneQueries.get_allocator().resource()};
+        return {sceneIDs.get_allocator().resource()};
     }
 
     SceneCulling(const allocator_type& alloc) noexcept; // NOLINT

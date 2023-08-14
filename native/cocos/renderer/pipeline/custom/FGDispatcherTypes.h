@@ -150,17 +150,17 @@ struct BarrierNode {
 
 struct SliceNode {
     bool full{false};
-    std::vector<uint32_t> mips;
+    ccstd::vector<uint32_t> mips;
 };
 
 struct TextureNode {
     bool full{false};
-    std::vector<SliceNode> slices;
+    ccstd::vector<SliceNode> slices;
 };
 
 struct ResourceNode {
     bool full{false};
-    std::vector<TextureNode> planes;
+    ccstd::vector<TextureNode> planes;
 };
 
 struct ResourceAccessGraph {

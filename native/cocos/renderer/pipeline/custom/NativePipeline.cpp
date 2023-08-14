@@ -22,6 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <type_traits>
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -1071,12 +1072,12 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
         gpuCullPass->setFloat("cc_znear", camera->getNearClip());
         gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
-        gpuCullPass->setFloat("cc_depthWidth", utils::previousPOT(camera->getWidth()));
-        gpuCullPass->setFloat("cc_depthHeight", utils::previousPOT(camera->getHeight()));
-        gpuCullPass->setUInt("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
-        gpuCullPass->setUInt("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
-        gpuCullPass->setUInt("cc_instanceCount", instanceCount);
-        gpuCullPass->setUInt("cc_sceneFlags", 0); // Stanley TODO
+        gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(camera->getWidth())));
+        gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(camera->getHeight())));
+        gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
+        gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
+        gpuCullPass->setUint("cc_instanceCount", instanceCount);
+        gpuCullPass->setUint("cc_sceneFlags", 0); // Stanley TODO
     }
 }
 

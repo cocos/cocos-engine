@@ -248,9 +248,6 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                     0,
                     0,
                     0,
-                    0,
-                    0,
-                    0,
                     0});
 
                 break;

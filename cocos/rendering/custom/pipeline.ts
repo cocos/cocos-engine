@@ -330,6 +330,12 @@ export interface Setter extends RenderNode {
      */
     setFloat (name: string, v: number): void;
     /**
+     * @en Set unsigned integer uniform (4 bytes).
+     * @zh 设置无符号整型值 (4 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
+    setUint (name: string, v: number): void;
+    /**
      * @en Set uniform array.
      * Size and type of the data should match the corresponding uniforms in the shader.
      * Mismatches will cause undefined behaviour.
