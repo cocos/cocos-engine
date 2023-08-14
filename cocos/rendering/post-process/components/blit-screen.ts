@@ -7,7 +7,7 @@ import { PostProcessSetting } from './post-process-setting';
 @ccclass('cc.BlitScreenMaterial')
 class BlitScreenMaterial {
     @property(Material)
-    _material: Material | undefined;
+    protected _material: Material | undefined;
 
     @property(Material)
     get material (): Material | undefined {
@@ -28,7 +28,7 @@ class BlitScreenMaterial {
 @executeInEditMode
 export class BlitScreen extends PostProcessSetting {
     @property(Material)
-    _activeMaterials: Material[] = [];
+    protected _activeMaterials: Material[] = [];
     @property({ type: Material, visible: false })
     get activeMaterials (): Material[] {
         return this._activeMaterials;
@@ -47,7 +47,7 @@ export class BlitScreen extends PostProcessSetting {
     }
 
     @property(BlitScreenMaterial)
-    _materials: BlitScreenMaterial[] = [];
+    protected _materials: BlitScreenMaterial[] = [];
 
     @property(BlitScreenMaterial)
     get materials (): BlitScreenMaterial[] {
@@ -60,10 +60,10 @@ export class BlitScreen extends PostProcessSetting {
                 globalThis.cce.Engine.repaintInEditMode();
             }, 50);
         }
-        this.updateActiveMateirals();
+        this.updateActiveMaterials();
     }
 
-    updateActiveMateirals (): void {
+    updateActiveMaterials (): void {
         const materials = this._materials;
         this._activeMaterials.length = 0;
         for (let i = 0; i < materials.length; i++) {
@@ -75,6 +75,6 @@ export class BlitScreen extends PostProcessSetting {
     }
 
     onLoad (): void {
-        this.updateActiveMateirals();
+        this.updateActiveMaterials();
     }
 }
