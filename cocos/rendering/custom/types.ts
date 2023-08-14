@@ -288,12 +288,14 @@ export function getClearValueTypeName (e: ClearValueType): string {
 }
 
 export class LightInfo {
-    constructor (light: Light | null = null, level = 0) {
+    constructor (light: Light | null = null, level = 0, culledByLight = false) {
         this.light = light;
         this.level = level;
+        this.culledByLight = culledByLight;
     }
     /*refcount*/ light: Light | null;
     level: number;
+    culledByLight: boolean;
 }
 
 export enum DescriptorTypeOrder {
@@ -508,11 +510,13 @@ export class PipelineStatistics {
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     ar.writeNumber(v.level);
+    ar.writeBool(v.culledByLight);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
     v.level = ar.readNumber();
+    v.culledByLight = ar.readBool();
 }
 
 export function saveDescriptor (ar: OutputArchive, v: Descriptor): void {

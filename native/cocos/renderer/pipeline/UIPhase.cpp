@@ -58,7 +58,7 @@ void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->bindDescriptorSet(localSet, ds);
-            cmdBuff->draw(inputAssembler);
+            cmdBuff->draw(batch->getDrawInfo());
         }
     }
 }

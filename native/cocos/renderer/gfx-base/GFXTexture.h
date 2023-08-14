@@ -51,7 +51,7 @@ public:
     inline ccstd::hash_t getHash() const { return _hash; }
 
     // convenient getter for common usages
-    inline Format getFormat() const { return _info.format; }
+    inline Format getFormat() const { return _isTextureView ? _viewInfo.format : _info.format; }
     inline uint32_t getWidth() const { return _info.width; }
     inline uint32_t getHeight() const { return _info.height; }
 

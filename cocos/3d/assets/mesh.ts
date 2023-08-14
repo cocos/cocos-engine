@@ -23,6 +23,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
@@ -493,7 +494,7 @@ export class Mesh extends Asset {
             }
 
             this._isMeshDataUploaded = true;
-            if (!this._allowDataAccess) {
+            if (!this._allowDataAccess && !EDITOR) {
                 this.releaseData();
             }
         }
@@ -1304,7 +1305,7 @@ export class Mesh extends Asset {
      */
     public set allowDataAccess (allowDataAccess: boolean) {
         this._allowDataAccess = allowDataAccess;
-        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+        if (this._isMeshDataUploaded && !this._allowDataAccess && !EDITOR) {
             this.releaseData();
         }
     }

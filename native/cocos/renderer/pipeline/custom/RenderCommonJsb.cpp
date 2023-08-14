@@ -44,6 +44,9 @@ bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Obj
     nativevalue_to_se(from.level, tmp, ctx);
     obj->setProperty("level", tmp);
 
+    nativevalue_to_se(from.culledByLight, tmp, ctx);
+    obj->setProperty("culledByLight", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -250,6 +253,10 @@ bool sevalue_to_native<cc::render::LightInfo>(const se::Value &from, cc::render:
     obj->getProperty("level", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->level), ctx);
+    }
+    obj->getProperty("culledByLight", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->culledByLight), ctx);
     }
     return ok;
 }

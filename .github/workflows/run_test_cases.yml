@@ -279,7 +279,7 @@ jobs:
         timeout-minutes: 90
         id: run_test_cases
         run: |
-          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -r cctest.cocos.org 
+          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -r https://cctest.cocos.org 
           JOBID=`cat  /usr/local/lib/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log`
           cd ..
           python3 -u ./python/main.py --target=job_editor --jobid=$JOBID

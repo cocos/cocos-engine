@@ -24,6 +24,7 @@
 
 #pragma once
 #include "2d/renderer/UIMeshBuffer.h"
+#include "base/Ptr.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "bindings/utils/BindingUtils.h"
@@ -266,8 +267,6 @@ private:
         ccstd::hash_t _dataHash{0};
     } _drawInfoAttrs{};
 
-    uint16_t _nextFreeIAHandle{0};
-
     bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
     // weak reference
     Material* _material{nullptr};
@@ -291,8 +290,11 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-    gfx::InputAssemblerInfo* _iaInfo{nullptr};
-    ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
     LocalDSBF* _localDSBF{nullptr};
+
+    // ia
+    IntrusivePtr<gfx::InputAssembler> _ia;
+    IntrusivePtr<gfx::Buffer> _vb;
+    IntrusivePtr<gfx::Buffer> _ib;
 };
 } // namespace cc

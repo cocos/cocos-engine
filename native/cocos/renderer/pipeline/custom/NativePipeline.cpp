@@ -43,6 +43,50 @@ namespace cc {
 
 namespace render {
 
+template<gfx::Format>
+void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg);
+
+template <>
+void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
+    SubresourceView view{
+        nullptr,
+        gfx::Format::DEPTH_STENCIL,
+        0, 1, 0, 1, 0, 1};
+
+    auto desc = get(ResourceGraph::DescTag{}, resg, v);
+    auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+
+    ccstd::string depthName{name};
+    depthName += "/";
+    depthName += DEPTH_PLANE_NAME;
+    auto depthID = addVertex(
+        SubresourceViewTag{},
+        std::forward_as_tuple(depthName.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(traits.residency),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
+        std::forward_as_tuple(view),
+        resg,
+        v);
+
+    view.firstPlane = 1;
+    ccstd::string stencilName{name};
+    stencilName += "/";
+    stencilName += STENCIL_PLANE_NAME;
+    auto stencilID = addVertex(
+        SubresourceViewTag{},
+        std::forward_as_tuple(stencilName.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(traits.residency),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
+        std::forward_as_tuple(view),
+        resg,
+        v);
+}
+
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
@@ -199,7 +243,8 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.magFilter = gfx::Filter::POINT;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
-    return addVertex(
+
+    auto resID = addVertex(
         ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
@@ -208,6 +253,9 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
+
+    addSubresourceNode<gfx::Format::DEPTH_STENCIL>(resID, name, resourceGraph);
+    return resID;
 }
 
 uint32_t NativePipeline::addResource(

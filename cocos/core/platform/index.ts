@@ -45,5 +45,5 @@ export {
 } from './debug';
 
 export { screen } from './screen';
-
+export type { Screen } from './screen';
 export { ImageData } from 'pal/image';

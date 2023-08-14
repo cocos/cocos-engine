@@ -942,9 +942,11 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<SkeletonData *>()
         .function("getDefaultMix", &AnimationStateData::getDefaultMix)
         .function("getSkeletonData", &AnimationStateData::getSkeletonData, allow_raw_pointers())
-        .function("setMix", optional_override([](AnimationStateData &obj, std::string fromName, std::string toName, float duration) {
-        .function("setMixWith", optional_override([](AnimationStateData &obj, Animation *from, Animation *to, float duration) { return obj.setMix(from, to, duration); }), allow_raw_pointers())
-            .function("getMix", &AnimationStateData::getMix, allow_raw_pointers());
+        .function("setMix", optional_override([](AnimationStateData &obj, const std::string& fromName, const std::string& toName, float duration) { 
+            return obj.setMix(STRING_STD2SP(fromName), STRING_STD2SP(toName), duration);}))
+        .function("setMixWith", optional_override([](AnimationStateData &obj, Animation* from, Animation* to, float duration) { 
+            return obj.setMix(from, to, duration);}), allow_raw_pointers())
+        .function("getMix", &AnimationStateData::getMix, allow_raw_pointers());
 
         // .function("setMixWith", &Skeleton::setMixWith_Export)
         //.function("getMix", &Skeleton::setMix_Export);
@@ -1071,116 +1073,119 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setSkinByName", optional_override([](Skeleton &obj, const std::string& name) {
             return obj.setSkin(STRING_STD2SP(name));}))
         .function("setSkin", static_cast<void (Skeleton::*)(Skin *)>(&Skeleton::setSkin), allow_raw_pointer<Skin>())
-        .function("getAttachmentByName", optional_override([](Skeleton &obj, std::string slotName, std::string attachmentName) {
-        .function("getAttachment", optional_override([](Skeleton &obj, int slotIndex, std::string attachmentName) {
-        .function("setAttachment", optional_override([](Skeleton &obj, std::string slotName, std::string attachmentName) {
-                    .function("findIkConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findIkConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-                        .function("findTransformConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findTransformConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-                        .function("findPathConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findPathConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-                        //.function("getBounds", &Skeleton::getBounds)
-                        .function("update", &Skeleton::update);
+        .function("getAttachmentByName", optional_override([](Skeleton &obj, const std::string& slotName, const std::string& attachmentName) { 
+            return obj.getAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}), allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skeleton &obj, int slotIndex, const std::string& attachmentName) { 
+            return obj.getAttachment(slotIndex, STRING_STD2SP(attachmentName));}),allow_raw_pointers())
+        .function("setAttachment", optional_override([](Skeleton &obj, const std::string& slotName, const std::string& attachmentName) { 
+            return obj.setAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}))
+        .function("findIkConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findIkConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+            .function("findTransformConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findTransformConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+            .function("findPathConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findPathConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+            //.function("getBounds", &Skeleton::getBounds)
+            .function("update", &Skeleton::update);
 
-                    // incomplete
-                    // class_<SkeletonBinary>("SkeletonBinary")
-                    //     .constructor<AttachmentLoader*>()
-                    //     .function("setProp_scale", &SkeletonBinary::setScale);
-                    //.function("getProp_scale", &SkeletonBinary::getScale)
-                    //.function("readSkeletonData", &SkeletonBinary::readSkeletonData)
-                    //.function("setCurve", &SkeletonBinary::setCurve);
-                    // incomplete
+        // incomplete
+        // class_<SkeletonBinary>("SkeletonBinary")
+        //     .constructor<AttachmentLoader*>()
+        //     .function("setProp_scale", &SkeletonBinary::setScale);
+        //.function("getProp_scale", &SkeletonBinary::getScale)
+        //.function("readSkeletonData", &SkeletonBinary::readSkeletonData)
+        //.function("setCurve", &SkeletonBinary::setCurve);
+        // incomplete
 
-                    // class_<SkeletonJson>("SkeletonJson")
-                    //     .constructor<Atlas*>()
-                    //     .constructor<AttachmentLoader*>();
-                    //.function("readSkeletonData", &SkeletonJson::readSkeletonData)
-                    //.function("getProp_scale", &SkeletonJson::getScale)
+        // class_<SkeletonJson>("SkeletonJson")
+        //     .constructor<Atlas*>()
+        //     .constructor<AttachmentLoader*>();
+        //.function("readSkeletonData", &SkeletonJson::readSkeletonData)
+        //.function("getProp_scale", &SkeletonJson::getScale)
 
-                    class_<VertexEffect>("VertexEffect")
-                        .function("begin", &VertexEffect::begin, pure_virtual())
-                        //.function("transform", &VertexEffect::transform, pure_virtual())
-                        .function("end", &VertexEffect::end, pure_virtual());
+        class_<VertexEffect>("VertexEffect")
+            .function("begin", &VertexEffect::begin, pure_virtual())
+            //.function("transform", &VertexEffect::transform, pure_virtual())
+            .function("end", &VertexEffect::end, pure_virtual());
 
-                    class_<JitterVertexEffect, base<VertexEffect>>("JitterEffect")
-                        .constructor<float, float>()
-                        .function("getJitterX", &JitterVertexEffect::getJitterX)
-                        .function("setJitterX", &JitterVertexEffect::setJitterX)
-                        .function("getJitterY", &JitterVertexEffect::getJitterY)
-                        .function("setJitterY", &JitterVertexEffect::setJitterY)
-                        .function("begin", &JitterVertexEffect::begin)
-                        //.function("transform", &JitterVertexEffect::transform)
-                        .function("end", &JitterVertexEffect::end);
+        class_<JitterVertexEffect, base<VertexEffect>>("JitterEffect")
+            .constructor<float, float>()
+            .function("getJitterX", &JitterVertexEffect::getJitterX)
+            .function("setJitterX", &JitterVertexEffect::setJitterX)
+            .function("getJitterY", &JitterVertexEffect::getJitterY)
+            .function("setJitterY", &JitterVertexEffect::setJitterY)
+            .function("begin", &JitterVertexEffect::begin)
+            //.function("transform", &JitterVertexEffect::transform)
+            .function("end", &JitterVertexEffect::end);
 
-                    class_<SwirlVertexEffect, base<VertexEffect>>("SwirlEffect")
-                        .constructor<float, Interpolation &>()
-                        .function("getCenterX", &SwirlVertexEffect::getCenterX)
-                        .function("setCenterX", &SwirlVertexEffect::setCenterX)
-                        .function("getCenterY", &SwirlVertexEffect::getCenterY)
-                        .function("setCenterY", &SwirlVertexEffect::setCenterY)
-                        .function("getRadius", &SwirlVertexEffect::getRadius)
-                        .function("setRadius", &SwirlVertexEffect::setRadius)
-                        .function("getAngle", &SwirlVertexEffect::getAngle)
-                        .function("setAngle", &SwirlVertexEffect::setAngle)
-                        .function("begin", &SwirlVertexEffect::begin)
-                        //.function("transform", &SwirlVertexEffect::transform)
-                        .function("end", &SwirlVertexEffect::end);
+        class_<SwirlVertexEffect, base<VertexEffect>>("SwirlEffect")
+            .constructor<float, Interpolation &>()
+            .function("getCenterX", &SwirlVertexEffect::getCenterX)
+            .function("setCenterX", &SwirlVertexEffect::setCenterX)
+            .function("getCenterY", &SwirlVertexEffect::getCenterY)
+            .function("setCenterY", &SwirlVertexEffect::setCenterY)
+            .function("getRadius", &SwirlVertexEffect::getRadius)
+            .function("setRadius", &SwirlVertexEffect::setRadius)
+            .function("getAngle", &SwirlVertexEffect::getAngle)
+            .function("setAngle", &SwirlVertexEffect::setAngle)
+            .function("begin", &SwirlVertexEffect::begin)
+            //.function("transform", &SwirlVertexEffect::transform)
+            .function("end", &SwirlVertexEffect::end);
 
-                    class_<SlotMesh>("SlotMesh")
-                        .property("vCount", &SlotMesh::vCount)
-                        .property("iCount", &SlotMesh::iCount)
-                        .property("blendMode", &SlotMesh::blendMode)
-                        .property("textureID", &SlotMesh::textureID);
+        class_<SlotMesh>("SlotMesh")
+            .property("vCount", &SlotMesh::vCount)
+            .property("iCount", &SlotMesh::iCount)
+            .property("blendMode", &SlotMesh::blendMode)
+            .property("textureID", &SlotMesh::textureID);
 
-                    register_vector<SlotMesh>("VectorSlotMesh");
-                    class_<SpineModel>("SpineModel")
-                        .property("vCount", &SpineModel::vCount)
-                        .property("iCount", &SpineModel::iCount)
-                        .property("vPtr", &SpineModel::vPtr)
-                        .property("iPtr", &SpineModel::iPtr)
-                        .function("getMeshes", &SpineModel::getMeshes);
+        register_vector<SlotMesh>("VectorSlotMesh");
+        class_<SpineModel>("SpineModel")
+            .property("vCount", &SpineModel::vCount)
+            .property("iCount", &SpineModel::iCount)
+            .property("vPtr", &SpineModel::vPtr)
+            .property("iPtr", &SpineModel::iPtr)
+            .function("getMeshes", &SpineModel::getMeshes);
 
-                    class_<SpineDebugShape>("SpineDebugShape")
-                        .property("type", &SpineDebugShape::type)
-                        .property("vOffset", &SpineDebugShape::vOffset)
-                        .property("vCount", &SpineDebugShape::vCount)
-                        .property("iOffset", &SpineDebugShape::iOffset)
-                        .property("iCount", &SpineDebugShape::iCount);
+        class_<SpineDebugShape>("SpineDebugShape")
+            .property("type", &SpineDebugShape::type)
+            .property("vOffset", &SpineDebugShape::vOffset)
+            .property("vCount", &SpineDebugShape::vCount)
+            .property("iOffset", &SpineDebugShape::iOffset)
+            .property("iCount", &SpineDebugShape::iCount);
 
-                    register_vector<SpineDebugShape>("VectorDebugShape");
-                    class_<SpineSkeletonInstance>("SkeletonInstance")
-                        .constructor<>()
-                        .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
-                        .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
-                        .function("setSkin", &SpineSkeletonInstance::setSkin)
-                        .function("updateAnimation", &SpineSkeletonInstance::updateAnimation)
-                        .function("updateRenderData", &SpineSkeletonInstance::updateRenderData, allow_raw_pointer<SpineModel>())
-                        .function("setPremultipliedAlpha", &SpineSkeletonInstance::setPremultipliedAlpha)
-                        .function("setUseTint", &SpineSkeletonInstance::setUseTint)
-                        .function("setColor", &SpineSkeletonInstance::setColor)
-                        .function("setJitterEffect", &SpineSkeletonInstance::setJitterEffect, allow_raw_pointer<JitterVertexEffect *>())
-                        .function("setSwirlEffect", &SpineSkeletonInstance::setSwirlEffect, allow_raw_pointer<SwirlVertexEffect *>())
-                        .function("clearEffect", &SpineSkeletonInstance::clearEffect)
-                        .function("getAnimationState", &SpineSkeletonInstance::getAnimationState, allow_raw_pointer<AnimationState>())
-                        .function("setMix", &SpineSkeletonInstance::setMix)
-                        .function("setListener", &SpineSkeletonInstance::setListener)
-                        .function("setDebugMode", &SpineSkeletonInstance::setDebugMode)
-                        .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
-                        .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)
-                        .function("setSlotTexture", &SpineSkeletonInstance::setSlotTexture);
+        register_vector<SpineDebugShape>("VectorDebugShape");
+        class_<SpineSkeletonInstance>("SkeletonInstance")
+            .constructor<>()
+            .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
+            .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
+            .function("setSkin", &SpineSkeletonInstance::setSkin)
+            .function("updateAnimation", &SpineSkeletonInstance::updateAnimation)
+            .function("updateRenderData", &SpineSkeletonInstance::updateRenderData, allow_raw_pointer<SpineModel>())
+            .function("setPremultipliedAlpha", &SpineSkeletonInstance::setPremultipliedAlpha)
+            .function("setUseTint", &SpineSkeletonInstance::setUseTint)
+            .function("setColor", &SpineSkeletonInstance::setColor)
+            .function("setJitterEffect", &SpineSkeletonInstance::setJitterEffect, allow_raw_pointer<JitterVertexEffect *>())
+            .function("setSwirlEffect", &SpineSkeletonInstance::setSwirlEffect, allow_raw_pointer<SwirlVertexEffect *>())
+            .function("clearEffect", &SpineSkeletonInstance::clearEffect)
+            .function("getAnimationState", &SpineSkeletonInstance::getAnimationState, allow_raw_pointer<AnimationState>())
+            .function("setMix", &SpineSkeletonInstance::setMix)
+            .function("setListener", &SpineSkeletonInstance::setListener)
+            .function("setDebugMode", &SpineSkeletonInstance::setDebugMode)
+            .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
+            .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)
+            .function("setSlotTexture", &SpineSkeletonInstance::setSlotTexture);
 }
 
 EMSCRIPTEN_BINDINGS(cocos_spine) {
-                    class_<SpineWasmUtil>("SpineWasmUtil")
-                        .class_function("spineWasmInit", &SpineWasmUtil::spineWasmInit)
-                        .class_function("spineWasmDestroy", &SpineWasmUtil::spineWasmDestroy)
-                        .class_function("queryStoreMemory", &SpineWasmUtil::queryStoreMemory)
-                        .class_function("querySpineSkeletonDataByUUID", &SpineWasmUtil::querySpineSkeletonDataByUUID, allow_raw_pointers())
-                        .class_function("createSpineSkeletonDataWithJson", &SpineWasmUtil::createSpineSkeletonDataWithJson, allow_raw_pointers())
-                        .class_function("createSpineSkeletonDataWithBinary", &SpineWasmUtil::createSpineSkeletonDataWithBinary, allow_raw_pointers())
-                        .class_function("registerSpineSkeletonDataWithUUID", &SpineWasmUtil::registerSpineSkeletonDataWithUUID, allow_raw_pointers())
-                        .class_function("destroySpineSkeletonDataWithUUID", &SpineWasmUtil::destroySpineSkeletonDataWithUUID)
-                        .class_function("destroySpineInstance", &SpineWasmUtil::destroySpineInstance, allow_raw_pointers())
-                        .class_function("getCurrentListenerID", &SpineWasmUtil::getCurrentListenerID)
-                        .class_function("getCurrentEventType", &SpineWasmUtil::getCurrentEventType)
-                        .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())
-                        .class_function("getCurrentEvent", &SpineWasmUtil::getCurrentEvent, allow_raw_pointers());
+    class_<SpineWasmUtil>("SpineWasmUtil")
+    .class_function("spineWasmInit", &SpineWasmUtil::spineWasmInit)
+    .class_function("spineWasmDestroy", &SpineWasmUtil::spineWasmDestroy)
+    .class_function("queryStoreMemory", &SpineWasmUtil::queryStoreMemory)
+    .class_function("querySpineSkeletonDataByUUID", &SpineWasmUtil::querySpineSkeletonDataByUUID, allow_raw_pointers())
+    .class_function("createSpineSkeletonDataWithJson", &SpineWasmUtil::createSpineSkeletonDataWithJson, allow_raw_pointers())
+    .class_function("createSpineSkeletonDataWithBinary", &SpineWasmUtil::createSpineSkeletonDataWithBinary, allow_raw_pointers())
+    .class_function("registerSpineSkeletonDataWithUUID", &SpineWasmUtil::registerSpineSkeletonDataWithUUID, allow_raw_pointers())
+    .class_function("destroySpineSkeletonDataWithUUID", &SpineWasmUtil::destroySpineSkeletonDataWithUUID)
+    .class_function("destroySpineInstance", &SpineWasmUtil::destroySpineInstance, allow_raw_pointers())
+    .class_function("getCurrentListenerID", &SpineWasmUtil::getCurrentListenerID)
+    .class_function("getCurrentEventType", &SpineWasmUtil::getCurrentEventType)
+    .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())
+    .class_function("getCurrentEvent", &SpineWasmUtil::getCurrentEvent, allow_raw_pointers());
 }

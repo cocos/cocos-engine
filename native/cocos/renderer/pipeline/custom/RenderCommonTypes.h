@@ -211,12 +211,17 @@ enum class ClearValueType {
 
 struct LightInfo {
     LightInfo() = default;
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn) noexcept
+    : light(std::move(lightIn)),
+      level(levelIn),
+      culledByLight(culledByLightIn) {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
     : light(std::move(lightIn)),
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
     uint32_t level{0};
+    bool culledByLight{false};
 };
 
 enum class DescriptorTypeOrder {

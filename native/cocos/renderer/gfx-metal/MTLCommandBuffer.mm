@@ -219,7 +219,9 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         for (size_t i = 0; i < subpasses.size(); ++i) {
             for (size_t j = 0; j < subpasses[i].inputs.size(); ++j) {
                 uint32_t input = subpasses[i].inputs[j];
-                if(input >= colorAttachments.size()) {
+                if(input >= colorAttachments.size() ||
+                   colorAttachments[input].format == Format::DEPTH_STENCIL ||
+                   colorAttachments[input].format == Format::DEPTH) {
                     continue; // depthStencil as input
                 }
                 if (visited[input])
@@ -237,7 +239,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 if(color >= colorAttachments.size()) {
                     continue; // depthStencil as output
                 }
-                if (subpasses[i].resolves.size() > j) {
+                if (!subpasses[i].resolves.empty() && subpasses[i].resolves[j] != INVALID_BINDING) {
                     uint32_t resolve = subpasses[i].resolves[j];
                     auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
                     mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
@@ -245,6 +247,8 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                     mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
                     mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
                     mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
+                } else {
+                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
                 }
                 if (visited[color])
                     continue;
@@ -261,7 +265,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 } else {
                     mtlRenderPassDescriptor.colorAttachments[color].loadAction = mu::toMTLLoadAction(colorAttachments[color].loadOp);
                 }
-                mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
                 visited[color] = true;
                 _colorAppearedBefore.set(color);
             }
@@ -386,7 +389,7 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
         }
 
         if (subpass.depthStencilResolve != INVALID_BINDING) {
-            descriptor.depthAttachment.resolveTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture())->getMTLTexture();
+            descriptor.depthAttachment.resolveTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilResolveTexture())->getMTLTexture();
             descriptor.depthAttachment.resolveLevel = 0;
             descriptor.depthAttachment.resolveSlice = 0;
             descriptor.depthAttachment.resolveDepthPlane = 0;
