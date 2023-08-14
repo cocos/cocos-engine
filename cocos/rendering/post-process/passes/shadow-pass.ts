@@ -1,14 +1,14 @@
 import { Camera } from '../../../render-scene/scene';
 import { buildShadowPasses, getCameraUniqueID } from '../../custom/define';
-import { Pipeline, PipelineType } from '../../custom/pipeline';
+import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
 
 export class ShadowPass extends BasePass {
-    name = 'ShadowPass'
+    name = 'ShadowPass';
 
-    mainLightShadows: string[] = []
-    spotLightShadows: string[] = []
+    mainLightShadows: string[] = [];
+    spotLightShadows: string[] = [];
 
     public render (camera: Camera, ppl: Pipeline): void {
         passContext.shadowPass = this;

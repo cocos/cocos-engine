@@ -9,13 +9,13 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class TAA extends PostProcessSetting {
     @property
-    _sampleScale = 1
+    _sampleScale = 1;
 
     @tooltip('i18n:taa.sampleScale')
     @slide
     @range([0.01, 5, 0.01])
     @property
-    get sampleScale () {
+    get sampleScale (): number {
         return this._sampleScale;
     }
     set sampleScale (v) {
@@ -23,12 +23,12 @@ export class TAA extends PostProcessSetting {
     }
 
     @property
-    _feedback = 0.95
+    _feedback = 0.95;
     @tooltip('i18n:taa.feedback')
     @slide
     @range([0.0, 1, 0.01])
     @property
-    get feedback () {
+    get feedback (): number {
         return this._feedback;
     }
     set feedback (v) {

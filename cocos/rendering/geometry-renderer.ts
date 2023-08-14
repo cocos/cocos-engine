@@ -93,8 +93,14 @@ class GeometryVertexBuffer {
         this._vertexCount = 0;
         this._stride = stride;
         this._vertices = new Float32Array(maxVertices * stride / Float32Array.BYTES_PER_ELEMENT);
-        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, maxVertices * stride, stride));
+        this._buffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+
+            maxVertices * stride,
+
+            stride,
+        ));
         this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
     }
 
@@ -395,8 +401,15 @@ export class GeometryRenderer {
         }
     }
 
-    public addBoundingBox (aabb: geometry.AABB, color: Color,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform: Mat4 = new Mat4()): void {
+    public addBoundingBox (
+        aabb: geometry.AABB,
+        color: Color,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform: Mat4 = new Mat4(),
+    ): void {
         /**
          *     2---3
          *    /   /
@@ -490,8 +503,19 @@ export class GeometryRenderer {
         this.addLine(vertices[3], vertices[7], color, depthTest);
     }
 
-    public addCapsule (center: Vec3, radius: number, height: number, color: Color, segmentsU = 32, hemiSegmentsV = 8,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addCapsule (
+        center: Vec3,
+        radius: number,
+        height: number,
+        color: Color,
+segmentsU = 32,
+hemiSegmentsV = 8,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI / 2.0 / hemiSegmentsV;
         const bottomCenter = new Vec3(center.x, center.y - height / 2.0, center.z);
@@ -551,8 +575,18 @@ export class GeometryRenderer {
         }
     }
 
-    public addCylinder (center: Vec3, radius: number, height: number, color: Color, segments = 32,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addCylinder (
+        center: Vec3,
+        radius: number,
+        height: number,
+        color: Color,
+segments = 32,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const bottomCenter = new Vec3(center.x, center.y - height / 2.0, center.z);
         const topCenter = new Vec3(center.x, center.y + height / 2.0, center.z);
@@ -587,8 +621,18 @@ export class GeometryRenderer {
         }
     }
 
-    public addCone (center: Vec3, radius: number, height: number, color: Color, segments = 32,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addCone (
+        center: Vec3,
+        radius: number,
+        height: number,
+        color: Color,
+segments = 32,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const bottomCenter = new Vec3(center.x, center.y - height / 2.0, center.z);
         const topCenter = new Vec3(center.x, center.y + height / 2.0, center.z);
@@ -636,8 +680,17 @@ export class GeometryRenderer {
         }
     }
 
-    public addArc (center: Vec3, radius: number, color: Color, startAngle: number, endAngle: number, segments = 32,
-        depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addArc (
+        center: Vec3,
+        radius: number,
+        color: Color,
+        startAngle: number,
+        endAngle: number,
+segments = 32,
+        depthTest = true,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const startRadian = toRadian(startAngle);
         const endRadian   = toRadian(endAngle);
         const deltaPhi    = (endRadian - startRadian) / segments;
@@ -660,8 +713,17 @@ export class GeometryRenderer {
         }
     }
 
-    public addPolygon (center: Vec3, radius: number, color: Color, segments = 6,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addPolygon (
+        center: Vec3,
+        radius: number,
+        color: Color,
+segments = 6,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         if (wireframe) {
             this.addCircle(center, radius, color, segments, depthTest, useTransform, transform);
         } else {
@@ -669,8 +731,17 @@ export class GeometryRenderer {
         }
     }
 
-    public addDisc (center: Vec3, radius: number, color: Color, segments = 32,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addDisc (
+        center: Vec3,
+        radius: number,
+        color: Color,
+segments = 32,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const points = new Array<Vec3>();
         const newCenter = new Vec3(center);
@@ -701,8 +772,19 @@ export class GeometryRenderer {
         }
     }
 
-    public addSector (center: Vec3, radius: number, color: Color, startAngle: number, endAngle: number, segments = 32,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addSector (
+        center: Vec3,
+        radius: number,
+        color: Color,
+        startAngle: number,
+        endAngle: number,
+segments = 32,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const startRadian = toRadian(startAngle);
         const endRadian   = toRadian(endAngle);
         const deltaPhi    = (endRadian - startRadian) / segments;
@@ -735,8 +817,18 @@ export class GeometryRenderer {
         }
     }
 
-    public addSphere (center: Vec3, radius: number, color: Color, segmentsU = 32, segmentsV = 16,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addSphere (
+        center: Vec3,
+        radius: number,
+        color: Color,
+segmentsU = 32,
+segmentsV = 16,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI / segmentsV;
         const points = new Array<Array<Vec3>>();
@@ -777,8 +869,19 @@ export class GeometryRenderer {
         }
     }
 
-    public addTorus (center: Vec3, bigRadius: number, radius: number, color: Color, segmentsU = 32, segmentsV = 16,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addTorus (
+        center: Vec3,
+        bigRadius: number,
+        radius: number,
+        color: Color,
+segmentsU = 32,
+segmentsV = 16,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI * 2.0 / segmentsV;
         const points = new Array<Array<Vec3>>();
@@ -818,8 +921,16 @@ export class GeometryRenderer {
         }
     }
 
-    public addOctahedron (center: Vec3, radius: number, color: Color,
-        wireframe = true, depthTest = true, unlit = false, useTransform = false, transform = new Mat4()): void {
+    public addOctahedron (
+        center: Vec3,
+        radius: number,
+        color: Color,
+        wireframe = true,
+depthTest = true,
+unlit = false,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const points = new Array<Vec3>();
 
         points.push(new Vec3(radius + center.x, center.y, center.z));
@@ -862,8 +973,17 @@ export class GeometryRenderer {
         }
     }
 
-    public addBezier (v0: Vec3, v1: Vec3, v2: Vec3, v3: Vec3, color: Color, segments = 32,
-        depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addBezier (
+        v0: Vec3,
+        v1: Vec3,
+        v2: Vec3,
+        v3: Vec3,
+        color: Color,
+segments = 32,
+        depthTest = true,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         const deltaT = 1.0 / segments;
         const points = new Array<Vec3>();
 
@@ -936,8 +1056,15 @@ export class GeometryRenderer {
         }
     }
 
-    public addIndexedMesh (center: Vec3, vertices: Array<Vec3>, indices: Array<number>, color: Color,
-        depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addIndexedMesh (
+        center: Vec3,
+        vertices: Array<Vec3>,
+        indices: Array<number>,
+        color: Color,
+        depthTest = true,
+useTransform = false,
+transform = new Mat4(),
+    ): void {
         for (let i = 0; i < indices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[indices[i]].x, center.y + vertices[indices[i]].y, center.z + vertices[indices[i]].z);
             const v1 = new Vec3(center.x + vertices[indices[i + 1]].x, center.y + vertices[indices[i + 1]].y, center.z + vertices[indices[i + 1]].z);
