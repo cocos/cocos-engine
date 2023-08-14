@@ -830,7 +830,7 @@ function getFirstChildLayoutName (lg: LayoutGraphData, parentID: number): string
     return '';
 }
 
-function getTextureType(dimension: ResourceDimension, arraySize: number): TextureType {
+function getTextureType (dimension: ResourceDimension, arraySize: number): TextureType {
     switch (dimension) {
     case ResourceDimension.TEXTURE1D:
         return arraySize > 1 ? TextureType.TEX1D_ARRAY : TextureType.TEX1D;
@@ -846,7 +846,7 @@ function getTextureType(dimension: ResourceDimension, arraySize: number): Textur
     return TextureType.TEX2D;
 }
 
-function getResourceDimension(type: TextureType): ResourceDimension {
+function getResourceDimension (type: TextureType): ResourceDimension {
     switch (type) {
     case TextureType.TEX1D:
     case TextureType.TEX1D_ARRAY:
@@ -1511,7 +1511,7 @@ export class WebPipeline implements BasicPipeline {
         desc.height = height;
     }
 
-    public addBuffer(name: string, size: number, flags: ResourceFlags, residency: ResourceResidency): number {
+    public addBuffer (name: string, size: number, flags: ResourceFlags, residency: ResourceResidency): number {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.BUFFER;
         desc.width = size;
@@ -1528,19 +1528,19 @@ export class WebPipeline implements BasicPipeline {
         );
     }
 
-    public updateBuffer(name: string, size: number): void {
+    public updateBuffer (name: string, size: number): void {
         this.updateResource(name, Format.UNKNOWN, size, 0, 0, 0, 0, SampleCount.X1);
     }
 
-    public addExternalTexture(name: string, texture: Texture, flags: ResourceFlags): number {
+    public addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number {
         throw new Error('Method not implemented.');
     }
 
-    public updateExternalTexture(name: string, texture: Texture): void {
+    public updateExternalTexture (name: string, texture: Texture): void {
         throw new Error('Method not implemented.');
     }
 
-    public addTexture(name: string, textureType: TextureType, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+    public addTexture (name: string, textureType: TextureType, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
         const desc = new ResourceDesc();
         desc.dimension = getResourceDimension(textureType);
         desc.width = width;
@@ -1563,7 +1563,7 @@ export class WebPipeline implements BasicPipeline {
         );
     }
 
-    public updateTexture(name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount) {
+    public updateTexture (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
         this.updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
     }
 

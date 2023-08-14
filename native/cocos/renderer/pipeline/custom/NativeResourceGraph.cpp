@@ -97,7 +97,7 @@ gfx::BufferInfo getBufferInfo(const ResourceDesc& desc) {
     };
 }
 
-gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
+gfx::TextureInfo getTextureInfo(const ResourceDesc& desc) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
 
     // usage
@@ -143,7 +143,7 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     };
 }
 
-gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, bool bCube = false) {
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
 
     return {

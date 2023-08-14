@@ -684,16 +684,16 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
-    addBuffer(
+    addBuffer (
         name: string,
         size: number,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
-    updateBuffer(
+    updateBuffer (
         name: string,
         size: number): void;
-    addExternalTexture(name: string, texture: Texture, flags: ResourceFlags): number;
-    updateExternalTexture(name: string, texture: Texture): void;
+    addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number;
+    updateExternalTexture (name: string, texture: Texture): void;
     addTexture (
         name: string,
         textureType: TextureType,

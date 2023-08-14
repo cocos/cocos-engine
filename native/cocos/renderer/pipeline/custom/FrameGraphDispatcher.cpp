@@ -912,7 +912,7 @@ void extractNames(const ccstd::pmr::string &resName,
     // cube
 
     // array
-    
+
     if (names.empty()) {
         names.emplace_back(resName, 0);
     }
@@ -1005,7 +1005,7 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
             tryAddEdge(lastVertId, ragVertID, relationGraph);
             dependent = lastVertId != EXPECT_START_ID;
-            
+
             if (out_degree(resID, resourceGraph) && (computeView.plane != 0xFFFFFFFF)) {
                 const auto& subresFullName = getSubresNameByPlane(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
                 resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
@@ -1491,12 +1491,12 @@ bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const Resour
     }
 
     // full check
-    // std::for_each(targets.begin(), targets.end(), [&](const ccstd::pmr::string &target) {
-    //     ResourceNode &resNode = rag.movedTargetStatus[target];
-    //     resNode.full |= std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
-    //         return textureNode.full;
-    //     });
-    // });
+     std::for_each(targets.begin(), targets.end(), [&](const ccstd::pmr::string &target) {
+         ResourceNode &resNode = rag.movedTargetStatus[target];
+         resNode.full |= std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
+             return textureNode.full;
+         });
+     });
 
     return check;
 }

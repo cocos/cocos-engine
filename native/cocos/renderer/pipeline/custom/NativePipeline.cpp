@@ -123,7 +123,7 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
 }
 
 uint32_t NativePipeline::addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) {
-    auto &texInfo = texture->getInfo();
+    const auto &texInfo = texture->getInfo();
     ResourceDesc desc{};
     desc.dimension = getResourceDimension(texInfo.type);
     desc.width = texInfo.width;
@@ -348,11 +348,8 @@ uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimensio
     gfx::Format format,
     uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
     gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
-    if (dimension == ResourceDimension::BUFFER) {
-        return addBuffer(name, width, flags, residency);
-    } else {
-        return addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
-    }
+    return dimension == ResourceDimension::BUFFER ? addBuffer(name, width, flags, residency) :
+        addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
 }
 
 void NativePipeline::updateResource(const ccstd::string& name, gfx::Format format,
@@ -386,11 +383,8 @@ void NativePipeline::updateResource(const ccstd::string& name, gfx::Format forma
                 resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
             }
         },
-        [&](ManagedBuffer &buffer) {
-            bool invalidate = desc.width != width;
-            if (invalidate) {
-                desc.width = width;
-            }
+        [&](ManagedBuffer &/*buffer*/) {
+            desc.width = width;
         },
         [](const auto & /*res*/) {});
 }
