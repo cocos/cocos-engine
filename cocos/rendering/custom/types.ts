@@ -609,6 +609,34 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
+export class RenderCommonObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.lightInfoBatchSize = batchSize;
+        this.descriptorBatchSize = batchSize;
+        this.descriptorBlockBatchSize = batchSize;
+        this.descriptorBlockFlattenedBatchSize = batchSize;
+        this.descriptorBlockIndexBatchSize = batchSize;
+        this.resolvePairBatchSize = batchSize;
+        this.copyPairBatchSize = batchSize;
+        this.uploadPairBatchSize = batchSize;
+        this.movePairBatchSize = batchSize;
+        this.pipelineStatisticsBatchSize = batchSize;
+    }
+    lightInfoBatchSize = 0;
+    descriptorBatchSize = 0;
+    descriptorBlockBatchSize = 0;
+    descriptorBlockFlattenedBatchSize = 0;
+    descriptorBlockIndexBatchSize = 0;
+    resolvePairBatchSize = 0;
+    copyPairBatchSize = 0;
+    uploadPairBatchSize = 0;
+    movePairBatchSize = 0;
+    pipelineStatisticsBatchSize = 0;
+}
+
+export class RenderCommonObjectPool {
+}
+
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     ar.writeNumber(v.level);

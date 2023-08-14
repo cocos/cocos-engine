@@ -32,7 +32,7 @@ import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, Mut
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
+import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
@@ -2460,4 +2460,78 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
+}
+
+export class RenderGraphObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.clearValueBatchSize = batchSize;
+        this.rasterViewBatchSize = batchSize;
+        this.computeViewBatchSize = batchSize;
+        this.resourceDescBatchSize = batchSize;
+        this.resourceTraitsBatchSize = batchSize;
+        this.renderSwapchainBatchSize = batchSize;
+        this.resourceStatesBatchSize = batchSize;
+        this.managedBufferBatchSize = batchSize;
+        this.managedTextureBatchSize = batchSize;
+        this.managedResourceBatchSize = batchSize;
+        this.subpassBatchSize = batchSize;
+        this.subpassGraphBatchSize = batchSize;
+        this.rasterSubpassBatchSize = batchSize;
+        this.computeSubpassBatchSize = batchSize;
+        this.rasterPassBatchSize = batchSize;
+        this.persistentRenderPassAndFramebufferBatchSize = batchSize;
+        this.formatViewBatchSize = batchSize;
+        this.subresourceViewBatchSize = batchSize;
+        this.resourceGraphBatchSize = batchSize;
+        this.computePassBatchSize = batchSize;
+        this.resolvePassBatchSize = batchSize;
+        this.copyPassBatchSize = batchSize;
+        this.movePassBatchSize = batchSize;
+        this.raytracePassBatchSize = batchSize;
+        this.clearViewBatchSize = batchSize;
+        this.renderQueueBatchSize = batchSize;
+        this.sceneDataBatchSize = batchSize;
+        this.dispatchBatchSize = batchSize;
+        this.blitBatchSize = batchSize;
+        this.renderDataBatchSize = batchSize;
+        this.renderGraphBatchSize = batchSize;
+    }
+    clearValueBatchSize = 0;
+    rasterViewBatchSize = 0;
+    computeViewBatchSize = 0;
+    resourceDescBatchSize = 0;
+    resourceTraitsBatchSize = 0;
+    renderSwapchainBatchSize = 0;
+    resourceStatesBatchSize = 0;
+    managedBufferBatchSize = 0;
+    managedTextureBatchSize = 0;
+    managedResourceBatchSize = 0;
+    subpassBatchSize = 0;
+    subpassGraphBatchSize = 0;
+    rasterSubpassBatchSize = 0;
+    computeSubpassBatchSize = 0;
+    rasterPassBatchSize = 0;
+    persistentRenderPassAndFramebufferBatchSize = 0;
+    formatViewBatchSize = 0;
+    subresourceViewBatchSize = 0;
+    resourceGraphBatchSize = 0;
+    computePassBatchSize = 0;
+    resolvePassBatchSize = 0;
+    copyPassBatchSize = 0;
+    movePassBatchSize = 0;
+    raytracePassBatchSize = 0;
+    clearViewBatchSize = 0;
+    renderQueueBatchSize = 0;
+    sceneDataBatchSize = 0;
+    dispatchBatchSize = 0;
+    blitBatchSize = 0;
+    renderDataBatchSize = 0;
+    renderGraphBatchSize = 0;
+}
+
+export class RenderGraphObjectPool {
+    constructor (renderCommon: RenderCommonObjectPool) {
+        this._renderCommon = renderCommon;
+    }
+    _renderCommon: RenderCommonObjectPool;
 }

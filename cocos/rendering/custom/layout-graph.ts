@@ -30,7 +30,7 @@
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
+import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 
@@ -1333,6 +1333,54 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
     constantMacros = '';
+}
+
+export class LayoutGraphObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.descriptorDBBatchSize = batchSize;
+        this.renderPhaseBatchSize = batchSize;
+        this.layoutGraphBatchSize = batchSize;
+        this.uniformDataBatchSize = batchSize;
+        this.uniformBlockDataBatchSize = batchSize;
+        this.descriptorDataBatchSize = batchSize;
+        this.descriptorBlockDataBatchSize = batchSize;
+        this.descriptorSetLayoutDataBatchSize = batchSize;
+        this.descriptorSetDataBatchSize = batchSize;
+        this.pipelineLayoutDataBatchSize = batchSize;
+        this.shaderBindingDataBatchSize = batchSize;
+        this.shaderLayoutDataBatchSize = batchSize;
+        this.techniqueDataBatchSize = batchSize;
+        this.effectDataBatchSize = batchSize;
+        this.shaderProgramDataBatchSize = batchSize;
+        this.renderStageDataBatchSize = batchSize;
+        this.renderPhaseDataBatchSize = batchSize;
+        this.layoutGraphDataBatchSize = batchSize;
+    }
+    descriptorDBBatchSize = 0;
+    renderPhaseBatchSize = 0;
+    layoutGraphBatchSize = 0;
+    uniformDataBatchSize = 0;
+    uniformBlockDataBatchSize = 0;
+    descriptorDataBatchSize = 0;
+    descriptorBlockDataBatchSize = 0;
+    descriptorSetLayoutDataBatchSize = 0;
+    descriptorSetDataBatchSize = 0;
+    pipelineLayoutDataBatchSize = 0;
+    shaderBindingDataBatchSize = 0;
+    shaderLayoutDataBatchSize = 0;
+    techniqueDataBatchSize = 0;
+    effectDataBatchSize = 0;
+    shaderProgramDataBatchSize = 0;
+    renderStageDataBatchSize = 0;
+    renderPhaseDataBatchSize = 0;
+    layoutGraphDataBatchSize = 0;
+}
+
+export class LayoutGraphObjectPool {
+    constructor (renderCommon: RenderCommonObjectPool) {
+        this._renderCommon = renderCommon;
+    }
+    _renderCommon: RenderCommonObjectPool;
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {
