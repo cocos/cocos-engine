@@ -378,7 +378,7 @@ export class ReflectionProbe extends Component {
             this.probe.updateBoundingBox();
         }
         if (this.node.hasChangedFlags & TransformBit.POSITION) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
