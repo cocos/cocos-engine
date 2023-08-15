@@ -172,6 +172,7 @@ public:
     inline Material *getSkyboxMaterial() const { return _editableMaterial; }
 
     void setMaterialProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX) const;
+    void updateEnvMap(TextureCube *val);
 
     void activate(Skybox *resource);
 

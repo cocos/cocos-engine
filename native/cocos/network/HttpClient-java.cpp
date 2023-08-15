@@ -634,6 +634,11 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
         case HttpRequest::Type::DELETE:
             urlConnection.setRequestMethod("DELETE");
             break;
+
+        case HttpRequest::Type::PATCH:
+            urlConnection.setRequestMethod("PATCH");
+            break;
+
         default:
             break;
     }
@@ -647,7 +652,8 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     }
 
     if (HttpRequest::Type::POST == requestType ||
-        HttpRequest::Type::PUT == requestType) {
+        HttpRequest::Type::PUT == requestType ||
+        HttpRequest::Type::PATCH == requestType) {
         urlConnection.sendRequest(request);
     }
 

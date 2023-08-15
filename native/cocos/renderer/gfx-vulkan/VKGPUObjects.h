@@ -188,6 +188,8 @@ struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
     uint32_t levelCount = 1U;
     uint32_t baseLayer = 0U;
     uint32_t layerCount = 1U;
+    uint32_t basePlane = 0U;
+    uint32_t planeCount = 1U;
 
     ccstd::vector<VkImageView> swapchainVkImageViews;
 

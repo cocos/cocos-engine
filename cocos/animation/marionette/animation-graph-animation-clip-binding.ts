@@ -8,7 +8,7 @@ import { AuxiliaryCurveHandle, TransformHandle } from '../core/animation-handle'
 import { calculateDeltaPose, Pose } from '../core/pose';
 import { createEvalSymbol } from '../define';
 import { ExoticTrsAGEvaluation } from '../exotic-animation/exotic-animation';
-import { isTrsPropertyName, normalizedFollowTag, Track, TrackBinding, trackBindingTag, TrackEval } from '../tracks/track';
+import { isTrsPropertyName, normalizedFollowTag, RuntimeBinding, Track, TrackBinding, trackBindingTag, TrackEval } from '../tracks/track';
 import { UntypedTrack } from '../tracks/untyped-track';
 import { AnimationGraphEvaluationContext } from './animation-graph-context';
 
@@ -204,6 +204,26 @@ function bindPoseTransform (
     }
 }
 
+class NonTransformPoseBinding implements PoseBinding<any> {
+    constructor (
+        public readonly binding: RuntimeBinding,
+    ) {
+
+    }
+
+    destroy (): void {
+        // Needs no destroy.
+    }
+
+    setValue (value: any, _pose: Pose): void {
+        this.binding.setValue(value);
+    }
+
+    getValue (pose: Pose): any {
+        return this.binding.getValue?.() ?? undefined;
+    }
+}
+
 /**
  * Describes the evaluation of a animation clip track in sense of animation graph.
  */
@@ -230,7 +250,11 @@ class AGTrackEvaluation<TValue> {
     private _trackSampler: TrackEval<TValue>;
 }
 
-function bindTrackAG (animationClip: AnimationClip, track: Track, bindContext: AnimationClipGraphBindingContext): PoseBinding<unknown> | undefined {
+function bindTrackAG (
+    animationClip: AnimationClip,
+    track: Track,
+    bindContext: AnimationClipGraphBindingContext,
+): PoseBinding<unknown> | undefined {
     const trackBinding = track[trackBindingTag];
     const trackTarget = createRuntimeBindingAG(trackBinding, bindContext);
     if (DEBUG && !trackTarget) {
@@ -247,7 +271,10 @@ function bindTrackAG (animationClip: AnimationClip, track: Track, bindContext: A
     return trackTarget ?? undefined;
 }
 
-function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClipGraphBindingContext): PoseBinding<unknown> | null | undefined {
+function createRuntimeBindingAG (
+    track: TrackBinding,
+    bindContext: AnimationClipGraphBindingContext,
+): PoseBinding<unknown> | null | undefined {
     const {
         origin,
     } = bindContext;
@@ -288,10 +315,16 @@ function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClip
         }
     }
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // TODO: here should be resolved before this can be landed.
-    error(`Animation graph currently only supports (bone) transform animations.`);
-    return undefined;
+    // If this path does not aim a transform target,
+    // we create `NonTransformPoseBinding` using default binding.
+    {
+        const nonTransformBinding = track.createRuntimeBinding(bindContext.origin, undefined, false);
+        if (!nonTransformBinding) {
+            return null;
+        }
+
+        return new NonTransformPoseBinding(nonTransformBinding);
+    }
 }
 
 class AuxiliaryCurveEvaluation {
@@ -356,12 +389,14 @@ class AnimationClipAGEvaluationRegular implements AnimationClipAGEvaluation {
 
         const {
             tracks,
-            [exoticAnimationTag]: exoticAnimation,
+            // NOTE: on OH platform, there is a bug on Destructuring Assignment syntax.
+            // [exoticAnimationTag]: exoticAnimation,
         } = clip;
+        const exoticAnimation = clip[exoticAnimationTag];
 
         for (const track of tracks) {
             if (track instanceof UntypedTrack) {
-            // Untyped track is not supported in AG.
+                // Untyped track is not supported in AG.
                 continue;
             }
             if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {

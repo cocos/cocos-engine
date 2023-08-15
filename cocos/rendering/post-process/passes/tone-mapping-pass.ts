@@ -33,9 +33,9 @@ import { SettingPass } from './setting-pass';
 import { Root } from '../../../root';
 
 export class ToneMappingPass extends SettingPass {
-    name = 'ToneMappingPass'
+    name = 'ToneMappingPass';
     effectName = 'pipeline/tone-mapping';
-    outputNames = ['ToneMapping']
+    outputNames = ['ToneMapping'];
 
     enableInAllEditorCamera = true;
     enable = true;

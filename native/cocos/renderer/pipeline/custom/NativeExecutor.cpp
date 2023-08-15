@@ -35,6 +35,7 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "RenderingModule.h"
+#include "NativeRenderGraphUtils.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -70,7 +71,6 @@ struct RenderGraphVisitorContext {
     const RenderGraph& g;
     ResourceGraph& resourceGraph;
     const FrameGraphDispatcher& fgd;
-    const FrameGraphDispatcher::BarrierMap& barrierMap;
     const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
     gfx::CommandBuffer* cmdBuff = nullptr;
@@ -164,145 +164,24 @@ gfx::GeneralBarrier* getGeneralBarrier(gfx::Device* device, const RasterView& vi
     return nullptr;
 }
 
+ResourceGraph::vertex_descriptor getResourceID(const ccstd::pmr::string& name, const FrameGraphDispatcher& fgd) {
+    return fgd.realResourceID(name);
+}
+
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass,
-    boost::container::pmr::memory_resource* scratch) {
+    boost::container::pmr::memory_resource* /*scratch*/) {
     auto& resg = ctx.resourceGraph;
 
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
-    gfx::RenderPassInfo rpInfo{};
+    auto [rpInfo, fbInfo, clearColors, clearDepth, clearStencil] = ctx.fgd.getRenderPassAndFrameBuffer(ctx.currentInFlightPassID, resg);
 
-    gfx::FramebufferInfo fbInfo{
-        data.renderPass,
-    };
-    fbInfo.colorTextures.reserve(pass.rasterViews.size());
-
-    PmrFlatSet<ccstd::pmr::string> set(scratch);
-    auto fillFrameBufferInfo = [&](const ccstd::vector<std::string>& passViews, bool hasResolve) {
-        std::ignore = hasResolve;
-        const auto& uberPass = pass;
-        auto numTotalAttachments = static_cast<uint32_t>(passViews.size());
-
-        // uint32_t dsvCount = 0;
-        uint32_t index = 0;
-        for (const auto& nameIn : passViews) {
-            const char* name = nameIn.c_str();
-            bool colorLikeView{true};
-            bool dsResolveAttachment{false};
-            auto clearColor = gfx::Color{};
-            auto iter = pass.rasterViews.find(name);
-            if(iter != pass.rasterViews.end()) {
-                const auto& view = iter->second;
-                colorLikeView = view.attachmentType == AttachmentType::RENDER_TARGET || view.attachmentType == AttachmentType::SHADING_RATE;
-                clearColor = view.clearColor;
-            } else {
-                // resolves
-                const auto resID = vertex(name, ctx.resourceGraph);
-                const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
-                CC_ASSERT(hasResolve && desc.sampleCount == gfx::SampleCount::X1);
-                colorLikeView = desc.format != gfx::Format::DEPTH_STENCIL && desc.format != gfx::Format::DEPTH;
-                dsResolveAttachment = !colorLikeView;
-            }
-
-            if (colorLikeView) { // RenderTarget
-                data.clearColors.emplace_back(clearColor);
-
-                auto resID = findVertex(name, resg);
-                visitObject(
-                    resID, resg,
-                    [&](const ManagedResource& res) {
-                        std::ignore = res;
-                        CC_EXPECTS(false);
-                    },
-                    [&](const ManagedBuffer& res) {
-                        std::ignore = res;
-                        CC_EXPECTS(false);
-                    },
-                    [&](const ManagedTexture& tex) {
-                        CC_EXPECTS(tex.texture);
-                        fbInfo.colorTextures.emplace_back(tex.texture);
-                    },
-                    [&](const IntrusivePtr<gfx::Buffer>& res) {
-                        std::ignore = res;
-                        CC_EXPECTS(false);
-                    },
-                    [&](const IntrusivePtr<gfx::Texture>& tex) {
-                        fbInfo.colorTextures.emplace_back(tex);
-                    },
-                    [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-                        CC_EXPECTS(fb->getColorTextures().size() == 1);
-                        CC_EXPECTS(fb->getColorTextures().at(0));
-                        fbInfo.colorTextures.emplace_back(fb->getColorTextures()[index]);
-                        // render window attaches a depthStencil by default, which may differs from renderpassInfo here.
-                        // data.framebuffer = fb;
-                    },
-                    [&](const RenderSwapchain& sc) {
-                        fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
-                    },
-                    [&](const FormatView& view) {
-                        // TODO(zhouzhenglong): add ImageView support
-                        std::ignore = view;
-                        CC_EXPECTS(false);
-                    },
-                    [&](const SubresourceView& view) {
-                        // TODO(zhouzhenglong): add ImageView support
-                        std::ignore = view;
-                        CC_EXPECTS(false);
-                    });
-            } else { // DepthStencil
-                if (!dsResolveAttachment) {
-                    data.clearDepth = clearColor.x;
-                    data.clearStencil = static_cast<uint8_t>(clearColor.y);
-                }
-
-                auto &dsAttachment = dsResolveAttachment ? fbInfo.depthStencilResolveTexture : fbInfo.depthStencilTexture;
-
-                auto resID = findVertex(name, resg);
-                visitObject(
-                        resID, resg,
-                        [&](const ManagedTexture& tex) {
-                            CC_EXPECTS(tex.texture);
-                            dsAttachment = tex.texture.get();
-                        },
-                        [&](const IntrusivePtr<gfx::Texture>& tex) {
-                            dsAttachment = tex.get();
-                        },
-                        [&](const FormatView& view) {
-                            std::ignore = view;
-                            CC_EXPECTS(false);
-                        },
-                        [&](const SubresourceView& view) {
-                            std::ignore = view;
-                            CC_EXPECTS(false);
-                        },
-                        [](const auto& /*unused*/) {
-                            CC_EXPECTS(false);
-                        });
-            }
-            ++index;
-        }
-    };
-
-    const auto passID = ctx.currentInFlightPassID;
-    const auto ragVertID = ctx.fgd.resourceAccessGraph.passIndex.at(passID);
-    if (pass.subpassGraph.subpasses.empty()) {
-        const auto numInputs = getRasterPassInputCount(pass);
-        const auto numColors = getRasterPassOutputCount(pass);
-
-        // persistent cache
-        data.clearColors.reserve(numColors);
-        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
-        rpInfo = fgdRpInfo.rpInfo;
-        fillFrameBufferInfo(fgdRpInfo.orderedViews, false);
-
-    } else {
-        const auto& fgdRpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID);
-        rpInfo = fgdRpInfo.rpInfo;
-        fillFrameBufferInfo(fgdRpInfo.orderedViews, fgdRpInfo.needResolve);
-    }
-    CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
+    // CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
 
+    data.clearColors = std::move(clearColors);
+    data.clearDepth = clearDepth;
+    data.clearStencil = clearStencil;
     data.renderPass = ctx.device->createRenderPass(rpInfo);
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
@@ -660,28 +539,23 @@ gfx::DescriptorSet* initDescriptorSet(
                 }
                 break;
             case DescriptorTypeOrder::INPUT_ATTACHMENT: {
-                for (auto d : block.descriptors) {
-                    CC_EXPECTS(d.count == 1);
-                    auto iter = resourceIndex.find(d.descriptorID);
-                    if (iter != resourceIndex.end()) {
-                        // render graph textures
-                        auto* texture = resg.getTexture(iter->second);
-                        gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
-                        if (accessNode != nullptr) {
-                            auto accIter = std::find_if(
-                                accessNode->attachmentStatus.begin(), accessNode->attachmentStatus.end(),
-                                [iter](const AccessStatus& status) {
-                                    return status.vertID == iter->second;
-                                });
-                            access = accIter != accessNode->attachmentStatus.end() ? accIter->accessFlag : gfx::AccessFlagBit::NONE;
-                        }
-
-                        CC_ENSURES(texture);
-                        newSet->bindTexture(bindID, texture, 0, access);
+                for (const auto& [descID, resID] : resourceIndex) {
+                    std::ignore = descID;
+                    // render graph textures
+                    auto* texture = resg.getTexture(resID);
+                    gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
+                    if (accessNode != nullptr) {
+                        // whole access only now.
+                        auto parentID = parent(resID, resg);
+                        parentID = parentID == ResourceGraph::null_vertex() ? resID : parentID;
+                        const auto& resName = get(ResourceGraph::NameTag{}, resg, parentID);
+                        access = accessNode->resourceStatus.at(resName).accessFlag;
                     }
-                    bindID += d.count;
-                }
 
+                    CC_ENSURES(texture);
+                    newSet->bindTexture(bindID, texture, 0, access);
+                    bindID += 1;
+                }
             };
                 break;
             default:
@@ -868,7 +742,7 @@ void submitUICommands(
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::LOCAL), ds);
-            cmdBuff->draw(inputAssembler);
+            cmdBuff->draw(batch->getDrawInfo());
         }
     }
 }
@@ -906,26 +780,6 @@ void submitProfilerCommands(
     cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::LOCAL), submodel->getDescriptorSet());
     cmdBuff->bindInputAssembler(ia);
     cmdBuff->draw(ia);
-}
-
-PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>
-buildResourceIndex(
-    const ResourceGraph& resg,
-    const LayoutGraphData& lg,
-    const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>& computeViews,
-    boost::container::pmr::memory_resource* scratch) {
-    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(scratch);
-    resourceIndex.reserve(computeViews.size() * 2);
-    for (const auto& [resName, computeViews] : computeViews) {
-        const auto resID = vertex(resName, resg);
-        for (const auto& computeView : computeViews) {
-            const auto& name = computeView.name;
-            CC_EXPECTS(!name.empty());
-            const auto nameID = lg.attributeIndex.at(name);
-            resourceIndex.emplace(nameID, resID);
-        }
-    }
-    return resourceIndex;
 }
 
 const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&
@@ -1073,8 +927,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             }
 
             // build pass resources
-            const auto& resourceIndex = buildResourceIndex(
-                ctx.resourceGraph, ctx.lg, computeViews, ctx.scratch);
+            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(computeViews, ctx.scratch);
 
             // populate set
             auto& set = iter->second;
@@ -1106,8 +959,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             }
 
             // build pass resources
-            const auto& resourceIndex = buildResourceIndex(
-                ctx.resourceGraph, ctx.lg, computeViews, ctx.scratch);
+            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(computeViews, ctx.scratch);
 
             // find scene resource
             const auto* const sceneResource = getFirstSceneResource(vertID);
@@ -1148,7 +1000,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-
             auto parentLayoutID = ctx.currentPassLayoutID;
             auto layoutID = parentLayoutID;
             if (!layoutName.empty()) {
@@ -1169,35 +1020,12 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 return;
             }
 
-            // build pass resources
-            /*  const auto& resourceIndex = buildResourceIndex(
-                  ctx.resourceGraph, ctx.lg, subpass.computeViews, ctx.scratch);*/
-            PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
-
-            resourceIndex.reserve(subpass.rasterViews.size() * 2);
-            for (const auto& [resName, rasterView] : subpass.rasterViews) {
-                const auto resID = vertex(resName, ctx.resourceGraph);
-                auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
-                const auto& attachments = ctx.fgd.resourceAccessGraph.access[ragId].attachmentStatus;
-                auto resIter = std::find_if(attachments.begin(), attachments.end(), [resID](const AccessStatus& status) {
-                    return status.vertID == resID;
-                });
-
-                auto slotName = rasterView.slotName;
-                if (rasterView.accessType == AccessType::READ || rasterView.accessType == AccessType::READ_WRITE) {
-                    slotName.insert(0, "__in");
-                }
-                auto iter = ctx.lg.attributeIndex.find(slotName);
-                if (iter != ctx.lg.attributeIndex.end()) {
-                    resourceIndex.emplace(iter->second, resID);
-                }
-            }
-
+            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(subpass.computeViews, subpass.rasterViews, ctx.scratch);
             // populate set
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
-            const auto& accessNode = ctx.fgd.getAttachmentStatus(vertID);
+            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
 
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
@@ -1258,25 +1086,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
     void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
-        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
-            return;
-        }
-        const auto& nodeID = iter->second;
-        auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end()) {
-            submitBarriers(iter2->second.blockBarrier.frontBarriers);
+        const auto& barrier = ctx.fgd.getBarrier(vertID);
+        if (!barrier.frontBarriers.empty()) {
+            submitBarriers(barrier.frontBarriers);
         }
     }
     void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
-        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
-            return;
-        }
-        const auto& nodeID = iter->second;
-        auto iter2 = ctx.barrierMap.find(nodeID);
-        if (iter2 != ctx.barrierMap.end()) {
-            submitBarriers(iter2->second.blockBarrier.rearBarriers);
+        const auto& barrier = ctx.fgd.getBarrier(vertID);
+        if (!barrier.rearBarriers.empty()) {
+            submitBarriers(barrier.rearBarriers);
         }
     }
     void tryBindPerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
@@ -1352,6 +1170,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (subpass.subpassID) {
             ctx.cmdBuff->nextSubpass();
         }
+        //ctx.cmdBuff->setViewport(subpass);
         tryBindPerPassDescriptorSet(vertID);
         ctx.subpassIndex = subpass.subpassID;
         // noop
@@ -1546,32 +1365,14 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
-        bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
-        bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
-        if (!bDraw && !bDrawInstancing) {
-            bDraw = true;
-            bDrawInstancing = true;
-        }
-        const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
-        const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
-        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
-
-        if (bDrawShadowCaster || bDrawOpaqueOrMask) {
-            queue.opaqueQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.opaqueInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
-        }
-        if (bDrawBlend) {
-            queue.transparentQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.transparentInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
-        }
+        queue.opaqueQueue.recordCommandBuffer(
+            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+        queue.opaqueInstancingQueue.recordCommandBuffer(
+            ctx.currentPass, ctx.cmdBuff);
+        queue.transparentQueue.recordCommandBuffer(
+        ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+        queue.transparentInstancingQueue.recordCommandBuffer(
+            ctx.currentPass, ctx.cmdBuff);
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
                              ctx.currentPassLayoutID, camera, ctx.cmdBuff);
@@ -1750,41 +1551,41 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void end(const gfx::Viewport& pass, RenderGraph::vertex_descriptor vertID) const {
     }
+    
+    void mountResource(const ccstd::pmr::string& name) const { // NOLINT(misc-no-recursion)
+        auto resIter = ctx.fgd.resourceAccessGraph.resourceIndex.find(name);
+        if (resIter != ctx.fgd.resourceAccessGraph.resourceIndex.end()) {
+            auto resID = resIter->second;
+            auto& resg = ctx.resourceGraph;
+            resg.mount(ctx.device, resID);
+            for (const auto& subres : makeRange(children(resID, resg))) {
+                const auto& subresName = get(ResourceGraph::NameTag{}, resg, subres.target);
+                mountResource(subresName);
+            }
+        }
+    }
 
     void mountResources(const Subpass& pass) const {
-        auto& resg = ctx.resourceGraph;
         // mount managed resources
         for (const auto& [name, view] : pass.rasterViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
         for (const auto& [name, views] : pass.computeViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
         for (const auto& resolve : pass.resolvePairs) {
-            auto resID = findVertex(resolve.target, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(resolve.target);
         }
     }
 
     void mountResources(const RasterPass& pass) const {
-        auto& resg = ctx.resourceGraph;
         // mount managed resources
         for (const auto& [name, view] : pass.rasterViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
         for (const auto& [name, views] : pass.computeViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
-
         for (const auto& subpass : pass.subpassGraph.subpasses) {
             mountResources(subpass);
         }
@@ -1794,9 +1595,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
         for (const auto& [name, views] : pass.computeViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
     }
 
@@ -1804,9 +1603,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
         for (const auto& [name, views] : pass.computeViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
     }
 
@@ -1814,9 +1611,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
         for (const auto& [name, views] : pass.computeViews) {
-            auto resID = findVertex(name, resg);
-            CC_EXPECTS(resID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, resID);
+            mountResource(name);
         }
     }
 
@@ -1824,12 +1619,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
         for (const auto& pair : pass.resolvePairs) {
-            const auto& srcID = findVertex(pair.source, resg);
-            CC_EXPECTS(srcID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, srcID);
-            const auto& dstID = findVertex(pair.target, resg);
-            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, dstID);
+            mountResource(pair.source);
+            mountResource(pair.target);
         }
     }
 
@@ -1837,17 +1628,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
         for (const auto& pair : pass.copyPairs) {
-            const auto& srcID = findVertex(pair.source, resg);
-            CC_EXPECTS(srcID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, srcID);
-            const auto& dstID = findVertex(pair.target, resg);
-            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, dstID);
+            mountResource(pair.source);
+            mountResource(pair.target);
         }
         for (const auto& pair : pass.uploadPairs) {
-            const auto& dstID = findVertex(pair.target, resg);
-            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
-            resg.mount(ctx.device, dstID);
+            mountResource(pair.target);
         }
     }
 
@@ -2223,7 +2008,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitorContext ctx{
             ppl.nativeContext,
             lg, rg, ppl.resourceGraph,
-            fgd, fgd.barrierMap,
+            fgd,
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
             &ppl,

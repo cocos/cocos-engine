@@ -1,8 +1,4 @@
-import { EDITOR } from 'internal:constants';
-
 import { Vec4 } from '../../../core';
-import { director } from '../../../game';
-
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
@@ -12,7 +8,7 @@ import { BasePass } from './base-pass';
 
 export class ForwardFinalPass extends BasePass {
     name = 'ForwardFinalPass';
-    outputNames = ['ForwardFinalColor']
+    outputNames = ['ForwardFinalColor'];
 
     enableInAllEditorCamera = true;
 

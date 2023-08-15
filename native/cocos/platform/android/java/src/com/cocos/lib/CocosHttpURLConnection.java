@@ -59,6 +59,7 @@ public class CocosHttpURLConnection
     private static String TAG = "CocosHttpURLConnection";
     private static final String POST_METHOD = "POST" ;
     private static final String PUT_METHOD = "PUT" ;
+    private static final String PATCH_METHOD = "PATCH" ;
 
     static HttpURLConnection createHttpURLConnection(String linkURL) {
         URL url;
@@ -86,7 +87,7 @@ public class CocosHttpURLConnection
     static void setRequestMethod(HttpURLConnection urlConnection, String method){
         try {
             urlConnection.setRequestMethod(method);
-            if(method.equalsIgnoreCase(POST_METHOD) || method.equalsIgnoreCase(PUT_METHOD)) {
+            if(method.equalsIgnoreCase(POST_METHOD) || method.equalsIgnoreCase(PUT_METHOD) || method.equalsIgnoreCase(PATCH_METHOD)) {
                 urlConnection.setDoOutput(true);
             }
         } catch (ProtocolException e) {
