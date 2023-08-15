@@ -48,6 +48,7 @@ import type { UIRenderer } from '../framework/ui-renderer';
  * UI 模型基础组件。
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[ParticleSystem]] 组件的节点上。
  * @deprecated This component is not recommended to be used, please use Render Texture instead.
+ * See [UIMeshRenderer Reference](https://docs.cocos.com/creator/manual/en/ui-system/components/editor/ui-model.html)
  */
 @ccclass('cc.UIMeshRenderer')
 @help('i18n:cc.UIMeshRenderer')
