@@ -8,6 +8,9 @@ import { JointAnimationInfo } from '../../cocos/3d/skeletal-animation/skeletal-a
 import { SkinnedMeshRenderer } from '../../cocos/3d/skinned-mesh-renderer';
 import { Node, Scene } from '../../cocos/scene-graph';
 import { director, game } from '../../cocos/game';
+import { SkinningModel } from '../../cocos/3d/models/skinning-model';
+import { Mesh, Skeleton } from '../../cocos/3d';
+import { BakedSkinningModel } from '../../cocos/3d/models/baked-skinning-model';
 
 describe('Skeletal animation state', () => {
     function createSimpleClip(name: string, duration: number, from: number, to: number, path = '') {
@@ -219,5 +222,48 @@ describe('Skeletal animation component', () => {
         expect(state.isPlaying && state.isPaused).toBe(true);
         skeletalAnimation.enabled = true;
         expect(state.isPlaying && !state.isPaused).toBe(true);
+    });
+
+    describe(`useBakedAnimation & banBakedAnimation`, () => {
+        test.each([
+            // If `banBakedAnimation === true`, `useBakedAnimation` is ignored.
+            [false, true, false],
+            [true, true, false],
+
+            // Otherwise, `useBakedAnimation` masters the effectivity.
+            [false, false, false],
+            [true, false, true],
+        ] as [use: boolean, ban: boolean, effective: boolean][])(`useBakedAnimation: %s, banBakedAnimation: %s`, (
+            use, ban, effective,
+        ) => {
+            const clip = new AnimationClip('meow');
+            clip.duration = 1.0;
+
+            const node = new Node();
+
+            const skinnedMeshRenderer = node.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
+            skinnedMeshRenderer.mesh = new Mesh();
+            skinnedMeshRenderer.skeleton = new Skeleton();
+            skinnedMeshRenderer.skinningRoot = node;
+
+            const skeletalAnimation = node.addComponent(SkeletalAnimation) as SkeletalAnimation;
+            skeletalAnimation.clips = [clip];
+
+            skeletalAnimation.useBakedAnimation = use;
+            skeletalAnimation.banBakedAnimation = ban;
+            expect(skeletalAnimation.useBakedAnimation).toBe(use);
+            expect(skeletalAnimation.banBakedAnimation).toBe(ban);
+
+            const scene = new Scene('Scene');
+            scene.addChild(node);
+
+            director.runSceneImmediate(scene);
+
+            if (effective) {
+                expect(skinnedMeshRenderer.model).toBeInstanceOf(BakedSkinningModel);
+            } else {
+                expect(skinnedMeshRenderer.model).toBeInstanceOf(SkinningModel);
+            }
+        });
     });
 });

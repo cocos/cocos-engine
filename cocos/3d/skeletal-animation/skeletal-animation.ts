@@ -113,7 +113,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     set sockets (val) {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             const animMgr = getGlobalAnimationManager();
             animMgr.removeSockets(this.node, this._sockets);
             animMgr.addSockets(this.node, val);
@@ -127,37 +127,50 @@ export class SkeletalAnimation extends Animation {
      * Whether to bake animations. Default to true,<br>
      * which substantially increases performance while making all animations completely fixed.<br>
      * Dynamically changing this property will take effect when playing the next animation clip.
+     * Note, this options has lower priority than `banBakedAnimation`.
      * @zh
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
+     * 注意，此选项比 `banBakedAnimation` 优先级低。
      */
     @editable
     get useBakedAnimation (): boolean {
         return this._useBakedAnimation;
     }
 
-    set useBakedAnimation (val) {
-        this._useBakedAnimation = val;
+    set useBakedAnimation (value) {
+        this._setUseBaked(value, this._banBakedAnimation);
+    }
 
-        for (const stateName in this._nameToState) {
-            const state = this._nameToState[stateName] as SkeletalAnimationState;
-            state.setUseBaked(val);
-        }
+    /**
+     * @zh
+     * 是否强制禁用预烘焙动画。此选项优先级高于 `useBakedAnimation`：
+     * 若此选项为真，无论 `useBakedAnimation` 为何值都不会使用预烘焙动画；
+     * 否则，是否使用预烘焙动画则交由 `useBakedAnimation` 来决定。
+     *
+     * 注意，此选项的设立是为了编辑器的特殊用途。一般不应该由用户操纵。
+     * 同时，此选项作为运行时选项，并未暴露为可编辑项。
+     * @en
+     * Whether to ban the use of baked animation. This option takes priority over `useBakedAnimation`:
+     * if this option is true, the baked animation is not used in despite of `useBakedAnimation`,
+     * otherwise, whether the baked animation is used is decided by `useBakedAnimation`.
+     *
+     * Note this option is here for special purpose of editor. It should not be used by users in general.
+     * Besides, this option, as a runtime option, is not exposed to be editable.
+     *
+     * @default false
+     */
+    get banBakedAnimation (): boolean {
+        return this._banBakedAnimation;
+    }
 
-        this._users.forEach((user) => {
-            user.setUseBakedAnimation(val);
-        });
-
-        if (this._useBakedAnimation) {
-            getGlobalAnimationManager().removeSockets(this.node, this._sockets);
-        } else {
-            getGlobalAnimationManager().addSockets(this.node, this._sockets);
-            this._currentBakedState = null;
-        }
+    set banBakedAnimation (value) {
+        this._setUseBaked(this._useBakedAnimation, value);
     }
 
     @serializable
     protected _useBakedAnimation = true;
+    private _banBakedAnimation = false;
 
     @type([Socket])
     protected _sockets: Socket[] = [];
@@ -193,12 +206,12 @@ export class SkeletalAnimation extends Animation {
 
     public start (): void {
         this.sockets = this._sockets;
-        this.useBakedAnimation = this._useBakedAnimation;
+        this._applyBakeFlagChange();
         super.start();
     }
 
     public pause (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.pause();
         } else {
             this._currentBakedState?.pause();
@@ -206,7 +219,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     public resume (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.resume();
         } else {
             this._currentBakedState?.resume();
@@ -214,7 +227,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     public stop (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.stop();
         } else if (this._currentBakedState) {
             this._currentBakedState.stop();
@@ -288,14 +301,14 @@ export class SkeletalAnimation extends Animation {
      * @internal This method only friends to skinned mesh renderer.
      */
     public notifySkinnedMeshAdded (skinnedMeshRenderer: SkinnedMeshRenderer): void {
-        const { _useBakedAnimation: useBakedAnimation } = this;
+        const { _useBakedEffectively } = this;
         const formerBound = skinnedMeshRenderer.associatedAnimation;
         if (formerBound) {
             formerBound._users.delete(skinnedMeshRenderer);
         }
         skinnedMeshRenderer.associatedAnimation = this;
-        skinnedMeshRenderer.setUseBakedAnimation(useBakedAnimation, true);
-        if (useBakedAnimation) {
+        skinnedMeshRenderer.setUseBakedAnimation(_useBakedEffectively, true);
+        if (_useBakedEffectively) {
             const { _currentBakedState: playingState } = this;
             if (playingState) {
                 skinnedMeshRenderer.uploadAnimation(playingState.clip);
@@ -333,7 +346,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     protected doPlayOrCrossFade (state: AnimationState, duration: number): void {
-        if (this._useBakedAnimation) {
+        if (this._useBakedEffectively) {
             if (this._currentBakedState) {
                 this._currentBakedState.stop();
             }
@@ -353,5 +366,43 @@ export class SkeletalAnimation extends Animation {
         Array.from(this._users).forEach((user) => {
             this.notifySkinnedMeshRemoved(user);
         });
+    }
+
+    private get _useBakedEffectively (): boolean {
+        if (this._banBakedAnimation) {
+            return false;
+        } else {
+            return this._useBakedAnimation;
+        }
+    }
+
+    private _setUseBaked (use: boolean, ban: boolean): void {
+        const previousFlag = this._useBakedEffectively;
+        this._useBakedAnimation = use;
+        this._banBakedAnimation = ban;
+        if (previousFlag === this._useBakedEffectively) {
+            return;
+        }
+        this._applyBakeFlagChange();
+    }
+
+    private _applyBakeFlagChange (): void {
+        const useBakedEffectively = this._useBakedEffectively;
+
+        for (const stateName in this._nameToState) {
+            const state = this._nameToState[stateName] as SkeletalAnimationState;
+            state.setUseBaked(useBakedEffectively);
+        }
+
+        this._users.forEach((user) => {
+            user.setUseBakedAnimation(useBakedEffectively);
+        });
+
+        if (useBakedEffectively) {
+            getGlobalAnimationManager().removeSockets(this.node, this._sockets);
+        } else {
+            getGlobalAnimationManager().addSockets(this.node, this._sockets);
+            this._currentBakedState = null;
+        }
     }
 }
