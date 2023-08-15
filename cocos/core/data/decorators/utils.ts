@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ClassStash } from "../class-stash";
+import { ClassStash } from '../class-stash';
 
 export type Initializer = () => unknown;
 
