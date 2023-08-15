@@ -121,7 +121,8 @@ export class AccelerometerInputSource {
 
     public start (): void {
         // for iOS 13+, safari
-        // NOTE: since TS 4.4, requestPermission is not defined in class DeviceMotionEvent, this should be a breaking change in TS.
+        // NOTE: since TS 4.4, `requestPermission` is not defined in class DeviceMotionEvent in `lib.dom.d.ts`, this should be a breaking change in TS.
+        // Accessing the `requestPermission` would emit a type error, so we assert `DeviceMotionEvent` as any type to skip the TS type checking.
         if (window.DeviceMotionEvent && typeof (DeviceMotionEvent as any).requestPermission === 'function') {
             (DeviceMotionEvent as any).requestPermission().then((response) => {
                 if (response === 'granted') {
