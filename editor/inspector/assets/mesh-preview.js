@@ -102,7 +102,7 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 // Non-model previews do not respond to events
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
-                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callMeshPreviewFunction('onMouseMove', {
@@ -128,6 +128,16 @@ const Elements = {
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
 
+                panel.isPreviewDataDirty = true;
+            });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                // Non-model previews do not respond to events
+                if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
+                await callMeshPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
                 panel.isPreviewDataDirty = true;
             });
 
