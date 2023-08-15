@@ -46,6 +46,9 @@ public:
     virtual void end() = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
     virtual void endRenderPass() = 0;
+    virtual void insertMarker(const MarkerInfo &marker) = 0;
+    virtual void beginMarker(const MarkerInfo &marker) = 0;
+    virtual void endMarker() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
     virtual void bindInputAssembler(InputAssembler *ia) = 0;

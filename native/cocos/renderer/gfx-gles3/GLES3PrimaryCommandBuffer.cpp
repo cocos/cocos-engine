@@ -80,6 +80,18 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
     ++_curSubpassIdx;
 }
 
+void GLES3PrimaryCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    cmdFuncGLES3InsertMarker(GLES3Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES3PrimaryCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    cmdFuncGLES3PushGroupMarker(GLES3Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES3PrimaryCommandBuffer::endMarker() {
+    cmdFuncGLES3PopGroupMarker(GLES3Device::getInstance());
+}
+
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {

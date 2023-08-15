@@ -43,6 +43,7 @@ struct GLES3GPUConstantRegistry {
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel mFBF{FBFSupportLevel::NONE};
+    bool debugMarker = false;
 };
 
 class GLES3GPUStateCache;

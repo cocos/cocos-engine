@@ -148,6 +148,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     }
 
+    if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
+        _gpuConstantRegistry->debugMarker = true;
+    }
+
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
         fbfLevelStr                += "_DEPTH_STENCIL";
