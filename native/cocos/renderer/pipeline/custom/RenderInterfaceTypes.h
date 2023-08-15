@@ -405,6 +405,12 @@ public:
      */
     virtual void setFloat(const ccstd::string &name, float v) = 0;
     /**
+     * @en Set unsigned integer uniform (4 bytes).
+     * @zh 设置无符号整型值 (4 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
+    virtual void setUint(const ccstd::string &name, uint32_t v) = 0;
+    /**
      * @en Set uniform array.
      * Size and type of the data should match the corresponding uniforms in the shader.
      * Mismatches will cause undefined behaviour.
@@ -487,7 +493,7 @@ public:
      * @param light @en Lighting information of the scene @zh 场景光照信息
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
-    virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
+    virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, uint32_t cullingID) = 0;
     virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
     virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
     virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
@@ -526,7 +532,10 @@ public:
      */
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
-        addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
+        addSceneOfCamera(camera, std::move(light), SceneFlags::NONE, 0xFFFFFFFF);
+    }
+    void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
+        addSceneOfCamera(camera, std::move(light), sceneFlags, 0xFFFFFFFF);
     }
     void addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
         addScene(camera, sceneFlags, nullptr);
@@ -1435,7 +1444,20 @@ public:
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
-    virtual void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) = 0;
+    /**
+     * @en Add GPU culling pass
+     * @zh 添加 GPU 剔除通道
+     * @param camera @en camera of the culling pass @zh 剔除通道的摄像机
+     * @param hzbName @en name of hierarchical z buffer @zh 层次深度缓存的名字
+     * @param light @en light of the culling pass @zh 剔除通道的灯光
+     */
+    virtual void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) = 0;
+    /**
+     * @en Add hierarchical z buffer generation pass
+     * @zh 添加层次化深度缓存生成通道
+     * @param sourceDepthStencilName @en name of source depth buffer @zh 来源深度缓存名字
+     * @param targetHzbName @en name of target hierarchical z buffer @zh 目标层次深度缓存的名字
+     */
     virtual void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) = 0;
     /**
      * @experimental
@@ -1460,11 +1482,14 @@ public:
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
     }
-    void addBuiltinGpuCullingPass(const scene::Camera *camera) {
-        addBuiltinGpuCullingPass(camera, "", nullptr);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera) {
+        addBuiltinGpuCullingPass(cullingID, camera, "", nullptr, true);
     }
-    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName) {
-        addBuiltinGpuCullingPass(camera, hzbName, nullptr);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName) {
+        addBuiltinGpuCullingPass(cullingID, camera, hzbName, nullptr, true);
+    }
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
+        addBuiltinGpuCullingPass(cullingID, camera, hzbName, light, true);
     }
 };
 

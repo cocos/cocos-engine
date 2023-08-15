@@ -296,8 +296,8 @@ void Mesh::initialize() {
 
     _initialized = true;
 
-    if (!_canUseGPUScene.has_value()) {
-        _canUseGPUScene = isGPUMeshFormat();
+    if (!_supportGPUScene.has_value()) {
+        _supportGPUScene = isGPUMeshFormat();
     }
 
     if (_struct.dynamic.has_value()) {
@@ -447,7 +447,7 @@ void Mesh::initialize() {
 
         _isMeshDataUploaded = true;
 #if !CC_EDITOR
-        if (!_allowDataAccess && !canUseGPUScene()) {
+        if (!_allowDataAccess && !supportGPUScene()) {
             releaseData();
         }
 #endif

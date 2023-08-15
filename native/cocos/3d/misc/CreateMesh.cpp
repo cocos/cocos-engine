@@ -48,7 +48,7 @@ Mesh *MeshUtils::createMesh(const IGeometry &geometry, Mesh *out /*= nullptr*/, 
     }
 
     out->reset(createMeshInfo(geometry, options));
-    out->setUseGPUScene(false); // Diasble it for manually created mesh.
+    out->disableGPUScene(); // Disable it for manually created mesh.
     return out;
 }
 
@@ -290,7 +290,7 @@ Mesh *MeshUtils::createDynamicMesh(index_t primitiveIndex, const IDynamicGeometr
     }
 
     out->reset(MeshUtils::createDynamicMeshInfo(geometry, options));
-    out->setUseGPUScene(false); // Diasble it for manually created mesh.
+    out->disableGPUScene(); // Disable it for manually created mesh.
     out->initialize();
     out->updateSubMesh(primitiveIndex, geometry);
 

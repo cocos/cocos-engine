@@ -29,6 +29,7 @@ import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
+import { macro } from '../../core';
 
 export * from './types';
 export * from './pipeline';
@@ -42,7 +43,7 @@ export const enableEffectImport = true;
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
-    _pipeline = render.Factory.createPipeline(false) as Pipeline;
+    _pipeline = render.Factory.createPipeline(macro.ENABLE_GPU_DRIVEN) as Pipeline;
     return _pipeline;
 }
 

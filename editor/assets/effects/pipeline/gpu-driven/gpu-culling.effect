@@ -1,0 +1,245 @@
+// Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: gpu-culling
+    passes:
+    - compute: culling-main
+      pass: gpu-culling-cs
+}%
+
+CCProgram culling-main %{
+  precision highp float;
+
+  struct ObjectData {
+    mat4 matWorld;
+    mat4 matWorldIT;
+    vec4 sphere;
+    vec4 halfExtents;
+    vec4 lightingMapUVParam;
+    vec4 localShadowBias;
+  };
+
+  struct InstanceData {
+    uint objectId;
+    uint batchId;
+  };
+
+  struct DrawIndexedIndirectCommand {
+    uint indexCount;
+    uint instanceCount;
+    uint firstIndex;
+    int vertexOffset;
+  #if !CC_SUPPORT_FIRST_INSTANCE
+    uint reservedMustBeZero;
+  #endif
+    uint firstInstance;
+  };
+
+  #pragma rate CCGPUCullData pass
+  layout(std140) uniform CCGPUCullData {
+    mat4 cc_view;
+    mat4 cc_proj;
+    vec4 cc_planes[6]; // frustum planes
+    float cc_znear;
+    float cc_zfar;
+    float cc_depthWidth;
+    float cc_depthHeight;
+    uint cc_isPerspective;
+    uint cc_orientation;
+    uint cc_instanceCount;
+    uint cc_sceneFlags;
+  };
+
+  #pragma rate CCObjectBuffer pass
+  #pragma glBinding(0)
+  layout(std430) readonly buffer CCObjectBuffer { ObjectData cc_objects[]; };
+
+  #pragma rate CCInstanceBuffer pass
+  #pragma glBinding(1)
+  layout(std430) readonly buffer CCInstanceBuffer { InstanceData cc_instances[]; };
+
+  #pragma rate CCDrawInstanceBuffer pass
+  #pragma glBinding(2)
+  layout(std430) writeonly buffer CCDrawInstanceBuffer { uint cc_drawInstances[]; };
+
+  #pragma rate CCDrawIndirectBuffer pass
+  #pragma glBinding(3)
+  layout(std430) buffer CCDrawIndirectBuffer { DrawIndexedIndirectCommand cc_indirectCmds[]; };
+
+  #pragma rate CCVisibilityBuffer pass
+  #pragma glBinding(4)
+  layout(std430) buffer CCVisibilityBuffer { uint cc_visibilities[]; };
+
+  #if CC_USE_OCCLUSION_CULLING
+    #pragma rate CCDepthMap pass
+    uniform sampler2D CCDepthMap;
+  #endif
+
+  #if CC_USE_FRUSTUM_CULLING
+    bool isFrustumCulled(uint objectId) {
+      vec3 center = cc_objects[objectId].sphere.xyz;
+      vec4 halfExt = cc_objects[objectId].halfExtents;
+
+      bool bFrustumCulled = false;
+      for (int i = 0; i < 6; i++) {
+        vec4 plane = cc_planes[i];
+        bFrustumCulled = bFrustumCulled || (dot(plane.xyz, center) + dot(abs(plane.xyz), halfExt.xyz) < plane.w);
+      }
+
+      return bFrustumCulled;
+    }
+  #endif
+
+  #if CC_USE_OCCLUSION_CULLING
+    // 2D Polyhedral Bounds of a Clipped, Perspective-Projected 3D Sphere. Michael Mara, Morgan McGuire. 2013
+    // Consider: minClipZ & projectionSignY & orientation in projection, so we can not use p00 & p11 directly.
+    void projectAABBPerspective(mat4 proj, uint orientation, float minx, float miny, float maxx, float maxy, out vec4 aabb) {
+      // project to ndc space
+      if (orientation == 0) {
+        aabb = vec4(minx * proj[0][0], miny * proj[1][1], maxx * proj[0][0], maxy * proj[1][1]);
+      }
+      else if (orientation == 1) {
+        aabb = vec4(maxy * proj[1][0], minx * proj[0][1], miny * proj[1][0], maxx * proj[0][1]);
+      }
+      else if (orientation == 2) {
+        aabb = vec4(maxx * proj[0][0], maxy * proj[1][1], minx * proj[0][0], miny * proj[1][1]);
+      }
+      else {
+        aabb = vec4(miny * proj[1][0], maxx * proj[0][1], maxy * proj[1][0], minx * proj[0][1]);
+      }
+    }
+
+    bool projectSpherePerspective(vec3 c, float r, float znear, mat4 proj, uint orientation, out vec4 aabb)
+    {
+        if (-c.z < r + znear) return false;
+
+        vec3 cr = c * r;
+        float czr2 = c.z * c.z - r * r;
+
+        float vx = sqrt(c.x * c.x + czr2);
+        float minx = (vx * c.x + cr.z) / -(vx * c.z - cr.x);
+        float maxx = (vx * c.x - cr.z) / -(vx * c.z + cr.x);
+
+        float vy = sqrt(c.y * c.y + czr2);
+        float miny = (vy * c.y + cr.z) / -(vy * c.z - cr.y);
+        float maxy = (vy * c.y - cr.z) / -(vy * c.z + cr.y);
+
+        projectAABBPerspective(proj, orientation, minx, miny, maxx, maxy, aabb);
+        // ndc space -> uv space
+        aabb = aabb * vec4(0.5f) + vec4(0.5f);
+
+        return true;
+    }
+
+    void projectAABBOrtho(mat4 proj, uint orientation, float minx, float miny, float maxx, float maxy, out vec4 aabb) {
+      // project to ndc space
+      if (orientation == 0) {
+        aabb = vec4(minx * proj[0][0], miny * proj[1][1], maxx * proj[0][0], maxy * proj[1][1]);
+      }
+      else if (orientation == 1) {
+        aabb = vec4(maxy * proj[1][0], minx * proj[0][1], miny * proj[1][0], maxx * proj[0][1]);
+      }
+      else if (orientation == 2) {
+        aabb = vec4(maxx * proj[0][0], maxy * proj[1][1], minx * proj[0][0], miny * proj[1][1]);
+      }
+      else {
+        aabb = vec4(miny * proj[1][0], maxx * proj[0][1], maxy * proj[1][0], minx * proj[0][1]);
+      }
+
+      aabb = aabb + vec4(proj[3][0], proj[3][1], proj[3][0], proj[3][1]);
+    }
+
+    bool projectSphereOrtho(vec3 c, float r, float znear, mat4 proj, uint orientation, out vec4 aabb)
+    {
+        if (-c.z < r + znear) return false;
+
+        float minx = c.x - r;
+        float maxx = c.x + r;
+
+        float miny = c.y - r;
+        float maxy = c.y + r;
+
+        projectAABBOrtho(proj, orientation, minx, miny, maxx, maxy, aabb);
+        // ndc space -> uv space
+        aabb = aabb * vec4(0.5) + vec4(0.5);
+
+        return true;
+    }
+
+    bool isOcclusionCulled(uint objectId) {
+      vec4 aabb;
+      vec4 sphere = cc_objects[objectId].sphere;
+      vec3 center = (cc_view * vec4(sphere.xyz, 1.0)).xyz;
+      float radius = sphere.w;
+      
+      if (cc_isPerspective != 0) {
+        if (!projectSpherePerspective(center, radius, cc_znear, cc_proj, cc_orientation, aabb)) {
+          return false;
+        }
+      } else {
+        if (!projectSphereOrtho(center, radius, cc_znear, cc_proj, cc_orientation, aabb)) {
+          return false;
+        }
+      }
+      
+      float width = (aabb.z - aabb.x) * cc_depthWidth;
+      float height = (aabb.w - aabb.y) * cc_depthHeight;
+      float level = floor(log2(max(width, height)));
+      float depth = textureLod(CCDepthMap, (aabb.xy + aabb.zw) * vec2(0.5), level).x;
+      float nearest = 0;
+
+      if (cc_isPerspective != 0) {
+        nearest = -(cc_proj[2][2] + cc_proj[3][2] / (center.z + radius));
+      } else {
+        nearest = (cc_proj[2][2] * (center.z + radius) + cc_proj[3][2]);
+      }
+
+      return nearest > depth;
+    }
+  #endif
+
+  layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+  void main()
+  {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= cc_instanceCount) {
+      return;
+    }
+
+    #if CC_GPU_CULLING_MAIN_PASS
+      #if CC_USE_OCCLUSION_CULLING
+        cc_visibilities[id] = 1;
+      #endif
+      uint objectId = cc_instances[id].objectId;
+
+      #if CC_USE_FRUSTUM_CULLING
+        if (isFrustumCulled(objectId)) {
+          return;
+        }
+      #endif
+
+      #if CC_USE_OCCLUSION_CULLING
+        if (isOcclusionCulled(objectId)) {
+            cc_visibilities[id] = 0;
+            return;
+        }
+      #endif
+    #else
+      if (cc_visibilities[id] == 1) {
+        return;
+      }
+
+      uint objectId = cc_instances[id].objectId;
+      if (isOcclusionCulled(objectId)) {
+        return;
+      }
+    #endif
+    
+    uint batchId = cc_instances[id].batchId;
+    uint index = atomicAdd(cc_indirectCmds[batchId].instanceCount, 1);
+    uint instanceId = cc_indirectCmds[batchId].firstInstance + index;
+
+    cc_drawInstances[instanceId] = objectId;
+  }
+}%

@@ -213,6 +213,9 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         _caps.maxArrayTextureLayers = 0;
     }
 
+    _caps.supportFirstInstance = checkExtension("base_instance");
+    _caps.supportFilterMinMax = checkExtension("texture_filter_minmax");
+
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);

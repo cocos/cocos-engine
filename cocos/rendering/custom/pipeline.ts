@@ -330,6 +330,12 @@ export interface Setter extends RenderNode {
      */
     setFloat (name: string, v: number): void;
     /**
+     * @en Set unsigned integer uniform (4 bytes).
+     * @zh 设置无符号整型值 (4 bytes)
+     * @param name @en uniform name in shader. @zh 填写着色器中的常量(uniform)名字
+     */
+    setUint (name: string, v: number): void;
+    /**
      * @en Set uniform array.
      * Size and type of the data should match the corresponding uniforms in the shader.
      * Mismatches will cause undefined behaviour.
@@ -409,7 +415,8 @@ export interface RenderQueueBuilder extends Setter {
     addSceneOfCamera (
         camera: Camera,
         light: LightInfo,
-        sceneFlags?: SceneFlags): void;
+        sceneFlags?: SceneFlags,
+        cullingID?: number): void;
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
@@ -1356,10 +1363,25 @@ export interface Pipeline extends BasicPipeline {
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     addMovePass (movePairs: MovePair[]): void;
+    /**
+     * @en Add GPU culling pass
+     * @zh 添加 GPU 剔除通道
+     * @param camera @en camera of the culling pass @zh 剔除通道的摄像机
+     * @param hzbName @en name of hierarchical z buffer @zh 层次深度缓存的名字
+     * @param light @en light of the culling pass @zh 剔除通道的灯光
+     */
     addBuiltinGpuCullingPass (
+        cullingID: number,
         camera: Camera,
         hzbName?: string,
-        light?: Light | null): void;
+        light?: Light | null,
+        bMainPass?: boolean): void;
+    /**
+     * @en Add hierarchical z buffer generation pass
+     * @zh 添加层次化深度缓存生成通道
+     * @param sourceDepthStencilName @en name of source depth buffer @zh 来源深度缓存名字
+     * @param targetHzbName @en name of target hierarchical z buffer @zh 目标层次深度缓存的名字
+     */
     addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental

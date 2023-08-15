@@ -209,6 +209,7 @@ struct CCVKGPUSampler : public CCVKGPUDeviceObject {
     Address addressW = Address::WRAP;
     uint32_t maxAnisotropy = 0U;
     ComparisonFunc cmpFunc = ComparisonFunc::NEVER;
+    Reduction reduction = Reduction::WEIGHTED_AVERAGE;
 
     // descriptor infos
     VkSampler vkSampler;

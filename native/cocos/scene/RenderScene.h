@@ -106,6 +106,7 @@ public:
     void removeModel(Model *model);
     void removeModels();
 
+    void addGPUMesh(Mesh *mesh);
     void addGPUModel(Model *model);
     void removeGPUModel(Model *model);
     void removeGPUModels();
@@ -132,7 +133,7 @@ public:
     void updateOctree(Model *model);
     inline const ccstd::vector<DrawBatch2D *> &getBatches() const { return _batches; }
     inline const ccstd::vector<IntrusivePtr<Model>> &getGPUModels() const { return _gpuModels; }
-    inline GPUScene *getGPUScene() const { return _gpuScene.get(); }
+    inline GPUScene *getGPUScene() const { return _gpuScene.get(); } // don't export to ts
 
 private:
     ccstd::string _name;

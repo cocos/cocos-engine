@@ -23,7 +23,7 @@
 ****************************************************************************/
 
 #pragma once
-#include "scene/gpu-scene/Define.h"
+#include "scene/gpu-scene/Const.h"
 #include "base/std/container/vector.h"
 #include "base/std/container/list.h"
 #include "base/RefCounted.h"
@@ -45,7 +45,7 @@ class Model;
 struct ObjectData {
     Mat4 matWorld;
     Mat4 matWorldIT;
-    Vec4 center;
+    Vec4 sphere;
     Vec4 halfExtents;
     Vec4 lightingMapUVParam;
     Vec4 localShadowBias;
@@ -73,7 +73,7 @@ private:
     GPUScene* _gpuScene{nullptr};
     ccstd::vector<ObjectData> _objects;
     ccstd::list<uint32_t> _freeSlots;
-    bool _objectDirty{false};
+    bool _dirty{false};
 
     IntrusivePtr<gfx::Buffer> _objectBuffer;
     uint32_t _objectCapacity{GPU_OBJECT_COUNT_INIT};

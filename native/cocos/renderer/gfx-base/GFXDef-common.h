@@ -548,6 +548,13 @@ enum class Address : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(Address);
 
+enum class Reduction : uint32_t {
+    WEIGHTED_AVERAGE,
+    MIN,
+    MAX,
+};
+CC_ENUM_CONVERSION_OPERATOR(Reduction);
+
 enum class ComparisonFunc : uint32_t {
     NEVER,
     LESS,
@@ -853,7 +860,9 @@ struct DeviceCaps {
     bool supportQuery{false};
     bool supportVariableRateShading{false};
     bool supportSubPassShading{false};
-    bool supportMultiDrawIndirect{false};
+    bool supportFirstInstance{false};
+    bool supportFilterMinMax{false};
+    bool supportGPUDriven{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1040,18 +1049,18 @@ struct BufferViewInfo {
 };
 
 struct DrawIndirectCommand {
-    uint32_t vertexCount;
-    uint32_t instanceCount;
-    uint32_t firstVertex;
-    uint32_t firstInstance;
+    uint32_t vertexCount{0};
+    uint32_t instanceCount{0};
+    uint32_t firstVertex{0};
+    uint32_t firstInstance{0};
 };
 
 struct DrawIndexedIndirectCommand {
-    uint32_t indexCount;
-    uint32_t instanceCount;
-    uint32_t firstIndex;
-    int32_t vertexOffset;
-    uint32_t firstInstance;
+    uint32_t indexCount{0};
+    uint32_t instanceCount{0};
+    uint32_t firstIndex{0};
+    int32_t vertexOffset{0};
+    uint32_t firstInstance{0};
 };
 
 struct DrawInfo {
@@ -1132,6 +1141,7 @@ struct ALIGNAS(8) SamplerInfo {
     Address addressW{Address::WRAP};
     uint32_t maxAnisotropy{0};
     ComparisonFunc cmpFunc{ComparisonFunc::ALWAYS};
+    Reduction reduction{Reduction::WEIGHTED_AVERAGE};
 
     EXPOSE_COPY_FN(SamplerInfo)
 };

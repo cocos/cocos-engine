@@ -403,6 +403,12 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
+     * @en Whether contain any transparent material
+     * @zh 是否含有透明材质
+     */
+    public isBlend = false;
+
+    /**
      * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
@@ -642,6 +648,7 @@ export class Model {
         this._transform = null!;
         this._node = null!;
         this.isDynamicBatching = false;
+        this.isBlend = false;
     }
 
     /**

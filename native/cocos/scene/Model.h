@@ -230,6 +230,8 @@ public:
     inline RenderScene *getScene() const { return _scene; }
     inline void setDynamicBatching(bool val) { _isDynamicBatching = val; }
     inline bool isDynamicBatching() const { return _isDynamicBatching; }
+    inline void setBlend(bool val) { _isBlend = val; }
+    inline bool isBlend() const { return _isBlend; }
     inline float getShadowBias() const { return _shadowBias.x; }
     inline float getShadowNormalBias() const { return _shadowBias.y; }
     inline Vec4 getShadowBiasParam() const { return _shadowBias; }
@@ -251,6 +253,7 @@ public:
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
+    inline const gfx::Texture *getLightmap() const { return _lightmap ? _lightmap->getGFXTexture() : nullptr; }
 
 protected:
     static SubModel *createSubModel();
@@ -258,6 +261,8 @@ protected:
     void updateAttributesAndBinding(index_t subModelIndex);
     bool isLightProbeAvailable() const;
     void updateSHBuffer();
+    bool supportGPUScene(index_t subModelIndex) const;
+    bool isInGPUScene(index_t subModelIndex) const;
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};
@@ -289,10 +294,11 @@ protected:
     bool _castShadow{false};
     bool _receiveShadow{false};
     bool _isDynamicBatching{false};
+    bool _isBlend{false};
     bool _inited{false};
     bool _localDataUpdated{false};
     bool _worldBoundsDirty{true};
-    bool _useLightProbe = false;
+    bool _useLightProbe{false};
     bool _bakeToReflectionProbe{true};
     bool _receiveDirLight{true};
     // For JS

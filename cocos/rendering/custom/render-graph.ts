@@ -1342,6 +1342,7 @@ export class SceneData {
     /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
+    cullingID = 0xFFFFFFFF;
 }
 
 export class Dispatch {

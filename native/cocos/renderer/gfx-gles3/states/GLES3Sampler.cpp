@@ -39,6 +39,7 @@ GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
     _gpuSampler->addressU = _info.addressU;
     _gpuSampler->addressV = _info.addressV;
     _gpuSampler->addressW = _info.addressW;
+    _gpuSampler->reduction = _info.reduction;
 
     // GL is not thread-safe, so any actual gl invocations need to be deferred to device thread
     cmdFuncGLES3PrepareSamplerInfo(GLES3Device::getInstance(), _gpuSampler);

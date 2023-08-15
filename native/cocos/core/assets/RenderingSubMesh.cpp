@@ -225,10 +225,6 @@ bool RenderingSubMesh::destroy() {
     return true;
 }
 
-bool RenderingSubMesh::canUseGPUScene() const {
-    return _mesh && _mesh->canUseGPUScene();
-}
-
 const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
     if (!_jointMappedBuffers.empty()) {
         return _jointMappedBuffers.get();

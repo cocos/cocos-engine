@@ -206,6 +206,8 @@ public:
 
     pipeline::InstancedBuffer *getInstancedBuffer(int32_t extraKey = 0);
 
+    bool isBlend() const;
+
     /**
      * @en Destroy the current pass.
      * @zh 销毁当前 pass。

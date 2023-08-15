@@ -532,7 +532,7 @@ export class Director extends EventTarget {
         for (let i = 0; i < renderers.length; i++) {
             const renderer = renderers[i];
             const mesh = renderer.mesh;
-            if (renderer.isUseGPUScene()) {
+            if (renderer.supportGPUScene()) {
                 meshes.push(mesh!);
             }
         }

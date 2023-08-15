@@ -10,15 +10,12 @@ struct ObjectData {
   vec4 localShadowBias;
 };
 
-struct InstanceData {
-  uint objectId;
-  uint batchId;
-};
+#pragma rate CCObjectBuffer pass
+#pragma glBinding(0)
+layout(std430) readonly buffer CCObjectBuffer { ObjectData cc_objects[]; };
 
-#pragma rate cc_objectBuffer phase
-layout(std430) readonly buffer cc_objectBuffer { ObjectData cc_objects[]; };
-
-#pragma rate cc_instanceBuffer phase
-layout(std430) readonly buffer cc_instanceBuffer { InstanceData cc_instances[]; };
+#pragma rate CCDrawInstanceBuffer pass
+#pragma glBinding(1)
+layout(std430) readonly buffer CCDrawInstanceBuffer { uint cc_drawInstances[]; };
 
 #endif

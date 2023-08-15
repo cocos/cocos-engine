@@ -216,9 +216,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
     }
 
-    if (checkExtension("occlusion_query_boolean")) {
-        _caps.supportQuery = true;
-    }
+    _caps.supportQuery = checkExtension("occlusion_query_boolean");
+    _caps.supportFirstInstance = checkExtension("base_instance");
+    _caps.supportFilterMinMax = checkExtension("texture_filter_minmax");
+    _caps.supportGPUDriven = hasFeature(Feature::COMPUTE_SHADER);
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;

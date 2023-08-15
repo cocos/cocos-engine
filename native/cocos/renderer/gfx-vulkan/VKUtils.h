@@ -90,6 +90,7 @@ extern const VkBlendFactor VK_BLEND_FACTORS[];
 extern const VkFilter VK_FILTERS[];
 extern const VkSamplerMipmapMode VK_SAMPLER_MIPMAP_MODES[];
 extern const VkSamplerAddressMode VK_SAMPLER_ADDRESS_MODES[];
+extern const VkSamplerReductionMode VK_SAMPLER_REDUCTION_MODES[];
 extern const VkPipelineBindPoint VK_PIPELINE_BIND_POINTS[];
 extern const VkResolveModeFlagBits VK_RESOLVE_MODES[];
 extern const VkImageLayout VK_IMAGE_LAYOUTS[];

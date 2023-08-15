@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
+#include "cocos/scene/gpu-scene/GPUScene.h"
 
 #ifdef _MSC_VER
     #pragma warning(push)
@@ -80,6 +81,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) /*implements*/;
     void setVec2(const ccstd::string &name, const Vec2 &vec) /*implements*/;
     void setFloat(const ccstd::string &name, float v) /*implements*/;
+    void setUint(const ccstd::string &name, uint32_t v) /*implements*/;
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) /*implements*/;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
@@ -156,6 +158,9 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
+    }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
     }
@@ -202,7 +207,7 @@ public:
         NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
-    void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
+    void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, uint32_t cullingID) override;
     void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) override;
     void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
     void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
@@ -211,6 +216,9 @@ public:
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void addCustomCommand(std::string_view customBehavior) override;
+
+private:
+    void addGpuDrivenResource(const scene::Camera *camera, SceneFlags sceneFlags, RenderGraph::vertex_descriptor rgSceneID, uint32_t cullingID);
 };
 
 class NativeRenderSubpassBuilder final : public RenderSubpassBuilder, public NativeRenderSubpassBuilderImpl {
@@ -245,6 +253,9 @@ public:
     }
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
+    }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -356,6 +367,9 @@ public:
     }
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
+    }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -471,6 +485,9 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
+    }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
     }
@@ -557,6 +574,9 @@ public:
     }
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
+    }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -657,6 +677,9 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
+    }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
     }
@@ -755,6 +778,9 @@ public:
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
     }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
+    }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
     }
@@ -836,6 +862,9 @@ public:
     }
     void setFloat(const ccstd::string &name, float v) override {
         NativeSetter::setFloat(name, v);
+    }
+    void setUint(const ccstd::string &name, uint32_t v) override {
+        NativeSetter::setUint(name, v);
     }
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
         NativeSetter::setArrayBuffer(name, arrayBuffer);
@@ -936,8 +965,8 @@ struct RenderBatchingQueue {
     RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
     RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
 
-    static void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags);
+    void recordCommandBuffer(const ResourceGraph& resg, gfx::Device *device, const scene::Camera *camera,
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const;
 
     ccstd::pmr::vector<uint32_t> batches;
 };
@@ -1000,7 +1029,6 @@ struct NativeRenderQueue {
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
     RenderBatchingQueue opaqueBatchingQueue;
-    RenderBatchingQueue transparentBatchingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
 };
@@ -1218,7 +1246,7 @@ struct NativeRenderQueueDesc {
 struct SceneCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {sceneQueries.get_allocator().resource()};
+        return {sceneIDs.get_allocator().resource()};
     }
 
     SceneCulling(const allocator_type& alloc) noexcept; // NOLINT
@@ -1238,13 +1266,13 @@ private:
     void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
     void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
+    ccstd::pmr::unordered_map<const scene::RenderScene*, uint32_t> sceneIDs;
     ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> culledResults;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
     PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> sceneQueryIndex;
     uint32_t numCullingQueries{0};
     uint32_t numRenderQueues{0};
-    uint32_t gpuCullingPassID{0xFFFFFFFF};
 };
 
 struct NativeRenderContext {
@@ -1265,7 +1293,6 @@ struct NativeRenderContext {
     uint64_t nextFenceValue{0};
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
-    ccstd::pmr::unordered_map<const scene::RenderScene*, SceneResource> renderSceneResources;
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
 };
@@ -1407,7 +1434,7 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
-    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) override;
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) override;
     void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;

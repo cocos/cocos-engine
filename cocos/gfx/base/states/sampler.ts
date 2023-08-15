@@ -50,19 +50,21 @@ export class Sampler extends GFXObject {
         hash |= (info.addressW << 10);
         hash |= (info.maxAnisotropy << 12);
         hash |= (info.cmpFunc << 16);
+        hash |= (info.reduction << 19);
         return hash;
     }
 
     static unpackFromHash (hash: number): SamplerInfo {
         const info = new SamplerInfo();
-        info.minFilter = (hash & ((1 << 2) - 1)) >> 0;
-        info.magFilter = (hash & ((1 << 2) - 1)) >> 2;
-        info.mipFilter = (hash & ((1 << 2) - 1)) >> 4;
-        info.addressU = (hash & ((1 << 2) - 1)) >> 6;
-        info.addressV = (hash & ((1 << 2) - 1)) >> 8;
-        info.addressW = (hash & ((1 << 2) - 1)) >> 10;
-        info.maxAnisotropy = (hash & ((1 << 4) - 1)) >> 12;
-        info.cmpFunc = (hash & ((1 << 3) - 1)) >> 16;
+        info.minFilter = (hash & (((1 << 2) - 1) << 0));
+        info.magFilter = (hash & (((1 << 2) - 1) << 2));
+        info.mipFilter = (hash & (((1 << 2) - 1) << 4));
+        info.addressU = (hash & (((1 << 2) - 1) << 6));
+        info.addressV = (hash & (((1 << 2) - 1) << 8));
+        info.addressW = (hash & (((1 << 2) - 1) << 10));
+        info.maxAnisotropy = (hash & (((1 << 4) - 1) << 12));
+        info.cmpFunc = (hash & (((1 << 3) - 1) << 16));
+        info.reduction = (hash & (((1 << 2) - 1) << 19));
         return info;
     }
 }

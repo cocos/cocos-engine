@@ -41,6 +41,7 @@ CCVKSampler::CCVKSampler(const SamplerInfo &info) : Sampler(info) {
     _gpuSampler->addressW = _info.addressW;
     _gpuSampler->maxAnisotropy = _info.maxAnisotropy;
     _gpuSampler->cmpFunc = _info.cmpFunc;
+    _gpuSampler->reduction = _info.reduction;
     _gpuSampler->init();
 }
 

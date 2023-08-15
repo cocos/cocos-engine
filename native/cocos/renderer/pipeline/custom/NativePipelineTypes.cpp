@@ -72,8 +72,7 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
-  opaqueBatchingQueue(alloc),
-  transparentBatchingQueue(alloc) {}
+  opaqueBatchingQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
@@ -81,7 +80,6 @@ NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOr
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
   opaqueBatchingQueue(alloc),
-  transparentBatchingQueue(alloc),
   sceneFlags(sceneFlagsIn),
   subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
 
@@ -91,7 +89,6 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   opaqueBatchingQueue(std::move(rhs.opaqueBatchingQueue), alloc),
-  transparentBatchingQueue(std::move(rhs.transparentBatchingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
   subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
@@ -184,25 +181,25 @@ CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& 
 : culledResultIndex(rhs.culledResultIndex, alloc) {}
 
 SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
-: sceneQueries(alloc),
+: sceneIDs(alloc),
+  sceneQueries(alloc),
   culledResults(alloc),
   renderQueues(alloc),
   sceneQueryIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
-: sceneQueries(std::move(rhs.sceneQueries), alloc),
+: sceneIDs(std::move(rhs.sceneIDs), alloc),
+  sceneQueries(std::move(rhs.sceneQueries), alloc),
   culledResults(std::move(rhs.culledResults), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
   sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
   numCullingQueries(rhs.numCullingQueries),
-  numRenderQueues(rhs.numRenderQueues),
-  gpuCullingPassID(rhs.gpuCullingPassID) {}
+  numRenderQueues(rhs.numRenderQueues) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc),
   sceneCulling(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept

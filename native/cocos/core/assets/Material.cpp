@@ -31,6 +31,7 @@
 #include "core/platform/Debug.h"
 #include "math/Color.h"
 #include "renderer/pipeline/helper/Utils.h"
+#include "renderer/pipeline/Define.h"
 #include "scene/Pass.h"
 namespace cc {
 
@@ -442,6 +443,27 @@ void Material::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 
 bool Material::validate() const {
     return _effectAsset != nullptr && !_effectAsset->isDefault() && !_passes->empty();
+}
+
+bool Material::isBlend(const ccstd::string &phaseName) const {
+    if (!_passes) {
+        return false;
+    }
+
+    const auto &passes = *_passes;
+
+    // If any matched pass is blend, return true.
+    return std::any_of(passes.begin(), passes.end(), [&](const auto &pass) {
+        if (!pass) {
+            return false;
+        }
+
+        if (pass->getPhaseID() != pipeline::getPhaseID(phaseName)) {
+            return false;
+        }
+
+        return pass->isBlend();
+    });
 }
 
 } // namespace cc

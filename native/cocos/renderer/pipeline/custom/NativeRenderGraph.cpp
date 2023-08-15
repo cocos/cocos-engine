@@ -691,7 +691,7 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
 }
 
 void NativeRenderQueueBuilder::addSceneOfCamera(
-    scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
+    scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, uint32_t cullingID) {
     const auto *pLight = light.light.get();
     SceneData scene(camera->getScene(), camera, sceneFlags, light);
     auto sceneID = addVertex2(
@@ -734,6 +734,8 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
         data);
+
+    addGpuDrivenResource(camera, sceneFlags, sceneID, cullingID);
 }
 
 void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
@@ -749,36 +751,46 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
         std::forward_as_tuple(std::move(data)),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+}
+
+void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera, SceneFlags sceneFlags, RenderGraph::vertex_descriptor rgSceneID, uint32_t cullingID) {
+    auto *scene = camera->getScene();
+    if (!scene || !scene->getGPUScene()) {
+        return;
+    }
 
     if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
         const auto passID = renderGraph->getPassID(nodeID);
-        const auto cullingID = dynamic_cast<const NativePipeline*>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
+        const auto &sceneCulling = dynamic_cast<const NativePipeline *>(pipelineRuntime)->nativeContext.sceneCulling;
+        const auto sceneID = sceneCulling.sceneIDs.at(scene);
+        auto &scene = get(SceneTag{}, rgSceneID, *renderGraph);
+        scene.cullingID = cullingID;
         CC_EXPECTS(cullingID != 0xFFFFFFFF);
         if (holds<RasterPassTag>(passID, *renderGraph)) {
-            ccstd::pmr::string drawIndirectBuffer("CCDrawIndirectBuffer");
-            drawIndirectBuffer.append(std::to_string(cullingID));
+            ccstd::pmr::string objectBuffer("CCObjectBuffer");
+            objectBuffer.append(std::to_string(sceneID));
             ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
             drawInstanceBuffer.append(std::to_string(cullingID));
 
-            auto& rasterPass = get(RasterPassTag{}, passID, *renderGraph);
-            if (rasterPass.computeViews.find(drawIndirectBuffer) != rasterPass.computeViews.end()) {
+            auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
+            if (rasterPass.computeViews.find(objectBuffer) == rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
-                    std::forward_as_tuple(drawIndirectBuffer),
+                    std::forward_as_tuple(objectBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
-                view.name = "CCDrawIndirectBuffer";
+                auto &view = res.first->second.emplace_back();
+                view.name = "CCObjectBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
             }
-            if (rasterPass.computeViews.find(drawInstanceBuffer) != rasterPass.computeViews.end()) {
+            if (rasterPass.computeViews.find(drawInstanceBuffer) == rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(drawInstanceBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
+                auto &view = res.first->second.emplace_back();
                 view.name = "CCDrawInstanceBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;

@@ -1073,6 +1073,15 @@ interface Macro {
     CUSTOM_PIPELINE_NAME: string;
 
     /**
+     * @en
+     * Whether to enable GPU Driven.
+     * @zh
+     * 是否开启 GPU Driven
+     * @default false
+     */
+    ENABLE_GPU_DRIVEN: boolean;
+
+    /**
      * @internal
      */
     init (): void;
@@ -1105,6 +1114,7 @@ const macro: Macro = {
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
     CUSTOM_PIPELINE_NAME: '',
+    ENABLE_GPU_DRIVEN: false,
     init () {
         if (NATIVE || MINIGAME || RUNTIME_BASED) {
             this.CLEANUP_IMAGE_CACHE = true;

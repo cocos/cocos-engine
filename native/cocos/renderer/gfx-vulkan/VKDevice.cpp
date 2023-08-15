@@ -144,6 +144,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
     // requestedFeatures2.features.se
     requestedVulkan12Features.separateDepthStencilLayouts = _gpuContext->physicalDeviceVulkan12Features.separateDepthStencilLayouts;
+    requestedVulkan12Features.samplerFilterMinmax = _gpuContext->physicalDeviceVulkan12Features.samplerFilterMinmax;
 
     VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateRequest = {};
     shadingRateRequest.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR;
@@ -819,10 +820,10 @@ void CCVKDevice::initExtensionCapability() {
     _caps.supportVariableRateShading &= _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate &&
                                         _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;
     _caps.supportVariableRateShading &= hasFlag(_formatFeatures[static_cast<uint32_t>(Format::R8UI)], FormatFeatureBit::SHADING_RATE);
-
     _caps.supportSubPassShading = checkExtension(VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME);
-    _caps.supportMultiDrawIndirect = _gpuContext->physicalDeviceFeatures.multiDrawIndirect &&
-                                     _gpuContext->physicalDeviceFeatures.drawIndirectFirstInstance;
+    _caps.supportFirstInstance = _gpuContext->physicalDeviceFeatures.drawIndirectFirstInstance;
+    _caps.supportFilterMinMax = _gpuContext->physicalDeviceVulkan12Features.samplerFilterMinmax;
+    _caps.supportGPUDriven = true;
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {

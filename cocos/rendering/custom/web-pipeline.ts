@@ -234,6 +234,9 @@ export class WebSetter {
     public setFloat (name: string, v: number, idx = 0): void {
         this._applyCurrConstantBuffer(name, v, Type.FLOAT, idx);
     }
+    public setUint (name: string, v: number, idx = 0): void {
+        this._applyCurrConstantBuffer(name, v, Type.UINT, idx);
+    }
     public offsetFloat (v: number, offset: number): void {
         this._copyToBuffer(v, offset, Type.FLOAT);
     }
@@ -854,9 +857,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         return layoutName;
     }
 
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, cullingID = 0xFFFFFFFF): void {
         const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID);
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Camera', '', new RenderData(), false, this._vertID);
         const layoutName = this.getLayoutName();
         const scene: Scene = cclegacy.director.getScene();
         setCameraUBOValues(

@@ -29,11 +29,25 @@
 namespace cc {
 namespace scene {
 
-// Stanley TODO: delete this later
-#define USE_CPU_INDIRECT_DRAW 1
+/**
+ * These values need to be consistent with the compute shader values
+ */
+constexpr uint32_t CS_HIZ_LOCAL_SIZE = 32;
+constexpr uint32_t CS_GPU_CULLING_LOCAL_SIZE = 64;
 
+/**
+ * Default objects count in GPUScene
+ */
 constexpr uint32_t GPU_OBJECT_COUNT_INIT = 10240;
+
+/**
+ * Default instances count in GPUScene
+ */
 constexpr uint32_t GPU_INSTANCE_COUNT_INIT = 10240;
+
+/**
+ * Default indirect commands count in GPUScene
+ */
 constexpr uint32_t GPU_INDIRECT_COUNT_INIT = 4096;
 
 } // namespace scene

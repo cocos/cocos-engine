@@ -57,6 +57,17 @@ CC_DLL ccstd::string getStacktrace(uint32_t skip = 0, uint32_t maxDepth = UINT32
 CC_DLL uint32_t nextPOT(uint32_t x);
 
 /**
+ * Returns the Previous Power of Two value.
+ * Examples:
+ * - If "value" is 15, it will return 8.
+ * - If "value" is 16, it will return 16.
+ * - If "value" is 17, it will return 16.
+ * @param value The value to get previous power of two.
+ * @return Returns the previous power of two value.
+ */
+CC_DLL uint32_t previousPOT(uint32_t x);
+
+/**
  * Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
  * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
  * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.
@@ -164,7 +175,7 @@ struct HalfRaw {
 #if defined(CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC)
     explicit HalfRaw(uint16_t raw) : x(numext::bit_cast<__fp16>(raw)) {
     }
-    __fp16 x;
+    __fp16 x; // NOLINT(modernize-use-default-member-init)
 #else
     explicit constexpr HalfRaw(uint16_t raw) : x(raw) {}
     uint16_t x; // NOLINT(modernize-use-default-member-init)

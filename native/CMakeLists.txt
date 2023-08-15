@@ -1540,9 +1540,9 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
-		         cocos/scene/Skin.h
-		         cocos/scene/Skin.cpp
-                 cocos/scene/gpu-scene/Define.h
+                 cocos/scene/Skin.h
+                 cocos/scene/Skin.cpp
+                 cocos/scene/gpu-scene/Const.h
                  cocos/scene/gpu-scene/GPUBatchPool.cpp
                  cocos/scene/gpu-scene/GPUBatchPool.h
                  cocos/scene/gpu-scene/GPUObjectPool.cpp
