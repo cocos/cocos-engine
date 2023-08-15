@@ -63,6 +63,10 @@ constexpr gfx::Color RASTER_COLOR{0.0, 1.0, 0.0, 1.0};
 constexpr gfx::Color RENDER_QUEUE_COLOR{0.0, 0.5, 0.5, 1.0};
 constexpr gfx::Color COMPUTE_COLOR{0.0, 0.0, 1.0, 1.0};
 
+gfx::MarkerInfo makeMarkerInfo(const char *str, const gfx::Color &color) {
+    return gfx::MarkerInfo{str, color};
+}
+
 struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(RenderGraphVisitorContext&&) = delete;
     RenderGraphVisitorContext(RenderGraphVisitorContext const&) = delete;
@@ -1121,7 +1125,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
 #if CC_DEBUG
-        ctx.cmdBuff->beginMarker(gfx::MarkerInfo{get(RenderGraph::NameTag{}, ctx.g, vertID).data(), RASTER_COLOR});
+        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -1161,7 +1165,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
 #if CC_DEBUG
-        ctx.cmdBuff->insertMarker(gfx::MarkerInfo{get(RenderGraph::NameTag{}, ctx.g, vertID).data(), RASTER_COLOR});
+        ctx.cmdBuff->insertMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1200,7 +1204,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void begin(const ComputePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
 #if CC_DEBUG
-        ctx.cmdBuff->beginMarker(gfx::MarkerInfo{get(RenderGraph::NameTag{}, ctx.g, vertID).data(), COMPUTE_COLOR});
+        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), COMPUTE_COLOR));
 #endif
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1352,7 +1356,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void begin(const RenderQueue& queue, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
 #if CC_DEBUG
-        ctx.cmdBuff->beginMarker(gfx::MarkerInfo{get(RenderGraph::NameTag{}, ctx.g, vertID).data(), RENDER_QUEUE_COLOR});
+        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RENDER_QUEUE_COLOR));
 #endif
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
