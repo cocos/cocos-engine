@@ -101,7 +101,9 @@ export class ReflectionProbe extends Component {
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
-    protected _sourceCameraPos = new Vec3(0, 0, 0);
+    private _sourceCameraPos = new Vec3(0, 0, 0);
+
+    private _position = new Vec3(0, 0, 0);
 
     /**
      * @en
@@ -114,8 +116,10 @@ export class ReflectionProbe extends Component {
         absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
+            this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.onUpdateProbes();
             ReflectionProbeManager.probeManager.updateProbeData();
+            ReflectionProbeManager.probeManager.updateProbeOfModels();
         }
     }
     @type(Vec3)
@@ -315,6 +319,7 @@ export class ReflectionProbe extends Component {
         if (EDITOR) {
             ReflectionProbeManager.probeManager.registerEvent();
         }
+        this._position = this.node.getWorldPosition().clone();
     }
 
     onEnable (): void {
@@ -374,12 +379,19 @@ export class ReflectionProbe extends Component {
             }
         }
 
-        if (this.node.hasChangedFlags) {
-            this.probe.updateBoundingBox();
+        if (EDITOR) {
+            if (this.node.hasChangedFlags) {
+                this.probe.updateBoundingBox();
+                ReflectionProbeManager.probeManager.onUpdateProbes();
+            }
         }
-        if (this.node.hasChangedFlags & TransformBit.POSITION) {
-            ReflectionProbeManager.probeManager.onUpdateProbes();
+
+        const worldPos = this.node.getWorldPosition();
+        if (!this._position.equals(worldPos)) {
+            this._position = worldPos;
+            this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.updateProbeData();
+            ReflectionProbeManager.probeManager.updateProbeOfModels();
         }
     }
 

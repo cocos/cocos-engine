@@ -449,6 +449,29 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @engineInternal
+     */
+    public updateProbeOfModels (): void {
+        if (this._probes.length === 0) return;
+        const scene = cclegacy.director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const models = scene.renderScene.models as Model[];
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            if (model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) {
+                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP
+                    || model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION
+                    || this._isUsedBlending(model)) {
+                    model.updateReflectionProbeId();
+                }
+            }
+        }
+    }
+
+    /**
      * @en get max value of probe id.
      * @zh 获取反射探针id的最大值。
      */
