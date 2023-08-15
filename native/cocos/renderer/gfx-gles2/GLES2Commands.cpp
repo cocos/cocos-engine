@@ -3040,19 +3040,19 @@ GLint cmdFuncGLES2GetMaxSampleCount() {
 }
 
 void cmdFuncGLES2InsertMarker(GLES2Device *device, GLsizei length, const char *marker) {
-    if (device->hasFeature(Feature::DEBUG_MARKER)) {
+    if (device->constantRegistry()->debugMarker) {
         glInsertEventMarkerEXT(length, marker);
     }
 }
 
 void cmdFuncGLES2PushGroupMarker(GLES2Device *device, GLsizei length, const char *marker) {
-    if (device->hasFeature(Feature::DEBUG_MARKER)) {
+    if (device->constantRegistry()->debugMarker) {
         glPushGroupMarkerEXT(length, marker);
     }
 }
 
 void cmdFuncGLES2PopGroupMarker(GLES2Device *device) {
-    if (device->hasFeature(Feature::DEBUG_MARKER)) {
+    if (device->constantRegistry()->debugMarker) {
         glPopGroupMarkerEXT();
     }
 }

@@ -149,7 +149,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     }
 
     if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
-        _features[toNumber(Feature::DEBUG_MARKER)] = true;
+        _gpuConstantRegistry->debugMarker = true;
     }
 
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {

@@ -180,8 +180,6 @@ enum class Feature : uint32_t {
     RASTERIZATION_ORDER_NOCOHERENT,
 
     MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
-
-    DEBUG_MARKER, // debug group marker
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);

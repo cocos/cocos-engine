@@ -782,7 +782,6 @@ void CCVKDevice::initDeviceFeature() {
         (vkCmdBeginDebugUtilsLabelEXT != nullptr) &&
         (vkCmdInsertDebugUtilsLabelEXT != nullptr) &&
         (vkCmdEndDebugUtilsLabelEXT != nullptr);
-    _features[toNumber(Feature::DEBUG_MARKER)] = _gpuContext->debugUtils || _gpuContext->debugReport;
 }
 
 void CCVKDevice::initFormatFeature() {
