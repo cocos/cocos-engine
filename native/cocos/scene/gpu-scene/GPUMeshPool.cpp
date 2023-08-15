@@ -53,10 +53,6 @@ void GPUMeshPool::destroy() {
     _meshes.clear();
 }
 
-void GPUMeshPool::update(uint32_t stamp) {
-    // Do nothing now.
-}
-
 struct BufferView {
     ccstd::vector<uint8_t> buffer;
     uint32_t stride{0U};

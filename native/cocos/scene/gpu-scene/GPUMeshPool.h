@@ -55,7 +55,6 @@ public:
 
     void activate(GPUScene* scene);
     void destroy();
-    void update(uint32_t stamp);
 
     void build(const ccstd::vector<Mesh*>& meshes);
 
