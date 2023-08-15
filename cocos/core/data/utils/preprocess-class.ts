@@ -170,7 +170,7 @@ export function preprocessAttrs (properties, className, cls): void {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function validateOverrideMethods_DEV (cls, base, className): void {
+export function validateOverrideMethods_DEV (cls: Function, base: Function | undefined, className: string): void {
     const proto = cls.prototype;
     const destroy = proto.destroy;
     if (destroy && proto.hasOwnProperty?.('destroy')) {
