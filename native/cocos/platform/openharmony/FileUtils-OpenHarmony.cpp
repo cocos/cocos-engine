@@ -40,7 +40,6 @@
 
 #include "cocos/base/Log.h"
 
-#include "bindings/jswrapper/napi/HelperMacros.h"
 #define ASSETS_FOLDER_WRITEABLE_PATH "/data/accounts/account_0/applications/ohos.example.xcomponent1/ohos.example.xcomponent1/writeable_path"
 #include "rawfile/raw_file_manager.h"
 

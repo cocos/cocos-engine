@@ -24,17 +24,39 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "platform/openharmony/napi/NapiHelper.h"
+#include <js_native_api.h>
+#include <js_native_api_types.h>
+#include "platform/openharmony/napi/napi_macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
-#include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
+
 #if CC_USE_EDITBOX
     #include "ui/edit-box/EditBox-openharmony.h"
 #endif
 #if CC_USE_WEBVIEW
     #include "ui/webview/WebViewImpl-openharmony.h"
 #endif
+
+#include <hilog/log.h>
+
+#define LOGE(...) ((void) OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "HMG_LOG", __VA_ARGS__))
+
+#define NODE_API_CALL_BASE(env, the_call, ret_val) \
+    do {                                           \
+        if ((the_call) != napi_ok) {               \
+            assert(false);                         \
+        }                                          \
+    } while (0)
+
+// Returns nullptr if the_call doesn't return napi_ok.
+#define NODE_API_CALL(status, env, the_call) \
+    status = the_call;                       \
+    if (status != napi_ok)                   \
+        LOGE("error:%d", status);            \
+    NODE_API_CALL_BASE(env, status, nullptr)
+
 namespace cc {
 const int32_t kMaxStringLen = 512;
 
@@ -54,82 +76,86 @@ enum ContextType {
 NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
 NapiHelper::PostSyncMessage2UIThreadCb NapiHelper::_postSyncMsg2UIThreadCb;
 
-static bool js_set_PostMessage2UIThreadCallback(se::State& s) {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction()) {
-                //se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                //jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto * thisObj = s.thisObject();
-                NapiHelper::_postMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(2);
-                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    CC_ASSERT(ok);
-                    args[1] = larg1;
-                    //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-                    se::Value rval;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-            }
-        } while(false);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
+static napi_value js_set_PostMessage2UIThreadCallback(napi_env env, napi_callback_info info) {
+    size_t argc = 1;
+    napi_value result = nullptr;
+    napi_get_undefined(env, &result);
+    // napi_value argv = nullptr;
+    // napi_value this_arg = nullptr;
+    // napi_status status = napi_get_cb_info(env, info, &argc, &argv, &this_arg, nullptr);
+    // if (status == napi_ok && argc == 1) {
+    //     do {
+    //         if (args[0].isObject() && args[0].toObject()->isFunction()) {
+    //             //se::Value jsThis(s.thisObject());
+    //             se::Value jsFunc(args[0]);
+    //             //jsThis.toObject()->attachObject(jsFunc.toObject());
+    //             auto * thisObj = s.thisObject();
+    //             NapiHelper::_postMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1) -> void {
+    //                 se::ScriptEngine::getInstance()->clearException();
+    //                 se::AutoHandleScope hs;
+    //                 CC_UNUSED bool ok = true;
+    //                 se::ValueArray args;
+    //                 args.resize(2);
+    //                 ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+    //                 CC_ASSERT(ok);
+    //                 args[1] = larg1;
+    //                 //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
+    //                 se::Value rval;
+    //                 se::Object* funcObj = jsFunc.toObject();
+    //                 bool succeed = funcObj->call(args, thisObj, &rval);
+    //                 if (!succeed) {
+    //                     se::ScriptEngine::getInstance()->clearException();
+    //                 }
+    //             };
+    //         }
+    //     } while(false);
+    //     return result;
+    // }
+    // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    
+    return result;
 }
-SE_BIND_FUNC(js_set_PostMessage2UIThreadCallback);
 
-static bool js_set_PostSyncMessage2UIThreadCallback(se::State& s) {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction()) {
-                //se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                //jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto * thisObj = s.thisObject();
-                NapiHelper::_postSyncMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1, se::Value* res) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(2);
-                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    CC_ASSERT(ok);
-                    args[1] = larg1;
-                    //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-                    //se::Value rval;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, res);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-            }
-        } while(false);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
+static napi_value js_set_PostSyncMessage2UIThreadCallback(napi_env env, napi_callback_info info) {
+    // const auto& args = s.args();
+    // size_t argc = args.size();
+    // CC_UNUSED bool ok = true;
+    // if (argc == 1) {
+    //     do {
+    //         if (args[0].isObject() && args[0].toObject()->isFunction()) {
+    //             //se::Value jsThis(s.thisObject());
+    //             se::Value jsFunc(args[0]);
+    //             //jsThis.toObject()->attachObject(jsFunc.toObject());
+    //             auto * thisObj = s.thisObject();
+    //             NapiHelper::_postSyncMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1, se::Value* res) -> void {
+    //                 se::ScriptEngine::getInstance()->clearException();
+    //                 se::AutoHandleScope hs;
+    //                 CC_UNUSED bool ok = true;
+    //                 se::ValueArray args;
+    //                 args.resize(2);
+    //                 ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+    //                 CC_ASSERT(ok);
+    //                 args[1] = larg1;
+    //                 //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
+    //                 //se::Value rval;
+    //                 se::Object* funcObj = jsFunc.toObject();
+    //                 bool succeed = funcObj->call(args, thisObj, res);
+    //                 if (!succeed) {
+    //                     se::ScriptEngine::getInstance()->clearException();
+    //                 }
+    //             };
+    //         }
+    //     } while(false);
+    //     return true;
+    // }
+    // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    // return false;
+    return nullptr;
 }
-SE_BIND_FUNC(js_set_PostSyncMessage2UIThreadCallback);
 
 // NAPI Interface
 napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
+    CC_LOG_INFO("cjh getContext ...");
     napi_status status;
     napi_value  exports;
     size_t      argc = 1;
@@ -137,6 +163,7 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 
     if (argc != 1) {
+        CC_LOG_INFO("cjh getContext Wrong number of arguments ...");
         napi_throw_type_error(env, NULL, "Wrong number of arguments");
         return nullptr;
     }
@@ -144,9 +171,11 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
     napi_valuetype valuetype;
     status = napi_typeof(env, args[0], &valuetype);
     if (status != napi_ok) {
+        CC_LOG_INFO("cjh getContext napi_typeof ...");
         return nullptr;
     }
     if (valuetype != napi_number) {
+        CC_LOG_INFO("cjh getContext napi_number ...");
         napi_throw_type_error(env, NULL, "Wrong arguments");
         return nullptr;
     }
@@ -154,6 +183,7 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
     int64_t value;
     NAPI_CALL(env, napi_get_value_int64(env, args[0], &value));
     NAPI_CALL(env, napi_create_object(env, &exports));
+    CC_LOG_INFO("cjh getContext value: %d", (int)value);
     switch (value) {
         case APP_LIFECYCLE: {
             // Register app lifecycle
@@ -183,11 +213,12 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
         case WORKER_INIT: {
-            se::ScriptEngine::setEnv(env);
+//            se::ScriptEngine::setEnv(env);
+            CC_LOG_INFO("cjh getContext WORKER_INIT ...");
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("workerInit", NapiHelper::napiWorkerInit),
-                DECLARE_NAPI_FUNCTION("setPostMessageFunction", _SE(js_set_PostMessage2UIThreadCallback)),
-                DECLARE_NAPI_FUNCTION("setPostSyncMessageFunction", _SE(js_set_PostSyncMessage2UIThreadCallback)),
+                DECLARE_NAPI_FUNCTION("setPostMessageFunction", js_set_PostMessage2UIThreadCallback),
+                DECLARE_NAPI_FUNCTION("setPostSyncMessageFunction", js_set_PostSyncMessage2UIThreadCallback),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
@@ -221,6 +252,8 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
         default:
             LOGE("unknown type");
     }
+
+    CC_LOG_INFO("cjh getContext return ...");
     return exports;
 }
 
@@ -242,18 +275,26 @@ bool NapiHelper::exportFunctions(napi_env env, napi_value exports) {
         return false;
     }
 
+    napi_valuetype type;
+    status = napi_typeof(env, exportInstance, &type);
+    if (status == napi_ok) {
+        LOGE("exportInstance type: %{public}d", type);
+    }
+
     status = napi_unwrap(env, exportInstance, reinterpret_cast<void**>(&nativeXComponent));
     if (status != napi_ok) {
-        LOGE("napi_unwrap %d", status);
+        LOGE("napi_unwrap %{public}d", (int)status);
         return false;
     }
 
     ret = OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
     if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        LOGE("OH_NativeXComponent_GetXComponentId succeed");
         return false;
     }
 
     OpenHarmonyPlatform::getInstance()->setNativeXComponent(nativeXComponent);
+    LOGE("exportFunctions return true");
     return true;
 }
 
@@ -291,7 +332,8 @@ napi_value NapiHelper::napiOnPageHide(napi_env env, napi_callback_info info) {
 }
 
 napi_value NapiHelper::napiNativeEngineInit(napi_env env, napi_callback_info info) {
-    se::ScriptEngine::setEnv(env);
+//    se::ScriptEngine::setEnv(env);
+    CC_LOG_INFO("cjh napiNativeEngineInit ...");
     OpenHarmonyPlatform::getInstance()->run(0, nullptr);
     return nullptr;
 }
@@ -302,6 +344,7 @@ napi_value NapiHelper::napiNativeEngineStart(napi_env env, napi_callback_info in
 }
 
 napi_value NapiHelper::napiWorkerInit(napi_env env, napi_callback_info info) {
+    CC_LOG_INFO("cjh napiWorkerInit ...");
     uv_loop_t* loop = nullptr;
     NAPI_CALL(env, napi_get_uv_event_loop(env, &loop));
     OpenHarmonyPlatform::getInstance()->workerInit(env, loop);

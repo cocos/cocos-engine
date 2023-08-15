@@ -173,7 +173,7 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
     void*             window          = nullptr;
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
-
+    CC_LOG_INFO("cjh onMessageCallback ...");
     while (true) {
         //loop until all msg dispatch
         if (!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
@@ -189,14 +189,17 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 delete ev;
                 ev = nullptr;
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
+                CC_LOG_INFO("cjh onMessageCallback WM_XCOMPONENT_SURFACE_CREATED ...");
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
                 CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceCreated(nativexcomponet, msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
+                CC_LOG_INFO("cjh onMessageCallback WM_XCOMPONENT_SURFACE_CHANGED ...");
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
                 CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceChanged(nativexcomponet, msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
+                CC_LOG_INFO("cjh onMessageCallback WM_XCOMPONENT_SURFACE_DESTROY ...");
                 OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
                 CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceDestroyed(nativexcomponet, msgData.window);

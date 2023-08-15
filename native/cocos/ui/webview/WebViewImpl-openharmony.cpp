@@ -258,74 +258,74 @@ void OpenHarmonyWebView::GetInterfaces(std::vector<napi_property_descriptor> &de
 }
 
 napi_value OpenHarmonyWebView::napiShouldStartLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::shouldStartLoading(viewTag, url);
+//    size_t      argc = 2;
+//    napi_value  args[2];
+//    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+//
+//    se::ValueArray seArgs;
+//    seArgs.reserve(2);
+//    se::internal::jsToSeArgs(argc, args, &seArgs);
+//
+//    int32_t viewTag;
+//    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+//
+//    std::string url;
+//    sevalue_to_native(seArgs[1], &url, nullptr);
+//    WebViewImpl::shouldStartLoading(viewTag, url);
     return nullptr;
 }
 
 napi_value OpenHarmonyWebView::napiFinishLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::didFinishLoading(viewTag, url);
+//    size_t      argc = 2;
+//    napi_value  args[2];
+//    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+//
+//    se::ValueArray seArgs;
+//    seArgs.reserve(2);
+//    se::internal::jsToSeArgs(argc, args, &seArgs);
+//
+//    int32_t viewTag;
+//    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+//
+//    std::string url;
+//    sevalue_to_native(seArgs[1], &url, nullptr);
+//    WebViewImpl::didFinishLoading(viewTag, url);
     return nullptr;
 }
 
 napi_value OpenHarmonyWebView::napiFailLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::didFailLoading(viewTag, url);
+//    size_t      argc = 2;
+//    napi_value  args[2];
+//    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+//
+//    se::ValueArray seArgs;
+//    seArgs.reserve(2);
+//    se::internal::jsToSeArgs(argc, args, &seArgs);
+//
+//    int32_t viewTag;
+//    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+//
+//    std::string url;
+//    sevalue_to_native(seArgs[1], &url, nullptr);
+//    WebViewImpl::didFailLoading(viewTag, url);
     return nullptr;
 }
 
 napi_value OpenHarmonyWebView::napiJsCallback(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::onJsCallback(viewTag, url);
+//    size_t      argc = 2;
+//    napi_value  args[2];
+//    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+//
+//    se::ValueArray seArgs;
+//    seArgs.reserve(2);
+//    se::internal::jsToSeArgs(argc, args, &seArgs);
+//
+//    int32_t viewTag;
+//    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+//
+//    std::string url;
+//    sevalue_to_native(seArgs[1], &url, nullptr);
+//    WebViewImpl::onJsCallback(viewTag, url);
     return nullptr;
 }
 
