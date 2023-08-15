@@ -481,7 +481,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     #if XR_OEM_PICO
     std::string graphicsApiName = GraphicsApiOpenglES;
         #if CC_USE_VULKAN
-    graphicsApiName = GraphicsApiVulkan_1_0;
+    graphicsApiName = GraphicsApiVulkan_1_1;
         #endif
     xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
