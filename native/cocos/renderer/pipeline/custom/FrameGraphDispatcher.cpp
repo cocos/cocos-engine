@@ -1491,12 +1491,12 @@ bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const Resour
     }
 
     // full check
-     std::for_each(targets.begin(), targets.end(), [&](const ccstd::pmr::string &target) {
-         ResourceNode &resNode = rag.movedTargetStatus[target];
-         resNode.full |= std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
-             return textureNode.full;
-         });
-     });
+    std::for_each(targets.begin(), targets.end(), [&](const ccstd::pmr::string &target) {
+        ResourceNode &resNode = rag.movedTargetStatus[target];
+        resNode.full |= std::all_of(resNode.planes.begin(), resNode.planes.end(), [](const auto &textureNode) {
+            return textureNode.full;
+        });
+    });
 
     return check;
 }
