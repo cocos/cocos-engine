@@ -447,7 +447,6 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             (attrs || initAttrs())[`${propertyNamePrefix}editorOnly`] = true;
         }
     }
-    // parseSimpleAttr('preventDeferredLoad');
     if (DEV) {
         parseSimpleAttribute('displayName');
         parseSimpleAttribute('displayOrder');
