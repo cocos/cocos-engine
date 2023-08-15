@@ -24,9 +24,9 @@ export class BloomPass extends SettingPass {
         return enable;
     }
 
-    name = 'BloomPass'
+    name = 'BloomPass';
     effectName = 'pipeline/post-process/bloom';
-    outputNames = ['BloomColor']
+    outputNames = ['BloomColor'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);

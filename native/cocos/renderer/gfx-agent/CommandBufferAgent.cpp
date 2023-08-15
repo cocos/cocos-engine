@@ -199,6 +199,35 @@ void CommandBufferAgent::endRenderPass() {
         });
 }
 
+void CommandBufferAgent::insertMarker(const MarkerInfo &marker) {
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferInsertMarker,
+        actor, getActor(),
+        marker, marker,
+        {
+            actor->insertMarker(marker);
+        });
+}
+
+void CommandBufferAgent::beginMarker(const MarkerInfo &marker) {
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferBeginMarker,
+        actor, getActor(),
+        marker, marker,
+        {
+            actor->beginMarker(marker);
+        });
+}
+
+void CommandBufferAgent::endMarker() {
+    ENQUEUE_MESSAGE_1(
+        _messageQueue, CommandBufferEndMarker,
+        actor, getActor(),
+        {
+            actor->endMarker();
+        });
+}
+
 void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 

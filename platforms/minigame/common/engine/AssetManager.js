@@ -165,46 +165,6 @@ function downloadAsset (url, options, onComplete) {
     download(url, doNothing, options, options.onFileProgress, onComplete);
 }
 
-const downloadCCON = (url, options, onComplete) => {
-    downloadJson(url, options, (err, json) => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
-        const cconPreface = cc.internal.parseCCONJson(json);
-        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
-            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
-                if (errChunk) {
-                    reject(errChunk);
-                } else {
-                    resolve(new Uint8Array(chunkBuffer));
-                }
-            });
-        })));
-        chunkPromises.then((chunks) => {
-            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
-            onComplete(null, ccon);
-        }).catch((err) => {
-            onComplete(err);
-        });
-    });
-};
-
-const downloadCCONB = (url, options, onComplete) => {
-    downloadArrayBuffer(url, options, (err, arrayBuffer) => {
-        if (err) {
-            onComplete(err);
-            return;
-        }
-        try {
-            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
-            onComplete(null, ccon);
-        } catch (err) {
-            onComplete(err);
-        }
-    });
-};
-
 function downloadBundle (nameOrUrl, options, onComplete) {
     const bundleName = cc.path.basename(nameOrUrl);
     const version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
@@ -361,9 +321,6 @@ downloader.register({
     '.woff': downloadAsset,
     '.svg': downloadAsset,
     '.ttc': downloadAsset,
-
-    '.ccon': downloadCCON,
-    '.cconb': downloadCCONB,
 
     // Txt
     '.txt': downloadAsset,

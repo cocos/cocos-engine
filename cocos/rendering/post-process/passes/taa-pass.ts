@@ -86,7 +86,7 @@ const SampleOffsets = {
 export class TAAPass extends SettingPass {
     get setting (): TAA { return getSetting(TAA); }
 
-    name = 'TAAPass'
+    name = 'TAAPass';
     effectName = 'pipeline/post-process/taa';
     outputNames = ['TAA_First', 'TAA_Second'];
 

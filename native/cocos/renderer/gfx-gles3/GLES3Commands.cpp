@@ -2564,6 +2564,24 @@ void cmdFuncGLES3MemoryBarrier(GLES3Device * /*device*/, GLbitfield barriers, GL
     if (barriersByRegion) GL_CHECK(glMemoryBarrierByRegion(barriersByRegion));
 }
 
+void cmdFuncGLES3InsertMarker(GLES3Device *device, GLsizei length, const char *marker) {
+    if (device->constantRegistry()->debugMarker) {
+        glInsertEventMarkerEXT(length, marker);
+    }
+}
+
+void cmdFuncGLES3PushGroupMarker(GLES3Device *device, GLsizei length, const char *marker) {
+    if (device->constantRegistry()->debugMarker) {
+        glPushGroupMarkerEXT(length, marker);
+    }
+}
+
+void cmdFuncGLES3PopGroupMarker(GLES3Device *device) {
+    if (device->constantRegistry()->debugMarker) {
+        glPopGroupMarkerEXT();
+    }
+}
+
 static void uploadBufferData(GLenum target, GLintptr offset, GLsizeiptr length, const void *buffer) {
 #if 0
     GL_CHECK(glBufferSubData(target, offset, length, buffer));

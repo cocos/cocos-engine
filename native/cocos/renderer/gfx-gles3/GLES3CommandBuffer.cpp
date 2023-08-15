@@ -139,6 +139,15 @@ void GLES3CommandBuffer::nextSubpass() {
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
+void GLES3CommandBuffer::insertMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES3CommandBuffer::beginMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES3CommandBuffer::endMarker() {
+}
+
 void GLES3CommandBuffer::bindPipelineState(PipelineState *pso) {
     GLES3GPUPipelineState *gpuPipelineState = static_cast<GLES3PipelineState *>(pso)->gpuPipelineState();
     if (_curGPUPipelineState != gpuPipelineState) {

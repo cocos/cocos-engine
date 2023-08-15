@@ -313,6 +313,10 @@ void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info)
 
 void cmdFuncGLES3MemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
 
+void cmdFuncGLES3InsertMarker(GLES3Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES3PushGroupMarker(GLES3Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES3PopGroupMarker(GLES3Device *device);
+
 GLint cmdFuncGLES3GetMaxSampleCount(const GLES3Device *device, Format format, TextureUsage usage, TextureFlags flags);
 
 } // namespace gfx
