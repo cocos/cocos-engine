@@ -1143,12 +1143,12 @@ export class MeshRenderer extends ModelRenderer {
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
-            cclegacy.internal.reflectionProbeManager.selectBakedReflectionProbe(this._model);
+            cclegacy.internal.reflectionProbeManager.selectReflectionProbe(this._model);
             if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, false)) {
                 warnID(16302);
             }
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
+            cclegacy.internal.reflectionProbeManager.selectPlanarReflectionProbe(this._model);
             if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, true)) {
                 warnID(16302);
             }

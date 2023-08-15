@@ -65,22 +65,26 @@ export class ReflectionProbeManager {
     set updateForRuntime (val: boolean) {
         this._updateForRuntime = val;
     }
+
     get updateForRuntime (): boolean {
         return this._updateForRuntime;
     }
 
+    /**
+     * @engineInternal
+     */
     public registerEvent (): void {
         if (!this._registeredEvent) {
             cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
             this._registeredEvent = true;
         }
     }
+
     /**
-     * @en refresh all reflection probe
-     * @zh 刷新所有反射探针
+     * @en Refresh all reflection probe.
+     * @zh 刷新所有反射探针。
      */
-    public onUpdateProbes (forceUpdate = false): void {
-        if (!EDITOR && !this._updateForRuntime) return;
+    public onUpdateProbes (): void {
         if (this._probes.length === 0) return;
         const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
@@ -90,51 +94,19 @@ export class ReflectionProbeManager {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             if (!model.node) continue;
-            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && (model.node.hasChangedFlags || forceUpdate)) {
+            if (model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) {
                 if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP || this._isUsedBlending(model)) {
-                    this.selectBakedReflectionProbe(model);
+                    this.selectReflectionProbe(model);
                 } else if (model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
-                    this.updateUsePlanarModels(model);
+                    this.selectPlanarReflectionProbe(model);
                 }
             }
         }
     }
 
     /**
-     * @en Selecting the appropriate reflection probe for the model, it will use the closest one based on distance.
-     * @zh 为模型选择适用的反射探针，会使用距离最近的。
-     * @param model select for this model
-     */
-    public selectBakedReflectionProbe (model: Model): void {
-        if (model.node && model.worldBounds && ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK))) {
-            model.updateWorldBound();
-            const nearest = this._getNearestProbe(model);
-            if (!nearest) {
-                //not in the range of any probe,set default texture for the model
-                this._updateCubemapOfModel(model, null);
-                this._useCubeModels.delete(model);
-            } else if (this._useCubeModels.has(model)) {
-                const old = this._useCubeModels.get(model);
-                // if used other probe,reset texture
-                if (old !== nearest) {
-                    this._useCubeModels.set(model, nearest);
-                }
-                nearest.needRefresh = true;
-            } else {
-                this._useCubeModels.set(model, nearest);
-                nearest.needRefresh = true;
-            }
-        }
-
-        for (let i = 0; i < this._probes.length; i++) {
-            if ((this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) || this._isUsedBlending(model)) {
-                this.updateBakedCubemap(this._probes[i]);
-            }
-        }
-    }
-
-    /**
-     * @engineInternal
+     * @en filter models that use planar reflection.
+     * @zh 筛选使用平面反射的模型
      */
     public filterModelsForPlanarReflection (): void {
         if (this._probes.length === 0) return;
@@ -147,7 +119,7 @@ export class ReflectionProbeManager {
             const model = models[i];
             if (!model.node) continue;
             if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
-                this.updateUsePlanarModels(model);
+                this.selectPlanarReflectionProbe(model);
             }
         }
     }
@@ -219,14 +191,16 @@ export class ReflectionProbeManager {
     }
 
     /**
-     * @engineInternal
+     * @en Get all reflection probes in the scene.
+     * @zh 获取场景中所有的反射探针
      */
     public getProbes (): ReflectionProbe[] {
         return this._probes;
     }
 
     /**
-     * @engineInternal
+     * @en Get reflection probe by id.
+     * @zh 根据id获取反射探针
      */
     public getProbeById (probeId: number): ReflectionProbe | null {
         for (let i = 0; i < this._probes.length; i++) {
@@ -304,7 +278,7 @@ export class ReflectionProbeManager {
      * @param probe update the model for reflection probe
      * @engineInternal
      */
-    public updateUsePlanarModels (model: Model): void {
+    public selectPlanarReflectionProbe (model: Model): void {
         if (!model.node || !model.worldBounds || model.reflectionProbeType !== ReflectionProbeType.PLANAR_REFLECTION) return;
         for (let i = 0; i < this._probes.length; i++) {
             const probe = this._probes[i];
@@ -330,6 +304,39 @@ export class ReflectionProbeManager {
                 } else {
                     this.updatePlanarMap(this._probes[i], this._probes[i].realtimePlanarTexture!.getGFXTexture());
                 }
+            }
+        }
+    }
+
+    /**
+     * @en Selecting the appropriate reflection probe for the model, it will use the closest one based on distance.
+     * @zh 为模型选择适用的反射探针，会使用距离最近的。
+     * @param model select for this model
+     */
+    public selectReflectionProbe (model: Model): void {
+        if (model.node && model.worldBounds && ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK))) {
+            model.updateWorldBound();
+            const nearest = this._getNearestProbe(model);
+            if (!nearest) {
+                //not in the range of any probe,set default texture for the model
+                this._updateCubemapOfModel(model, null);
+                this._useCubeModels.delete(model);
+            } else if (this._useCubeModels.has(model)) {
+                const old = this._useCubeModels.get(model);
+                // if used other probe,reset texture
+                if (old !== nearest) {
+                    this._useCubeModels.set(model, nearest);
+                }
+                nearest.needRefresh = true;
+            } else {
+                this._useCubeModels.set(model, nearest);
+                nearest.needRefresh = true;
+            }
+        }
+
+        for (let i = 0; i < this._probes.length; i++) {
+            if ((this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) || this._isUsedBlending(model)) {
+                this.updateBakedCubemap(this._probes[i]);
             }
         }
     }
@@ -552,14 +559,14 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                this.selectBakedReflectionProbe(key);
+                this.selectReflectionProbe(key);
             }
         }
         for (const key of this._usePlanarModels.keys()) {
             const p = this._usePlanarModels.get(key);
             if (p !== undefined && p === probe) {
                 this._usePlanarModels.delete(key);
-                this.updateUsePlanarModels(key);
+                this.selectPlanarReflectionProbe(key);
             }
         }
     }

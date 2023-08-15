@@ -114,7 +114,7 @@ export class ReflectionProbe extends Component {
         absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
@@ -263,7 +263,7 @@ export class ReflectionProbe extends Component {
     set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
-        ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        ReflectionProbeManager.probeManager.onUpdateProbes();
     }
 
     get cubemap (): TextureCube | null {
@@ -312,7 +312,7 @@ export class ReflectionProbe extends Component {
 
     public onLoad (): void {
         this._createProbe();
-        if (Editor) {
+        if (EDITOR) {
             ReflectionProbeManager.probeManager.registerEvent();
         }
     }
@@ -325,7 +325,7 @@ export class ReflectionProbe extends Component {
                 this._probe.updateProbeId(this._probeId);
             }
             ReflectionProbeManager.probeManager.register(this._probe);
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             this._probe.enable();
         }
         this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged, this);
@@ -390,7 +390,7 @@ export class ReflectionProbe extends Component {
     private _onProbeTransformChanged (type: TransformBit): void {
         this.probe.updateBoundingBox();
         if (type & Node.TransformBit.POSITION) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
