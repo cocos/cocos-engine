@@ -9,7 +9,6 @@
   ],
   "module": "index.js",
   "scripts": {
-    "server": "http-server . -p 8002 -o playground/index.html",
     "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
@@ -64,7 +63,6 @@
     "gulp-sequence": "^1.0.0",
     "gulp-uglify": "^3.0.2",
     "gulp-zip": "^5.0.2",
-    "http-server": "^0.12.3",
     "jest": "^28.0.2",
     "jest-environment-jsdom": "^28.0.2",
     "jest-extended": "^1.1.0",

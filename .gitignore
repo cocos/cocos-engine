@@ -15,7 +15,6 @@ node_modules
 npm-debug.log
 DebugInfos.json
 /rollup/out
-playground/library
 /declarations
 3d-api-docs
 scripts/build-engine/node_modules

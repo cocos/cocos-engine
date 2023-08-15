@@ -26,13 +26,6 @@
             ]
         },
         {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome",
-            "url": "http://localhost:8002/playground/simple.html",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
             "name": "Unit Test",
             "type": "node",
             "request": "launch",
