@@ -184,6 +184,17 @@ exports.setHidden = function(data, element) {
     }
 };
 
+exports.getMessageProtocolNodeScene = function(element) {
+    while (element) {
+        element = element.parentElement || element.getRootNode().host;
+        if (element && element.messageProtocol) {
+            return element.messageProtocol.scene;
+        }
+    }
+
+    return 'scene';
+};
+
 exports.updatePropByDump = function(panel, dump) {
     panel.dump = dump;
 

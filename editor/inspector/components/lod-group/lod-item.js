@@ -1,6 +1,7 @@
 'use strict';
 
 const { trackEventWithTimer } = require('../../utils/metrics');
+const { getMessageProtocolNodeScene } = require('../../utils/prop');
 
 exports.template = `
 <ui-section :cache-expand="cacheExpandId">
@@ -162,7 +163,7 @@ exports.methods = {
     },
     async applyCameraSize() {
         const that = this;
-        let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
+        let size = await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
             const min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100) || 0;
             let max = null;
