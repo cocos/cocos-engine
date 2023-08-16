@@ -693,7 +693,10 @@ export class RenderCommonObjectPool {
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): DescriptorBlockIndex {
         const v = this._descriptorBlockIndex.add();
-        v.reset(updateFrequency, parameterType, descriptorType, visibility);
+        v.updateFrequency = updateFrequency;
+        v.parameterType = parameterType;
+        v.descriptorType = descriptorType;
+        v.visibility = visibility;
         return v;
     }
     createResolvePair (
