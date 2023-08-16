@@ -51,7 +51,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // depth-based shading
         this.addPass(new HBAOPass());
 
-        // float output related processing: hdr + fog
+        // float output related deferred processing: hdr + fog
         this.addPass(new FloatOutputProcessPass());
 
         // transparency should after hdr and depth-based shading
