@@ -24,7 +24,7 @@
 
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
-import { js, cclegacy, markAsWarning } from '../../core';
+import { js, cclegacy } from '../../core';
 /**
  * Alias of [[SkinnedMeshRenderer]]
  * @deprecated Since v1.2
