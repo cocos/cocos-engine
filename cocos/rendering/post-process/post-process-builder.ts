@@ -19,7 +19,7 @@ import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
 import { Camera as CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, FloatOutputDeferredPass, ForwardTransparencyPass,
+import { BloomPass, ColorGradingPass, FloatOutputProcessPass, ForwardTransparencyPass,
     ForwardTransparencySimplePass, FxaaPass, SkinPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
@@ -52,7 +52,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new HBAOPass());
 
         // float output related processing: hdr + fog
-        this.addPass(new FloatOutputDeferredPass());
+        this.addPass(new FloatOutputProcessPass());
 
         // transparency should after hdr and depth-based shading
         // temporary ignore CC_USE_FLOAT_OUTPUT

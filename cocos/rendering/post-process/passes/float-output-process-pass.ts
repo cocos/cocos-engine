@@ -32,10 +32,10 @@ import { passContext } from '../utils/pass-context';
 import { SettingPass } from './setting-pass';
 import { Root } from '../../../root';
 
-export class FloatOutputDeferredPass extends SettingPass {
-    name = 'FloatOutputDeferredPass';
-    effectName = 'pipeline/float-output-deferred';
-    outputNames = ['FloatOutputDeferred'];
+export class FloatOutputProcessPass extends SettingPass {
+    name = 'FloatOutputProcessesPass';
+    effectName = 'pipeline/float-output-processes';
+    outputNames = ['FloatOutputProcesses'];
 
     enableInAllEditorCamera = true;
     enable = true;

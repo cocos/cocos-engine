@@ -9,7 +9,7 @@ export * from './bloom-pass';
 export * from './fxaa-pass';
 export * from './forward-final-pass';
 export * from './shadow-pass';
-export * from './float-output-deferred-pass';
+export * from './float-output-process-pass';
 export * from './forward-transparency-pass';
 export * from './forward-transparency-simple-pass';
 export * from './skin-pass';
