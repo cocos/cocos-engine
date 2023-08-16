@@ -184,7 +184,7 @@ exports.setHidden = function(data, element) {
     }
 };
 
-exports.getMessageProtocolNodeScene = function(element) {
+exports.getMessageProtocolScene = function(element) {
     while (element) {
         element = element.parentElement || element.getRootNode().host;
         if (element && element.messageProtocol) {

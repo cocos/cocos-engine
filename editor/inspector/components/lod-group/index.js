@@ -5,7 +5,7 @@ const { join } = require('path');
 const lodItem = require('./lod-item');
 const multiLodGroup = require('./multi-lod-group');
 const { trackEventWithTimer } = require('../../utils/metrics');
-const { getMessageProtocolNodeScene } = require('../../utils/prop');
+const { getMessageProtocolScene } = require('../../utils/prop');
 
 module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
@@ -237,7 +237,7 @@ exports.ready = function() {
             },
             recalculateBounds() {
                 const that = this;
-                Editor.Message.send(getMessageProtocolNodeScene(that.$el), 'execute-component-method', {
+                Editor.Message.send(getMessageProtocolScene(that.$el), 'execute-component-method', {
                     uuid: that.dump.value.uuid.value,
                     name: 'recalculateBounds',
                     args: [],
@@ -246,7 +246,7 @@ exports.ready = function() {
             },
             resetObjectSize() {
                 const that = this;
-                Editor.Message.send(getMessageProtocolNodeScene(that.$el), 'execute-component-method', {
+                Editor.Message.send(getMessageProtocolScene(that.$el), 'execute-component-method', {
                     uuid: that.dump.value.uuid.value,
                     name: 'resetObjectSize',
                     args: [],
@@ -265,18 +265,18 @@ exports.ready = function() {
                     }
                     const preValue = LODs[index].value.screenUsagePercentage.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
-                    const undoID = await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'begin-recording', uuid);
-                    await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'lod-insert', uuid, index + 1, (preValue + nextValue) / 2, null);
-                    await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'end-recording', undoID);
+                    const undoID = await Editor.Message.request(getMessageProtocolScene(that.$el), 'begin-recording', uuid);
+                    await Editor.Message.request(getMessageProtocolScene(that.$el), 'lod-insert', uuid, index + 1, (preValue + nextValue) / 2, null);
+                    await Editor.Message.request(getMessageProtocolScene(that.$el), 'end-recording', undoID);
                     trackEventWithTimer('LOD', 'A100005');
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    const undoID = await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'begin-recording', uuid);
-                    await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'lod-erase', uuid, index);
-                    await Editor.Message.request(getMessageProtocolNodeScene(that.$el), 'end-recording', undoID);
+                    const undoID = await Editor.Message.request(getMessageProtocolScene(that.$el), 'begin-recording', uuid);
+                    await Editor.Message.request(getMessageProtocolScene(that.$el), 'lod-erase', uuid, index);
+                    await Editor.Message.request(getMessageProtocolScene(that.$el), 'end-recording', undoID);
                     trackEventWithTimer('LOD', 'A100006');
                 }
             },

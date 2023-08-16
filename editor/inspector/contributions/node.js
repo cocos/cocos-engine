@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const Profile = require('@base/electron-profile');
 const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
@@ -529,19 +530,20 @@ const Elements = {
 
             Editor.Message.addBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
 
-            panel.__messageProtocolChanged__ = async function() {
-                await panel.__messageProtocolQuery__();
+            panel.__throttleProfileChanged__ = throttle(async (protocol, file, key) => {
+                if (protocol === 'defaultPreferences' && file === 'packages/inspector.json' && key === 'message-protocol') {
+                    await panel.__queryMessageProtocolScene__();
 
-                for (const prop in Elements) {
-                    const element = Elements[prop];
-                    if (element.update) {
-                        await element.update.call(panel);
+                    for (const prop in Elements) {
+                        const element = Elements[prop];
+                        if (element.update) {
+                            await element.update.call(panel);
+                        }
                     }
                 }
-            };
+            }, 100, { leading: false, trailing: true });
 
-            Editor.Message.addBroadcastListener('messages:protocol-change', panel.__messageProtocolChanged__);
-
+            Profile.on('change', panel.__throttleProfileChanged__);
 
             // 识别拖入脚本资源
             panel.$.container.addEventListener('dragover', (event) => {
@@ -644,7 +646,10 @@ const Elements = {
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
-            Editor.Message.removeBroadcastListener('messages:protocol-change', panel.__messageProtocolChanged__);
+
+            Profile.removeListener('change', panel.__throttleProfileChanged__);
+            panel.__throttleProfileChanged__.cancel();
+            panel.__throttleProfileChanged__ = undefined;
         },
     },
     prefab: {
@@ -2130,18 +2135,21 @@ exports.ready = async function ready() {
     panel.snapshotLock = false;
 
     // 节点的 ipc 协议，指向 scene 或 xr-scene 等进程
-    panel.__messageProtocolQuery__ = async function() {
+    panel.__queryMessageProtocolScene__ = async function() {
         try {
             if (!panel.messageProtocol) {
                 panel.messageProtocol = messageProtocol;
             }
-            messageProtocol.scene = await Editor.Message.request('messages', 'query-protocol', 'NodeScene');
+            const config = await await Editor.Profile.getConfig('inspector', 'message-protocol');
+            if (config) {
+                Object.assign(messageProtocol, config);
+            }
         } catch (error) {
             console.error(error);
             messageProtocol.scene = 'scene';
         }
     };
-    await panel.__messageProtocolQuery__();
+    await panel.__queryMessageProtocolScene__();
 
     for (const prop in Elements) {
         const element = Elements[prop];

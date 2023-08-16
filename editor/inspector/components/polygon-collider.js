@@ -1,5 +1,5 @@
 const { template, $, update, close } = require('./base');
-const { getMessageProtocolNodeScene } = require('../utils/prop');
+const { getMessageProtocolScene } = require('../utils/prop');
 
 exports.template = template;
 exports.$ = $;
@@ -28,11 +28,11 @@ exports.ready = function() {
                     event.stopPropagation();
 
                     const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
-                    const undoID = await Editor.Message.request(getMessageProtocolNodeScene(this.$this), 'begin-recording', uuids);
+                    const undoID = await Editor.Message.request(getMessageProtocolScene(this.$this), 'begin-recording', uuids);
                     for (const uuid of uuids) {
-                        await Editor.Message.request(getMessageProtocolNodeScene(this.$this), 'regenerate-polygon-2d-points', uuid);
+                        await Editor.Message.request(getMessageProtocolScene(this.$this), 'regenerate-polygon-2d-points', uuid);
                     }
-                    await Editor.Message.request(getMessageProtocolNodeScene(this.$this), 'end-recording', undoID);
+                    await Editor.Message.request(getMessageProtocolScene(this.$this), 'end-recording', undoID);
                 });
             },
         },
