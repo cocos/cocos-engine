@@ -63,6 +63,7 @@ CCEffect %{
     - &reflect-map
       vert: standard-vs
       frag: reflect-map-fs
+      pass: reflect-map
       phase: reflect-map
       propertyIndex: 0
     - &deferred-forward

@@ -45,6 +45,7 @@ CCEffect %{
     - &reflect-map
       vert: terrain-vs
       frag: reflect-map-fs
+      pass: reflect-map
       phase: reflect-map
       propertyIndex: 0
     - vert: terrain-vs
