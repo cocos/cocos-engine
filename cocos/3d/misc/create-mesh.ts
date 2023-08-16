@@ -712,137 +712,59 @@ export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
         }
     };
 
-    const primitives = mesh.struct.primitives;
-    let subMeshes = primitives.map((oriPrimitive, idx): Mesh.ICreateInfo | undefined => {
-        const primitive = JSON.parse(JSON.stringify(oriPrimitive));
-        let data: Uint8Array | undefined;
-        let vertexBundles: Mesh.IVertexBundle [] = [];
-        if (primitive.primitiveMode === PrimitiveMode.TRIANGLE_LIST) {
-            if (!primitive.indexView) {
-                console.warn(`Submesh ${idx} has no index buffer, encode optimization is not supported.`);
-                return undefined;
-            }
-            if (primitive.vertexBundelIndices.length === 1) {
-                const bundle = mesh.struct.vertexBundles[primitive.vertexBundelIndices[0]];
-                const vertexView = bundle.view;
-                const vertexBuffer = new Uint8Array(mesh.data.buffer, vertexView.offset, vertexView.length);
-                const vertexCount = vertexView.count;
-                const vertexStride = vertexView.stride;
-                const indexView = primitive.indexView;
-                const indexBuffer = new Uint8Array(mesh.data.buffer, indexView.offset, indexView.length);
-                const indexCount = indexView.count;
-                let destIndexBuffer: Uint8Array;
-                let res = 0;
-                if (indexView.stride === 4) { // support 32bit index
-                    const indexBound = indexView.count * indexView.stride;
-                    destIndexBuffer = new Uint8Array(indexBound);
-                    res = MeshoptDecoder.decodeIndexBuffer(destIndexBuffer, indexView.count, indexView.stride, indexBuffer);
-                    res_checker(res);
-                } else if (indexView.stride === 2) { // 16 bit index, but impossible for now, since 16 bit index is not supported
-                    const indexBuffer16 = new Uint16Array(mesh.data.buffer, indexView.offset, indexCount);
-                    const indexBuffer32 = new Uint32Array(indexCount);
-                    for (let i = 0; i < indexCount; ++i) {
-                        indexBuffer32[i] = indexBuffer16[i];
-                    }
-                    const indexBound = indexView.count * indexView.stride;
-                    destIndexBuffer = new Uint8Array(indexBound);
-                    res = MeshoptDecoder.decodeIndexBuffer(destIndexBuffer, indexView.count, indexView.stride, indexBuffer32);
-                    res_checker(res);
-                } else {
-                    console.warn(`Submesh ${idx} has unsupported index stride, Only 16bit and 32bit index buffer are supported.`);
-                    return undefined;
-                }
+    const struct = JSON.parse(JSON.stringify(mesh.struct));
 
-                const vertexBound = vertexView.count * vertexView.stride;
-                const destVertexBuffer = new Uint8Array(vertexBound);
-                res = MeshoptDecoder.decodeVertexBuffer(destVertexBuffer, vertexView.count, vertexView.stride, vertexBuffer);
-                res_checker(res);
+    const bufferBlob = new BufferBlob();
+    bufferBlob.setNextAlignment(0);
 
-                data = new Uint8Array(destIndexBuffer.byteLength + destVertexBuffer.byteLength);
-                data.set(destIndexBuffer);
-                data.set(destVertexBuffer, destIndexBuffer.byteLength);
+    for (const bundle of struct.vertexBundles) {
+        const view = bundle.view;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const vertex = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeVertexBuffer(buffer, view.count, view.stride, vertex);
+        res_checker(res);
 
-                vertexBundles = [{
-                    view: {
-                        offset: destIndexBuffer.byteLength,
-                        length: destVertexBuffer.byteLength,
-                        count: vertexCount,
-                        stride: vertexStride,
-                    },
-                    attributes: mesh.struct.vertexBundles[primitive.vertexBundelIndices[0]].attributes,
-                }];
-
-                primitive.indexView = {
-                    offset: 0,
-                    length: destIndexBuffer.byteLength,
-                    count: indexCount,
-                    stride: Uint32Array.BYTES_PER_ELEMENT,
-                };
-                primitive.vertexBundelIndices = [0];
-            } else if (primitive.vertexBundelIndices.length > 1) {
-                console.warn(`Submesh ${idx} has more than one vertex bundle, encode optimization is not supported.`);
-                return undefined;
-            } else {
-                console.warn(`Submesh ${idx} has no vertex bundle, encode optimization is not supported.`);
-                return undefined;
-            }
-        } else if (primitive.primitiveMode === PrimitiveMode.POINT_LIST) {
-            if (primitive.vertexBundelIndices.length === 1) {
-                const vertexView = mesh.struct.vertexBundles[primitive.vertexBundelIndices[0]].view;
-                const vertexCount = vertexView.count;
-                const vertexSize = vertexView.stride;
-                const vertexBuffer = new Uint8Array(mesh.data.buffer, vertexView.offset, vertexView.length);
-
-                let res = 0;
-                const vertexBound = vertexView.count * vertexView.stride;
-                const destVertexBuffer = new Uint8Array(vertexBound);
-                res = MeshoptDecoder.decodeVertexBuffer(destVertexBuffer, vertexView.count, vertexView.stride, vertexBuffer);
-                res_checker(res);
-                data = new Uint8Array(destVertexBuffer.buffer, 0, vertexBound); // shrink buffer size
-
-                vertexBundles = [{
-                    view: {
-                        offset: 0,
-                        length: destVertexBuffer.byteLength,
-                        count: vertexCount,
-                        stride: vertexSize,
-                    },
-                    attributes: mesh.struct.vertexBundles[primitive.vertexBundelIndices[0]].attributes,
-                }];
-
-                primitive.vertexBundelIndices = [0];
-            } else {
-                console.warn(`Submesh ${idx} has unsupported primitive mode ${primitive.primitiveMode}, encode optimization is not supported.`);
-                return undefined;
-            }
-        }
-        const struct = JSON.parse(JSON.stringify(mesh.struct));
-
-        struct.primitives = [primitive];
-        struct.vertexBundles = vertexBundles;
-
-        if (struct.encoded) {
-            delete struct.encoded;
-        }
-
-        if (data) {
-            return {
-                struct,
-                data,
-            };
-        }
-
-        return undefined;
-    });
-
-    subMeshes = subMeshes.filter((mesh) => mesh !== undefined).map((mesh) => mesh!);
-
-    if (subMeshes.length > 0) {
-        mesh = mergeMeshes(subMeshes.map((mesh) => mesh!));
-        delete mesh.struct.encoded;
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        bundle.view = newView;
+        bufferBlob.addBuffer(buffer);
     }
 
-    return mesh;
+    for (const primitive of struct.primitives) {
+        if (primitive.indexView === undefined) {
+            continue;
+        }
+
+        const view = primitive.indexView;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const index = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeIndexBuffer(buffer, view.count, view.stride, index);
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        primitive.indexView = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    const data = new Uint8Array(bufferBlob.getCombined());
+
+    return {
+        struct,
+        data,
+    };
 }
 
 export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {

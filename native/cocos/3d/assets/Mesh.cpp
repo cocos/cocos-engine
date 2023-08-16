@@ -102,7 +102,13 @@ DataReaderCallback getReader(const DataView &dataView, gfx::Format format) {
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getFloat32(offset); };
+            switch (stride) {
+                case 2: return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getUint16(offset); };
+                case 4: return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getFloat32(offset); };
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;
@@ -159,7 +165,13 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, ccstd::get<float>(value)); };
+            switch (stride) {
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, ccstd::get<uint16_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, ccstd::get<float>(value)); };
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;
@@ -295,6 +307,7 @@ void Mesh::initialize() {
 
     if (_struct.compressed) {
         // decompress
+        //auto &[_struct, _data] = inflateMesh({_struct, _data});
     }
     if (_struct.encoded) {
         // decode
@@ -1308,7 +1321,13 @@ TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t coun
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return Float32Array(count);
+            switch (stride) {
+                case 2: return Uint16Array(count);
+                case 4: return Float32Array(count);
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;

@@ -34,10 +34,6 @@
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 
-namespace {
-const ccstd::string CC_MESH_QUANTIZED = "CC_MESH_QUANTIZED";
-}
-
 namespace cc {
 namespace scene {
 
@@ -150,7 +146,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
 
     _subMesh = subMesh;
     ccstd::vector<IMacroPatch> tmp = patches;
-    tmp.push_back({CC_MESH_QUANTIZED, subMesh->getMesh()->getStruct().quantized ? true : false});
     std::sort(tmp.begin(), tmp.end(), IMacroPatch::compare);
     _patches = tmp;
     _passes = pPasses;

@@ -1441,7 +1441,12 @@ function getReader (dataView: DataView, format: Format): ((offset: number) => nu
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number): number => dataView.getFloat32(offset, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }
@@ -1491,7 +1496,12 @@ function getWriter (dataView: DataView, format: Format): ((offset: number, value
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number, value: number): void => dataView.setFloat32(offset, value, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }

@@ -143,4 +143,20 @@ describe('Test Utils', () => {
         expect(Utils.absMax(1, -3)).toBeCloseTo(-3);
         expect(Utils.absMax(0, 3)).toBeCloseTo(3);
     });
+
+
+    test('halfToFloat', () => {
+        const half = new Uint16Array(1);
+        const float = new Float32Array(1);
+        const back = new Uint16Array(1);
+
+        // random number
+        let seed = 1;
+        for (let i = 0; i < 100; i++) {
+            float[0] = Utils.pseudoRandomRange(seed, -10000, 10000);
+            half[0] = Utils.floatToHalf(float[0]);
+            back[0] = Utils.halfToFloat(half[0]);
+            expect(float[0]).toBeCloseTo(back[0]);
+        }
+    });
 });

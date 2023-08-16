@@ -27,7 +27,7 @@ import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
     Format, FormatInfos, MemoryUsageBit, PrimitiveMode, DrawInfo,
 } from '../../gfx';
-import { Vec3, cclegacy } from '../../core';
+import { Vec3, approx, cclegacy, floatToHalf, halfToFloat, pseudoRandomRange } from '../../core';
 import { Mesh } from '../../3d/assets/mesh';
 
 /**
@@ -193,34 +193,45 @@ export class RenderingSubMesh {
             return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
         }
         const { mesh } = this; const index = this.subMeshIdx;
-        const positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
-        const indices = mesh.readIndices(index) as Uint16Array;
+        const pAttri = this.attributes.find((element) => element.name === AttributeName.ATTR_POSITION);
+        if (!pAttri) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+
+        let positions: Float32Array | undefined;
+        if (pAttri.format === Format.RGB32F || pAttri.format === Format.RGBA32F) {
+            positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
+        } else {
+            // convert half to float
+            const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
+            positions = new Float32Array(data.length);
+            for (let i = 0; i < data.length; ++i) {
+                positions[i] = halfToFloat(data[i]);
+            }
+        }
+        const indices = mesh.readIndices(index) || undefined;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find((element): boolean => element.name === AttributeName.ATTR_POSITION);
-        if (pAttri) {
-            const conut = FormatInfos[pAttri.format].count;
+
+        const conut = FormatInfos[pAttri.format].count;
+        if (conut === 2) {
+            max.set(positions[0], positions[1], 0);
+            min.set(positions[0], positions[1], 0);
+        } else {
+            max.set(positions[0], positions[1], positions[2]);
+            min.set(positions[0], positions[1], positions[2]);
+        }
+        for (let i = 0; i < positions.length; i += conut) {
             if (conut === 2) {
-                max.set(positions[0], positions[1], 0);
-                min.set(positions[0], positions[1], 0);
+                max.x = positions[i] > max.x ? positions[i] : max.x;
+                max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                min.x = positions[i] < min.x ? positions[i] : min.x;
+                min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
             } else {
-                max.set(positions[0], positions[1], positions[2]);
-                min.set(positions[0], positions[1], positions[2]);
-            }
-            for (let i = 0; i < positions.length; i += conut) {
-                if (conut === 2) {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                } else {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                    min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
-                }
+                max.x = positions[i] > max.x ? positions[i] : max.x;
+                max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
+                min.x = positions[i] < min.x ? positions[i] : min.x;
+                min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
             }
         }
         this._geometricInfo = { positions, indices, boundingBox: { max, min } };

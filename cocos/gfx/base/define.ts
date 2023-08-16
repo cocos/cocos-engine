@@ -2367,7 +2367,11 @@ export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstruct
         }
     }
     case FormatType.FLOAT: {
-        return Float32Array;
+        switch (stride) {
+        case 2: return Uint16Array;
+        case 4: return Float32Array;
+        default: return Float32Array;
+        }
     }
     default:
     }

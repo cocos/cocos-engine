@@ -43,8 +43,6 @@ export interface IInstancedAttributeBlock {
     attributes: Attribute[];
 }
 
-const CC_MESH_QUANTIZED = 'CC_MESH_QUANTIZED';
-
 /**
  * @en A sub part of the model, it describes how to render a specific sub mesh.
  * It contains geometry information in [[RenderingSubMesh]] and all sort of rendering configuration like shaders, macro patches, passes etc.
@@ -234,11 +232,7 @@ export class SubModel {
         }
 
         this._subMesh = subMesh;
-        const quantizeMacroPatches: IMacroPatch[] = [
-            { name: CC_MESH_QUANTIZED, value: subMesh.mesh?.struct.quantized || false },
-        ];
-        this._patches = patches ? quantizeMacroPatches.concat(patches) : quantizeMacroPatches;
-        this._patches = this._patches.sort();
+        this._patches = patches ? patches.sort() : null;
         this._passes = passes;
 
         this._flushPassInfo();

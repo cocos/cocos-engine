@@ -91,7 +91,9 @@ public:
     /**
      * 
      */
-    static Mesh::ICreateInfo inflateMesh(const Mesh::ICreateInfo mesh);
+    static Mesh::ICreateInfo inflateMesh(const Mesh::ICreateInfo &mesh);
+
+    static Mesh::ICreateInfo decodeMesh(const Mesh::ICreateInfo &mesh);
 };
 
 } // namespace cc

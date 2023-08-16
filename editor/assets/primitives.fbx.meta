@@ -6,7 +6,7 @@
   "files": [],
   "subMetas": {
     "17020": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@17020",
       "displayName": "",
       "id": "17020",
@@ -15,7 +15,7 @@
         "gltfIndex": 4,
         "triangleCount": 2380
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -24,7 +24,7 @@
       "subMetas": {}
     },
     "801ec": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@801ec",
       "displayName": "",
       "id": "801ec",
@@ -33,7 +33,7 @@
         "gltfIndex": 0,
         "triangleCount": 2048
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -42,7 +42,7 @@
       "subMetas": {}
     },
     "2e76e": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@2e76e",
       "displayName": "",
       "id": "2e76e",
@@ -51,7 +51,7 @@
         "gltfIndex": 1,
         "triangleCount": 200
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -60,7 +60,7 @@
       "subMetas": {}
     },
     "38fd2": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@38fd2",
       "displayName": "",
       "id": "38fd2",
@@ -69,7 +69,7 @@
         "gltfIndex": 2,
         "triangleCount": 72
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -78,7 +78,7 @@
       "subMetas": {}
     },
     "40ece": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@40ece",
       "displayName": "",
       "id": "40ece",
@@ -87,7 +87,7 @@
         "gltfIndex": 3,
         "triangleCount": 2048
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -96,7 +96,7 @@
       "subMetas": {}
     },
     "fc873": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@fc873",
       "displayName": "",
       "id": "fc873",
@@ -105,7 +105,7 @@
         "gltfIndex": 5,
         "triangleCount": 2
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -114,7 +114,7 @@
       "subMetas": {}
     },
     "8abdc": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@8abdc",
       "displayName": "",
       "id": "8abdc",
@@ -123,7 +123,7 @@
         "gltfIndex": 6,
         "triangleCount": 128
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
@@ -132,7 +132,7 @@
       "subMetas": {}
     },
     "a804a": {
-      "importer": "*",
+      "importer": "gltf-mesh",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@a804a",
       "displayName": "",
       "id": "a804a",
@@ -141,7 +141,7 @@
         "gltfIndex": 7,
         "triangleCount": 12
       },
-      "ver": "1.0.0",
+      "ver": "1.1.1",
       "imported": true,
       "files": [
         ".bin",
