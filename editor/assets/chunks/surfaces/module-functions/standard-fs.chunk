@@ -89,10 +89,10 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
 #if CC_SURFACES_LIGHTING_SHEEN
   // skip in shader graph, need extra code
-  vec3 sheenParams = SurfacesFragmentModifySheenParams();
+  vec4 sheenParams = SurfacesFragmentModifySheenParams();
   surfaceData.roughness2ndSpecular = saturate(sheenParams.x);
   surfaceData.ior2ndSpecular = sheenParams.y;
-  surfaceData.intensity2ndSpecular = sheenParams.z;
+  surfaceData.intensity2ndSpecular = sheenParams.z * sheenParams.w;
   surfaceData.metallic2ndSpecular = 1.0;
   surfaceData.baseColor2ndSpecular = SurfacesFragmentModifySheenColor();
   surfaceData.color2ndSpecular = vec3(1.0); // no extra coloration

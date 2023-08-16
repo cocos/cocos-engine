@@ -217,12 +217,13 @@ vec3 SurfacesFragmentModifyClearCoatWorldNormal()
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
 // depends on CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
-vec3 SurfacesFragmentModifySheenParams()
+vec4 SurfacesFragmentModifySheenParams()
 {
     //x: sheen roughness
     //y: sheen ior
     //z: sheen opacity
-    return vec3(0.7, 1.0, 1.0);
+    //w: sheen intensity
+    return vec4(0.7, 1.0, 1.0, 1.0);
 }
 #endif
 

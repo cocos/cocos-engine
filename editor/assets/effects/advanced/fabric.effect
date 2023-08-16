@@ -29,7 +29,7 @@ CCEffect %{
         sheenRoughness:                   { value: 1.0, target: emissiveScaleParam.x, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         sheenIOR:                         { value: 1.0, target: emissiveScaleParam.y, editor: { slide: true, range: [1.0, 2.0], step: 0.001 } }
         sheenOpacity:                     { value: 1.0, target: emissiveScaleParam.z, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        sheenMap:                         { value: white, editor: { parent: USE_SHEEN_MAP, tooltips: 'r: sheen roughness  b: sheen opacity' } }
+        sheenMap:                         { value: white, editor: { parent: USE_SHEEN_MAP, tooltips: 'r: sheen roughness  g: sheen opacity' } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -221,14 +221,13 @@ CCProgram surface-fragment %{
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
-  vec3 SurfacesFragmentModifySheenParams()
+  vec4 SurfacesFragmentModifySheenParams()
   {
+    vec4 param = vec4(emissiveScaleParam.x, emissiveScaleParam.y - 0.9, emissiveScaleParam.z, 1.0);
     #if USE_SHEEN_MAP
-      //
-      return texture(sheenMap, FSInput_texcoord).xyz;
-    #else
-      return vec3(emissiveScaleParam.x, emissiveScaleParam.y - 0.9, emissiveScaleParam.z);
+      param.xz *= texture(sheenMap, FSInput_texcoord).xy;
     #endif
+    return param;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
