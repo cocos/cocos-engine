@@ -16,25 +16,20 @@ CCEffect %{
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        addOnShadowBias:                  { value: 0.0, target: emissiveScaleParam.z }
-        coatRoughness:                    { value: 0.05, target: coatParam.x, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
-        coatIOR:                          { value: 1.0, target: coatParam.y, editor: { slide : true, range : [1.0, 1.5] , step : 0.0001 } }
-        coatOpacity:                      { value: 1.0, target: coatParam.z, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
-        coatIntensity:                    { value: 1.0, target: coatParam.w, editor: { slide : true, range : [0.0, 3.0] , step : 0.0001 } }
-        coatColor:                        { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { displayName: CoatColor, type: color } }
-        flakeDensity:                     { value: 0.5, target: flakeParam.x, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
-        flakeColorIntensity:              { value: 0.2, target: flakeParam.y, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
-        flakeTiling:                      { value: 10.0, target: flakeParam.z, editor: { parent: USE_FLAKE, slide: true, range: [1.0, 100.0], step: 0.001 } }
-        coatNormalStrength:               { value: 0.1, target: flakeParam.w, editor: { parent: USE_FLAKE, slide: true, range: [0, 1.0], step: 0.001 } }
-        gradientColor:                    { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { parent: USE_GRADIENT_COLOR, type: color } }
-        gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
+        anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
+        anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
+        anisotropyMapResolutionHeight:    { value: 0.0, target: anisotropyParam.w, editor: { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
+        addOnShadowBias:                  { value: 0.0, target: anisotropyParam.z }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
-        coatDataMap:                      { value: white, editor: { parent: USE_COAT_DATA_MAP, tooltip: 'r: Coat Roughness g: Coat Specular Intensity b: Coat Opacity.' } }
-        coatNormalMap:                    { value: normal, editor: { parent: USE_FLAKE } }
-        flakeDataMap:                     { value: white, editor: { parent: USE_FLAKE } }
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
+        anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY } }
+        sheenColor:                       { value: [1.0, 1.0, 1.0, 1.0], linear: true, editor: { type: color } }
+        sheenRoughness:                   { value: 1.0, target: emissiveScaleParam.x, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        sheenIOR:                         { value: 1.0, target: emissiveScaleParam.y, editor: { slide: true, range: [1.0, 2.0], step: 0.001 } }
+        sheenOpacity:                     { value: 1.0, target: emissiveScaleParam.z, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        sheenMap:                         { value: white, editor: { parent: USE_SHEEN_MAP, tooltips: 'r: sheen roughness  b: sheen opacity' } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -131,11 +126,9 @@ CCProgram shared-ubos %{
     vec4 albedo;
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
+    vec4 sheenColor;
     vec4 emissiveScaleParam;
-    vec4 coatParam;
-    vec4 coatColor;
-    vec4 flakeParam;
-    vec4 gradientColor;
+    vec4 anisotropyParam;
   };
 }%
 
@@ -143,25 +136,29 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
+  #pragma define-meta IS_ANISOTROPY
   #pragma define-meta USE_VERTEX_COLOR
-  #pragma define-meta USE_FLAKE
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-  #define CC_SURFACES_LIGHTING_CLEAR_COAT 1
+  #define CC_SURFACES_LIGHTING_SHEEN 1
 
   // depend on UI macros
-#if USE_NORMAL_MAP || USE_FLAKE
+#if IS_ANISOTROPY || USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE 1
 #endif
+
+  // functionality for each effect
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
 }%
 
 CCProgram surface-vertex %{
   #define CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
   vec2 SurfacesVertexModifyShadowBias(in SurfacesStandardVertexIntermediate In, vec2 originShadowBias)
   {
-    return originShadowBias + vec2(emissiveScaleParam.z, 0.0);
+    return originShadowBias + vec2(anisotropyParam.z, 0.0);
   }
 
   #define CC_SURFACES_VERTEX_MODIFY_UV
@@ -190,12 +187,11 @@ CCProgram surface-fragment %{
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
   #endif
-  #if USE_FLAKE
-    uniform sampler2D coatNormalMap;
-    uniform sampler2D flakeDataMap;
+  #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+    uniform sampler2D anisotropyMap;
   #endif
-  #if USE_COAT_DATA_MAP
-    uniform sampler2D coatDataMap;
+  #if USE_SHEEN_MAP
+    uniform sampler2D sheenMap;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -207,89 +203,37 @@ CCProgram surface-fragment %{
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
-  vec4 SurfacesFragmentModifyClearCoatParams()
+  #define CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
+  vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
   {
-    vec4 params = vec4(coatParam.x, coatParam.y - 0.99, coatParam.z, coatParam.w * 2.0);
-    #if USE_COAT_DATA_MAP
-      vec4 coatData = texture(coatDataMap, FSInput_texcoord);
-      params *= vec4(coatData.r, 1.0, coatData.b, coatData.g);
+    float anisotropyRotation = anisotropyParam.y * PI;
+    float anisotropyShape = anisotropyParam.x;
+    #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+      // Rotation angle should disable trilinear filtering
+      vec4 tex = texture(anisotropyMap, DEFAULT_UV);
+      anisotropyRotation = fract(anisotropyRotation * 0.5 + tex.y) * PI2;
+      // less value is better for SP exported shape
+      anisotropyShape *= tex.x;
     #endif
-    return params;
+
+    isRotation = 1.0;
+    return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR
-  vec3 SurfacesFragmentModifyClearCoatColor()
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
+  vec3 SurfacesFragmentModifySheenParams()
   {
-      return coatColor.xyz;
+    #if USE_SHEEN_MAP
+      return texture(sheenMap, FSInput_texcoord).xyz;
+    #else
+      return vec3(emissiveScaleParam.x, emissiveScaleParam.y - 0.9, emissiveScaleParam.z);
+    #endif
   }
 
-  #if USE_FLAKE
-    vec4 sampleFlakeData(vec2 uv)
-    {
-        vec4 blurred = texture(flakeDataMap, uv);
-        vec4 detailed = fragTextureLod(flakeDataMap, uv, 1.0);
-        return lerp(blurred, detailed, 0.3);
-    }
-    vec4 sampleFlakeNormal(vec2 uv)
-    {
-        vec4 blurred = texture(coatNormalMap, uv);
-        vec4 detailed = fragTextureLod(coatNormalMap, uv, 1.0);
-        return lerp(blurred, detailed, 0.3);
-    }
-  #endif
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_WORLD_NORMAL
-  vec3 SurfacesFragmentModifyClearCoatWorldNormal()
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
+  vec3 SurfacesFragmentModifySheenColor()
   {
-    vec3 normal = FSInput_worldNormal;
-    #if USE_FLAKE
-      float density = flakeParam.x, densityMin = 0.25, flakeTiling = flakeParam.z;
-      vec2 uv = FSInput_texcoord * flakeTiling;
-      vec4 data = sampleFlakeData(uv);
-      vec3 nmmp = (sampleFlakeNormal(uv).xyz - vec3(0.5)) * 2.0;
-      float C = (data.a - 1.0) / density + 1.0;
-      float bumpIntensity = saturate(max(densityMin, C));
-      nmmp = lerp(vec3(0.0, 0.0, 1.0), nmmp, bumpIntensity);
-      normal = CalculateNormalFromTangentSpace(nmmp, flakeParam.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
-    #endif
-
-    return normalize(normal);
-  }
-
-  #include <common-functions>
-
-
-  #include <surfaces/data-structures/standard>
-  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
-  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
-  {
-    #if USE_GRADIENT_COLOR
-      vec3 viewDir = normalize(cc_cameraPos.xyz - surfaceData.worldPos);
-      float NoVSat = saturate(dot(surfaceData.worldNormal, viewDir));
-      surfaceData.baseColor.rgb = lerp(gradientColor, surfaceData.baseColor, pow(NoVSat, emissiveScaleParam.y)).rgb;
-    #endif
-
-    #if USE_FLAKE
-      float density = flakeParam.x, flakeColorIntensity = flakeParam.y, flakeTiling = flakeParam.z;
-      vec2 uv = FSInput_texcoord * flakeTiling;
-
-      vec4 data = sampleFlakeData(uv);
-      float C = (data.a - 1.0) / density + 1.0;
-      float flakeTintWeight = 1.0;
-      float flakeWeight = saturate(C) * flakeTintWeight * flakeColorIntensity;
-
-      // color
-      vec4 flakeA = vec4(0.972,0.96,0.915,1);
-      vec4 flakeB = vec4(1.0,0.78,0.344,1);
-      vec4 flakeColor = lerp(flakeA, flakeB, data.r);
-      
-      vec4 color = surfaceData.baseColor;
-      color = lerp(color, flakeColor, flakeWeight);
-      color = lerp(surfaceData.baseColor, color, surfaceData.metallic);
-      surfaceData.baseColor = color;
-      surfaceData.roughness *= lerp(1.0, 0.5, flakeWeight);
-    #endif
+      return vec3(1.0, 1.0, 1.0);
   }
 }%
 

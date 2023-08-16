@@ -215,6 +215,25 @@ vec3 SurfacesFragmentModifyClearCoatWorldNormal()
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHEEN_PARAMS
+vec3 SurfacesFragmentModifySheenParams()
+{
+    //x: sheen roughness
+    //y: sheen ior
+    //z: sheen opacity
+    return vec3(0.7, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
+vec3 SurfacesFragmentModifySheenColor()
+{
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 // depends on CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 // some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
