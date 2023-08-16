@@ -26,7 +26,9 @@ import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue, RealCurve } from '../core';
+import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat,
+    Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue, RealCurve,
+} from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { Node } from '../scene-graph/node';
@@ -790,9 +792,9 @@ export class AnimationClip extends Asset {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     } = {
-        ratios: [],
-        eventGroups: [],
-    };
+            ratios: [],
+            eventGroups: [],
+        };
 
     private _createEvalWithBinder (target: unknown, binder: Binder, rootMotionOptions: RootMotionOptions | undefined): AnimationClipEvaluation {
         if (this._legacyDataDirty) {
@@ -1039,12 +1041,14 @@ class TrackEvalStatus<TValue> {
     constructor (binding: RuntimeBinding<TValue>, trackEval: TrackEval<TValue>) {
         this._binding = binding;
         this._trackEval = trackEval;
+        this._shouldEvaluateDefault = !!binding.getValue && trackEval.requiresDefault;
     }
 
     public evaluate (time: number): void {
         const { _binding: binding, _trackEval: trackEval } = this;
-        const defaultValue = binding.getValue && trackEval.requiresDefault
-            ? binding.getValue() as TValue extends unknown ? unknown : Readonly<TValue>
+        const defaultValue = this._shouldEvaluateDefault
+            // See `this._shouldEvaluateDefault` for the assertion.
+            ? (binding.getValue!)() as TValue extends unknown ? unknown : Readonly<TValue>
             : undefined;
         const value = trackEval.evaluate(time, defaultValue);
         binding.setValue(value);
@@ -1052,6 +1056,7 @@ class TrackEvalStatus<TValue> {
 
     private _binding: RuntimeBinding<TValue>;
     private _trackEval: TrackEval<TValue>;
+    private _shouldEvaluateDefault = true;
 }
 
 interface AnimationClipEvalContext {
@@ -1450,7 +1455,7 @@ class RootMotionEvaluation {
 }
 
 function relativeTransform (out: Mat4, from: Mat4, to: Mat4): void {
-Mat4.invert(out, from);
+    Mat4.invert(out, from);
     Mat4.multiply(out, to, out);
 }
 
@@ -1533,7 +1538,7 @@ class EventEvaluator {
         }
     }
 
-    public reset () {
+    public reset (): void {
         this._lastFrameIndex = -1;
         this._lastIterations = 0.0;
         this._lastDirection = 0;
