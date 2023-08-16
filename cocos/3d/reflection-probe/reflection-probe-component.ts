@@ -379,13 +379,13 @@ export class ReflectionProbe extends Component {
             }
         }
 
-        if (EDITOR) {
-            if (this.node.hasChangedFlags) {
-                this.probe.updateBoundingBox();
-                ReflectionProbeManager.probeManager.onUpdateProbes();
-            }
+        if (this.node.hasChangedFlags & TransformBit.POSITION) {
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.onUpdateProbes();
+            ReflectionProbeManager.probeManager.updateProbeData();
         }
 
+        //update probe info for realtime
         const worldPos = this.node.getWorldPosition();
         if (!this._position.equals(worldPos)) {
             this._position = worldPos;
