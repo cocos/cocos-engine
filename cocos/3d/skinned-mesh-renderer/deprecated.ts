@@ -46,11 +46,3 @@ js.setClassAlias(SkinnedMeshUnit, 'cc.SkinningModelUnit');
 export { SkinnedMeshBatchRenderer as BatchedSkinningModelComponent };
 cclegacy.BatchedSkinningModelComponent = SkinnedMeshBatchRenderer;
 js.setClassAlias(SkinnedMeshBatchRenderer, 'cc.BatchedSkinningModelComponent');
-
-// deprecate SkinnedMeshRenderer API
-markAsWarning(SkinnedMeshRenderer.prototype, 'SkinnedMeshRenderer.prototype', [
-    {
-        name: 'setMaterial',
-        suggest: 'please use SkinnedMeshRenderer.setSharedMaterial instead.',
-    },
-]);

@@ -146,6 +146,13 @@ export class Renderer extends Component {
     }
 
     /**
+     * @deprecated Since v3.8.1, please use [[setSharedMaterial]] instead.
+     */
+    public setMaterial (material: Material | null, index: number): void {
+        this.setSharedMaterial(material, index);
+    }
+
+    /**
      * @en Get the shared material asset of the specified sub-model.
      * @zh 获取指定子模型的共享材质资源。
      */
