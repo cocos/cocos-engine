@@ -145,7 +145,7 @@ export class CharacterController extends Eventify(Component) {
         if (this._skinWidth === value) return;
         this._skinWidth = Math.abs(value);
         if (this._cct) {
-            this._cct.setContactOffset(value);
+            this._cct.setContactOffset(Math.max(0.0001, value));
         }
     }
 
@@ -232,11 +232,11 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _minMoveDistance = 0.001; //[ 0, infinity ]
     @serializable
-    private _stepOffset = 1.0;
+    private _stepOffset = 0.5;
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _skinWidth = 0.01;
+    private _skinWidth = 0.01; //[ 0.0001, infinity ]
     // @serializable
     // private _detectCollisions = true;
     // @serializable
@@ -307,8 +307,11 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Sets world position of center.
+     * Note: Calling this function will immediately synchronize the position of 
+     * the character controller in the physics world to the node.
      * @zh
      * 设置中心的世界坐标。
+     * 注意：调用该函数会立刻将角色控制器在物理世界中的位置同步到节点上。
      */
     public set centerWorldPosition (value: Readonly<Vec3>) {
         if (this._isInitialized) this._cct!.setPosition(value);
@@ -317,8 +320,10 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Gets the velocity.
+     * Note: velocity is only updated after move() is called.
      * @zh
      * 获取速度。
+     * 注意：velocity 只会在 move() 调用后更新。
      */
     public get velocity (): Readonly<Vec3> {
         return this._velocity;
@@ -327,8 +332,10 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Gets whether the character is on the ground.
+     * Note: isGrounded is only updated after move() is called.
      * @zh
      * 获取是否在地面上。
+     * 注意：isGrounded 只会在 move() 调用后更新。
      */
     public get isGrounded (): boolean {
         return this._cct!.onGround();
@@ -351,6 +358,8 @@ export class CharacterController extends Eventify(Component) {
 
         this._currentPos.set(this.centerWorldPosition);
         this._velocity = this._currentPos.subtract(this._prevPos).multiplyScalar(1.0 / elapsedTime);
+
+        this._cct?.syncPhysicsToScene();
     }
 
     /// EVENT INTERFACE ///
