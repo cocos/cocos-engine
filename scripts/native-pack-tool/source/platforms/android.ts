@@ -253,7 +253,7 @@ export class AndroidPackTool extends NativePackTool {
             const instant = await fnParseXml(instantManifestPath);
             await fnUpdateOrientation(instant.data);
             await fnUpdateResizeableActivity(instant.data);
-            await fnUpdateMaxAspectRation(app.data);
+            await fnUpdateMaxAspectRation(instant.data);
             await fnUpdateCategory(instant.data);
             await instant.save();
         }
