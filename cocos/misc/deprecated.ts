@@ -60,6 +60,13 @@ markAsWarning(Renderer.prototype, 'Renderer.prototype', [
     },
 ]);
 
+markAsWarning(Renderer.prototype, 'Renderer.prototype', [
+    {
+        name: 'setMaterial',
+        suggest: 'please use renderer.setSharedMaterial instead.',
+    },
+]);
+
 /**
  * Alias of [[Camera]]
  * @deprecated Since v1.2
