@@ -548,7 +548,9 @@ static bool js_spine_Slot_getAttachment(se::State& s) {
 
     spine::Attachment *attachment = slot->getAttachment();
     if (attachment) {
-        native_ptr_to_seval<spine::Attachment>(attachment, &s.rval());
+        se::Value ret;
+        nativevalue_to_se(attachment, ret, s.thisObject());
+        s.rval().setObject(ret.toObject());
         return true;
     }
     return false;
