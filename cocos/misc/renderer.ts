@@ -223,7 +223,7 @@ export class Renderer extends Component {
         // Skip identity check if it's a Material property
         // Or if there is a MaterialInstance already
         if (matInst !== this._materials[index] || curInst) {
-            this.setMaterial(matInst as Material, index);
+            this.setSharedMaterial(matInst as Material, index);
         }
     }
 

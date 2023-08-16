@@ -24,7 +24,7 @@
 
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
-import { js, cclegacy } from '../../core';
+import { js, cclegacy, markAsWarning } from '../../core';
 /**
  * Alias of [[SkinnedMeshRenderer]]
  * @deprecated Since v1.2
@@ -46,3 +46,11 @@ js.setClassAlias(SkinnedMeshUnit, 'cc.SkinningModelUnit');
 export { SkinnedMeshBatchRenderer as BatchedSkinningModelComponent };
 cclegacy.BatchedSkinningModelComponent = SkinnedMeshBatchRenderer;
 js.setClassAlias(SkinnedMeshBatchRenderer, 'cc.BatchedSkinningModelComponent');
+
+// deprecate SkinnedMeshRenderer API
+markAsWarning(SkinnedMeshRenderer.prototype, 'SkinnedMeshRenderer.prototype', [
+    {
+        name: 'setMaterial',
+        suggest: 'please use SkinnedMeshRenderer.setSharedMaterial instead.',
+    },
+]);
