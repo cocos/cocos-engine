@@ -230,8 +230,6 @@ public:
     inline RenderScene *getScene() const { return _scene; }
     inline void setDynamicBatching(bool val) { _isDynamicBatching = val; }
     inline bool isDynamicBatching() const { return _isDynamicBatching; }
-    inline void setBlend(bool val) { _isBlend = val; }
-    inline bool isBlend() const { return _isBlend; }
     inline float getShadowBias() const { return _shadowBias.x; }
     inline float getShadowNormalBias() const { return _shadowBias.y; }
     inline Vec4 getShadowBiasParam() const { return _shadowBias; }
@@ -294,7 +292,6 @@ protected:
     bool _castShadow{false};
     bool _receiveShadow{false};
     bool _isDynamicBatching{false};
-    bool _isBlend{false};
     bool _inited{false};
     bool _localDataUpdated{false};
     bool _worldBoundsDirty{true};

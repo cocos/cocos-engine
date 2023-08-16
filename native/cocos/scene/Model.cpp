@@ -110,7 +110,6 @@ void Model::destroy() {
     _transform = nullptr;
     _node = nullptr;
     _isDynamicBatching = false;
-    _isBlend = false;
 }
 
 void Model::updateTransform(uint32_t stamp) {
@@ -471,11 +470,6 @@ bool Model::supportGPUScene(index_t subModelIndex) const {
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *sceneData = pipeline->getPipelineSceneData();
     if (!sceneData || !sceneData->isGPUDrivenEnabled()) {
-        return false;
-    }
-
-    // skip transparent object
-    if (isBlend()) {
         return false;
     }
 

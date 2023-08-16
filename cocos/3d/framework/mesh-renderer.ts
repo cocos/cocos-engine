@@ -1005,11 +1005,6 @@ export class MeshRenderer extends ModelRenderer {
             return false;
         }
 
-        // skip transparent object
-        if (this._isBlend()) {
-            return false;
-        }
-
         // skip light probe object
         if (this.node.mobility === MobilityMode.Movable && this.bakeSettings.useLightProbe) {
             return false;
@@ -1028,7 +1023,6 @@ export class MeshRenderer extends ModelRenderer {
         this.node.hasChangedFlags |= TransformBit.POSITION;
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
-        this._model.isBlend = this._isBlend();
         const meshCount = this._mesh ? this._mesh.renderingSubMeshes.length : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
@@ -1108,7 +1102,6 @@ export class MeshRenderer extends ModelRenderer {
     public _onRebuildPSO (idx: number, material: Material): void {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
-        this._model.isBlend = this._isBlend();
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
         this._onUpdateLocalShadowBiasAndProbeId();
@@ -1222,16 +1215,6 @@ export class MeshRenderer extends ModelRenderer {
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
                 if (pass.batchingScheme) { return true; }
-            }
-        }
-        return false;
-    }
-
-    protected _isBlend (): boolean {
-        for (let i = 0; i < this._materials.length; ++i) {
-            const mat = this._materials[i];
-            if (mat && mat.isBlend('default')) {
-                return true;
             }
         }
         return false;
