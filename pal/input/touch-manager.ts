@@ -125,6 +125,14 @@ class TouchManager {
     }
 
     /**
+     * Get the number of touches.
+     * @returns
+     */
+    public getTouchCount (): number {
+        return this._touchMap.size;
+    }
+
+    /**
      * Update the location and previous location of current touch ID.
      * @param touchID
      * @param x The current location X
