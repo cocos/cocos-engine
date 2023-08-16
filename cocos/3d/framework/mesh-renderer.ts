@@ -1073,6 +1073,7 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalReflectionProbeData();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     protected _onMeshChanged (old: Mesh | null): void {
     }
 
