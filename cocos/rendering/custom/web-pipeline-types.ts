@@ -1,12 +1,12 @@
+import { RecyclePool, UpdateRecyclePool } from '../../core';
 import { CommandBuffer, DescriptorSet, Device, PipelineState, RenderPass, deviceManager } from '../../gfx';
-import { RenderScene } from '../../render-scene';
-import { Camera, Light, LightType, Model, SubModel } from '../../render-scene/scene';
+import { LightType, Model, SubModel } from '../../render-scene/scene';
 import { SetIndex } from '../define';
 import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { SceneFlags } from './types';
 
-export class DrawInstance {
+export class DrawInstance extends UpdateRecyclePool {
     subModel: SubModel | null;
     priority: number;
     hash: number;
@@ -22,6 +22,22 @@ export class DrawInstance {
         shaderID = 0,
         passIndex = 0,
     ) {
+        super();
+        this.subModel = subModel;
+        this.priority = priority;
+        this.hash = hash;
+        this.depth = depth;
+        this.shaderID = shaderID;
+        this.passIndex = passIndex;
+    }
+    update (
+        subModel: SubModel | null = null,
+        priority = 0,
+        hash = 0,
+        depth = 0,
+        shaderID = 0,
+        passIndex = 0,
+    ): void {
         this.subModel = subModel;
         this.priority = priority;
         this.hash = hash;
@@ -30,6 +46,15 @@ export class DrawInstance {
         this.passIndex = passIndex;
     }
 }
+
+export const instancePool = new RecyclePool((
+    subModel: SubModel | null = null,
+    priority: number = 0,
+    hash: number = 0,
+    depth: number = 0,
+    shaderID: number = 0,
+    passIndex: number = 0,
+) => new DrawInstance(subModel, priority, hash, depth, shaderID, passIndex), 0);
 
 export class RenderDrawQueue {
     instances: Array<DrawInstance> = new Array<DrawInstance>();
@@ -43,7 +68,7 @@ export class RenderDrawQueue {
         const hash = (0 << 30) | (passPriority as number << 16) | (modelPriority as number << 8) | passIdx;
         const priority = model.priority;
 
-        this.instances.push(new DrawInstance(subModel, priority, hash, depth, shaderId, passIdx));
+        this.instances.push(instancePool.addWithArgs(subModel, priority, hash, depth, shaderId, passIdx));
     }
     /**
      * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -172,7 +197,7 @@ export class RenderInstancingQueue {
     }
 }
 
-export class RenderQueueDesc {
+export class RenderQueueDesc extends UpdateRecyclePool {
     culledSource: number;
     renderQueueTarget: number;
     lightType: LightType;
@@ -182,13 +207,23 @@ export class RenderQueueDesc {
         renderQueueTargetIn = 0xFFFFFFFF,
         lightTypeIn: LightType = LightType.UNKNOWN,
     ) {
+        super();
+        this.culledSource = culledSourceIn;
+        this.renderQueueTarget = renderQueueTargetIn;
+        this.lightType = lightTypeIn;
+    }
+    update (
+        culledSourceIn = 0xFFFFFFFF,
+        renderQueueTargetIn = 0xFFFFFFFF,
+        lightTypeIn: LightType = LightType.UNKNOWN,
+    ): void {
         this.culledSource = culledSourceIn;
         this.renderQueueTarget = renderQueueTargetIn;
         this.lightType = lightTypeIn;
     }
 }
 
-export class RenderQueue {
+export class RenderQueue extends UpdateRecyclePool {
     opaqueQueue: RenderDrawQueue = new RenderDrawQueue();
     transparentQueue: RenderDrawQueue = new RenderDrawQueue();
     opaqueInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
@@ -212,7 +247,7 @@ export class RenderQueue {
         instances.clear();
     }
 
-    clear (): void {
+    update (): void {
         this.opaqueQueue.instances.length = 0;
         this.transparentQueue.instances.length = 0;
         this._clearInstances(this.opaqueInstancingQueue.batches);

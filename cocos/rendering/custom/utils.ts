@@ -118,3 +118,33 @@ export function getUBOTypeCount (type: Type): number {
         return 0;
     }
 }
+
+export class ObjectPool<T, U extends any[]> {
+    // Array to store objects in the pool
+    private pool: T[] = [];
+    // Function to create new objects
+    private createFunction: (...args: U) => T;
+
+    // Constructor, takes a function to create objects as parameter
+    constructor (createFunction: (...args: U) => T) {
+        this.createFunction = createFunction;
+    }
+    // Get object from the pool, either take from the pool if available or create a new one
+    acquire (...args: U): T {
+        if (this.pool.length > 0) {
+            return this.pool.pop()!;
+        }
+        return this.createFunction(...args);
+    }
+    // Put the object back into the pool for later reuse
+    release (obj: T): void {
+        // Push the object to the end of the pool
+        if (!this.pool.includes(obj)) {
+            this.pool.push(obj);
+        }
+    }
+
+    create (...args: U): T {
+        return this.createFunction(...args);
+    }
+}

@@ -1,4 +1,4 @@
-import { Vec3, assert } from '../../core';
+import { Vec3, assert, RecyclePool, UpdateRecyclePool } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer } from '../../gfx';
 import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';
@@ -9,8 +9,23 @@ import { hashCombineStr, getSubpassOrPassID, bool } from './define';
 import { LayoutGraphData } from './layout-graph';
 import { RenderGraph, RenderGraphValue, SceneData } from './render-graph';
 import { SceneFlags } from './types';
-import { RenderQueue, RenderQueueDesc } from './web-pipeline-types';
+import { RenderQueue, RenderQueueDesc, instancePool } from './web-pipeline-types';
+import { ObjectPool } from './utils';
 
+const vec3Pool = new ObjectPool(() => new Vec3());
+const cullingKeyRecycle = new RecyclePool((
+    camera: Camera | null,
+    light: Light | null,
+    castShadows: boolean,
+    lightLevel: number,
+) => new CullingKey(camera, light, castShadows, lightLevel), 0);
+const cullingQueriesRecycle = new RecyclePool(() => new CullingQueries(), 0);
+const renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 0);
+const renderQueueDescRecycle = new RecyclePool((
+    culledSource: number,
+    renderQueueTarget: number,
+    lightType: LightType,
+) => new RenderQueueDesc(culledSource, renderQueueTarget, lightType), 0);
 function computeCullingKey (camera: Camera | null, light: Light | null, castShadows: boolean, lightLevel: number): number {
     let hashCode = 0;
     if (camera) {
@@ -52,12 +67,19 @@ function computeCullingKey (camera: Camera | null, light: Light | null, castShad
     return hashCode;
 }
 
-class CullingKey {
+class CullingKey extends UpdateRecyclePool {
     camera: Camera | null;
     light: Light | null;
     castShadows = false;
     lightLevel = 0xffffffff;
     constructor (camera: Camera | null, light: Light | null, castShadows: boolean, lightLevel: number) {
+        super();
+        this.camera = camera;
+        this.light = light;
+        this.castShadows = castShadows;
+        this.lightLevel = lightLevel;
+    }
+    update (camera: Camera | null, light: Light | null, castShadows: boolean, lightLevel: number): void {
         this.camera = camera;
         this.light = light;
         this.castShadows = castShadows;
@@ -67,10 +89,14 @@ class CullingKey {
 
 let pSceneData: PipelineSceneData;
 
-class CullingQueries {
+class CullingQueries extends UpdateRecyclePool {
     // key: hash val
     culledResultIndex: Map<number, number> = new Map<number, number>();
     cullingKeyResult: Map<number, CullingKey> = new Map<number, CullingKey>();
+    update (): void {
+        this.culledResultIndex.clear();
+        this.cullingKeyResult.clear();
+    }
 }
 
 function isNodeVisible (node: Node, visibility: number): boolean {
@@ -138,9 +164,10 @@ function computeSortingDepth (camera: Camera, model: Model): number {
     let depth = 0;
     if (model.node) {
         const  node = model.transform;
-        const tempVec3 = new Vec3();
+        const tempVec3 = vec3Pool.acquire();
         const position = Vec3.subtract(tempVec3, node.worldPosition, camera.position);
         depth = position.dot(camera.forward);
+        vec3Pool.release(tempVec3);
     }
     return depth;
 }
@@ -210,15 +237,20 @@ export class SceneCulling {
     numRenderQueues = 0;
     layoutGraph;
     renderGraph;
+    resetPool (): void {
+        cullingKeyRecycle.reset();
+        cullingQueriesRecycle.reset();
+        renderQueueRecycle.reset();
+        renderQueueDescRecycle.reset();
+        instancePool.reset();
+    }
     clear (): void {
+        this.resetPool();
         this.sceneQueries.clear();
         for (const c of this.culledResults) {
             c.length = 0;
         }
         this.culledResults.length = 0;
-        for (const q of this.renderQueues) {
-            q.clear();
-        }
         this.renderQueues.length = 0;
         this.sceneQueryIndex.clear();
         this.numCullingQueries = 0;
@@ -238,7 +270,7 @@ export class SceneCulling {
         const scene = sceneData.scene!;
         let queries = this.sceneQueries.get(scene);
         if (!queries) {
-            this.sceneQueries.set(scene, new CullingQueries());
+            this.sceneQueries.set(scene, cullingQueriesRecycle.addWithArgs());
             queries = this.sceneQueries.get(scene);
         }
         const castShadow = bool(sceneData.flags & SceneFlags.SHADOW_CASTER);
@@ -253,7 +285,7 @@ export class SceneCulling {
             this.culledResults.push([]);
         }
         queries!.culledResultIndex.set(key, soureceID);
-        queries!.cullingKeyResult.set(key, new CullingKey(sceneData.camera, sceneData.light.light, castShadow, sceneData.light.level));
+        queries!.cullingKeyResult.set(key, cullingKeyRecycle.addWithArgs(sceneData.camera, sceneData.light.light, castShadow, sceneData.light.level));
         return soureceID;
     }
 
@@ -261,7 +293,7 @@ export class SceneCulling {
         const targetID = this.numRenderQueues++;
         if (this.numRenderQueues > this.renderQueues.length) {
             assert(this.numRenderQueues === (this.renderQueues.length + 1));
-            this.renderQueues.push(new RenderQueue());
+            this.renderQueues.push(renderQueueRecycle.addWithArgs());
         }
         assert(targetID < this.renderQueues.length);
         const rq = this.renderQueues[targetID];
@@ -286,7 +318,7 @@ export class SceneCulling {
 
             const lightType = sceneData.light.light ? sceneData.light.light.type : LightType.UNKNOWN;
             // add render queue to query source
-            this.sceneQueryIndex.set(v, new RenderQueueDesc(sourceID, targetID, lightType));
+            this.sceneQueryIndex.set(v, renderQueueDescRecycle.addWithArgs(sourceID, targetID, lightType));
         }
     }
 
@@ -391,9 +423,10 @@ export class SceneCulling {
                 const node = model.node;
                 let depth = 0;
                 if (node) {
-                    const tempVec3 = new Vec3();
+                    const tempVec3 = vec3Pool.acquire();
                     Vec3.subtract(tempVec3, node.worldPosition, camera.position);
                     depth = tempVec3.dot(camera.forward);
+                    vec3Pool.release(tempVec3);
                 }
                 renderQueue.opaqueQueue.add(model, depth, 0, 0);
             }
