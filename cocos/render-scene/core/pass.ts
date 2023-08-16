@@ -546,6 +546,10 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
+        if (this._isBlend) {
+            this._defines.CC_IS_TRANSPARENCY_PASS = 1;
+        }
+
         let shader: Shader | null = null;
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const program = (cclegacy.rendering.programLib as ProgramLibrary)
@@ -564,15 +568,27 @@ export class Pass {
         return shader;
     }
 
+    protected get _isBlend (): boolean {
+        let bBlend = false;
+        for (const target of this.blendState.targets) {
+            if (target.blend) {
+                bBlend = true;
+            }
+        }
+        return bBlend;
+    }
+
     // internal use
     /**
      * @private
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public beginChangeStatesSilently (): void {}
 
     /**
      * @private
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public endChangeStatesSilently (): void {}
 
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
