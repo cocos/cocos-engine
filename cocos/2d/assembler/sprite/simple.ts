@@ -99,7 +99,7 @@ export const simple: IAssembler = {
 
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite.node.hasChangedFlags || renderData.vertDirty || sprite.node.isTransformDirty()) {
             // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
             this.updateWorldVerts(sprite, chunk);
             renderData.vertDirty = false;
