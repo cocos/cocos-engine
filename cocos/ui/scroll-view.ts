@@ -29,7 +29,7 @@ import { EventHandler as ComponentEventHandler } from '../scene-graph/component-
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
 import { errorID, logID } from '../core/platform/debug';
-import { Size, Vec2, Vec3 } from '../core/math';
+import { Size, Vec2, Vec3, approx } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
@@ -1282,8 +1282,12 @@ export class ScrollView extends ViewGroup {
                 return a;
             }, totalMovement);
 
-            out.set(totalMovement.x * (1 - this.brake) / totalTime,
-                totalMovement.y * (1 - this.brake) / totalTime, totalMovement.z);
+            out.set(
+                totalMovement.x * (1 - this.brake) / totalTime,
+                totalMovement.y * (1 - this.brake) / totalTime,
+
+                totalMovement.z,
+            );
         }
         return out;
     }
@@ -1407,12 +1411,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _dispatchEvent (event: string): void {
-        if (event === EventType.SCROLL_ENDED) {
+        if (event === EventType.SCROLL_ENDED.toString()) {
             this._scrollEventEmitMask = 0;
-        } else if (event === EventType.SCROLL_TO_TOP
-            || event === EventType.SCROLL_TO_BOTTOM
-            || event === EventType.SCROLL_TO_LEFT
-            || event === EventType.SCROLL_TO_RIGHT) {
+        } else if (event === EventType.SCROLL_TO_TOP.toString()
+            || event === EventType.SCROLL_TO_BOTTOM.toString()
+            || event === EventType.SCROLL_TO_LEFT.toString()
+            || event === EventType.SCROLL_TO_RIGHT.toString()) {
             const flag = (1 << eventMap[event]);
             if (this._scrollEventEmitMask & flag) {
                 return;
@@ -1458,7 +1462,7 @@ export class ScrollView extends ViewGroup {
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
         if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
-            if (uiTrans.height <= viewTrans.height) {
+            if (uiTrans.height < viewTrans.height || approx(uiTrans.height, viewTrans.height)) {
                 this._verticalScrollBar.hide();
             } else {
                 this._verticalScrollBar.show();
@@ -1466,7 +1470,7 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
-            if (uiTrans.width <= viewTrans.width) {
+            if (uiTrans.width < viewTrans.width || approx(uiTrans.width, viewTrans.width)) {
                 this._horizontalScrollBar.hide();
             } else {
                 this._horizontalScrollBar.show();
@@ -1876,7 +1880,7 @@ export class ScrollView extends ViewGroup {
         } else if (event instanceof EventHandle) {
             handleInputDevice = event.handleInputDevice;
         }
-        let value;
+        let value: Vec2;
         if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
