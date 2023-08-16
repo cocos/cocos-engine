@@ -68,7 +68,8 @@ const downloadArrayBuffer = (url: string, options: Record<string, any>, onComple
 };
 
 const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloader._downloadJson(url, options, (err, json): void => {
+    const mainFileName = path.mainFileName(url);
+    downloader._downloadJson(`${mainFileName}.json`, options, (err, json): void => {
         if (err) {
             onComplete(err);
             return;
@@ -93,7 +94,8 @@ const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((e
 };
 
 const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)): void => {
-    downloader._downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer): void => {
+    const mainFileName = path.mainFileName(url);
+    downloader._downloadArrayBuffer(`${mainFileName}.bin`, options, (err, arrayBuffer: ArrayBuffer): void => {
         if (err) {
             onComplete(err);
             return;
