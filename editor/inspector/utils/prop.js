@@ -184,15 +184,26 @@ exports.setHidden = function(data, element) {
     }
 };
 
+// In order to avoid a large number of operations in a short time, the function of returning the same operation result in a time period is added
+let getMessageProtocolSceneResult = '';
+let getMessageProtocolSceneStartTime = Date.now();
 exports.getMessageProtocolScene = function(element) {
+    if (getMessageProtocolSceneResult && Date.now() - getMessageProtocolSceneStartTime < 1000) {
+        return getMessageProtocolSceneResult;
+    }
+
+    getMessageProtocolSceneResult = 'scene';
+    getMessageProtocolSceneStartTime = Date.now();
+
     while (element) {
         element = element.parentElement || element.getRootNode().host;
         if (element && element.messageProtocol) {
-            return element.messageProtocol.scene;
+            getMessageProtocolSceneResult = element.messageProtocol.scene;
+            break;
         }
     }
 
-    return 'scene';
+    return getMessageProtocolSceneResult;
 };
 
 exports.updatePropByDump = function(panel, dump) {
