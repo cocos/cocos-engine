@@ -45,7 +45,9 @@ const v3_1 = CC_V3_1;
 const v3_2 = CC_V3_2;
 const emitHit = new CharacterControllerContact();
 export class BulletWorld implements IPhysicsWorld {
-    setDefaultMaterial (v: PhysicsMaterial): void { }
+    setDefaultMaterial (v: PhysicsMaterial): void {
+        //empty
+     }
 
     setAllowSleep (v: boolean): void {
         bt.ccDiscreteDynamicsWorld_setAllowSleep(this._world, v);
@@ -128,9 +130,9 @@ export class BulletWorld implements IPhysicsWorld {
     readonly oldContactsDic = new TupleDictionary();
     readonly cctShapeEventDic = new TupleDictionary();
 
-    private static _sweepBoxGeometry: any;
-    private static _sweepSphereGeometry: any;
-    private static _sweepCapsuleGeometry: any;
+    private static _sweepBoxGeometry: number;
+    private static _sweepSphereGeometry: number;
+    private static _sweepCapsuleGeometry: number;
 
     constructor () {
         this._broadphase = bt.DbvtBroadphase_new();
@@ -234,8 +236,7 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
@@ -247,8 +248,7 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweep(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, pool, results);
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
