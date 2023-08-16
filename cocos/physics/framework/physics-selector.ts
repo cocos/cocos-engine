@@ -524,6 +524,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     addMask: FUNC,
     removeMask: FUNC,
     move: FUNC,
+    syncPhysicsToScene: FUNC,
     updateEventListener: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,

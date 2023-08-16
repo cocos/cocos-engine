@@ -359,7 +359,7 @@ export class CharacterController extends Eventify(Component) {
         this._currentPos.set(this.centerWorldPosition);
         this._velocity = this._currentPos.subtract(this._prevPos).multiplyScalar(1.0 / elapsedTime);
 
-        this._cct?.syncPhysicsToScene();
+        this._cct!.syncPhysicsToScene();
     }
 
     /// EVENT INTERFACE ///
