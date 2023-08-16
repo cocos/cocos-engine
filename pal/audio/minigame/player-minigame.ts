@@ -329,6 +329,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
                 this._seeking = true;
+                this._cacheTime = time;
                 this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
             } else {
