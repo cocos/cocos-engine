@@ -307,7 +307,7 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Sets world position of center.
-     * Note: Calling this function will immediately synchronize the position of 
+     * Note: Calling this function will immediately synchronize the position of
      * the character controller in the physics world to the node.
      * @zh
      * 设置中心的世界坐标。

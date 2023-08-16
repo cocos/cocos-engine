@@ -39,6 +39,7 @@ import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
