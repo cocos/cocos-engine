@@ -10,7 +10,7 @@ import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/animation/marionette/state-machine/condition';
 import { AnimationController } from '../../cocos/animation/marionette/animation-controller';
 import { StateMachineComponent } from '../../cocos/animation/marionette/state-machine/state-machine-component';
-import { VectorTrack } from '../../cocos/animation/animation';
+import { RealTrack, VectorTrack } from '../../cocos/animation/animation';
 import 'jest-extended';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 import { additiveSettingsTag, AnimationClip } from '../../cocos/animation/animation-clip';
@@ -19,12 +19,13 @@ import { MotionState } from '../../cocos/animation/marionette/state-machine/moti
 import { Node, Component } from '../../cocos/scene-graph';
 import * as maskTestHelper from './new-gen-anim/utils/mask-test-helper';
 import '../utils/matchers/value-type-asymmetric-matchers';
-import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealValueAnimationFixture, RealValueAnimationFixture } from './new-gen-anim/utils/fixtures';
+import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealValueAnimationFixture, RealValueAnimationFixture, CreateMotionContext } from './new-gen-anim/utils/fixtures';
 import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-value-observer';
 import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
 import { createAnimationGraph, StateParams, TransitionParams } from './new-gen-anim/utils/factory';
 import { captureWarns } from '../utils/log-capture';
-import { AnimationGraphEvalMock } from './new-gen-anim/utils/eval-mock';
+import { AnimationGraphEvalMock, generateIntervals } from './new-gen-anim/utils/eval-mock';
+import { ccclass } from '../../cocos/core/data/class-decorator';
 
 /**
  * Notable changes
@@ -5246,6 +5247,156 @@ describe('NewGen Anim', () => {
             });
             return animationGraph;
         }
+    });
+
+    describe(`Non-transform animation`, () => {
+        test(`Behavior in state machine`, () => {
+            /// In below:
+            /// - "tp" means "target property".
+
+            const fixture = {
+                common_tp_default_value: 9,
+                animation_1: ((duration: number) => ({
+                    duration,
+                    exclusive_tp_default_value: 3.,
+                    exclusive_animation: new LinearRealValueAnimationFixture(1, 2, duration),
+                    common_animation: new LinearRealValueAnimationFixture(3, 4, duration),
+                }))(2.0),
+                animation_2: ((duration: number) => ({
+                    duration,
+                    exclusive_tp_default_value: 2.,
+                    exclusive_animation: new LinearRealValueAnimationFixture(5, 6, duration),
+                    common_animation: new LinearRealValueAnimationFixture(7, 8, duration),
+                }))(1.5),
+                transitionDuration: 0.3,
+            };
+
+            @ccclass('TargetObject')
+            class TargetObject extends Component {
+                tp_common = fixture.common_tp_default_value;
+                tp_anim_1_only = fixture.animation_1.exclusive_tp_default_value;
+                tp_anim_2_only = fixture.animation_2.exclusive_tp_default_value;
+            }
+
+            const createMotion = (params: typeof fixture.animation_1, exclusive_tp_key: keyof TargetObject) => {
+                const clip = new AnimationClip();
+                clip.duration = params.duration;
+                {
+                    const track = new RealTrack();
+                    track.path.toComponent(TargetObject).toProperty('tp_common' as keyof TargetObject);
+                    params.common_animation.setupCurve(track.channel.curve);
+                    clip.addTrack(track);
+                }
+                {
+                    const track = new RealTrack();
+                    track.path.toComponent(TargetObject).toProperty(exclusive_tp_key);
+                    params.exclusive_animation.setupCurve(track.channel.curve);
+                    clip.addTrack(track);
+                }
+                const clipMotion = new ClipMotion();
+                clipMotion.clip = clip;
+                return clipMotion as NonNullableClipMotion;
+            };
+
+            const clipMotion1 = createMotion(fixture.animation_1, 'tp_anim_1_only');
+            const clipMotion2 = createMotion(fixture.animation_2, 'tp_anim_2_only');
+            const animationGraph = createAnimationGraph({
+                variableDeclarations: { 'EnableTransition': { type: 'boolean' } },
+                layers: [{
+                    stateMachine: {
+                        entryTransitions: [{ to: 'motion1' }],
+                        transitions: [{
+                            from: 'motion1', to: 'motion2', exitTimeEnabled: false, duration: fixture.transitionDuration,
+                            conditions: [{ type: 'unary', operand: { type: 'variable', name: 'EnableTransition' }, operator: 'to-be-true' }],
+                        }],
+                        states: {
+                            'motion1': { type: 'motion', motion: clipMotion1, },
+                            'motion2': { type: 'motion', motion: clipMotion2 },
+                        },
+                    },
+                }],
+            });
+
+            const origin = new Node();
+
+            const targetObject = origin.addComponent(TargetObject) as TargetObject;
+
+            const check = (() => {
+                let expected_common = fixture.common_tp_default_value;
+                let expected_anim_1_only = fixture.animation_1.exclusive_tp_default_value;
+                let expected_anim_2_only = fixture.animation_2.exclusive_tp_default_value;
+
+                return ({
+                    common,
+                    anim_1_only: anim_1_exclusive,
+                    anim_2_only: anim_2_exclusive,
+                }: Partial<{
+                    common: number,
+                    anim_1_only: number,
+                    anim_2_only: number,
+                }>) => {
+                    expected_common = common ?? expected_common;
+                    expected_anim_1_only = anim_1_exclusive ?? expected_anim_1_only;
+                    expected_anim_2_only = anim_2_exclusive ?? expected_anim_2_only;
+                    expect(targetObject.tp_common).toBeCloseTo(expected_common, 5);
+                    expect(targetObject.tp_anim_1_only).toBeCloseTo(expected_anim_1_only, 5);
+                    expect(targetObject.tp_anim_2_only).toBeCloseTo(expected_anim_2_only, 5);
+                };
+            })();
+
+            const evalMock = new AnimationGraphEvalMock(origin, animationGraph);
+
+            check({});
+
+            // If no transition, the animation is normally sampled.
+            for (const [t] of generateIntervals(0.2, 0.7, 0.9)) {
+                evalMock.step(fixture.animation_1.duration * t);
+
+                const tAnim = Math.min(evalMock.current, fixture.animation_1.duration);
+                check({
+                    anim_1_only: fixture.animation_1.exclusive_animation.getExpected(tAnim),
+
+                    common: fixture.animation_1.common_animation.getExpected(tAnim),
+
+                    // Not changed since anim2 is not playing.
+                    anim_2_only: undefined,
+                });
+            }
+
+            // During transition or after transition finished.
+            evalMock.controller.setValue('EnableTransition', true);
+            const start_time_of_motion2_state = evalMock.current;
+            for (const [t] of generateIntervals(0.15, 0.88)) {
+                evalMock.step(fixture.transitionDuration * t);
+                
+                const tAnim = Math.min(evalMock.current - start_time_of_motion2_state, fixture.animation_1.duration);
+                check({
+                    // Anim1's exclusive property is not affected.
+                    anim_1_only: fixture.animation_1.exclusive_animation.getExpected(Math.min(evalMock.current, fixture.animation_1.duration)),
+
+                    // But the common property is fully governed by anim2 instead.
+                    common: fixture.animation_2.common_animation.getExpected(tAnim),
+
+                    anim_2_only: fixture.animation_2.exclusive_animation.getExpected(tAnim),
+                });
+            }
+
+            // After transition finished, only motion2 plays.
+            for (const [t] of generateIntervals(1.2, 1.5)) {
+                evalMock.step(fixture.transitionDuration * t);
+
+                const tAnim = Math.min(evalMock.current - start_time_of_motion2_state, fixture.animation_1.duration);
+                check({
+                    // Not changed since anim2 is not playing.
+                    anim_1_only: undefined,
+
+                    // But the common property is fully governed by anim2 instead.
+                    common: fixture.animation_2.common_animation.getExpected(tAnim),
+
+                    anim_2_only: fixture.animation_2.exclusive_animation.getExpected(tAnim),
+                });
+            }
+        });
     });
 });
 

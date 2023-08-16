@@ -98,7 +98,7 @@ float AmbientInfo::getSkyIllum() const {
 }
 
 void AmbientInfo::setGroundLightingColor(const Color &val) {
-    const Vec4 v4(val.r, val.g, val.b, val.a);
+    const Vec4 v4(static_cast<float>(val.r) / 255.F, static_cast<float>(val.g) / 255.F, static_cast<float>(val.b) / 255.F, static_cast<float>(val.a) / 255.F);
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         _groundAlbedoHDR.set(v4);

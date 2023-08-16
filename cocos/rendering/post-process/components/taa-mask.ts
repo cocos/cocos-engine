@@ -14,7 +14,7 @@ export class TAAMask extends Component {
 
     _mask: RenderTexture | undefined;
 
-    get mask () {
+    get mask (): RenderTexture | undefined {
         if (!this.maskCamera || !this.maskCamera.enabledInHierarchy) {
             return undefined;
         }
@@ -25,7 +25,7 @@ export class TAAMask extends Component {
         return this._mask;
     }
 
-    start () {
+    start (): void {
         if (!this.maskCamera) {
             warn('Can not find a Camera for TAAMask');
             return;

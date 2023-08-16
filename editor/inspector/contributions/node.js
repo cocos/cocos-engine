@@ -454,7 +454,7 @@ exports.$ = {
     sceneSkyboxAfter: '.container > .body > .scene > .skybox > .after',
     sceneOctree: '.container > .body > .scene > .octree',
     sceneSkin: '.container > .body > .scene > .skin',
-    scenePostSettings: '.scene > .postSettings',
+    scenePostSettings: '.container > .body > .scene > .postSettings',
 
     node: '.container > .body > .node',
     nodeHeader: '.container > .body > .node > .component-header',
@@ -1077,7 +1077,7 @@ const Elements = {
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
 
-            panel.$.scenePostSettings.style.display = useHDR ? 'inline-flex' : 'none';
+            panel.$.scenePostSettings.style.display = useHDR ? 'block' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -1211,6 +1211,7 @@ const Elements = {
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
                         <ui-drag-item additional='${additional}'>
+                            <ui-icon default="component" color="true" value="${component.type}"></ui-icon>
                             <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
                         </ui-drag-item>
                         <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">

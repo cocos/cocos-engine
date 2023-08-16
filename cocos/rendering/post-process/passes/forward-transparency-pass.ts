@@ -72,8 +72,10 @@ export class ForwardTransparencyPass extends BasePass {
         }
 
         pass.addQueue(QueueHint.RENDER_TRANSPARENT)
-            .addSceneOfCamera(camera,
+            .addSceneOfCamera(
+                camera,
                 new LightInfo(),
-                SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+                SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY,
+            );
     }
 }

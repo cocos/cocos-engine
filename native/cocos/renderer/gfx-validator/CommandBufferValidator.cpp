@@ -206,6 +206,18 @@ void CommandBufferValidator::endRenderPass() {
     _actor->endRenderPass();
 }
 
+void CommandBufferValidator::insertMarker(const MarkerInfo &marker) {
+    _actor->insertMarker(marker);
+}
+
+void CommandBufferValidator::beginMarker(const MarkerInfo &marker) {
+    _actor->beginMarker(marker);
+}
+
+void CommandBufferValidator::endMarker() {
+    _actor->endMarker();
+}
+
 void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     CC_ASSERT(isInited());
 

@@ -38,6 +38,7 @@ void PhysXTrimesh::setMesh(uint32_t objectID) {
     uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
     if (handle == 0) return;
     if (_mShape) {
+        getSharedBody().removeShape(*this);
         eraseFromShapeMap();
         _mShape->release();
         _mShape = nullptr;

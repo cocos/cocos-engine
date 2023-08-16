@@ -101,7 +101,9 @@ export class ReflectionProbe extends Component {
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
-    protected _sourceCameraPos = new Vec3(0, 0, 0);
+    private _sourceCameraPos = new Vec3(0, 0, 0);
+
+    private _position = new Vec3(0, 0, 0);
 
     /**
      * @en
@@ -114,8 +116,10 @@ export class ReflectionProbe extends Component {
         absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             ReflectionProbeManager.probeManager.updateProbeData();
+            ReflectionProbeManager.probeManager.updateProbeOfModels();
         }
     }
     @type(Vec3)
@@ -263,7 +267,7 @@ export class ReflectionProbe extends Component {
     set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
-        ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        ReflectionProbeManager.probeManager.onUpdateProbes();
     }
 
     get cubemap (): TextureCube | null {
@@ -312,7 +316,9 @@ export class ReflectionProbe extends Component {
 
     public onLoad (): void {
         this._createProbe();
-        ReflectionProbeManager.probeManager.registerEvent();
+        if (EDITOR) {
+            ReflectionProbeManager.probeManager.registerEvent();
+        }
     }
 
     onEnable (): void {
@@ -323,17 +329,15 @@ export class ReflectionProbe extends Component {
                 this._probe.updateProbeId(this._probeId);
             }
             ReflectionProbeManager.probeManager.register(this._probe);
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
             this._probe.enable();
         }
-        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged, this);
     }
     onDisable (): void {
         if (this._probe) {
             ReflectionProbeManager.probeManager.unregister(this._probe);
             this._probe.disable();
         }
-        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._onProbeTransformChanged);
     }
 
     public start (): void {
@@ -342,6 +346,7 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
         ReflectionProbeManager.probeManager.updateProbeData();
+        this._position = this.node.getWorldPosition().clone();
     }
 
     public onDestroy (): void {
@@ -373,6 +378,23 @@ export class ReflectionProbe extends Component {
                 this.probe.renderPlanarReflection(this.sourceCamera.camera);
             }
         }
+
+        if (this.node.hasChangedFlags & TransformBit.POSITION) {
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.onUpdateProbes();
+            ReflectionProbeManager.probeManager.updateProbeData();
+        }
+
+        //update probe info for realtime
+        if (!EDITOR) {
+            const worldPos = this.node.getWorldPosition();
+            if (!this._position.equals(worldPos)) {
+                this._position = worldPos;
+                this.probe.updateBoundingBox();
+                ReflectionProbeManager.probeManager.updateProbeData();
+                ReflectionProbeManager.probeManager.updateProbeOfModels();
+            }
+        }
     }
 
     /**
@@ -383,14 +405,6 @@ export class ReflectionProbe extends Component {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
         ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
-    }
-
-    private _onProbeTransformChanged (type: TransformBit): void {
-        this.probe.updateBoundingBox();
-        if (type & Node.TransformBit.POSITION) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
-            ReflectionProbeManager.probeManager.updateProbeData();
-        }
     }
 
     private _createProbe (): void {
