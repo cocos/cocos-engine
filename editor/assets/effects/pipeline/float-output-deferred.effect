@@ -59,10 +59,10 @@ CCProgram tonemap-fs %{
 
     // tone mapping
     if (!DebugViewNeedDisplayOriginalData()) {
-    #if CC_USE_FLOAT_OUTPUT
-      color.rgb = HDR2LDR_PostProcess(color.rgb);
-      color.rgb = LinearToSRGB(color.rgb);
-    #endif
+      #if CC_USE_FLOAT_OUTPUT
+        color.rgb = HDR2LDR_PostProcess(color.rgb);
+        color.rgb = LinearToSRGB(color.rgb);
+      #endif
     }
 
     // LDR fog
