@@ -736,7 +736,8 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
+    std::ignore = light;
     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
 
     auto sceneID = addVertex2(

@@ -270,7 +270,7 @@ constexpr AccessElem ACCESS_MAP[] = {
     // ACCESS_READ | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_IB_OR_CA,
     // AccessFlags::COLOR_ATTACHMENT_READ},
 
-    {CARE_MEMACCESS | CARE_RESTYPE | CARE_CMNUSAGE,
+    {CARE_MEMACCESS | CARE_RESTYPE | CARE_CMNUSAGE | CARE_SHADERSTAGE,
      ACCESS_READ | RES_TEXTURE | CMN_VB_OR_DS | CMN_ROM,
      AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ},
 
@@ -280,12 +280,14 @@ constexpr AccessElem ACCESS_MAP[] = {
 
     {IGNORE_MEMUSAGE,
      ACCESS_READ | RES_TEXTURE | SHADERSTAGE_COMP | CMN_ROM,
-     AccessFlags::COMPUTE_SHADER_READ_TEXTURE},
+     AccessFlags::COMPUTE_SHADER_READ_TEXTURE,
+     CMN_VB_OR_DS},
 
     // shading rate has its own flag
     {CARE_MEMACCESS | CARE_SHADERSTAGE | CARE_CMNUSAGE,
      ACCESS_READ | SHADERSTAGE_COMP | CMN_STORAGE,
-     AccessFlags::COMPUTE_SHADER_READ_OTHER},
+     AccessFlags::COMPUTE_SHADER_READ_OTHER,
+     RES_TEXTURE | CMN_ROM},
 
     {CARE_MEMACCESS | CARE_CMNUSAGE,
      ACCESS_READ | CMN_COPY_SRC,
@@ -350,10 +352,10 @@ constexpr bool validateAccess(ResourceType type, CommonUsage usage, MemoryAccess
         res = !(*std::max_element(std::begin(conflicts), std::end(conflicts)));
     } else if (type == ResourceType::TEXTURE) {
         uint32_t conflicts[] = {
-            hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS | CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(visibility, ShaderStageFlags::FRAGMENT), // color/ds/input not in fragment
-            hasFlag(usage, CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(access, MemoryAccess::READ_ONLY),                                                            // input needs read
-            hasAllFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::STORAGE),                                                                                       // storage ^ sampled
-            hasFlag(usage, CommonUsage::COPY_SRC) && !hasAllFlags(MemoryAccess::READ_ONLY, access),                                                                 // transfer src ==> read_only
+            // hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS | CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(visibility, ShaderStageFlags::FRAGMENT), // color/ds/input not in fragment
+            hasFlag(usage, CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(access, MemoryAccess::READ_ONLY), // input needs read
+            hasAllFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::STORAGE),                            // storage ^ sampled
+            hasFlag(usage, CommonUsage::COPY_SRC) && !hasAllFlags(MemoryAccess::READ_ONLY, access),      // transfer src ==> read_only
             hasFlag(usage, CommonUsage::COPY_DST) && !hasAllFlags(MemoryAccess::WRITE_ONLY, access),
             hasFlag(usage, CommonUsage::INDIRECT_OR_INPUT) && !hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS), // input needs to specify color or ds                                                                    // transfer dst ==> write_only
             hasAllFlags(usage, CommonUsage::COPY_SRC | CommonUsage::COPY_DST),                                                    // both src and dst

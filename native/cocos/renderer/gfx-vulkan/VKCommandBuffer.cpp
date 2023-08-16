@@ -245,6 +245,53 @@ void CCVKCommandBuffer::endRenderPass() {
     }
 }
 
+void CCVKCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        _utilLabelInfo.pLabelName = marker.name.c_str();
+        _utilLabelInfo.color[0] = marker.color.x;
+        _utilLabelInfo.color[1] = marker.color.y;
+        _utilLabelInfo.color[2] = marker.color.z;
+        _utilLabelInfo.color[3] = marker.color.w;
+        vkCmdInsertDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer, &_utilLabelInfo);
+    } else if (context->debugReport) {
+        _markerInfo.pMarkerName = marker.name.c_str();
+        _markerInfo.color[0] = marker.color.x;
+        _markerInfo.color[1] = marker.color.y;
+        _markerInfo.color[2] = marker.color.z;
+        _markerInfo.color[3] = marker.color.w;
+        vkCmdDebugMarkerInsertEXT(_gpuCommandBuffer->vkCommandBuffer, &_markerInfo);
+    }
+}
+
+void CCVKCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        _utilLabelInfo.pLabelName = marker.name.c_str();
+        _utilLabelInfo.color[0] = marker.color.x;
+        _utilLabelInfo.color[1] = marker.color.y;
+        _utilLabelInfo.color[2] = marker.color.z;
+        _utilLabelInfo.color[3] = marker.color.w;
+        vkCmdBeginDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer, &_utilLabelInfo);
+    } else if (context->debugReport) {
+        _markerInfo.pMarkerName = marker.name.c_str();
+        _markerInfo.color[0] = marker.color.x;
+        _markerInfo.color[1] = marker.color.y;
+        _markerInfo.color[2] = marker.color.z;
+        _markerInfo.color[3] = marker.color.w;
+        vkCmdDebugMarkerBeginEXT(_gpuCommandBuffer->vkCommandBuffer, &_markerInfo);
+    }
+}
+
+void CCVKCommandBuffer::endMarker() {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        vkCmdEndDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer);
+    } else if (context->debugReport) {
+        vkCmdDebugMarkerEndEXT(_gpuCommandBuffer->vkCommandBuffer);
+    }
+}
+
 void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = static_cast<CCVKPipelineState *>(pso)->gpuPipelineState();
 

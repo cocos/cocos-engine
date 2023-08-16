@@ -88,6 +88,11 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
     void setBuiltinCameraConstants(const scene::Camera *camera) /*implements*/;
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) /*implements*/;
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) /*implements*/;
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) /*implements*/;
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) /*implements*/;
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) /*implements*/;
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) /*implements*/;
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) /*implements*/;
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) /*implements*/;
 
@@ -175,6 +180,21 @@ public:
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
     }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
     }
@@ -183,7 +203,7 @@ public:
     }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
-    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) override;
+    void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) override;
     void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
     void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
@@ -249,6 +269,21 @@ public:
     }
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
@@ -345,6 +380,21 @@ public:
     }
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
@@ -445,6 +495,21 @@ public:
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
     }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
     }
@@ -516,6 +581,21 @@ public:
     }
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
@@ -601,6 +681,21 @@ public:
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
     }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
     }
@@ -684,6 +779,21 @@ public:
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
     }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
     }
@@ -750,6 +860,21 @@ public:
     }
     void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
         NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
     void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
         NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);

@@ -81,7 +81,7 @@ exports.listeners = {
             snapshotLock(panel, true, panel.uuidList);
         }
 
-        const dump = event.target.dump;
+        const dump = target.dump;
         if (!dump || panel.isDialoging) {
             return;
         }
@@ -181,7 +181,7 @@ exports.listeners = {
 
         // Editor.Message.send('scene', 'snapshot');
         const undoID = await beginRecording(panel.uuidList);
-        const dump = event.target.dump;
+        const dump = target.dump;
         let cancel = false;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
@@ -214,7 +214,7 @@ exports.listeners = {
         clearTimeout(panel.previewTimeId);
 
         const undoID = await beginRecording(panel.uuidList);
-        const dump = event.target.dump;
+        const dump = target.dump;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
@@ -240,7 +240,7 @@ exports.listeners = {
             return;
         }
 
-        const dump = event.target.dump;
+        const dump = target.dump;
         if (!dump || panel.isDialoging) {
             return;
         }
@@ -454,7 +454,7 @@ exports.$ = {
     sceneSkyboxAfter: '.container > .body > .scene > .skybox > .after',
     sceneOctree: '.container > .body > .scene > .octree',
     sceneSkin: '.container > .body > .scene > .skin',
-    scenePostSettings: '.scene > .postSettings',
+    scenePostSettings: '.container > .body > .scene > .postSettings',
 
     node: '.container > .body > .node',
     nodeHeader: '.container > .body > .node > .component-header',
@@ -1077,7 +1077,7 @@ const Elements = {
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
 
-            panel.$.scenePostSettings.style.display = useHDR ? 'inline-flex' : 'none';
+            panel.$.scenePostSettings.style.display = useHDR ? 'block' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;

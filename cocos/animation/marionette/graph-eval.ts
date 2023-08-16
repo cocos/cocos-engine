@@ -80,9 +80,7 @@ export class AnimationGraphEval {
         const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(root, this._auxiliaryCurveRegistry);
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
-        const bindingContext = new AnimationGraphBindingContext(
-            root, poseLayoutMaintainer, this._varInstances, controller,
-        );
+        const bindingContext = new AnimationGraphBindingContext(root, poseLayoutMaintainer, this._varInstances, controller);
         bindingContext._setClipOverrides(clipOverrides ?? undefined);
         this._bindingContext = bindingContext;
 
@@ -97,7 +95,6 @@ export class AnimationGraphEval {
         this._rootPoseNode = new DefaultTopLevelPoseNode(
             graph,
             bindingContext,
-            clipOverrides,
             poseStashAllocator,
         );
 
@@ -221,7 +218,8 @@ export class AnimationGraphEval {
 
         poseLayoutMaintainer.startBind();
 
-        this._rootPoseNode.overrideClips(overrides, this._bindingContext);
+        this._bindingContext._setClipOverrides(overrides);
+        this._rootPoseNode.overrideClips(this._bindingContext);
 
         this._updateAfterPossiblePoseLayoutChange();
     }

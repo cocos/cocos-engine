@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
 import { cclegacy } from '../core';
 import { Root } from '../root';
 
