@@ -196,6 +196,12 @@ public:
          * @zh 动态网格特有数据
          */
         ccstd::optional<IDynamicStruct> dynamic;
+
+        /**
+         * @en Whether to support GPU Scene
+         * @zh 是否支持 GPU Scene
+         */
+        bool supportGPUScene = true;
     };
 
     struct ICreateInfo {
@@ -449,8 +455,7 @@ public:
     void releaseData();
 
     bool isGPUMeshFormat() const;
-    inline bool supportGPUScene() const { return _supportGPUScene.has_value() && _supportGPUScene.value(); }
-    inline void disableGPUScene() { _supportGPUScene = false; }
+    inline bool supportGPUScene() const { return _supportGPUScene; }
     inline bool isInGPUScene() const { return _isInGPUScene; }
     inline void setInGPUScene(bool b) { _isInGPUScene = b; }
 
@@ -478,7 +483,7 @@ private:
     bool _allowDataAccess{true};
     bool _isMeshDataUploaded{false};
     bool _isInGPUScene{false};
-    ccstd::optional<bool> _supportGPUScene;
+    bool _supportGPUScene{true};
 
     RenderingSubMeshList _renderingSubMeshes;
 

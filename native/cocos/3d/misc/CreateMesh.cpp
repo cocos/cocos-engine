@@ -48,7 +48,6 @@ Mesh *MeshUtils::createMesh(const IGeometry &geometry, Mesh *out /*= nullptr*/, 
     }
 
     out->reset(createMeshInfo(geometry, options));
-    out->disableGPUScene(); // Disable it for manually created mesh.
     return out;
 }
 
@@ -258,6 +257,7 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
     Mesh::IStruct meshStruct;
     meshStruct.vertexBundles = {vertexBundle};
     meshStruct.primitives = {primitive};
+    meshStruct.supportGPUScene = false; // Disable it for manually created mesh.
 
     if (minPosition.has_value()) {
         meshStruct.minPosition = minPosition.value();
@@ -290,7 +290,6 @@ Mesh *MeshUtils::createDynamicMesh(index_t primitiveIndex, const IDynamicGeometr
     }
 
     out->reset(MeshUtils::createDynamicMeshInfo(geometry, options));
-    out->disableGPUScene(); // Disable it for manually created mesh.
     out->initialize();
     out->updateSubMesh(primitiveIndex, geometry);
 
@@ -399,6 +398,7 @@ Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geome
     meshStruct.vertexBundles = vertexBundles;
     meshStruct.primitives = primitives;
     meshStruct.dynamic = std::move(dynamicStruct);
+    meshStruct.supportGPUScene = false; // Disable it for manually created mesh.
 
     Mesh::ICreateInfo createInfo;
     createInfo.structInfo = std::move(meshStruct);

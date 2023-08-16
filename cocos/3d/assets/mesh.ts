@@ -197,6 +197,12 @@ export declare namespace Mesh {
          * @zh 动态网格特有数据
          */
         dynamic?: IDynamicStruct;
+
+        /**
+         * @en Whether to support GPU Scene
+         * @zh 是否支持 GPU Scene
+         */
+        supportGPUScene: boolean;
     }
 
     /**

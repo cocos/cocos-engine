@@ -304,8 +304,6 @@ public:
         return nullptr;
     }
 
-    bool isBlend(const ccstd::string& phaseName) const;
-
     /**
      * @en The owner render component
      * @zh 该材质所归属的渲染组件
