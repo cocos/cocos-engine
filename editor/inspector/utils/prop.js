@@ -192,7 +192,7 @@ exports.getMessageProtocolScene = function(element) {
         return getMessageProtocolSceneResult;
     }
 
-    getMessageProtocolSceneResult = 'scene';
+    getMessageProtocolSceneResult = '';
     getMessageProtocolSceneStartTime = Date.now();
 
     while (element) {
@@ -201,6 +201,10 @@ exports.getMessageProtocolScene = function(element) {
             getMessageProtocolSceneResult = element.messageProtocol.scene;
             break;
         }
+    }
+
+    if (!getMessageProtocolSceneResult) {
+        getMessageProtocolSceneResult = 'scene';
     }
 
     return getMessageProtocolSceneResult;
