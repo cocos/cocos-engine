@@ -964,6 +964,11 @@ struct Color {
 };
 using ColorList = ccstd::vector<Color>;
 
+struct MarkerInfo {
+    ccstd::string name;
+    Color color;
+};
+
 struct BindingMappingInfo {
     /**
      * For non-vulkan backends, to maintain compatibility and maximize

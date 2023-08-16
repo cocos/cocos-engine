@@ -13,7 +13,7 @@ exports.template = /* html */`
     <div class= "noModel tips">
         <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
         <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
-    </div>    
+    </div>
     <div class="preview-container">
         <div class="animation-info">
             <div class="flex">
@@ -352,7 +352,7 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callModelPreviewFunction('onMouseMove', {
@@ -378,6 +378,14 @@ const Elements = {
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
 
+                panel.isPreviewDataDirty = true;
+            });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                await callModelPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
                 panel.isPreviewDataDirty = true;
             });
 
@@ -441,8 +449,8 @@ const Elements = {
 
 exports.methods = {
     /**
-     * 
-     * @param {boolean} hasModel 
+     *
+     * @param {boolean} hasModel
      */
     updatePanelHidden(hasModel) {
         this.$.noModel.hidden = hasModel;

@@ -35,7 +35,6 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
-import { legacyCC } from '../core/global-exports';
 import { getDescBindingFromName } from './custom/define';
 
 const _matShadowView = new Mat4();
@@ -91,8 +90,11 @@ export class PipelineUBO {
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
     }
 
-    public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
-        camera: Camera): void {
+    public static updateCameraUBOView (
+        pipeline: PipelineRuntime,
+        bufferView: Float32Array,
+        camera: Camera,
+    ): void {
         const scene = camera.scene ? camera.scene : cclegacy.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -217,8 +219,12 @@ export class PipelineUBO {
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = -shadowInfo.distance;
     }
 
-    public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array,
-        csmBufferView: Float32Array, camera: Camera): void {
+    public static updateShadowUBOView (
+        pipeline: PipelineRuntime,
+        shadowBufferView: Float32Array,
+        csmBufferView: Float32Array,
+        camera: Camera,
+    ): void {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -395,8 +401,17 @@ export class PipelineUBO {
                 Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
                 Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range,
-                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
+                Mat4.perspective(
+                    _matShadowProj,
+                    (light as any).angle,
+                    1.0,
+                    0.001,
+                    (light as any).range,
+                    true,
+                    cap.clipSpaceMinZ,
+                    cap.clipSpaceSignY,
+                    0,
+                );
 
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);

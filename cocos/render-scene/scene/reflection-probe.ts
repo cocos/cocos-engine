@@ -364,8 +364,10 @@ export class ReflectionProbe {
             this.realtimePlanarTexture = null;
         }
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public enable (): void {
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public disable (): void {
     }
 
@@ -376,7 +378,6 @@ export class ReflectionProbe {
 
     public updateBoundingBox (): void {
         if (this.node) {
-            this.node.updateWorldTransform();
             const pos = this.node.getWorldPosition();
             geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         }

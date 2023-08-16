@@ -82,10 +82,6 @@ public:
 #endif
 
 #ifdef CC_USE_VULKAN
-    #if XR_OEM_PICO
-        Device::isSupportDetachDeviceThread = false;
-    #endif
-
         bool skipVulkan = false;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
         auto sdkVersion = BasePlatform::getPlatform()->getSdkVersion();

@@ -24,7 +24,7 @@
 
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
+import { TAOBAO, TAOBAO_MINIGAME, HUAWEI, VIVO, OPPO } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -107,6 +107,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._cacheTime = 0;
         this._needSeek = false;
         this._seeking = false;
+        if ((HUAWEI || VIVO || OPPO) && this._innerAudioContext) {
+            this._innerAudioContext.startTime = 0;
+        }
     }
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -168,11 +171,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._seeking = false;
             if (this._needSeek) {
                 this._needSeek = false;
-                if (this._cacheTime.toFixed(3) !== this._innerAudioContext.currentTime.toFixed(3)) {
+                if (this._cacheTime.toFixed(2) !== this._innerAudioContext.currentTime.toFixed(2)) {
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     this.seek(this._cacheTime).catch((e) => {});
-                } else {
-                    this._needSeek = false;
                 }
             }
         };
@@ -304,6 +305,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
+        if ((HUAWEI || VIVO || OPPO) && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
+            return this._innerAudioContext.startTime;
+        }
         if (this._state !== AudioState.PLAYING || this._needSeek || this._seeking) {
             return this._cacheTime;
         }
@@ -325,10 +329,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
                 this._seeking = true;
+                this._cacheTime = time;
                 this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
             } else {
-                if (this._cacheTime !== time) { // Skip the invalid seek
+                //Huawei, vivo, Oppo platform, after stop, regardless of whether the seek has been called, the playback will always start from 0 again
+                if ((HUAWEI || VIVO || OPPO) && (this._state === AudioState.STOPPED || this._state === AudioState.INIT)) {
+                    this._innerAudioContext.startTime = time;
+                } else if (this._cacheTime !== time) { // Skip the invalid seek
                     this._cacheTime = time;
                     this._needSeek = true;
                 }

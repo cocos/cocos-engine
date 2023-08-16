@@ -2598,6 +2598,218 @@ export class RenderGraphObjectPool {
         this._renderData.reset();
         this._renderGraph.reset();
     }
+    createClearValue (
+        x = 0,
+        y = 0,
+        z = 0,
+        w = 0,
+    ): ClearValue {
+        const v = this._clearValue.add();
+        v.reset(x, y, z, w);
+        return v;
+    }
+    createRasterView (
+        slotName = '',
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
+        loadOp: LoadOp = LoadOp.LOAD,
+        storeOp: StoreOp = StoreOp.STORE,
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): RasterView {
+        const v = this._rasterView.add();
+        v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
+        return v;
+    }
+    createComputeView (
+        name = '',
+        accessType: AccessType = AccessType.READ,
+        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): ComputeView {
+        const v = this._computeView.add();
+        v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
+        return v;
+    }
+    createResourceDesc (): ResourceDesc {
+        const v = this._resourceDesc.add();
+        v.reset();
+        return v;
+    }
+    createResourceTraits (
+        residency: ResourceResidency = ResourceResidency.MANAGED,
+    ): ResourceTraits {
+        const v = this._resourceTraits.add();
+        v.reset(residency);
+        return v;
+    }
+    createRenderSwapchain (
+        swapchain: Swapchain | null = null,
+    ): RenderSwapchain {
+        const v = this._renderSwapchain.add();
+        v.reset(swapchain);
+        return v;
+    }
+    createResourceStates (): ResourceStates {
+        const v = this._resourceStates.add();
+        v.reset();
+        return v;
+    }
+    createManagedBuffer (
+        buffer: Buffer | null = null,
+    ): ManagedBuffer {
+        const v = this._managedBuffer.add();
+        v.reset(buffer);
+        return v;
+    }
+    createManagedTexture (
+        texture: Texture | null = null,
+    ): ManagedTexture {
+        const v = this._managedTexture.add();
+        v.reset(texture);
+        return v;
+    }
+    createManagedResource (): ManagedResource {
+        const v = this._managedResource.add();
+        v.reset();
+        return v;
+    }
+    createSubpass (): Subpass {
+        const v = this._subpass.add();
+        v.reset();
+        return v;
+    }
+    createSubpassGraph (): SubpassGraph {
+        const v = this._subpassGraph.add();
+        v.clear();
+        return v;
+    }
+    createRasterSubpass (
+        subpassID = 0xFFFFFFFF,
+        count = 1,
+        quality = 0,
+    ): RasterSubpass {
+        const v = this._rasterSubpass.add();
+        v.reset(subpassID, count, quality);
+        return v;
+    }
+    createComputeSubpass (
+        subpassID = 0xFFFFFFFF,
+    ): ComputeSubpass {
+        const v = this._computeSubpass.add();
+        v.reset(subpassID);
+        return v;
+    }
+    createRasterPass (): RasterPass {
+        const v = this._rasterPass.add();
+        v.reset();
+        return v;
+    }
+    createPersistentRenderPassAndFramebuffer (
+        renderPass: RenderPass | null = null,
+        framebuffer: Framebuffer | null = null,
+    ): PersistentRenderPassAndFramebuffer {
+        const v = this._persistentRenderPassAndFramebuffer.add();
+        v.reset(renderPass, framebuffer);
+        return v;
+    }
+    createFormatView (): FormatView {
+        const v = this._formatView.add();
+        v.reset();
+        return v;
+    }
+    createSubresourceView (): SubresourceView {
+        const v = this._subresourceView.add();
+        v.reset();
+        return v;
+    }
+    createResourceGraph (): ResourceGraph {
+        const v = this._resourceGraph.add();
+        v.clear();
+        return v;
+    }
+    createComputePass (): ComputePass {
+        const v = this._computePass.add();
+        v.reset();
+        return v;
+    }
+    createResolvePass (): ResolvePass {
+        const v = this._resolvePass.add();
+        v.reset();
+        return v;
+    }
+    createCopyPass (): CopyPass {
+        const v = this._copyPass.add();
+        v.reset();
+        return v;
+    }
+    createMovePass (): MovePass {
+        const v = this._movePass.add();
+        v.reset();
+        return v;
+    }
+    createRaytracePass (): RaytracePass {
+        const v = this._raytracePass.add();
+        v.reset();
+        return v;
+    }
+    createClearView (
+        slotName = '',
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+    ): ClearView {
+        const v = this._clearView.add();
+        v.reset(slotName, clearFlags);
+        return v;
+    }
+    createRenderQueue (
+        hint: QueueHint = QueueHint.RENDER_OPAQUE,
+        phaseID = 0xFFFFFFFF,
+    ): RenderQueue {
+        const v = this._renderQueue.add();
+        v.reset(hint, phaseID);
+        return v;
+    }
+    createSceneData (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+    ): SceneData {
+        const v = this._sceneData.add();
+        v.reset(scene, camera, flags);
+        return v;
+    }
+    createDispatch (
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
+    ): Dispatch {
+        const v = this._dispatch.add();
+        v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+        return v;
+    }
+    createBlit (
+        material: Material | null = null,
+        passID = 0,
+        sceneFlags: SceneFlags = SceneFlags.NONE,
+        camera: Camera | null = null,
+    ): Blit {
+        const v = this._blit.add();
+        v.reset(material, passID, sceneFlags, camera);
+        return v;
+    }
+    createRenderData (): RenderData {
+        const v = this._renderData.add();
+        v.reset();
+        return v;
+    }
+    createRenderGraph (): RenderGraph {
+        const v = this._renderGraph.add();
+        v.clear();
+        return v;
+    }
     public readonly renderCommon: RenderCommonObjectPool;
     private readonly _clearValue: RecyclePool<ClearValue>;
     private readonly _rasterView: RecyclePool<RasterView>;

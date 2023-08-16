@@ -178,6 +178,10 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 #endif
     _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = false; // not implement yet.
 
+    if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
+        _gpuConstantRegistry->debugMarker = true;
+    }
+
     ccstd::string compressedFmts;
     if (getFormatFeatures(Format::ETC_RGB8) != FormatFeature::NONE) {
         compressedFmts += "etc1 ";

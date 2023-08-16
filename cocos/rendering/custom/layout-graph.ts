@@ -1419,6 +1419,114 @@ export class LayoutGraphObjectPool {
         this._renderPhaseData.reset();
         this._layoutGraphData.reset();
     }
+    createDescriptorDB (): DescriptorDB {
+        const v = this._descriptorDB.add();
+        v.reset();
+        return v;
+    }
+    createRenderPhase (): RenderPhase {
+        const v = this._renderPhase.add();
+        v.reset();
+        return v;
+    }
+    createLayoutGraph (): LayoutGraph {
+        const v = this._layoutGraph.add();
+        v.clear();
+        return v;
+    }
+    createUniformData (
+        uniformID = 0xFFFFFFFF,
+        uniformType: Type = Type.UNKNOWN,
+        offset = 0,
+    ): UniformData {
+        const v = this._uniformData.add();
+        v.reset(uniformID, uniformType, offset);
+        return v;
+    }
+    createUniformBlockData (): UniformBlockData {
+        const v = this._uniformBlockData.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorData (
+        descriptorID = 0,
+        type: Type = Type.UNKNOWN,
+        count = 1,
+    ): DescriptorData {
+        const v = this._descriptorData.add();
+        v.reset(descriptorID, type, count);
+        return v;
+    }
+    createDescriptorBlockData (
+        type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
+        visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        capacity = 0,
+    ): DescriptorBlockData {
+        const v = this._descriptorBlockData.add();
+        v.reset(type, visibility, capacity);
+        return v;
+    }
+    createDescriptorSetLayoutData (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+    ): DescriptorSetLayoutData {
+        const v = this._descriptorSetLayoutData.add();
+        v.reset(slot, capacity);
+        return v;
+    }
+    createDescriptorSetData (
+        descriptorSetLayout: DescriptorSetLayout | null = null,
+        descriptorSet: DescriptorSet | null = null,
+    ): DescriptorSetData {
+        const v = this._descriptorSetData.add();
+        v.reset(descriptorSetLayout, descriptorSet);
+        return v;
+    }
+    createPipelineLayoutData (): PipelineLayoutData {
+        const v = this._pipelineLayoutData.add();
+        v.reset();
+        return v;
+    }
+    createShaderBindingData (): ShaderBindingData {
+        const v = this._shaderBindingData.add();
+        v.reset();
+        return v;
+    }
+    createShaderLayoutData (): ShaderLayoutData {
+        const v = this._shaderLayoutData.add();
+        v.reset();
+        return v;
+    }
+    createTechniqueData (): TechniqueData {
+        const v = this._techniqueData.add();
+        v.reset();
+        return v;
+    }
+    createEffectData (): EffectData {
+        const v = this._effectData.add();
+        v.reset();
+        return v;
+    }
+    createShaderProgramData (): ShaderProgramData {
+        const v = this._shaderProgramData.add();
+        v.reset();
+        return v;
+    }
+    createRenderStageData (): RenderStageData {
+        const v = this._renderStageData.add();
+        v.reset();
+        return v;
+    }
+    createRenderPhaseData (): RenderPhaseData {
+        const v = this._renderPhaseData.add();
+        v.reset();
+        return v;
+    }
+    createLayoutGraphData (): LayoutGraphData {
+        const v = this._layoutGraphData.add();
+        v.clear();
+        return v;
+    }
     public readonly renderCommon: RenderCommonObjectPool;
     private readonly _descriptorDB: RecyclePool<DescriptorDB>;
     private readonly _renderPhase: RecyclePool<RenderPhase>;

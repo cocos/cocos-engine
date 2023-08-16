@@ -39,6 +39,9 @@ public:
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void nextSubpass() override;
+    void insertMarker(const MarkerInfo &marker) override;
+    void beginMarker(const MarkerInfo &marker) override;
+    void endMarker() override;
     void draw(const DrawInfo &info) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
