@@ -319,7 +319,6 @@ export class ReflectionProbe extends Component {
         if (EDITOR) {
             ReflectionProbeManager.probeManager.registerEvent();
         }
-        this._position = this.node.getWorldPosition().clone();
     }
 
     onEnable (): void {
@@ -347,6 +346,7 @@ export class ReflectionProbe extends Component {
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
         ReflectionProbeManager.probeManager.updateProbeData();
+        this._position = this.node.getWorldPosition().clone();
     }
 
     public onDestroy (): void {
@@ -386,12 +386,14 @@ export class ReflectionProbe extends Component {
         }
 
         //update probe info for realtime
-        const worldPos = this.node.getWorldPosition();
-        if (!this._position.equals(worldPos)) {
-            this._position = worldPos;
-            this.probe.updateBoundingBox();
-            ReflectionProbeManager.probeManager.updateProbeData();
-            ReflectionProbeManager.probeManager.updateProbeOfModels();
+        if (!EDITOR) {
+            const worldPos = this.node.getWorldPosition();
+            if (!this._position.equals(worldPos)) {
+                this._position = worldPos;
+                this.probe.updateBoundingBox();
+                ReflectionProbeManager.probeManager.updateProbeData();
+                ReflectionProbeManager.probeManager.updateProbeOfModels();
+            }
         }
     }
 
