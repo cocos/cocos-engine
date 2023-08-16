@@ -660,6 +660,99 @@ export class RenderCommonObjectPool {
         this._movePair.reset();
         this._pipelineStatistics.reset();
     }
+    createLightInfo (
+        light: Light | null = null,
+        level = 0,
+        culledByLight = false,
+    ): LightInfo {
+        const v = this._lightInfo.add();
+        v.reset(light, level, culledByLight);
+        return v;
+    }
+    createDescriptor (
+        type: Type = Type.UNKNOWN,
+    ): Descriptor {
+        const v = this._descriptor.add();
+        v.reset(type);
+        return v;
+    }
+    createDescriptorBlock (): DescriptorBlock {
+        const v = this._descriptorBlock.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorBlockFlattened (): DescriptorBlockFlattened {
+        const v = this._descriptorBlockFlattened.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorBlockIndex (
+        updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE,
+        parameterType: ParameterType = ParameterType.CONSTANTS,
+        descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
+        visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): DescriptorBlockIndex {
+        const v = this._descriptorBlockIndex.add();
+        v.reset(updateFrequency, parameterType, descriptorType, visibility);
+        return v;
+    }
+    createResolvePair (
+        source = '',
+        target = '',
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
+        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+    ): ResolvePair {
+        const v = this._resolvePair.add();
+        v.reset(source, target, resolveFlags, mode, mode1);
+        return v;
+    }
+    createCopyPair (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        sourceMostDetailedMip = 0,
+        sourceFirstSlice = 0,
+        sourcePlaneSlice = 0,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): CopyPair {
+        const v = this._copyPair.add();
+        v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createUploadPair (
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): UploadPair {
+        const v = this._uploadPair.add();
+        v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createMovePair (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): MovePair {
+        const v = this._movePair.add();
+        v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createPipelineStatistics (): PipelineStatistics {
+        const v = this._pipelineStatistics.add();
+        v.reset();
+        return v;
+    }
     private readonly _lightInfo: RecyclePool<LightInfo>;
     private readonly _descriptor: RecyclePool<Descriptor>;
     private readonly _descriptorBlock: RecyclePool<DescriptorBlock>;
