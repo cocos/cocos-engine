@@ -202,7 +202,7 @@ export declare namespace Mesh {
          * @en Whether to support GPU Scene
          * @zh 是否支持 GPU Scene
          */
-        supportGPUScene: boolean;
+        supportGPUScene?: boolean;
     }
 
     /**

@@ -295,7 +295,7 @@ void Mesh::initialize() {
     }
 
     _initialized = true;
-    _supportGPUScene = _struct.supportGPUScene && isGPUMeshFormat();
+    _supportGPUScene = (!_struct.supportGPUScene.has_value() || _struct.supportGPUScene.value()) && isGPUMeshFormat();
 
     if (_struct.dynamic.has_value()) {
         auto *device = gfx::Device::getInstance();

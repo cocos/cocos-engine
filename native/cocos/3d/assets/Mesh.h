@@ -201,7 +201,7 @@ public:
          * @en Whether to support GPU Scene
          * @zh 是否支持 GPU Scene
          */
-        bool supportGPUScene = true;
+        ccstd::optional<bool> supportGPUScene;
     };
 
     struct ICreateInfo {
