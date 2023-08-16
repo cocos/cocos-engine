@@ -71,7 +71,7 @@ import {
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
-import { Pass } from '../../render-scene';
+import { IMacroPatch, Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
@@ -127,6 +127,7 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
+    bool,
     getDescriptorSetDataFromLayout,
     getDescriptorSetDataFromLayoutId,
     getRenderArea,
@@ -1117,7 +1118,7 @@ class DevicePreSceneTask extends WebSceneTask {
         // this._uploadInstanceBuffers();
     }
 }
-
+const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const sceneViewport = new Viewport();
 class DeviceSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
@@ -1175,17 +1176,6 @@ class DeviceSceneTask extends WebSceneTask {
                 this.visitor.draw(inputAssembler);
             }
         }
-    }
-
-    protected _recordReflectionProbe (): void {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.reflectionProbe?.recordCommandBuffer(
-            context.device,
-            this._renderPass,
-
-            context.commandBuffer,
-        );
     }
 
     private _clearExtBlitDesc (desc, extResId: number[]): void {
@@ -1300,6 +1290,9 @@ class DeviceSceneTask extends WebSceneTask {
         renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
+        if (!bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE) && graphSceneData.light.probe) {
+            renderQueue.opaqueQueue.removeMacro(CC_USE_RGBE_OUTPUT);
+        }
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
                 devicePass.renderPass,
@@ -1309,9 +1302,6 @@ class DeviceSceneTask extends WebSceneTask {
         }
         if (graphSceneData.flags & SceneFlags.UI) {
             this._recordUI();
-        }
-        if (graphSceneData.flags & SceneFlags.REFLECTION_PROBE) {
-            this._recordReflectionProbe();
         }
     }
 }

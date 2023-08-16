@@ -1,5 +1,6 @@
 import { RecyclePool, UpdateRecyclePool } from '../../core';
 import { CommandBuffer, DescriptorSet, Device, PipelineState, RenderPass, deviceManager } from '../../gfx';
+import { IMacroPatch } from '../../render-scene';
 import { LightType, Model, SubModel } from '../../render-scene/scene';
 import { SetIndex } from '../define';
 import { InstancedBuffer } from '../instanced-buffer';
@@ -123,6 +124,23 @@ export class RenderDrawQueue {
             cmdBuffer.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
             cmdBuffer.bindInputAssembler(inputAssembler);
             cmdBuffer.draw(inputAssembler);
+        }
+    }
+
+    removeMacro (macroName: string): void {
+        for (const instance of this.instances) {
+            const subModel = instance.subModel!;
+            let patches: IMacroPatch[] = [];
+            patches = patches.concat(subModel.patches!);
+            if (!patches.length) continue;
+            for (let j = 0; j < patches.length; j++) {
+                const patch = patches[j];
+                if (patch.name === macroName) {
+                    patches.splice(j, 1);
+                    break;
+                }
+            }
+            subModel.onMacroPatchesStateChanged(patches);
         }
     }
 }
