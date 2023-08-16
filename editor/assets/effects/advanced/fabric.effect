@@ -224,6 +224,7 @@ CCProgram surface-fragment %{
   vec3 SurfacesFragmentModifySheenParams()
   {
     #if USE_SHEEN_MAP
+      //
       return texture(sheenMap, FSInput_texcoord).xyz;
     #else
       return vec3(emissiveScaleParam.x, emissiveScaleParam.y - 0.9, emissiveScaleParam.z);
@@ -233,8 +234,10 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
   vec3 SurfacesFragmentModifySheenColor()
   {
-      return vec3(1.0, 1.0, 1.0);
+      return sheenColor.rgb;
   }
+
+  #include <common-functions>
 }%
 
 CCProgram standard-vs %{
