@@ -755,8 +755,10 @@ export function buildReflectionProbePass (
         probeCamera.clearStencil,
         probeCamera.clearFlag,
     );
-    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE);
-    passBuilder.addSceneOfCamera(camera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
+    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE, 'reflect-map');
+    const lightInfo = new LightInfo();
+    lightInfo.probe = probe;
+    passBuilder.addSceneOfCamera(camera, lightInfo, SceneFlags.REFLECTION_PROBE | SceneFlags.OPAQUE_OBJECT);
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 

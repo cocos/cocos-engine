@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { Light } from '../../render-scene/scene';
+import { Light, ReflectionProbe } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
 import { RecyclePool } from '../../core/memop';
@@ -289,17 +289,20 @@ export function getClearValueTypeName (e: ClearValueType): string {
 }
 
 export class LightInfo {
-    constructor (light: Light | null = null, level = 0, culledByLight = false) {
+    constructor (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null) {
         this.light = light;
         this.level = level;
         this.culledByLight = culledByLight;
+        this.probe = probe;
     }
-    reset (light: Light | null = null, level = 0, culledByLight = false): void {
+    reset (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null): void {
         this.light = light;
         this.level = level;
         this.culledByLight = culledByLight;
+        this.probe = probe;
     }
     /*refcount*/ light: Light | null;
+    probe: ReflectionProbe | null;
     level: number;
     culledByLight: boolean;
 }
