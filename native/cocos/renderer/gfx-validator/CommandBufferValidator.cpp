@@ -206,6 +206,18 @@ void CommandBufferValidator::endRenderPass() {
     _actor->endRenderPass();
 }
 
+void CommandBufferValidator::insertMarker(const MarkerInfo &marker) {
+    _actor->insertMarker(marker);
+}
+
+void CommandBufferValidator::beginMarker(const MarkerInfo &marker) {
+    _actor->beginMarker(marker);
+}
+
+void CommandBufferValidator::endMarker() {
+    _actor->endMarker();
+}
+
 void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     CC_ASSERT(isInited());
 
@@ -384,8 +396,7 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
     _actor->draw(info);
 }
 
-void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
-{
+void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
     CC_ASSERT(stride == (sizeof(DrawIndirectCommand)));
     CC_ASSERT(isInited());
     CC_ASSERT(buffer);
@@ -397,8 +408,7 @@ void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint3
     _actor->drawIndirect(bufferValidator->getActor(), offset, count, stride);
 }
 
-void CommandBufferValidator::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
-{
+void CommandBufferValidator::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
     CC_ASSERT(isInited());
     CC_ASSERT(buffer);
     CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::INDIRECT));

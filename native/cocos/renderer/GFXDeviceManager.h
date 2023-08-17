@@ -82,15 +82,11 @@ public:
 #endif
 
 #ifdef CC_USE_VULKAN
-    #if XR_OEM_PICO
-        Device::isSupportDetachDeviceThread = false;
-    #endif
-
         bool skipVulkan = false;
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #if CC_PLATFORM == CC_PLATFORM_ANDROID
         auto sdkVersion = BasePlatform::getPlatform()->getSdkVersion();
         skipVulkan = sdkVersion <= 27; // Android 8
-#endif
+    #endif
         if (!skipVulkan && tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 

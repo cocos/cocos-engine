@@ -69,13 +69,25 @@ export class WebGLFramebuffer extends Framebuffer {
             glFramebuffer: null,
             isOffscreen: true,
             get width (): number {
-                return this.isOffscreen ? width : this.gpuColorTextures[0].width;
+                if (this.isOffscreen) {
+                    return width;
+                } else if (this.gpuColorTextures.length > 0) {
+                    return this.gpuColorTextures[0].width;
+                } else {
+                    return this.gpuDepthStencilTexture!.width;
+                }
             },
             set width (val) {
                 width = val;
             },
             get height (): number {
-                return this.isOffscreen ? height : this.gpuColorTextures[0].height;
+                if (this.isOffscreen) {
+                    return height;
+                } else if (this.gpuColorTextures.length > 0) {
+                    return this.gpuColorTextures[0].height;
+                } else {
+                    return this.gpuDepthStencilTexture!.height;
+                }
             },
             set height (val) {
                 height = val;

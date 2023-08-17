@@ -28,6 +28,7 @@ struct SurfacesMaterialData
 #endif
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
   // for storage only, copied with CCSurfacesGetSurfacesMaterialData2ndSpecular
+  // todo: use SurfacesMaterialDataPerLayer instead
   vec3 baseColor2ndSpecular, color2ndSpecular;
   float intensity2ndSpecular, roughness2ndSpecular, metallic2ndSpecular;
   vec3 worldNormal2ndSpecular, worldTangent2ndSpecular, worldBinormal2ndSpecular;

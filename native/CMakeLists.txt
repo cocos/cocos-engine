@@ -3121,6 +3121,11 @@ if(MSVC)
         /wd4098 # defaultlib conflicts
         /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
     )
+    target_link_options(${ENGINE_NAME} PUBLIC
+        /ignore:4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
+        /ignore:4098 # defaultlib 'library' conflicts with use of other libs; use /NODEFAULTLIB:library
+        /ignore:4204 # 'filename' is missing debugging information for referencing module; linking object as if no debug info
+    )
 endif()
 
 if(CC_USE_VULKAN)

@@ -480,9 +480,9 @@ export class Sprite extends UIRenderer {
     public __preload (): void {
         this.changeMaterialForDefine();
         super.__preload();
+        this._applySpriteSize();
 
         if (EDITOR) {
-            this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }

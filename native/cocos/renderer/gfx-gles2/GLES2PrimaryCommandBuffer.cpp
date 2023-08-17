@@ -80,6 +80,18 @@ void GLES2PrimaryCommandBuffer::nextSubpass() {
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), ++_curSubpassIdx);
 }
 
+void GLES2PrimaryCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    cmdFuncGLES2InsertMarker(GLES2Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES2PrimaryCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    cmdFuncGLES2PushGroupMarker(GLES2Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES2PrimaryCommandBuffer::endMarker() {
+    cmdFuncGLES2PopGroupMarker(GLES2Device::getInstance());
+}
+
 void GLES2PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
     // not support
     std::ignore = buffer;

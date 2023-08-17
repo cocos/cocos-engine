@@ -17,7 +17,7 @@ export class PostProcess extends Component {
     global = true;
 
     @property
-    _shadingScale = 1;
+    protected _shadingScale = 1;
     @tooltip('i18n:postprocess.shadingScale')
     @slide
     @range([0.01, 4, 0.01])

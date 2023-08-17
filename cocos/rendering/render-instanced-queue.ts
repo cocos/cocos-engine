@@ -38,7 +38,7 @@ export class RenderInstancedQueue {
      */
     public queue = new Set<InstancedBuffer>();
 
-    private _renderQueue : InstancedBuffer[] = [];
+    private _renderQueue: InstancedBuffer[] = [];
 
     /**
      * @en Clear the render queue
@@ -86,8 +86,13 @@ export class RenderInstancedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
-        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>): void {
+    public recordCommandBuffer (
+        device: Device,
+        renderPass: RenderPass,
+        cmdBuff: CommandBuffer,
+        descriptorSet: DescriptorSet | null = null,
+        dynamicOffsets?: Readonly<number[]>,
+    ): void {
         const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue[Symbol.iterator]();
         let res = it.next();
 
