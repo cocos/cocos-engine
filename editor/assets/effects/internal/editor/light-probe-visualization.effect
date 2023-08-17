@@ -89,7 +89,7 @@ CCProgram gizmo-fs %{
   #if CC_USE_LIGHT_PROBE
     #include <builtin/functionalities/sh>
   #endif
-  
+
   vec4 gizmo_fs (float alpha) {
     #if CC_USE_LIGHT_PROBE
       vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);

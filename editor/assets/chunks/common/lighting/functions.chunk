@@ -7,7 +7,7 @@ vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
   // two sided
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
-  
+
   // A: NV  B:NR
   float cosA = abs(NoV);
   float sinA = sqrt(1.0 - cosA * cosA);
@@ -25,7 +25,7 @@ vec3 CalculateRefractDirectionFast(vec3 N, vec3 V, float NoV, float ior)
   // two sided
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
-  
+
   float w = ior * NoV;
   float k = sqrt(1.0 + (w - ior) * (w + ior)); // 1 + ior2 * (NoV2 - 1)
   vec3 R = (w - k) * N - ior * V;
@@ -54,7 +54,7 @@ vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 p
   float sideSignN = dot(N, V) < 0.0 ? -1.0 : 1.0;
   planeN *= sideSignPlaneN;
   N *= sideSignN;*/
-  vec3 bumpedR = normalize(reflect(-V, N)); //R'  
+  vec3 bumpedR = normalize(reflect(-V, N)); //R'
 
   // actually reflected pos alone bumpedR direction, avoid tracing by specified a fake depth
   vec3 reflectedPointPos = worldPos + probeReflectedDepth * bumpedR;

@@ -36,8 +36,8 @@ CCProgram cluster-main %{
       2.0 * (coord.y - cc_viewPort.y) / cc_viewPort.w - 1.0,
       2.0 * coord.z - 1.0);
 
-    CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(ndc.y); 
-    
+    CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(ndc.y);
+
     vec4 eye = ((cc_matProjInv) * (vec4(ndc, 1.0)));
     eye      = eye / eye.w;
     return eye;

@@ -9,7 +9,7 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
   surfaceData.worldNormal = SurfacesFragmentModifyWorldNormal();
   SurfacesFragmentModifyWorldTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal);
-  
+
   surfaceData.ior = SurfacesFragmentModifyIOR();
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
@@ -348,7 +348,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitDiffuse
   #endif
   ;
-  
+
 #else
   vec3 fresnel = lightingResult.fresnel;
   vec3 invFresnel = vec3(1.0) - fresnel;
@@ -403,7 +403,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitDiffuse
   #endif
   ;
-  
+
   color.xyz += lightingResult.emissive;
 #endif
 
