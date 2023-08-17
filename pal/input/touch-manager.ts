@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
+import { Vec2 } from '../../cocos/core/math/vec2';
+import { log as ccLog } from '../../cocos/core/platform/debug';
 import { macro } from '../../cocos/core/platform/macro';
 import { Touch } from '../../cocos/input/types';
-import { Vec2 } from '../../cocos/core/math/vec2';
 
 const tempVec2 = new Vec2();
 
@@ -68,12 +69,12 @@ class TouchManager {
      */
     private _createTouch (touchID: number, x: number, y: number): Touch | undefined {
         if (this._touchMap.has(touchID)) {
-            console.log('Cannot create the same touch object.');
+            ccLog('Cannot create the same touch object.');
             return undefined;
         }
         const checkResult = this._checkTouchMapSizeMoreThanMax(touchID);
         if (checkResult) {
-            console.log('The touches is more than MAX_TOUCHES.');  // TODO: logID 2300
+            ccLog('The touches is more than MAX_TOUCHES.');  // TODO: logID 2300
             return undefined;
         }
         const touch = new Touch(x, y, touchID);
@@ -156,7 +157,7 @@ class TouchManager {
         const now = performance.now();
         this._touchMap.forEach((touch) => {
             if (now - touch.lastModified > macro.TOUCH_TIMEOUT) {
-                console.log(`The touches is more than MAX_TOUCHES, release touch id ${touch.getID()}.`);
+                ccLog(`The touches is more than MAX_TOUCHES, release touch id ${touch.getID()}.`);
                 // TODO: need to handle touch cancel event when exceed the max number of touches ?
                 this.releaseTouch(touch.getID());
             }
