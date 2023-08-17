@@ -211,7 +211,7 @@ export class BaseRenderData {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class RenderData extends BaseRenderData {
-    public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor): RenderData {
+    public static add (vertexFormat = vfmtPosUvColor, accessor: StaticVBAccessor | undefined = undefined): RenderData {
         const rd = new RenderData(vertexFormat, accessor);
         if (!accessor) {
             const batcher = director.root!.batcher2D;
@@ -222,14 +222,8 @@ export class RenderData extends BaseRenderData {
     }
 
     public static remove (data: RenderData): void {
-        // const idx = _pool.data.indexOf(data);
-        // if (idx === -1) {
-        //     return;
-        // }
-
         data.clear();
         data._accessor = null!;
-        // _pool.removeAt(idx);
     }
 
     get dataLength (): number {
@@ -308,7 +302,7 @@ export class RenderData extends BaseRenderData {
     protected _accessor: StaticVBAccessor = null!;
     get accessor (): StaticVBAccessor { return this._accessor; }
 
-    public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
+    public constructor (vertexFormat = vfmtPosUvColor, accessor: StaticVBAccessor | undefined = undefined) {
         super(vertexFormat);
         if (!accessor) {
             accessor = this.batcher.switchBufferAccessor(this._vertexFormat);
@@ -520,32 +514,13 @@ export class RenderData extends BaseRenderData {
  */
 export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor): MeshRenderData {
-        // const rd = _meshDataPool.add();
-        const rd = new MeshRenderData();
-        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        rd._vertexFormat = vertexFormat;
+        const rd = new MeshRenderData(vertexFormat);
         return rd;
     }
 
     public static remove (data: MeshRenderData): void {
-        // const idx = _meshDataPool.data.indexOf(data);
-        // if (idx === -1) {
-        //     return;
-        // }
-
-        // _meshDataPool.data[idx].clear();
-        // _meshDataPool.removeAt(idx);
-
         data.clear();
     }
-
-    /**
-     * @deprecated
-     */
-    set formatByte (value: number) { }
-    get formatByte (): number { return this.stride; }
-
-    get floatStride (): number { return this._floatStride; }
 
     /**
      * Index of Float32Array: vData
