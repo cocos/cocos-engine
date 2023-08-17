@@ -24,9 +24,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "platform/openharmony/napi/NapiHelper.h"
-#include <js_native_api.h>
-#include <js_native_api_types.h>
-
 #include "platform/openharmony/napi/napi_macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include "platform/openharmony/modules/SystemWindow.h"
@@ -54,88 +51,48 @@ enum ContextType {
     WEBVIEW_UTILS,
     UV_ASYNC_SEND,
 };
-// NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
-// NapiHelper::PostSyncMessage2UIThreadCb NapiHelper::_postSyncMsg2UIThreadCb;
+
+static Napi::Env gWorkerEnv(nullptr);
+static Napi::FunctionReference* gPostMessageToUIThreadFunc = nullptr;
 
 static void js_set_PostMessage2UIThreadCallback(const Napi::CallbackInfo &info) {
-    // size_t argc = 1;
-    // napi_value result = nullptr;
-    // napi_get_undefined(env, &result);
-    // napi_value argv = nullptr;
-    // napi_value this_arg = nullptr;
-    // napi_status status = napi_get_cb_info(env, info, &argc, &argv, &this_arg, nullptr);
-    // if (status == napi_ok && argc == 1) {
-    //     do {
-    //         if (args[0].isObject() && args[0].toObject()->isFunction()) {
-    //             //se::Value jsThis(s.thisObject());
-    //             se::Value jsFunc(args[0]);
-    //             //jsThis.toObject()->attachObject(jsFunc.toObject());
-    //             auto * thisObj = s.thisObject();
-    //             NapiHelper::_postMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1) -> void {
-    //                 se::ScriptEngine::getInstance()->clearException();
-    //                 se::AutoHandleScope hs;
-    //                 CC_UNUSED bool ok = true;
-    //                 se::ValueArray args;
-    //                 args.resize(2);
-    //                 ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-    //                 CC_ASSERT(ok);
-    //                 args[1] = larg1;
-    //                 //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-    //                 se::Value rval;
-    //                 se::Object* funcObj = jsFunc.toObject();
-    //                 bool succeed = funcObj->call(args, thisObj, &rval);
-    //                 if (!succeed) {
-    //                     se::ScriptEngine::getInstance()->clearException();
-    //                 }
-    //             };
-    //         }
-    //     } while(false);
-    //     return result;
-    // }
-    // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    Napi::Env env = info.Env();
+    if (info.Length() != 1) {
+        Napi::Error::New(env, "setPostMessageFunction, 1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
 
-    // return result;
+    if (!info[0].IsFunction()) {
+        Napi::TypeError::New(env, "setPostMessageFunction, function expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    delete gPostMessageToUIThreadFunc;
+    gPostMessageToUIThreadFunc = new Napi::FunctionReference(Napi::Persistent(info[0].As<Napi::Function>()));
 }
 
-static void js_set_PostSyncMessage2UIThreadCallback(const Napi::CallbackInfo &info) {
-    // const auto& args = s.args();
-    // size_t argc = args.size();
-    // CC_UNUSED bool ok = true;
-    // if (argc == 1) {
-    //     do {
-    //         if (args[0].isObject() && args[0].toObject()->isFunction()) {
-    //             //se::Value jsThis(s.thisObject());
-    //             se::Value jsFunc(args[0]);
-    //             //jsThis.toObject()->attachObject(jsFunc.toObject());
-    //             auto * thisObj = s.thisObject();
-    //             NapiHelper::_postSyncMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1, se::Value* res) -> void {
-    //                 se::ScriptEngine::getInstance()->clearException();
-    //                 se::AutoHandleScope hs;
-    //                 CC_UNUSED bool ok = true;
-    //                 se::ValueArray args;
-    //                 args.resize(2);
-    //                 ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-    //                 CC_ASSERT(ok);
-    //                 args[1] = larg1;
-    //                 //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-    //                 //se::Value rval;
-    //                 se::Object* funcObj = jsFunc.toObject();
-    //                 bool succeed = funcObj->call(args, thisObj, res);
-    //                 if (!succeed) {
-    //                     se::ScriptEngine::getInstance()->clearException();
-    //                 }
-    //             };
-    //         }
-    //     } while(false);
-    //     return true;
-    // }
-    // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    // return false;
-    // return nullptr;
+/* static */
+void NapiHelper::postMessageToUIThread(const std::string& type, Napi::Value param) {
+    if (gPostMessageToUIThreadFunc == nullptr) {
+        CC_LOG_ERROR("callback was not set %s, type: %s", __FUNCTION__, type.c_str());
+        return;
+    }
+
+    gPostMessageToUIThreadFunc->Call({param});
+}
+
+/* static */
+Napi::Value NapiHelper::napiCallFunction(const char* functionName) {
+    auto env = getWorkerEnv();
+    auto funcVal = env.Global().Get(functionName);
+    if (!funcVal.IsFunction()) {
+        return {};
+    }
+    return funcVal.As<Napi::Function>().Call(env.Global(), {});
 }
 
 // NAPI Interface
-static bool exportFunctions(Napi::Env env, Napi::Object exports) {
+static bool exportFunctions(Napi::Object exports) {
     Napi::MaybeOrValue<Napi::Value> xcomponentObject = exports.Get(OH_NATIVE_XCOMPONENT_OBJ);
     if (!xcomponentObject.IsObject()) {
         CC_LOG_ERROR("Could not get property: %s", OH_NATIVE_XCOMPONENT_OBJ);
@@ -145,14 +102,6 @@ static bool exportFunctions(Napi::Env env, Napi::Object exports) {
     auto* nativeXComponent = Napi::ObjectWrap<OH_NativeXComponent>::Unwrap(xcomponentObject.As<Napi::Object>());
     if (nativeXComponent == nullptr) {
         CC_LOG_ERROR("nativeXComponent is nullptr");
-        return false;
-    }
-
-    char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
-    uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
-    int32_t ret = OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
-    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
-        CC_LOG_ERROR("OH_NativeXComponent_GetXComponentId failed");
         return false;
     }
 
@@ -277,28 +226,27 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
         case WORKER_INIT: {
 //cjh            se::ScriptEngine::setEnv(env);
             CC_LOG_INFO("cjh getContext WORKER_INIT ...");
-
+            gWorkerEnv = env;
             exports["workerInit"] = Napi::Function::New(env, napiWorkerInit);
             exports["setPostMessageFunction"] = Napi::Function::New(env, js_set_PostMessage2UIThreadCallback);
-            exports["setPostSyncMessageFunction"] = Napi::Function::New(env, js_set_PostSyncMessage2UIThreadCallback);
         } break;
         case ENGINE_UTILS: {
             exports["resourceManagerInit"] = Napi::Function::New(env, napiResourceManagerInit);
             exports["writablePathInit"] = Napi::Function::New(env, napiWritablePathInit);
         } break;
         case EDITBOX_UTILS: {
-            //cjh #if CC_USE_EDITBOX
-            //     std::vector<napi_property_descriptor> desc;
-            //     OpenHarmonyEditBox::GetInterfaces(desc);
-            //     NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-            // #endif
+        #if CC_USE_EDITBOX
+            exports["onTextChange"] = Napi::Function::New(env, OpenHarmonyEditBox::napiOnTextChange);
+            exports["onComplete"] = Napi::Function::New(env, OpenHarmonyEditBox::napiOnComplete);
+        #endif
         } break;
         case WEBVIEW_UTILS: {
-            //cjh #if CC_USE_WEBVIEW
-            //     std::vector<napi_property_descriptor> desc;
-            //     OpenHarmonyWebView::GetInterfaces(desc);
-            //     NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-            // #endif
+        #if CC_USE_WEBVIEW
+            exports["shouldStartLoading"] = Napi::Function::New(env, OpenHarmonyWebView::napiShouldStartLoading);
+            exports["finishLoading"] = Napi::Function::New(env, OpenHarmonyWebView::napiFinishLoading);
+            exports["failLoading"] = Napi::Function::New(env, OpenHarmonyWebView::napiFailLoading);
+            exports["jsCallback"] = Napi::Function::New(env, OpenHarmonyWebView::napiJsCallback);
+        #endif
         } break;
         case UV_ASYNC_SEND: {
             exports["send"] = Napi::Function::New(env, napiASend);
@@ -312,9 +260,14 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
 }
 
 /* static */
+Napi::Env NapiHelper::getWorkerEnv() {
+    return gWorkerEnv;
+}
+
+/* static */
 Napi::Object NapiHelper::init(Napi::Env env, Napi::Object exports) {
     exports["getContext"] = Napi::Function::New(env, getContext);
-    bool ret = exportFunctions(env, exports);
+    bool ret = exportFunctions(exports);
     if (!ret) {
         CC_LOG_ERROR("Init failed");
     }

@@ -26,12 +26,16 @@
 #include "platform/openharmony/modules/Screen.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 
+#include "bindings/jswrapper/SeApi.h"
+
 namespace cc {
 
 int Screen::getDPI() const {
-    float value = 0.F;
-    NapiHelper::napiCallFunction("getDPI", &value);
-    return value;
+    auto dpi = NapiHelper::napiCallFunction("getDPI");
+    if (dpi.IsNumber()) {
+        return dpi.As<Napi::Number>().Int32Value();
+    }
+    return 0;
 }
 
 float Screen::getDevicePixelRatio() const {
@@ -43,8 +47,12 @@ float Screen::getDevicePixelRatio() const {
 }
 
 Screen::Orientation Screen::getDeviceOrientation() const {
+    auto dpi = NapiHelper::napiCallFunction("getDeviceOrientation");
     int32_t value = 0;
-    NapiHelper::napiCallFunction("getDeviceOrientation", &value);
+    if (dpi.IsNumber()) {
+        value = dpi.As<Napi::Number>().Int32Value();
+    }
+
     if(value == 0) {
         return Orientation::PORTRAIT;
     } else if(value == 1) {
@@ -67,19 +75,19 @@ Vec4 Screen::getSafeAreaEdge() const {
 }
 
 bool Screen::isDisplayStats() {
-    //cjh se::AutoHandleScope hs;
-    // se::Value ret;
-    // char commandBuf[100] = "cc.profiler.isShowingStats();";
-    // se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
-    // return ret.toBoolean();
+    se::AutoHandleScope hs;
+    se::Value ret;
+    const char commandBuf[100] = "cc.profiler.isShowingStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
     return true;
 }
 
 void Screen::setDisplayStats(bool isShow) {
-    //cjh se::AutoHandleScope hs;
-    // char commandBuf[100] = {0};
-    // sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
-    // se::ScriptEngine::getInstance()->evalString(commandBuf);
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 

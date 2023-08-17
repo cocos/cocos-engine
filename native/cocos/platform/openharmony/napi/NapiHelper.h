@@ -25,9 +25,6 @@
 
 #pragma once
 
-#include <napi/native_api.h>
-#include <string>
-
 #define NODE_ADDON_API_ENABLE_TYPE_CHECK_ON_AS 1
 #define NAPI_DISABLE_CPP_EXCEPTIONS 1
 #define NODE_ADDON_API_DISABLE_DEPRECATED 1
@@ -37,63 +34,10 @@ namespace cc {
 
 class NapiHelper {
 public:
-
+    static Napi::Env getWorkerEnv();
     static Napi::Object init(Napi::Env env, Napi::Object exports);
-
-    template <class ReturnType>
-    static napi_value napiCallFunction(const char* functionName, ReturnType* value) {
-        // if (!se::ScriptEngine::getInstance()->isValid()) {
-        //     return nullptr;
-        // }
-        // se::Value tickVal;
-        // se::AutoHandleScope scope;
-        // if (tickVal.isUndefined()) {
-        //     se::ScriptEngine::getInstance()->getGlobalObject()->getProperty(functionName, &tickVal);
-        // }
-        // se::Value rval;
-        // se::ValueArray tickArgsValArr(1);
-        // if (!tickVal.isUndefined()) {
-        //     tickVal.toObject()->call(tickArgsValArr, nullptr, &rval);
-        // }
-        // if(rval.isNullOrUndefined()) {
-        //     return nullptr;
-        // }
-        // bool ok = true;
-        // ok &= sevalue_to_native(rval, value, nullptr);
-        // SE_PRECONDITION2(ok, nullptr, "Error processing arguments");
-        return nullptr;
-    }
-
-
-    template <typename ParamType>
-    static void postMessageToUIThread(const std::string& type, ParamType param) {
-        // if (!_postMsg2UIThreadCb) {
-        //     return;
-        // }
-        // CC_UNUSED bool ok = true;
-        // se::Value value;
-        // ok &= nativevalue_to_se(param, value, nullptr /*ctx*/);
-        // _postMsg2UIThreadCb(type, value);
-    }
-
-    template <typename ParamType, typename ResType>
-    static void postSyncMessageToUIThread(const std::string& type, ParamType param, ResType* res) {
-        // if (!_postSyncMsg2UIThreadCb) {
-        //     return;
-        // }
-        // CC_UNUSED bool ok = true;
-        // se::Value value;
-        // ok &= nativevalue_to_se(param, value, nullptr /*ctx*/);
-        // se::Value seOut;
-        // _postSyncMsg2UIThreadCb(type, value, &seOut);
-        // sevalue_to_native(seOut, res, nullptr);
-    }
-
-public:
-    // using PostMessage2UIThreadCb = std::function<void(const std::string&, const se::Value&)>;
-    // static PostMessage2UIThreadCb _postMsg2UIThreadCb;
-    // using PostSyncMessage2UIThreadCb = std::function<void(const std::string&, const se::Value&, se::Value*)>;
-    // static PostSyncMessage2UIThreadCb _postSyncMsg2UIThreadCb;
+    static Napi::Value napiCallFunction(const char* functionName);
+    static void postMessageToUIThread(const std::string& type, Napi::Value param);
 };
 
 }  // namespace cc
