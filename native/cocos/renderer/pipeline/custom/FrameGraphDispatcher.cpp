@@ -1533,7 +1533,7 @@ gfx::SamplerInfo makePointSamplerInfo() {
     return gfx::SamplerInfo{gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::POINT};
 }
 
-SubresourceView makeSubresourceView(const ResourceDesc& srcDesc, const ResourceDesc &targetDesc, const gfx::ResourceRange& range) {
+SubresourceView makeSubresourceView(const ResourceDesc &targetDesc, const gfx::ResourceRange& range) {
     SubresourceView view{};
     view.firstArraySlice = range.firstSlice;
     view.numArraySlices = range.numSlices;
@@ -1542,7 +1542,6 @@ SubresourceView makeSubresourceView(const ResourceDesc& srcDesc, const ResourceD
     view.firstPlane = range.basePlane;
     view.numPlanes = range.planeCount;
     view.format = targetDesc.format;
-    view.viewType = srcDesc.viewType;
     view.textureView = nullptr;
     return view;
 }
@@ -1659,7 +1658,6 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
                 auto descResViewID = findVertex(subres, resg);
                 auto targetResID = rag.resourceIndex.at(resName);
 
-                const auto &srcDesc = get(ResourceGraph::DescTag{}, resg, descResViewID);
                 const auto &targetName = get(ResourceGraph::NameTag{}, resg, targetResID);
                 const auto &targetDesc = get(ResourceGraph::DescTag{}, resg, targetResID);
                 const auto &srcResourceRange = rag.movedSourceStatus.at(subres).range;
@@ -1667,7 +1665,7 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
                 const auto &indexName = concatResName(targetName, subres, rag.resource());
                 auto subresID = findVertex(indexName, resg);
                 if (subresID == ResourceGraph::null_vertex()) {
-                    const auto &subView = makeSubresourceView(srcDesc, targetDesc, srcResourceRange);
+                    const auto &subView = makeSubresourceView(targetDesc, srcResourceRange);
                     // register to resourcegraph
                     subresID = addVertex(
                         SubresourceViewTag{},

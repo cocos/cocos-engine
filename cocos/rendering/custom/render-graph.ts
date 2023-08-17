@@ -31,7 +31,7 @@
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport, TextureType } from '../../gfx';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
 import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
@@ -160,6 +160,7 @@ export class ResourceDesc {
         this.sampleCount = SampleCount.X1;
         this.textureFlags = TextureFlagBit.NONE;
         this.flags = ResourceFlags.NONE;
+        this.viewType = TextureType.TEX2D;
     }
     dimension: ResourceDimension = ResourceDimension.BUFFER;
     alignment = 0;

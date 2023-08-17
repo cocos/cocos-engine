@@ -684,37 +684,6 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
-    addBuffer (
-        name: string,
-        size: number,
-        flags: ResourceFlags,
-        residency: ResourceResidency): number;
-    updateBuffer (
-        name: string,
-        size: number): void;
-    addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number;
-    updateExternalTexture (name: string, texture: Texture): void;
-    addTexture (
-        name: string,
-        textureType: TextureType,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount,
-        flags: ResourceFlags,
-        residency: ResourceResidency): number;
-    updateTexture (
-        name: string,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount): void;
     addResource (
         name: string,
         dimension: ResourceDimension,
@@ -736,6 +705,38 @@ export interface BasicPipeline extends PipelineRuntime {
         arraySize: number,
         mipLevels: number,
         sampleCount: SampleCount): void;
+    addTexture (
+        name: string,
+        type: TextureType,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateTexture (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
+    addBuffer (
+        name: string,
+        size: number,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateBuffer (name: string, size: number): void;
+    addExternalTexture (
+        name: string,
+        texture: Texture,
+        flags: ResourceFlags): number;
+    updateExternalTexture (name: string, texture: Texture): void;
     /**
      * @engineInternal
      * @en Begin rendering one frame

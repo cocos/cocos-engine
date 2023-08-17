@@ -518,7 +518,6 @@ struct SubresourceView {
     uint16_t numArraySlices{0};
     uint16_t firstPlane{0};
     uint16_t numPlanes{0};
-    gfx::TextureType viewType;
 };
 
 struct ResourceGraph {
