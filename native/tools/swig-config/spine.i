@@ -750,11 +750,11 @@ using namespace spine;
 }
 
 %extend spine::SkeletonBinary {
-    SkeletonData &readSkeletonData(const std::vector<uint8_t>& binary) {
+    SkeletonData *readSkeletonData(const std::vector<uint8_t>& binary) {
         std::vector<unsigned char> input;
         for (int i = 0; i < binary.size(); ++i) {
             input.push_back(binary[i]);
         }
-        return *($self->readSkeletonData(input.data(), input.size()));
+        return $self->readSkeletonData(input.data(), input.size());
     }
 }
