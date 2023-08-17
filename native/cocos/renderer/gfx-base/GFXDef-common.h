@@ -179,7 +179,7 @@ enum class Feature : uint32_t {
     SUBPASS_DEPTH_STENCIL_INPUT,
     RASTERIZATION_ORDER_NOCOHERENT,
 
-    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL, // resolve depth stencil
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -497,10 +497,10 @@ using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
 
 enum class SampleCount : uint32_t {
-    X1  = 0x01,
-    X2  = 0x02,
-    X4  = 0x04,
-    X8  = 0x08,
+    X1 = 0x01,
+    X2 = 0x02,
+    X4 = 0x04,
+    X8 = 0x08,
     X16 = 0x10,
     X32 = 0x20,
     X64 = 0x40
@@ -983,6 +983,11 @@ struct Color {
 };
 using ColorList = ccstd::vector<Color>;
 
+struct MarkerInfo {
+    ccstd::string name;
+    Color color;
+};
+
 struct BindingMappingInfo {
     /**
      * For non-vulkan backends, to maintain compatibility and maximize
@@ -1308,7 +1313,7 @@ struct ShaderInfo {
 struct InputAssemblerInfo {
     AttributeList attributes;
     BufferList vertexBuffers;
-    Buffer *indexBuffer{nullptr};    // @ts-nullable
+    Buffer *indexBuffer{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(InputAssemblerInfo)
 };
@@ -1437,7 +1442,7 @@ using BufferBarrierInfoList = ccstd::vector<BufferBarrierInfo>;
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
     TextureList colorTextures;
-    Texture *depthStencilTexture{nullptr}; // @ts-nullable
+    Texture *depthStencilTexture{nullptr};        // @ts-nullable
     Texture *depthStencilResolveTexture{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(FramebufferInfo)
@@ -1655,4 +1660,3 @@ struct DynamicStates {
 
 } // namespace gfx
 } // namespace cc
-

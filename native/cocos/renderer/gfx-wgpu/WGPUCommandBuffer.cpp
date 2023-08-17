@@ -239,6 +239,17 @@ void CCWGPUCommandBuffer::endRenderPass() {
     _gpuCommandBufferObj->renderPassBegan = false;
 }
 
+void CCWGPUCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+
+void CCWGPUCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+
+void CCWGPUCommandBuffer::endMarker() {
+}
+
 void CCWGPUCommandBuffer::bindPipelineState(PipelineState *pso) {
     _gpuCommandBufferObj->stateCache.pipelineState = static_cast<CCWGPUPipelineState *>(pso);
 }

@@ -715,7 +715,7 @@ export class ArmatureDisplay extends UIRenderer {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
+        this.setSharedMaterial(mat as Material, 0);
         this._cleanMaterialCache();
     }
 
@@ -732,8 +732,15 @@ export class ArmatureDisplay extends UIRenderer {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
+                    batcher.commitMiddleware(
+                        this,
+                        meshBuffer,
+                        origin + dc.indexOffset,
+                        dc.indexCount,
+                        dc.texture,
+                        dc.material!,
+                        this._enableBatch,
+                    );
                 }
                 indicesCount += dc.indexCount;
             }

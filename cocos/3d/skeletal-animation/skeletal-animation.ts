@@ -25,6 +25,7 @@
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable,
 } from 'cc.decorator';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, cclegacy, js, assertIsTrue, warn } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
@@ -36,6 +37,8 @@ import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import type { AnimationState } from '../../animation/animation-state';
 import { getGlobalAnimationManager } from '../../animation/global-animation-manager';
+
+const FORCE_BAN_BAKED_ANIMATION = EDITOR_NOT_IN_PREVIEW;
 
 /**
  * @en The socket to synchronize transform from skeletal joint to target node.
@@ -113,7 +116,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     set sockets (val) {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             const animMgr = getGlobalAnimationManager();
             animMgr.removeSockets(this.node, this._sockets);
             animMgr.addSockets(this.node, val);
@@ -127,33 +130,20 @@ export class SkeletalAnimation extends Animation {
      * Whether to bake animations. Default to true,<br>
      * which substantially increases performance while making all animations completely fixed.<br>
      * Dynamically changing this property will take effect when playing the next animation clip.
+     * Note, in editor(not in preview) mode, this option takes no effect: animation is always non-baked.
      * @zh
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
+     * 注意，在编辑器（非预览）模式下，此选项不起作用：动画总是非预烘焙的。
      */
     @editable
     get useBakedAnimation (): boolean {
         return this._useBakedAnimation;
     }
 
-    set useBakedAnimation (val) {
-        this._useBakedAnimation = val;
-
-        for (const stateName in this._nameToState) {
-            const state = this._nameToState[stateName] as SkeletalAnimationState;
-            state.setUseBaked(val);
-        }
-
-        this._users.forEach((user) => {
-            user.setUseBakedAnimation(val);
-        });
-
-        if (this._useBakedAnimation) {
-            getGlobalAnimationManager().removeSockets(this.node, this._sockets);
-        } else {
-            getGlobalAnimationManager().addSockets(this.node, this._sockets);
-            this._currentBakedState = null;
-        }
+    set useBakedAnimation (value) {
+        this._useBakedAnimation = value;
+        this._applyBakeFlagChange();
     }
 
     @serializable
@@ -193,12 +183,12 @@ export class SkeletalAnimation extends Animation {
 
     public start (): void {
         this.sockets = this._sockets;
-        this.useBakedAnimation = this._useBakedAnimation;
+        this._applyBakeFlagChange();
         super.start();
     }
 
     public pause (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.pause();
         } else {
             this._currentBakedState?.pause();
@@ -206,7 +196,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     public resume (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.resume();
         } else {
             this._currentBakedState?.resume();
@@ -214,7 +204,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     public stop (): void {
-        if (!this._useBakedAnimation) {
+        if (!this._useBakedEffectively) {
             super.stop();
         } else if (this._currentBakedState) {
             this._currentBakedState.stop();
@@ -288,14 +278,14 @@ export class SkeletalAnimation extends Animation {
      * @internal This method only friends to skinned mesh renderer.
      */
     public notifySkinnedMeshAdded (skinnedMeshRenderer: SkinnedMeshRenderer): void {
-        const { _useBakedAnimation: useBakedAnimation } = this;
+        const { _useBakedEffectively } = this;
         const formerBound = skinnedMeshRenderer.associatedAnimation;
         if (formerBound) {
             formerBound._users.delete(skinnedMeshRenderer);
         }
         skinnedMeshRenderer.associatedAnimation = this;
-        skinnedMeshRenderer.setUseBakedAnimation(useBakedAnimation, true);
-        if (useBakedAnimation) {
+        skinnedMeshRenderer.setUseBakedAnimation(_useBakedEffectively, true);
+        if (_useBakedEffectively) {
             const { _currentBakedState: playingState } = this;
             if (playingState) {
                 skinnedMeshRenderer.uploadAnimation(playingState.clip);
@@ -333,7 +323,7 @@ export class SkeletalAnimation extends Animation {
     }
 
     protected doPlayOrCrossFade (state: AnimationState, duration: number): void {
-        if (this._useBakedAnimation) {
+        if (this._useBakedEffectively) {
             if (this._currentBakedState) {
                 this._currentBakedState.stop();
             }
@@ -353,5 +343,33 @@ export class SkeletalAnimation extends Animation {
         Array.from(this._users).forEach((user) => {
             this.notifySkinnedMeshRemoved(user);
         });
+    }
+
+    private get _useBakedEffectively (): boolean {
+        if (FORCE_BAN_BAKED_ANIMATION) {
+            return false;
+        } else {
+            return this._useBakedAnimation;
+        }
+    }
+
+    private _applyBakeFlagChange (): void {
+        const useBakedEffectively = this._useBakedEffectively;
+
+        for (const stateName in this._nameToState) {
+            const state = this._nameToState[stateName] as SkeletalAnimationState;
+            state.setUseBaked(useBakedEffectively);
+        }
+
+        this._users.forEach((user) => {
+            user.setUseBakedAnimation(useBakedEffectively);
+        });
+
+        if (useBakedEffectively) {
+            getGlobalAnimationManager().removeSockets(this.node, this._sockets);
+        } else {
+            getGlobalAnimationManager().addSockets(this.node, this._sockets);
+            this._currentBakedState = null;
+        }
     }
 }

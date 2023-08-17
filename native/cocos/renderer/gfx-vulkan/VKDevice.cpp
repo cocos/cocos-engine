@@ -123,6 +123,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
     requestedExtensions.push_back(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
+#if CC_DEBUG
+    requestedExtensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+#endif
     if (_gpuDevice->minorVersion < 2) {
         requestedExtensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
     }
@@ -770,6 +773,16 @@ void CCVKDevice::initDeviceFeature() {
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
     _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = checkExtension("VK_KHR_depth_stencil_resolve");
+
+    _gpuContext->debugReport = _gpuContext->checkExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME) &&
+                               checkExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME) &&
+                               (vkCmdDebugMarkerBeginEXT != nullptr) &&
+                               (vkCmdDebugMarkerInsertEXT != nullptr) &&
+                               (vkCmdDebugMarkerEndEXT != nullptr);
+    _gpuContext->debugUtils = _gpuContext->checkExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) &&
+                              (vkCmdBeginDebugUtilsLabelEXT != nullptr) &&
+                              (vkCmdInsertDebugUtilsLabelEXT != nullptr) &&
+                              (vkCmdEndDebugUtilsLabelEXT != nullptr);
 }
 
 void CCVKDevice::initFormatFeature() {
@@ -1094,14 +1107,14 @@ SampleCount CCVKDevice::getMaxSampleCount(Format format, TextureUsage usage, Tex
 
     VkImageFormatProperties imageFormatProperties = {};
     vkGetPhysicalDeviceImageFormatProperties(_gpuContext->physicalDevice, vkFormat, VK_IMAGE_TYPE_2D,
-        VK_IMAGE_TILING_OPTIMAL, usages, 0, &imageFormatProperties);
+                                             VK_IMAGE_TILING_OPTIMAL, usages, 0, &imageFormatProperties);
 
     if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_64_BIT) return SampleCount::X64;
     if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_32_BIT) return SampleCount::X32;
     if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_16_BIT) return SampleCount::X16;
-    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_8_BIT)  return SampleCount::X8;
-    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_4_BIT)  return SampleCount::X4;
-    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_2_BIT)  return SampleCount::X2;
+    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_8_BIT) return SampleCount::X8;
+    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_4_BIT) return SampleCount::X4;
+    if (imageFormatProperties.sampleCounts & VK_SAMPLE_COUNT_2_BIT) return SampleCount::X2;
 
     return SampleCount::X1;
 }

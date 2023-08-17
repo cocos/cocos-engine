@@ -24,11 +24,15 @@ CCProgram tonemap-fs %{
   #include <common/color/gamma>
   #include <common/color/aces>
   #include <common/debug/debug-view-define>
+  #include <common/math/coordinates>
+  #include <builtin/functionalities/fog>
 
   in vec2 v_uv;
 
   #pragma rate u_texSampler pass
   layout(binding = 0) uniform sampler2D u_texSampler;
+  #pragma rate DepthTex pass
+  layout(binding = 1) uniform sampler2D DepthTex; //Sample_Point_Clamp
 
   layout(location = 0) out vec4 fragColor;
 
@@ -41,12 +45,33 @@ CCProgram tonemap-fs %{
   }
 
   vec4 CCFragOutput_PostProcess(vec4 color) {
-    if (!DebugViewNeedDisplayOriginalData()) {
-    #if CC_USE_FLOAT_OUTPUT
-      color.rgb = HDR2LDR_PostProcess(color.rgb);
-      color.rgb = LinearToSRGB(color.rgb);
+
+    // fog related
+    vec4 worldPos = vec4(0.0);
+    #if CC_USE_FOG != CC_FOG_NONE
+      float depth = texture(DepthTex, v_uv).r;
+      vec3 posHS = vec3(v_uv, depth) * 2.0 - vec3(1.0);
+      CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
+      worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);
     #endif
+
+    // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
+
+    // tone mapping
+    if (!DebugViewNeedDisplayOriginalData()) {
+      #if CC_USE_FLOAT_OUTPUT
+        color.rgb = HDR2LDR_PostProcess(color.rgb);
+        color.rgb = LinearToSRGB(color.rgb);
+      #endif
     }
+
+    // LDR fog
+    #if CC_USE_FOG != CC_FOG_NONE
+      float fogFactor = 1.0;
+      CC_TRANSFER_FOG_BASE(worldPos, fogFactor);
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #endif
+
     return color;
   }
 

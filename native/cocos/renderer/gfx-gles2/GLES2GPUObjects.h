@@ -42,6 +42,7 @@ struct GLES2GPUConstantRegistry {
     bool useDrawInstanced = false;
     bool useInstancedArrays = false;
     bool useDiscardFramebuffer = false;
+    bool debugMarker = false;
 };
 
 class GLES2GPUStateCache;

@@ -27,7 +27,6 @@ import { Motion, MotionEval, MotionPort } from './motion';
 import { createEval } from '../create-eval';
 import { VariableTypeMismatchedError } from '../errors';
 import { ClipStatus } from '../state-machine/state-machine-eval';
-import type { ReadonlyClipOverrideMap } from '../clip-overriding';
 
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from '../graph-debug';
@@ -36,14 +35,6 @@ import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '.
 import { blendPoseInto, Pose } from '../../core/pose';
 
 const { ccclass, serializable } = _decorator;
-
-export interface AnimationBlend extends Motion, EditorExtendable {
-    [createEval] (
-        _context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
-        ignoreEmbeddedPlayers: boolean,
-    ): MotionEval | null;
-}
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
 export class AnimationBlendItem {
@@ -73,7 +64,7 @@ export abstract class AnimationBlend extends Motion {
     }
 }
 
-export class AnimationBlendEval implements MotionEval {
+export abstract class AnimationBlendEval implements MotionEval {
     public declare runtimeId?: number;
 
     private declare _childEvaluators: (MotionEval | null)[];
@@ -82,13 +73,12 @@ export class AnimationBlendEval implements MotionEval {
 
     constructor (
         context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
         base: AnimationBlend,
         children: AnimationBlendItem[],
         inputs: number[],
     ) {
-        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, overrides, ignoreEmbeddedPlayers) ?? null);
+        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, ignoreEmbeddedPlayers) ?? null);
         this._weights = new Array(this._childEvaluators.length).fill(0);
         this._inputs = [...inputs];
         if (RUNTIME_ID_ENABLED) {
@@ -180,9 +170,9 @@ export class AnimationBlendEval implements MotionEval {
         return context.pushDefaultedPose();
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
-            this._childEvaluators[iChild]?.overrideClips(overrides, context);
+            this._childEvaluators[iChild]?.overrideClips(context);
         }
     }
 
@@ -195,9 +185,7 @@ export class AnimationBlendEval implements MotionEval {
         this.eval(this._weights, this._inputs);
     }
 
-    protected eval (_weights: number[], _inputs: readonly number[]): void {
-
-    }
+    protected abstract eval (_weights: number[], _inputs: readonly number[]): void;
 }
 
 class AnimationBlendPort implements MotionPort {

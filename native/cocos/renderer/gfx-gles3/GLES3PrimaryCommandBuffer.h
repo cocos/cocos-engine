@@ -39,6 +39,9 @@ public:
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void nextSubpass() override;
+    void insertMarker(const MarkerInfo &marker) override;
+    void beginMarker(const MarkerInfo &marker) override;
+    void endMarker() override;
     void draw(const DrawInfo &info) override;
     void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
     void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
@@ -68,4 +71,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-

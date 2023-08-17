@@ -62,6 +62,8 @@ public:
     uint32_t minorVersion = 0;
 
     bool validationEnabled = false;
+    bool debugUtils = false;
+    bool debugReport = false;
 
     ccstd::vector<const char *> layers;
     ccstd::vector<const char *> extensions;
@@ -126,7 +128,7 @@ public:
     // helper storage
     ccstd::vector<VkClearValue> clearValues;
     ccstd::vector<VkSampleCountFlagBits> sampleCounts; // per subpass
-    ccstd::vector<bool> hasSelfDependency; // per subpass
+    ccstd::vector<bool> hasSelfDependency;             // per subpass
 
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
     bool hasShadingAttachment(uint32_t subPassId) const;

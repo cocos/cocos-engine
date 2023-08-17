@@ -332,6 +332,13 @@ void CCMTLCommandBuffer::endRenderPass() {
     _gpuCommandBufferObj->renderPass->reset();
 }
 
+void CCMTLCommandBuffer::insertMarker(const MarkerInfo &marker) {
+}
+void CCMTLCommandBuffer::beginMarker(const MarkerInfo &marker) {
+}
+void CCMTLCommandBuffer::endMarker() {
+}
+
 void CCMTLCommandBuffer::afterCommit() {
     _gpuCommandBufferObj->renderPass = nullptr;
     _gpuCommandBufferObj->fbo = nullptr;
