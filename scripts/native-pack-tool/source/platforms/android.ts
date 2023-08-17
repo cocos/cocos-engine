@@ -5,6 +5,7 @@ import { cchelper, Paths } from "../utils";
 import * as URL from 'url';
 import { spawn, spawnSync } from 'child_process';
 import * as xml2js from 'xml2js';
+import { platform } from 'os';
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -17,7 +18,10 @@ export interface IAndroidParams {
     packageName: string;
     sdkPath: string;
     ndkPath: string;
+    javaHome: string;
+    javaPath: string;
     androidInstant: boolean,
+    maxAspectRatio: string;
     remoteUrl?: string;
     apiLevel: number;
     appABIs: string[];
@@ -25,6 +29,7 @@ export interface IAndroidParams {
     keystoreAlias: string;
     keystoreAliasPassword: string;
     keystorePath: string;
+    inputSDK: boolean;
 
     orientation: IOrientation;
     appBundle: boolean;
@@ -77,6 +82,18 @@ export class AndroidPackTool extends NativePackTool {
     async make() {
         const options = this.params.platformParams;
 
+        if (options.javaHome) {
+            if (process.env.JAVA_HOME !== options.javaHome) {
+                process.env.JAVA_HOME = options.javaHome;
+                console.log(`Update JAVA_HOME to ${options.javaHome}`);
+            }
+            if (!process.env.PATH!.startsWith(options.javaHome)) {
+                const sep = platform() === 'win32' ? ';' : ':';
+                process.env.PATH = ps.join(options.javaHome, 'bin') + sep + process.env.PATH;
+                console.log(`Add JAVA_HOME/bin to PATH`);
+            }
+        }
+
         const projDir: string = this.paths.nativePrjDir;
         if (!fs.existsSync(projDir)) {
             throw new Error(`dir ${projDir} not exits`);
@@ -93,7 +110,6 @@ export class AndroidPackTool extends NativePackTool {
 
         // compile android
         buildMode = `${this.projectNameASCII()}:assemble${outputMode}`;
-        // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir */], false, projDir);
 
         // pushd
         const originDir = process.cwd();
@@ -111,7 +127,6 @@ export class AndroidPackTool extends NativePackTool {
         // compile android-instant
         if (options.androidInstant) {
             buildMode = `instantapp:assemble${outputMode}`;
-            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir*/], false, projDir);
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         }
 
@@ -122,7 +137,6 @@ export class AndroidPackTool extends NativePackTool {
             } else {
                 buildMode = `${this.params.projectName}:bundle${outputMode}`;
             }
-            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir*/], false, projDir);
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         }
         return await this.copyToDist();
@@ -214,7 +228,7 @@ export class AndroidPackTool extends NativePackTool {
                 const application = data.manifest.application[0];
                 //append meta-data
                 application['meta-data'].push({
-                    $:{'android:name': 'android.max_aspect', 'android:value': `${aspectRatioFloatValue}`}
+                    $: { 'android:name': 'android.max_aspect', 'android:value': `${aspectRatioFloatValue}` }
                 });
             }
 
