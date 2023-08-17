@@ -136,6 +136,7 @@ using namespace spine;
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
 %ignore spine::Skin::findAttachmentsForSlot;
+%ignore spine::SkeletonBinary::readSkeletonData(const unsigned char*, int);
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -203,6 +204,7 @@ using namespace spine;
 %rename(slotIndex) spine::Skin::AttachmentMap::Entry::_slotIndex;
 %rename(name) spine::Skin::AttachmentMap::Entry::_name;
 %rename(attachment) spine::Skin::AttachmentMap::Entry::_attachment;
+%rename(signum) spine::MathUtil::sign(float);
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -744,5 +746,15 @@ using namespace spine;
         spine::String slot(slotName.data());
         spine::String attachment(attachmentName.data());
         return *($self->getAttachment(slot, attachment));
+    }
+}
+
+%extend spine::SkeletonBinary {
+    SkeletonData &readSkeletonData(const std::vector<uint8_t>& binary) {
+        std::vector<unsigned char> input;
+        for (int i = 0; i < binary.size(); ++i) {
+            input.push_back(binary[i]);
+        }
+        return *($self->readSkeletonData(input.data(), input.size()));
     }
 }
