@@ -111,10 +111,6 @@
                 "physics-2d-builtin": {
                     "label": "i18n:ENGINE.features.physics_2d_builtin.label",
                     "description": "i18n:ENGINE.features.physics_2d_builtin.description"
-                },
-                "physics-2d-box2d-wasm": {
-                    "label": "i18n:ENGINE.features.physics_2d_box2d_wasm.label",
-                    "description": "i18n:ENGINE.features.physics_2d_box2d_wasm.description"
                 }
             }
         },
