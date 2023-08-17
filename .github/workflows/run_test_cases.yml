@@ -1,11 +1,9 @@
 name: run test cases
 
 on:
-  pull_request:
+  pull_request_target:
   issue_comment:
     types: [created, edited]
-
-permissions: read-all
 
 # github.head_ref is only defined on pull_request events
 concurrency:
@@ -281,38 +279,16 @@ jobs:
           JOBID=`cat  /usr/local/lib/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log`
           cd ..
           python3 -u ./python/main.py --target=job_editor --jobid=$JOBID
-      - name: Write comment body and issue number to file
-        uses: actions/github-script@v5
-        env:
-          PR_AUTHOR: ${{ steps.parse_pr.outputs.pr_author }}
-          EDITOR_VERSION: ${{ steps.run_test_cases.outputs.editor }}
-          TASK_STATUS: ${{ steps.run_test_cases.outputs.status }}
-          TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
-          JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v1
         with:
-          script: |
-            const fs = require('fs');
-            fs.writeFileSync('pr.txt', process.env.PR_NUMBER);
-            fs.writeFileSync('comment.txt', `@${process.env.PR_AUTHOR}, Please check the result of \`run test cases\`:
+          issue-number: ${{ steps.get_pr.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: PR-Test
-            - Editor Version: ${process.env.EDITOR_VERSION}
-            - Task Result: ${process.env.TASK_STATUS}
-            - Task URL: http://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
-            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
+            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
+            - Task Result: ${{ steps.run_test_cases.outputs.status }}
+            - Task URL: http://cctest.cocos.org/#/reportview/PR-TEST/${{ steps.run_test_cases.outputs.jobid }}/-1
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
             ## Task Details
-            ${process.env.TASK_REPORT}`);
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: pr.txt
-          path: |
-            pr.txt
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: comment.txt
-          path: |
-            comment.txt
-            
+            ${{ steps.run_test_cases.outputs.report }}

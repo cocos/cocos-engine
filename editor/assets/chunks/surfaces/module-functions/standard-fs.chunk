@@ -87,6 +87,24 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   #endif
 #endif
 
+#if CC_SURFACES_LIGHTING_SHEEN
+  // skip in shader graph, need extra code
+  vec4 sheenParams = SurfacesFragmentModifySheenParams();
+  surfaceData.roughness2ndSpecular = saturate(sheenParams.x);
+  surfaceData.ior2ndSpecular = sheenParams.y;
+  surfaceData.intensity2ndSpecular = sheenParams.z * sheenParams.w;
+  surfaceData.metallic2ndSpecular = 1.0;
+  surfaceData.baseColor2ndSpecular = SurfacesFragmentModifySheenColor();
+  surfaceData.color2ndSpecular = vec3(1.0); // no extra coloration
+  surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
+  surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
+  surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  surfaceData.opacity2ndSpecular = 1.0; // unused
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+    surfaceData.anisotropyShape2ndSpecular = surfaceData.anisotropyShape;
+  #endif
+#endif
+
 #if CC_SURFACES_LIGHTING_CLEAR_COAT
   // skip in shader graph, need extra code
   vec4 clearCoatParams = SurfacesFragmentModifyClearCoatParams();

@@ -47,6 +47,7 @@
         virtual bool onGround() override;                               \
         virtual void move(float x, float y, float z, float minDist,     \
         float elapsedTime) override;                                    \
+        void syncPhysicsToScene() override;                             \
         virtual void setStepOffset(float v) override;                   \
         virtual float getStepOffset() override;                         \
         virtual void setSlopeLimit(float v) override;                   \

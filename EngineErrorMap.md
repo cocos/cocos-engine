@@ -3267,6 +3267,10 @@ PassUtils: illegal uniform handle, accessing uniform at offset %d
 
 Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s
 
+### 12012
+
+Can't set a material instance to a sharedMaterial slot
+
 ### 12100
 
 The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
