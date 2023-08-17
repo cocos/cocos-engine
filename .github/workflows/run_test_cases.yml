@@ -346,7 +346,7 @@ jobs:
       - name: Download artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
+          # RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           gh run download -R "${{ github.repository }}" --name "pr.txt"
           gh run download -R "${{ github.repository }}" --name "comment.txt"
