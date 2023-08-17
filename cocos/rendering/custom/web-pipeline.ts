@@ -20,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, UniformBlock, ResolveMode, SampleCount, Color } from '../../gfx';
+import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, UniformBlock, ResolveMode, SampleCount, Color } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy, IVec4Like, IMat4Like, IVec2Like, Color as CoreColor } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
@@ -830,6 +830,39 @@ function getFirstChildLayoutName (lg: LayoutGraphData, parentID: number): string
     return '';
 }
 
+function getTextureType (dimension: ResourceDimension, arraySize: number): TextureType {
+    switch (dimension) {
+    case ResourceDimension.TEXTURE1D:
+        return arraySize > 1 ? TextureType.TEX1D_ARRAY : TextureType.TEX1D;
+    case ResourceDimension.TEXTURE2D:
+        return arraySize > 1 ? TextureType.TEX2D_ARRAY : TextureType.TEX2D;
+    case ResourceDimension.TEXTURE3D:
+        return TextureType.TEX3D;
+    case ResourceDimension.BUFFER:
+        return TextureType.TEX2D;
+    default:
+        break;
+    }
+    return TextureType.TEX2D;
+}
+
+function getResourceDimension (type: TextureType): ResourceDimension {
+    switch (type) {
+    case TextureType.TEX1D:
+    case TextureType.TEX1D_ARRAY:
+        return ResourceDimension.TEXTURE1D;
+    case TextureType.TEX2D:
+    case TextureType.TEX2D_ARRAY:
+    case TextureType.CUBE:
+        return ResourceDimension.TEXTURE2D;
+    case TextureType.TEX3D:
+        return ResourceDimension.TEXTURE3D;
+    default:
+        break;
+    }
+    return ResourceDimension.TEXTURE2D;
+}
+
 export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuilder  {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, queue: RenderQueue, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
@@ -1477,15 +1510,11 @@ export class WebPipeline implements BasicPipeline {
         desc.width = width;
         desc.height = height;
     }
-    addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+
+    public addBuffer (name: string, size: number, flags: ResourceFlags, residency: ResourceResidency): number {
         const desc = new ResourceDesc();
-        desc.dimension = dimension;
-        desc.width = width;
-        desc.height = height;
-        desc.depthOrArraySize = dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
-        desc.mipLevels = mipLevels;
-        desc.format = format;
-        desc.sampleCount = sampleCount;
+        desc.dimension = ResourceDimension.BUFFER;
+        desc.width = size;
         desc.flags = flags;
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
@@ -1498,7 +1527,54 @@ export class WebPipeline implements BasicPipeline {
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
-    updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+
+    public updateBuffer (name: string, size: number): void {
+        this.updateResource(name, Format.UNKNOWN, size, 0, 0, 0, 0, SampleCount.X1);
+    }
+
+    public addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number {
+        throw new Error('Method not implemented.');
+    }
+
+    public updateExternalTexture (name: string, texture: Texture): void {
+        throw new Error('Method not implemented.');
+    }
+
+    public addTexture (name: string, textureType: TextureType, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const desc = new ResourceDesc();
+        desc.dimension = getResourceDimension(textureType);
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = desc.dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        desc.format = format;
+        desc.sampleCount = sampleCount;
+        desc.flags = flags;
+        desc.viewType = textureType;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name,
+
+            desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
+        );
+    }
+
+    public updateTexture (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+        this.updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+    }
+
+    public addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        if (dimension === ResourceDimension.BUFFER) {
+            return this.addBuffer(name, width, flags, residency);
+        } else {
+            return this.addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
+        }
+    }
+    public updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
         const resId = this.resourceGraph.vertex(name);
         const desc = this.resourceGraph.getDesc(resId);
         desc.width = width;

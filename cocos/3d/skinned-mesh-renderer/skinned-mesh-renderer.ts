@@ -143,8 +143,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    public setMaterial (material: Material | null, index: number): void {
-        super.setMaterial(material, index);
+    public setSharedMaterial (material: Material | null, index: number): void {
+        super.setSharedMaterial(material, index);
         if (this._modelType === SkinningModel) {
             this.getMaterialInstance(index);
         }
