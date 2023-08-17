@@ -45,7 +45,9 @@ const v3_1 = CC_V3_1;
 const v3_2 = CC_V3_2;
 const emitHit = new CharacterControllerContact();
 export class BulletWorld implements IPhysicsWorld {
-    setDefaultMaterial (v: PhysicsMaterial): void { }
+    setDefaultMaterial (v: PhysicsMaterial): void {
+        //empty
+    }
 
     setAllowSleep (v: boolean): void {
         bt.ccDiscreteDynamicsWorld_setAllowSleep(this._world, v);
@@ -129,9 +131,9 @@ export class BulletWorld implements IPhysicsWorld {
     readonly cctShapeEventDic = new TupleDictionary();
     readonly cctContactsDic = new TupleDictionary();
     readonly cctOldContactsDic = new TupleDictionary();
-    private static _sweepBoxGeometry: any;
-    private static _sweepSphereGeometry: any;
-    private static _sweepCapsuleGeometry: any;
+    private static _sweepBoxGeometry: number;
+    private static _sweepSphereGeometry: number;
+    private static _sweepCapsuleGeometry: number;
 
     constructor () {
         this._broadphase = bt.DbvtBroadphase_new();
@@ -160,15 +162,9 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0): void {
-        if (!this.bodies.length && !this.ghosts.length && !this.ccts.length) return;
+        if (!this.bodies.length && !this.ghosts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
-
-        const ccts = this.ccts;
-        const length = ccts.length;
-        for (let i = 0; i < length; i++) {
-            ccts[i].syncPhysicsToScene();
-        }
     }
 
     syncSceneToPhysics (): void {
@@ -241,8 +237,14 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
@@ -254,8 +256,13 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweep(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, pool, results);
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
@@ -267,8 +274,13 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweepClosest(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, result);
     }
 
-    sweepSphere (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         // cast shape
         if (!BulletWorld._sweepSphereGeometry) {
             BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
@@ -277,8 +289,12 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweep(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
     }
 
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         // cast shape
         if (!BulletWorld._sweepSphereGeometry) {
             BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
@@ -288,8 +304,15 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweepClosest(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
     }
 
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         // cast shape
         if (!BulletWorld._sweepCapsuleGeometry) {
             BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
@@ -298,8 +321,14 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweep(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, pool, results);
     }
 
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         // cast shape
         if (!BulletWorld._sweepCapsuleGeometry) {
             BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
@@ -309,8 +338,14 @@ export class BulletWorld implements IPhysicsWorld {
         return this.sweepClosest(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, result);
     }
 
-    sweep (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweep (
+        worldRay: geometry.Ray,
+        btShapePtr: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
         const BT_orientation = BulletCache.instance.BT_QUAT_0;
@@ -345,8 +380,13 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    sweepClosest (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepClosest (
+        worldRay: geometry.Ray,
+        btShapePtr: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
         const BT_orientation = BulletCache.instance.BT_QUAT_0;
@@ -673,9 +713,9 @@ export class BulletWorld implements IPhysicsWorld {
             const data = this.cctShapeEventDic.getDataByKey<any>(key);
             const cct: BulletCharacterController = data.BulletCharacterController;
             const shape: BulletShape = data.BulletShape;
-            const worldPos = data.worldPos;
-            const worldNormal = data.worldNormal;
-            const motionDir = data.motionDir;
+            const worldPos = data.worldPos as IVec3Like;
+            const worldNormal = data.worldNormal as IVec3Like;
+            const motionDir = data.motionDir as IVec3Like;
             const motionLength = data.motionLength;
             emitHit.controller = cct.characterController;
             emitHit.collider = shape.collider;
@@ -711,8 +751,11 @@ export class BulletWorld implements IPhysicsWorld {
                             // current contact
                             let item = this.contactsDic.get<any>(shape0.id, shape1.id);
                             if (!item) {
-                                item = this.contactsDic.set(shape0.id, shape1.id,
-                                    { shape0, shape1, contacts: [], impl: manifold });
+                                item = this.contactsDic.set(
+                                    shape0.id,
+                                    shape1.id,
+                                    { shape0, shape1, contacts: [], impl: manifold },
+                                );
                             }
                             item.contacts.push(manifoldPoint);//btManifoldPoint
                         }
@@ -729,8 +772,11 @@ export class BulletWorld implements IPhysicsWorld {
                             // current contact
                             let item = this.cctContactsDic.get<any>(shape.id, cct.id);
                             if (!item) {
-                                item = this.cctContactsDic.set(shape.id, cct.id,
-                                    { shape, cct, contacts: [], impl: manifold });
+                                item = this.cctContactsDic.set(
+                                    shape.id,
+                                    cct.id,
+                                    { shape, cct, contacts: [], impl: manifold },
+                                );
                             }
                             item.contacts.push(manifoldPoint);//btManifoldPoint
                             processed = true;
@@ -748,8 +794,11 @@ export class BulletWorld implements IPhysicsWorld {
                             // current contact
                             let item = this.cctContactsDic.get<any>(shape.id, cct.id);
                             if (!item) {
-                                item = this.cctContactsDic.set(shape.id, cct.id,
-                                    { shape, cct, contacts: [], impl: manifold });
+                                item = this.cctContactsDic.set(
+                                    shape.id,
+                                    cct.id,
+                                    { shape, cct, contacts: [], impl: manifold },
+                                );
                             }
                             item.contacts.push(manifoldPoint);//btManifoldPoint
                             processed = true;

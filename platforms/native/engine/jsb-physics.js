@@ -973,6 +973,7 @@ class CharacterController {
 
     onGround () { return this._impl.onGround(); }
     move (v, minDist, dt) { return this._impl.move(v.x, v.y, v.z, minDist, dt); }
+    syncPhysicsToScene () { this._impl.syncPhysicsToScene(); }
 
     setPosition (v) { this._impl.setPosition(v.x, v.y, v.z); }
     getPosition () { return this._impl.getPosition(); }

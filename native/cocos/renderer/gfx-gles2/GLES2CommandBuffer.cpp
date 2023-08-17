@@ -138,6 +138,15 @@ void GLES2CommandBuffer::nextSubpass() {
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
+void GLES2CommandBuffer::insertMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES2CommandBuffer::beginMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES2CommandBuffer::endMarker() {
+}
+
 void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
     GLES2GPUPipelineState *gpuPipelineState = static_cast<GLES2PipelineState *>(pso)->gpuPipelineState();
     if (_curGPUPipelineState != gpuPipelineState) {

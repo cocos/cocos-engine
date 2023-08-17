@@ -151,12 +151,12 @@ export class UIRenderer extends Renderer {
     set sharedMaterials (val) {
         for (let i = 0; i < val.length; i++) {
             if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
+                this.setSharedMaterial(val[i], i);
             }
         }
         if (val.length < this._materials.length) {
             for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(null, i);
+                this.setSharedMaterial(null, i);
             }
             this._materials.splice(val.length);
         }
@@ -450,12 +450,12 @@ export class UIRenderer extends Renderer {
     public updateMaterial (): void {
         if (this._customMaterial) {
             if (this.getSharedMaterial(0) !== this._customMaterial) {
-                this.setMaterial(this._customMaterial, 0);
+                this.setSharedMaterial(this._customMaterial, 0);
             }
             return;
         }
         const mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
+        this.setSharedMaterial(mat, 0);
         if (this.stencilStage === Stage.ENTER_LEVEL || this.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
             this.getMaterialInstance(0)!.recompileShaders({ USE_ALPHA_TEST: true });
         }

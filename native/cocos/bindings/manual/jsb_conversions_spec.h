@@ -133,6 +133,7 @@ template <typename T>
 class Vector;
 template <typename K, typename V>
 class Map;
+class Vector2;
 } // namespace spine
 
 #endif
@@ -599,6 +600,10 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
+
+bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 #endif
 

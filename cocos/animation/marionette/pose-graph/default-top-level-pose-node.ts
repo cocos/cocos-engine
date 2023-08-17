@@ -4,7 +4,6 @@ import { AnimationGraph, Layer } from '../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
     AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../animation-graph-context';
 import { AnimationMask } from '../animation-mask';
-import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { TopLevelStateMachineEvaluation } from '../state-machine/state-machine-eval';
 import { PoseNode } from './pose-node';
 import { RuntimeMotionSyncManager } from './motion-sync/runtime-motion-sync';
@@ -14,7 +13,6 @@ export class DefaultTopLevelPoseNode extends PoseNode {
     constructor (
         graph: AnimationGraph,
         bindingContext: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         poseStashAllocator: PoseStashAllocator,
     ) {
         super();
@@ -23,7 +21,6 @@ export class DefaultTopLevelPoseNode extends PoseNode {
             const record = new LayerEvaluationRecord(
                 layer,
                 bindingContext,
-                clipOverrides,
                 poseStashAllocator,
             );
 
@@ -69,13 +66,13 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         return this._layerRecords[layerIndex].stateMachineEvaluation;
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         const { _layerRecords: layerRecords } = this;
         const nLayers = layerRecords.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerRecord = layerRecords[iLayer];
             context._pushAdditiveFlag(layerRecord.additive);
-            layerRecord.stateMachineEvaluation.overrideClips(overrides, context);
+            layerRecord.stateMachineEvaluation.overrideClips(context);
             context._popAdditiveFlag();
         }
     }
@@ -116,7 +113,6 @@ class LayerEvaluationRecord {
     constructor (
         layer: Layer,
         bindingContext: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         poseStashAllocator: PoseStashAllocator,
     ) {
         const stashManager = new RuntimeStashManager(poseStashAllocator);
@@ -145,7 +141,6 @@ class LayerEvaluationRecord {
             layer.stateMachine,
             layer.name,
             bindingContext,
-            clipOverrides,
         );
         bindingContext._popAdditiveFlag();
 

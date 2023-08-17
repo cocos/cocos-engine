@@ -56,7 +56,7 @@ public:
 
     void syncScale();
     void syncSceneToPhysics();
-    void syncPhysicsToScene();
+    virtual void syncPhysicsToScene() override;
 
     //ILifecycle
     void onEnable() override;

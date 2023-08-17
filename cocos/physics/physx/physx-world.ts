@@ -77,19 +77,13 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
-        if (this.wrappedBodies.length === 0 && this.ccts.length === 0) return;
+        if (this.wrappedBodies.length === 0) return;
         this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
             this._fetchResults();
             for (let i = 0; i < this.wrappedBodies.length; i++) {
                 const body = this.wrappedBodies[i];
                 body.syncPhysicsToScene();
-            }
-            const ccts = this.ccts;
-            const length = ccts.length;
-            for (let i = 0; i < length; i++) {
-                const cct = ccts[i];
-                cct.syncPhysicsToScene();
             }
         }
     }

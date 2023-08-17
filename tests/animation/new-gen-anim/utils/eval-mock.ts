@@ -1,12 +1,13 @@
 import { AnimationController } from "../../../../cocos/animation/animation";
 import { AnimationGraph } from "../../../../cocos/animation/marionette/animation-graph";
+import { AnimationGraphVariant } from "../../../../cocos/animation/marionette/animation-graph-variant";
 import { AnimationGraphEval } from "../../../../cocos/animation/marionette/graph-eval";
 import { Node } from "../../../../cocos/scene-graph";
 
 export class AnimationGraphEvalMock {
     constructor(
         node: Node,
-        animationGraph: AnimationGraph,
+        animationGraph: AnimationGraph | AnimationGraphVariant,
     ) {
         const controller = node.addComponent(AnimationController) as AnimationController;
         this._controller = controller;

@@ -239,6 +239,7 @@ public:
         _receiveDirLight = value;
         onMacroPatchesStateChanged();
     }
+    inline void invalidateLocalData() { _localDataUpdated = true; }
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }

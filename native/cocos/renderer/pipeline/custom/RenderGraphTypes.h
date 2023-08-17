@@ -169,6 +169,7 @@ struct ResourceDesc {
     gfx::SampleCount sampleCount{gfx::SampleCount::X1};
     gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
     ResourceFlags flags{ResourceFlags::NONE};
+    gfx::TextureType viewType{gfx::TextureType::TEX2D};
 };
 
 struct ResourceTraits {
@@ -515,6 +516,7 @@ struct SubresourceView {
     uint16_t numArraySlices{0};
     uint16_t firstPlane{0};
     uint16_t numPlanes{0};
+    gfx::TextureType viewType;
 };
 
 struct ResourceGraph {
