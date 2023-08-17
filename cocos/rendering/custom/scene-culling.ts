@@ -85,17 +85,14 @@ function computeCullingKey (
 class CullingKey extends UpdateRecyclePool {
     sceneData: SceneData;
     castShadows = false;
-    sceneId = -1;
     constructor (sceneData: SceneData, castShadows: boolean, verId: number) {
         super();
         this.sceneData = sceneData;
         this.castShadows = castShadows;
-        this.sceneId = verId;
     }
     update (sceneData: SceneData, castShadows: boolean, verId: number): void {
         this.sceneData = sceneData;
         this.castShadows = castShadows;
-        this.sceneId = verId;
     }
 }
 
@@ -141,47 +138,6 @@ function isIntersectAABB (lAABB: AABB, rAABB: AABB): boolean {
     return !intersect.aabbWithAABB(lAABB, rAABB);
 }
 
-function getReflectMapPassIndex (subModel: SubModel, phaseLayoutId: number): number {
-    const passes = subModel.passes;
-    const r = cclegacy.rendering;
-    for (let k = 0; k < passes.length; k++) {
-        if ((passes[k].phaseID === phaseLayoutId)) {
-            return k;
-        }
-    }
-    return -1;
-}
-
-const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
-function applyProbeMacro (model: Model, phaseLayoutId: number): void {
-    const subModels = model.subModels;
-    for (let j = 0; j < subModels.length; j++) {
-        const subModel: SubModel = subModels[j];
-
-        //Filter transparent objects
-        const isTransparent = subModel.passes[0].blendState.targets[0].blend;
-        if (isTransparent) {
-            continue;
-        }
-
-        const passIdx = getReflectMapPassIndex(subModel, phaseLayoutId);
-        let bUseReflectPass = true;
-        if (passIdx < 0) {
-            bUseReflectPass = false;
-        }
-
-        if (!bUseReflectPass) {
-            let patches: IMacroPatch[] = [];
-            patches = patches.concat(subModel.patches!);
-            const useRGBEPatchs: IMacroPatch[] = [
-                { name: CC_USE_RGBE_OUTPUT, value: true },
-            ];
-            patches = patches.concat(useRGBEPatchs);
-            subModel.onMacroPatchesStateChanged(patches);
-        }
-    }
-}
-
 function sceneCulling (
     scene: RenderScene,
     camera: Camera,
@@ -190,7 +146,6 @@ function sceneCulling (
     probe: ReflectionProbe | null,
     isReflectProbe: boolean,
     models: Array<Model>,
-    phaseLayoutId: number,
 ): void {
     const skybox = pSceneData.skybox;
     const skyboxModel = skybox.model;
@@ -222,9 +177,6 @@ function sceneCulling (
         } else if (isReflectProbeMask(model)) {
             models.push(model);
         }
-        if (probe && isReflectProbe) {
-            applyProbeMacro(model, phaseLayoutId);
-        }
     }
 }
 
@@ -254,10 +206,15 @@ function addRenderObject (
     phaseLayoutId: number,
     isDrawOpaqueOrMask: boolean,
     isDrawBlend: boolean,
+    isDrawProbe: boolean,
     camera: Camera,
     model: Model,
     queue: RenderQueue,
 ): void {
+    const probeQueue = queue.probeQueue;
+    if (isDrawProbe) {
+        probeQueue.applyMacro(model, phaseLayoutId);
+    }
     const subModels = model.subModels;
     const subModelCount = subModels.length;
     const skyboxModel = pSceneData.skybox.model;
@@ -265,6 +222,8 @@ function addRenderObject (
         const subModel = subModels[subModelIdx];
         const passes = subModel.passes;
         const passCount = passes.length;
+        const probePhase = probeQueue.probeMap.get(subModel);
+        if (probePhase !== undefined) phaseLayoutId = probePhase;
         for (let passIdx = 0; passIdx < passCount; ++passIdx) {
             if (model === skyboxModel && !subModelIdx && !passIdx && isDrawOpaqueOrMask) {
                 queue.opaqueQueue.add(model, computeSortingDepth(camera, model), subModelIdx, passIdx);
@@ -440,15 +399,14 @@ export class SceneCulling {
                 assert(sourceID < this.culledResults.length);
                 const models = this.culledResults[sourceID];
                 const isReflectProbe = bool(sceneData.flags & SceneFlags.REFLECTION_PROBE);
-                const phaseId = this._getPhaseIdFromScene(cullingKey.sceneId);
                 if (reflectProbe) {
-                    sceneCulling(scene, reflectProbe.camera, reflectProbe.camera.frustum, castShadow, reflectProbe, isReflectProbe, models, phaseId);
+                    sceneCulling(scene, reflectProbe.camera, reflectProbe.camera.frustum, castShadow, reflectProbe, isReflectProbe, models);
                     continue;
                 }
                 if (light) {
                     switch (light.type) {
                     case LightType.SPOT:
-                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, null, isReflectProbe, models, phaseId);
+                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, null, isReflectProbe, models);
                         break;
                     case LightType.DIRECTIONAL: {
                         const csmLayers = pplSceneData.csmLayers;
@@ -470,13 +428,13 @@ export class SceneCulling {
                                 frustum = csmLayers.layers[level].validFrustum;
                             }
                         }
-                        sceneCulling(scene, camera, frustum, castShadow, null, isReflectProbe, models, phaseId);
+                        sceneCulling(scene, camera, frustum, castShadow, null, isReflectProbe, models);
                     }
                         break;
                     default:
                     }
                 } else {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, null, isReflectProbe, models, phaseId);
+                    sceneCulling(scene, camera, camera.frustum, castShadow, null, isReflectProbe, models);
                 }
             }
         }
@@ -491,7 +449,8 @@ export class SceneCulling {
             const isDrawBlend: boolean = bool(sceneData.flags & SceneFlags.TRANSPARENT_OBJECT);
             const isDrawOpaqueOrMask: boolean = bool(sceneData.flags & (SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT));
             const isDrawShadowCaster: boolean = bool(sceneData.flags & SceneFlags.SHADOW_CASTER);
-            if (!isDrawShadowCaster && !isDrawBlend && !isDrawOpaqueOrMask) {
+            const isDrawProbe: boolean = bool(sceneData.flags & SceneFlags.REFLECTION_PROBE);
+            if (!isDrawShadowCaster && !isDrawBlend && !isDrawOpaqueOrMask && !isDrawProbe) {
                 continue;
             }
             // render queue info
@@ -519,6 +478,7 @@ export class SceneCulling {
                     phaseLayoutId,
                     isDrawOpaqueOrMask,
                     isDrawBlend,
+                    isDrawProbe,
                     camera,
                     model,
                     renderQueue,

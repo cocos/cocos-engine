@@ -1118,7 +1118,6 @@ class DevicePreSceneTask extends WebSceneTask {
         // this._uploadInstanceBuffers();
     }
 }
-const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const sceneViewport = new Viewport();
 class DeviceSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
@@ -1290,9 +1289,7 @@ class DeviceSceneTask extends WebSceneTask {
         renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
-        if (!bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE) && graphSceneData.light.probe) {
-            renderQueue.opaqueQueue.removeMacro(CC_USE_RGBE_OUTPUT);
-        }
+        if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
                 devicePass.renderPass,
