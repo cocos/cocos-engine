@@ -34,7 +34,7 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, cclegacy } from '../../core';
+import { assert, cclegacy, warn } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';
 
@@ -47,6 +47,8 @@ import type { UIRenderer } from '../framework/ui-renderer';
  * @zh
  * UI 模型基础组件。
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[ParticleSystem]] 组件的节点上。
+ * @deprecated This component is not recommended to be used, please use Render Texture instead.
+ * See [UIMeshRenderer Reference](https://docs.cocos.com/creator/manual/en/ui-system/components/editor/ui-model.html)
  */
 @ccclass('cc.UIMeshRenderer')
 @help('i18n:cc.UIMeshRenderer')
@@ -99,7 +101,7 @@ export class UIMeshRenderer extends Component {
 
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
             return;
         }
         if (JSB) {
@@ -176,7 +178,7 @@ export class UIMeshRenderer extends Component {
         }
     }
 
-    private _uploadRenderData (index): void {
+    private _uploadRenderData (index: number): void {
         if (JSB) {
             const renderData = MeshRenderData.add();
             // TODO: here we weirdly use UIMeshRenderer as UIRenderer
@@ -200,6 +202,7 @@ export class UIMeshRenderer extends Component {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public postUpdateAssembler (render: IBatcher): void {
+        // No behavior for this component
     }
 
     public update (): void {
@@ -251,12 +254,14 @@ export class UIMeshRenderer extends Component {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setNodeDirty (): void {
+        // No behavior for this component
     }
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setTextureDirty (): void {
+        // No behavior for this component
     }
 
     protected _canRender (): boolean {

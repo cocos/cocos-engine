@@ -238,6 +238,26 @@ export class RichText extends Component {
 
     /**
      * @en
+     * Font color of RichText. Works when the text content does not have a color parameter set. Transparency cascade is not supported.
+     *
+     * @zh
+     * 富文本默认文字颜色。在文本内容没有设置颜色参数时生效。暂不支持颜色级联。
+     */
+    @type(Color)
+    get fontColor (): Color {
+        return this._fontColor;
+    }
+    set fontColor (value: Color) {
+        if (this._fontColor === value) {
+            return;
+        }
+
+        this._fontColor = value;
+        this._updateTextDefaultColor();
+    }
+
+    /**
+     * @en
      * Custom System font of RichText.
      *
      * @zh
@@ -453,6 +473,8 @@ export class RichText extends Component {
     protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
+    @serializable
+    protected _fontColor: Color = Color.WHITE.clone();
     @serializable
     protected _maxWidth = 0;
     @serializable
@@ -1023,6 +1045,21 @@ export class RichText extends Component {
         }
     }
 
+    protected _updateTextDefaultColor (): void {
+        for (let i = 0; i < this._segments.length; ++i) {
+            const segment = this._segments[i];
+            const label = segment.node.getComponent(Label);
+            if (!label) {
+                continue;
+            }
+            if (this._textArray[segment.styleIndex]?.style?.color) {
+                continue;
+            }
+
+            label.color = this._fontColor;
+        }
+    }
+
     protected _updateRichText (): void {
         if (!this.enabledInHierarchy) {
             return;
@@ -1241,7 +1278,11 @@ export class RichText extends Component {
         }
 
         if (textStyle) {
-            label.color = this._convertLiteralColorValue(textStyle.color || 'white');
+            if (textStyle.color) {
+                label.color = this._convertLiteralColorValue(textStyle.color);
+            } else {
+                label.color = this._fontColor;
+            }
             label.isBold = !!textStyle.bold;
             label.isItalic = !!textStyle.italic;
             // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
@@ -1293,7 +1334,7 @@ export class RichText extends Component {
 
     protected _resetLabelState (label: Label): void {
         label.fontSize = this._fontSize;
-        label.color = Color.WHITE;
+        label.color = this._fontColor;
         label.isBold = false;
         label.isItalic = false;
         label.isUnderline = false;

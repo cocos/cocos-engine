@@ -1,5 +1,3 @@
-import { EDITOR } from 'internal:constants';
-
 import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';
@@ -14,10 +12,10 @@ const outputNames = ['BlitScreenColor0', 'BlitScreenColor1'];
 export class BlitScreenPass extends SettingPass {
     get setting (): BlitScreen { return getSetting(BlitScreen); }
 
-    name = 'BlitScreenPass'
+    name = 'BlitScreenPass';
     effectName = 'pipeline/post-process/blit-screen';
 
-    outputName = outputNames[0]
+    outputName = outputNames[0];
 
     slotName (camera: Camera, index = 0): string {
         return this.outputName;

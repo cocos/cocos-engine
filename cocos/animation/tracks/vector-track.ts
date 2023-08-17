@@ -141,21 +141,20 @@ export class Vec3TrackEval implements TrackEval<Vec3> {
     }
 
     public evaluate (time: number, defaultValue?: Readonly<Vec3>): Vec3 {
+        const { _x, _y, _z, _result } = this;
         if (defaultValue) {
-            Vec3.copy(this._result, defaultValue);
+            Vec3.copy(_result, defaultValue);
         }
-
-        if (this._x) {
-            this._result.x = this._x.evaluate(time);
+        if (_x) {
+            _result.x = _x.evaluate(time);
         }
-        if (this._y) {
-            this._result.y = this._y.evaluate(time);
+        if (_y) {
+            _result.y = _y.evaluate(time);
         }
-        if (this._z) {
-            this._result.z = this._z.evaluate(time);
+        if (_z) {
+            _result.z = _z.evaluate(time);
         }
-
-        return this._result;
+        return _result;
     }
 
     private _result: Vec3 = new Vec3();

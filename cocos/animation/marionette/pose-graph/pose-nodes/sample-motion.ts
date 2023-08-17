@@ -43,7 +43,7 @@ export class PoseNodeSampleMotion extends PoseNode {
         if (!motion) {
             return;
         }
-        const motionEval = motion[createEval](context, context.clipOverrides ?? null, true);
+        const motionEval = motion[createEval](context, true);
         if (!motionEval) {
             return;
         }
@@ -51,11 +51,16 @@ export class PoseNodeSampleMotion extends PoseNode {
         this._workspace = workspace;
     }
 
-    public settle (context: AnimationGraphSettleContext): void { }
+    public settle (context: AnimationGraphSettleContext): void {
+        // Do nothing.
+    }
 
-    public reenter (): void { }
+    public reenter (): void {
+        // Do nothing.
+    }
 
     protected doUpdate (context: AnimationGraphUpdateContext): void {
+        // Do nothing.
     }
 
     protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {

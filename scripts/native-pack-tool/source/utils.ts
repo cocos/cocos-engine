@@ -416,7 +416,7 @@ export class cchelper {
 }
 
 export const toolHelper = {
-    getXcodeMajorVerion():number {
+    getXcodeMajorVerion(): number {
         try {
             const output = execSync('xcrun xcodebuild -version').toString('utf8');
             return Number.parseInt(output.match(/Xcode\s(\d+)\.\d+/)![1]);
@@ -427,15 +427,15 @@ export const toolHelper = {
         }
     },
 
-    async runCommand(cmd:string, args:string[], cb?:(code:number, stdout:string, stderr:string)=>void): Promise<boolean> {
+    async runCommand(cmd: string, args: string[], cb?: (code: number, stdout: string, stderr: string) => void): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const cp = spawn(cmd, args);
-            const stdErr:Buffer[] = [];
-            const stdOut:Buffer[] = [];
-            cp.stderr.on('data', (d)=>stdErr.push(d));
-            cp.stdout.on('data', (d)=>stdOut.push(d));
-            cp.on('close', (code, signal)=>{
-                if(cb) {
+            const stdErr: Buffer[] = [];
+            const stdOut: Buffer[] = [];
+            cp.stderr.on('data', (d) => stdErr.push(d));
+            cp.stdout.on('data', (d) => stdOut.push(d));
+            cp.on('close', (code, signal) => {
+                if (cb) {
                     cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
                 }
                 resolve(code === 0);
@@ -464,7 +464,7 @@ export const toolHelper = {
             });
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
-                if(/warning/i.test(msg)) {
+                if (/warning/i.test(msg)) {
                     console.log(`[cmake-warn] ${msg}`);
                 } else {
                     console.log(`[cmake] ${msg}`);
@@ -472,9 +472,9 @@ export const toolHelper = {
             });
             cp.stderr.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
-                if(/CMake Warning/.test(msg) || /warning/i.test(msg)) {
+                if (/CMake Warning/.test(msg) || /warning/i.test(msg)) {
                     console.log(`[cmake-warn] ${msg}`);
-                }else{
+                } else {
                     console.error(`[cmake-err] ${msg}`);
                 }
             });
