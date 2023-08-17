@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,7 +27,7 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID, Color, Vec2, CCObject, cclegacy, js } from '../../core';
+import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
@@ -42,6 +41,9 @@ import { NodeEventType } from '../../scene-graph/node-event';
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
+
+const _tempSize = new Vec2();
+const _tempSizeLeft = new Vec2();
 
 /**
  * 富文本池。<br/>
@@ -82,7 +84,7 @@ function createSegment (type: string): ISegment {
     };
 }
 
-function getSegmentByPool (type: string, content: string | SpriteFrame) {
+function getSegmentByPool (type: string, content: string | SpriteFrame): ISegment | null {
     let seg;
     if (type === RichTextChildName) {
         seg = labelPool._get();
@@ -95,6 +97,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         node = new Node(type);
     }
     node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+    node.active = true; // Reset node state when use node
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
@@ -153,7 +156,7 @@ export class RichText extends Component {
      */
     @multiline
     @tooltip('i18n:richtext.string')
-    get string () {
+    get string (): string {
         return this._string;
     }
     set string (value) {
@@ -174,7 +177,7 @@ export class RichText extends Component {
      */
     @type(HorizontalTextAlignment)
     @tooltip('i18n:richtext.horizontal_align')
-    get horizontalAlign () {
+    get horizontalAlign (): HorizontalTextAlignment {
         return this._horizontalAlign;
     }
 
@@ -197,7 +200,7 @@ export class RichText extends Component {
      */
     @type(VerticalTextAlignment)
     @tooltip('i18n:richtext.vertical_align')
-    get verticalAlign () {
+    get verticalAlign (): VerticalTextAlignment {
         return this._verticalAlign;
     }
 
@@ -219,7 +222,7 @@ export class RichText extends Component {
      * 富文本字体大小。
      */
     @tooltip('i18n:richtext.font_size')
-    get fontSize () {
+    get fontSize (): number {
         return this._fontSize;
     }
 
@@ -235,13 +238,33 @@ export class RichText extends Component {
 
     /**
      * @en
-     * Custom System font of RichText
+     * Font color of RichText. Works when the text content does not have a color parameter set. Transparency cascade is not supported.
      *
      * @zh
-     * 富文本定制系统字体
+     * 富文本默认文字颜色。在文本内容没有设置颜色参数时生效。暂不支持颜色级联。
+     */
+    @type(Color)
+    get fontColor (): Color {
+        return this._fontColor;
+    }
+    set fontColor (value: Color) {
+        if (this._fontColor === value) {
+            return;
+        }
+
+        this._fontColor = value;
+        this._updateTextDefaultColor();
+    }
+
+    /**
+     * @en
+     * Custom System font of RichText.
+     *
+     * @zh
+     * 富文本定制系统字体。
      */
     @tooltip('i18n:richtext.font_family')
-    get fontFamily () {
+    get fontFamily (): string {
         return this._fontFamily;
     }
     set fontFamily (value: string) {
@@ -260,7 +283,7 @@ export class RichText extends Component {
      */
     @type(Font)
     @tooltip('i18n:richtext.font')
-    get font () {
+    get font (): TTFFont | null {
         return this._font;
     }
     set font (value) {
@@ -290,7 +313,7 @@ export class RichText extends Component {
      */
     @tooltip('i18n:richtext.use_system_font')
     @displayOrder(12)
-    get useSystemFont () {
+    get useSystemFont (): boolean {
         return this._isSystemFontUsed;
     }
     set useSystemFont (value: boolean) {
@@ -321,7 +344,7 @@ export class RichText extends Component {
      */
     @type(CacheMode)
     @tooltip('i18n:richtext.cache_mode')
-    get cacheMode () {
+    get cacheMode (): CacheMode {
         return this._cacheMode;
     }
     set cacheMode (value: CacheMode) {
@@ -340,7 +363,7 @@ export class RichText extends Component {
      * 富文本的最大宽度。
      */
     @tooltip('i18n:richtext.max_width')
-    get maxWidth () {
+    get maxWidth (): number {
         return this._maxWidth;
     }
 
@@ -362,7 +385,7 @@ export class RichText extends Component {
      * 富文本行高。
      */
     @tooltip('i18n:richtext.line_height')
-    get lineHeight () {
+    get lineHeight (): number {
         return this._lineHeight;
     }
 
@@ -385,7 +408,7 @@ export class RichText extends Component {
      */
     @type(SpriteAtlas)
     @tooltip('i18n:richtext.image_atlas')
-    get imageAtlas () {
+    get imageAtlas (): SpriteAtlas | null {
         return this._imageAtlas;
     }
 
@@ -408,7 +431,7 @@ export class RichText extends Component {
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
     @tooltip('i18n:richtext.handleTouchEvent')
-    get handleTouchEvent () {
+    get handleTouchEvent (): boolean {
         return this._handleTouchEvent;
     }
 
@@ -426,7 +449,17 @@ export class RichText extends Component {
             }
         }
     }
+    /**
+     * @en Enum for horizontal text alignment.
+     *
+     * @zh 文本横向对齐类型。
+     */
     public static HorizontalAlign = HorizontalTextAlignment;
+    /**
+     * @en Enum for vertical text alignment.
+     *
+     * @zh 文本垂直对齐类型。
+     */
     public static VerticalAlign = VerticalTextAlignment;
 
     @serializable
@@ -440,6 +473,8 @@ export class RichText extends Component {
     protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
+    @serializable
+    protected _fontColor: Color = Color.WHITE.clone();
     @serializable
     protected _maxWidth = 0;
     @serializable
@@ -477,12 +512,12 @@ export class RichText extends Component {
         this._updateRichTextStatus = this._updateRichText;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
@@ -491,7 +526,7 @@ export class RichText extends Component {
         this._activateChildren(true);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (this.handleTouchEvent) {
             this._removeEventListeners();
         }
@@ -499,7 +534,7 @@ export class RichText extends Component {
         this._activateChildren(false);
     }
 
-    public onRestore () {
+    public onRestore (): void {
         if (!EDITOR) {
             return;
         }
@@ -514,7 +549,7 @@ export class RichText extends Component {
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         for (const seg of this._segments) {
             seg.node.removeFromParent();
             if (seg.type === RichTextChildName) {
@@ -528,15 +563,15 @@ export class RichText extends Component {
         this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
-    protected _addEventListeners () {
+    protected _addEventListeners (): void {
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    protected _removeEventListeners () {
+    protected _removeEventListeners (): void {
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    protected _updateLabelSegmentTextAttributes () {
+    protected _updateLabelSegmentTextAttributes (): void {
         this._segments.forEach((item) => {
             this._applyTextAttribute(item);
         });
@@ -550,7 +585,7 @@ export class RichText extends Component {
         return getSegmentByPool(RichTextChildImageName, spriteFrame)!;
     }
 
-    protected _onTTFLoaded () {
+    protected _onTTFLoaded (): void {
         if (this._font instanceof TTFFont) {
             this._layoutDirty = true;
             this._updateRichText();
@@ -563,7 +598,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
+    protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number): string[] {
         const approxSize = text.length * this.fontSize;
         const partStringArr: string[] = [];
         // avoid that many short richtext still execute _calculateSize so that performance is low
@@ -573,14 +608,14 @@ export class RichText extends Component {
             return partStringArr;
         }
 
-        const labelSize = this._calculateSize(styleIndex, text);
-        if (labelSize.x < 2048) {
+        this._calculateSize(_tempSize, styleIndex, text);
+        if (_tempSize.x < 2048) {
             partStringArr.push(text);
         } else {
             const multilineTexts = text.split('\n');
             for (let i = 0; i < multilineTexts.length; i++) {
-                const thisPartSize = this._calculateSize(styleIndex, multilineTexts[i]);
-                if (thisPartSize.x < 2048) {
+                this._calculateSize(_tempSize, styleIndex, multilineTexts[i]);
+                if (_tempSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
                     const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
@@ -594,7 +629,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+    protected splitLongStringOver2048 (text: string, styleIndex: number): string[] {
         const partStringArr: string[] = [];
         const longStr = text;
 
@@ -602,12 +637,16 @@ export class RichText extends Component {
         let curEnd = longStr.length / 2;
         let curString = longStr.substring(curStart, curEnd);
         let leftString = longStr.substring(curEnd);
-        let curStringSize = this._calculateSize(styleIndex, curString);
-        let leftStringSize = this._calculateSize(styleIndex, leftString);
+        const curStringSize = this._calculateSize(_tempSize, styleIndex, curString);
+        const leftStringSize = this._calculateSize(_tempSizeLeft, styleIndex, leftString);
+        let maxWidth = this._maxWidth;
+        if (this._maxWidth === 0) {
+            maxWidth = 2047.9; // Callback when maxWidth is 0
+        }
 
         // a line should be an unit to split long string
         const lineCountForOnePart = 1;
-        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+        const sizeForOnePart = lineCountForOnePart * maxWidth;
 
         // divide text into some pieces of which the size is less than sizeForOnePart
         while (curStringSize.x > sizeForOnePart) {
@@ -620,7 +659,7 @@ export class RichText extends Component {
 
             curString = curString.substring(curStart, curEnd);
             leftString = longStr.substring(curEnd);
-            curStringSize = this._calculateSize(styleIndex, curString);
+            this._calculateSize(curStringSize, styleIndex, curString);
         }
 
         // avoid too many loops
@@ -638,7 +677,7 @@ export class RichText extends Component {
 
                 curString = longStr.substring(curStart, curEnd);
                 leftString = longStr.substring(curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                this._calculateSize(curStringSize, styleIndex, curString);
 
                 leftTryTimes--;
             }
@@ -647,7 +686,7 @@ export class RichText extends Component {
             while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
                 curEnd -= curWordStep;
                 curString = longStr.substring(curStart, curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                this._calculateSize(curStringSize, styleIndex, curString);
                 // after the first reduction, the step should be 1.
                 curWordStep = 1;
 
@@ -675,29 +714,31 @@ export class RichText extends Component {
 
             curString = longStr.substring(curStart, curEnd);
             leftString = longStr.substring(curEnd);
-            leftStringSize = this._calculateSize(styleIndex, leftString);
+            this._calculateSize(leftStringSize, styleIndex, leftString);
+            this._calculateSize(curStringSize, styleIndex, curString);
 
             leftTryTimes--;
 
             // Exit: If the left part string size is less than 2048, the method will finish.
-            if (leftStringSize.x < 2048) {
+            if (leftStringSize.x < 2048 && curStringSize.x < sizeForOnePart) {
+                partStringArr.push(curString);
                 curStart = text.length;
                 curEnd = text.length;
                 curString = leftString;
-                partStringArr.push(curString);
+                if (leftString !== '') {
+                    partStringArr.push(curString);
+                }
                 break;
-            } else {
-                curStringSize = this._calculateSize(styleIndex, curString);
             }
         }
 
         return partStringArr;
     }
 
-    protected _measureText (styleIndex: number, string?: string) {
-        const func = (s: string) => {
-            const labelSize = this._calculateSize(styleIndex, s);
-            return labelSize.width;
+    protected _measureText (styleIndex: number, string?: string): number | ((s: string) => number) {
+        const func = (s: string): number => {
+            const width = this._calculateSize(_tempSize, styleIndex, s).x;
+            return width;
         };
         if (string) {
             return func(string);
@@ -709,7 +750,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected _calculateSize (styleIndex: number, s: string) {
+    protected _calculateSize (out: Vec2, styleIndex: number, s: string): Vec2 {
         let label: ISegment;
         if (this._labelSegmentsCache.length === 0) {
             label = this._createFontLabel(s);
@@ -720,11 +761,12 @@ export class RichText extends Component {
         }
         label.styleIndex = styleIndex;
         this._applyTextAttribute(label);
-        const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
-        return labelSize;
+        const size = label.node._uiProps.uiTransformComp!.contentSize;
+        Vec2.set(out, size.x, size.y);
+        return out;
     }
 
-    protected _onTouchEnded (event: EventTouch) {
+    protected _onTouchEnded (event: EventTouch): void {
         const components = this.node.getComponents(Component);
 
         for (const seg of this._segments) {
@@ -742,7 +784,7 @@ export class RichText extends Component {
         }
     }
 
-    protected _containsTouchLocation (label: ISegment, point: Vec2) {
+    protected _containsTouchLocation (label: ISegment, point: Vec2): boolean {
         const comp = label.node.getComponent(UITransform);
         if (!comp) {
             return false;
@@ -752,7 +794,7 @@ export class RichText extends Component {
         return myRect.contains(point);
     }
 
-    protected _resetState () {
+    protected _resetState (): void {
         const children = this.node.children;
 
         for (let i = children.length - 1; i >= 0; i--) {
@@ -786,7 +828,7 @@ export class RichText extends Component {
         this._layoutDirty = true;
     }
 
-    protected _activateChildren (active) {
+    protected _activateChildren (active): void {
         for (let i = this.node.children.length - 1; i >= 0; i--) {
             const child = this.node.children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
@@ -795,7 +837,7 @@ export class RichText extends Component {
         }
     }
 
-    protected _addLabelSegment (stringToken: string, styleIndex: number) {
+    protected _addLabelSegment (stringToken: string, styleIndex: number): ISegment {
         let labelSegment: ISegment;
         if (this._labelSegmentsCache.length === 0) {
             labelSegment = this._createFontLabel(stringToken);
@@ -825,7 +867,7 @@ export class RichText extends Component {
         return labelSegment;
     }
 
-    protected _updateRichTextWithMaxWidth (labelString: string, labelWidth: number, styleIndex: number) {
+    protected _updateRichTextWithMaxWidth (labelString: string, labelWidth: number, styleIndex: number): void {
         let fragmentWidth = labelWidth;
         let labelSegment: ISegment;
 
@@ -870,17 +912,17 @@ export class RichText extends Component {
         }
     }
 
-    protected _isLastComponentCR (stringToken) {
+    protected _isLastComponentCR (stringToken): boolean {
         return stringToken.length - 1 === stringToken.lastIndexOf('\n');
     }
 
-    protected _updateLineInfo () {
+    protected _updateLineInfo (): void {
         this._linesWidth.push(this._lineOffsetX);
         this._lineOffsetX = 0;
         this._lineCount++;
     }
 
-    protected _needsUpdateTextLayout (newTextArray: IHtmlTextParserResultObj[]) {
+    protected _needsUpdateTextLayout (newTextArray: IHtmlTextParserResultObj[]): boolean {
         if (this._layoutDirty || !this._textArray || !newTextArray) {
             return true;
         }
@@ -926,7 +968,7 @@ export class RichText extends Component {
         return false;
     }
 
-    protected _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj) {
+    protected _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj): void {
         if (!richTextElement.style) {
             return;
         }
@@ -1003,7 +1045,22 @@ export class RichText extends Component {
         }
     }
 
-    protected _updateRichText () {
+    protected _updateTextDefaultColor (): void {
+        for (let i = 0; i < this._segments.length; ++i) {
+            const segment = this._segments[i];
+            const label = segment.node.getComponent(Label);
+            if (!label) {
+                continue;
+            }
+            if (this._textArray[segment.styleIndex]?.style?.color) {
+                continue;
+            }
+
+            label.color = this._fontColor;
+        }
+    }
+
+    protected _updateRichText (): void {
         if (!this.enabledInHierarchy) {
             return;
         }
@@ -1095,7 +1152,7 @@ export class RichText extends Component {
         this._layoutDirty = false;
     }
 
-    protected _getFirstWordLen (text: string, startIndex: number, textLen: number) {
+    protected _getFirstWordLen (text: string, startIndex: number, textLen: number): number {
         let character = text.charAt(startIndex);
         if (isUnicodeCJK(character) || isUnicodeSpace(character)) {
             return 1;
@@ -1114,7 +1171,7 @@ export class RichText extends Component {
         return len;
     }
 
-    protected _updateRichTextPosition () {
+    protected _updateRichTextPosition (): void {
         let nextTokenX = 0;
         let nextLineIndex = 1;
         const totalLineCount = this._lineCount;
@@ -1195,7 +1252,7 @@ export class RichText extends Component {
         }
     }
 
-    protected _convertLiteralColorValue (color: string) {
+    protected _convertLiteralColorValue (color: string): Color {
         const colorValue = color.toUpperCase();
         if (Color[colorValue]) {
             const colorUse: Color = Color[colorValue];
@@ -1206,7 +1263,7 @@ export class RichText extends Component {
         }
     }
 
-    protected _applyTextAttribute (labelSeg: ISegment) {
+    protected _applyTextAttribute (labelSeg: ISegment): void {
         const label = labelSeg.node.getComponent(Label);
         if (!label) {
             return;
@@ -1221,7 +1278,11 @@ export class RichText extends Component {
         }
 
         if (textStyle) {
-            label.color = this._convertLiteralColorValue(textStyle.color || 'white');
+            if (textStyle.color) {
+                label.color = this._convertLiteralColorValue(textStyle.color);
+            } else {
+                label.color = this._fontColor;
+            }
             label.isBold = !!textStyle.bold;
             label.isItalic = !!textStyle.italic;
             // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
@@ -1265,15 +1326,15 @@ export class RichText extends Component {
         label.updateRenderData(true);
     }
 
-    protected _applyLayer () {
+    protected _applyLayer (): void {
         for (const seg of this._segments) {
             seg.node.layer = this.node.layer;
         }
     }
 
-    protected _resetLabelState (label: Label) {
+    protected _resetLabelState (label: Label): void {
         label.fontSize = this._fontSize;
-        label.color = Color.WHITE;
+        label.color = this._fontColor;
         label.isBold = false;
         label.isItalic = false;
         label.isUnderline = false;

@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -61,7 +60,7 @@ export class EventHandler {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    get _componentName () {
+    get _componentName (): any {
         this._genCompIdIfNeeded();
 
         return this._compId2Name(this._componentId);
@@ -79,7 +78,7 @@ export class EventHandler {
      * @param events - The event list to be emitted
      * @param args - The callback arguments
      */
-    public static emitEvents (events: EventHandler[], ...args: any[]) {
+    public static emitEvents (events: EventHandler[], ...args: any[]): void {
         for (let i = 0, l = events.length; i < l; i++) {
             const event = events[i];
             if (!(event instanceof EventHandler)) {
@@ -154,7 +153,7 @@ export class EventHandler {
      * eventHandler.emit(["param1", "param2", ....]);
      * ```
      */
-    public emit (params: any[]) {
+    public emit (params: any[]): void {
         const target = this.target;
         if (!legacyCC.isValid(target)) { return; }
 
@@ -175,18 +174,18 @@ export class EventHandler {
         handler.apply(comp, params);
     }
 
-    private _compName2Id (compName) {
+    private _compName2Id (compName): any {
         const comp = legacyCC.js.getClassByName(compName);
         return legacyCC.js.getClassId(comp);
     }
 
-    private _compId2Name (compId) {
+    private _compId2Name (compId): any {
         const comp = legacyCC.js.getClassById(compId);
         return legacyCC.js.getClassName(comp);
     }
 
     // to be deprecated in the future
-    private _genCompIdIfNeeded () {
+    private _genCompIdIfNeeded (): void {
         if (!this._componentId) {
             this._componentName = this.component;
             this.component = '';

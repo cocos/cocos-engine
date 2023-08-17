@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,28 +20,33 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "scene/Pass.h"
 #include "base/std/hash/hash.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "core/Root.h"
+#include "core/assets/EffectAsset.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
 #include "core/platform/Debug.h"
+#include "gfx-base/GFXDevice.h"
+#include "pipeline/custom/details/GslUtils.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Define.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 namespace scene {
 
 namespace {
+
+constexpr uint32_t INVALID_ID = 0xFFFFFFFF;
 
 ccstd::hash_t serializeBlendState(const gfx::BlendState &bs) {
     ccstd::hash_t hashValue{2};
@@ -135,8 +139,15 @@ ccstd::hash_t Pass::getPassHash(Pass *pass) {
     ccstd::hash_combine(hashValue, serializeDepthStencilState(pass->_depthStencilState));
     ccstd::hash_combine(hashValue, serializeRasterizerState(pass->_rs));
 
-    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
-    ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+    const auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &shaderKey = programLib->getKey(pass->_phaseID, pass->getProgram(), pass->getDefines());
+        ccstd::hash_combine(hashValue, pass->_phaseID);
+        ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+    } else {
+        const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
+        ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+    }
 
     return hashValue;
 }
@@ -209,7 +220,8 @@ void Pass::setUniform(uint32_t handle, const MaterialProperty &value) {
     _rootBufferDirty = true;
 }
 
-MaterialProperty &Pass::getUniform(uint32_t handle, MaterialProperty &out) const {
+MaterialProperty Pass::getUniform(uint32_t handle) const {
+    MaterialProperty out;
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);
@@ -284,16 +296,6 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
     return instancedBuffer;
 }
 
-pipeline::BatchedBuffer *Pass::getBatchedBuffer(int32_t extraKey) {
-    auto iter = _batchedBuffers.find(extraKey);
-    if (iter != _batchedBuffers.end()) {
-        return iter->second.get();
-    }
-    auto *batchedBuffers = ccnew pipeline::BatchedBuffer(this);
-    _batchedBuffers[extraKey] = batchedBuffers;
-    return batchedBuffers;
-}
-
 void Pass::destroy() {
     if (!_buffers.empty()) {
         for (const auto &u : _shaderInfo->blocks) {
@@ -313,11 +315,6 @@ void Pass::destroy() {
     }
     _instancedBuffers.clear();
 
-    for (auto &bb : _batchedBuffers) {
-        bb.second->destroy();
-    }
-    _batchedBuffers.clear();
-
     // NOTE: There may be many passes reference the same descriptor set,
     // so here we can't use _descriptorSet->destroy() to release it.
     // Its type is IntrusivePtr<gfx::DescriptorSet>, so just set it to nullptr,
@@ -335,7 +332,7 @@ void Pass::resetUniform(const ccstd::string &name) {
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);
     const uint32_t count = Pass::getCountFromHandle(handle);
     auto &block = _blocks[binding];
-    IPropertyValue givenDefaultOpt;
+    ccstd::optional<IPropertyValue> givenDefaultOpt;
     auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         givenDefaultOpt = iter->second.value;
@@ -347,7 +344,7 @@ void Pass::resetUniform(const ccstd::string &name) {
             const auto &floatArr = ccstd::get<ccstd::vector<float>>(value);
             auto iter = type2writer.find(type);
             if (iter != type2writer.end()) {
-                CC_ASSERT_EQ(floatArr.size() , 2);
+                CC_ASSERT_EQ(floatArr.size(), 2);
                 iter->second(block.data, toMaterialProperty(type, floatArr), static_cast<int32_t>(ofs));
             }
         }
@@ -368,12 +365,12 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     ccstd::string texName;
-    IPropertyInfo *info = nullptr;
+    const IPropertyInfo *info = nullptr;
     auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
             info = &iter->second;
-            ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
+            const ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + getStringFromType(type);
             }
@@ -403,27 +400,43 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
 }
 
 void Pass::resetUBOs() {
-    for (auto &u : _shaderInfo->blocks) {
+    auto updateBuffer = [&](const IBlockInfo &u) {
         uint32_t ofs = 0;
-        for (auto &cur : u.members) {
+        for (const auto &cur : u.members) {
             const auto &block = _blocks[u.binding];
-            const auto &info = _properties[cur.name];
-            const auto &givenDefault = info.value;
-            const auto &value = (givenDefault.has_value() ? ccstd::get<ccstd::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
+            auto iter = _properties.find(cur.name);
+            const auto &value =
+                (iter != _properties.end() && iter->second.value.has_value()
+                     ? ccstd::get<ccstd::vector<float>>(iter->second.value.value())
+                     : getDefaultFloatArrayFromType(cur.type));
             const uint32_t size = (gfx::getTypeSize(cur.type) >> 2) * cur.count;
             for (size_t k = 0; (k + value.size()) <= size; k += value.size()) {
                 std::copy(value.begin(), value.end(), block.data + ofs + k);
             }
             ofs += size;
         }
+    };
+    for (const auto &u : _shaderInfo->blocks) {
+        updateBuffer(u);
     }
     _rootBufferDirty = true;
 }
 
 void Pass::resetTextures() {
-    for (auto &u : _shaderInfo->samplerTextures) {
-        for (int32_t j = 0; j < u.count; j++) {
-            resetTexture(u.name, j);
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &set = _shaderInfo->descriptors.at(
+            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
+        for (const auto &combined : set.samplerTextures) {
+            for (int32_t j = 0; j < combined.count; j++) {
+                resetTexture(combined.name, j);
+            }
+        }
+    } else {
+        for (const auto &u : _shaderInfo->samplerTextures) {
+            for (int32_t j = 0; j < u.count; j++) {
+                resetTexture(u.name, j);
+            }
         }
     }
 }
@@ -434,13 +447,25 @@ bool Pass::tryCompile() {
     }
 
     syncBatchingScheme();
-    auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
-    if (!shader) {
-        CC_LOG_WARNING("create shader %s failed", _programName.c_str());
-        return false;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        auto *shaderProxy = programLib->getProgramVariant(_device, _phaseID, _programName, _defines);
+        if (!shaderProxy) {
+            CC_LOG_WARNING("create shader %s failed", _programName.c_str());
+            return false;
+        }
+        _shader = shaderProxy->getShader();
+        _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
+    } else {
+        auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
+        if (!shader) {
+            CC_LOG_WARNING("create shader %s failed", _programName.c_str());
+            return false;
+        }
+        _shader = shader;
+        _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
     }
-    _shader = shader;
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+
     _hash = Pass::getPassHash(this);
     return true;
 }
@@ -473,7 +498,20 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
         _defines[patch.name] = patch.value;
     }
 
-    auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, pipeline);
+    if (isBlend()) {
+        _defines["CC_IS_TRANSPARENCY_PASS"] = MacroValue(true);
+    }
+
+    gfx::Shader *shader = nullptr;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto *program = programLib->getProgramVariant(_device, _phaseID, _programName, _defines);
+        if (program) {
+            shader = program->getShader();
+        }
+    } else {
+        shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, pipeline);
+    }
 
     for (const auto &patch : patches) {
         auto iter = _defines.find(patch.name);
@@ -482,6 +520,17 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
         }
     }
     return shader;
+}
+
+bool Pass::isBlend() {
+    bool isBlend = false;
+    for (const auto target : _blendState.targets) {
+        if (target.blend) {
+            isBlend = true;
+        }
+    }
+
+    return isBlend;
 }
 
 IPassInfoFull Pass::getPassInfoFull() const {
@@ -512,6 +561,10 @@ IPassInfoFull Pass::getPassInfoFull() const {
     ret.dynamicStates = _dynamicStates;
     ret.phase = _phaseString;
 
+    ret.passID = _passID;
+    ret.subpassID = _subpassID;
+    ret.phaseID = _phaseID;
+
     return ret;
 }
 
@@ -527,6 +580,45 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     auto *programLib = ProgramLib::getInstance();
     _priority = pipeline::RenderPriority::DEFAULT;
     _stage = pipeline::RenderPassStage::DEFAULT;
+    auto *programLib2 = render::getProgramLibrary();
+    if (programLib2) {
+        const auto *rendering = render::getRenderingModule();
+        CC_EXPECTS(rendering);
+        if (info.phaseID != INVALID_ID) {
+            _passID = info.passID;
+            _subpassID = info.subpassID;
+            _phaseID = info.phaseID;
+        } else {
+            if (info.pass) {
+                _passID = rendering->getPassID(*info.pass);
+            } else {
+                _passID = rendering->getPassID("default");
+            }
+            CC_ENSURES(_passID != INVALID_ID);
+            if (info.subpass) {
+                CC_EXPECTS(!info.subpass->empty());
+                _subpassID = rendering->getSubpassID(_passID, *info.subpass);
+                CC_ENSURES(_subpassID != INVALID_ID);
+            }
+            if (info.phase) {
+                _phaseID = rendering->getPhaseID(getSubpassOrPassID(), *info.phase);
+            } else {
+                _phaseID = rendering->getPhaseID(getSubpassOrPassID(), "default");
+            }
+        }
+        if (_passID == INVALID_ID) {
+            CC_LOG_ERROR("Invalid pass ID");
+            return;
+        }
+        if (info.subpass && _subpassID == INVALID_ID) {
+            CC_LOG_ERROR("Invalid subpass ID");
+            return;
+        }
+        if (_phaseID == INVALID_ID) {
+            CC_LOG_ERROR("Invalid phase ID");
+            return;
+        }
+    }
     _phaseString = "default";
     _phase = pipeline::getPhaseID(_phaseString);
     _primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
@@ -535,11 +627,18 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     _propertyIndex = info.propertyIndex.has_value() ? info.propertyIndex.value() : info.passIndex;
     _programName = info.program;
     _defines = info.defines; // cjh c++ always does copy by assignment.  copyDefines ? ({ ...info.defines }) : info.defines;
-    _shaderInfo = programLib->getTemplate(info.program);
+    // init shader info
+    if (programLib2) {
+        CC_EXPECTS(_phaseID != INVALID_ID);
+        _shaderInfo = &programLib2->getProgramInfo(_phaseID, _programName);
+    } else {
+        _shaderInfo = programLib->getTemplate(info.program);
+    }
     if (info.properties.has_value()) {
         _properties = info.properties.value();
     }
-    //
+
+    // init gfx
     gfx::Device *device = _device;
     Pass::fillPipelineInfo(this, info);
     if (info.stateOverrides.has_value()) {
@@ -548,15 +647,150 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 
     // init descriptor set
     gfx::DescriptorSetInfo dsInfo;
-    dsInfo.layout = programLib->getDescriptorSetLayout(_device, info.program);
+    if (programLib2) {
+        CC_EXPECTS(_phaseID != INVALID_ID);
+        dsInfo.layout = &programLib2->getMaterialDescriptorSetLayout(
+            _device, _phaseID, _programName);
+    } else {
+        dsInfo.layout = programLib->getDescriptorSetLayout(_device, info.program);
+    }
     _descriptorSet = _device->createDescriptorSet(dsInfo);
 
     // calculate total size required
     const auto &blocks = _shaderInfo->blocks;
-    const auto *tmplInfo = programLib->getTemplateInfo(info.program);
-    const ccstd::vector<int32_t> &blockSizes = tmplInfo->blockSizes;
-    const auto &handleMap = tmplInfo->handleMap;
+    const auto *tmplInfo =
+        programLib2
+            ? nullptr
+            : programLib->getTemplateInfo(info.program);
+    const auto &blockSizes = [&]() -> const auto & {
+        if (programLib2) {
+            return programLib2->getBlockSizes(_phaseID, _programName);
+        }
+        return tmplInfo->blockSizes;
+    }
+    ();
+    const auto &handleMap = [&]() -> const auto & {
+        if (programLib2) {
+            CC_EXPECTS(_phaseID != INVALID_ID);
+            return programLib2->getHandleMap(_phaseID, _programName);
+        }
+        return tmplInfo->handleMap;
+    }
+    ();
 
+    // build uniform blocks
+    if (programLib2) {
+        const auto &shaderInfo = programLib2->getShaderInfo(_phaseID, _programName);
+        buildMaterialUniformBlocks(shaderInfo.blocks, blockSizes);
+    } else {
+        buildUniformBlocks(blocks, blockSizes);
+    }
+
+    // store handles
+    _propertyHandleMap = handleMap;
+    auto &directHandleMap = _propertyHandleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> indirectHandleMap;
+    for (const auto &properties : _properties) {
+        if (!properties.second.handleInfo.has_value()) {
+            continue;
+        }
+
+        const auto &propVal = properties.second.handleInfo.value();
+        indirectHandleMap[properties.first] = getHandle(std::get<0>(propVal), std::get<1>(propVal), std::get<2>(propVal));
+    }
+
+    utils::mergeToMap(directHandleMap, indirectHandleMap);
+}
+
+namespace {
+
+void calculateTotalSize(
+    gfx::Device *device, const uint32_t lastSize,
+    IntrusivePtr<gfx::Buffer> &rootBuffer,
+    IntrusivePtr<ArrayBuffer> &rootBlock,
+    ccstd::vector<uint32_t> &startOffsets) {
+    uint32_t totalSize = !startOffsets.empty() ? (startOffsets[startOffsets.size() - 1] + lastSize) : 0;
+    if (totalSize > 0) {
+        gfx::BufferInfo bufferInfo;
+        bufferInfo.usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST;
+        bufferInfo.memUsage = gfx::MemoryUsageBit::DEVICE;
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+        const auto alignment = device->getCapabilities().uboOffsetAlignment;
+        bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / static_cast<float>(alignment))) * alignment;
+        rootBuffer = device->createBuffer(bufferInfo);
+        rootBlock = ccnew ArrayBuffer(totalSize);
+    }
+}
+
+} // namespace
+
+void Pass::buildUniformBlock(
+    uint32_t binding, int32_t size,
+    gfx::BufferViewInfo &bufferViewInfo,
+    ccstd::vector<uint32_t> &startOffsets,
+    size_t &count) {
+    const auto alignment = _device->getCapabilities().uboOffsetAlignment;
+    bufferViewInfo.buffer = _rootBuffer;
+    bufferViewInfo.offset = startOffsets[count++];
+    bufferViewInfo.range = static_cast<int32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(alignment))) * alignment;
+    if (binding >= _buffers.size()) {
+        _buffers.resize(binding + 1);
+    }
+    auto *bufferView = _device->createBuffer(bufferViewInfo);
+    _buffers[binding] = bufferView;
+    // non-builtin UBO data pools, note that the effect compiler
+    // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
+    if (binding >= _blocks.size()) {
+        _blocks.resize(binding + 1);
+    }
+    _blocks[binding].data = reinterpret_cast<float *>(const_cast<uint8_t *>(_rootBlock->getData()) + bufferViewInfo.offset);
+    _blocks[binding].count = size / 4;
+    _blocks[binding].offset = bufferViewInfo.offset / 4;
+    _descriptorSet->bindBuffer(binding, bufferView);
+}
+
+void Pass::buildMaterialUniformBlocks(
+    const ccstd::vector<gfx::UniformBlock> &blocks,
+    const ccstd::vector<int32_t> &blockSizes) {
+    gfx::Device *device = _device;
+    const auto alignment = device->getCapabilities().uboOffsetAlignment;
+    ccstd::vector<uint32_t> startOffsets;
+    startOffsets.reserve(blocks.size());
+    uint32_t lastSize = 0;
+    uint32_t lastOffset = 0;
+    for (size_t i = 0; i < blocks.size(); i++) {
+        const auto &block = blocks[i];
+        if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::MATERIAL) {
+            continue;
+        }
+        const auto &size = blockSizes[i];
+        startOffsets.emplace_back(lastOffset);
+        lastOffset += static_cast<int32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(alignment))) * alignment;
+        lastSize = size;
+    }
+
+    // create gfx buffer resource
+    if (lastSize != 0) {
+        calculateTotalSize(device, lastSize, _rootBuffer, _rootBlock, startOffsets);
+    }
+
+    // create buffer views
+    gfx::BufferViewInfo bufferViewInfo{};
+    for (size_t i = 0, count = 0; i < blocks.size(); i++) {
+        const auto &block = blocks[i];
+        if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::MATERIAL) {
+            continue;
+        }
+        const auto binding = block.binding;
+        int32_t size = blockSizes[i];
+        buildUniformBlock(binding, size, bufferViewInfo, startOffsets, count);
+    }
+}
+
+void Pass::buildUniformBlocks(
+    const ccstd::vector<IBlockInfo> &blocks,
+    const ccstd::vector<int32_t> &blockSizes) {
+    gfx::Device *device = _device;
     const auto alignment = device->getCapabilities().uboOffsetAlignment;
     ccstd::vector<uint32_t> startOffsets;
     startOffsets.reserve(blocks.size());
@@ -570,55 +804,15 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     }
 
     // create gfx buffer resource
-    uint32_t totalSize = !startOffsets.empty() ? (startOffsets[startOffsets.size() - 1] + lastSize) : 0;
-    if (totalSize > 0) {
-        gfx::BufferInfo bufferInfo;
-        bufferInfo.usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST;
-        bufferInfo.memUsage = gfx::MemoryUsageBit::DEVICE;
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-        bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / 16.F)) * 16;
-        _rootBuffer = device->createBuffer(bufferInfo);
-        _rootBlock = ccnew ArrayBuffer(totalSize);
-    }
-
-    gfx::BufferViewInfo bufferViewInfo;
+    calculateTotalSize(device, lastSize, _rootBuffer, _rootBlock, startOffsets);
 
     // create buffer views
+    gfx::BufferViewInfo bufferViewInfo;
     for (size_t i = 0, count = 0; i < blocks.size(); i++) {
-        int32_t binding = blocks[i].binding;
+        const auto binding = blocks[i].binding;
         int32_t size = blockSizes[i];
-        bufferViewInfo.buffer = _rootBuffer;
-        bufferViewInfo.offset = startOffsets[count++];
-        bufferViewInfo.range = static_cast<int32_t>(std::ceil(static_cast<float>(size) / 16.F)) * 16;
-        if (binding >= _buffers.size()) {
-            _buffers.resize(binding + 1);
-        }
-        auto *bufferView = device->createBuffer(bufferViewInfo);
-        _buffers[binding] = bufferView;
-        // non-builtin UBO data pools, note that the effect compiler
-        // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-        if (binding >= _blocks.size()) {
-            _blocks.resize(binding + 1);
-        }
-        _blocks[binding].data = reinterpret_cast<float *>(const_cast<uint8_t *>(_rootBlock->getData()) + bufferViewInfo.offset);
-        _blocks[binding].count = size / 4;
-        _blocks[binding].offset = bufferViewInfo.offset / 4;
-        _descriptorSet->bindBuffer(binding, bufferView);
+        buildUniformBlock(binding, size, bufferViewInfo, startOffsets, count);
     }
-    // store handles
-    _propertyHandleMap = handleMap;
-    auto &directHandleMap = _propertyHandleMap;
-    Record<ccstd::string, uint32_t> indirectHandleMap;
-    for (const auto &properties : _properties) {
-        if (!properties.second.handleInfo.has_value()) {
-            continue;
-        }
-
-        const auto &propVal = properties.second.handleInfo.value();
-        indirectHandleMap[properties.first] = getHandle(std::get<0>(propVal), std::get<1>(propVal), std::get<2>(propVal));
-    }
-
-    utils::mergeToMap(directHandleMap, indirectHandleMap);
 }
 
 void Pass::syncBatchingScheme() {
@@ -631,12 +825,7 @@ void Pass::syncBatchingScheme() {
             _batchingScheme = BatchingSchemes::NONE;
         }
     } else {
-        auto iter = _defines.find("USE_BATCHING");
-        if (iter != _defines.end() && macroRecordAsBool(iter->second)) {
-            _batchingScheme = BatchingSchemes::VB_MERGING;
-        } else {
-            _batchingScheme = BatchingSchemes::NONE;
-        }
+        _batchingScheme = BatchingSchemes::NONE;
     }
 }
 
@@ -644,6 +833,9 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
+    _passID = target->_passID;
+    _subpassID = target->_subpassID;
+    _phaseID = target->_phaseID;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
@@ -663,7 +855,12 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
 
     _shader = target->_shader;
 
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
+    } else {
+        _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    }
     _hash = target->_hash ^ hashFactor;
 }
 
@@ -671,7 +868,11 @@ void Pass::updatePassHash() {
     _hash = Pass::getPassHash(this);
 }
 
-gfx::DescriptorSetLayout *Pass::getLocalSetLayout() const {
+const gfx::DescriptorSetLayout *Pass::getLocalSetLayout() const {
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        return &programLib->getLocalDescriptorSetLayout(_device, _phaseID, _programName);
+    }
     return ProgramLib::getInstance()->getDescriptorSetLayout(_device, _programName, true);
 }
 

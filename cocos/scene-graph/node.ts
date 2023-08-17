@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,7 +23,7 @@
 */
 
 import { ccclass, editable, serializable, type } from 'cc.decorator';
-import { DEV, DEBUG, EDITOR } from 'internal:constants';
+import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../core/global-exports';
@@ -38,9 +37,10 @@ import { Component } from './component';
 import { property } from '../core/data/decorators/property';
 import { CCObject, js } from '../core';
 import type { Scene } from './scene';
-import { PrefabInfo } from './prefab/prefab-info';
+import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
+import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -152,7 +152,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @readOnly
      */
-    get uuid () {
+    get uuid (): string {
         return this._id;
     }
 
@@ -179,7 +179,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @default true
      */
     @editable
-    get active () {
+    get active (): boolean {
         return this._active;
     }
     set active (isActive: boolean) {
@@ -198,11 +198,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * @engineInternal please don't use this method.
+     */
+    public _setActiveInHierarchy (v: boolean): void {
+        this._activeInHierarchy = v;
+    }
+
+    /**
      * @en Indicates whether this node is active in the scene.
      * @zh 表示此节点是否在场景中激活。
      */
     @editable
-    get activeInHierarchy () {
+    get activeInHierarchy (): boolean {
         return this._activeInHierarchy;
     }
 
@@ -211,7 +218,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
       * @zh 父节点
       */
     @editable
-    get parent () {
+    get parent (): Node | null {
         return this._parent;
     }
     set parent (value) {
@@ -223,7 +230,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 此节点属于哪个场景。
      * @readonly
      */
-    get scene () {
+    get scene (): Scene {
         return this._scene;
     }
 
@@ -234,8 +241,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *
      * @deprecated since v3.4.0
      */
-    get eventProcessor () {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    get eventProcessor (): NodeEventProcessor {
         return this._eventProcessor;
     }
 
@@ -259,15 +265,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @internal
      * @param node The node.
      */
-    protected static _setScene (node: Node) {
+    protected static _setScene (node: Node): void {
         node._updateScene();
     }
 
     protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -285,11 +291,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return null;
     }
 
-    protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
+    protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]): void {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -324,7 +330,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return null;
     }
 
-    protected static _findChildComponents (children: Node[], constructor, components) {
+    protected static _findChildComponents (children: Node[], constructor, components): void {
         for (let i = 0; i < children.length; ++i) {
             const node = children[i];
             Node._findComponents(node, constructor, components);
@@ -343,25 +349,49 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _active = true;
 
+    /**
+     * NOTE: components getter is typeof ReadonlyArray
+     * @engineInternal
+     */
+    public getWritableComponents (): Component[] { return this._components; }
     @serializable
     protected _components: Component[] = [];
 
-    // The PrefabInfo object
+    /**
+     * TODO(PP_Pro): this property should be exported to editor only, we should support editorOnly tag.
+     * Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+     */
     @serializable
     protected _prefab: PrefabInfo | null = null;
+    /**
+     * @engineInternal
+     */
+    public get prefab (): PrefabInfo | null { return this._prefab; }
 
     protected _scene: Scene = null!;
 
     protected _activeInHierarchy = false;
 
+    /**
+     * @engineInternal
+     */
+    public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
     protected _name: string;
 
-    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
+    /**
+     * @engineInternal
+     */
+    public get siblingIndex (): number { return this._siblingIndex; }
+    /**
+     * @engineInternal
+     */
+    public set siblingIndex (val: number) { this._siblingIndex = val; }
 
     /**
      * @en
@@ -377,7 +407,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * The derived `Scene` overrides this method to behavior differently.
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    protected _updateScene () {
+    protected _updateScene (): void {
         if (this._parent == null) {
             error('Node %s(%s) has not attached to a scene.', this.name, this.uuid);
         } else {
@@ -399,7 +429,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.attr(attrs);
      * ```
      */
-    public attr (attrs: unknown) {
+    public attr (attrs: unknown): void {
         js.mixin(this, attrs);
     }
 
@@ -407,8 +437,17 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      */
-    public getParent () {
+    public getParent (): Node | null {
         return this._parent;
+    }
+
+    /**
+     * As there are setter and setParent(), and both of them not just modify _parent, but have
+     * other logic. So add a new function that only modify _parent value.
+     * @engineInternal
+     */
+    public modifyParent (parent: this | null): void {
+        this._parent = parent;
     }
 
     /**
@@ -417,7 +456,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param value Parent node
      * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
-    public setParent (value: this | Scene | null, keepWorldTransform = false) {
+    public setParent (value: Node | null, keepWorldTransform = false): void {
         if (keepWorldTransform) { this.updateWorldTransform(); }
 
         if (this._parent === value) {
@@ -563,7 +602,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: Node, siblingIndex: number) {
+    public insertChild (child: Node, siblingIndex: number): void {
         child.setParent(this);
         child.setSiblingIndex(siblingIndex);
     }
@@ -572,7 +611,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Get the sibling index of the current node in its parent's children array.
      * @zh 获取当前节点在父节点的 children 数组中的位置。
      */
-    public getSiblingIndex () {
+    public getSiblingIndex (): number {
         return this._siblingIndex;
     }
 
@@ -580,7 +619,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Set the sibling index of the current node in its parent's children array.
      * @zh 设置当前节点在父节点的 children 数组中的位置。
      */
-    public setSiblingIndex (index: number) {
+    public setSiblingIndex (index: number): void {
         if (!this._parent) {
             return;
         }
@@ -602,6 +641,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
+            this._eventProcessor.onUpdatingSiblingIndex();
         }
     }
 
@@ -626,7 +666,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * });
      * ```
      */
-    public walk (preFunc: (target: this) => void, postFunc?: (target: this) => void) {
+    public walk (preFunc: (target: this) => void, postFunc?: (target: this) => void): void {
         let index = 1;
         let children: this[] | null = null;
         let curr: this | null = null;
@@ -718,7 +758,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * 从父节点中删除该节点。
      * 如果这个节点是一个孤立节点，那么什么都不会发生。
      */
-    public removeFromParent () {
+    public removeFromParent (): void {
         if (this._parent) {
             this._parent.removeChild(this);
         }
@@ -729,7 +769,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
      */
-    public removeChild (child: this | Node) {
+    public removeChild (child: this | Node): void {
         if (this._children.indexOf(child as this) > -1) {
             // invoke the parent setter
             child.parent = null;
@@ -740,7 +780,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Removes all children from the container.
      * @zh 移除节点所有的子节点。
      */
-    public removeAllChildren () {
+    public removeAllChildren (): void {
         // not using detachChild improves speed here
         const children = this._children;
         for (let i = children.length - 1; i >= 0; i--) {
@@ -804,7 +844,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
       */
     public getComponent(className: string): Component | null;
 
-    public getComponent<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
+    public getComponent<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T | null {
         const constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return Node._findComponent(this, constructor);
@@ -826,7 +866,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getComponents(className: string): Component[];
 
-    public getComponents<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
+    public getComponents<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Component[] {
         const constructor = getConstructor(typeOrClassName);
         const components: Component[] = [];
         if (constructor) {
@@ -857,7 +897,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getComponentInChildren(className: string): Component | null;
 
-    public getComponentInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
+    public getComponentInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): T | null {
         const constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return Node._findChildComponent(this._children, constructor);
@@ -887,7 +927,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getComponentsInChildren(className: string): Component[];
 
-    public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
+    public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Component[] {
         const constructor = getConstructor(typeOrClassName);
         const components: Component[] = [];
         if (constructor) {
@@ -921,7 +961,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public addComponent(className: string): Component;
 
-    public addComponent<T extends Component> (typeOrClassName: string | Constructor<T>) {
+    public addComponent<T extends Component> (typeOrClassName: string | Constructor<T>): T {
         if (EDITOR && (this._objFlags & Destroying)) {
             throw Error('isDestroying');
         }
@@ -997,6 +1037,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._activeInHierarchy) {
             legacyCC.director._nodeActivator.activateComp(component);
         }
+        if (EDITOR_NOT_IN_PREVIEW) {
+            component.resetInEditor?.();
+        }
 
         return component;
     }
@@ -1038,7 +1081,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public removeComponent(classNameOrInstance: string | Component): void;
 
-    public removeComponent (component: any) {
+    public removeComponent (component: any): void {
         if (!component) {
             errorID(3813);
             return;
@@ -1093,7 +1136,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.on(NodeEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: any = false) {
+    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: any = false): void {
         switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
@@ -1101,7 +1144,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         default:
             break;
         }
-        this._eventProcessor.on(type, callback, target, useCapture);
+        this._eventProcessor.on(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
@@ -1120,8 +1163,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.off(NodeEventType.TOUCH_START, callback, this.node);
      * ```
      */
-    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false) {
-        this._eventProcessor.off(type, callback, target, useCapture);
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
+        this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
         // All listener removed
@@ -1148,8 +1191,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any) {
-        this._eventProcessor.once(type, callback, target, useCapture);
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
+        this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 
     /**
@@ -1169,7 +1212,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void {
         this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
     }
 
@@ -1180,7 +1223,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 分发事件到事件流中。
      * @param event - The Event object that is dispatched into the event flow
      */
-    public dispatchEvent (event: Event) {
+    public dispatchEvent (event: Event): void {
         this._eventProcessor.dispatchEvent(event);
     }
 
@@ -1192,7 +1235,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param target - The callback callee of the event listener
      * @return True if a callback of the specified type is registered; false otherwise.
      */
-    public hasEventListener (type: string, callback?: AnyFunction, target?: unknown) {
+    public hasEventListener (type: string, callback?: AnyFunction, target?: unknown): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
@@ -1202,7 +1245,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 移除目标上的所有注册事件。
      * @param target - The target to be searched for all related callbacks
      */
-    public targetOff (target: string | unknown) {
+    public targetOff (target: string | unknown): void {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
         if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
@@ -1210,7 +1253,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         if (super.destroy()) {
             this.active = false;
             return true;
@@ -1227,7 +1270,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * 销毁所有子节点，并释放所有它们对其它对象的引用。
      * 实际销毁操作会延迟到当前帧渲染前执行。
      */
-    public destroyAllChildren () {
+    public destroyAllChildren (): void {
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {
             children[i].destroy();
@@ -1238,7 +1281,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * Do remove component, only used internally.
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _removeComponent (component: Component) {
+    public _removeComponent (component: Component): void {
         if (!component) {
             errorID(3814);
             return;
@@ -1261,7 +1304,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateSiblingIndex () {
+    public _updateSiblingIndex (): void {
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
@@ -1269,7 +1312,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
-    protected _instantiate (cloned, isSyncedNode) {
+    protected _instantiate (cloned, isSyncedNode): any {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
@@ -1277,6 +1320,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
             if (cloned === newPrefabInfo.root) {
+                // when instantiate prefab in Editor,should add prefab instance info for root node
+                EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
                 // newPrefabInfo.fileId = '';
             } else {
                 // var PrefabUtils = Editor.require('scene://utils/prefab');
@@ -1292,7 +1337,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return cloned;
     }
 
-    protected _onHierarchyChangedBase (oldParent: this | null) {
+    protected _onHierarchyChangedBase (oldParent: this | null): void {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
             legacyCC.game.removePersistRootNode(this);
@@ -1307,12 +1352,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(true);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(false);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(false);
             }
 
             // conflict detection
@@ -1325,7 +1372,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    protected _onPreDestroyBase () {
+    protected _onPreDestroyBase (): boolean {
         // marked as destroying
         this._objFlags |= Destroying;
 
@@ -1333,8 +1380,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
-            // @ts-expect-error Polyfilled functions in node-dev.ts
-            this._registerIfAttached!(false);
+            // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            (this as any)._registerIfAttached!(false);
         }
 
         // remove from persist
@@ -1440,15 +1488,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
-
-    // world transform, don't access this directly
-    protected declare _pos: Vec3;
-
-    protected declare _rot: Quat;
-
-    protected declare _scale: Vec3;
-
-    protected declare _mat: Mat4;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _pos: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _rot: Quat;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _scale: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _mat: Mat4;
 
     // local transform
     @serializable
@@ -1470,7 +1525,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
     protected _flagChangeVersion = 0;
@@ -1494,7 +1549,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
-    protected _onPreDestroy () {
+    protected _onPreDestroy (): boolean {
         return this._onPreDestroyBase();
     }
 
@@ -1547,7 +1602,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
 
-    get eulerAngles () {
+    get eulerAngles (): Readonly<Vec3> {
         if (this._eulerDirty) {
             Quat.toEuler(this._euler, this._lrot);
             this._eulerDirty = false;
@@ -1560,7 +1615,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 本地坐标系下的旋转，用欧拉角表示，但是限定在 z 轴上。
      */
     @editable
-    get angle () {
+    get angle (): number {
         return this._euler.z;
     }
 
@@ -1677,7 +1732,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.MOBILITY_CHANGED);
     }
 
-    get mobility () {
+    get mobility (): number {
         return this._mobility;
     }
 
@@ -1696,15 +1751,25 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
-    get layer () {
+    get layer (): number {
         return this._layer;
+    }
+
+    /**
+     * @zh 节点的变换改动版本号。
+     * @en The transformation change version number of the node.
+     * @engineInternal
+     * @internal
+     */
+    get flagChangedVersion (): number {
+        return this._flagChangeVersion;
     }
 
     /**
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    get hasChangedFlags () {
+    get hasChangedFlags (): number {
         return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
     }
 
@@ -1716,7 +1781,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @internal
      */
-    public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
+    public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext): void {
         if (!EDITOR) {
             serializationOutput.writeThis();
             return;
@@ -1724,28 +1789,42 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         // Detects if this node is mounted node of `PrefabInstance`
         // TODO: optimize
-        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+        const isMountedChild = (): boolean => !!(this[editorExtrasTag] as any)?.mountedRoot;
 
         // Returns if this node is under `PrefabInstance`
         // eslint-disable-next-line arrow-body-style
-        const isSyncPrefab = () => {
+        const isSyncPrefab = (): boolean | PrefabInstance | undefined => {
             // 1. Under `PrefabInstance`, but not mounted
             // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
             return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
         };
 
-        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+        const canDiscardByPrefabRoot = (): boolean => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
             || !isSyncPrefab() || context.root === this);
 
         if (canDiscardByPrefabRoot()) {
             // discard props disallow to synchronize
             const isRoot = this._prefab?.root === this;
             if (isRoot) {
-                serializationOutput.writeProperty('_objFlags', this._objFlags);
-                serializationOutput.writeProperty('_parent', this._parent);
-                serializationOutput.writeProperty('_prefab', this._prefab);
-                if (context.customArguments.keepNodeUuid) {
-                    serializationOutput.writeProperty('_id', this._id);
+                // if B prefab is in A prefab,B can be referenced by component.We should discard it.because B is not the root of prefab
+                let isNestedPrefab = false;
+                let parent = this.getParent();
+                while (parent) {
+                    const nestedRoots = parent._prefab?.nestedPrefabInstanceRoots;
+                    if (nestedRoots && nestedRoots.length > 0) {
+                        // if this node is not in nestedPrefabInstanceRoots,it means this node is not the root of prefab,so it should be discarded.
+                        isNestedPrefab = !nestedRoots.some((root) => root === this);
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+                if (!isNestedPrefab) {
+                    serializationOutput.writeProperty('_objFlags', this._objFlags);
+                    serializationOutput.writeProperty('_parent', this._parent);
+                    serializationOutput.writeProperty('_prefab', this._prefab);
+                    if (context.customArguments.keepNodeUuid) {
+                        serializationOutput.writeProperty('_id', this._id);
+                    }
                 }
                 // TODO: editorExtrasTag may be a symbol in the future
                 serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
@@ -1764,7 +1843,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onSetParent (oldParent: this | null, keepWorldTransform = false) {
+    public _onSetParent (oldParent: this | null, keepWorldTransform = false): void {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
                 this.walk(Node._setScene);
@@ -1777,7 +1856,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 parent.updateWorldTransform();
                 if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
                     warnID(14300);
-                    this._dirtyFlags |= TransformBit.TRS;
+                    this._transformFlags |= TransformBit.TRS;
                     this.updateWorldTransform();
                 } else {
                     Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
@@ -1794,7 +1873,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.invalidateChildren(TransformBit.TRS);
     }
 
-    protected _onHierarchyChanged (oldParent: this | null) {
+    protected _onHierarchyChanged (oldParent: this | null): void {
         this.eventProcessor.reattach();
         this._onHierarchyChangedBase(oldParent);
     }
@@ -1802,9 +1881,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+    public _onBatchCreated (dontSyncChildPrefab: boolean): void {
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags |= TransformBit.TRS;
+        this._transformFlags |= TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -1815,7 +1894,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize () {
+    public _onBeforeSerialize (): void {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
@@ -1823,7 +1902,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onPostActivated (active: boolean) {
+    public _onPostActivated (active: boolean): void {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
@@ -1922,7 +2001,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 递归标记节点世界变换为 dirty
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
-    public invalidateChildren (dirtyBit: TransformBit) {
+    public invalidateChildren (dirtyBit: TransformBit): void {
         let i = 0;
         let j = 0;
         let l = 0;
@@ -1936,11 +2015,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
-
+            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                cur.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, dirtyBit);
 
                 children = cur._children;
                 l = children.length;
@@ -1956,13 +2033,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Update the world transform information if outdated
      * @zh 更新节点的世界变换信息
      */
-    public updateWorldTransform () {
-        if (!this._dirtyFlags) { return; }
+    public updateWorldTransform (): void {
+        if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur: this | null = this;
         let i = 0;
-        while (cur && cur._dirtyFlags) {
+        while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
@@ -1971,7 +2048,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         while (i) {
             child = dirtyNodes[--i];
-            dirtyBits |= child._dirtyFlags;
+            dirtyBits |= child._transformFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
@@ -1999,12 +2076,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
 
-            child._dirtyFlags = TransformBit.NONE;
+            child._transformFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -2076,7 +2153,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public setRotation(x: number, y: number, z: number, w: number): void;
 
-    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
+    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._lrot, val as Readonly<Quat>);
         } else {
@@ -2154,7 +2231,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public setScale(x: number, y: number, z?: number): void;
 
-    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
+    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
         } else if (z === undefined) {
@@ -2188,7 +2265,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param out The result point in local coordinate system will be stored in this vector
      * @param p A position in world coordinate system
      */
-    public inverseTransformPoint (out: Vec3, p: Vec3) {
+    public inverseTransformPoint (out: Vec3, p: Vec3): Vec3 {
         Vec3.copy(out, p);
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -2221,7 +2298,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public setWorldPosition(x: number, y: number, z: number): void;
 
-    public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
+    public setWorldPosition (val: Vec3 | number, y?: number, z?: number): void {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._pos, val as Vec3);
         } else {
@@ -2278,7 +2355,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public setWorldRotation(x: number, y: number, z: number, w: number): void;
 
-    public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+    public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void {
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._rot, val as Quat);
         } else {
@@ -2351,7 +2428,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public setWorldScale(x: number, y: number, z: number): void;
 
-    public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
+    public setWorldScale (val: Vec3 | number, y?: number, z?: number): void {
         const parent = this._parent;
         if (parent) {
             this.updateWorldTransform();
@@ -2441,7 +2518,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param pos The position
      * @param scale The scale
      */
-    public setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+    public setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3): void {
         let dirtyBit: TransformBit = 0;
         if (rot) {
             dirtyBit |= TransformBit.ROTATION;
@@ -2468,6 +2545,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
+    }
+
+    /**
+     * @en Does the world transform information of this node need to be updated?
+     * @zh 这个节点的空间变换信息是否需要更新？
+     */
+    public isTransformDirty (): boolean {
+        return this._transformFlags !== TransformBit.NONE;
     }
 
     /**
@@ -2505,7 +2590,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static resetHasChangedFlags () {
+    public static resetHasChangedFlags (): void {
         globalFlagChangeVersion += 1;
     }
 
@@ -2515,7 +2600,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh
      * 清除节点数组
      */
-    public static clearNodeArray () {
+    public static clearNodeArray (): void {
         if (Node.ClearFrame < Node.ClearRound && !EDITOR) {
             Node.ClearFrame++;
         } else {

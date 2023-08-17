@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { warnID } from '../../../cocos/core';
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
 import { AudioPlayerDOM, OneShotAudioDOM } from './player-dom';
@@ -8,14 +32,14 @@ type AbstractAudioPlayer = AudioPlayerDOM | AudioPlayerWeb;
 
 export class OneShotAudio {
     private _audio:  AbstractOneShotAudio;
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._audio.onPlay;
     }
     set onPlay (v) {
         this._audio.onPlay = v;
     }
 
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._audio.onEnd;
     }
     set onEnd (v) {
@@ -53,7 +77,7 @@ export class AudioPlayer {
             }
         });
     }
-    destroy () {
+    destroy (): void {
         this._player.destroy();
     }
     static loadNative (url: string, opts?: AudioLoadOptions): Promise<unknown> {
@@ -68,13 +92,13 @@ export class AudioPlayer {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {
                 if (!AudioContextAgent.support) { warnID(5201); }
                 AudioPlayerDOM.loadOneShotAudio(url, volume).then((oneShotAudioDOM) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioDOM));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioDOM));
                 }).catch(reject);
             } else {
                 AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioWeb));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
             }
         });
@@ -97,10 +121,10 @@ export class AudioPlayer {
     play (): Promise<void> { return this._player.play(); }
     pause (): Promise<void> {  return this._player.pause(); }
     stop (): Promise<void> { return this._player.stop(); }
-    onInterruptionBegin (cb: () => void) { this._player.onInterruptionBegin(cb); }
-    offInterruptionBegin (cb?: () => void) { this._player.offInterruptionBegin(cb); }
-    onInterruptionEnd (cb: () => void) { this._player.onInterruptionEnd(cb); }
-    offInterruptionEnd (cb?: () => void) { this._player.offInterruptionEnd(cb); }
-    onEnded (cb: () => void) { this._player.onEnded(cb); }
-    offEnded (cb?: () => void) { this._player.offEnded(cb); }
+    onInterruptionBegin (cb: () => void): void { this._player.onInterruptionBegin(cb); }
+    offInterruptionBegin (cb?: () => void): void { this._player.offInterruptionBegin(cb); }
+    onInterruptionEnd (cb: () => void): void { this._player.onInterruptionEnd(cb); }
+    offInterruptionEnd (cb?: () => void): void { this._player.offInterruptionEnd(cb); }
+    onEnded (cb: () => void): void { this._player.onEnded(cb); }
+    offEnded (cb?: () => void): void { this._player.offEnded(cb); }
 }

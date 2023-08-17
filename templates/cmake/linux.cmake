@@ -1,8 +1,16 @@
 
-macro(cc_linux_before_target target_name)
+macro(cc_linux_before_target _target_name)
     add_definitions(-DV8_COMPRESS_POINTERS) #TODO move defination to external/v8
 
     cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
+
+    if((NOT DEFINED CC_EXECUTABLE_NAME) OR "${CC_EXECUTABLE_NAME}" STREQUAL "")
+        if(${APP_NAME} MATCHES "^[_0-9a-zA-Z-]+$")
+            set(CC_EXECUTABLE_NAME ${APP_NAME})
+        else()
+            set(CC_EXECUTABLE_NAME CocosGame)
+        endif()
+    endif()
 
     source_group(TREE ${RES_DIR}/data PREFIX "Resources" FILES ${CC_ASSET_FILES})
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
@@ -19,17 +27,17 @@ macro(cc_linux_before_target target_name)
         ${CC_COMMON_SOURCES}
         ${CC_ASSET_FILES}
     )
-    cc_common_before_target(${target_name})
+    cc_common_before_target(${CC_EXECUTABLE_NAME})
 endmacro()
 
-macro(cc_linux_after_target target_name)
-    set_target_properties(${target_name} PROPERTIES
+macro(cc_linux_after_target _target_name)
+    set_target_properties(${CC_EXECUTABLE_NAME} PROPERTIES
         COMPILE_FLAGS "-pthread"
         LINK_FLAGS "-pthread -lsndio ")
 
-    target_link_libraries(${target_name} dl ${ENGINE_NAME})
+    target_link_libraries(${CC_EXECUTABLE_NAME} dl ${ENGINE_NAME})
 
-    target_include_directories(${target_name} PRIVATE
+    target_include_directories(${CC_EXECUTABLE_NAME} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
 
@@ -42,9 +50,9 @@ macro(cc_linux_after_target target_name)
             COMMAND cp -r ${RES_DIR}/data/* ${bin_dir}/Resources/
             COMMAND ${CMAKE_COMMAND} -E echo "Copying resources done!"
         )
-        add_dependencies(${target_name} copy_resource)
+        add_dependencies(${CC_EXECUTABLE_NAME} copy_resource)
         set_target_properties(copy_resource PROPERTIES FOLDER Utils)
     endif()
 
-    cc_common_after_target(${target_name})
+    cc_common_after_target(${CC_EXECUTABLE_NAME})
 endmacro()

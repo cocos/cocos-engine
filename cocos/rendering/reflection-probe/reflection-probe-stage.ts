@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, ClearFlagBit } from '../../gfx';
@@ -30,7 +29,7 @@ import { ForwardStagePriority } from '../enum';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { ReflectionProbeFlow } from './reflection-probe-flow';
-import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
+import { Camera, ReflectionProbe } from '../../render-scene/scene';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { Vec3 } from '../../core';
 import { packRGBE } from '../../core/math/color';
@@ -65,17 +64,17 @@ export class ReflectionProbeStage extends RenderStage {
      * @param probe
      * @param frameBuffer
      */
-    public setUsageInfo (probe: ReflectionProbe, frameBuffer: Framebuffer) {
+    public setUsageInfo (probe: ReflectionProbe, frameBuffer: Framebuffer): void {
         this._probe = probe;
         this._frameBuffer = frameBuffer;
     }
 
-    public destroy () {
+    public destroy (): void {
         this._frameBuffer = null;
         this._probeRenderQueue?.clear();
     }
 
-    public clearFramebuffer (camera: Camera) {
+    public clearFramebuffer (camera: Camera): void {
         if (!this._frameBuffer) { return; }
 
         colors[0].w = camera.clearColor.w;
@@ -91,15 +90,21 @@ export class ReflectionProbeStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._frameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._frameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._frameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.endRenderPass();
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         const cmdBuff = pipeline.commandBuffers[0];
-        this._probeRenderQueue.gatherRenderObjects(this._probe!, camera.scene!, cmdBuff);
+        this._probeRenderQueue.gatherRenderObjects(this._probe!, camera, cmdBuff);
         pipeline.pipelineUBO.updateCameraUBO(this._probe!.camera);
 
         this._renderArea.x = 0;
@@ -120,8 +125,14 @@ export class ReflectionProbeStage extends RenderStage {
             colors[0].w = rgbe.w;
         }
         const device = pipeline.device;
-        cmdBuff.beginRenderPass(renderPass, this._frameBuffer!, this._renderArea,
-            colors, this._probe!.camera.clearDepth, this._probe!.camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._frameBuffer!,
+            this._renderArea,
+            colors,
+            this._probe!.camera.clearDepth,
+            this._probe!.camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._probeRenderQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -130,7 +141,7 @@ export class ReflectionProbeStage extends RenderStage {
         pipeline.pipelineUBO.updateCameraUBO(camera);
     }
 
-    public activate (pipeline: ForwardPipeline, flow: ReflectionProbeFlow) {
+    public activate (pipeline: ForwardPipeline, flow: ReflectionProbeFlow): void {
         super.activate(pipeline, flow);
         this._probeRenderQueue = new RenderReflectionProbeQueue(pipeline);
     }

@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -75,21 +74,21 @@ export class SystemEvent extends EventTarget {
     constructor () {
         super();
 
-        input.on(InputEventType.MOUSE_DOWN, (e) => { this.emit(SystemEventType.MOUSE_DOWN, e);  });
-        input.on(InputEventType.MOUSE_MOVE, (e) => { this.emit(SystemEventType.MOUSE_MOVE, e);  });
-        input.on(InputEventType.MOUSE_UP, (e) => { this.emit(SystemEventType.MOUSE_UP, e);  });
-        input.on(InputEventType.MOUSE_WHEEL, (e) => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
+        input.on(InputEventType.MOUSE_DOWN, (e): void => { this.emit(SystemEventType.MOUSE_DOWN, e);  });
+        input.on(InputEventType.MOUSE_MOVE, (e): void => { this.emit(SystemEventType.MOUSE_MOVE, e);  });
+        input.on(InputEventType.MOUSE_UP, (e): void => { this.emit(SystemEventType.MOUSE_UP, e);  });
+        input.on(InputEventType.MOUSE_WHEEL, (e): void => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
 
-        input.on(InputEventType.TOUCH_START, (e) => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
-        input.on(InputEventType.TOUCH_MOVE, (e) => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
-        input.on(InputEventType.TOUCH_END, (e) => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
-        input.on(InputEventType.TOUCH_CANCEL, (e) => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
+        input.on(InputEventType.TOUCH_START, (e): void => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
+        input.on(InputEventType.TOUCH_MOVE, (e): void => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
+        input.on(InputEventType.TOUCH_END, (e): void => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
+        input.on(InputEventType.TOUCH_CANCEL, (e): void => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
 
-        input.on(InputEventType.KEY_DOWN, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
-        input.on(InputEventType.KEY_PRESSING, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
-        input.on(InputEventType.KEY_UP, (e) => { this.emit(SystemEventType.KEY_UP, e);  });
+        input.on(InputEventType.KEY_DOWN, (e): void => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_PRESSING, (e): void => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_UP, (e): void => { this.emit(SystemEventType.KEY_UP, e);  });
 
-        input.on(InputEventType.DEVICEMOTION, (e) => { this.emit(SystemEventType.DEVICEMOTION, e);  });
+        input.on(InputEventType.DEVICEMOTION, (e): void => { this.emit(SystemEventType.DEVICEMOTION, e);  });
     }
     /**
      * @en
@@ -98,7 +97,7 @@ export class SystemEvent extends EventTarget {
      * @zh
      * 是否启用加速度计事件。
      */
-    public setAccelerometerEnabled (isEnabled: boolean) {
+    public setAccelerometerEnabled (isEnabled: boolean): void {
         input.setAccelerometerEnabled(isEnabled);
     }
 
@@ -109,7 +108,7 @@ export class SystemEvent extends EventTarget {
      * @zh
      * 设置加速度计间隔值。
      */
-    public setAccelerometerInterval (interval: number) {
+    public setAccelerometerInterval (interval: number): void {
         input.setAccelerometerInterval(interval);
     }
 
@@ -124,8 +123,7 @@ export class SystemEvent extends EventTarget {
      * @param target - The event listener's target and callee
      * @param once - Register the event listener once
      */
-    // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
-    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, target?: unknown, once?: boolean): TFunction {
         super.on(type, callback, target, once);
         return callback;
     }
@@ -141,7 +139,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any): void {
         super.off(type, callback, target);
     }
 }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +23,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
@@ -37,7 +37,7 @@ import {
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
 
-function getIndexStrideCtor (stride: number) {
+function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
     case 1: return Uint8Array;
     case 2: return Uint16Array;
@@ -245,7 +245,7 @@ export class Mesh extends Asset {
      * @zh 此网格的子网格数量。
      * @deprecated Please use [[renderingSubMeshes.length]] instead
      */
-    get subMeshCount () {
+    get subMeshCount (): number {
         const renderingMesh = this.renderingSubMeshes;
         return renderingMesh ? renderingMesh.length : 0;
     }
@@ -272,7 +272,7 @@ export class Mesh extends Asset {
      * @en The struct of the mesh
      * @zh 此网格的结构。
      */
-    get struct () {
+    get struct (): Mesh.IStruct {
         return this._struct;
     }
 
@@ -280,7 +280,7 @@ export class Mesh extends Asset {
      * @en The actual data of the mesh
      * @zh 此网格的数据。
      */
-    get data () {
+    get data (): Uint8Array {
         return this._data;
     }
 
@@ -288,7 +288,7 @@ export class Mesh extends Asset {
      * @en The hash of the mesh
      * @zh 此网格的哈希值。
      */
-    get hash () {
+    get hash (): number {
     // hashes should already be computed offline, but if not, make one
         if (!this._hash) { this._hash = murmurhash2_32_gc(this._data, 666); }
         return this._hash;
@@ -298,7 +298,7 @@ export class Mesh extends Asset {
      * @en The index of the joint buffer of all sub meshes in the joint map buffers
      * @zh 所有子网格的关节索引集合
      */
-    get jointBufferIndices () {
+    get jointBufferIndices (): number[] {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
     }
@@ -307,7 +307,7 @@ export class Mesh extends Asset {
      * @en The sub meshes for rendering. Mesh could be split into different sub meshes for rendering.
      * @zh 此网格创建的渲染网格。
      */
-    public get renderingSubMeshes () {
+    public get renderingSubMeshes (): RenderingSubMesh[] {
         this.initialize();
         return this._renderingSubMeshes!;
     }
@@ -350,7 +350,7 @@ export class Mesh extends Asset {
      * @en complete loading callback
      * @zh 加载完成回调
      */
-    public onLoaded () {
+    public onLoaded (): void {
         this.initialize();
     }
 
@@ -358,7 +358,7 @@ export class Mesh extends Asset {
      * @en mesh init
      * @zh 网格初始化函数
      */
-    public initialize () {
+    public initialize (): void {
         if (this._initialized) {
             return;
         }
@@ -494,7 +494,7 @@ export class Mesh extends Asset {
             }
 
             this._isMeshDataUploaded = true;
-            if (!this._allowDataAccess) {
+            if (!this._allowDataAccess && !EDITOR) {
                 this.releaseData();
             }
         }
@@ -506,7 +506,7 @@ export class Mesh extends Asset {
      * @param primitiveIndex @en sub mesh index @zh 子网格索引
      * @param dynamicGeometry @en sub mesh geometry data @zh 子网格几何数据
      */
-    public updateSubMesh (primitiveIndex: number, dynamicGeometry: IDynamicGeometry) {
+    public updateSubMesh (primitiveIndex: number, dynamicGeometry: IDynamicGeometry): void {
         if (!this._struct.dynamic) {
             warnID(14200);
             return;
@@ -623,7 +623,7 @@ export class Mesh extends Asset {
      * @en Destroy the mesh and release all related GPU resources
      * @zh 销毁此网格，并释放它占有的所有 GPU 资源。
      */
-    public destroy () {
+    public destroy (): boolean {
         this.destroyRenderingMesh();
         return super.destroy();
     }
@@ -632,7 +632,7 @@ export class Mesh extends Asset {
      * @en Release all related GPU resources
      * @zh 释放此网格占有的所有 GPU 资源。
      */
-    public destroyRenderingMesh () {
+    public destroyRenderingMesh (): void {
         if (this._renderingSubMeshes) {
             for (let i = 0; i < this._renderingSubMeshes.length; i++) {
                 this._renderingSubMeshes[i].destroy();
@@ -650,7 +650,7 @@ export class Mesh extends Asset {
      * @param data @en The new data @zh 新数据
      * @deprecated Will be removed in v3.0.0, please use [[reset]] instead
      */
-    public assign (struct: Mesh.IStruct, data: Uint8Array) {
+    public assign (struct: Mesh.IStruct, data: Uint8Array): void {
         this.reset({
             struct,
             data,
@@ -662,7 +662,7 @@ export class Mesh extends Asset {
      * @zh 重置此网格。
      * @param info @en Mesh creation information including struct and data @zh 网格创建信息，包含结构及数据
      */
-    public reset (info: Mesh.ICreateInfo) {
+    public reset (info: Mesh.ICreateInfo): void {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
@@ -675,7 +675,7 @@ export class Mesh extends Asset {
      * @param skeleton @en skeleton data @zh 骨骼信息
      * @param skeleton @en skeleton data @zh 骨骼信息
      */
-    public getBoneSpaceBounds (skeleton: Skeleton) {
+    public getBoneSpaceBounds (skeleton: Skeleton): (geometry.AABB | null)[] {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
@@ -1035,7 +1035,7 @@ export class Mesh extends Asset {
      *  - 要么都需要索引绘制，要么都不需要索引绘制。
      * @param mesh @en The other mesh to be validated @zh 待验证的网格
      */
-    public validateMergingMesh (mesh: Mesh) {
+    public validateMergingMesh (mesh: Mesh): boolean {
         // dynamic mesh is not allowed to merge.
         if (this._struct.dynamic || mesh._struct.dynamic) {
             return false;
@@ -1142,7 +1142,7 @@ export class Mesh extends Asset {
      * @param offset @en The offset of the first attribute in the target buffer @zh 第一个属性在目标缓冲区的偏移
      * @returns @en false if failed to access attribute, true otherwise @zh 是否成功拷贝
      */
-    public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
+    public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number): boolean {
         let written = false;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
@@ -1192,7 +1192,7 @@ export class Mesh extends Asset {
      * @returns @en Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data,
      * the array type will use the corresponding stride size. @zh 读取失败返回 null，否则返回索引数据
      */
-    public readIndices (primitiveIndex: number) {
+    public readIndices (primitiveIndex: number): Uint8Array | Uint16Array | Uint32Array | null {
         if (primitiveIndex >= this._struct.primitives.length) {
             return null;
         }
@@ -1251,7 +1251,7 @@ export class Mesh extends Asset {
         primitiveIndex: number,
         attributeName: AttributeName,
         accessor: (vertexBundle: Mesh.IVertexBundle, iAttribute: number) => void,
-    ) {
+    ): void {
         if (primitiveIndex >= this._struct.primitives.length) {
             return;
         }
@@ -1287,7 +1287,7 @@ export class Mesh extends Asset {
      * @zh 默认初始化
      * @param uuid @en asset uuid @zh 资源 uuid
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         this.reset({
             struct: {
@@ -1305,7 +1305,7 @@ export class Mesh extends Asset {
      */
     public set allowDataAccess (allowDataAccess: boolean) {
         this._allowDataAccess = allowDataAccess;
-        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+        if (this._isMeshDataUploaded && !this._allowDataAccess && !EDITOR) {
             this.releaseData();
         }
     }
@@ -1315,17 +1315,17 @@ export class Mesh extends Asset {
      * @zh 获取此网格的数据是否可被存取
      * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
      */
-    public get allowDataAccess () {
+    public get allowDataAccess (): boolean {
         return this._allowDataAccess;
     }
 
-    private releaseData () {
+    private releaseData (): void {
         this._data = globalEmptyMeshBuffer;
     }
 }
 cclegacy.Mesh = Mesh;
 
-function getOffset (attributes: Attribute[], attributeIndex: number) {
+function getOffset (attributes: Attribute[], attributeIndex: number): number {
     let result = 0;
     for (let i = 0; i < attributeIndex; ++i) {
         const attribute = attributes[i];
@@ -1336,54 +1336,54 @@ function getOffset (attributes: Attribute[], attributeIndex: number) {
 
 const { isLittleEndian } = sys;
 
-function getComponentByteLength (format: Format) {
+function getComponentByteLength (format: Format): number {
     const info = FormatInfos[format];
     return info.size / info.count;
 }
 
-function getReader (dataView: DataView, format: Format) {
+function getReader (dataView: DataView, format: Format): ((offset: number) => number) | null {
     const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
     case FormatType.UNORM: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getUint8(offset);
-        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getUint8(offset);
+        case 2: return (offset: number): number => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getUint32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.SNORM: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getInt8(offset);
-        case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getInt8(offset);
+        case 2: return (offset: number): number => dataView.getInt16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getInt32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.INT: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getInt8(offset);
-        case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getInt8(offset);
+        case 2: return (offset: number): number => dataView.getInt16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getInt32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.UINT: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getUint8(offset);
-        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getUint8(offset);
+        case 2: return (offset: number): number => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getUint32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        return (offset: number): number => dataView.getFloat32(offset, isLittleEndian);
     }
     default:
     }
@@ -1391,49 +1391,49 @@ function getReader (dataView: DataView, format: Format) {
     return null;
 }
 
-function getWriter (dataView: DataView, format: Format) {
+function getWriter (dataView: DataView, format: Format): ((offset: number, value: number) => void) | null {
     const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
     case FormatType.UNORM: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setUint8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setUint32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.SNORM: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setInt8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setInt16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setInt32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.INT: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setInt8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setInt16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setInt32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.UINT: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setUint8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setUint32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        return (offset: number, value: number): void => dataView.setFloat32(offset, value, isLittleEndian);
     }
     default:
     }

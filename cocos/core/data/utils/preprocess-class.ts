@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -42,7 +41,7 @@ const SerializableAttrs = {
 /**
  * 预处理 notify 等扩展属性
  */
-function parseNotify (val, propName, notify, properties) {
+function parseNotify (val, propName, notify, properties): void {
     if (val.get || val.set) {
         if (DEV) {
             warnID(5500);
@@ -54,10 +53,10 @@ function parseNotify (val, propName, notify, properties) {
         // （以 _ 开头将自动设置property 为 visible: false）
         const newKey = `_N$${propName}`;
 
-        val.get = function () {
+        val.get = function (): any {
             return this[newKey];
         };
-        val.set = function (value) {
+        val.set = function (value): void {
             const oldValue = this[newKey];
             this[newKey] = value;
             notify.call(this, oldValue);
@@ -81,7 +80,7 @@ function parseNotify (val, propName, notify, properties) {
     }
 }
 
-function parseType (val, type, className, propName) {
+function parseType (val, type, className, propName): void {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
     if (Array.isArray(type)) {
@@ -143,7 +142,7 @@ function parseType (val, type, className, propName) {
     }
 }
 
-function getBaseClassWherePropertyDefined_DEV (propName, cls) {
+function getBaseClassWherePropertyDefined_DEV (propName, cls): any {
     if (DEV) {
         let res;
         for (; cls && cls.__props__ && cls.__props__.indexOf(propName) !== -1; cls = cls.$super) {
@@ -156,19 +155,27 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>): {
+    default?: any;
+    _short?: boolean | undefined;
+    type?: any;
+} {
     const res: {
         default?: any,
         _short?: boolean,
         type?: any,
-    } = isGetset ? { _short: true } : { _short: true, default: _default };
+    } = isGetset || typeof _default === 'undefined' ? { _short: true } : { _short: true, default: _default };
     if (type) {
         res.type = type;
     }
     return res;
 }
 
-export function getFullFormOfProperty (options, isGetset) {
+export function getFullFormOfProperty (options, isGetset): {
+    default?: any;
+    _short?: boolean | undefined;
+    type?: any;
+} | null {
     const isLiteral = options && options.constructor === Object;
     if (!isLiteral) {
         if (Array.isArray(options) && options.length > 0) {
@@ -177,7 +184,7 @@ export function getFullFormOfProperty (options, isGetset) {
             const type = options;
             return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
-            return _wrapOptions(isGetset, options.default);
+            return _wrapOptions(isGetset, undefined, options);
         } else {
             return _wrapOptions(isGetset, options);
         }
@@ -185,7 +192,7 @@ export function getFullFormOfProperty (options, isGetset) {
     return null;
 }
 
-export function preprocessAttrs (properties, className, cls) {
+export function preprocessAttrs (properties, className, cls): void {
     for (const propName in properties) {
         let val = properties[propName];
         const fullForm = getFullFormOfProperty(val, false);
@@ -227,7 +234,7 @@ export function preprocessAttrs (properties, className, cls) {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base) {
+export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base): false | undefined {
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
         const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { SUPPORT_JIT, EDITOR, TEST, JSB } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -58,10 +57,6 @@ const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
 
-// Distributed
-const IsReplicated = 1 << 22;
-export const IsClientLoad = 1 << 23;
-
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
@@ -73,10 +68,10 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
 // all the hideFlags
 const AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
-const objectsToDestroy: any = [];
-let deferredDestroyTimer = null;
+const objectsToDestroy: CCObject[] = [];
+let deferredDestroyTimer: number | null = null;
 
-function compileDestruct (obj, ctor) {
+function compileDestruct (obj, ctor): Function {
     const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
@@ -153,7 +148,7 @@ function compileDestruct (obj, ctor) {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
         return Function('o', func);
     } else {
-        return (o) => {
+        return (o): void => {
             for (const _key in propsToReset) {
                 o[_key] = propsToReset[_key];
             }
@@ -169,7 +164,7 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 class CCObject implements EditorExtendableObject {
-    public static _deferredDestroy () {
+    public static _deferredDestroy (): void {
         const deleteCount = objectsToDestroy.length;
         for (let i = 0; i < deleteCount; ++i) {
             const obj = objectsToDestroy[i];
@@ -213,6 +208,11 @@ class CCObject implements EditorExtendableObject {
          * @private
          */
         this._objFlags = 0;
+
+        if (EDITOR) {
+            // See cocos/cocos-engine#15392
+            this[editorExtrasTag] = {};
+        }
     }
 
     // MEMBER
@@ -226,7 +226,7 @@ class CCObject implements EditorExtendableObject {
      * obj.name = "New Obj";
      * ```
      */
-    get name () {
+    get name (): string {
         return this._name;
     }
     set name (value) {
@@ -241,19 +241,8 @@ class CCObject implements EditorExtendableObject {
         const flags = hideFlags & CCObject.Flags.AllHideMasks;
         this._objFlags = (this._objFlags & ~CCObject.Flags.AllHideMasks) | flags;
     }
-    public get hideFlags () {
+    public get hideFlags (): CCObject.Flags {
         return this._objFlags & CCObject.Flags.AllHideMasks;
-    }
-
-    public set replicated (value: boolean) {
-        if (value) {
-            this._objFlags |= IsReplicated;
-        } else {
-            this._objFlags &= ~IsReplicated;
-        }
-    }
-    public get replicated () {
-        return !!(this._objFlags & IsReplicated);
     }
 
     /**
@@ -315,13 +304,13 @@ class CCObject implements EditorExtendableObject {
 
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-expect-error no function
             deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
 
         if (JSB) {
-            // @ts-expect-error JSB method
-            this._destroy();
+            // TODO: `_destroy` method only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
+            (this as any)._destroy();
         }
 
         return true;
@@ -356,7 +345,7 @@ class CCObject implements EditorExtendableObject {
      *       }
      * ```
      */
-    public _destruct () {
+    public _destruct (): void {
         const ctor: any = this.constructor;
         let destruct = ctor.__destruct__;
         if (!destruct) {
@@ -369,21 +358,24 @@ class CCObject implements EditorExtendableObject {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _destroyImmediate () {
+    public _destroyImmediate (): void {
         if (this._objFlags & Destroyed) {
             errorID(5000);
             return;
         }
-        // engine internal callback
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (this._onPreDestroy) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            this._onPreDestroy();
-        }
+        // TODO: '_onPreDestroy' should be define in CCObject class.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
+        ((this as any)._onPreDestroy)?.();
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
+            /*Native properties cannot be reset by _destruct, because the native properties are hung on the prototype and
+             *hasOwnProperty's detection cannot be passed.
+             */
+            // TODO: `destruct` is only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
+            if (JSB && (this as any).destruct) {
+                (this as any).destruct();
+            }
             this._destruct();
         }
 
@@ -419,10 +411,10 @@ if (EDITOR || TEST) {
     * 析构操作将在 Undo 系统中**延后**执行。
     * @method realDestroyInEditor
     * @private
+    * TODO: this is a dynamic inject method, should be define in class
+    * issue: https://github.com/cocos/cocos-engine/issues/14643
     */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    prototype.realDestroyInEditor = function () {
+    (prototype as any).realDestroyInEditor = function (): void {
         if (!(this._objFlags & Destroyed)) {
             warnID(5001);
             return;
@@ -436,50 +428,43 @@ if (EDITOR || TEST) {
     };
 }
 
+// NOTE: `clearImmediate` method is only defined in NodeJS environment.
+declare const clearImmediate: (immediateId: number) => void;
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
         }
     });
-
-    /*
+    /**
      * The customized serialization for this object. (Editor Only)
      * @method _serialize
      * @param {Boolean} exporting
      * @return {object} the serialized json data object
-     * @private
+     * TODO: this is a dynamic inject method, should be define in class
+     * issue: https://github.com/cocos/cocos-engine/issues/14643
      */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    prototype._serialize = null;
+    (prototype as any)._serialize = null;
 }
 
-/*
+/**
  * Init this object from the custom serialized data.
  * @method _deserialize
  * @param {Object} data - the serialized json data
  * @param {_Deserializer} ctx
- * @private
+ * TODO: this is a dynamic inject method, should be define in class
+ * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-prototype._deserialize = null;
-/*
- * Called before the object being destroyed.
- * @method _onPreDestroy
- * @private
- */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-prototype._onPreDestroy = null;
+(prototype as any)._deserialize = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
-CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
-CCClass.Attr.setClassAttr(CCObject, 'replicated', 'visible', false);
+// See cocos/cocos-engine#15392
+if (EDITOR) {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+    CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+} else {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+}
 
 /**
  * Bit mask that controls object states.
@@ -616,9 +601,6 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
-
-        IsReplicated,
-        IsClientLoad,
     }
 
     // for @ccclass
@@ -638,7 +620,7 @@ declare namespace CCObject {
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
  * @engineInternal
  */
-export function isCCObject (object: any) {
+export function isCCObject (object: any): object is CCObject {
     return object instanceof CCObject;
 }
 
@@ -671,7 +653,7 @@ export function isCCObject (object: any) {
  * log(isValid(node));    // false, destroyed in the end of last frame
  * ```
  */
-export function isValid (value: any, strictMode?: boolean) {
+export function isValid (value: any, strictMode?: boolean): boolean {
     if (typeof value === 'object') {
         return !!value && !(value._objFlags & (strictMode ? (Destroyed | ToDestroy) : Destroyed));
     } else {
@@ -693,11 +675,9 @@ declare const jsb: any;
 if (JSB) {
     copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
-        ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
+        ['constructor', 'name', 'hideFlags', 'isValid']);
 
-    // @ts-expect-error TS2629
-    // eslint-disable-next-line no-class-assign
-    CCObject = jsb.CCObject;
+    (CCObject as unknown as any) = jsb.CCObject;
 }
 
 legacyCC.Object = CCObject;

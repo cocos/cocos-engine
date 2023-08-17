@@ -1,4 +1,28 @@
-import { EDITOR } from 'internal:constants';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
@@ -8,6 +32,7 @@ import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
 import { director, Director } from '../../game';
+import type { IPhysicsWorld } from '../spec/i-physics-world';
 
 let instance: PhysicsSystem2D | null = null;
 cclegacy.internal.PhysicsGroup2D = PhysicsGroup;
@@ -37,7 +62,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -53,7 +78,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -64,7 +89,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
-    get maxSubSteps () {
+    get maxSubSteps (): number {
         return this._maxSubSteps;
     }
 
@@ -78,7 +103,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
-    get fixedTimeStep () {
+    get fixedTimeStep (): number {
         return this._fixedTimeStep;
     }
 
@@ -92,7 +117,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取或设置是否自动模拟。
      */
-    get autoSimulation () {
+    get autoSimulation (): boolean {
         return this._autoSimulation;
     }
 
@@ -100,7 +125,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         this._autoSimulation = value;
     }
 
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this.physicsWorld.debugDrawFlags;
     }
     set debugDrawFlags (v) {
@@ -111,14 +136,14 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @en
      * The velocity iterations for the velocity constraint solver.
      * @zh
-     * 速度更新迭代数
+     * 速度更新迭代数。
      */
     public velocityIterations = 10;
     /**
      * @en
      * The position Iterations for the position constraint solver.
      * @zh
-     * 位置迭代更新数
+     * 位置迭代更新数。
      */
     public positionIterations = 10;
 
@@ -128,7 +153,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
-    public get physicsWorld () {
+    public get physicsWorld (): IPhysicsWorld {
         return selector.physicsWorld!;
     }
 
@@ -140,15 +165,15 @@ export class PhysicsSystem2D extends Eventify(System) {
      */
     static readonly ID = 'PHYSICS_2D';
 
-    static get PHYSICS_NONE () {
+    static get PHYSICS_NONE (): boolean {
         return !selector.id;
     }
 
-    static get PHYSICS_BUILTIN () {
+    static get PHYSICS_BUILTIN (): boolean {
         return selector.id === 'builtin';
     }
 
-    static get PHYSICS_BOX2D () {
+    static get PHYSICS_BOX2D (): boolean {
         return selector.id === 'box2d';
     }
 
@@ -158,7 +183,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取预定义的物理分组。
      */
-    public static get PhysicsGroup () {
+    public static get PhysicsGroup (): typeof PhysicsGroup {
         return PhysicsGroup;
     }
 
@@ -194,7 +219,7 @@ export class PhysicsSystem2D extends Eventify(System) {
 
     private _delayEvents: DelayEvent[] = [];
 
-    get stepping () {
+    get stepping (): boolean {
         return this._steping;
     }
 
@@ -223,7 +248,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         if (collisionGroups) {
             const cg = collisionGroups;
             if (cg instanceof Array) {
-                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                cg.forEach((v): void => { PhysicsGroup[v.name] = 1 << v.index; });
                 Enum.update(PhysicsGroup);
             }
         }
@@ -240,9 +265,9 @@ export class PhysicsSystem2D extends Eventify(System) {
     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
     * @zh
     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-    * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+    * @param deltaTime @en time step. @zh 与上一次执行相差的时间，目前为每帧消耗时间。
     */
-    postUpdate (deltaTime: number) {
+    postUpdate (deltaTime: number): void {
         if (!this._enable) {
             return;
         }
@@ -285,7 +310,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    _callAfterStep (target: object, func: Function) {
+    _callAfterStep (target: object, func: Function): void {
         if (this._steping) {
             this._delayEvents.push({
                 target,
@@ -302,7 +327,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 重置时间累积总量为给定值。
      */
-    resetAccumulator (time = 0) {
+    resetAccumulator (time = 0): void {
         this._accumulator = time;
     }
 
@@ -313,7 +338,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * 执行物理世界的模拟步进。
      * @param fixedTimeStep
      */
-    step (fixedTimeStep: number) {
+    step (fixedTimeStep: number): void {
         this.physicsWorld.step(fixedTimeStep, this.velocityIterations, this.positionIterations);
     }
 
@@ -324,10 +349,10 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 检测哪些碰撞体在给定射线的路径上，射线检测将忽略包含起始点的碰撞体。
      * @method rayCast
-     * @param {Vec2} p1 - start point of the raycast
-     * @param {Vec2} p2 - end point of the raycast
-     * @param {RayCastType} type - optional, default is RayCastType.Closest
-     * @param {number} mask - optional, default is 0xffffffff
+     * @param {Vec2} p1 @en start point of the raycast. @zh 射线起点。
+     * @param {Vec2} p2 @en end point of the raycast. @zh 射线终点。
+     * @param {RayCastType} type - @en optional, default is RayCastType.Closest. @zh 可选，默认是RayCastType.Closest。
+     * @param {number} mask - @en optional, default is 0xffffffff. @zh 可选，默认是0xffffffff。
      * @return {[PhysicsRayCastResult]}
      */
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType = ERaycast2DType.Closest, mask = 0xffffffff): readonly Readonly<RaycastResult2D>[] {
@@ -351,8 +376,8 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 }
 
-function initPhysicsSystem () {
+function initPhysicsSystem (): void {
     director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
 }
 
-director.once(Director.EVENT_INIT, () => { initPhysicsSystem(); });
+director.once(Director.EVENT_INIT, (): void => { initPhysicsSystem(); });

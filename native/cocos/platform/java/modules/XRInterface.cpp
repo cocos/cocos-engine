@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,14 +27,20 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
-#include "base/StringUtil.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
+#include "cocos-version.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "core/scene-graph/Node.h"
 #include "java/jni/JniHelper.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "renderer/GFXDeviceManager.h"
+#include "scene/Camera.h"
+#include "scene/RenderWindow.h"
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/VKDevice.h"
 #endif
@@ -116,10 +121,11 @@ void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrCo
                         break;
                     }
                     case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] exit when home click in rokid.");
+                        CC_LOG_INFO("[XRInterface] dispatchGamepadEventInternal exit when home click in rokid.");
 #if CC_USE_XR
                         xr::XrEntry::getInstance()->destroyXrInstance();
                         xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
 #endif
                         CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
@@ -231,8 +237,19 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                     case xr::XRClick::Type::TRIGGER_RIGHT:
                     case xr::XRClick::Type::THUMBSTICK_RIGHT:
                     case xr::XRClick::Type::A:
-                    case xr::XRClick::Type::B: {
+                    case xr::XRClick::Type::B:
+                    case xr::XRClick::Type::START: {
                         controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
+                        break;
+                    }
+                    case xr::XRClick::Type::HOME: {
+                        CC_LOG_INFO("[XRInterface] dispatchHandleEventInternal exit when home click in rokid.");
+#if CC_USE_XR
+                        xr::XrEntry::getInstance()->destroyXrInstance();
+                        xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
+#endif
+                        CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
                     }
                     default:
@@ -419,11 +436,13 @@ uint32_t XRInterface::getRuntimeVersion() {
 void XRInterface::initialize(void *javaVM, void *activity) {
 #if CC_USE_XR
     CC_LOG_INFO("[XR] initialize vm.%p,aty.%p | %d", javaVM, activity, (int)gettid());
+    _isXrEntryInstanceValid = true;
     xr::XrEntry::getInstance()->initPlatformData(javaVM, activity);
     xr::XrEntry::getInstance()->setGamepadCallback(std::bind(&XRInterface::dispatchGamepadEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHandleCallback(std::bind(&XRInterface::dispatchHandleEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHMDCallback(std::bind(&XRInterface::dispatchHMDEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::LOGIC_THREAD_ID, static_cast<int>(gettid()));
+    xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::ENGINE_VERSION, COCOS_VERSION);
     xr::XrEntry::getInstance()->setXRConfigCallback([this](xr::XRConfigKey key, xr::XRConfigValue value) {
         if (IS_ENABLE_XR_LOG) CC_LOG_INFO("XRConfigCallback.%d", key);
         if (key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT || key == xr::XRConfigKey::RENDER_EYE_FRAME_RIGHT) {
@@ -434,21 +453,35 @@ void XRInterface::initialize(void *javaVM, void *activity) {
             if (value.getInt() == 1) {
                 this->endRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
             }
-        } else if(key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
-            if(!_gThreadPool) {
+        } else if (key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
+            if (!_gThreadPool) {
                 _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
 
             std::string imageInfo = value.getString();
             _gThreadPool->pushTask([imageInfo, this](int /*tid*/) {
-                this->loadAssetsImage(imageInfo);
+                this->loadImageTrackingData(imageInfo);
             });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isString()) {
+            std::string imagePath = value.getString();
+            if (imagePath.length() == 0) {
+                return;
+            }
+
+            if (!_gThreadPool) {
+                _gThreadPool = LegacyThreadPool::newSingleThreadPool();
+            }
+            _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
+                this->asyncLoadAssetsImage(imagePath);
+            });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
+            _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
         }
     });
     #if XR_OEM_PICO
     std::string graphicsApiName = GraphicsApiOpenglES;
         #if CC_USE_VULKAN
-    graphicsApiName = GraphicsApiVulkan_1_0;
+    graphicsApiName = GraphicsApiVulkan_1_1;
         #endif
     xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
@@ -500,6 +533,7 @@ void XRInterface::onRenderDestroy() {
     CC_LOG_INFO("[XR] onRenderDestroy");
     xr::XrEntry::getInstance()->destroyXrInstance();
     xr::XrEntry::destroyInstance();
+    _isXrEntryInstanceValid = false;
     if (_jsPoseEventArray != nullptr) {
         _jsPoseEventArray->unroot();
         _jsPoseEventArray->decRef();
@@ -750,6 +784,9 @@ EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
 bool XRInterface::platformLoopStart() {
 #if CC_USE_XR
     // CC_LOG_INFO("[XR] platformLoopStart");
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     #if CC_USE_XR_REMOTE_PREVIEW
     if (_xrRemotePreviewManager && !_xrRemotePreviewManager->isStarted()) {
         _xrRemotePreviewManager->start();
@@ -764,6 +801,7 @@ bool XRInterface::platformLoopStart() {
 bool XRInterface::beginRenderFrame() {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderFrame.%d", _committedFrame);
+    _isEnabledEyeRenderJsCallback = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
     if (gfx::DeviceAgent::getInstance()) {
         static uint64_t frameId = 0;
         frameId++;
@@ -809,6 +847,11 @@ bool XRInterface::isRenderAllowable() {
 bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderBegin", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           BeginRenderEyeFrame, eye, eye,
@@ -828,6 +871,11 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 bool XRInterface::endRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] endRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderEnd", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           EndRenderEyeFrame, eye, eye,
@@ -876,6 +924,9 @@ bool XRInterface::endRenderFrame() {
 
 bool XRInterface::platformLoopEnd() {
 #if CC_USE_XR
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     return xr::XrEntry::getInstance()->platformLoopEnd();
 #else
     return false;
@@ -938,7 +989,7 @@ void XRInterface::bindXREyeWithRenderWindow(void *window, xr::XREye eye) {
     }
 }
 
-void XRInterface::loadAssetsImage(const std::string &imageInfo) {
+void XRInterface::loadImageTrackingData(const std::string &imageInfo) {
     // name|@assets/TrackingImage_SpacesTown.png|0.18|0.26
     ccstd::vector<ccstd::string> segments = StringUtil::split(imageInfo, "|");
     std::string imageName = segments.at(0);
@@ -949,7 +1000,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     spaceTownImage->addRef();
     bool res = spaceTownImage->initWithImageFile(imagePath);
     if (!res) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage init failed, %s!!!", imageInfo.c_str());
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData init failed, %s!!!", imageInfo.c_str());
         return;
     }
     uint32_t imageWidth = spaceTownImage->getWidth();
@@ -972,7 +1023,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
 
     auto app = CC_CURRENT_APPLICATION();
     if (!app) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData callback failed, application not exist!!!");
         return;
     }
     auto engine = app->getEngine();
@@ -990,4 +1041,182 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     });
 }
 
+void XRInterface::handleAppCommand(int appCmd) {
+#if CC_USE_XR
+    setXRConfig(xr::XRConfigKey::APP_COMMAND, appCmd);
+#else
+    CC_UNUSED_PARAM(appCmd);
+#endif
+}
+
+void XRInterface::adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) {
+#if CC_USE_XR
+    const float orthoHeight = camera->getOrthoHeight();
+    const float near = camera->getNearClip();
+    const float far = camera->getFarClip();
+    const float aspect = camera->getAspect();
+    auto *swapchain = camera->getWindow()->getSwapchain();
+    const auto &orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
+    cc::xr::XREye wndXREye = getXREyeByRenderWindow(camera->getWindow());
+    const auto &xrFov = getXREyeFov(static_cast<uint32_t>(wndXREye));
+    const float ipdValue = getXRConfig(xr::XRConfigKey::DEVICE_IPD).getFloat();
+    const float projectionSignY = gfx::Device::getInstance()->getCapabilities().clipSpaceSignY;
+    Mat4 orthoProj;
+    auto *systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+    const float deviceAspect = systemWindow ? (systemWindow->getViewSize().width / systemWindow->getViewSize().height) : 1.777F;
+    // device's fov may be asymmetry
+    float radioLeft = 1.0F;
+    float radioRight = 1.0F;
+    if (wndXREye == xr::XREye::LEFT) {
+        radioLeft = fabs(tanf(xrFov[0])) / fabs(tanf(xrFov[1]));
+    } else if (wndXREye == xr::XREye::RIGHT) {
+        radioRight = fabs(tanf(xrFov[1])) / fabs(tanf(xrFov[0]));
+    }
+
+    const float x = orthoHeight * deviceAspect;
+    const float y = orthoHeight;
+    Mat4::createOrthographicOffCenter(-x * radioLeft, x * radioRight, -y, y, near, far,
+                                      gfx::Device::getInstance()->getCapabilities().clipSpaceMinZ, projectionSignY,
+                                      static_cast<int>(orientation), &orthoProj);
+    // keep scale to [-1, 1] only use offset
+    orthoProj.m[0] = preTransform[0] / x;
+    orthoProj.m[5] = preTransform[3] * projectionSignY / y;
+
+    Mat4 eyeCameraProj;
+    const auto &projFloat = getXRViewProjectionData(static_cast<uint32_t>(wndXREye), 0.001F, 1000.0F);
+    std::memcpy(eyeCameraProj.m, projFloat.data(), sizeof(float) * 16);
+    Vec4 point{ipdValue * 0.5F, 0.0F, -1.0F, 1.0F};
+    eyeCameraProj.transformVector(&point);
+
+    Mat4 objectTranslateMat;
+    // point in [-1,1] convert to [-aspect,aspect]
+    if (wndXREye == xr::XREye::LEFT) {
+        objectTranslateMat.translate(point.x * orthoHeight * 0.5F * aspect, 0.0F, 0.0F);
+    } else if (wndXREye == xr::XREye::RIGHT) {
+        objectTranslateMat.translate(-point.x * orthoHeight * 0.5F * aspect, 0.0F, 0.0F);
+    }
+    // update view matrix
+    view = camera->getNode()->getWorldMatrix().getInversed();
+    Mat4 scaleMat{};
+    scaleMat.scale(camera->getNode()->getWorldScale());
+    // remove scale
+    Mat4::multiply(scaleMat, view, &view);
+    Mat4::multiply(objectTranslateMat, view, &view);
+
+    // fit width, scale deviceAspect to aspect
+    const float ndcXScale = getXRConfig(xr::XRConfigKey::SPLIT_AR_GLASSES).getBool() ? (1.0F + point.x * 0.5F) : 1.0F;
+    const float ndcYScale = aspect / deviceAspect;
+    Mat4 ndcScaleMat;
+    ndcScaleMat.scale(ndcXScale, ndcYScale, 1.0F);
+
+    proj = ndcScaleMat * orthoProj;
+#else
+    CC_UNUSED_PARAM(camera);
+    CC_UNUSED_PARAM(preTransform);
+    CC_UNUSED_PARAM(proj);
+    CC_UNUSED_PARAM(view);
+#endif
+}
+
+void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
+    auto *assetsImage = new Image();
+    assetsImage->addRef();
+    bool res = assetsImage->initWithImageFile(imagePath);
+    if (!res) {
+        CC_LOG_ERROR("[XRInterface] async load assets image init failed, %s!!!", imagePath.c_str());
+        assetsImage->release();
+        return;
+    }
+    uint32_t imageWidth = assetsImage->getWidth();
+    uint32_t imageHeight = assetsImage->getHeight();
+    uint32_t bufferSize = assetsImage->getDataLen();
+    uint8_t *buffer = nullptr;
+    if (assetsImage->getRenderFormat() == gfx::Format::RGB8) {
+        // convert to rgba8
+        bufferSize = imageWidth * imageHeight * 4;
+        buffer = new uint8_t[bufferSize];
+        for (uint32_t y = 0; y < imageHeight; y++) {
+            for (uint32_t x = 0; x < imageWidth; x++) {
+                const unsigned int pixel = x + y * imageWidth;
+                const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
+                const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 3)];
+                uint8_t *convertedPixel = nullptr;
+                if (_isFlipPixelY) {
+                    convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                } else {
+                    convertedPixel = &buffer[static_cast<size_t>(pixel * 4)];
+                }
+                convertedPixel[0] = originalPixel[0];
+                convertedPixel[1] = originalPixel[1];
+                convertedPixel[2] = originalPixel[2];
+                convertedPixel[3] = 255.0F;
+            }
+        }
+    } else {
+        buffer = new uint8_t[bufferSize];
+        if (_isFlipPixelY) {
+            for (uint32_t y = 0; y < imageHeight; y++) {
+                for (uint32_t x = 0; x < imageWidth; x++) {
+                    const unsigned int pixel = x + y * imageWidth;
+                    const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
+                    const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 4)];
+                    uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                    convertedPixel[0] = originalPixel[0];
+                    convertedPixel[1] = originalPixel[1];
+                    convertedPixel[2] = originalPixel[2];
+                    convertedPixel[3] = originalPixel[3];
+                }
+            }
+        } else {
+            memcpy(buffer, assetsImage->getData(), bufferSize);
+        }
+    }
+    auto app = CC_CURRENT_APPLICATION();
+    if (!app) {
+        CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+        return;
+    }
+    auto engine = app->getEngine();
+    CC_ASSERT_NOT_NULL(engine);
+    engine->getScheduler()->performFunctionInCocosThread([=]() {
+        auto *imageData = new xr::XRTrackingImageData();
+        imageData->friendlyName = imagePath;
+        imageData->bufferSize = bufferSize;
+        imageData->buffer = buffer;
+        imageData->pixelSizeWidth = imageWidth;
+        imageData->pixelSizeHeight = imageHeight;
+        if (!this->getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
+            auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+            this->setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
+        } else {
+            auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
+                                                                void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+        }
+    });
+    assetsImage->release();
+}
+
+#if CC_USE_XR
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject /*thiz*/, jstring key, jstring value) {
+    auto cmdKey = cc::JniHelper::jstring2string(key);
+    auto cmdValue = cc::JniHelper::jstring2string(value);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onAdbCmd_%s_%s", cmdKey.c_str(), cmdValue.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ADB_COMMAND, cmdKey.append(":").append(cmdValue));
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject /*thiz*/, jint type, jstring activityClassName) {
+    auto name = cc::JniHelper::jstring2string(activityClassName);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onActivityLifecycleCallback_%d_%s", type, name.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, type);
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, name);
+}
+
+#endif
 } // namespace cc

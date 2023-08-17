@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,7 +34,7 @@ export const vfmt = [
 ];
 
 /**
- * @en Vertex format with the following layout
+ * @en Vertex format with the following layout.
  * 1. Vector 3 position attribute (Float32)
  * 2. Vector 4 color attribute (Float32)
  * @zh 包含以下数据的顶点格式
@@ -63,6 +62,16 @@ export const vfmtPosUvColor = [
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. Byte 4 color attribute (Byte)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. RGBA 颜色属性（Byte）
+ */
 export const vfmtPosUvColor4B = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
@@ -79,7 +88,7 @@ export const vfmtPosUvColor4B = [
  * 1. 三维位置属性（Float32）
  * 2. 二维贴图 UV 属性（Float32）
  * 3. 第一套 RGBA 颜色属性（Float32）
- * 3. 第二套 RGBA 颜色属性（Float32）
+ * 4. 第二套 RGBA 颜色属性（Float32）
  */
 export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
@@ -88,6 +97,18 @@ export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. First byte 4 color attribute (Byte)
+ * 4. Second byte 4 color attribute (Byte)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. 第一套 RGBA 颜色属性（Byte）
+ * 4. 第二套 RGBA 颜色属性（Byte）
+ */
 export const vfmtPosUvTwoColor4B = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
@@ -101,7 +122,7 @@ export const vfmtPosUvTwoColor4B = [
  * @param attrs All attributes of the vertex format
  * @returns Total components count
  */
-export function getComponentPerVertex (attrs: Attribute[]) {
+export function getComponentPerVertex (attrs: Attribute[]): number {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
@@ -118,7 +139,7 @@ export function getComponentPerVertex (attrs: Attribute[]) {
  * @param attrs All attributes of the vertex format
  * @returns Total stride
  */
-export function getAttributeStride (attrs: Attribute[]) {
+export function getAttributeStride (attrs: Attribute[]): number {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];

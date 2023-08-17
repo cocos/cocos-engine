@@ -1,9 +1,33 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import b2 from '@cocos/box2d';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, IVec2Like, toDegree } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -15,20 +39,20 @@ const tempVec3 = new Vec3();
 const tempVec2_1 = new b2.Vec2();
 
 export class b2RigidBody2D implements IRigidBody2D {
-    get impl () {
+    get impl (): b2.Body | null {
         return this._body;
     }
     set _imp (v: b2.Body | null) {
         this._body = v;
     }
 
-    get rigidBody () {
+    get rigidBody (): RigidBody2D {
         return this._rigidBody;
     }
-    get isAwake () {
+    get isAwake (): boolean {
         return this._body!.IsAwake();
     }
-    get isSleeping () {
+    get isSleeping (): boolean {
         return !(this._body!.IsAwake());
     }
 
@@ -40,25 +64,25 @@ export class b2RigidBody2D implements IRigidBody2D {
 
     private _inited = false;
 
-    initialize (com: RigidBody2D) {
+    initialize (com: RigidBody2D): void {
         this._rigidBody = com;
 
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
     }
 
-    onDestroy () {
+    onDestroy (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
     }
 
-    onEnable () {
+    onEnable (): void {
         this.setActive(true);
     }
 
-    onDisable () {
+    onDisable (): void {
         this.setActive(false);
     }
 
-    nodeTransformChanged (type) {
+    nodeTransformChanged (type): void {
         if (PhysicsSystem2D.instance.stepping) {
             return;
         }
@@ -77,17 +101,18 @@ export class b2RigidBody2D implements IRigidBody2D {
         }
     }
 
-    _init () {
+    _init (): void {
         if (this._inited) {
             return;
         }
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
+        this.setActive(false);
 
         this._inited = true;
     }
 
-    _destroy () {
+    _destroy (): void {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).removeBody(this);
@@ -95,7 +120,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this._inited = false;
     }
 
-    animate (dt: number) {
+    animate (dt: number): void {
         const b2body = this._body;
         if (!b2body) return;
         const b2Pos = b2body.GetPosition();
@@ -107,16 +132,29 @@ export class b2RigidBody2D implements IRigidBody2D {
         tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
         b2body.SetLinearVelocity(tempVec2_1);
 
-        const b2Rotation = b2body.GetAngle();
-        b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+        //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
+        let b2Rotation = b2body.GetAngle() % (TWO_PI);
+        if (b2Rotation > Math.PI) {
+            b2Rotation -= TWO_PI;
+        }
+
+        //calculate angular velocity
+        let angularVelocity = (this._animatedAngle - b2Rotation) * timeStep;
+        if (this._animatedAngle < -HALF_PI && b2Rotation > HALF_PI) { //ccw, crossing PI
+            angularVelocity = (this._animatedAngle + TWO_PI - b2Rotation) * timeStep;
+        } if (this._animatedAngle > HALF_PI && b2Rotation < -HALF_PI) { //cw, crossing PI
+            angularVelocity = (this._animatedAngle - TWO_PI - b2Rotation) * timeStep;
+        }
+
+        b2body.SetAngularVelocity(angularVelocity);
     }
 
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         const dirty = this._rigidBody.node.hasChangedFlags;
         if (dirty) { this.nodeTransformChanged(dirty); }
     }
 
-    syncPositionToPhysics (enableAnimated = false) {
+    syncPositionToPhysics (enableAnimated = false): void {
         const b2body = this._body;
         if (!b2body) return;
 
@@ -140,11 +178,15 @@ export class b2RigidBody2D implements IRigidBody2D {
         }
     }
 
-    syncRotationToPhysics (enableAnimated = false) {
+    syncRotationToPhysics (enableAnimated = false): void {
         const b2body = this._body;
         if (!b2body) return;
 
-        const rotation = toRadian(this._rigidBody.node.eulerAngles.z);
+        const rot = this._rigidBody.node.worldRotation;
+        const euler = tempVec3;
+        Quat.toEulerInYXZOrder(euler, rot);
+        const rotation = toRadian(euler.z);
+
         const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedAngle = rotation;
@@ -153,7 +195,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         }
     }
 
-    resetVelocity () {
+    resetVelocity (): void {
         const b2body = this._body;
         if (!b2body) return;
 
@@ -164,40 +206,40 @@ export class b2RigidBody2D implements IRigidBody2D {
         b2body.SetAngularVelocity(0);
     }
 
-    setType (v: ERigidBody2DType) {
+    setType (v: ERigidBody2DType): void {
         this._body!.SetType(v as number);
     }
-    setLinearDamping (v: number) {
+    setLinearDamping (v: number): void {
         this._body!.SetLinearDamping(v);
     }
-    setAngularDamping (v: number) {
+    setAngularDamping (v: number): void {
         this._body!.SetAngularDamping(v);
     }
-    setGravityScale (v: number) {
+    setGravityScale (v: number): void {
         this._body!.SetGravityScale(v);
     }
-    setFixedRotation (v: boolean) {
+    setFixedRotation (v: boolean): void {
         this._body!.SetFixedRotation(v);
     }
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         this._body!.SetSleepingAllowed(v);
     }
-    isActive () {
+    isActive (): any {
         return this._body!.IsActive();
     }
-    setActive (v: boolean) {
+    setActive (v: boolean): void {
         this._body!.SetActive(v);
     }
-    wakeUp () {
+    wakeUp (): void {
         this._body!.SetAwake(true);
     }
-    sleep () {
+    sleep (): void {
         this._body!.SetAwake(false);
     }
-    getMass () {
+    getMass (): any {
         return this._body!.GetMass();
     }
-    setLinearVelocity (v: IVec2Like) {
+    setLinearVelocity (v: IVec2Like): void {
         this._body!.SetLinearVelocity(v as b2.Vec2);
     }
     getLinearVelocity<Out extends IVec2Like> (out: Out): Out {
@@ -213,10 +255,10 @@ export class b2RigidBody2D implements IRigidBody2D {
         out.y *= PHYSICS_2D_PTM_RATIO;
         return out;
     }
-    setAngularVelocity (v: number) {
+    setAngularVelocity (v: number): void {
         this._body!.SetAngularVelocity(v);
     }
-    getAngularVelocity () {
+    getAngularVelocity (): number {
         return toDegree(this._body!.GetAngularVelocity());
     }
 
@@ -269,43 +311,43 @@ export class b2RigidBody2D implements IRigidBody2D {
         return out;
     }
 
-    getInertia () {
+    getInertia (): any {
         return this._body!.GetInertia();
     }
 
-    applyForce (force: IVec2Like, point: IVec2Like, wake: boolean) {
+    applyForce (force: IVec2Like, point: IVec2Like, wake: boolean): void {
         if (this._body) {
             tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
             this._body.ApplyForce(force as b2.Vec2, tempVec2_1, wake);
         }
     }
 
-    applyForceToCenter (force: IVec2Like, wake: boolean) {
+    applyForceToCenter (force: IVec2Like, wake: boolean): void {
         if (this._body) {
             this._body.ApplyForceToCenter(force as b2.Vec2, wake);
         }
     }
 
-    applyTorque (torque: number, wake: boolean) {
+    applyTorque (torque: number, wake: boolean): void {
         if (this._body) {
             this._body.ApplyTorque(torque, wake);
         }
     }
 
-    applyLinearImpulse (impulse: IVec2Like, point: IVec2Like, wake: boolean) {
+    applyLinearImpulse (impulse: IVec2Like, point: IVec2Like, wake: boolean): void {
         if (this._body) {
             tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
             this._body.ApplyLinearImpulse(impulse as b2.Vec2, tempVec2_1, wake);
         }
     }
 
-    applyLinearImpulseToCenter (impulse: IVec2Like, wake: boolean) {
+    applyLinearImpulseToCenter (impulse: IVec2Like, wake: boolean): void {
         if (this._body) {
             this._body.ApplyLinearImpulse(impulse as b2.Vec2, this._body.GetPosition(), wake);
         }
     }
 
-    applyAngularImpulse (impulse: number, wake: boolean) {
+    applyAngularImpulse (impulse: number, wake: boolean): void {
         if (this._body) {
             this._body.ApplyAngularImpulse(impulse, wake);
         }

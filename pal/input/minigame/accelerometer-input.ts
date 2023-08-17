@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { AccelerometerCallback } from 'pal/input';
 import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
 import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
@@ -14,22 +38,22 @@ export class AccelerometerInputSource {
         this._didAccelerateFunc  = this._didAccelerate.bind(this);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         minigame.onAccelerometerChange(this._didAccelerateFunc);
     }
 
-    private _unregisterEvent () {
+    private _unregisterEvent (): void {
         minigame.offAccelerometerChange(this._didAccelerateFunc);
     }
 
-    private _didAccelerate (event: AccelerometerData) {
+    private _didAccelerate (event: AccelerometerData): void {
         const timestamp = performance.now();
         const acceleration = new Acceleration(event.x, event.y, event.z, timestamp);
         const eventAcceleration = new EventAcceleration(acceleration);
         this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
     }
 
-    public start () {
+    public start (): void {
         this._registerEvent();
         minigame.startAccelerometer({
             interval: this._accelMode,
@@ -38,7 +62,7 @@ export class AccelerometerInputSource {
             },
         });
     }
-    public stop () {
+    public stop (): void {
         minigame.stopAccelerometer({
             success: () => {
                 this._isStarted = false;
@@ -49,7 +73,7 @@ export class AccelerometerInputSource {
         });
         this._unregisterEvent();
     }
-    public setInterval (intervalInMileseconds: number) {
+    public setInterval (intervalInMileseconds: number): void {
         // reference: https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.startAccelerometer.html
         if (intervalInMileseconds >= 200) {
             this._accelMode = 'normal';
@@ -64,7 +88,7 @@ export class AccelerometerInputSource {
             this.start();
         }
     }
-    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
+    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

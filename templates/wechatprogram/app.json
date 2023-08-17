@@ -1,0 +1,16 @@
+{
+  "pages": [
+      "index"
+  ],
+  "window": {
+      "backgroundTextStyle": "light",
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTitleText": "CocosCreator",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "pageOrientation": "portrait"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "subPackages": []
+}

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -37,6 +36,9 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
+    externalResLow?: number; // for vulkan vkImage/opengl es texture created from external
+    externalResHigh?: number; // for vulkan vkImage created from external
+    externalFlag?: TextureFlags; // external texture type normal or oes
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -73,7 +75,7 @@ export class RenderWindow {
      * @en Get the swapchain for this window, if there is one
      * @zh 如果存在的话，获取此窗口的交换链
      */
-    get swapchain () {
+    get swapchain (): Swapchain {
         return this._swapchain;
     }
 
@@ -85,7 +87,7 @@ export class RenderWindow {
         return this._framebuffer!;
     }
 
-    get cameras () {
+    get cameras (): Camera[] {
         return this._cameras;
     }
 
@@ -105,7 +107,7 @@ export class RenderWindow {
     /**
      * @private
      */
-    public static registerCreateFunc (root: Root) {
+    public static registerCreateFunc (root: Root): void {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
@@ -131,13 +133,19 @@ export class RenderWindow {
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
-                this._colorTextures.push(device.createTexture(new TextureInfo(
+                const textureInfo = new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
-                )));
+                );
+
+                if (info.externalFlag && (info.externalFlag & TextureFlagBit.EXTERNAL_NORMAL || info.externalFlag & TextureFlagBit.EXTERNAL_OES)) {
+                    textureInfo.flags |= info.externalFlag;
+                    textureInfo.externalRes = info.externalResLow ? info.externalResLow : 0;
+                }
+                this._colorTextures.push(device.createTexture(textureInfo));
             }
             if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(
@@ -159,7 +167,7 @@ export class RenderWindow {
         return true;
     }
 
-    public destroy () {
+    public destroy (): void {
         this.clearCameras();
 
         if (this._framebuffer) {
@@ -188,7 +196,7 @@ export class RenderWindow {
      * @param width The new width.
      * @param height The new height.
      */
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number): void {
         if (this._swapchain) {
             this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
             this._width = this._swapchain.width;
@@ -224,7 +232,7 @@ export class RenderWindow {
      * @param cameras @en The output cameras list, should be empty before invoke this function
      *                @zh 输出相机列表参数，传入时应该为空
      */
-    public extractRenderCameras (cameras: Camera[]) {
+    public extractRenderCameras (cameras: Camera[]): void {
         for (let j = 0; j < this._cameras.length; j++) {
             const camera = this._cameras[j];
             if (camera.enabled) {
@@ -239,7 +247,7 @@ export class RenderWindow {
      * @zh 添加渲染相机
      * @param camera @en The camera to attach @zh 要挂载的相机
      */
-    public attachCamera (camera: Camera) {
+    public attachCamera (camera: Camera): void {
         for (let i = 0; i < this._cameras.length; i++) {
             if (this._cameras[i] === camera) {
                 return;
@@ -254,7 +262,7 @@ export class RenderWindow {
      * @zh 移除场景中的渲染相机
      * @param camera @en The camera to detach @zh 要移除的相机
      */
-    public detachCamera (camera: Camera) {
+    public detachCamera (camera: Camera): void {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
                 this._cameras.splice(i, 1);
@@ -267,7 +275,7 @@ export class RenderWindow {
      * @en Clear all attached cameras
      * @zh 清空全部渲染相机
      */
-    public clearCameras () {
+    public clearCameras (): void {
         this._cameras.length = 0;
     }
 
@@ -275,7 +283,7 @@ export class RenderWindow {
      * @en Sort all attached cameras with priority
      * @zh 按照优先级对所有挂载的相机排序
      */
-    public sortCameras () {
-        this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
+    public sortCameras (): void {
+        this._cameras.sort((a: Camera, b: Camera): number => a.priority - b.priority);
     }
 }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,12 +23,10 @@
 ****************************************************************************/
 
 #include "ShadowMapBatchedQueue.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
@@ -48,7 +45,6 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline = pipeline;
     _instancedQueue = ccnew RenderInstancedQueue;
-    _batchedQueue = ccnew RenderBatchedQueue;
 }
 
 ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
@@ -71,7 +67,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         } else {
                             layer = csmLayers->getLayers()[level];
                         }
-                        shadowCulling(_pipeline, camera, layer);
+                        bool isCullingEnable = camera->isCullingEnabled();
+                        if (isCullingEnable) {
+                            shadowCulling(_pipeline, camera, layer);
+                        }
                         const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
                         for (const auto &ro : dirShadowObjects) {
                             add(ro.model);
@@ -87,8 +86,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     geometry::AABB ab;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
-                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer()
-                            || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer() || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
                         }
                         if (model->getWorldBounds()) {
@@ -104,7 +102,6 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
         }
 
         _instancedQueue->uploadBuffers(cmdBuffer);
-        _batchedQueue->uploadBuffers(cmdBuffer);
     }
 }
 
@@ -113,7 +110,6 @@ void ShadowMapBatchedQueue::clear() {
     _shaders.clear();
     _passes.clear();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
 
 void ShadowMapBatchedQueue::add(const scene::Model *model) {
@@ -130,10 +126,6 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
             auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
             instancedBuffer->merge(subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
-        } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();
-            batchedBuffer->merge(subModel, shadowPassIdx, model);
-            _batchedQueue->add(batchedBuffer);
         } else { // standard draw
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(shadowPassIdx));
@@ -144,7 +136,6 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
 
 void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
         const auto *const subModel = _subModels[i];
@@ -162,14 +153,12 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 }
 
 void ShadowMapBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue)
-
     CC_SAFE_DELETE(_instancedQueue)
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseID) {
             return i;
         }

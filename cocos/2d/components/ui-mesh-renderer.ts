@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,8 +34,9 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, cclegacy } from '../../core';
+import { assert, cclegacy, warn } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import type { UIRenderer } from '../framework/ui-renderer';
 
 /**
  * @en
@@ -47,6 +47,8 @@ import { RenderDrawInfoType } from '../renderer/render-draw-info';
  * @zh
  * UI 模型基础组件。
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[MeshRenderer]] 或者 [[ParticleSystem]] 组件的节点上。
+ * @deprecated This component is not recommended to be used, please use Render Texture instead.
+ * See [UIMeshRenderer Reference](https://docs.cocos.com/creator/manual/en/ui-system/components/editor/ui-model.html)
  */
 @ccclass('cc.UIMeshRenderer')
 @help('i18n:cc.UIMeshRenderer')
@@ -62,7 +64,11 @@ export class UIMeshRenderer extends Component {
         }
     }
 
-    public get modelComponent () {
+    /**
+     * @en Get the model component on this node
+     * @zh 获取同节点的 model 组件
+     */
+    public get modelComponent (): ModelRenderer | null {
         return this._modelComponent;
     }
 
@@ -74,28 +80,28 @@ export class UIMeshRenderer extends Component {
     public _dirtyVersion = -1;
     public _internalId = -1;
 
-    public __preload () {
+    public __preload (): void {
         this.node._uiProps.uiComp = this;
     }
 
-    onEnable () {
+    onEnable (): void {
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
     }
 
-    onDisable () {
+    onDisable (): void {
         uiRendererManager.removeRenderer(this);
         this.renderEntity.enabled = this._canRender();
     }
 
-    public onLoad () {
+    public onLoad (): void {
         if (!this.node._uiProps.uiTransformComp) {
             this.node.addComponent('cc.UITransform');
         }
 
         this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
             return;
         }
         if (JSB) {
@@ -104,7 +110,7 @@ export class UIMeshRenderer extends Component {
         this.renderEntity.setNode(this.node);
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this.renderEntity.setNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
@@ -124,11 +130,11 @@ export class UIMeshRenderer extends Component {
      * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public _render (render: IBatcher) {
+    public _render (render: IBatcher): boolean {
         if (this._modelComponent) {
             const models = this._modelComponent._collectModels();
-            // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();
             for (let i = 0; i < models.length; i++) {
                 if (models[i].enabled) {
@@ -141,19 +147,24 @@ export class UIMeshRenderer extends Component {
         return false;
     }
 
-    public fillBuffers (render: IBatcher) {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public fillBuffers (render: IBatcher): void {
         if (this.enabled) {
             this._render(render);
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     // Native updateAssembler
-    public updateRenderer () {
+    public updateRenderer (): void {
         if (JSB) {
             this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
-                // @ts-expect-error: UIMeshRenderer do not attachToScene
                 this._modelComponent._detachFromScene(); // JSB
                 // clear models
                 this._UIModelNativeProxy.clearModels();
@@ -167,14 +178,18 @@ export class UIMeshRenderer extends Component {
         }
     }
 
-    private _uploadRenderData (index) {
+    private _uploadRenderData (index: number): void {
         if (JSB) {
             const renderData = MeshRenderData.add();
-            // @ts-expect-error temporary no care
-            renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
-            this._renderData = renderData;
-            this._renderData!.material = this._modelComponent!.getMaterialInstance(index);
+            // TODO: here we weirdly use UIMeshRenderer as UIRenderer
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            this._renderData = renderData as unknown as RenderData;
+            this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
 
@@ -186,10 +201,11 @@ export class UIMeshRenderer extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: IBatcher) {
+    public postUpdateAssembler (render: IBatcher): void {
+        // No behavior for this component
     }
 
-    public update () {
+    public update (): void {
         if (JSB) {
             if (this._modelComponent) {
                 this.markForUpdateRenderData();
@@ -198,7 +214,7 @@ export class UIMeshRenderer extends Component {
         this._fitUIRenderQueue();
     }
 
-    private _fitUIRenderQueue () {
+    private _fitUIRenderQueue (): void {
         if (!this._modelComponent) {
             return;
         }
@@ -212,8 +228,7 @@ export class UIMeshRenderer extends Component {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                // @ts-expect-error private property access
-                pass._priority = RenderPriority.MAX - 11;
+                pass.setPriority(RenderPriority.MAX - 11);
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
                 // so force rendering uimodel in forward pipeline
@@ -222,32 +237,52 @@ export class UIMeshRenderer extends Component {
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     // interface
-    public markForUpdateRenderData (enable = true) {
+    public markForUpdateRenderData (enable = true): void {
         uiRendererManager.markDirtyRenderer(this);
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public stencilStage: Stage = Stage.DISABLED;
 
-    public setNodeDirty () {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public setNodeDirty (): void {
+        // No behavior for this component
     }
 
-    public setTextureDirty () {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public setTextureDirty (): void {
+        // No behavior for this component
     }
 
-    protected _canRender () {
+    protected _canRender (): boolean {
         return (this.enabled && this._modelComponent !== null);
     }
 
-    get renderEntity () {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get renderEntity (): RenderEntity {
         if (DEBUG) {
-            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+            assert(Boolean(this._renderEntity), 'this._renderEntity should not be invalid');
         }
         return this._renderEntity;
     }
 
     protected _renderData: RenderData | null = null;
-    get renderData () {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get renderData (): RenderData | null {
         return this._renderData;
     }
 }

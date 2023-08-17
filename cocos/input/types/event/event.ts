@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -215,7 +214,7 @@ export class Event {
      * @zh
      * 重置事件对象以便在对象池中存储。
      */
-    public unuse () {
+    public unuse (): void {
         this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
@@ -232,7 +231,7 @@ export class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: SystemEventTypeUnion, bubbles?: boolean) {
+    public reuse (type: SystemEventTypeUnion, bubbles?: boolean): void {
         this.type = type;
         this.bubbles = bubbles || false;
     }
@@ -261,7 +260,7 @@ export class Event {
      * @zh
      * 检查该事件是否已经停止传递。
      */
-    public isStopped () {
+    public isStopped (): boolean {
         return this.propagationStopped || this.propagationImmediateStopped;
     }
 
@@ -274,7 +273,7 @@ export class Event {
      * 获取当前目标节点
      * @returns - The target with which the event associates.
      */
-    public getCurrentTarget () {
+    public getCurrentTarget (): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.currentTarget;
     }
@@ -285,7 +284,7 @@ export class Event {
      * @zh
      * 获取事件类型。
      */
-    public getType () {
+    public getType (): string {
         return this.type;
     }
 }

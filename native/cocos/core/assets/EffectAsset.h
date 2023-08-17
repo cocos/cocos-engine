@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +25,7 @@
 #pragma once
 
 #include <tuple>
+#include <type_traits>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/optional.h"
@@ -37,24 +37,57 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-
-
 namespace cc {
+
+// To avoid errors when generating code using SWIG.
+#if !SWIGCOCOS
+
+// The properties in Pass are obtained from an asset file. If they are directly stored in an unordered_map,
+// the order of these properties may become scrambled. To maintain their order, a vector<pair> is used
+// instead. Since there is no scenario where these data objects are randomly inserted,
+// only a find interface is provided.
+template <typename K, typename V>
+class StablePropertyMap : public ccstd::vector<std::pair<K, V>> { // NOLINT
+    using Super = ccstd::vector<std::pair<K, V>>;
+
+public:
+    auto find(const K &key) const {
+        auto *self = static_cast<const Super *>(this);
+        return std::find_if(self->begin(), self->end(), [&](auto &ele) {
+            return ele.first == key;
+        });
+    }
+};
+#endif
+
+template <typename K, typename V>
+using UnstablePropertyContainer = ccstd::unordered_map<K, V>;
+
+template <typename K, typename V>
+using StablePropertyContainer = StablePropertyMap<K, V>;
+
+#if CC_EDITOR
+template <typename K, typename V>
+using PropertyContainer = StablePropertyContainer<K, V>;
+#else
+template <typename K, typename V>
+using PropertyContainer = UnstablePropertyContainer<K, V>;
+#endif
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
-using IPropertyValue = ccstd::optional<ccstd::variant<ccstd::vector<float>, ccstd::string>>;
+using IPropertyValue = ccstd::variant<ccstd::monostate, ccstd::vector<float>, ccstd::string>;
 
 using IPropertyEditorValueType = ccstd::variant<ccstd::monostate, ccstd::string, bool, float, ccstd::vector<float>>;
-using IPropertyEditorInfo = ccstd::unordered_map<ccstd::string, IPropertyEditorValueType>;
+using IPropertyEditorInfo = PropertyContainer<ccstd::string, IPropertyEditorValueType>;
 
 struct IPropertyInfo {
     int32_t type{0};                                 // auto-extracted from shader
     ccstd::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
     ccstd::optional<ccstd::hash_t> samplerHash;      // auto-generated from 'sampler'
-    IPropertyValue value;                            // default value
+    ccstd::optional<IPropertyValue> value;           // default value
     ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
-    IPropertyEditorInfo editor; // NOTE: used only by editor.
+    IPropertyEditorInfo editor;                      // NOTE: used only by editor.
 };
 
 struct IPassInfoFull;
@@ -345,6 +378,7 @@ struct IPassStates {
     ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
     ccstd::optional<ccstd::string> phase;
     ccstd::optional<ccstd::string> pass;
+    ccstd::optional<ccstd::string> subpass;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -353,7 +387,7 @@ struct IPassStates {
 };
 using PassOverrides = IPassStates;
 
-using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
+using PassPropertyInfoMap = PropertyContainer<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassStates
@@ -365,6 +399,8 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     ccstd::optional<BlendStateInfo> blendState;
     ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
     ccstd::optional<ccstd::string> phase;
+    ccstd::optional<ccstd::string> pass;
+    ccstd::optional<ccstd::string> subpass;
     // IPassInfo
     ccstd::string program; // auto-generated from 'vert' and 'frag'
     ccstd::optional<MacroRecord> embeddedMacros;
@@ -375,6 +411,9 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfoFull
     // generated part
     index_t passIndex{0};
+    uint32_t passID = 0xFFFFFFFF;
+    uint32_t subpassID = 0xFFFFFFFF;
+    uint32_t phaseID = 0xFFFFFFFF;
     MacroRecord defines;
     ccstd::optional<PassOverrides> stateOverrides;
 
@@ -391,6 +430,7 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
         blendState = o.blendState;
         dynamicStates = o.dynamicStates;
         phase = o.phase;
+        subpass = o.subpass;
         return *this;
     }
 };
@@ -479,8 +519,8 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
-    ccstd::optional<ccstd::vector<ccstd::string>> defines; // NOTE: it's only used in Editor
-    ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::vector<ccstd::string>> defines;                                            // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::unordered_map<ccstd::string, ccstd::variant<ccstd::string, bool>>> editor; // NOTE: it's only used in Editor
 };
 
 struct IBuiltin {
@@ -517,11 +557,12 @@ struct IDescriptorInfo {
 struct IShaderSource {
     ccstd::string vert;
     ccstd::string frag;
+    ccstd::optional<ccstd::string> compute;
 };
 
 struct IShaderInfo {
     ccstd::string name;
-    ccstd::hash_t hash{0xFFFFFFFFU};
+    ccstd::hash_t hash{gfx::INVALID_SHADER_HASH};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;
@@ -535,7 +576,7 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
-    // ccstd::vector<IDescriptorInfo> descriptors;
+    ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;
@@ -543,9 +584,15 @@ struct IShaderInfo {
         if (version == "glsl4") return &glsl4;
         return nullptr;
     }
+    IShaderSource *getSource(const ccstd::string &version) {
+        if (version == "glsl1") return &glsl1;
+        if (version == "glsl3") return &glsl3;
+        if (version == "glsl4") return &glsl4;
+        return nullptr;
+    }
 };
 
-using IPreCompileInfoValueType = ccstd::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
+using IPreCompileInfoValueType = ccstd::variant<ccstd::monostate, ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
 using IPreCompileInfo = ccstd::unordered_map<ccstd::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,6 +30,7 @@
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/memory/Memory.h"
+#include "base/HasMemberFunction.h"
 
 namespace se {
 
@@ -115,7 +115,11 @@ public:
     CCIntrusivePtrPrivateObject() = default;
     explicit CCIntrusivePtrPrivateObject(const cc::IntrusivePtr<T> &p) : _ptr(p) {}
     explicit CCIntrusivePtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
-    ~CCIntrusivePtrPrivateObject() override = default;
+    ~CCIntrusivePtrPrivateObject() override {
+        if constexpr (cc::has_setScriptObject<T,void(se::Object *)>::value) {
+            _ptr->setScriptObject(nullptr);
+        }
+    }
 
     inline const cc::IntrusivePtr<T> &getData() const { return _ptr; }
     inline cc::IntrusivePtr<T> &getData() { return _ptr; }
@@ -197,7 +201,7 @@ inline void inHeap(void *ptr) {
 #endif
 
 template <typename T>
-inline PrivateObjectBase *make_shared_private_object(T *cobj) { // NOLINT
+inline auto *make_shared_private_object(T *cobj) { // NOLINT
     static_assert(!std::is_same<T, void>::value, "void * is not allowed");
 // static_assert(!std::is_pointer_v<T> && !std::is_null_pointer_v<decltype(cobj)>, "bad pointer");
 #if CC_DEBUG
@@ -210,19 +214,19 @@ inline PrivateObjectBase *make_shared_private_object(T *cobj) { // NOLINT
     }
 }
 template <typename T>
-inline PrivateObjectBase *shared_ptr_private_object(std::shared_ptr<T> &&ptr) { // NOLINT
+inline auto *shared_ptr_private_object(std::shared_ptr<T> &&ptr) { // NOLINT
     static_assert(!std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted is not acceptable for shared_ptr");
     return ccnew SharedPtrPrivateObject<T>(std::forward<std::shared_ptr<T>>(ptr));
 }
 
 template <typename T>
-inline PrivateObjectBase *shared_ptr_private_object(const std::shared_ptr<T> &ptr) { // NOLINT
+inline auto *shared_ptr_private_object(const std::shared_ptr<T> &ptr) { // NOLINT
     static_assert(!std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted is not acceptable for shared_ptr");
     return ccnew SharedPtrPrivateObject<T>(ptr);
 }
 
 template <typename T>
-inline PrivateObjectBase *rawref_private_object(T *ptr) { // NOLINT
+inline auto *rawref_private_object(T *ptr) { // NOLINT
     // static_assert(false, "always fail");
 //    static_assert(!std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted is not acceptable for shared_ptr");
 #if CC_DEBUG
@@ -232,12 +236,12 @@ inline PrivateObjectBase *rawref_private_object(T *ptr) { // NOLINT
 }
 
 template <typename T>
-inline PrivateObjectBase *ccintrusive_ptr_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
+inline auto *ccintrusive_ptr_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
     return ccnew CCIntrusivePtrPrivateObject<T>(ptr);
 }
 template <typename T>
-inline PrivateObjectBase *ccintrusive_ptr_private_object(T *cobj) { // NOLINT
+inline auto *ccintrusive_ptr_private_object(T *cobj) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
     return ccnew CCIntrusivePtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
 }

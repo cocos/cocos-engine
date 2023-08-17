@@ -4,7 +4,7 @@ const { updateElementReadonly } = require('../utils/assets');
 
 exports.template = /* html */`
 <section class="asset-animation-graph">
-    <ui-button class="open">
+    <ui-button class="open" size="medium">
         <ui-label value="i18n:ENGINE.assets.animationGraph.edit"></ui-label>
     </ui-button>
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
@@ -29,6 +29,7 @@ exports.style = /* css */`
     display: none;
     text-align: center;
     color: var(--color-focus-contrast-weakest);
+    margin-top: 8px;
 }
 `;
 

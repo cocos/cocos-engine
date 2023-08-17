@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
@@ -31,7 +30,7 @@ import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
 
-function visitAsset (asset: Asset, deps: string[]) {
+function visitAsset (asset: Asset, deps: string[]): void {
     // Skip assets generated programmatically or by user (e.g. label texture)
     if (!asset._uuid) {
         return;
@@ -39,7 +38,7 @@ function visitAsset (asset: Asset, deps: string[]) {
     deps.push(asset._uuid);
 }
 
-function visitComponent (comp: any, deps: string[]) {
+function visitComponent (comp: any, deps: string[]): void {
     const props = Object.getOwnPropertyNames(comp);
     for (let i = 0; i < props.length; i++) {
         const propName = props[i];
@@ -68,7 +67,7 @@ function visitComponent (comp: any, deps: string[]) {
     }
 }
 
-function visitNode (node: any, deps: string[]) {
+function visitNode (node: any, deps: string[]): void {
     for (let i = 0; i < node._components.length; i++) {
         visitComponent(node._components[i], deps);
     }
@@ -77,7 +76,7 @@ function visitNode (node: any, deps: string[]) {
     }
 }
 
-function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: string[], op: number) {
+function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: string[], op: number): void {
     exclude.push(asset._uuid);
     const depends = dependUtil.getDeps(asset._uuid);
     for (let i = 0, l = depends.length; i < l; i++) {
@@ -119,7 +118,7 @@ class ReleaseManager {
     private _eventListener = false;
     private _dontDestroyAssets: string[] = [];
 
-    public addIgnoredAsset (asset: Asset) {
+    public addIgnoredAsset (asset: Asset): void {
         this._dontDestroyAssets.push(asset._uuid);
     }
 
@@ -131,7 +130,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _addPersistNodeRef (node: Node) {
+    public _addPersistNodeRef (node: Node): void {
         const deps = [];
         visitNode(node, deps);
         for (let i = 0, l = deps.length; i < l; i++) {
@@ -146,7 +145,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _removePersistNodeRef (node: Node) {
+    public _removePersistNodeRef (node: Node): void {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
 
         const deps = this._persistNodeDeps.get(node.uuid) as string[];
@@ -163,7 +162,7 @@ class ReleaseManager {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
+    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>): void {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);
             for (let i = 0, l = childs.length; i < l; i++) {
@@ -221,15 +220,15 @@ class ReleaseManager {
         }
     }
 
-    private _freeAssets () {
+    private _freeAssets (): void {
         this._eventListener = false;
-        this._toDelete.forEach((asset) => {
+        this._toDelete.forEach((asset): void => {
             this._free(asset);
         });
         this._toDelete.clear();
     }
 
-    private _free (asset: Asset, force = false) {
+    private _free (asset: Asset, force = false): void {
         const uuid = asset._uuid;
         this._toDelete.remove(uuid);
 
@@ -264,7 +263,7 @@ class ReleaseManager {
             if (dependant && dependant.length === 0) {
                 references!.remove(uuid);
             }
-            references!.forEach((dependance, key) => {
+            references!.forEach((dependance, key): void => {
                 for (let i = dependance.length - 1; i >= 0; i--) {
                     if (dependance[i][0].deref() === asset) {
                         js.array.fastRemoveAt(dependance, i);
@@ -278,4 +277,4 @@ class ReleaseManager {
     }
 }
 
-export default new ReleaseManager();
+export const releaseManager =  new ReleaseManager();

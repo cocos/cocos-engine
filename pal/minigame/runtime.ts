@@ -1,13 +1,37 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let ral: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, ral);
 minigame.ral = ral;
 
@@ -49,7 +73,7 @@ if (LINKSURE || COCOSPLAY) {
         // update cached system info
         cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
     });
-    minigame.getSystemInfoSync = function () {
+    minigame.getSystemInfoSync = function (): SystemInfo {
         return cachedSystemInfo;
     };
 }
@@ -59,9 +83,9 @@ if (LINKSURE || COCOSPLAY) {
 let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _needHandleAccelerometerCb = false;
-minigame.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb): void {
     if (!_innerAccelerometerCb) {
-        _innerAccelerometerCb = (res) => {
+        _innerAccelerometerCb = (res): void => {
             if (!_needHandleAccelerometerCb) {
                 return;
             }
@@ -85,7 +109,7 @@ minigame.onAccelerometerChange = function (cb) {
     _needHandleAccelerometerCb = true;
     _customAccelerometerCb = cb;
 };
-minigame.offAccelerometerChange = function (cb) {
+minigame.offAccelerometerChange = function (cb): void {
     _needHandleAccelerometerCb = false;
     _customAccelerometerCb = undefined;
 };
@@ -109,7 +133,7 @@ if (COCOSPLAY) {
 }
 
 // #region SafeArea
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     const locSystemInfo = ral.getSystemInfoSync() as SystemInfo;
     if (locSystemInfo.safeArea) {
         return locSystemInfo.safeArea;
@@ -129,3 +153,5 @@ minigame.getSafeArea = function () {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./runtime')>());

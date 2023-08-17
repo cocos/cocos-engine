@@ -56,6 +56,7 @@ static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
 static spine::Cocos2dTextureLoader textureLoader;
+static std::vector<middleware::Texture2D *> _slotTextureSet{};
 
 enum DebugType {
     NONE = 0,
@@ -403,12 +404,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         }
 
         if (!slot->getAttachment()) {
-            _clipper->clipEnd(*slot);
-            continue;
-        }
-
-        // Early exit if slot is invisible
-        if (slot->getColor().a == 0) {
             _clipper->clipEnd(*slot);
             continue;
         }
@@ -1046,4 +1041,85 @@ cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blen
         _materialCaches[key] = materialInstance;
     }
     return _materialCaches[key];
+}
+
+void SkeletonRenderer::setSlotTexture(const std::string &slotName, cc::Texture2D *tex2d, bool createAttachment) {
+    if (!_skeleton) return;
+    auto slot = _skeleton->findSlot(slotName.c_str());
+    if (!slot) return;
+    auto attachment = slot->getAttachment();
+    if (!attachment) return;
+    auto width = tex2d->getWidth();
+    auto height = tex2d->getHeight();
+
+    if (createAttachment) {
+        attachment = attachment->copy();
+        slot->setAttachment(attachment);
+    }
+    AttachmentVertices *attachmentVertices = nullptr;
+    if (attachment->getRTTI().isExactly(spine::RegionAttachment::rtti)) {
+        auto region = static_cast<RegionAttachment *>(attachment);
+        region->setRegionWidth(width);
+        region->setRegionHeight(height);
+        region->setRegionOriginalWidth(width);
+        region->setRegionOriginalHeight(height);
+        region->setWidth(width);
+        region->setHeight(height);
+        region->setUVs(0, 0, 1.0f, 1.0f, false);
+        region->updateOffset();
+        attachmentVertices = static_cast<AttachmentVertices *>(region->getRendererObject());
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            region->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        auto UVs = region->getUVs();
+        for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
+            vertices[i].texCoord.u = UVs[ii];
+            vertices[i].texCoord.v = UVs[ii + 1];
+        }
+    } else if (attachment->getRTTI().isExactly(spine::MeshAttachment::rtti)) {
+        auto mesh = static_cast<MeshAttachment *>(attachment);
+        mesh->setRegionWidth(width);
+        mesh->setRegionHeight(height);
+        mesh->setRegionOriginalWidth(width);
+        mesh->setRegionOriginalHeight(height);
+        mesh->setWidth(width);
+        mesh->setHeight(height);
+        mesh->setRegionU(0);
+        mesh->setRegionV(0);
+        mesh->setRegionU2(1.0f);
+        mesh->setRegionV2(1.0f);
+        mesh->setRegionRotate(true);
+        mesh->setRegionDegrees(0);
+        mesh->updateUVs();
+        attachmentVertices = static_cast<AttachmentVertices *>(mesh->getRendererObject());
+        if (createAttachment) {
+            attachmentVertices = attachmentVertices->copy();
+            mesh->setRendererObject(attachmentVertices);
+        }
+        V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
+        auto UVs = mesh->getUVs();
+        for (size_t i = 0, ii = 0, nn = mesh->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
+            vertices[i].texCoord.u = UVs[ii];
+            vertices[i].texCoord.v = UVs[ii + 1];
+        }
+    }
+    if (!attachmentVertices) return;
+    middleware::Texture2D *middlewareTexture = nullptr;
+    for (auto &it : _slotTextureSet) {
+        if (it->getRealTexture() == tex2d) {
+            middlewareTexture = it;
+            break;
+        }
+    }
+    if (!middlewareTexture) {
+        middlewareTexture = new middleware::Texture2D();
+        middlewareTexture->addRef();
+        middlewareTexture->setRealTexture(tex2d);
+    }
+    if (attachmentVertices->_texture) {
+        attachmentVertices->_texture->release();
+    }
+    attachmentVertices->_texture = middlewareTexture;
 }

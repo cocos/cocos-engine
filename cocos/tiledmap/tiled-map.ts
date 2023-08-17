@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB } from 'internal:constants';
@@ -120,7 +119,7 @@ export class TiledMap extends Component {
     @serializable
     protected _enableCulling = true;
     @editable
-    get enableCulling () {
+    get enableCulling (): boolean {
         return this._enableCulling;
     }
     set enableCulling (value) {
@@ -143,7 +142,7 @@ export class TiledMap extends Component {
      * let mapSize = tiledMap.getMapSize();
      * cc.log("Map Size: " + mapSize);
      */
-    getMapSize () {
+    getMapSize (): Size {
         return this._mapSize;
     }
 
@@ -156,7 +155,7 @@ export class TiledMap extends Component {
      * let tileSize = tiledMap.getTileSize();
      * cc.log("Tile Size: " + tileSize);
      */
-    getTileSize () {
+    getTileSize (): Size {
         return this._tileSize;
     }
 
@@ -169,7 +168,7 @@ export class TiledMap extends Component {
      * let mapOrientation = tiledMap.getMapOrientation();
      * cc.log("Map Orientation: " + mapOrientation);
      */
-    getMapOrientation () {
+    getMapOrientation (): Orientation {
         return this._mapOrientation;
     }
 
@@ -184,7 +183,7 @@ export class TiledMap extends Component {
      *     cc.log("obj: " + objGroups[i]);
      * }
      */
-    getObjectGroups () {
+    getObjectGroups (): TiledObjectGroup[] {
         return this._groups;
     }
 
@@ -198,7 +197,7 @@ export class TiledMap extends Component {
      * let group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
      */
-    getObjectGroup (groupName: string) {
+    getObjectGroup (groupName: string): TiledObjectGroup | null {
         const groups = this._groups;
         for (let i = 0, l = groups.length; i < l; i++) {
             const group = groups[i];
@@ -221,7 +220,7 @@ export class TiledMap extends Component {
      *     cc.log("Properties: " + properties[i]);
      * }
      */
-    getProperties () {
+    getProperties (): PropertiesInfo {
         return this._properties;
     }
 
@@ -236,7 +235,7 @@ export class TiledMap extends Component {
      *     cc.log("Layers: " + layers[i]);
      * }
      */
-    getLayers () {
+    getLayers (): TiledLayer[] {
         return this._layers;
     }
 
@@ -250,7 +249,7 @@ export class TiledMap extends Component {
      * let layer = titledMap.getLayer("Player");
      * cc.log(layer);
      */
-    getLayer (layerName) {
+    getLayer (layerName): TiledLayer | null {
         const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
             const layer = layers[i];
@@ -261,7 +260,7 @@ export class TiledMap extends Component {
         return null;
     }
 
-    protected _changeLayer (layerName, replaceLayer) {
+    protected _changeLayer (layerName, replaceLayer): void {
         const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
             const layer = layers[i];
@@ -282,7 +281,7 @@ export class TiledMap extends Component {
      * let property = titledMap.getProperty("info");
      * cc.log("Property: " + property);
      */
-    getProperty (propertyName: string) {
+    getProperty (propertyName: string): string | number {
         return this._properties[propertyName.toString()];
     }
 
@@ -296,11 +295,11 @@ export class TiledMap extends Component {
      * let properties = titledMap.getPropertiesForGID(GID);
      * cc.log("Properties: " + properties);
      */
-    getPropertiesForGID (gid: GID) {
+    getPropertiesForGID (gid: GID): PropertiesInfo | undefined {
         return this._tileProperties.get(gid);
     }
 
-    __preload () {
+    __preload (): void {
         if (!this._tmxFile) {
             return;
         }
@@ -310,15 +309,15 @@ export class TiledMap extends Component {
         }
     }
 
-    onEnable () {
+    onEnable (): void {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
-    onDisable () {
+    onDisable (): void {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
-    _applyFile () {
+    _applyFile (): void {
         const spriteFrames: SpriteFrame[] = [];
         const spriteFramesCache = {};
 
@@ -372,7 +371,7 @@ export class TiledMap extends Component {
         }
     }
 
-    _releaseMapInfo () {
+    _releaseMapInfo (): void {
         // remove the layers & object groups added before
         const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
@@ -398,7 +397,7 @@ export class TiledMap extends Component {
         images.length = 0;
     }
 
-    _syncAnchorPoint () {
+    _syncAnchorPoint (): void {
         const anchor = this.node._uiProps.uiTransformComp!.anchorPoint;
         const leftTopX = this.node._uiProps.uiTransformComp!.width * anchor.x;
         const leftTopY = this.node._uiProps.uiTransformComp!.height * (1 - anchor.y);
@@ -434,7 +433,7 @@ export class TiledMap extends Component {
         }
     }
 
-    _fillAniGrids (texGrids: TiledTextureGrids, animations: TiledAnimationType) {
+    _fillAniGrids (texGrids: TiledTextureGrids, animations: TiledAnimationType): void {
         for (const i of animations.keys()) {
             const animation = animations.get(i);
             if (!animation) continue;
@@ -446,7 +445,7 @@ export class TiledMap extends Component {
         }
     }
 
-    _buildLayerAndGroup () {
+    _buildLayerAndGroup (): void {
         const tilesets = this._tilesets;
         const texGrids = this._texGrids;
         const animations = this._animations;
@@ -568,7 +567,7 @@ export class TiledMap extends Component {
         this._syncAnchorPoint();
     }
 
-    protected _buildWithMapInfo (mapInfo: TMXMapInfo) {
+    protected _buildWithMapInfo (mapInfo: TMXMapInfo): void {
         this._mapInfo = mapInfo;
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();
@@ -604,7 +603,7 @@ export class TiledMap extends Component {
         }
     }
 
-    doCleanupImageCache (texture) {
+    doCleanupImageCache (texture): void {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
             if (JSB) texture._image.destroy();
@@ -614,7 +613,7 @@ export class TiledMap extends Component {
         texture._image = null;
     }
 
-    lateUpdate (dt: number) {
+    lateUpdate (dt: number): void {
         const animations = this._animations;
         const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {

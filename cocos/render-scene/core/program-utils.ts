@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,6 +24,7 @@
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
+import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -34,7 +34,7 @@ export interface IMacroInfo {
     isDefault: boolean;
 }
 
-function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
+function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean): string {
     switch (info.type) {
     case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
     case 'string': return def !== undefined ? def as string : info.options![0];
@@ -45,7 +45,7 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
     }
 }
 
-export function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
+export function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]): IMacroInfo[] {
     const macros: IMacroInfo[] = [];
     for (let i = 0; i < tDefs.length; i++) {
         const tmpl = tDefs[i];
@@ -58,11 +58,11 @@ export function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInf
     return macros;
 }
 
-export function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
-    return name + macros.reduce((acc, cur) => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
+export function getShaderInstanceName (name: string, macros: IMacroInfo[]): string {
+    return name + macros.reduce((acc, cur): string => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
 }
 
-function dependencyCheck (dependencies: string[], defines: MacroRecord) {
+function dependencyCheck (dependencies: string[], defines: MacroRecord): boolean {
     for (let i = 0; i < dependencies.length; i++) {
         const d = dependencies[i];
         if (d[0] === '!') { // negative dependency
@@ -74,7 +74,7 @@ function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     return true;
 }
 
-export function getActiveAttributes (tmpl: IProgramInfo, gfxAttributes: Attribute[], defines: MacroRecord) {
+export function getActiveAttributes (tmpl: IProgramInfo, gfxAttributes: Attribute[], defines: MacroRecord): Attribute[] {
     const out: Attribute[] = [];
     const attributes = tmpl.attributes;
     for (let i = 0; i < attributes.length; i++) {
@@ -84,7 +84,7 @@ export function getActiveAttributes (tmpl: IProgramInfo, gfxAttributes: Attribut
     return out;
 }
 
-export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) {
+export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord): string {
     const tmplDefs = programInfo.defines;
     if (programInfo.uber) {
         let key = '';
@@ -114,11 +114,32 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
-export function getSize (blockMembers: Uniform[]) {
-    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+const defaultUniformCounts = new Map<string, number>();
+defaultUniformCounts.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
+defaultUniformCounts.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightBoundingSizeVS', UBOForwardLight.LIGHTS_PER_PASS);
+
+function getUniformSize (prevSize: number, m: Uniform): number {
+    if (m.count) {
+        return prevSize + GetTypeSize(m.type) * m.count;
+    } else {
+        const count = defaultUniformCounts.get(m.name);
+        if (count !== undefined) {
+            return prevSize + GetTypeSize(m.type) * count;
+        }
+        console.error(`uniform '${m.name}' must have a count`);
+    }
+    return prevSize;
 }
 
-export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
+export function getSize (blockMembers: Uniform[]): number {
+    return blockMembers.reduce(getUniformSize, 0);
+}
+
+export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo): Record<string, number> {
     const handleMap: Record<string, number> = {};
     // block member handles
     for (let i = 0; i < tmpl.blocks.length; i++) {
@@ -139,11 +160,11 @@ export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
     return handleMap;
 }
 
-function getBitCount (cnt: number) {
+function getBitCount (cnt: number): number {
     return Math.ceil(Math.log2(Math.max(cnt, 2)));
 }
 
-export function populateMacros (tmpl: IProgramInfo) {
+export function populateMacros (tmpl: IProgramInfo): void {
     // calculate option mask offset
     let offset = 0;
     for (let i = 0; i < tmpl.defines.length; i++) {
@@ -152,12 +173,12 @@ export function populateMacros (tmpl: IProgramInfo) {
         if (def.type === 'number') {
             const range = def.range!;
             cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-            def._map = (value: number) => value - range[0];
+            def._map = (value: number): number => value - range[0];
         } else if (def.type === 'string') {
             cnt = getBitCount(def.options!.length);
-            def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+            def._map = (value: any): number => Math.max(0, def.options!.findIndex((s): boolean => s === value));
         } else if (def.type === 'boolean') {
-            def._map = (value: any) => (value ? 1 : 0);
+            def._map = (value: any): number => (value ? 1 : 0);
         }
         def._offset = offset;
         offset += cnt;
@@ -170,8 +191,8 @@ export function populateMacros (tmpl: IProgramInfo) {
     }
 }
 
-export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo) {
-    const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo): Record<string, string | number | boolean>[] {
+    const defines = Object.keys(combination).reduce((out, name): Record<string, string | number | boolean>[] => out.reduce((acc, cur): Record<string, string | number | boolean>[] => {
         const choices = combination[name];
         for (let i = 0; i < choices.length; ++i) {
             const defines = { ...cur };
@@ -181,4 +202,17 @@ export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo)
         return acc;
     }, [] as MacroRecord[]), [{}] as MacroRecord[]);
     return defines;
+}
+
+export function addEffectDefaultProperties (effect: EffectAsset): void {
+    for (let i = 0; i < effect.techniques.length; i++) {
+        const tech = effect.techniques[i];
+        for (let j = 0; j < tech.passes.length; j++) {
+            const pass = tech.passes[j];
+            // grab default property declaration if there is none
+            if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                pass.properties = tech.passes[pass.propertyIndex].properties;
+            }
+        }
+    }
 }

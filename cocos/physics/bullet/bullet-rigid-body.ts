@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3, IVec3Like } from '../../core';
 import { BulletWorld } from './bullet-world';
@@ -54,26 +53,26 @@ export class BulletRigidBody implements IRigidBody {
         return state === btCollisionObjectStates.ISLAND_SLEEPING;
     }
 
-    setMass (value: number) {
+    setMass (value: number): void {
         if (!this._rigidBody.isDynamic) return;
         bt.RigidBody_setMass(this.impl, value);
         this._wakeUpIfSleep();
         this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
-    setType (v: ERigidBodyType) {
+    setType (v: ERigidBodyType): void {
         this._sharedBody.setType(v);
     }
 
-    setLinearDamping (value: number) {
+    setLinearDamping (value: number): void {
         bt.RigidBody_setDamping(this.impl, this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    setAngularDamping (value: number) {
+    setAngularDamping (value: number): void {
         bt.RigidBody_setDamping(this.impl, this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    useGravity (value: boolean) {
+    useGravity (value: boolean): void {
         if (!this._rigidBody.isDynamic) return;
         let m_rigidBodyFlag = bt.RigidBody_getFlags(this.impl);
         if (value) {
@@ -87,27 +86,27 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
-    useCCD (value: boolean) {
+    useCCD (value: boolean): void {
         bt.CollisionObject_setCcdMotionThreshold(this.impl, value ? 0.01 : 0);
         bt.CollisionObject_setCcdSweptSphereRadius(this.impl, value ? 0.1 : 0);
         this._isUsingCCD = value;
     }
 
-    isUsingCCD () {
+    isUsingCCD (): boolean {
         return this._isUsingCCD;
     }
 
-    setLinearFactor (v: IVec3Like) {
+    setLinearFactor (v: IVec3Like): void {
         bt.RigidBody_setLinearFactor(this.impl, cocos2BulletVec3(BulletCache.instance.BT_V3_0, v));
         this._wakeUpIfSleep();
     }
 
-    setAngularFactor (v: IVec3Like) {
+    setAngularFactor (v: IVec3Like): void {
         bt.RigidBody_setAngularFactor(this.impl, cocos2BulletVec3(BulletCache.instance.BT_V3_0, v));
         this._wakeUpIfSleep();
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         if (!this._rigidBody.isDynamic) return;
         if (v) {
             bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.ACTIVE_TAG);
@@ -120,10 +119,10 @@ export class BulletRigidBody implements IRigidBody {
     private static idCounter = 0;
     readonly id: number;
 
-    get impl () { return this._sharedBody.body; }
-    get rigidBody () { return this._rigidBody; }
-    get sharedBody () { return this._sharedBody; }
-    get isEnabled () { return this._isEnabled; }
+    get impl (): number { return this._sharedBody.body; }
+    get rigidBody (): RigidBody { return this._rigidBody; }
+    get sharedBody (): BulletSharedBody { return this._sharedBody; }
+    get isEnabled (): boolean { return this._isEnabled; }
 
     private _isEnabled = false;
     private _isUsingCCD = false;
@@ -149,13 +148,13 @@ export class BulletRigidBody implements IRigidBody {
 
     /** LIFECYCLE */
 
-    initialize (com: RigidBody) {
+    initialize (com: RigidBody): void {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BulletWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
     }
 
-    onEnable () {
+    onEnable (): void {
         this._isEnabled = true;
         this.setMass(this._rigidBody.mass);
         this.setAllowSleep(this._rigidBody.allowSleep);
@@ -167,12 +166,12 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.bodyEnabled = true;
     }
 
-    onDisable () {
+    onDisable (): void {
         this._isEnabled = false;
         this._sharedBody.bodyEnabled = false;
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         (this._rigidBody as any) = null;
         (this._sharedBody as any) = null;
@@ -184,8 +183,11 @@ export class BulletRigidBody implements IRigidBody {
         bt.CollisionObject_activate(this.impl, force);
     }
 
-    sleep (): any {
-        return bt.RigidBody_wantsSleeping(this.impl);
+    sleep (): void {
+        const state = bt.CollisionObject_getActivationState(this.impl);
+        if (state !== btCollisionObjectStates.DISABLE_DEACTIVATION && state !== btCollisionObjectStates.DISABLE_SIMULATION) {
+            bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.ISLAND_SLEEPING);
+        }
     }
 
     setSleepThreshold (v: number): void {
@@ -314,7 +316,7 @@ export class BulletRigidBody implements IRigidBody {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
-    protected _wakeUpIfSleep () {
+    protected _wakeUpIfSleep (): void {
         if (!this.isAwake) { bt.CollisionObject_activate(this.impl, true); }
     }
 }

@@ -1,9 +1,10 @@
 const { getName, setHidden, isMultipleInvalid } = require('../utils/prop');
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 const fontStyles = ['isBold', 'isItalic', 'isUnderline'];
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 exports.style = /* css */`
 ui-tab {
     flex: none;
@@ -23,8 +24,7 @@ ui-tab {
     width: 42px;
     text-align: center;
     line-height: 20px;
-    border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
-    background-color: var(--color-default-fill);
+    border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border-weaker);
     border-radius: calc(var(--size-normal-radius) * 1px);
 }
 
@@ -33,7 +33,8 @@ ui-tab {
 }
 
 .fontStyle.select {
-    background-color: var(--color-default-fill-emphasis);
+    background-color: var(--color-info-fill-important);
+    border-color: var(--color-focus-border-emphasis);
 }
 
 .fontStyle.italic {
@@ -49,6 +50,42 @@ ui-tab {
 }
 `;
 
+/**
+ * 
+ * @param {object} options
+ * @param {any[]} options.enumList
+ * @param {string} options.tooltip
+ * @param {(elementName: string) => string}options.getIconName
+ * @param {(event: CustomEvent) => {}} options.onChange
+ * @returns
+ */
+function createRadioGroup(options) {
+    const { enumList, getIconName, onChange, tooltip: rawTooltip } = options;
+    const $radioGroup = document.createElement('ui-radio-group');
+    $radioGroup.setAttribute('slot', 'content');
+    $radioGroup.addEventListener('change', (e) => {
+        onChange(e);
+    });
+
+    for (let index = 0; index < enumList.length; index++) {
+        const element = enumList[index];
+        const icon = document.createElement('ui-icon');
+        const button = document.createElement('ui-radio-button');
+
+        const iconName = getIconName(element.name);
+        const tooltip = `${rawTooltip}_${element.name.toLocaleLowerCase()}`;
+
+        icon.value = iconName;
+        button.appendChild(icon);
+        button.value = element.value;
+        button.setAttribute('tooltip', tooltip);
+
+        $radioGroup.appendChild(button);
+    }
+
+    return $radioGroup;
+}
+
 exports.ready = function() {
     this.elements = {
         horizontalAlign: {
@@ -58,44 +95,40 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = getName(dump);
-                const content = document.createElement('ui-tab');
-                content.setAttribute('slot', 'content');
-                content.addEventListener('change', (event) => {
-                    if (event.target.value !== -1) {
-                        dump.value = event.target.value;
-                        if (dump.values) {
-                            dump.values.forEach((_, index) => dump.values[index] = dump.value);
+                label.setAttribute('tooltip', dump.tooltip);
+
+                const content = createRadioGroup({
+                    enumList: dump.enumList,
+                    tooltip: dump.tooltip,
+                    getIconName: (elName) => {
+                        const iconName = elName.toLocaleLowerCase();
+                        if (iconName === 'center') {
+                            return `align-h-${iconName}`;
                         }
-                        prop.dispatch('change-dump');
-                    }
+                        return `align-${iconName}`;
+                    },
+                    onChange: (event) => {
+                        const value = Number(event.target.value);
+                        if (Number.isFinite(value) && value !== -1) {
+                            dump.value = value;
+                            if (dump.values) {
+                                dump.values.forEach((_, index) => dump.values[index] = dump.value);
+                            }
+                            prop.dispatch('change-dump');
+                        }
+                    },
                 });
 
-                for (let index = 0; index < dump.enumList.length; index++) {
-                    const element = dump.enumList[index];
-                    const image = document.createElement('ui-icon');
-                    const button = document.createElement('ui-button');
-                    const iconName = element.name.toLocaleLowerCase();
-                    if (iconName === 'center') {
-                        image.setAttribute('value', `align-h-${iconName}`);
-                    } else {
-                        image.setAttribute('value', `align-${iconName}`);
-                    }
-
-                    button.appendChild(image);
-                    button.setAttribute('tooltip', `${dump.tooltip}_${iconName}`);
-
-                    content.appendChild(button);
-                }
                 prop.appendChild(label);
                 prop.appendChild(content);
                 return prop;
             },
             update(element, dump) {
-                const tab = element.querySelector('ui-tab');
+                const radioGroup = element.querySelector('ui-radio-group');
                 if (isMultipleInvalid(dump.horizontalAlign)) {
-                    tab.value = -1;
+                    radioGroup.value = -1;
                 } else {
-                    tab.value = dump.horizontalAlign.value;
+                    radioGroup.value = dump.horizontalAlign.value;
                 }
             },
         },
@@ -106,44 +139,41 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = getName(dump);
-                const content = document.createElement('ui-tab');
-                content.setAttribute('slot', 'content');
-                content.addEventListener('change', (event) => {
-                    if (event.target.value !== -1) {
-                        dump.value = event.target.value;
+                label.setAttribute('tooltip', dump.tooltip);
+
+                const content = createRadioGroup({
+                    enumList: dump.enumList,
+                    tooltip: dump.tooltip,
+                    getIconName: (elementName) => {
+                        const iconName = elementName.toLocaleLowerCase();
+                        if (iconName === 'center') {
+                            return `align-v-${iconName}`;
+                        }
+                        return `align-${iconName}`;
+                    },
+                    onChange: (e) => {
+                        const enumVal = Number(e.target.value);
+                        if (!Number.isFinite(enumVal) || enumVal === -1) {
+                            return;
+                        }
+                        dump.value = enumVal;
                         if (dump.values) {
-                            dump.values.forEach((_, index) => dump.values[index] = dump.value);
+                            dump.values.forEach((_, index) => (dump.values[index] = dump.value));
                         }
                         prop.dispatch('change-dump');
-                    }
+                    },
                 });
 
-                for (let index = 0; index < dump.enumList.length; index++) {
-                    const element = dump.enumList[index];
-                    const image = document.createElement('ui-icon');
-                    const button = document.createElement('ui-button');
-                    const iconName = element.name.toLocaleLowerCase();
-                    if (iconName === 'center') {
-                        image.setAttribute('value', `align-v-${iconName}`);
-                    } else {
-                        image.setAttribute('value', `align-${iconName}`);
-                    }
-
-                    button.appendChild(image);
-                    button.setAttribute('tooltip', `${dump.tooltip}_${iconName}`);
-
-                    content.appendChild(button);
-                }
                 prop.appendChild(label);
                 prop.appendChild(content);
                 return prop;
             },
             update(element, dump) {
-                const tab = element.querySelector('ui-tab');
+                const radioGroup = element.querySelector('ui-radio-group');
                 if (isMultipleInvalid(dump.verticalAlign)) {
-                    tab.value = -1;
+                    radioGroup.value = -1;
                 } else {
-                    tab.value = dump.verticalAlign.value;
+                    radioGroup.value = dump.verticalAlign.value;
                 }
             },
         },

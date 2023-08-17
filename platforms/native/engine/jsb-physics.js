@@ -42,6 +42,16 @@ const CollisionEventObject = {
     impl: null,
 };
 
+const CCTShapeEventObject = {
+    type: 'onControllerColliderHit',
+    controller: null,
+    collider: null,
+    worldPosition: null,
+    worldNormal: null,
+    motionDirection: null,
+    motionLength: 0,
+};
+
 function emitTriggerEvent (t, c0, c1, impl) {
     TriggerEventObject.type = t;
     TriggerEventObject.impl = impl;
@@ -128,9 +138,24 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
     }
 }
 
+function emitCCTShapeEvent (t, cct, collider, b) {
+    CCTShapeEventObject.type = t;
+
+    const contactCount = b.length / 10;
+    CCTShapeEventObject.worldPosition = new cc.Vec3(b[0], b[1], b[2]);
+    CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
+    CCTShapeEventObject.motionDirection = new cc.Vec3(b[6], b[7], b[8]);
+    CCTShapeEventObject.motionLength = b[9];
+    CCTShapeEventObject.controller = cct;
+    CCTShapeEventObject.collider = collider;
+    cct.emit(t, CCTShapeEventObject);
+}
+
 class PhysicsWorld {
     get impl () { return this._impl; }
-    constructor () { this._impl = new jsbPhy.World(); }
+    constructor () {
+        this._impl = new jsbPhy.World();
+    }
 
     setGravity (v) {
         this._impl.setGravity(v.x, v.y, v.z);
@@ -180,9 +205,112 @@ class PhysicsWorld {
         return isHit;
     }
 
+    sweepBox (worldRay, halfExtent, orientation, options, pool, results) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepBox(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
+            orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hits = this._impl.sweepResult();
+            for (let i = 0; i < hits.length; i++) {
+                const hit = hits[i];
+                const out = pool.add();
+                out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+                results.push(out);
+            }
+        }
+        return isHit;
+    }
+
+    sweepBoxClosest (worldRay, halfExtent, orientation, options, result) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepBoxClosest(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
+            orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hit = this._impl.sweepClosestResult();
+            result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+        }
+        return isHit;
+    }
+
+    sweepSphere (worldRay, radius, options, pool, results) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepSphere(raycastOptions, radius);
+        if (isHit) {
+            const hits = this._impl.sweepResult();
+            for (let i = 0; i < hits.length; i++) {
+                const hit = hits[i];
+                const out = pool.add();
+                out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+                results.push(out);
+            }
+        }
+        return isHit;
+    }
+
+    sweepSphereClosest (worldRay, radius, options, result) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepSphereClosest(raycastOptions, radius);
+        if (isHit) {
+            const hit = this._impl.sweepClosestResult();
+            result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+        }
+        return isHit;
+    }
+
+    sweepCapsule (worldRay, radius, height, orientation, options, pool, results) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepCapsule(raycastOptions, radius, height, orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hits = this._impl.sweepResult();
+            for (let i = 0; i < hits.length; i++) {
+                const hit = hits[i];
+                const out = pool.add();
+                out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+                results.push(out);
+            }
+        }
+        return isHit;
+    }
+
+    sweepCapsuleClosest (worldRay, radius, height, orientation, options, result) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepCapsuleClosest(raycastOptions, radius, height,
+            orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hit = this._impl.sweepClosestResult();
+            result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+        }
+        return isHit;
+    }
+
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
+        this.emitCCTShapeEvent();
         this._impl.emitEvents();
     }
 
@@ -237,6 +365,19 @@ class PhysicsWorld {
             }
         }
     }
+
+    emitCCTShapeEvent () {
+        const events = this._impl.getCCTShapeEventPairs();
+        const len2 = events.length / 3;
+        for (let i = 0; i < len2; i++) {
+            const t = i * 3;
+            const cct = ptrToObj[events[t + 0]]; const shape = ptrToObj[events[t + 1]];
+            if (!cct || !shape) continue;
+            const c0 = cct.characterController; const c1 = shape.collider;
+            if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
+            emitCCTShapeEvent('onControllerColliderHit', c0, c1, events[t + 2]);
+        }
+    }
 }
 
 function bookNode (v) {
@@ -287,6 +428,7 @@ class RigidBody {
         this._com = v;
         this._impl.initialize(v.node, v.type, v._group);
         bookNode(v.node);
+        this._impl.setSleepThreshold(cc.PhysicsSystem.instance.sleepThreshold);
     }
 
     onEnable () {
@@ -609,7 +751,7 @@ class Joint {
 }
 
 class SphericalJoint extends Joint {
-    constructor () { super(); this._impl = new jsbPhy.DistanceJoint(); }
+    constructor () { super(); this._impl = new jsbPhy.SphericalJoint(); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
     onLoad () {
@@ -624,11 +766,23 @@ class RevoluteJoint extends Joint {
     setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setLimitEnabled (v) { this._impl.setLimitEnabled(v); }
+    setLowerLimit (v) { this._impl.setLowerLimit(v); }
+    setUpperLimit (v) { this._impl.setUpperLimit(v); }
+    setMotorEnabled (v) { this._impl.setMotorEnabled(v); }
+    setMotorVelocity (v) { this._impl.setMotorVelocity(v); }
+    setMotorForceLimit (v) { this._impl.setMotorForceLimit(v); }
     onLoad () {
         super.onLoad();
         this.setAxis(this._com.axis);
         this.setPivotA(this._com.pivotA);
         this.setPivotB(this._com.pivotB);
+        this.setLimitEnabled(this._com.limitEnabled);
+        this.setLowerLimit(this._com.lowerLimit);
+        this.setUpperLimit(this._com.upperLimit);
+        this.setMotorEnabled(this._com.motorEnabled);
+        this.setMotorVelocity(this._com.motorVelocity);
+        this.setMotorForceLimit(this._com.motorForceLimit);
     }
 }
 
@@ -640,6 +794,190 @@ class FixedJoint extends Joint {
         super.onLoad();
         this.setBreakForce(this._com.breakForce);
         this.setBreakTorque(this._com.breakTorque);
+    }
+}
+
+class ConfigurableJoint extends Joint {
+    constructor () { super(); this._impl = new jsbPhy.GenericJoint(); }
+
+    setConstraintMode (idx, v) { this._impl.setConstraintMode(idx, v); }
+    setLinearLimit (idx, upper, lower) { this._impl.setLinearLimit(idx, upper, lower); }
+    setAngularExtent (twist, swing1, swing2) { this._impl.setAngularExtent(twist, swing1, swing2); }
+    setLinearSoftConstraint (v) { this._impl.setLinearSoftConstraint(v); }
+    setLinearStiffness (v) { this._impl.setLinearStiffness(v); }
+    setLinearDamping (v) { this._impl.setLinearDamping(v); }
+    setLinearRestitution (v) { this._impl.setLinearRestitution(v); }
+
+    setSwingSoftConstraint (v) { this._impl.setSwingSoftConstraint(v); }
+    setTwistSoftConstraint (v) { this._impl.setTwistSoftConstraint(v); }
+    setSwingStiffness (v) { this._impl.setSwingStiffness(v); }
+    setSwingDamping (v) { this._impl.setSwingDamping(v); }
+    setSwingRestitution (v) { this._impl.setSwingRestitution(v); }
+    setTwistStiffness (v) { this._impl.setTwistStiffness(v); }
+    setTwistDamping (v) { this._impl.setTwistDamping(v); }
+    setTwistRestitution (v) { this._impl.setTwistRestitution(v); }
+
+    // motor
+    setDriverMode (idx, v) { this._impl.setDriverMode(idx, v); }
+    setLinearMotorTarget (v) { this._impl.setLinearMotorTarget(v.x, v.y, v.z); }
+    setLinearMotorVelocity (v) { this._impl.setLinearMotorVelocity(v.x, v.y, v.z); }
+    setLinearMotorForceLimit (v) { this._impl.setLinearMotorForceLimit(v); }
+
+    setAngularMotorTarget (v) { this._impl.setAngularMotorTarget(v.x, v.y, v.z); }
+    setAngularMotorVelocity (v) { this._impl.setAngularMotorVelocity(v.x, v.y, v.z); }
+    setAngularMotorForceLimit (v) { this._impl.setAngularMotorForceLimit(v); }
+
+    setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
+    setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setAutoPivotB (v) { this._impl.setAutoPivotB(v); }
+    setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
+    setSecondaryAxis (v) { this._impl.setSecondaryAxis(v.x, v.y, v.z); }
+
+    setBreakForce (v) { this._impl.setBreakForce(v); }
+    setBreakTorque (v) { this._impl.setBreakTorque(v); }
+
+    onLoad () {
+        super.onLoad();
+        this.setBreakForce(this._com.breakForce);
+        this.setBreakTorque(this._com.breakTorque);
+
+        const com = this._com;
+        const linearLimit = com.linearLimitSettings;
+        const angularLimit = com.angularLimitSettings;
+        this.setConstraintMode(0, linearLimit.xMotion);
+        this.setConstraintMode(1, linearLimit.yMotion);
+        this.setConstraintMode(2, linearLimit.zMotion);
+        this.setConstraintMode(3, angularLimit.twistMotion);
+        this.setConstraintMode(4, angularLimit.swingMotion1);
+        this.setConstraintMode(5, angularLimit.swingMotion2);
+
+        this.setLinearLimit(0, linearLimit.lower.x, linearLimit.upper.x);
+        this.setLinearLimit(1, linearLimit.lower.y, linearLimit.upper.y);
+        this.setLinearLimit(2, linearLimit.lower.z, linearLimit.upper.z);
+        this.setAngularExtent(angularLimit.twistExtent, angularLimit.swingExtent1, angularLimit.swingExtent2);
+
+        this.setLinearSoftConstraint(linearLimit.enableSoftConstraint);
+        this.setLinearStiffness(linearLimit.stiffness);
+        this.setLinearDamping(linearLimit.damping);
+        this.setLinearRestitution(linearLimit.restitution);
+
+        this.setSwingSoftConstraint(angularLimit.enableSoftConstraintSwing);
+        this.setTwistSoftConstraint(angularLimit.enableSoftConstraintTwist);
+        this.setSwingStiffness(angularLimit.swingStiffness);
+        this.setSwingDamping(angularLimit.swingDamping);
+        this.setSwingRestitution(angularLimit.swingRestitution);
+        this.setTwistStiffness(angularLimit.twistStiffness);
+        this.setTwistDamping(angularLimit.twistDamping);
+        this.setTwistRestitution(angularLimit.twistRestitution);
+
+        const linearMotor = com.linearDriverSettings;
+        const angularMotor = com.angularDriverSettings;
+        this.setDriverMode(0, linearMotor.xDrive);
+        this.setDriverMode(1, linearMotor.yDrive);
+        this.setDriverMode(2, linearMotor.zDrive);
+        this.setDriverMode(3, angularMotor.twistDrive);
+        this.setDriverMode(4, angularMotor.swingDrive1);
+        this.setDriverMode(5, angularMotor.swingDrive2);
+
+        this.setLinearMotorTarget(linearMotor.targetPosition);
+        this.setLinearMotorVelocity(linearMotor.targetVelocity);
+        this.setLinearMotorForceLimit(linearMotor.strength);
+
+        this.setAngularMotorTarget(angularMotor.targetOrientation);
+        this.setAngularMotorVelocity(angularMotor.targetVelocity);
+        this.setAngularMotorForceLimit(angularMotor.strength);
+
+        this.setPivotA(com.pivotA);
+        this.setPivotB(com.pivotB);
+        this.setAutoPivotB(com.autoPivotB);
+        this.setAxis(com.axis);
+        this.setSecondaryAxis(com.secondaryAxis);
+        this.setBreakForce(com.breakForce);
+        this.setBreakTorque(com.breakTorque);
+    }
+}
+class CharacterController {
+    get impl () { return this._impl; }
+    get characterController () { return this._com; }
+    constructor () { updateCollisionMatrix(); }
+    initialize (com) {
+        this._com = com;
+        const inited = this._impl.initialize(com.node);
+        ptrToObj[this._impl.getObjectID()] = this;
+        return inited;
+    }
+    onLoad () {
+        this.setGroup(this._com.group);
+        const cm = cc.PhysicsSystem.instance.collisionMatrix;
+        const mask = cm[this._com.group];
+        this.setMask(mask);
+
+        this.setCenter(this._com.center);
+        this.setStepOffset(this._com.stepOffset);
+        this.setSlopeLimit(this._com.slopeLimit);
+        this.setContactOffset(this._com.skinWidth);
+        this.setDetectCollisions(true);//this._com.detectCollisions);
+        this.setOverlapRecovery(true);//this._com.enableOverlapRecovery);
+    }
+    onEnable () { this._impl.onEnable(); }
+    onDisable () { this._impl.onDisable(); }
+    onDestroy () {
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
+        this._impl.onDestroy();
+    }
+
+    onGround () { return this._impl.onGround(); }
+    move (v, minDist, dt) { return this._impl.move(v.x, v.y, v.z, minDist, dt); }
+
+    setPosition (v) { this._impl.setPosition(v.x, v.y, v.z); }
+    getPosition () { return this._impl.getPosition(); }
+    setStepOffset (v) { this._impl.setStepOffset(v); }
+    getStepOffset () { return this._impl.getStepOffset(); }
+    setSlopeLimit (v) { this._impl.setSlopeLimit(v); }
+    getSlopeLimit () { return this._impl.getSlopeLimit(); }
+    setContactOffset (v) { this._impl.setContactOffset(v); }
+    getContactOffset () { return this._impl.getContactOffset(); }
+    setDetectCollisions (v) { this._impl.setDetectCollisions(v); }
+    setOverlapRecovery (v) { this._impl.setOverlapRecovery(v); }
+    setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
+
+    updateEventListener () {
+        let flag = 0;
+        if (this._com.needTriggerEvent) flag |= ESHAPE_FLAG.DETECT_TRIGGER_EVENT;
+        this._impl.updateEventListener(flag);
+    }
+    setGroup (v) { this._impl.setGroup(v); }
+    getGroup () { return this._impl.getGroup(); }
+    addGroup (v) { this.setGroup(this.getGroup() | v); }
+    removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
+    setMask (v) { this._impl.setMask(v >>> 0); }
+    getMask () { return this._impl.getMask(); }
+    addMask (v) { this.setMask(this.getMask() | v); }
+    removeMask (v) { this.setMask(this.getMask() & ~v); }
+}
+
+class CapsuleCharacterController extends CharacterController {
+    constructor () { super(); this._impl = new jsbPhy.CapsuleCharacterController(); }
+    setRadius (v) { this._impl.setRadius(v); }
+    setHeight (v) { this._impl.setHeight(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+        this.setHeight(this._com.height);
+    }
+}
+
+class BoxCharacterController extends CharacterController {
+    constructor () { super(); this._impl = new jsbPhy.BoxCharacterController(); }
+    setHalfHeight (v) { this._impl.setHalfHeight(v); }
+    setHalfSideExtent (v) { this._impl.setHalfSideExtent(v); }
+    setHalfForwardExtent (v) { this._impl.setHalfForwardExtent(v); }
+    onLoad () {
+        super.onLoad();
+        this.setHalfHeight(this._com.halfHeight);
+        this.setHalfSideExtent(this._com.halfSideExtent);
+        this.setHalfForwardExtent(this._com.halfForwardExtent);
     }
 }
 
@@ -657,4 +995,7 @@ cc.physics.selector.register('physx', {
     PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
     FixedConstraint: FixedJoint,
+    ConfigurableConstraint: ConfigurableJoint,
+    CapsuleCharacterController,
+    BoxCharacterController,
 });

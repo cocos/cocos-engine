@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -54,7 +53,6 @@ class PointerEventDispatcher implements IEventDispatcher {
     private _processorListToRemove: NodeEventProcessor[] = [];
 
     constructor () {
-        // @ts-expect-error Property '_registerEventDispatcher' is private and only accessible within class 'Input'.
         input._registerEventDispatcher(this);
 
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this.addPointerEventProcessor, this);
@@ -72,7 +70,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return true;
     }
 
-    public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
+    public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor): void {
         if (this._inDispatchCount === 0) {
             if (!this._pointerEventProcessorList.includes(pointerEventProcessor)) {
                 this._pointerEventProcessorList.push(pointerEventProcessor);
@@ -84,7 +82,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         js.array.remove(this._processorListToRemove, pointerEventProcessor);
     }
 
-    public removePointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
+    public removePointerEventProcessor (pointerEventProcessor: NodeEventProcessor): void {
         if (this._inDispatchCount === 0) {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
@@ -94,7 +92,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         js.array.remove(this._processorListToAdd, pointerEventProcessor);
     }
 
-    public dispatchEventMouse (eventMouse: EventMouse) {
+    public dispatchEventMouse (eventMouse: EventMouse): boolean {
         this._inDispatchCount++;
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
@@ -103,7 +101,6 @@ class PointerEventDispatcher implements IEventDispatcher {
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventMouse
-                // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
                 dispatchToNextEventDispatcher = false;
                 if (!eventMouse.preventSwallow) {
@@ -119,7 +116,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return dispatchToNextEventDispatcher;
     }
 
-    public dispatchEventTouch (eventTouch: EventTouch) {
+    public dispatchEventTouch (eventTouch: EventTouch): boolean {
         this._inDispatchCount++;
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
@@ -130,7 +127,6 @@ class PointerEventDispatcher implements IEventDispatcher {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
                 if (eventTouch.type === InputEventType.TOUCH_START) {
-                    // @ts-expect-error access private method
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         dispatchToNextEventDispatcher = false;
@@ -143,7 +139,6 @@ class PointerEventDispatcher implements IEventDispatcher {
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
                     if (index !== -1) {
-                        // @ts-expect-error access private method
                         pointerEventProcessor._handleEventTouch(eventTouch);
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
@@ -164,7 +159,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return dispatchToNextEventDispatcher;
     }
 
-    private _updatePointerEventProcessorList () {
+    private _updatePointerEventProcessorList (): void {
         const listToAdd = this._processorListToAdd;
         const addLength = listToAdd.length;
         for (let i = 0; i < addLength; ++i) {
@@ -180,7 +175,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         listToRemove.length = 0;
     }
 
-    private _sortPointerEventProcessorList () {
+    private _sortPointerEventProcessorList (): void {
         if (!this._isListDirty) {
             return;
         }
@@ -198,7 +193,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         this._isListDirty = false;
     }
 
-    private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor) {
+    private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor): number {
         const node1: Node = p1.node;
         const node2: Node = p2.node;
         if (!p2 || !node2 || !node2.activeInHierarchy || !node2._uiProps.uiTransformComp) {
@@ -211,20 +206,16 @@ class PointerEventDispatcher implements IEventDispatcher {
             return p2.cachedCameraPriority - p1.cachedCameraPriority;
         }
         let n1: Node | null = node1; let n2: Node | null = node2; let ex = false;
-        // @ts-expect-error _id is a protected property
-        while (n1.parent?._id !== n2.parent?._id) {
+        while (n1!.parent?.uuid !== n2!.parent?.uuid) {
             n1 = n1?.parent?.parent === null ? (ex = true) && node2 : n1 && n1.parent;
             n2 = n2?.parent?.parent === null ? (ex = true) && node1 : n2 && n2.parent;
         }
 
-        // @ts-expect-error protected property _id
-        if (n1._id === n2._id) {
-            // @ts-expect-error protected property _id
-            if (n1._id === node2._id) {
+        if (n1!.uuid === n2!.uuid) {
+            if (n1!.uuid === node2.uuid) {
                 return -1;
             }
-            // @ts-expect-error protected property _id
-            if (n1._id === node1._id) {
+            if (n1!.uuid === node1.uuid) {
                 return 1;
             }
         }
@@ -235,7 +226,7 @@ class PointerEventDispatcher implements IEventDispatcher {
         return ex ? priority1 - priority2 : priority2 - priority1;
     }
 
-    private _markListDirty () {
+    private _markListDirty (): void {
         this._isListDirty = true;
     }
 }

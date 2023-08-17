@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,11 +24,12 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
+import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
 // Compress mipmap constants
@@ -94,7 +94,7 @@ const ASTC_HEADER_SIZE_X_BEGIN = 7;
 const ASTC_HEADER_SIZE_Y_BEGIN = 10;
 const ASTC_HEADER_SIZE_Z_BEGIN = 13;
 
-function getASTCFormat (xdim, ydim) {
+function getASTCFormat (xdim, ydim): PixelFormat {
     if (xdim === 4) {
         return PixelFormat.RGBA_ASTC_4x4;
     } if (xdim === 5) {
@@ -130,7 +130,7 @@ function getASTCFormat (xdim, ydim) {
     return PixelFormat.RGBA_ASTC_12x12;
 }
 
-function readBEUint16 (header, offset: number) {
+function readBEUint16 (header, offset: number): number {
     return (header[offset] << 8) | header[offset + 1];
 }
 
@@ -153,17 +153,17 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): boolean {
+function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
     return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
-function fetchImageSource (imageSource: ImageSource) {
+function fetchImageSource (imageSource: ImageSource): HTMLCanvasElement | HTMLImageElement | ImageBitmap | ArrayBufferView | null {
     return '_data' in imageSource ? imageSource._data : imageSource;
 }
 
 // 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI || BAIDU) {
+    if (ALIPAY || TAOBAO || TAOBAO_MINIGAME || XIAOMI || BAIDU || WECHAT_MINI_PROGRAM) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }
@@ -175,8 +175,8 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 }
 
 /**
- * @en Image Asset.
- * @zh 图像资源。
+ * @en Image Asset. The image resource stores the raw data of the image and you can use this resource to create any Texture resource.
+ * @zh 图像资源。图像资源存储了图像的原始数据，你可以使用此资源来创建任意 [[TextureBase]] 资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
@@ -202,10 +202,10 @@ export class ImageAsset extends Asset {
      *    *                            *   *
      *    ******************************   *
      * *************************************
-     * @param files @zh 压缩纹理数组 @en Compressed Texture Arrays
-     * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
+     * @param files @zh 压缩纹理数组。 @en Compressed Texture Arrays.
+     * @returns out @zh 合并后的压缩纹理数据。 @en Merged compressed texture data.
      */
-    public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
+    public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]): Uint8Array {
         let out = new Uint8Array(0);
 
         let err: Error | null = null;
@@ -253,11 +253,11 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @param file 解析压缩纹理
-     * @param type 压缩纹理类型
+     * @param file 解析压缩纹理。
+     * @param type 压缩纹理类型。
      * @engineInternal
      */
-    public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number) {
+    public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number): IMemoryImageSource {
         const out: IMemoryImageSource = {
             _data: new Uint8Array(0),
             _compressed: true,
@@ -296,17 +296,17 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param type @zh 压缩纹理类型
-     * @param out @zh 压缩纹理输出
+     * @zh 解析压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param type @zh 压缩纹理类型。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -323,16 +323,16 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 PVR 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 PVR 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -375,16 +375,16 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 PKM 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 PKM 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -409,16 +409,16 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 ASTC 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 ASTC 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -457,16 +457,78 @@ export class ImageAsset extends Asset {
     }
 
     /**
+     * @en extract the first mipmap from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmap0 (): ImageAsset {
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapSize = this.mipmapLevelDataSize[0];
+            const data = this.data as Uint8Array;
+
+            const dataView = new Uint8Array(data.buffer, 0, mipmapSize);
+            const mipmap = new ImageAsset({
+                _data: dataView,
+                _compressed: true,
+                width: this.width,
+                height: this.height,
+                format: this.format,
+                mipmapLevelDataSize: [],
+            });
+            mipmap._uuid = `${this._uuid}`;
+            return mipmap;
+        } else {
+            return this;
+        }
+    }
+
+    /**
+     * @en extract mipmaps from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmaps (): ImageAsset[] {
+        const images: ImageAsset[] = [];
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapLevelDataSize = this.mipmapLevelDataSize;
+            const data: Uint8Array = this.data as Uint8Array;
+
+            let byteOffset = 0;
+            let height = this.height;
+            let width = this.width;
+            for (const mipmapSize of mipmapLevelDataSize) {
+                const dataView = new Uint8Array(data.buffer, byteOffset, mipmapSize);
+                const mipmap = new ImageAsset({
+                    _data: dataView,
+                    _compressed: true,
+                    width,
+                    height,
+                    format: this.format,
+                    mipmapLevelDataSize: [],
+                });
+                byteOffset += mipmapSize;
+                mipmap._uuid = `${this._uuid}`;
+                width = Math.max(width >> 1, 1);
+                height = Math.max(height >> 1, 1);
+                images.push(mipmap);
+            }
+        } else {
+            images.push(this);
+        }
+
+        return images;
+    }
+
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
-    get _nativeAsset () {
+    get _nativeAsset (): any {
         // Maybe returned to pool in webgl.
         return this._nativeData;
     }
-    set _nativeAsset (value: ImageSource) {
+    // TODO: Property 'format' does not exist on type 'ImageBitmap'
+    // set _nativeAsset (value: ImageSource) {
+    set _nativeAsset (value: any) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
-            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -476,8 +538,8 @@ export class ImageAsset extends Asset {
      * @en Image data.
      * @zh 此图像资源的图像数据。
      */
-    get data () {
-        if (this._nativeData && isNativeImage(this._nativeData)) {
+    get data (): ArrayBufferView | HTMLCanvasElement | HTMLImageElement | ImageBitmap | null {
+        if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
 
@@ -488,7 +550,7 @@ export class ImageAsset extends Asset {
      * @en The pixel width of the image.
      * @zh 此图像资源的像素宽度。
      */
-    get width () {
+    get width (): number {
         return this._nativeData.width || this._width;
     }
 
@@ -496,7 +558,7 @@ export class ImageAsset extends Asset {
      * @en The pixel height of the image.
      * @zh 此图像资源的像素高度。
      */
-    get height () {
+    get height (): number {
         return this._nativeData.height || this._height;
     }
 
@@ -504,7 +566,7 @@ export class ImageAsset extends Asset {
      * @en The pixel format of the image.
      * @zh 此图像资源的像素格式。
      */
-    get format () {
+    get format (): PixelFormat {
         return this._format;
     }
 
@@ -512,7 +574,7 @@ export class ImageAsset extends Asset {
      * @en Whether the image is in compressed texture format.
      * @zh 此图像资源是否为压缩像素格式。
      */
-    get isCompressed () {
+    get isCompressed (): boolean {
         return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12)
         || (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
@@ -522,7 +584,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源是 mipmap 时，获取每层数据大小。
      * @engineInternal
      */
-    get mipmapLevelDataSize () : number[] | undefined {
+    get mipmapLevelDataSize (): number[] | undefined {
         return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
     }
 
@@ -531,7 +593,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
      */
-    get url () {
+    get url (): string {
         return this.nativeUrl;
     }
 
@@ -571,30 +633,31 @@ export class ImageAsset extends Asset {
     /**
      * @en Reset the source of the image asset.
      * @zh 重置此图像资源使用的原始图像源。
-     * @param data The new source
+     * @param data @en The new source. @zh 新的图片数据源。
      */
-    public reset (data: ImageSource) {
+    public reset (data: ImageSource): void {
         if (isImageBitmap(data)) {
             this._nativeData = data;
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
-            // @ts-expect-error internal api usage
             this._format = data.format;
         } else {
             this._nativeData = data;
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
-            // @ts-expect-error JSB element should destroy native data.
-            if (JSB) this.data.destroy();
+            // JSB element should destroy native data.
+            // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
+            // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
+            // issue: https://github.com/cocos/cocos-engine/issues/14646
+            if (JSB) (this.data as any).destroy();
         } else if (isImageBitmap(this.data)) {
-            // @ts-expect-error internal api usage
-            this.data.close && this.data.close();
+            this.data?.close();
         }
         return super.destroy();
     }
@@ -602,10 +665,14 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
      */
     // eslint-disable-next-line consistent-return
-    public _serialize () {
+    public _serialize (): string | {
+        fmt: string;
+        w: number;
+        h: number;
+    } | undefined {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {
@@ -631,9 +698,9 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
      */
-    public _deserialize (data: any) {
+    public _deserialize (data: any): void {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -688,10 +755,10 @@ export class ImageAsset extends Asset {
 
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
-            const canvas = document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d')!;
             const l = canvas.width = canvas.height = 2;
             context.fillStyle = '#ff00ff';
@@ -703,7 +770,7 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this.data;
     }
 }

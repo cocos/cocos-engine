@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2017-2018 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB } from 'internal:constants';
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
@@ -37,14 +36,14 @@ const _normal = new Vec2();
 const _vec2 = new Vec2();
 let QUAD_INDICES;
 
-function normal (out:Vec2, dir:Vec2) {
+function normal (out:Vec2, dir:Vec2): Vec2 {
     // get perpendicular
     out.x = -dir.y;
     out.y = dir.x;
     return out;
 }
 
-function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
+function computeMiter (miter, lineA, lineB, halfThick, maxMultiple): number {
     // get tangent line
     lineA.add(lineB, _tangent);
     _tangent.normalize();
@@ -64,14 +63,14 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 }
 
 export const MotionStreakAssembler: IAssembler = {
-    createData (comp: MotionStreak) {
+    createData (comp: MotionStreak): RenderData {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(16, (16 - 2) * 3);
         return renderData;
     },
 
-    update (comp: MotionStreak, dt: number) {
+    update (comp: MotionStreak, dt: number): void {
         const stroke = comp.stroke / 2;
 
         const node = comp.node;
@@ -186,14 +185,11 @@ export const MotionStreakAssembler: IAssembler = {
             this.updateWorldVertexAllData(comp);
 
             renderData.updateRenderData(comp, comp.texture!);
-            // No need update WorldMatrix, so change dirty flag
-            // A dirty hack
-            renderData.renderDrawInfo.setVertDirty(false);
-            comp.node.hasChangedFlags = 0;
+            comp.markForUpdateRenderData();
         }
     },
 
-    updateWorldVertexAllData (comp: MotionStreak) {
+    updateWorldVertexAllData (comp: MotionStreak): void {
         const renderData = comp.renderData!;
         const stride = renderData.floatStride;
         const dataList = renderData.data;
@@ -209,7 +205,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    createQuadIndices (comp, indexCount) {
+    createQuadIndices (comp, indexCount): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
         const vid = 0;
@@ -228,7 +224,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
+    updateRenderDataCache (comp: MotionStreak, renderData: RenderData): void {
         if (renderData.passDirty) {
             renderData.updatePass(comp);
         }
@@ -244,13 +240,20 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateRenderData (comp: MotionStreak) {
+    updateRenderData (comp: MotionStreak): void {
+        if (JSB) {
+            // A dirty hack
+            // The world matrix was updated in advance and needs to be avoided at the cpp level
+            // Need a flag to explicitly not update the world transform to solve this problem
+            comp.renderData!.renderDrawInfo.setVertDirty(false);
+            comp.node.hasChangedFlags = 0;
+        }
     },
 
-    updateColor (comp: MotionStreak) {
+    updateColor (comp: MotionStreak): void {
     },
 
-    fillBuffers (comp: MotionStreak, renderer: IBatcher) {
+    fillBuffers (comp: MotionStreak, renderer: IBatcher): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
         const dataList = renderData.data;
@@ -293,7 +296,7 @@ export const MotionStreakAssembler: IAssembler = {
 };
 
 export const MotionStreakAssemblerManager: IAssemblerManager = {
-    getAssembler (comp: MotionStreak) {
+    getAssembler (comp: MotionStreak): IAssembler {
         return MotionStreakAssembler;
     },
 };

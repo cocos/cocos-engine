@@ -4,25 +4,16 @@ exports.template = /* html */`
 <div class="events" :style="'transform: translateX(' + offset + 'px)'">
     <template
         v-if="events"
-        v-for="(info, index) in events"
+        v-for="(event, index) in events"
     >
         <ui-icon value="event"
-            :style="queryKeyStyle(info.x)"
-            :active="selectInfo.frames.includes(info.frame)"
+            :style="queryKeyStyle(event.x)"
+            :active="frame===event.info.frame"
             :index="index"
             name="event"
-            @mousedown="onMouseDown($event, info)"
-            @click.right="onPopMenu($event, info)"
-            @dblclick="openEventEditor(info)"
-        ></ui-icon>
-    </template>
-    <template
-        v-if="selectEvent"
-        v-for="(info, index) in selectEvent"
-    >
-        <ui-icon value="event" class="preview" color="true"
-            name="event"
-            :style="queryKeyStyle(info.x)"
+            @mousedown.left="onMouseDown($event, event)"
+            @click.right="onPopMenu($event, event.info)"
+            @dblclick="openEventEditor(event.info)"
         ></ui-icon>
     </template>
 </div>
@@ -31,18 +22,7 @@ exports.template = /* html */`
 exports.data = {
     events: [],
     offset: 0,
-    selectEvent: [],
-    eventEditorInfo: {
-        frame: 0,
-        events: [{
-            func: '',
-            params: [],
-            frame: 0,
-        }],
-    },
-    selectInfo: {
-        frames: [],
-    },
+    frame: -1,
 };
 
 exports.methods = {
@@ -53,64 +33,56 @@ exports.methods = {
     onPopMenu(event, eventInfo) {
         const that = this;
         const menu = [{
-            label: Editor.I18n.t(`animator.event.edit`),
-            click() {
-                that.openEventEditor(eventInfo);
-            },
-        }, {
             label: Editor.I18n.t(`animator.event.delete`),
             click() {
                 that.$emit('del', eventInfo);
             },
-            accelerator: 'Delete',
-        },
-        ];
+        }];
         Editor.Menu.popup({
-            x: event.pageX,
-            y: event.pageY,
             menu,
         });
     },
 
-    onMouseDown(event, info) {
+    onMouseDown(event, item) {
         const that = this;
         event.stopPropagation();
-        const data = JSON.parse(JSON.stringify(info));
-        let selectIndex = that.selectInfo && that.selectInfo.frames.indexOf(info.frame);
-        if (typeof selectIndex !== 'number' || selectIndex === -1) {
-            that.selectInfo = {
-                startX: event.x,
-                data: [data],
-                offset: 0,
-                offsetFrame: 0,
-                frames: [info.frame],
-            };
-        } else {
-            that.selectInfo.startX = event.x;
+        this.frame = item.info.frame;
+
+        const clientX = event.clientX;
+        const startX = item.x;
+        function mousemove(event) {
+            const timelineX = startX + (event.clientX - clientX);
+            that.$emit('move', item, timelineX);
         }
+
+        function mouseup() {
+            that.$emit('moveEnd', item);
+            document.removeEventListener('mousemove', mousemove);
+            document.removeEventListener('mouseup', mouseup);
+        }
+        document.addEventListener('mousemove', mousemove);
+        document.addEventListener('mouseup', mouseup);
     },
 
     openEventEditor(eventInfo) {
-        // HACK 目前的事件帧会有重复关键帧重叠的情况
-        this.selectInfo.frames = [eventInfo.frame];
+        // 目前的事件帧会有重复关键帧重叠的情况
+        this.frame = eventInfo.frame;
         this.$emit('edit', eventInfo);
     },
 
     queryKeyStyle(x) {
-        return `transform: translateX(${x | 0 + 3}px);`;
+        return `transform: translateX(${x || 0}px);`;
     },
 
-    onDomMouseDown() {
-        this.selectInfo = {
-            frames: [],
-        };
+    refresh(eventInfos) {
+        this.events = eventInfos;
+        if (!eventInfos.some((item) => item.info.frame === this.frame)) {
+            this.unselect();
+        }
+    },
+
+    unselect() {
+        this.frame = -1;
     },
 };
 
-exports.mounted = function() {
-    document.addEventListener('mousedown', this.onDomMouseDown);
-};
-
-exports.beforeDestroy = function() {
-    document.removeEventListener('mousedown', this.onDomMouseDown);
-};

@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { getError, cclegacy } from '../core';
 
 const VERSION = 1;
@@ -12,11 +36,11 @@ export class CCON {
         this._chunks = chunks;
     }
 
-    get document () {
+    get document (): unknown {
         return this._document;
     }
 
-    get chunks () {
+    get chunks (): Uint8Array[] {
         return this._chunks;
     }
 
@@ -30,7 +54,7 @@ interface CCONPreface {
     chunks: string[];
 }
 
-export function encodeCCONJson (ccon: CCON, chunkURLs: string[]) {
+export function encodeCCONJson (ccon: CCON, chunkURLs: string[]): unknown {
     return {
         version: VERSION,
         document: ccon.document,
@@ -38,7 +62,10 @@ export function encodeCCONJson (ccon: CCON, chunkURLs: string[]) {
     } as unknown;
 }
 
-export function parseCCONJson (json: unknown) {
+export function parseCCONJson (json: unknown): {
+    chunks: string[];
+    document: unknown;
+} {
     const cconPreface = json as CCONPreface;
 
     return {
@@ -47,7 +74,7 @@ export function parseCCONJson (json: unknown) {
     };
 }
 
-export function encodeCCONBinary (ccon: CCON) {
+export function encodeCCONBinary (ccon: CCON): Uint8Array {
     const { document, chunks } = ccon;
 
     const jsonString = JSON.stringify(document);
@@ -81,7 +108,7 @@ export function encodeCCONBinary (ccon: CCON) {
     }
 }
 
-export function decodeCCONBinary (bytes: Uint8Array) {
+export function decodeCCONBinary (bytes: Uint8Array): CCON {
     if (bytes.length < 16) {
         throw new InvalidCCONError(getError(13102));
     }
@@ -156,7 +183,7 @@ interface BufferConstructor {
     from(buffer: ArrayBuffer, byteOffset?: number, byteLength?: number): Buffer;
 }
 
-function encodeJson (input: string) {
+function encodeJson (input: string): Uint8Array {
     if (typeof TextEncoder !== 'undefined') {
         return new TextEncoder().encode(input);
     } else if ('Buffer' in globalThis) {
@@ -172,7 +199,7 @@ function encodeJson (input: string) {
     }
 }
 
-function decodeJson (data: Uint8Array) {
+function decodeJson (data: Uint8Array): string {
     if (typeof TextDecoder !== 'undefined') {
         return new TextDecoder().decode(data);
     } else if ('Buffer' in globalThis) {
@@ -190,11 +217,11 @@ export class BufferBuilder {
     private _viewOrPaddings: (ArrayBufferView | number)[] = [];
     private _length = 0;
 
-    get byteLength () {
+    get byteLength (): number {
         return this._length;
     }
 
-    public alignAs (align: number) {
+    public alignAs (align: number): number {
         if (align !== 0) {
             const remainder = this._length % align;
             if (remainder !== 0) {
@@ -207,14 +234,14 @@ export class BufferBuilder {
         return 0;
     }
 
-    public append (view: ArrayBufferView) {
+    public append (view: ArrayBufferView): number {
         const result = this._length;
         this._viewOrPaddings.push(view);
         this._length += view.byteLength;
         return result;
     }
 
-    public get () {
+    public get (): Uint8Array {
         const result = new Uint8Array(this._length);
         let counter = 0;
         this._viewOrPaddings.forEach((viewOrPadding) => {

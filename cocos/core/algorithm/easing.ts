@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,25 +20,51 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-export function constant () {
+// Easing functions specify the speed at which an animation progresses at different points within the animation.
+
+/**
+ * @en Not any easing effect.
+ * @zh 没有任何缓动效果。
+ */
+export function constant (): number {
     return 0;
 }
 
-export function linear (k: number) {
+/**
+ * @en A linear function, `f(k) = k`. Result correlates to input value one to one.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 线性函数，`f(k) = k`。返回值和输入值一一对应。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function linear (k: number): number {
     return k;
 }
 
-export function quadIn (k: number) {
+/**
+ * @en A quadratic function, f(k) = k * k. The interpolation starts slowly, then progressively speeds up until the end,
+ * at which point it stops abruptly. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 一个二次方的函数，f(k) = k * k。插值开始时很慢，然后逐渐加快，直到结束，并突然停止。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quadIn (k: number): number {
     return k * k;
 }
 
-export function quadOut (k: number) {
+/**
+ * @en A quadratic function, f(k) = k * (2-k). The interpolation starts abruptly and then progressively slows down towards the end. Refer to
+ * [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 一个二次方的函数，f(k) = k * (2-k)。插值开始时很突然，然后在接近尾声时逐渐减慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quadOut (k: number): number {
     return k * (2 - k);
 }
 
-export function quadInOut (k: number) {
+/**
+ * @en The interpolation starts slowly, speeds up, and then slows down towards the end. Refer to
+ * [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) graphic feature.
+ * @zh 插值开始时很慢，接着加快，然后在接近尾声时减慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quadInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return 0.5 * k * k;
@@ -47,15 +72,29 @@ export function quadInOut (k: number) {
     return -0.5 * (--k * (k - 2) - 1);
 }
 
-export function cubicIn (k: number) {
+/**
+ * @en Starts slowly and accelerates. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function cubicIn (k: number): number {
     return k * k * k;
 }
 
-export function cubicOut (k: number) {
+/**
+ * @en Starts quickly and decelerates.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function cubicOut (k: number): number {
     return --k * k * k + 1;
 }
 
-export function cubicInOut (k: number) {
+/**
+ * @en Accelerates the animation at the beginning, and decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时加速动画，在结束时减慢动画的速度。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function cubicInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return 0.5 * k * k * k;
@@ -63,15 +102,29 @@ export function cubicInOut (k: number) {
     return 0.5 * ((k -= 2) * k * k + 2);
 }
 
-export function quartIn (k: number) {
+/**
+ * @en Starts slowly and accelerates. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quartIn (k: number): number {
     return k * k * k * k;
 }
 
-export function quartOut (k: number) {
+/**
+ * @en Starts quickly and decelerates.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quartOut (k: number): number {
     return 1 - (--k * k * k * k);
 }
 
-export function quartInOut (k: number) {
+/**
+ * @en Accelerates the animation at the beginning, and decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时加速动画，在结束时减慢动画的速度。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quartInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return 0.5 * k * k * k * k;
@@ -79,15 +132,29 @@ export function quartInOut (k: number) {
     return -0.5 * ((k -= 2) * k * k * k - 2);
 }
 
-export function quintIn (k: number) {
+/**
+ * @en Starts slowly and accelerates. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quintIn (k: number): number {
     return k * k * k * k * k;
 }
 
-export function quintOut (k: number) {
+/**
+ * @en Starts quickly and decelerates.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quintOut (k: number): number {
     return --k * k * k * k * k + 1;
 }
 
-export function quintInOut (k: number) {
+/**
+ * @en Accelerates the animation at the beginning, and decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时加速动画，在结束时减慢动画的速度。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function quintInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return 0.5 * k * k * k * k * k;
@@ -95,30 +162,59 @@ export function quintInOut (k: number) {
     return 0.5 * ((k -= 2) * k * k * k * k + 2);
 }
 
-export function sineIn (k: number) {
+/**
+ * @en Smoothly accelerates the animation.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 平滑地加速动画。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function sineIn (k: number): number {
     if (k === 1) {
         return 1;
     }
     return 1 - Math.cos(k * Math.PI / 2);
 }
 
-export function sineOut (k: number) {
+/**
+ * @en Smoothly decelerates the animation.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 平滑地使动画降速。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function sineOut (k: number): number {
     return Math.sin(k * Math.PI / 2);
 }
 
-export function sineInOut (k: number) {
+/**
+ * @en Smoothly accelerates the animation at the beginning, and smoothly decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时平滑地加速动画，在结束时平滑地减速动画。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function sineInOut (k: number): number {
     return 0.5 * (1 - Math.cos(Math.PI * k));
 }
 
-export function expoIn (k: number) {
+/**
+ * @en Starts slowly and accelerates. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function expoIn (k: number): number {
     return k === 0 ? 0 : Math.pow(1024, k - 1);
 }
 
-export function expoOut (k: number) {
+/**
+ * @en Starts quickly and decelerates.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function expoOut (k: number): number {
     return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
 }
 
-export function expoInOut (k: number) {
+/**
+ * @en Accelerates the animation at the beginning, and decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时加速动画，在结束时减慢动画的速度。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function expoInOut (k: number): number {
     if (k === 0) {
         return 0;
     }
@@ -132,15 +228,29 @@ export function expoInOut (k: number) {
     return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
 }
 
-export function circIn (k: number) {
+/**
+ * @en Starts slowly and accelerates. Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function circIn (k: number): number {
     return 1 - Math.sqrt(1 - k * k);
 }
 
-export function circOut (k: number) {
+/**
+ * @en Starts quickly and decelerates.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function circOut (k: number): number {
     return Math.sqrt(1 - (--k * k));
 }
 
-export function circInOut (k: number) {
+/**
+ * @en Accelerates the animation at the beginning, and decelerates the animation at the end.
+ * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 在开始时加速动画，在结束时减慢动画的速度。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function circInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return -0.5 * (Math.sqrt(1 - k * k) - 1);
@@ -148,7 +258,11 @@ export function circInOut (k: number) {
     return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
 }
 
-export function elasticIn (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function elasticIn (k: number): number {
     let s;
     let a = 0.1;
     const p = 0.4;
@@ -167,7 +281,11 @@ export function elasticIn (k: number) {
     return -(a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
 }
 
-export function elasticOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function elasticOut (k: number): number {
     let s;
     let a = 0.1;
     const p = 0.4;
@@ -186,7 +304,11 @@ export function elasticOut (k: number) {
     return (a * Math.pow(2, -10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
 }
 
-export function elasticInOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function elasticInOut (k: number): number {
     let s;
     let a = 0.1;
     const p = 0.4;
@@ -210,7 +332,11 @@ export function elasticInOut (k: number) {
     return a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
 }
 
-export function backIn (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function backIn (k: number): number {
     if (k === 1) {
         return 1;
     }
@@ -218,7 +344,11 @@ export function backIn (k: number) {
     return k * k * ((s + 1) * k - s);
 }
 
-export function backOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function backOut (k: number): number {
     if (k === 0) {
         return 0;
     }
@@ -226,7 +356,11 @@ export function backOut (k: number) {
     return --k * k * ((s + 1) * k + s) + 1;
 }
 
-export function backInOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function backInOut (k: number): number {
     const s = 1.70158 * 1.525;
     k *= 2;
     if (k < 1) {
@@ -235,11 +369,15 @@ export function backInOut (k: number) {
     return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
 }
 
-export function bounceIn (k: number) {
+export function bounceIn (k: number): number {
     return 1 - bounceOut(1 - k);
 }
 
-export function bounceOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function bounceOut (k: number): number {
     if (k < (1 / 2.75)) {
         return 7.5625 * k * k;
     } else if (k < (2 / 2.75)) {
@@ -251,14 +389,22 @@ export function bounceOut (k: number) {
     }
 }
 
-export function bounceInOut (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function bounceInOut (k: number): number {
     if (k < 0.5) {
         return bounceIn(k * 2) * 0.5;
     }
     return bounceOut(k * 2 - 1) * 0.5 + 0.5;
 }
 
-export function smooth (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function smooth (k: number): number {
     if (k <= 0) {
         return 0;
     }
@@ -268,7 +414,11 @@ export function smooth (k: number) {
     return k * k * (3 - 2 * k);
 }
 
-export function fade (k: number) {
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
+export function fade (k: number): number {
     if (k <= 0) {
         return 0;
     }
@@ -278,19 +428,68 @@ export function fade (k: number) {
     return k * k * k * (k * (k * 6 - 15) + 10);
 }
 
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const quadOutIn = _makeOutIn(quadIn, quadOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const cubicOutIn = _makeOutIn(cubicIn, cubicOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const quartOutIn = _makeOutIn(quartIn, quartOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const quintOutIn = _makeOutIn(quintIn, quintOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const sineOutIn = _makeOutIn(sineIn, sineOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const expoOutIn = _makeOutIn(expoIn, expoOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const circOutIn = _makeOutIn(circIn, circOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const elasticOutIn = _makeOutIn(elasticIn, elasticOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const backOutIn = _makeOutIn(backIn, backOut);
+
+/**
+ * @en Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
+ * @zh 具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
+ */
 export const bounceOutIn = _makeOutIn(bounceIn, bounceOut);
 
 function _makeOutIn (fnIn: (k: number) => number, fnOut: (k: number) => number) {
-    return (k: number) => {
+    return (k: number): number => {
         if (k < 0.5) {
             return fnOut(k * 2) / 2;
         }

@@ -83,6 +83,11 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     async generate() {
+
+        if(!await this.checkIfXcodeInstalled()) {
+            throw new Error(`Please check if Xcode is installed.`);
+        }
+
         if(this.shouldSkipGenerate()) {
             return false;
         }
@@ -93,13 +98,13 @@ export class IOSPackTool extends MacOSPackTool {
 
         const ext: string[] = ['-DCMAKE_CXX_COMPILER=clang++', '-DCMAKE_C_COMPILER=clang'];
 
-        this.appendCmakeResDirArgs(ext);
+        this.appendCmakeCommonArgs(ext);
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
         await toolHelper.runCmake(['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', `-B"${nativePrjDir}"`, '-T', `buildsystem=${ver}`,
                                     '-DCMAKE_SYSTEM_NAME=iOS'].concat(ext));
 
-        await this.skipUpdateXcodeProject();
+        await this.modifyXcodeProject();
 
         return true;
     }
@@ -220,7 +225,7 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     readBundleId(): string | null {
-        const prjName = this.params.projectName!;
+        const prjName = this.getExcutableNameOrDefault();
         const cmakeTmpDir =
             fs.readdirSync(ps.join(this.paths.nativePrjDir, 'CMakeFiles'))
                 .filter((x) => x.startsWith(prjName))[0];
@@ -306,6 +311,8 @@ export class IOSPackTool extends MacOSPackTool {
                 'xcrun', ['simctl', 'install', simId, `"${foundApps[0].trim()}"`], false);
             await cchelper.runCmd(
                 'xcrun', ['simctl', 'launch', simId, `"${bundleId}"`], false);
+        } else {
+            throw new Error(`[iOS run] App or BundleId is not found!`);
         }
         return false;
     }

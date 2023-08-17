@@ -10,6 +10,8 @@
  */
 declare namespace jsb {
 
+    let window: any;
+
     type AccelerationXYZ = number;
     type AccelerationIncludingGravityXYZ = number;
     type RotationRateAlpha = number;
@@ -52,6 +54,8 @@ declare namespace jsb {
     export interface MouseEvent {
         x: number,
         y: number,
+        xDelta: number | undefined,
+        yDelta: number | undefined,
         button: number,
         windowId: number,
     }
@@ -115,6 +119,7 @@ declare namespace jsb {
         repeat: boolean;
         keyCode: number;
         windowId: number;
+        code: string;
     }
     type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
     export let onKeyDown: KeyboardEventCallback | undefined;
@@ -359,3 +364,9 @@ declare namespace ns {
     export class Frustum extends jsb.NativePOD {
     }
 }
+
+/**
+ * Only defined on native platforms.
+ * Now we only support 'V8'
+ */
+declare const scriptEngineType: 'V8';

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -72,6 +71,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 1510, "cc.Scheduler: Illegal target which doesn't have id, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
 { 1511, "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored." },
 { 1513, "cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
+{ 1514, "since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead." },
 { 1607, "removeFromParentAndCleanup is deprecated. Use removeFromParent instead" },
 { 1619, "callback function must be non-null" },
 { 1620, "interval must be positive" },
@@ -212,6 +212,10 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 3936, "Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
 { 3937, "Previous error occurred when instantiating animation clip %s on node %s." },
 { 3938, "'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'." },
+{ 3940, "Error when animation attempted to bind material uniform target: target %s is not a material." },
+{ 3941, "Error when animation attempted to bind material uniform target: material %s has no recorded pass %s." },
+{ 3942, "Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s." },
+{ 3943, "Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s." },
 { 4003, "Label font size can't be shirnked less than 0!" },
 { 4004, "force notify all fonts loaded!" },
 { 4011, "Property spriteFrame of Font '%s' is invalid. Using system font instead." },
@@ -223,9 +227,11 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 4300, "Can not found the %s page." },
 { 4301, "Can not add a page without UITransform." },
 { 4302, "Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform." },
+{ 4303, "The %s scrollBar on the '%s' node is not available, please check it." },
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
+{ 4601, "Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake." },
 { 4700, "The dom control is not created!" },
 { 4800, "unknown asset type" },
 { 4901, "loadRes: should not specify the extname in %s %s" },
@@ -354,6 +360,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 7508, "The atlas asset of '%s' is not exists!" },
 { 7509, "Spine: Animation not found: %s" },
 { 7510, "Spine: Animation not found: %s" },
+{ 7511, "Spine: Invalid input!" },
 { 7600, "The context of RenderTexture is invalid." },
 { 7601, "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;" },
 { 7602, "Could not attach texture to the framebuffer" },
@@ -410,6 +417,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
+{ 9101, "The length of the TypedArrayBuffer must be an integer." },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
 { 9300, "The current buffer beyond the limit in ui static component, please reduce the amount" },
@@ -419,7 +427,11 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9610, "[Physics]: cannon.js physics system doesn't support capsule collider" },
 { 9611, "[Physics]: builtin physics system doesn't support mesh collider" },
 { 9612, "[Physics]: builtin physics system doesn't support cylinder collider" },
+{ 9613, "[Physics]: cannon.js physics system doesn't support hinge drive and angular limit" },
 { 9620, "[Physics][Ammo]: changing the mesh is not supported after the initialization is completed" },
+{ 9630, "[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s" },
+{ 9640, "[Physics][builtin]: sweep functions are not supported in builtin" },
+{ 9641, "[Physics][cannon.js]: sweep functions are not supported in cannon.js" },
 { 10001, "The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform." },
 { 10002, "Sub-mesh may include at most %d morph targets, but you specified %d." },
 { 11000, "WebGL context lost." },
@@ -435,12 +447,19 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 12011, "Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s" },
 { 12100, "The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size." },
 { 12101, "The asset %s has been destroyed!" },
+{ 12102, "Base pass cannot override states, please use pass instance instead." },
+{ 12103, "Custom pipeline create shader %s failed. Please restart editor." },
+{ 12104, "Create shader %s failed." },
+{ 12105, "Pass resources incomplete." },
+{ 12106, "Cannot patch non-builtin macros." },
+{ 12107, "Custom pipeline invalid render pass, program: %s. Please restart editor." },
+{ 12108, "Custom pipeline invalid render phase, program: %s. Please restart editor." },
 { 13100, "Incorrect CCON magic." },
 { 13101, "Unknown CCON version number: %d." },
 { 13102, "CCON Format error." },
 { 13103, "Can not encode CCON binary: lack of text encoder." },
 { 13104, "Can not decode CCON binary: lack of text decoder." },
-{ 14000, "Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame." },
+{ 14000, "State machine matched too many transitions(greater than %s) during this frame: %s." },
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
 { 14200, "Can not update a static mesh." },
 { 14201, "The primitiveIndex is out of range." },
@@ -460,6 +479,9 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16101, "The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html" },
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
+{ 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
+{ 16303, "Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro" },
+{ 16304, "Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component." },
 
 };
 }//namespace cc

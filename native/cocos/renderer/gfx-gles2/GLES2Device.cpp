@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -125,10 +124,16 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _gpuConstantRegistry->useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
     _features[toNumber(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = false;
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#ifndef ENABLE_GLES2_SUBPASS
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = false;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
+    _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = false;
+#elif CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -140,10 +145,12 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
             if (*it == CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent)) {
                 _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
                 fbfLevelStr = "NON_COHERENT_EXT";
+                _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
             } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
                 _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
                 fbfLevelStr = "NON_COHERENT_QCOM";
                 GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
+                _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
             }
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
@@ -151,6 +158,12 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
             fbfLevelStr = "COHERENT";
         }
         _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
+        _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
+    }
+
+    if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
+        _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
+        fbfLevelStr += "_DEPTH_STENCIL";
     }
 #endif
 
@@ -163,6 +176,11 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         }
     }
 #endif
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = false; // not implement yet.
+
+    if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
+        _gpuConstantRegistry->debugMarker = true;
+    }
 
     ccstd::string compressedFmts;
     if (getFormatFeatures(Format::ETC_RGB8) != FormatFeature::NONE) {
@@ -188,6 +206,8 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxVertexTextureUnits));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
+    _caps.uboOffsetAlignment = 16;
+
     if (checkExtension("GL_OES_texture_3D")) {
         glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE_OES, reinterpret_cast<GLint *>(&_caps.max3DTextureSize));
         // texture2DArray fallback to texture3DOES
@@ -517,6 +537,13 @@ void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(GLES2DeviceCopyTextureToBuffers);
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
+}
+
+SampleCount GLES2Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    std::ignore = format;
+    std::ignore = usage;
+    std::ignore = flags;
+    return static_cast<SampleCount>(cmdFuncGLES2GetMaxSampleCount());
 }
 
 } // namespace gfx

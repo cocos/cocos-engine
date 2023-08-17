@@ -1,9 +1,33 @@
+/****************************************************************************
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include <algorithm>
 #include <iterator>
-#include "GslUtils.h"
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
@@ -58,19 +82,57 @@ void RenderDrawQueue::recordCommandBuffer(
     }
 }
 
-void RenderInstancingQueue::add(pipeline::InstancedBuffer &instancedBuffer) {
-    batches.emplace(&instancedBuffer);
+bool RenderInstancingQueue::empty() const noexcept {
+    CC_EXPECTS(!passInstances.empty() || sortedBatches.empty());
+    return passInstances.empty();
+}
+
+void RenderInstancingQueue::clear() {
+    sortedBatches.clear();
+    passInstances.clear();
+    for (auto &buffer : instanceBuffers) {
+        buffer->clear();
+    }
+}
+
+void RenderInstancingQueue::add(
+    const scene::Pass &pass,
+    scene::SubModel &submodel, uint32_t passID) {
+    auto iter = passInstances.find(&pass);
+    if (iter == passInstances.end()) {
+        const auto instanceBufferID = static_cast<uint32_t>(passInstances.size());
+        if (instanceBufferID >= instanceBuffers.size()) {
+            CC_EXPECTS(instanceBufferID == instanceBuffers.size());
+            instanceBuffers.emplace_back(ccnew pipeline::InstancedBuffer(nullptr));
+        }
+        bool added = false;
+        std::tie(iter, added) = passInstances.emplace(&pass, instanceBufferID);
+        CC_ENSURES(added);
+
+        CC_ENSURES(iter->second < instanceBuffers.size());
+        const auto &instanceBuffer = instanceBuffers[iter->second];
+        instanceBuffer->setPass(&pass);
+        const auto &instances = instanceBuffer->getInstances();
+        for (const auto &item : instances) {
+            CC_EXPECTS(item.drawInfo.instanceCount == 0);
+        }
+    }
+    auto &instancedBuffer = *instanceBuffers[iter->second];
+    instancedBuffer.merge(&submodel, passID);
 }
 
 void RenderInstancingQueue::sort() {
-    sortedBatches.reserve(batches.size());
-    std::copy(batches.begin(), batches.end(), std::back_inserter(sortedBatches));
+    sortedBatches.reserve(passInstances.size());
+    for (const auto &[pass, bufferID] : passInstances) {
+        sortedBatches.emplace_back(instanceBuffers[bufferID]);
+    }
 }
 
 void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {
-    for (const auto *instanceBuffer : batches) {
-        if (instanceBuffer->hasPendingModels()) {
-            instanceBuffer->uploadBuffers(cmdBuffer);
+    for (const auto &[pass, bufferID] : passInstances) {
+        const auto &ib = instanceBuffers[bufferID];
+        if (ib->hasPendingModels()) {
+            ib->uploadBuffers(cmdBuffer);
         }
     }
 }
@@ -88,7 +150,7 @@ void RenderInstancingQueue::recordCommandBuffer(
         cmdBuffer->bindDescriptorSet(pipeline::materialSet, drawPass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
         for (const auto &instance : instances) {
-            if (!instance.count) {
+            if (!instance.drawInfo.instanceCount) {
                 continue;
             }
             auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core';
 import { Graphics } from '../../../components';
-import { MeshRenderData } from '../../../renderer/render-data';
+import { RenderData, MeshRenderData } from '../../../renderer/render-data';
 import { RenderDrawInfoType } from '../../../renderer/render-draw-info';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags } from '../types';
@@ -38,12 +37,8 @@ export class Point extends Vec2 {
     public dmy = 0;
     public flags = 0;
     public len = 0;
-    constructor (x: number, y: number) {
-        super(x, y);
-        this.reset();
-    }
 
-    public reset () {
+    public reset (): void {
         this.dx = 0;
         this.dy = 0;
         this.dmx = 0;
@@ -58,20 +53,12 @@ export class Path {
     public bevel = 0;
     public complex = true;
     public points: Point[] = [];
-    constructor () {
-        this.reset();
-    }
 
-    public reset () {
+    public reset (): void {
         this.closed = false;
         this.bevel = 0;
         this.complex = true;
-
-        if (this.points) {
-            this.points.length = 0;
-        } else {
-            this.points = [];
-        }
+        this.points.length = 0;
     }
 }
 
@@ -105,7 +92,7 @@ export class Impl {
         this._comp = comp;
     }
 
-    public moveTo (x: number, y: number) {
+    public moveTo (x: number, y: number): void {
         if (this.updatePathOffset) {
             this.pathOffset = this.pathLength;
             this.updatePathOffset = false;
@@ -118,14 +105,14 @@ export class Impl {
         this._commandY = y;
     }
 
-    public lineTo (x: number, y: number) {
+    public lineTo (x: number, y: number): void {
         this.addPoint(x, y, PointFlags.PT_CORNER);
 
         this._commandX = x;
         this._commandY = y;
     }
 
-    public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number) {
+    public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number): void {
         const path = this._curPath!;
         const last = path.points[path.points.length - 1];
         if (!last) {
@@ -143,27 +130,27 @@ export class Impl {
         this._commandY = y;
     }
 
-    public quadraticCurveTo (cx: number, cy: number, x: number, y: number) {
+    public quadraticCurveTo (cx: number, cy: number, x: number, y: number): void {
         const x0 = this._commandX;
         const y0 = this._commandY;
         this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
     }
 
-    public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
+    public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean): void {
         arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
     }
 
-    public ellipse (cx: number, cy: number, rx: number, ry: number) {
+    public ellipse (cx: number, cy: number, rx: number, ry: number): void {
         ellipse(this, cx, cy, rx, ry);
         this._curPath!.complex = false;
     }
 
-    public circle (cx: number, cy: number, r: number) {
+    public circle (cx: number, cy: number, r: number): void {
         ellipse(this, cx, cy, r, r);
         this._curPath!.complex = false;
     }
 
-    public rect (x: number, y: number, w: number, h: number) {
+    public rect (x: number, y: number, w: number, h: number): void {
         this.moveTo(x, y);
         this.lineTo(x + w, y);
         this.lineTo(x + w, y + h);
@@ -173,12 +160,12 @@ export class Impl {
         this._curPath!.complex = false;
     }
 
-    public roundRect (x: number, y: number, w: number, h: number, r: number) {
+    public roundRect (x: number, y: number, w: number, h: number, r: number): void {
         roundRect(this, x, y, w, h, r);
         this._curPath!.complex = false;
     }
 
-    public clear () {
+    public clear (): void {
         this.pathLength = 0;
         this.pathOffset = 0;
         this.pointsOffset = 0;
@@ -201,25 +188,26 @@ export class Impl {
         this._renderDataList.length = 0;
     }
 
-    public close () {
+    public close (): void {
         this._curPath!.closed = true;
     }
 
-    public requestRenderData () {
+    public requestRenderData (): MeshRenderData {
         const renderData = MeshRenderData.add();
         this._renderDataList.push(renderData);
         if (JSB) {
             renderData.initRenderDrawInfo(this._comp, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
-            this._comp._renderData = renderData;
-            // @ts-expect-error temporary no care
-            this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.material = this._comp.getMaterialInstance(0)!;// hack
+            this._comp.setRenderData(renderData as unknown as RenderData);
         }
 
         return renderData;
     }
 
-    public getRenderDataList () {
+    public getRenderDataList (): MeshRenderData[] {
         if (this._renderDataList.length === 0) {
             this.requestRenderData();
         }
@@ -227,7 +215,7 @@ export class Impl {
         return this._renderDataList;
     }
 
-    public addPoint (x: number, y: number, flags: PointFlags) {
+    public addPoint (x: number, y: number, flags: PointFlags): void {
         const path = this._curPath;
         if (!path) {
             return;
@@ -251,7 +239,7 @@ export class Impl {
         pathPoints.push(pt);
     }
 
-    private _addPath () {
+    private _addPath (): Path {
         const offset = this.pathLength;
         let path = this.paths[offset];
 

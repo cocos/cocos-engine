@@ -2,20 +2,19 @@
  Copyright (c) 2012 greathqy
  Copyright (c) 2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -77,6 +76,7 @@ static int processGetTask(HttpClient *client, HttpRequest *request, write_callba
 static int processPostTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processPutTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
 
 // Worker thread
@@ -168,11 +168,13 @@ static bool configureCURL(HttpClient *client, HttpRequest *request, CURL *handle
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, request->getTimeout());
+    // In the openharmony platform, the long type must be used, otherwise there will be an exception.
+    long timeout = static_cast<long>(request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }
-    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, request->getTimeout());
+    code = curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, timeout);
     if (code != CURLE_OK) {
         return false;
     }
@@ -303,6 +305,13 @@ static int processHeadTask(HttpClient *client, HttpRequest *request, write_callb
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
     bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "DELETE") && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
+    return ok ? 0 : 1;
+}
+
+//Process PATCH Request
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
+    CURLRaii curl;
+    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "PATCH") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
@@ -508,6 +517,16 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
                                          writeHeaderData,
                                          response->getResponseHeader(),
                                          responseMessage);
+            break;
+
+        case HttpRequest::Type::PATCH:
+            retValue = processPatchTask(this, request,
+                                      writeData,
+                                      response->getResponseData(),
+                                      &responseCode,
+                                      writeHeaderData,
+                                      response->getResponseHeader(),
+                                      responseMessage);
             break;
 
         default:

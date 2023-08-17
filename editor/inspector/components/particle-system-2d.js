@@ -1,10 +1,11 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 // 排列时，相邻元素的间隔间距
-const MARGIN = '4PX';
+const MARGIN = '4px';
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 const { setHidden, setDisabled, isMultipleInvalid } = require('../utils/prop');
 
@@ -50,7 +51,6 @@ exports.ready = function() {
                 // Hack: ui-button has extra events that are passed up to ui-prop ;
                 $sync.addEventListener('change', (event) => {
                     event.stopPropagation();
-                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 $sync.addEventListener('confirm', async (event) => {
@@ -90,9 +90,8 @@ exports.ready = function() {
                         }
 
                         this.$this.dispatch('change-dump');
+                        this.$this.dispatch('confirm-dump');
                     }
-
-                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 const $export = document.createElement('ui-button');
@@ -106,7 +105,6 @@ exports.ready = function() {
 
                 $export.addEventListener('change', (event) => {
                     event.stopPropagation();
-                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 $export.addEventListener('confirm', async (event) => {
@@ -129,9 +127,8 @@ exports.ready = function() {
                         }
 
                         this.$this.dispatch('change-dump');
+                        this.$this.dispatch('confirm-dump');
                     }
-
-                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 this.$.syncButton = $sync;

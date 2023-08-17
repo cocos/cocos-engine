@@ -1,8 +1,9 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 exports.ready = function() {
     this.elements = {
@@ -20,18 +21,20 @@ exports.ready = function() {
 
                 $button.addEventListener('change', (event) => {
                     event.stopPropagation();
-                    Editor.Message.send('scene', 'snapshot');
+                    // Editor.Message.send('scene', 'snapshot');
                 });
 
                 $button.addEventListener('confirm', async (event) => {
                     event.stopPropagation();
 
                     const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
                     for (const uuid of uuids) {
                         await Editor.Message.request('scene', 'regenerate-polygon-2d-points', uuid);
                     }
+                    await Editor.Message.request('scene', 'end-recording', undoID);
 
-                    Editor.Message.send('scene', 'snapshot');
+                    // Editor.Message.send('scene', 'snapshot');
                 });
             },
         },

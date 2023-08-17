@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,17 +20,17 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Asset } from '../assets';
 import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
-import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
+import { assets, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 
-export default function fetch (task: Task, done: CompleteCallbackNoData) {
+export default function fetch (task: Task, done: ((err?: Error | null) => void)): void {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -45,7 +44,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
     task.output = [];
 
-    forEach(task.input as RequestItem[], (item, cb) => {
+    forEach(task.input as RequestItem[], (item, cb): void => {
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
             item.content = asset!.addRef();
@@ -57,9 +56,9 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
             return;
         }
 
-        packManager.load(item, task.options, (err, data) => {
+        packManager.load(item, task.options, (err, data): void => {
             if (err) {
-                if (!task.isFinish) {
+                if (!task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
@@ -71,7 +70,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         }
                     }
                 }
-            } else if (!task.isFinish) {
+            } else if (!task.isFinished) {
                 item.file = data;
                 task.output.push(item);
                 if (!item.isNative) {
@@ -85,8 +84,8 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
             }
             cb();
         });
-    }, () => {
-        if (task.isFinish) {
+    }, (): void => {
+        if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
             return;
@@ -99,7 +98,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                 options,
                 onProgress: task.onProgress,
                 onError: Task.prototype.recycle,
-                onComplete: (err) => {
+                onComplete: (err): void => {
                     if (!err) {
                         task.output.push(...subTask.output);
                         subTask.recycle();
@@ -116,7 +115,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
     });
 }
 
-function decreaseRef (task: Task) {
+function decreaseRef (task: Task): void {
     const output = task.output as RequestItem[];
     for (let i = 0, l = output.length; i < l; i++) {
         if (output[i].content) {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -47,6 +46,9 @@ public:
     virtual void end() = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
     virtual void endRenderPass() = 0;
+    virtual void insertMarker(const MarkerInfo &marker) = 0;
+    virtual void beginMarker(const MarkerInfo &marker) = 0;
+    virtual void endMarker() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
     virtual void bindInputAssembler(InputAssembler *ia) = 0;
@@ -63,12 +65,17 @@ public:
     virtual void updateBuffer(Buffer *buff, const void *data, uint32_t size) = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) = 0;
+    virtual void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
+    virtual void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id) = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id) = 0;
     virtual void resetQueryPool(QueryPool *queryPool) = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
+
+    using CustomCommand = std::function<void(void *)>;
+    virtual void customCommand(CustomCommand &&cmd) {}
 
     // barrier: excutionBarrier
     // bufferBarriers: array of BufferBarrier*, descriptions of access of buffers

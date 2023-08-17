@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
@@ -39,6 +38,12 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
 const PIPELINE_TYPE = 0;
+
+export function createDefaultPipeline (): ForwardPipeline {
+    const rppl = new ForwardPipeline();
+    rppl.initialize({ flows: [] });
+    return rppl;
+}
 
 /**
  * @en The forward render pipeline
@@ -95,7 +100,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    protected _ensureEnoughSize (cameras: Camera[]) {
+    protected _ensureEnoughSize (cameras: Camera[]): void {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
@@ -109,7 +114,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         this._destroyUBOs();
         this._destroyQuadInputAssembler();
         const rpIter = this._renderPasses.values();
@@ -124,7 +129,7 @@ export class ForwardPipeline extends RenderPipeline {
         return super.destroy();
     }
 
-    private _activeRenderer (swapchain: Swapchain) {
+    private _activeRenderer (swapchain: Swapchain): boolean {
         const device = this.device;
 
         this._commandBuffers.push(device.commandBuffer);
@@ -139,7 +144,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _destroyUBOs () {
+    private _destroyUBOs (): void {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();

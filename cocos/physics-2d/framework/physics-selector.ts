@@ -1,9 +1,33 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { EDITOR, DEBUG, TEST } from 'internal:constants';
+import { EDITOR, DEBUG, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, cclegacy } from '../../core';
+import { errorID } from '../../core';
 import { ECollider2DType, EJoint2DType  } from './physics-types';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
     IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
@@ -28,7 +52,7 @@ interface IPhysicsWrapperObject {
     HingeJoint?: any,
 }
 
-type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
+interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
 export interface IPhysicsSelector {
     /**
@@ -94,7 +118,7 @@ function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     }
 }
 
-function switchTo (id: IPhysicsEngineId) {
+function switchTo (id: IPhysicsEngineId): void {
     //if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
@@ -127,7 +151,7 @@ export const selector: IPhysicsSelector = {
     runInEditor: !EDITOR,
 };
 
-const FUNC = (...v: any) => 0 as any;
+const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
     debugDrawFlags: 0,
@@ -142,8 +166,8 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     drawDebug: FUNC,
 };
 
-export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && (!EDITOR || cclegacy.GAME_VIEW) && obj == null) {
+export function checkPhysicsModule (obj: any): boolean {
+    if (DEBUG && !TEST && !EDITOR_NOT_IN_PREVIEW && obj == null) {
         errorID(9600);
         return true;
     }
@@ -244,7 +268,7 @@ export function createShape (type: ECollider2DType): IBaseShape {
     return CREATE_COLLIDER_PROXY[type]();
 }
 
-function initColliderProxy () {
+function initColliderProxy (): void {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
@@ -299,7 +323,7 @@ export function createJoint (type: EJoint2DType): IJoint2D {
     return CREATE_JOINT_PROXY[type]();
 }
 
-function initJointProxy () {
+function initJointProxy (): void {
     if (CREATE_JOINT_PROXY.INITED) return;
     CREATE_JOINT_PROXY.INITED = true;
 

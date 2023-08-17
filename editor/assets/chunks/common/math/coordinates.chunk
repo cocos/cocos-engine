@@ -2,14 +2,26 @@
 // cc_cameraPos.w is flipNDCSign
 #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv, flipNDCSign) uv = flipNDCSign == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
+#ifdef CC_USE_METAL
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y) y = -y
+#else
+#define CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(y)
+#endif
+
+
+// return 0-1
+vec2 GetScreenUV(vec4 clipPos, float flipNDCSign)
+{
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(screenUV.x, screenUV.y);
+  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
+  return screenUV;
+}
 
 vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
 {
   vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
-  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
-  screenUV = vec2(1.0 - screenUV.x, screenUV.y);
-  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
-  return screenUV;
+  return GetScreenUV(clipPos, flipNDCSign);
 }
 
 vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, float flipNDCSign, vec3 viewDir, vec3 reflectDir)
@@ -21,7 +33,8 @@ vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, floa
   return screenUV;
 }
 
-// depthHS = ndc depth(-1 ~ +1)
+// depthHS (Z) = ndc depth(-1 ~ +1)
+// return camera depth (W), negative in RH
 float GetCameraDepthRH(float depthHS, mat4 matProj)
 {
     return -matProj[3][2] / (depthHS + matProj[2][2]);
@@ -49,10 +62,18 @@ float GetLinearDepthFromViewSpace(vec3 viewPos, float near, float far) {
   return (dist - near) / (far - near);
 }
 
-// params must be normalized
+// for right-hand coordinates, params must be normalized
 vec3 CalculateBinormal(vec3 normal, vec3 tangent, float mirrorNormal)
 {
-    return cross(normal.xyz, tangent) * mirrorNormal;
+    return cross(normal, tangent) * mirrorNormal;
+}
+vec3 CalculateTangent(vec3 normal, vec3 binormal)
+{
+    return cross(binormal, normal);
+}
+vec3 CalculateNormal(vec3 tangent, vec3 binormal)
+{
+    return cross(tangent, binormal);
 }
 
 
@@ -75,6 +96,21 @@ vec3 RotationVecFromAxisY(vec3 v, float cosTheta, float sinTheta)
     return result;
 }
 
+vec3 RotationVecFromAxisY(vec3 v, float rotateAngleArc)
+{
+  return RotationVecFromAxisY(v, cos(rotateAngleArc), sin(rotateAngleArc));
+}
+
+vec3 RotationVecFromAxis(vec3 v, vec3 axis, float rotateAngleArc)
+{
+    float cosAngle = cos(rotateAngleArc);
+    float sinAngle = sin(rotateAngleArc);
+    vec3 crossProd = cross(axis, v);
+    float dotProd = dot(axis, v);
+    vec3 axisScaled = axis * dotProd * (1.0 - cosAngle);
+    return v * cosAngle + crossProd * sinAngle + axisScaled;
+}
+
 // rotationAngle: radians, 0-2Pi
 void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
 {
@@ -88,5 +124,22 @@ void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 norm
 
     tangentNew = T.x * binormal + T.y * normal + T.z * tangent;
     tangent = normalize(tangentNew);
-    // tangent = cross(binormal, normal);
+}
+
+// fast rotation for anisotropic offset
+// rotationAngle: -1 - +1
+void RotateNormalAndBinormal(inout vec3 binormal, inout vec3 normal, in vec3 tangent, float rotationAngle, float mirrorNormal)
+{
+  if(rotationAngle > 0.0)
+  {
+    normal += (binormal - normal) * rotationAngle;
+    normal = normalize(normal);
+    binormal = CalculateBinormal(normal, tangent, mirrorNormal);
+  }
+  else if(rotationAngle < 0.0)
+  {
+    binormal += (binormal - normal) * rotationAngle;
+    binormal = normalize(binormal);
+    normal = CalculateNormal(tangent, binormal);
+  }
 }

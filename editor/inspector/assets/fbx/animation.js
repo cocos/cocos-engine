@@ -1,9 +1,16 @@
 'use strict';
 
-const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+const { updateElementReadonly, updateElementInvalid, setPropValue, getPropValue } = require('../../utils/assets');
+
 
 exports.template = /* html */`
 <div class="container">
+    <div class="animator-config">
+        <ui-prop class="animator-config-import-all-animator">
+            <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.mountAllAnimationsOnPrefab.name"></ui-label>
+            <ui-checkbox slot="content"></ui-checkbox>
+        </ui-prop>
+    </div>
     <div class="show-type-wrap">
         <ui-tab class="show-type" value="0">
             <ui-button value="time">Time</ui-button>
@@ -71,16 +78,29 @@ exports.template = /* html */`
             <span slot="label">Speed</span>
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
+        <ui-section expand cache-expand="inspector-asset-fbx-animation-additive">
+            <ui-label slot="header" value="i18n:ENGINE.assets.fbx.animationSetting.additive.header"></ui-label>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationSetting.additive.enabled.label"></ui-label>
+                <ui-checkbox slot="content" class="additive-enabled"
+                    tooltip="i18n:ENGINE.assets.fbx.animationSetting.additive.enabled.tooltip"></ui-checkbox>
+            </ui-prop>
+            <ui-prop ui="asset">
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationSetting.additive.refClip.label"></ui-label>
+                <ui-asset slot="content" droppable="cc.AnimationClip" class="ref-clip"
+                    tooltip="i18n:ENGINE.assets.fbx.animationSetting.additive.refClip.tooltip"></ui-asset>
+            </ui-prop>
+        </ui-section>
     </div>
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
+.container {
+    padding: 4px;
 }
+
 .container[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
  }
@@ -93,17 +113,19 @@ ui-section {
     display: none;
     text-align: center;
     color: var(--color-focus-contrast-weakest);
+    margin-top: 8px;
 }
 .container > .show-type-wrap {
     text-align: center;
+    margin-top: 8px;
 }
 .container > .clips {
-    padding: 5px;
+    padding: 4px;
     border-radius: calc(var(--size-normal-radius) * 1px);
     overflow-y: auto;
     max-height: 250px;
     background: var(--color-normal-fill-emphasis);
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 }
 .container > .clips > .clip {}
 .container > .clips > .clip > .table {
@@ -113,19 +135,18 @@ ui-section {
 }
 .container > .clips > .clip > .table > .header {
     display: flex;
-    line-height: 1.6em;
-    padding: 2px 5px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid var(--color-normal-border-emphasis);
+    padding: 0 4px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--color-default-border);
+    color: var(--color-default-fill-weakest);
 }
 .container > .clips > .clip > .table > .line {
     display: flex;
-    line-height: 1.6em;
-    padding: 2px 5px;
+    padding: 0 4px;
     cursor: pointer;
 }
 .container > .clips > .clip > .table > .line[active] {
-    background: var(--color-focus-fill);
+    background-color: var(--color-info-fill-important);
 }
 .container > .clips > .clip > .table > .line > .name,
 .container > .clips > .clip > .table > .header > .name {
@@ -139,14 +160,13 @@ ui-section {
 .container > .clips > .clip > .add-clip {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 10px;
 }
 .container > .clips > .clip > .add-clip > .button > ui-icon {
-    padding: 0 5px;
+    padding: 0 4px;
     border-radius: 2px;
     line-height: 16px;
-    margin-left: 13px;
-    margin-right: 5px;
+    margin-left: 10px;
+    margin-right: 2px;
     cursor: pointer;
 }
 .container > .clips > .clip > .add-clip > .button > ui-icon:hover {
@@ -309,6 +329,8 @@ ui-section {
 
 exports.$ = {
     container: '.container',
+    importAllAnimationsCheckbox: '.animator-config-import-all-animator ui-checkbox',
+    importAllAnimatorWrap: '.animator-config-import-all-animator',
     clips: '.clips',
     editor: '.editor',
     clipName: '.clip-name',
@@ -319,6 +341,8 @@ exports.$ = {
     clipFrames: '.clip-frames',
     wrapMode: '.wrap-mode',
     speed: '.speed',
+    additiveEnabled: '.additive-enabled',
+    refClip: '.ref-clip',
     rulerMaking: '.ruler-making',
     rulerGear: '.ruler-gear',
     controlWrap: '.control-wrap',
@@ -456,11 +480,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(3) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(3) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(timeEnd);
                 });
 
@@ -492,7 +516,7 @@ const Elements = {
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
                 updateElementReadonly.call(panel, miniIcon);
-                button.appendChild(miniIcon);
+                button.prepend(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
 
@@ -543,6 +567,12 @@ const Elements = {
             panel.onSpeedChangeBind = panel.onSpeedChange.bind(panel);
             panel.$.speed.addEventListener('confirm', panel.onSpeedChangeBind);
 
+            panel.onAdditiveEnabledChangedBind = panel.onAdditiveEnabledChanged.bind(panel);
+            panel.$.additiveEnabled.addEventListener('confirm', panel.onAdditiveEnabledChangedBind);
+
+            panel.onRefClipChangedBind = panel.onRefClipChanged.bind(panel);
+            panel.$.refClip.addEventListener('confirm', panel.onRefClipChangedBind);
+
             function observer() {
                 const rect = panel.$.editor.getBoundingClientRect();
                 panel.gridTableWith = rect.width - 60;
@@ -575,6 +605,8 @@ const Elements = {
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
             panel.$.speed.removeEventListener('confirm', panel.onSpeedChangeBind);
+            panel.$.additiveEnabled.removeEventListener('confirm', panel.onAdditiveEnabledChangedBind);
+            panel.$.refClip.removeEventListener('confirm', panel.onRefClipChangedBind);
         },
         update() {
             const panel = this;
@@ -606,7 +638,7 @@ const Elements = {
                     panel.$.rulerMaking.appendChild(label);
                     const span = document.createElement('span');
                     span.setAttribute('class', 'mid-label');
-                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
+                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(3);
                     label.appendChild(span);
                 }
             }
@@ -614,13 +646,12 @@ const Elements = {
             lastMakingLabel.setAttribute('class', 'label-item');
             lastMakingLabel.style.left = `${panel.gridConfig.width}px`;
             panel.$.rulerMaking.appendChild(lastMakingLabel);
-            lastMakingLabel.innerText = panel.rawClipInfo.duration.toFixed(2);
+            lastMakingLabel.innerText = panel.rawClipInfo.duration.toFixed(3);
 
             // ruler gear
             panel.$.rulerGear.innerText = '';
             Object.assign(panel.$.rulerGear.style, {
                 'margin-left': `${panel.gridConfig.spacing}px`,
-                'margin-right': `${0 - panel.gridConfig.spacing}px`,
             });
             const firstRulerGear = document.createElement('div');
             firstRulerGear.setAttribute('class', 'start');
@@ -648,6 +679,31 @@ const Elements = {
             Object.assign(panel.$.controlDuration.style, panel.currentClipInfo.durationStyle);
             Object.assign(panel.$.controlLeft.style, panel.currentClipInfo.ctrlStartStyle);
             Object.assign(panel.$.controlRight.style, panel.currentClipInfo.ctrlEndStyle);
+        },
+    },
+    mountAllAnimationsOnPrefab: {
+        ready() {
+            const panel = this;
+
+            panel.$.importAllAnimationsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'mountAllAnimationsOnPrefab', 'boolean'));
+            panel.$.importAllAnimationsCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            if (!panel.animationInfos) {
+                panel.$.importAllAnimatorWrap.style.display = 'none';
+                return;
+            } else {
+                panel.$.importAllAnimatorWrap.style.display = 'block';
+            }
+
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
+
+            updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
+            updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);
         },
     },
 };
@@ -747,6 +803,8 @@ exports.methods = {
             to,
             wrapMode: splitInfo.wrapMode,
             speed: splitInfo.speed || 1,
+            additiveEnabled: splitInfo.additive?.enabled ?? false,
+            refClip: splitInfo.additive?.refClip || '',
         };
     },
     getRightName(name) {
@@ -795,6 +853,8 @@ exports.methods = {
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
         const speed = info.speed ?? panel.rawClipInfo.speed;
+        const additiveEnabled = (info.additive?.enabled) ?? panel.rawClipInfo.additiveEnabled;
+        const refClip = (info.additive?.refClip) ?? panel.rawClipInfo.refClip;
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,
@@ -815,6 +875,8 @@ exports.methods = {
             fps,
             wrapMode,
             speed,
+            additiveEnabled,
+            refClip,
         };
 
         const maxFrames = (panel.rawClipInfo.duration * panel.currentClipInfo.fps).toFixed(0);
@@ -838,6 +900,8 @@ exports.methods = {
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
+        panel.$.additiveEnabled.value = panel.currentClipInfo.additiveEnabled || false;
+        panel.$.refClip.value = panel.currentClipInfo.refClip || '';
     },
     updateRawClipInfo() {
         const panel = this;
@@ -853,7 +917,7 @@ exports.methods = {
         const { name, duration, fps } = panel.animationInfos[panel.rawClipIndex];
         panel.rawClipInfo = { name, duration, fps };
 
-        panel.$.clipDuration.innerText = duration.toFixed(2);
+        panel.$.clipDuration.innerText = duration.toFixed(3);
     },
     updateGridConfig() {
         const panel = this;
@@ -983,9 +1047,9 @@ exports.methods = {
 
         // refresh data
         const splitInfo = panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex];
-        if (splitInfo[type].toFixed(2) !== value.toFixed(2)) {
+        if (splitInfo[type] !== value) {
             const { duration } = panel.rawClipInfo;
-            splitInfo[type] = Editor.Utils.Math.clamp(parseFloat(value.toFixed(2)), 0, duration);
+            splitInfo[type] = Editor.Utils.Math.clamp(value, 0, duration);
         }
 
         Elements.clips.update.call(panel);
@@ -1004,7 +1068,7 @@ exports.methods = {
         const panel = this;
 
         Object.assign(panel.$.controlVirtual.style, panel.virtualControl.style);
-        panel.$.controlVirtualNumber.innerText = panel.virtualControl.value.toFixed(2);
+        panel.$.controlVirtualNumber.innerText = panel.virtualControl.value.toFixed(3);
 
         if (panel.virtualControl.startFrame || panel.virtualControl.endFrame) {
             if (panel.virtualControl.type === 'left') {
@@ -1091,6 +1155,32 @@ exports.methods = {
         Elements.editor.update.call(panel);
         panel.dispatch('change');
         panel.dispatch('snapshot');
+    },
+    onAdditiveEnabledChanged(event) {
+        const panel = this;
+
+        const enabled = Boolean(event.target.value);
+        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= { enabled: false }).enabled = enabled;
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+        panel.dispatch('snapshot');
+    },
+    onRefClipChanged(event) {
+        const panel = this;
+
+        const refClipUUID = String(event.target.value);
+        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= { enabled: false }).refClip = refClipUUID;
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+        panel.dispatch('snapshot');
+    },
+    setProp(prop, type, event) {
+        setPropValue.call(this, prop, type, event);
+
+        this.dispatch('change');
+        this.dispatch('track', { tab: 'animation', prop, value: event.target.value });
     },
 };
 

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,17 +21,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass } from 'cc.decorator';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import dependUtil from '../asset-manager/depend-util';
 import { js, macro, cclegacy } from '../../core';
 import './texture-base';
+import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
+import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';
 
 declare const jsb: any;
 
-// @ts-ignore
-export type SimpleTexture = jsb.SimpleTexture;
-export const SimpleTexture: any = jsb.SimpleTexture;
+export type SimpleTexture = JsbSimpleTexture;
+export const SimpleTexture: typeof JsbSimpleTexture = jsb.SimpleTexture;
+
+const jsbWindow = jsb.window;
 
 SimpleTexture.Filter = Filter;
 SimpleTexture.PixelFormat = PixelFormat;
@@ -42,10 +43,10 @@ const simpleTextureProto = jsb.SimpleTexture.prototype;
 const oldUpdateDataFunc = simpleTextureProto.uploadData;
 simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     let data;
-    if (source instanceof HTMLCanvasElement) {
+    if (source instanceof jsbWindow.HTMLCanvasElement) {
         // @ts-ignore
         data = source.data;
-    } else if (source instanceof HTMLImageElement) {
+    } else if (source instanceof jsbWindow.HTMLImageElement) {
         // @ts-ignore
         data = source._data;
     } else if (ArrayBuffer.isView(source)) {
@@ -53,8 +54,6 @@ simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     }
     oldUpdateDataFunc.call(this, data, level, arrayIndex);
 };
-
-const clsDecorator = ccclass('cc.SimpleTexture');
 
 simpleTextureProto._ctor = function () {
     jsb.TextureBase.prototype._ctor.apply(this, arguments);
@@ -85,6 +84,7 @@ simpleTextureProto._onAfterAssignImage = function (image) {
     }
 };
 
-clsDecorator(SimpleTexture);
+patch_cc_SimpleTexture({SimpleTexture});
 
 cclegacy.SimpleTexture = jsb.SimpleTexture;
+

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,29 +20,31 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { SubModel } from '../render-scene/scene/submodel';
-import { SetIndex } from './define';
+import { isEnableEffect, SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderBatchedQueue } from './render-batched-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
-import { geometry } from '../core';
+import { cclegacy, geometry } from '../core';
 import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';
 import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
 
-const _phaseID = getPhaseID('shadow-caster');
-function getShadowPassIndex (subModel: SubModel) : number {
+let _phaseID = getPhaseID('shadow-caster');
+function getShadowPassIndex (subModel: SubModel): number {
     const passes = subModel.passes;
+    const r = cclegacy.rendering;
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('default'), 'shadow-caster');
     for (let k = 0; k < passes.length; k++) {
-        if (passes[k].phase === _phaseID) {
+        if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
+        || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
             return k;
         }
     }
@@ -60,15 +61,13 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _instancedQueue: RenderInstancedQueue;
-    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
-        this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
+    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0): void {
         this.clear();
 
         const sceneData = this._pipeline.pipelineSceneData;
@@ -91,7 +90,7 @@ export class RenderShadowMapBatchedQueue {
                     for (let i = 0; i < dirShadowObjects.length; i++) {
                         const ro = dirShadowObjects[i];
                         const model = ro.model;
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
 
@@ -110,7 +109,7 @@ export class RenderShadowMapBatchedQueue {
                             || !geometry.intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
-                        this.add(model);
+                        this.add(model, level);
                     }
                 }
                 break;
@@ -118,7 +117,6 @@ export class RenderShadowMapBatchedQueue {
             }
 
             this._instancedQueue.uploadBuffers(cmdBuff);
-            this._batchedQueue.uploadBuffers(cmdBuff);
         }
     }
 
@@ -126,15 +124,14 @@ export class RenderShadowMapBatchedQueue {
      * @zh
      * clear light-Batched-Queue
      */
-    public clear () {
+    public clear (): void {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
         this._instancedQueue.clear();
-        this._batchedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model, level: number): void {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -144,13 +141,9 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = pass.getInstancedBuffer();
+                const buffer = pass.getInstancedBuffer(level);
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
-            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                const buffer = pass.getBatchedBuffer();
-                buffer.merge(subModel, shadowPassIdx, model);
-                this._batchedQueue.queue.add(buffer);
             } else {
                 const shader = subModel.shaders[shadowPassIdx];
                 this._subModelsArray.push(subModel);
@@ -164,9 +157,8 @@ export class RenderShadowMapBatchedQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { CachedArray } from '../../core';
 import {
     WebGLCmdBeginRenderPass,
     WebGLCmdBindStates,
+    WebGLCmdBlitTexture,
     WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw,
     WebGLCmdObject,
@@ -78,13 +78,13 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
         return cmd;
     }
 
-    public free (cmd: T) {
+    public free (cmd: T): void {
         if (--cmd.refCount === 0) {
             this._freeCmds.push(cmd);
         }
     }
 
-    public freeCmds (cmds: CachedArray<T>) {
+    public freeCmds (cmds: CachedArray<T>): void {
         // return ;
         for (let i = 0; i < cmds.length; ++i) {
             if (--cmds.array[i].refCount === 0) {
@@ -93,7 +93,7 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
         }
     }
 
-    public release () {
+    public release (): void {
         for (let i = 0; i < this._freeCmds.length; ++i) {
             const cmd = this._freeCmds.array[i];
             cmd.clear();
@@ -109,6 +109,7 @@ export class WebGLCommandAllocator {
     public drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
     public updateBufferCmdPool: WebGLCommandPool<WebGLCmdUpdateBuffer>;
     public copyBufferToTextureCmdPool: WebGLCommandPool<WebGLCmdCopyBufferToTexture>;
+    public blitTextureCmdPool: WebGLCommandPool<WebGLCmdBlitTexture>;
 
     constructor () {
         this.beginRenderPassCmdPool = new WebGLCommandPool(WebGLCmdBeginRenderPass, 1);
@@ -116,9 +117,10 @@ export class WebGLCommandAllocator {
         this.drawCmdPool = new WebGLCommandPool(WebGLCmdDraw, 1);
         this.updateBufferCmdPool = new WebGLCommandPool(WebGLCmdUpdateBuffer, 1);
         this.copyBufferToTextureCmdPool = new WebGLCommandPool(WebGLCmdCopyBufferToTexture, 1);
+        this.blitTextureCmdPool = new WebGLCommandPool(WebGLCmdBlitTexture, 1);
     }
 
-    public clearCmds (cmdPackage: WebGLCmdPackage) {
+    public clearCmds (cmdPackage: WebGLCmdPackage): void {
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();
@@ -144,14 +146,20 @@ export class WebGLCommandAllocator {
             cmdPackage.copyBufferToTextureCmds.clear();
         }
 
+        if (cmdPackage.blitTextureCmds.length) {
+            this.blitTextureCmdPool.freeCmds(cmdPackage.blitTextureCmds);
+            cmdPackage.blitTextureCmds.clear();
+        }
+
         cmdPackage.cmds.clear();
     }
 
-    public releaseCmds () {
+    public releaseCmds (): void {
         this.beginRenderPassCmdPool.release();
         this.bindStatesCmdPool.release();
         this.drawCmdPool.release();
         this.updateBufferCmdPool.release();
         this.copyBufferToTextureCmdPool.release();
+        this.blitTextureCmdPool.release();
     }
 }

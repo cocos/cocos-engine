@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,7 +33,8 @@ const eventRegx = /^(click)(\s)*=|(param)(\s)*=/;
 const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*align(\s)*=|(\s)*offset(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
 
 /**
- * A utils class for parsing HTML texts. The parsed results will be an object array.
+ * @en A utils class for parsing HTML texts. The parsed results will be an object array.
+ * @zh 一个用于解析HTML文本的工具类。解析后的结果将是一个对象数组。
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export interface IHtmlTextParserResultObj{
@@ -43,6 +43,8 @@ export interface IHtmlTextParserResultObj{
 }
 
 /**
+ * @en Html Text Parser Stack interface
+ * @zh Html 文本解析器接口
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export interface IHtmlTextParserStack{
@@ -63,6 +65,8 @@ export interface IHtmlTextParserStack{
 }
 
 /**
+ * @en Html Text Parser Stack
+ * @zh Html 文本解析器
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class HtmlTextParser {
@@ -78,7 +82,7 @@ export class HtmlTextParser {
         this._specialSymbolArray.push([/&apos;/g, '\'']);
     }
 
-    public parse (htmlString: string) {
+    public parse (htmlString: string): IHtmlTextParserResultObj[] {
         this._resultObjectArray.length = 0;
         this._stack.length = 0;
 
@@ -120,7 +124,7 @@ export class HtmlTextParser {
         return this._resultObjectArray;
     }
 
-    private _attributeToObject (attribute: string) {
+    private _attributeToObject (attribute: string): IHtmlTextParserStack {
         attribute = attribute.trim();
 
         const obj: IHtmlTextParserStack = {};
@@ -318,7 +322,7 @@ export class HtmlTextParser {
     }
 
     // find the right part of the first pair of following quotations.
-    private getRightQuotationIndex (remainingArgument: string) {
+    private getRightQuotationIndex (remainingArgument: string): number {
         let leftQuot = -1;
         let rightQuot = -1;
         // Skip a pair of quotations for avoiding spaces in image name are detected.
@@ -338,7 +342,7 @@ export class HtmlTextParser {
         return rightQuot;
     }
 
-    private _processEventHandler (eventString: string) {
+    private _processEventHandler (eventString: string): Record<string, any> {
         const obj = {};
         let index = 0;
         let isValidTag = false;
@@ -385,7 +389,7 @@ export class HtmlTextParser {
         return obj;
     }
 
-    private _addToStack (attribute: string) {
+    private _addToStack (attribute: string): void {
         const obj = this._attributeToObject(attribute);
 
         if (this._stack.length === 0) {
@@ -405,7 +409,7 @@ export class HtmlTextParser {
         }
     }
 
-    private _processResult (value: string) {
+    private _processResult (value: string): void {
         if (value.length === 0) {
             return;
         }
@@ -418,7 +422,7 @@ export class HtmlTextParser {
         }
     }
 
-    private _escapeSpecialSymbol (str: string) {
+    private _escapeSpecialSymbol (str: string): string {
         for (const symbolArr of this._specialSymbolArray) {
             const key = symbolArr[0];
             const value = symbolArr[1];

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { systemInfo } from 'pal/system-info';
@@ -30,7 +29,7 @@ import { Asset } from '../asset/assets/asset';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
-    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
+    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager, DescriptorSetLayout,
 } from '../gfx';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { RenderWindow } from '../render-scene/core/render-window';
@@ -93,7 +92,7 @@ export class PipelineInputAssemblerData {
     quadIA: InputAssembler|null = null;
 }
 
-function hashFrameBuffer (fbo: Framebuffer) {
+function hashFrameBuffer (fbo: Framebuffer): number {
     let hash = 666;
     for (const color of fbo.colorTextures) {
         const info = color?.info;
@@ -189,7 +188,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh 常量宏定义字符串，运行时全程不会改变，用于给 shader 传一些只和平台相关的参数。
      * @readonly
      */
-    get constantMacros () {
+    get constantMacros (): string {
         return this._constantMacros;
     }
 
@@ -200,35 +199,35 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh 当前的全局宏定义，用于控制如 IBL、雾效等模块。
      * @readonly
      */
-    get macros () {
+    get macros (): MacroRecord {
         return this._macros;
     }
 
-    get device () {
+    get device (): Device {
         return this._device;
     }
 
-    get globalDSManager () {
+    get globalDSManager (): GlobalDSManager {
         return this._globalDSManager;
     }
 
-    get descriptorSetLayout () {
+    get descriptorSetLayout (): DescriptorSetLayout {
         return this._globalDSManager.descriptorSetLayout;
     }
 
-    get descriptorSet () {
+    get descriptorSet (): DescriptorSet {
         return this._descriptorSet;
     }
 
-    get commandBuffers () {
+    get commandBuffers (): CommandBuffer[] {
         return this._commandBuffers;
     }
 
-    get pipelineUBO () {
+    get pipelineUBO (): PipelineUBO {
         return this._pipelineUBO;
     }
 
-    get pipelineSceneData () {
+    get pipelineSceneData (): PipelineSceneData {
         return this._pipelineSceneData;
     }
 
@@ -236,14 +235,14 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._profiler = value;
     }
 
-    get profiler () {
+    get profiler (): Model | null {
         return this._profiler;
     }
 
     /**
      * @deprecated since v3.6, please use camera.geometryRenderer instead.
      */
-    get geometryRenderer () {
+    get geometryRenderer (): GeometryRenderer | null {
         return this._geometryRenderer;
     }
 
@@ -251,7 +250,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._clusterEnabled = value;
     }
 
-    get clusterEnabled () {
+    get clusterEnabled (): boolean {
         return this._clusterEnabled;
     }
 
@@ -259,7 +258,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._bloomEnabled = value;
     }
 
-    get bloomEnabled () {
+    get bloomEnabled (): boolean {
         return this._bloomEnabled;
     }
 
@@ -337,7 +336,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return renderPass;
     }
 
-    public newFramebufferByRatio (dyingFramebuffer: Framebuffer) {
+    public newFramebufferByRatio (dyingFramebuffer: Framebuffer): Framebuffer {
         const sceneData = this.pipelineSceneData;
         const width = this._width * sceneData.shadingScale;
         const height = this._height * sceneData.shadingScale;
@@ -364,7 +363,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera, out: Rect) {
+    public generateRenderArea (camera: Camera, out: Rect): void {
         const vp = camera.viewport;
         const w = camera.window.width;
         const h = camera.window.height;
@@ -396,7 +395,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return out;
     }
 
-    public get shadingScale () {
+    public get shadingScale (): number {
         return this._pipelineSceneData.shadingScale;
     }
 
@@ -468,14 +467,14 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return true;
     }
 
-    protected _ensureEnoughSize (cameras: Camera[]) {}
+    protected _ensureEnoughSize (cameras: Camera[]): void {}
 
     /**
      * @en Render function, it basically run the render process of all flows in sequence for the given view.
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
-    public render (cameras: Camera[]) {
+    public render (cameras: Camera[]): void {
         if (cameras.length === 0) {
             return;
         }
@@ -508,7 +507,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh
      * 销毁四边形输入汇集器。
      */
-    protected _destroyQuadInputAssembler () {
+    protected _destroyQuadInputAssembler (): void {
         if (this._quadIB) {
             this._quadIB.destroy();
             this._quadIB = null;
@@ -535,7 +534,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
-    protected _destroyBloomData () {
+    protected _destroyBloomData (): void {
         const bloom = this._pipelineRenderData!.bloom;
         if (bloom === null) return;
 
@@ -564,7 +563,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._pipelineRenderData!.bloom = null;
     }
 
-    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect): Float32Array {
         const vbData = new Float32Array(4 * 4);
 
         const minX = renderArea.x / this._width;
@@ -674,7 +673,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return inputAssemblerData;
     }
 
-    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
+    public updateQuadVertexData (renderArea: Rect, window: RenderWindow): void {
         const cachedArea = this._lastUsedRenderArea;
         if (cachedArea.x === renderArea.x
             && cachedArea.y === renderArea.y
@@ -717,11 +716,11 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return super.destroy();
     }
 
-    public onGlobalPipelineStateChanged () {
+    public onGlobalPipelineStateChanged (): void {
         // do nothing
     }
 
-    protected _generateConstantMacros () {
+    protected _generateConstantMacros (): void {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.getFormatFeatures(Format.RGBA32F)
             & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
@@ -738,7 +737,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._constantMacros = str;
     }
 
-    protected updateGeometryRenderer (cameras: Camera[]) {
+    protected updateGeometryRenderer (cameras: Camera[]): void {
         if (this._geometryRenderer) {
             return;
         }
@@ -754,7 +753,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
-    public generateBloomRenderData () {
+    public generateBloomRenderData (): void {
         if (this._pipelineRenderData!.bloom != null) return;
 
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
@@ -864,7 +863,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh
      * 删除之前用同类型、回调、目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      */
-    public off (type: PipelineEventType, callback?: any, target?: any) {
+    public off (type: PipelineEventType, callback?: any, target?: any): void {
         this._eventProcessor.off(type, callback, target);
     }
 
@@ -874,7 +873,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @param type - event type
      * @param args - Arguments when the event triggered
      */
-    public emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void {
         this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
     }
 
@@ -888,7 +887,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
      * @param typeOrTarget - The target to be searched for all related listeners
      */
-    public targetOff (typeOrTarget: any) {
+    public targetOff (typeOrTarget: any): void {
         this._eventProcessor.targetOff(typeOrTarget);
     }
 
@@ -897,7 +896,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param typeOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (typeOrTarget: any) {
+    public removeAll (typeOrTarget: any): void {
         this._eventProcessor.removeAll(typeOrTarget);
     }
 

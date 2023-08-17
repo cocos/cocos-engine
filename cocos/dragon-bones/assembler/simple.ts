@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
 import { Color, Mat4, Vec3, cclegacy } from '../../core';
@@ -84,7 +83,7 @@ const _slotMat = new Mat4();
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
-function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
+function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode): MaterialInstance | null {
     if (!tex) return null;
 
     let src: BlendFactor;
@@ -111,7 +110,7 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     return _comp!.getMaterialForBlend(src, dst);
 }
 
-function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOpacity: number) {
+function _handleColor (color: {r: number, g: number, b: number, a: number}, parentOpacity: number): void {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
     const _r = color.r * _nodeR * _multiply / 255.0;
@@ -125,13 +124,14 @@ function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOp
 
 let _accessor: StaticVBAccessor = null!;
 /**
+ * @engineInternal Since v3.7.2 this is an engine private object.
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
     accessor: _accessor,
     vCount: 32767,
-    ensureAccessor () {
+    ensureAccessor (): StaticVBAccessor {
         if (!_accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
@@ -143,7 +143,7 @@ export const simple: IAssembler = {
         return this.accessor as StaticVBAccessor;
     },
 
-    createData (comp: ArmatureDisplay) {
+    createData (comp: ArmatureDisplay): RenderData {
         let rd = comp.renderData;
         if (!rd) {
             this.ensureAccessor() as StaticVBAccessor;
@@ -170,7 +170,7 @@ export const simple: IAssembler = {
         return rd;
     },
 
-    updateRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
+    updateRenderData (comp: ArmatureDisplay, batcher: Batcher2D): void {
         _comp = comp;
         const armature = comp._armature;
         if (armature) {
@@ -178,13 +178,13 @@ export const simple: IAssembler = {
         }
     },
 
-    updateColor (comp: ArmatureDisplay) {
+    updateColor (comp: ArmatureDisplay): void {
         if (!comp) return;
         _comp = comp;
         _comp.markForUpdateRenderData();
     },
 };
-function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4) {
+function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4): void {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
     _ibuf = rd.indices!;
@@ -206,7 +206,7 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
 
         if (worldMat) {
             /* enable batch or recursive armature */
-            slot._mulMat(slot._worldMatrix, worldMat, slot._matrix);
+            Mat4.multiply(slot._worldMatrix, worldMat, slot._matrix);
         } else {
             Mat4.copy(slot._worldMatrix, slot._matrix);
         }
@@ -311,7 +311,7 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
     }
 }
 
-function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
+function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4): void {
     if (!frame) return;
     const segments = frame.segments;
     if (segments.length === 0) return;
@@ -406,11 +406,11 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
+function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D): void {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
-    if (!armature) return;
+    if (!armature || comp.renderData === null) return;
 
     // Init temp var.
     _mustFlush = true;
@@ -483,10 +483,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     }
     // Ensure mesh buffer update
     _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
-
-    // sync attached node matrix
-    // renderer.worldMatDirty++;
-    comp.attachUtil._syncAttachedNode();
 
     // Clear temp var.
     _node = undefined;

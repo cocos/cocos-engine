@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,14 +24,13 @@
 
 import { Frustum, intersect } from '../../core/geometry';
 import { Vec3 } from '../../core/math';
-import { RenderScene } from '../../render-scene';
+import { RenderScene, scene } from '../../render-scene';
 import { Camera, Model, ShadowType, SKYBOX_FLAG } from '../../render-scene/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
+import { SceneTask, SceneTransversal, SceneVisitor } from './scene';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
-import { LODModelsCachedUtils } from '../lod-models-utils';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -65,7 +63,7 @@ export class WebSceneTask implements SceneTask {
         return TaskType.SYNC;
     }
 
-    protected _getRenderObject (model: Model, camera: Camera) {
+    protected _getRenderObject (model: Model, camera: Camera): RenderObject {
         let depth = 0;
         if (model.node) {
             const _tempVec3 = new Vec3();
@@ -76,7 +74,7 @@ export class WebSceneTask implements SceneTask {
         return ro;
     }
 
-    protected _sceneCulling () {
+    protected _sceneCulling (): void {
         if (!this.camera) { return; }
         const scene = this.renderScene;
         const camera = this.camera;
@@ -110,16 +108,12 @@ export class WebSceneTask implements SceneTask {
         const models = scene!.models;
         const visibility = camera.visibility;
 
-        if (scene) {
-            LODModelsCachedUtils.updateCachedLODModels(scene, camera);
-        }
-
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
 
             // filter model by view visibility
             if (model.enabled) {
-                if (LODModelsCachedUtils.isLODModelCulled(model)) {
+                if (scene && scene.isCulledByLod(camera, model)) {
                     continue;
                 }
 
@@ -139,7 +133,6 @@ export class WebSceneTask implements SceneTask {
                 }
             }
         }
-        LODModelsCachedUtils.clearCachedLODModels();
     }
 
     public start (): void {
@@ -151,15 +144,15 @@ export class WebSceneTask implements SceneTask {
     public submit (): void {
 
     }
-    get camera () { return this._camera; }
-    get renderScene () {
+    get camera (): scene.Camera | null { return this._camera; }
+    get renderScene (): RenderScene | null {
         return this._scene;
     }
-    get visitor () { return this._visitor; }
-    get dirLightFrustum () { return this._dirLightFrustum; }
+    get visitor (): SceneVisitor { return this._visitor; }
+    get dirLightFrustum (): Frustum { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
-    private _scene: RenderScene | null = null;
-    private _camera: Camera | null = null;
+    protected _scene: RenderScene | null = null;
+    protected _camera: Camera | null = null;
     private _visitor: SceneVisitor;
     private _sceneData: PipelineSceneData;
     private _dirLightFrustum = new Frustum();

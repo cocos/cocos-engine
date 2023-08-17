@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { clamp01, js } from '../core';
 import { AnimationState } from './animation-state';
@@ -56,7 +55,7 @@ export class CrossFade extends Playable {
         this._scheduler = scheduler ?? getGlobalAnimationManager();
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         if (this.isMotionless) {
             return;
         }
@@ -83,7 +82,7 @@ export class CrossFade extends Playable {
      * @param state 指定的动画状态。
      * @param duration 切换时间。
      */
-    public crossFade (state: AnimationState | null, duration: number) {
+    public crossFade (state: AnimationState | null, duration: number): void {
         if (this._managedStates.length === 0) {
             // If we are cross fade from a "initial" pose,
             // we do not use the duration.
@@ -117,7 +116,7 @@ export class CrossFade extends Playable {
         }
     }
 
-    public clear () {
+    public clear (): void {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -128,7 +127,7 @@ export class CrossFade extends Playable {
         this._fadings.length = 0;
     }
 
-    protected onPlay () {
+    protected onPlay (): void {
         super.onPlay();
         this._scheduleThis();
     }
@@ -136,7 +135,7 @@ export class CrossFade extends Playable {
     /**
      * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
      */
-    protected onPause () {
+    protected onPause (): void {
         super.onPause();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
@@ -150,7 +149,7 @@ export class CrossFade extends Playable {
     /**
      * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
      */
-    protected onResume () {
+    protected onResume (): void {
         super.onResume();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
@@ -164,12 +163,12 @@ export class CrossFade extends Playable {
     /**
      * 停止所有淡入淡出的动画状态。
      */
-    protected onStop () {
+    protected onStop (): void {
         super.onStop();
         this.clear();
     }
 
-    private _calculateWeights (deltaTime: number) {
+    private _calculateWeights (deltaTime: number): void {
         const managedStates = this._managedStates;
         const fadings = this._fadings;
 
@@ -218,14 +217,14 @@ export class CrossFade extends Playable {
         }
     }
 
-    private _scheduleThis () {
+    private _scheduleThis (): void {
         if (!this._scheduled) {
             this._scheduler.addCrossFade(this);
             this._scheduled = true;
         }
     }
 
-    private _unscheduleThis () {
+    private _unscheduleThis (): void {
         if (this._scheduled) {
             this._scheduler.removeCrossFade(this);
             this._scheduled = false;

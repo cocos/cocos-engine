@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { Vec2, Color, js, misc } from '../core';
+import { Vec2, Color, js, misc, random, IColorLike } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -38,7 +37,7 @@ const _tpc = new Vec2();
 const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
 // In the Free mode to get emit real rotation in the world coordinate.
-function getWorldRotation (node) {
+function getWorldRotation (node): number {
     let rotation = 0;
     let tempNode = node;
     while (tempNode) {
@@ -77,7 +76,7 @@ class ParticlePool extends js.Pool<Particle> {
     }
 }
 
-const pool = new ParticlePool((par: Particle) => {
+const pool = new ParticlePool((par: Particle): void => {
     par.pos.set(ZERO_VEC2);
     par.startPos.set(ZERO_VEC2);
     par.color._val = 0xFF000000;
@@ -125,14 +124,14 @@ export class Simulator {
         this._worldRotation = 0;
     }
 
-    public stop () {
+    public stop (): void {
         this.active = false;
         this.readyToPlay = false;
         this.elapsed = this.sys.duration;
         this.emitCounter = 0;
     }
 
-    public reset () {
+    public reset (): void {
         this.active = true;
         this.readyToPlay = true;
         this.elapsed = 0;
@@ -143,7 +142,7 @@ export class Simulator {
         particles.length = 0;
     }
 
-    public emitParticle (pos) {
+    public emitParticle (pos): void {
         const psys = this.sys;
         const particle = pool.get();
         this.particles.push(particle);
@@ -151,12 +150,12 @@ export class Simulator {
         // Init particle
         // timeToLive
         // no negative life. prevent division by 0
-        particle.timeToLive = psys.life + psys.lifeVar * (Math.random() - 0.5) * 2;
+        particle.timeToLive = psys.life + psys.lifeVar * (random() - 0.5) * 2;
         const timeToLive = particle.timeToLive = Math.max(0, particle.timeToLive);
 
         // position
-        particle.pos.x = psys.sourcePos.x + psys.posVar.x * (Math.random() - 0.5) * 2;
-        particle.pos.y = psys.sourcePos.y + psys.posVar.y * (Math.random() - 0.5) * 2;
+        particle.pos.x = psys.sourcePos.x + psys.posVar.x * (random() - 0.5) * 2;
+        particle.pos.y = psys.sourcePos.y + psys.posVar.y * (random() - 0.5) * 2;
 
         // Color
         let sr = 0;
@@ -168,30 +167,30 @@ export class Simulator {
         const endColor = psys.endColor;
         const endColorVar = psys.endColorVar;
 
-        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (Math.random() - 0.5) * 2, 0, 255);
-        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (Math.random() - 0.5) * 2, 0, 255);
-        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (Math.random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
-        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (Math.random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
-        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (Math.random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
-        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (Math.random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
+        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
+        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
+        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
+        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
+        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
+        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
+        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
+        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
 
         // size
-        let startS = psys.startSize + psys.startSizeVar * (Math.random() - 0.5) * 2;
+        let startS = psys.startSize + psys.startSizeVar * (random() - 0.5) * 2;
         startS = Math.max(0, startS); // No negative value
         particle.size = startS;
         if (psys.endSize === START_SIZE_EQUAL_TO_END_SIZE) {
             particle.deltaSize = 0;
         } else {
-            let endS = psys.endSize + psys.endSizeVar * (Math.random() - 0.5) * 2;
+            let endS = psys.endSize + psys.endSizeVar * (random() - 0.5) * 2;
             endS = Math.max(0, endS); // No negative values
             particle.deltaSize = (endS - startS) / timeToLive;
         }
 
         // rotation
-        const startA = psys.startSpin + psys.startSpinVar * (Math.random() - 0.5) * 2;
-        const endA = psys.endSpin + psys.endSpinVar * (Math.random() - 0.5) * 2;
+        const startA = psys.startSpin + psys.startSpinVar * (random() - 0.5) * 2;
+        const endA = psys.endSpin + psys.endSpinVar * (random() - 0.5) * 2;
         particle.rotation = startA;
         particle.deltaRotation = (endA - startA) / timeToLive;
 
@@ -203,18 +202,18 @@ export class Simulator {
         particle.aspectRatio = psys.aspectRatio || 1;
 
         // direction
-        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (Math.random() - 0.5) * 2);
+        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
         // Mode Gravity: A
         if (psys.emitterMode === EmitterMode.GRAVITY) {
-            const s = psys.speed + psys.speedVar * (Math.random() - 0.5) * 2;
+            const s = psys.speed + psys.speedVar * (random() - 0.5) * 2;
             // direction
             particle.dir.x = Math.cos(a);
             particle.dir.y = Math.sin(a);
             particle.dir.multiplyScalar(s);
             // radial accel
-            particle.radialAccel = psys.radialAccel + psys.radialAccelVar * (Math.random() - 0.5) * 2;
+            particle.radialAccel = psys.radialAccel + psys.radialAccelVar * (random() - 0.5) * 2;
             // tangential accel
-            particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (Math.random() - 0.5) * 2;
+            particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (random() - 0.5) * 2;
             // rotation is dir
             if (psys.rotationIsDir) {
                 particle.rotation = -misc.radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
@@ -222,16 +221,16 @@ export class Simulator {
         } else {
             // Mode Radius: B
             // Set the default diameter of the particle from the source position
-            const startRadius = psys.startRadius + psys.startRadiusVar * (Math.random() - 0.5) * 2;
-            const endRadius = psys.endRadius + psys.endRadiusVar * (Math.random() - 0.5) * 2;
+            const startRadius = psys.startRadius + psys.startRadiusVar * (random() - 0.5) * 2;
+            const endRadius = psys.endRadius + psys.endRadiusVar * (random() - 0.5) * 2;
             particle.radius = startRadius;
             particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
-            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (Math.random() - 0.5) * 2);
+            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
         }
     }
 
-    public updateUVs (force?: boolean) {
+    public updateUVs (force?: boolean): void {
         const renderData = this.renderData;
         if (renderData && this.sys._renderSpriteFrame) {
             const vbuf = renderData.vData;
@@ -254,7 +253,7 @@ export class Simulator {
         }
     }
 
-    public updateParticleBuffer (particle, pos, buffer, offset: number) {
+    public updateParticleBuffer (particle, pos, buffer, offset: number): void {
         const vbuf = buffer.vData;
         // const uintbuf = buffer._uintVData;
 
@@ -276,7 +275,7 @@ export class Simulator {
             const y1 = -halfHeight;
             const x2 = halfWidth;
             const y2 = halfHeight;
-            const rad = -misc.degreesToRadians(particle.rotation);
+            const rad = -misc.degreesToRadians(particle.rotation as number);
             const cr = Math.cos(rad);
             const sr = Math.sin(rad);
             // bl
@@ -314,13 +313,13 @@ export class Simulator {
             vbuf[offset + 29] = 0;
         }
         // color
-        Color.toArray(vbuf, particle.color, offset + 5);
-        Color.toArray(vbuf, particle.color, offset + 14);
-        Color.toArray(vbuf, particle.color, offset + 23);
-        Color.toArray(vbuf, particle.color, offset + 32);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 5);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 14);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 23);
+        Color.toArray(vbuf, particle.color as IColorLike, offset + 32);
     }
 
-    public step (dt) {
+    public step (dt: number): void {
         const assembler = this.sys.assembler!;
         const psys = this.sys;
         const node = psys.node;
@@ -469,7 +468,7 @@ export class Simulator {
         }
     }
 
-    requestData (vertexCount: number, indexCount: number) {
+    requestData (vertexCount: number, indexCount: number): void {
         let offset = this.renderData.indexCount;
         this.renderData.request(vertexCount, indexCount);
         const count = this.renderData.indexCount / 6;
@@ -485,7 +484,7 @@ export class Simulator {
         }
     }
 
-    public initDrawInfo () {
+    public initDrawInfo (): void {
         const renderData = this.renderData;
         renderData.setRenderDrawInfoAttributes();
     }

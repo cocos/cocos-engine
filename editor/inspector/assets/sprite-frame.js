@@ -82,11 +82,11 @@ exports.template = /* html */`
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderRight" tooltip="i18n:ENGINE.assets.spriteFrame.borderRightTip"></ui-label>
             <ui-num-input slot="content" class="borderRight-input" min="0" step="1"></ui-num-input>
         </ui-prop>
-        <ui-prop class="edit-row">
-            <ui-button tabindex="0" class="edit-button">
+        <div class="edit-row">
+            <ui-button tabindex="0" class="edit-button" size="medium">
                 <ui-label value="i18n:ENGINE.assets.spriteFrame.edit"></ui-label>
             </ui-button>
-        </ui-prop>
+        </div>
     </div>
 </div>
 `;
@@ -96,24 +96,19 @@ exports.style = /* css */`
         display: flex;
         flex: 1;
         flex-direction: column;
+        padding-right: 4px;
+
      }
     .asset-sprite-frame > .content {
-        padding-bottom: 15px;
         flex: 1;
-    }
-    .asset-sprite-frame > .content > ui-prop {
-        margin: 4px 0;
     }
     .asset-sprite-frame > .content > .edit-row {
         text-align: center;
-        margin-top: 10px;
+        margin-top: 16px;
+        margin-bottom: 16px;
     }
-    .asset-sprite-frame .mesh {
-        padding-top: 4px;
-        padding-left: 10px;
-    }
-    .asset-sprite-frame .mesh > ui-prop {
-        margin: 4px 0;
+    .asset-sprite-frame > .content > .edit-row > .edit-button {
+        padding: 0 24px;
     }
 `;
 
@@ -529,7 +524,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.editButton.style.display = 'none';
             } else {
-                panel.$.editButton.style.display = 'inline-block';
+                panel.$.editButton.style.display = ''; // depends on component itself
             }
 
             if (panel.uuidInSpriteEditor !== panel.meta.uuid) {

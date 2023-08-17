@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 export interface ICounterOption {
     desc: string;
@@ -36,7 +35,7 @@ export interface ICounterOption {
 }
 
 export class Counter {
-    get value () {
+    get value (): number {
         return this._value;
     }
 
@@ -59,24 +58,24 @@ export class Counter {
         this._accumStart = now;
     }
 
-    public sample (now: number) {
+    public sample (now: number): void {
         this._average(this._value, now);
     }
 
-    public human () {
+    public human (): number {
         const { average, isInteger } = this._opts;
         const v = average ? this._averageValue : this._value;
         return isInteger ? Math.round(v) : Math.round(v * 100) / 100;
     }
 
-    public alarm () {
+    public alarm (): boolean | number | undefined {
         return (
             (this._opts.below && this._value < this._opts.below)
             || (this._opts.over && this._value > this._opts.over)
         );
     }
 
-    protected _average (v: number, now = 0) {
+    protected _average (v: number, now = 0): void {
         if (this._opts.average) {
             this._accumValue += v;
             ++this._accumSamples;

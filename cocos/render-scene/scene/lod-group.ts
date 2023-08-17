@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { Model } from './model';
 import { Vec3, assertIsTrue } from '../../core';
 import { RenderScene } from '..';
@@ -38,22 +37,22 @@ export class LODData {
 
     private _models: Model[] = [];
 
-    get models () : readonly Model[] {
+    get models (): readonly Model[] {
         return this._models;
     }
 
-    public addModel (model: Model) {
+    public addModel (model: Model): void {
         this._models.splice(0, 0, model);
     }
 
-    public eraseModel (model: Model) {
+    public eraseModel (model: Model): void {
         const removeIndex = this._models.indexOf(model);
         if (removeIndex >= 0) {
             this._models.splice(removeIndex, 1);
         }
     }
 
-    public clearModels () {
+    public clearModels (): void {
         this._models.length = 0;
     }
 }
@@ -85,54 +84,76 @@ export class LODGroup {
     /**
      * For editor only, users maybe operate several LOD's object
      */
-    protected _lockedLODLevelVec : number[] = [];
+    protected _lockedLODLevelVec: number[] = [];
+
+    private _isLockLevelChanged = false;
 
     constructor () {
         this._device = deviceManager.gfxDevice;
     }
 
-    set localBoundaryCenter (val: Vec3) {  this._localBoundaryCenter.set(val); }
+    set localBoundaryCenter (val: Readonly<Vec3>) {  this._localBoundaryCenter.set(val); }
 
-    get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
+    get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
-    get lodCount () { return this._lodDataArray.length; }
+    get lodCount (): number { return this._lodDataArray.length; }
 
     set objectSize (val: number) {
         this._objectSize = val;
     }
 
-    get objectSize () { return this._objectSize; }
+    get objectSize (): number { return this._objectSize; }
 
-    get lodDataArray () : readonly LODData[] { return this._lodDataArray; }
-    attachToScene (scene: RenderScene) {
+    get lodDataArray (): readonly LODData[] { return this._lodDataArray; }
+    attachToScene (scene: RenderScene): void {
         this.scene = scene;
     }
 
-    detachFromScene () {
+    detachFromScene (): void {
         this.scene = null!;
     }
 
-    lockLODLevels (lockLev: number[]) {
-        this._lockedLODLevelVec = lockLev;
+    lockLODLevels (lockLev: number[]): void {
+        if (lockLev.length !== this._lockedLODLevelVec.length) {
+            this._isLockLevelChanged = true;
+        } else {
+            const size = lockLev.length;
+            let index = 0;
+            for (; index < size; index++) {
+                if (lockLev[index] !== this._lockedLODLevelVec[index]) {
+                    this._isLockLevelChanged = true;
+                    break;
+                }
+            }
+        }
+        this._lockedLODLevelVec = lockLev.slice();
+    }
+
+    isLockLevelChanged (): boolean {
+        return this._isLockLevelChanged;
+    }
+
+    resetLockChangeFlag (): void {
+        this._isLockLevelChanged = false;
     }
 
     getLockedLODLevels (): readonly number[] {
         return this._lockedLODLevelVec;
     }
 
-    clearLODs () {
+    clearLODs (): void {
         this._lodDataArray.length = 0;
     }
 
-    insertLOD (index: number, lod: LODData) {
+    insertLOD (index: number, lod: LODData): void {
         this._lodDataArray.splice(index, 0, lod);
     }
 
-    updateLOD (index: number, lod: LODData) {
+    updateLOD (index: number, lod: LODData): void {
         this._lodDataArray[index] = lod;
     }
 
-    eraseLOD (index: number) {
+    eraseLOD (index: number): void {
         this._lodDataArray.splice(index, 1);
     }
 

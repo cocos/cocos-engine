@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Quat, Vec3, js } from '../../core';
@@ -76,8 +75,8 @@ export class PhysXSharedBody {
     get isKinematic (): boolean { return this._isKinematic; }
     get isDynamic (): boolean { return !this._isStatic && !this._isKinematic; }
     get wrappedBody (): PhysXRigidBody | null { return this._wrappedBody; }
-    get filterData () { return this._filterData; }
-    get isInScene () { return this._index !== -1; }
+    get filterData (): any { return this._filterData; }
+    get isInScene (): boolean { return this._index !== -1; }
     get impl (): any {
         this._initActor();
         return this.isStatic ? this._staticActor : this._dynamicActor;
@@ -122,7 +121,7 @@ export class PhysXSharedBody {
         this.id = PhysXSharedBody.idCounter++;
         this.node = node;
         this.wrappedWorld = wrappedWorld;
-        this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+        this._filterData = { word0: 1, word1: 1, word2: 1, word3: 0 };
     }
 
     private _initActor (): void {
@@ -146,14 +145,14 @@ export class PhysXSharedBody {
         if (st !== this._isStatic) { this._switchActor(st); }
     }
 
-    private _initStaticActor () {
+    private _initStaticActor (): void {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         this._staticActor = PhysXInstance.physics.createRigidStatic(t);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
-    private _initDynamicActor () {
+    private _initDynamicActor (): void {
         if (this._dynamicActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         this._dynamicActor = PhysXInstance.physics.createRigidDynamic(t);
@@ -177,7 +176,7 @@ export class PhysXSharedBody {
         }
     }
 
-    private _switchActor (isStaticBefore: boolean) {
+    private _switchActor (isStaticBefore: boolean): void {
         if (!this._staticActor || !this._dynamicActor) return;
         const a0 = isStaticBefore ? this._staticActor : this._dynamicActor;
         const a1 = !isStaticBefore ? this._staticActor : this._dynamicActor;
@@ -221,7 +220,7 @@ export class PhysXSharedBody {
         }
     }
 
-    addJoint (v: PhysXJoint, type: 0 | 1) {
+    addJoint (v: PhysXJoint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i < 0) this.wrappedJoints1.push(v);
@@ -231,7 +230,7 @@ export class PhysXSharedBody {
         }
     }
 
-    removeJoint (v: PhysXJoint, type: 0 | 1) {
+    removeJoint (v: PhysXJoint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
@@ -241,13 +240,13 @@ export class PhysXSharedBody {
         }
     }
 
-    setLinearDamping (linDamp:number) {
+    setLinearDamping (linDamp: number): void {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setLinearDamping((1 - (1 - linDamp) ** dt) / dt);
     }
 
-    setAngularDamping (angDamp:number) {
+    setAngularDamping (angDamp: number): void {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setAngularDamping((1 - (1 - angDamp) ** dt) / dt);
@@ -317,7 +316,7 @@ export class PhysXSharedBody {
         syncNoneStaticToSceneIfWaking(this._dynamicActor, this.node);
     }
 
-    syncScale () {
+    syncScale (): void {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             this.wrappedShapes[i].updateScale();
         }

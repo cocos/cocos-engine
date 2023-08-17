@@ -1,0 +1,159 @@
+CCEffect %{
+  temporaries:
+    b1: &b1
+      targets:
+      - blend: true
+        blendSrc: src_alpha
+        blendDst: one
+        blendSrcAlpha: src_alpha
+        blendDstAlpha: one
+    b2: &b2
+      targets:
+      - blend: true
+        blendSrc: src_alpha
+        blendDst: one_minus_src_alpha
+        blendSrcAlpha: zero
+        blendDstAlpha: one
+        blendAlphaEq: max
+    b3: &b3
+      targets:
+      - blend: true
+        blendSrc: dst_color
+        blendDst: one
+        blendSrcAlpha: zero
+        blendDstAlpha: dst_alpha
+    d1: &d1 { depthTest: true, depthWrite: false }
+    r1: &r1 { cullMode: none }
+    p1: &p1
+      mainTexture:            { value: grey }
+      mainTiling_Offset:      { value: [1, 1, 0, 0]  }
+    p2: &p2
+      <<: *p1
+      tintColor:              { value: [0.5, 0.5, 0.5, 0.5], editor: { type: color } }
+
+  techniques:
+  - name: add
+    passes:
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:add
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      properties: *p2
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:add
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+  - name: alpha-blend
+    passes:
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:add
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      properties: *p2
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:add
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+  - name: add-multiply
+    passes:
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:multiply
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b3
+      properties: *p2
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: tinted-fs:multiply
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b3
+      propertyIndex: 0
+  - name: add-smooth
+    passes:
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: no-tint-fs:addSmooth
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      properties: *p1
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: no-tint-fs:addSmooth
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+  - name: premultiply-blend
+    passes:
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: no-tint-fs:premultiplied
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      properties: *p1
+    - vert: builtin/internal/particle-vs-gpu:gpvs_main
+      frag: no-tint-fs:premultiplied
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+}%
+
+// TODO: soft particle
+
+CCProgram tinted-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec2 uv;
+  in vec4 color;
+
+  uniform sampler2D mainTexture;
+
+  uniform FragConstants {
+    vec4 tintColor;
+  };
+
+  vec4 add () {
+    vec4 col = 2.0 * color * tintColor * texture(mainTexture, uv);
+    return CCFragOutput(col);
+  }
+
+  vec4 multiply () {
+    vec4 col;
+    vec4 texColor = texture(mainTexture, uv);
+    col.rgb = tintColor.rgb * texColor.rgb * color.rgb * vec3(2.0);
+    return CCFragOutput(col);
+  }
+}%
+
+CCProgram no-tint-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec2 uv;
+  in vec4 color;
+
+  uniform sampler2D mainTexture;
+
+  vec4 addSmooth () {
+    vec4 col = color * texture(mainTexture, uv);
+    col.rgb *= col.a;
+    return CCFragOutput(col);
+  }
+
+  vec4 premultiplied () {
+    vec4 col = color * texture(mainTexture, uv) * color.a;
+    return CCFragOutput(col);
+  }
+}%

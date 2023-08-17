@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
@@ -34,15 +33,15 @@ import { commitShapeUpdates } from '../cannon-util';
 const v3_cannon0 = new CANNON.Vec3();
 
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
-    get collider () {
+    get collider (): MeshCollider {
         return this._collider as MeshCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Trimesh {
         return this._shape as CANNON.Trimesh;
     }
 
-    setMesh (v: Mesh | null) {
+    setMesh (v: Mesh | null): void {
         if (!this._isBinding) return;
 
         const mesh = v;
@@ -63,22 +62,22 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         }
     }
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         this.setMesh(this.collider.mesh);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setMesh(this.collider.mesh);
     }
 
-    setScale (scale: Vec3) {
+    setScale (scale: Vec3): void {
         super.setScale(scale);
         Vec3.copy(v3_cannon0, scale);
         this.impl.setScale(v3_cannon0);
     }
 
-    updateProperties (vertices: Float32Array, indices: Uint16Array) {
+    updateProperties (vertices: Float32Array, indices: Uint16Array): void {
         this.impl.vertices = new Float32Array(vertices);
         this.impl.indices = new Int16Array(indices);
         this.impl.normals = new Float32Array(indices.length);

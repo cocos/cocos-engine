@@ -1,14 +1,14 @@
-// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
 CCEffect %{
   techniques:
   - passes:
     - switch: USE_OUTLINE_PASS
-      vert: legacy/main-functions/outline-vs:vert
-      frag: legacy/main-functions/outline-fs:frag
-      rasterizerState:
+      vert: silhouette-edge-vs
+      frag: silhouette-edge-fs
+      rasterizerState: &r1
         cullMode: front
-      depthStencilState:
+      depthStencilState: &d1
         depthFunc: less_equal
         depthTest: true
         depthWrite: true
@@ -17,8 +17,8 @@ CCEffect %{
         depthBias:     { value: 0,  target: outlineParams.y }
         baseColor:     { editor: { type: color } }
         baseColorMap:  { value: grey }
-    - vert: toon-vs:vert
-      frag: toon-fs:frag
+    - vert: toon-vs
+      frag: toon-fs
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, linear: true, editor: { displayName: BaseColor, type: color } }
@@ -41,8 +41,8 @@ CCEffect %{
         shadeMap2:      { value: white  }
         specularMap:    { value: white  }
         emissiveMap:    { value: grey   }
-    - vert: toon-vs:vert
-      frag: toon-fs:frag
+    - vert: toon-vs
+      frag: toon-fs
       phase: forward-add
       propertyIndex: 1
       embeddedMacros: { CC_FORWARD_ADD: true }
@@ -58,8 +58,8 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
-    - vert: shadow-caster-vs:vert
-      frag: shadow-caster-fs:frag
+    - vert: shadow-caster-vs
+      frag: shadow-caster-fs
       phase: shadow-caster
       propertyIndex: 1
       rasterizerState:
@@ -80,6 +80,37 @@ CCEffect %{
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
         normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
         mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
+    - &planar-shadow
+      vert: planar-shadow-vs
+      frag: planar-shadow-fs
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+    - switch: USE_OUTLINE_PASS
+      vert: silhouette-edge-vs
+      frag: silhouette-edge-fs
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      propertyIndex: 0
+    - vert: toon-vs
+      frag: toon-fs
+      phase: deferred-forward
+      propertyIndex: 1
 }%
 
 CCProgram shared-ubos %{
@@ -94,79 +125,31 @@ CCProgram shared-ubos %{
     vec4 miscParams;
     vec4 emissive;
     vec4 emissiveScaleAndStrenth;
-  };
+  };}%
+
+CCProgram macro-remapping %{
+  // if enabled, shadowed area is very dark
+  #pragma define-meta USE_COMPATIBLE_LIGHTING
+  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
+
+  #pragma define-meta USE_NORMAL_MAP
+  #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMAL_MAP
 }%
 
-CCProgram toon-vs %{
-  precision highp float;
-  #include <legacy/input-standard>
-  #include <builtin/uniforms/cc-global>
-  #include <legacy/decode-base>
-  #include <legacy/local-batch>
-  #include <shared-ubos>
-  #include <legacy/shadow-map-vs>
-
-  out vec3 v_position;
-  out vec2 v_uv;
-  out mediump vec3 v_normal;
-
-  #if CC_RECEIVE_SHADOW
-    out mediump vec2 v_shadowBias;
-  #endif
-
-  #if USE_NORMAL_MAP
-    out mediump vec4 v_tangent;
-  #endif
-
-  vec4 vert () {
-    StandardVertInput In;
-    CCVertInput(In);
-
-    mat4 matWorld, matWorldIT;
-    CCGetWorldMatrixFull(matWorld, matWorldIT);
-
-    vec4 pos = matWorld * In.position;
-    v_position = pos.xyz;
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
-
-    #if CC_RECEIVE_SHADOW
-      v_shadowBias = CCGetShadowBias();
-    #endif
-
-    v_normal = (matWorldIT * vec4(In.normal, 0.0)).xyz;
-    #if USE_NORMAL_MAP
-      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_tangent.w = In.tangent.w;
-    #endif
-
-    CC_TRANSFER_SHADOW(pos);
-
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
   }
 }%
 
-CCProgram toon-fs %{
-  precision highp float;
-  #include <builtin/uniforms/cc-global>
-  #include <legacy/shading-toon>
-  #include <shared-ubos>
-  #include <legacy/output-standard>
-  #include <common/color/gamma>
-
-  in vec3 v_position;
-  in vec2 v_uv;
-
-  #if CC_RECEIVE_SHADOW
-    in mediump vec2 v_shadowBias;
-  #endif
-
+CCProgram surface-fragment %{
   #if USE_BASE_COLOR_MAP
     uniform sampler2D baseColorMap;
   #endif
 
-  in mediump vec3 v_normal;
   #if USE_NORMAL_MAP
-    in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
   #endif
 
@@ -187,149 +170,276 @@ CCProgram toon-fs %{
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
-  void surf (out ToonSurface s) {
-    s.shade2 = shadeColor2.rgb * colorScaleAndCutoff.rgb;
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TOONSHADE
+  void SurfacesFragmentModifyBaseColorAndToonShade(out vec4 baseColorAndTransparency, out vec3 shade1, out vec3 shade2)
+  {
+    shade2 = shadeColor2.rgb * colorScaleAndCutoff.rgb;
     #if USE_2ND_SHADE_MAP
-      s.shade2 *= SRGBToLinear(texture(shadeMap2, v_uv).rgb);
+      shade2 *= SRGBToLinear(texture(shadeMap2, FSInput_texcoord).rgb);
     #endif
-    s.shade1 = shadeColor1.rgb * colorScaleAndCutoff.rgb;
+    shade1 = shadeColor1.rgb * colorScaleAndCutoff.rgb;
     #if USE_1ST_SHADE_MAP
-      s.shade1 *= SRGBToLinear(texture(shadeMap1, v_uv).rgb);
+      shade1 *= SRGBToLinear(texture(shadeMap1, FSInput_texcoord).rgb);
       #if SHADE_MAP_1_AS_SHADE_MAP_2
-        s.shade2 *= s.shade1.rgb;
+        shade2 *= shade1.rgb;
       #endif
     #endif
 
-    vec4 baseColor = baseColor;
+    vec4 color = baseColor;
     #if USE_BASE_COLOR_MAP
-      vec4 baseColorMap = texture(baseColorMap, v_uv);
-      baseColorMap.rgb = SRGBToLinear(baseColorMap.rgb);
-      baseColor *= baseColorMap;
+      vec4 texColor = texture(baseColorMap, FSInput_texcoord);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      color *= texColor;
       #if BASE_COLOR_MAP_AS_SHADE_MAP_1
-        s.shade1 *= baseColorMap.rgb;
+        shade1 *= texColor.rgb;
       #endif
       #if BASE_COLOR_MAP_AS_SHADE_MAP_2
-        s.shade2 *= baseColorMap.rgb;
+        shade2 *= texColor.rgb;
       #endif
     #endif
-    s.baseColor = baseColor;
-    s.baseColor.rgb *= colorScaleAndCutoff.xyz;
+    baseColorAndTransparency = color;
+    baseColorAndTransparency.rgb *= colorScaleAndCutoff.xyz;
 
     #if USE_ALPHA_TEST
-      if (s.baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+      if (baseColorAndTransparency.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
     #endif
-
-    s.normal = v_normal;
-
-    #if CC_RECEIVE_SHADOW
-      s.shadowBias = v_shadowBias;
-    #endif
-
-    #if USE_NORMAL_MAP
-      vec3 nmmp = texture(normalMap, v_uv).xyz - vec3(0.5);
-      vec3 bitangent = cross(v_normal, v_tangent.xyz) * (v_tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
-      s.normal =
-        (nmmp.x * emissiveScaleAndStrenth.w) * normalize(v_tangent.xyz) +
-        (nmmp.y * emissiveScaleAndStrenth.w) * normalize(bitangent) +
-        nmmp.z * normalize(s.normal);
-    #endif
-
-    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
-
-    s.specular = specular;
-    #if USE_SPECULAR_MAP
-      s.specular.rgb *= SRGBToLinear(texture(specularMap, v_uv).rgb);
-    #endif
-
-    s.emissive = emissive.rgb * emissiveScaleAndStrenth.xyz;
-    #if USE_EMISSIVE_MAP
-      s.emissive *= SRGBToLinear(texture(emissiveMap, v_uv).rgb);
-    #endif
-
-    s.baseStep = shadeParams.x;
-    s.baseFeather = shadeParams.y;
-    s.shadeStep = shadeParams.z;
-    s.shadeFeather = shadeParams.w;
-    s.shadowCover = miscParams.x;
   }
 
-  vec4 frag () {
-    ToonSurface s; surf(s);
-    vec4 color = CCToonShading(s);
-    return CCFragOutput(color);
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+    #if USE_ALPHA_TEST
+      float alpha = baseColor.ALPHA_TEST_CHANNEL;
+      #if USE_BASE_COLOR_MAP
+        alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
+      #endif
+
+      if (alpha < colorScaleAndCutoff.w) discard;
+    #endif
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, FSInput_texcoord).xyz - vec3(0.5);
+      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleAndStrenth.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
+    #endif
+
+    return normalize(normal);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+  vec3 SurfacesFragmentModifyEmissive()
+  {
+    vec3 emissive = emissive.rgb * emissiveScaleAndStrenth.xyz;
+    #if USE_EMISSIVE_MAP
+      emissive *= SRGBToLinear(texture(emissiveMap, FSInput_texcoord).rgb);
+    #endif
+    return emissive;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TOON_STEP_AND_FEATHER
+  vec4 SurfacesFragmentModifyToonStepAndFeather()
+  {
+    return shadeParams;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TOON_SHADOW_COVER
+  float SurfacesFragmentModifyToonShadowCover()
+  {
+      return miscParams.x;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
+  vec4 SurfacesFragmentModifyToonSpecular()
+  {
+    vec4 specularParam = specular;
+    #if USE_SPECULAR_MAP
+      specularParam.rgb *= SRGBToLinear(texture(specularMap, FSInput_texcoord).rgb);
+    #endif
+    return specularParam;
   }
 }%
 
+CCProgram toon-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/toon-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <legacy/input-standard>
-  #include <legacy/decode-base>
-  #include <legacy/local-batch>
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
   #include <shared-ubos>
-  #include <builtin/uniforms/cc-shadow>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
 
-  out vec2 v_uv;
-  out vec4 v_worldPos;
-  out highp vec2 v_clip_depth;
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-planar-shadow/vs>
+}%
 
-  vec4 vert () {
-    StandardVertInput In;
-    CCVertInput(In);
 
-    mat4 matWorld, matWorldIT;
-    CCGetWorldMatrixFull(matWorld, matWorldIT);
+CCProgram toon-fs %{
+  // shading-model : toon
+  // lighting-model : toon
+  // shader stage : fs
+  // technique usage/type : render-to-scene
 
-    v_worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * v_worldPos;
-    v_clip_depth = clipPos.zw;
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
 
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+  // 2. common include with corresponding shader stage
+  #include <surfaces/includes/common-fs>
 
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/toon>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/toon-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-planar-shadow/fs>
+}%
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////silhouette-edge sample
+// how to write a simple surface material
+// change technique outline-vs/fs:vert/frag to silhouette-edge-vs/fs
+CCProgram surface-vertex-silhouette-edge %{
+  uniform OutlineVert {
+  vec4 outlineParams; // x: line width, y: depth hack
+};
+
+  #define CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
+  vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
+  {
+    float width = outlineParams.x * 0.001;
+    vec3 localPos = In.position.xyz;
+
+  #if USE_POSITION_SCALING
+    vec3 dir = normalize(localPos);
+    float flip = dot(dir, normalize(In.normal)) < 0.0 ? -1.0 : 1.0;
+    localPos += flip * dir * width * 2.0;
+  #else
+    localPos += normalize(In.normal) * width;
+  #endif
+    return localPos;
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_CLIP_POS
+  vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
+  {
+    vec4 clipPos = In.clipPos;
+    float scaleZ = cc_nearFar.z == 0.0 ? 0.5 : 1.0;
+    clipPos.z -= outlineParams.y * 0.002 * scaleZ;
     return clipPos;
   }
 }%
 
-CCProgram shadow-caster-fs %{
-  precision highp float;
-  #include <shared-ubos>
-  #include <common/data/packing>
-  #include <legacy/shadow-map-base>
-  
-  in vec2 v_uv;
-  in vec4 v_worldPos;
-  in highp vec2 v_clip_depth;
-
+CCProgram surface-fragment-silhouette-edge %{
+  uniform OutlineFrag {
+    vec4 baseColor;
+  };
   #if USE_BASE_COLOR_MAP
     uniform sampler2D baseColorMap;
   #endif
 
-  #if USE_ALPHA_TEST
-    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
-  #endif
-
-  vec4 frag () {
-    vec4 baseColor = baseColor;
-
-    #if USE_ALPHA_TEST
-      #if USE_BASE_COLOR_MAP
-        baseColor *= texture(baseColorMap, v_uv);
-      #endif
-      if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+  // only for render-to-shadow-map or misc usage
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  {
+    vec4 color = vec4(cc_mainLitColor.rgb, 1.0);
+    color.rgb = SRGBToLinear(baseColor.rgb);
+    #if USE_BASE_COLOR_MAP
+      vec4 texColor = texture(baseColorMap, FSInput_texcoord);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      color *= texColor;
     #endif
 
-    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
-    // spot use linear
-    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
-      // enabled linear depth
-      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
-        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
-      #endif
-    }
-
-    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-      return packDepthToRGBA(clipDepth);
-    #else
-      return vec4(clipDepth, 1.0, 1.0, 1.0);
-    #endif
+    return color;
   }
+}%
+
+CCProgram silhouette-edge-vs %{
+  precision highp float;
+  #include <surfaces/effect-macros/silhouette-edge>
+  #include <surfaces/includes/common-vs>
+  #include <surface-vertex-silhouette-edge>
+  #include <shading-entries/main-functions/misc/silhouette-edge-vs>
+}%
+
+CCProgram silhouette-edge-fs %{
+  precision highp float;
+  #include <surfaces/effect-macros/silhouette-edge>
+  #include <surfaces/includes/common-fs>
+  #include <surface-fragment-silhouette-edge>
+  #include <shading-entries/main-functions/misc/silhouette-edge-fs>
 }%

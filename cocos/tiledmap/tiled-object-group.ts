@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../scene-graph/component';
@@ -50,10 +49,10 @@ export class TiledObjectGroup extends Component {
     protected _premultiplyAlpha = false;
 
     @type(CCBoolean)
-    get premultiplyAlpha () {
+    get premultiplyAlpha (): boolean {
         return this._premultiplyAlpha;
     }
-    set premultiplyAlpha (value:boolean) {
+    set premultiplyAlpha (value: boolean) {
         this._premultiplyAlpha = value;
     }
 
@@ -65,7 +64,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
-    public getPositionOffset () {
+    public getPositionOffset (): Vec2 | undefined {
         return this._positionOffset;
     }
 
@@ -77,7 +76,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
-    public getProperties () {
+    public getProperties (): PropertiesInfo | undefined {
         return this._properties;
     }
 
@@ -89,7 +88,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
-    public getGroupName () {
+    public getGroupName (): string | undefined {
         return this._groupName;
     }
 
@@ -98,7 +97,7 @@ export class TiledObjectGroup extends Component {
      * @param {String} propertyName
      * @return {Object}
      */
-    public getProperty (propertyName: { toString (): string } | string) {
+    public getProperty (propertyName: { toString (): string } | string): string | number {
         return this._properties![propertyName.toString()];
     }
 
@@ -113,7 +112,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    public getObject (objectName:string) {
+    public getObject (objectName: string): TMXObject | null {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             const obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -132,7 +131,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */
-    public getObjects () {
+    public getObjects (): TMXObject[] {
         return this._objects;
     }
 
@@ -141,7 +140,7 @@ export class TiledObjectGroup extends Component {
     protected _mapInfo?: TMXMapInfo;
     protected _properties?: PropertiesInfo;
     protected _offset?: Vec2;
-    get offset () { return this._offset!; }
+    get offset (): Vec2 { return this._offset!; }
     protected _opacity?: number;
     protected _tintColor: Color | null = null;
 
@@ -158,7 +157,7 @@ export class TiledObjectGroup extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
+    public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids): void {
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
         const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
         const FLAG_VERTICAL = TileFlag.VERTICAL;
@@ -247,6 +246,7 @@ export class TiledObjectGroup extends Component {
                 textNode.name = textName;
                 textNode.parent = this.node;
                 textNode.setSiblingIndex(i);
+                textNode.layer = this.node.layer;
 
                 let label = textNode.getComponent(Label);
                 if (!label) {
@@ -317,6 +317,7 @@ export class TiledObjectGroup extends Component {
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
                 imgNode.setSiblingIndex(i);
+                imgNode.layer = this.node.layer;
 
                 let sprite = imgNode.getComponent(Sprite);
                 if (!sprite) {
@@ -345,10 +346,8 @@ export class TiledObjectGroup extends Component {
 
                 // HACK: we should support _premultiplyAlpha when group had material
                 const srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-                // @ts-expect-error remove when ui-render remove blend
-                if (sprite._srcBlendFactor !== srcBlendFactor) {
-                    // @ts-expect-error remove when ui-render remove blend
-                    sprite._srcBlendFactor = srcBlendFactor;
+                if (sprite.srcBlendFactor !== srcBlendFactor) {
+                    sprite.srcBlendFactor = srcBlendFactor;
                     if (sprite.material) {
                         sprite._updateBlendFunc();
                     }
@@ -388,7 +387,7 @@ export class TiledObjectGroup extends Component {
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         if (!this._hasAniObj) {
             return;
         }

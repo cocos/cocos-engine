@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { JSB } from 'internal:constants';
 import { IRenderData } from './render-data';
 import { NativeRenderDrawInfo } from './native-2d';
@@ -79,15 +103,15 @@ export class RenderDrawInfo {
         this._uint32SharedBuffer = new Uint32Array(attrSharedBuffer, offset, AttrUInt32ArrayView.Count);
     }
 
-    get nativeObj () {
+    get nativeObj (): NativeRenderDrawInfo {
         return this._nativeObj;
     }
 
-    get render2dBuffer () {
+    get render2dBuffer (): Float32Array {
         return this._render2dBuffer;
     }
 
-    private init (nativeDrawInfo?: NativeRenderDrawInfo) {
+    private init (nativeDrawInfo?: NativeRenderDrawInfo): void {
         if (JSB) {
             if (nativeDrawInfo) {
                 this._nativeObj = nativeDrawInfo;
@@ -98,14 +122,14 @@ export class RenderDrawInfo {
         }
     }
 
-    public clear () {
+    public clear (): void {
         this._bufferId = 0;
         this._vertexOffset = 0;
         this._indexOffset = 0;
         this._vertDirty = false;
     }
 
-    public setAccId (accId) {
+    public setAccId (accId): void {
         if (JSB) {
             if (this._accId !== accId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -114,7 +138,7 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setBufferId (bufferId) {
+    public setBufferId (bufferId): void {
         if (JSB) {
             if (this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.BufferID] = bufferId;
@@ -124,7 +148,7 @@ export class RenderDrawInfo {
         this._bufferId = bufferId;
     }
 
-    public setAccAndBuffer (accId, bufferId) {
+    public setAccAndBuffer (accId, bufferId): void {
         if (JSB) {
             if (this._accId !== accId || this._bufferId !== bufferId) {
                 this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
@@ -136,79 +160,79 @@ export class RenderDrawInfo {
         this._accId = accId;
     }
 
-    public setVertexOffset (vertexOffset) {
+    public setVertexOffset (vertexOffset): void {
         this._vertexOffset = vertexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VertexOffset] = vertexOffset;
         }
     }
 
-    public setIndexOffset (indexOffset) {
+    public setIndexOffset (indexOffset): void {
         this._indexOffset = indexOffset;
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IndexOffset] = indexOffset;
         }
     }
 
-    public setVB (vbBuffer: Float32Array) {
+    public setVB (vbBuffer: Float32Array): void {
         if (JSB) {
             this._nativeObj.vbBuffer = vbBuffer;
         }
     }
 
-    public setIB (ibBuffer: Uint16Array) {
+    public setIB (ibBuffer: Uint16Array): void {
         if (JSB) {
             this._nativeObj.ibBuffer = ibBuffer;
         }
     }
 
-    public setVData (vDataBuffer: ArrayBufferLike) {
+    public setVData (vDataBuffer: ArrayBufferLike): void {
         if (JSB) {
             this._nativeObj.vDataBuffer = vDataBuffer;
         }
     }
 
-    public setIData (iDataBuffer: ArrayBufferLike) {
+    public setIData (iDataBuffer: ArrayBufferLike): void {
         if (JSB) {
             this._nativeObj.iDataBuffer = iDataBuffer;
         }
     }
 
-    public setVBCount (vbCount) {
+    public setVBCount (vbCount): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.VBCount] = vbCount;
         }
         this._vbCount = vbCount;
     }
 
-    public setIBCount (ibCount) {
+    public setIBCount (ibCount): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.IBCount] = ibCount;
         }
     }
 
-    public setVertDirty (val: boolean) {
+    public setVertDirty (val: boolean): void {
         if (JSB) {
             this._uint8SharedBuffer[AttrUInt8ArrayView.VertDirty] = val ? 1 : 0;
         }
         this._vertDirty = val;
     }
 
-    public setDataHash (dataHash: number) {
+    public setDataHash (dataHash: number): void {
         if (JSB) {
             this._uint32SharedBuffer[AttrUInt32ArrayView.DataHash] = dataHash;
         }
         this._dataHash = dataHash;
     }
 
-    public setIsMeshBuffer (isMeshBuffer: boolean) {
+    public setIsMeshBuffer (isMeshBuffer: boolean): void {
         if (JSB) {
             this._uint8SharedBuffer[AttrUInt8ArrayView.IsMeshBuffer] = isMeshBuffer ? 1 : 0;
         }
         this._isMeshBuffer = isMeshBuffer;
     }
 
-    public setMaterial (material: Material) {
+    public setMaterial (material: Material): void {
         if (JSB) {
             if (this._material !== material) {
                 this._nativeObj.material = material;
@@ -217,7 +241,7 @@ export class RenderDrawInfo {
         this._material = material;
     }
 
-    public setTexture (texture: Texture | null) {
+    public setTexture (texture: Texture | null): void {
         if (JSB) {
             if (this._texture !== texture) {
                 this._nativeObj.texture = texture;
@@ -226,7 +250,7 @@ export class RenderDrawInfo {
         this._texture = texture;
     }
 
-    public setSampler (sampler: Sampler | null) {
+    public setSampler (sampler: Sampler | null): void {
         if (JSB) {
             if (this._sampler !== sampler) {
                 this._nativeObj.sampler = sampler;
@@ -235,7 +259,7 @@ export class RenderDrawInfo {
         this._sampler = sampler;
     }
 
-    public setModel (model: Model) {
+    public setModel (model: Model): void {
         if (JSB) {
             if (this._model !== model) {
                 this._nativeObj.model = model;
@@ -243,7 +267,7 @@ export class RenderDrawInfo {
         }
     }
 
-    public setDrawInfoType (drawInfoType: RenderDrawInfoType) {
+    public setDrawInfoType (drawInfoType: RenderDrawInfoType): void {
         if (JSB) {
             if (this._drawInfoType !== drawInfoType) {
                 this._uint8SharedBuffer[AttrUInt8ArrayView.DrawInfoType] = drawInfoType;
@@ -252,7 +276,7 @@ export class RenderDrawInfo {
         this._drawInfoType = drawInfoType;
     }
 
-    public setSubNode (node : Node) {
+    public setSubNode (node : Node): void {
         if (JSB) {
             if (this._subNode !== node) {
                 this._nativeObj.subNode = node;
@@ -261,21 +285,21 @@ export class RenderDrawInfo {
         this._subNode = node;
     }
 
-    public setStride (stride: number) {
+    public setStride (stride: number): void {
         if (JSB) {
             this._uint8SharedBuffer[AttrUInt8ArrayView.Stride] = stride;
         }
         this._stride = stride;
     }
 
-    public initRender2dBuffer () {
+    public initRender2dBuffer (): void {
         if (JSB) {
             this._render2dBuffer = new Float32Array(this._vbCount * this._stride);
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer);
         }
     }
 
-    public fillRender2dBuffer (vertexDataArr: IRenderData[]) {
+    public fillRender2dBuffer (vertexDataArr: IRenderData[]): void {
         if (JSB) {
             const fillLength = Math.min(this._vbCount, vertexDataArr.length);
             let bufferOffset = 0;

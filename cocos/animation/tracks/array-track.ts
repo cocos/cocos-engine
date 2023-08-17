@@ -1,6 +1,30 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { _decorator, RealCurve } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, RealChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 
 const { ccclass, serializable } = _decorator;
 
@@ -21,7 +45,7 @@ export class RealArrayTrack extends Track {
      * @zh 此轨道产生的数组元素的数量。
      * 当你增加数量时，会增加新的空实数通道；当你减少数量时，最后几个指定数量的通道会被移除。
      */
-    get elementCount () {
+    get elementCount (): number {
         return this._channels.length;
     }
 
@@ -33,7 +57,7 @@ export class RealArrayTrack extends Track {
         } else if (value > nChannels) {
             this._channels.push(
                 ...Array.from({ length: value - nChannels },
-                    () => new Channel<RealCurve>(new RealCurve())),
+                    (): Channel<RealCurve> => new Channel<RealCurve>(new RealCurve())),
             );
         }
     }
@@ -42,29 +66,33 @@ export class RealArrayTrack extends Track {
      * @en The channels of the track.
      * @zh 返回此轨道的所有通道的数组。
      */
-    public channels () {
+    public channels (): RealChannel[] {
         return this._channels;
     }
 
     /**
      * @internal
      */
-    public [createEvalSymbol] () {
-        return new RealArrayTrackEval(this._channels.map(({ curve }) => curve));
+    public [createEvalSymbol] (): RealArrayTrackEval {
+        return new RealArrayTrackEval(this._channels.map(({ curve }): RealCurve => curve));
     }
 
     @serializable
     private _channels: RealChannel[] = [];
 }
 
-export class RealArrayTrackEval {
+export class RealArrayTrackEval implements TrackEval<readonly number[]> {
     constructor (
         private _curves: RealCurve[],
     ) {
         this._result = new Array(_curves.length).fill(0.0);
     }
 
-    public evaluate (time: number, _runtimeBinding: RuntimeBinding) {
+    public get requiresDefault (): boolean {
+        return false;
+    }
+
+    public evaluate (time: number): number[] {
         const {
             _result: result,
         } = this;

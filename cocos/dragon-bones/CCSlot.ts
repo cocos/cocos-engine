@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
 import { Texture2D } from '../asset/assets';
@@ -32,24 +31,25 @@ const { ccclass } = _decorator;
 
 // @skipLibCheck
 /**
-* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+ * @en Slots attach on bones，to control the display status and attributes of the display object.
+ * @zh 插槽附着在骨骼上，控制显示对象的显示状态和属性。
 */
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
-    static toString () {
+    static toString (): string {
         return '[class dragonBones.CCSlot]';
     }
 
     /**
      * @en Vertices in local coordinate system.
-     * @zh 局部坐标顶点数据
+     * @zh 局部坐标顶点数据。
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _localVertices: number[];
 
     /**
-     * @en Indices array of vertex data
-     * @zh 顶点数组索引
+     * @en Indices array of vertex data.
+     * @zh 顶点数组索引。
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _indices: number[];
@@ -88,8 +88,13 @@ export class CCSlot extends Slot {
         this._color = new Color();
     }
 
-    // return dragonBones.CCTexture2D
-    getTexture () {
+    /**
+     * @en Get a Texture2D object from _textureData.
+     * @zh 获取2D纹理对象。
+     * @returns @en A texture instance if _textureData is not null, otherwise returns null.
+     *          @zh 若 _textureData 为 null，将返回 null。
+     */
+    getTexture (): Texture2D | null {
         if (this._textureData) {
             const sp = (this._textureData as any).spriteFrame;
             const tex = sp.texture as Texture2D;
@@ -97,8 +102,11 @@ export class CCSlot extends Slot {
         }
         return null;
     }
-
-    calculWorldMatrix () {
+    /**
+     * @en Calculates world matrix of slot.
+     * @zh 计算插槽世界矩阵。
+     */
+    calculWorldMatrix (): void {
         const parent = this._armature._parent as CCSlot;
         if (parent) {
             this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
@@ -108,8 +116,11 @@ export class CCSlot extends Slot {
         }
         this._worldMatrixDirty = false;
     }
-
-    _onClear () {
+    /**
+     * @en Resets slot data and state.
+     * @zh 重置插槽数据和状态。
+     */
+    _onClear (): void {
         super._onClear();
         this._localVertices.length = 0;
         this._indices.length = 0;
@@ -119,43 +130,71 @@ export class CCSlot extends Slot {
         this._color = new Color();
         this._visible = false;
     }
-
-    // just for adapt to dragonbones api,no need to do any thing
-    _onUpdateDisplay () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _onUpdateDisplay (): void {
     }
-
-    // just for adapt to dragonbones api,no need to do any thing
-    _initDisplay (value) {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _initDisplay (value): void {
     }
-
-    _addDisplay () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _addDisplay (): void {
         this._visible = true;
     }
-    // just for adapt to dragonbones api,no need to do any thing
-    _replaceDisplay (value) {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _replaceDisplay (value): void {
     }
-
-    _removeDisplay () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _removeDisplay (): void {
         this._visible = false;
     }
 
-    // just for adapt to dragonbones api,no need to do any thing
-    _disposeDisplay (object) {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _disposeDisplay (object): void {
     }
-
-    _updateVisible () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _updateVisible (): void {
         this._visible = this.parent.visible;
     }
-
-    _updateGlueMesh () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _updateGlueMesh (): void {
 
     }
 
-    // just for adapt to dragonbones api,no need to do any thing
-    _updateZOrder () {
+    /**
+     * just for adapt to dragonbones api,no need to do any thing
+     * @deprecated Since v3.7.2, this interface that will be removed in the future.
+     */
+    _updateZOrder (): void {
     }
-
-    _updateBlendMode () {
+    /**
+     * @en Update the color blending mode of the slot.
+     * @zh 更新插槽的颜色混合模式。
+     */
+    _updateBlendMode (): void {
         if (this._childArmature) {
             const childSlots = this._childArmature.getSlots();
             for (let i = 0, l = childSlots.length; i < l; i++) {
@@ -165,16 +204,22 @@ export class CCSlot extends Slot {
             }
         }
     }
-
-    _updateColor () {
+    /**
+     * @en Update the color of the slot.
+     * @zh 更新插槽的颜色。
+     */
+    _updateColor (): void {
         const c = this._color;
         c.r = this._colorTransform.redMultiplier * 255;
         c.g = this._colorTransform.greenMultiplier * 255;
         c.b = this._colorTransform.blueMultiplier * 255;
         c.a = this._colorTransform.alphaMultiplier * 255;
     }
-
-    _updateFrame () {
+    /**
+     * @en Update one frame of slot vertex data.
+     * @zh 更新一帧插槽顶点数据。
+     */
+    _updateFrame (): void {
         this._indices.length = 0;
         const indices = this._indices;
         const localVertices = this._localVertices;
@@ -276,8 +321,11 @@ export class CCSlot extends Slot {
         this._blendModeDirty = true;
         this._colorDirty = true;
     }
-
-    _updateMesh () {
+    /**
+     * @en Update mesh data of slot.
+     * @zh 更新槽点的网格数据。
+     */
+    _updateMesh (): void {
         const scale = this._armature._armatureData.scale;
         const deformVertices = this._deformVertices.vertices;
         const bones = this._deformVertices.bones;
@@ -360,8 +408,11 @@ export class CCSlot extends Slot {
             this._identityTransform();
         }
     }
-
-    _identityTransform () {
+    /**
+     * @en Reset current matrix to identity matrix.
+     * @zh 重置当前矩阵为单位矩阵。
+     */
+    _identityTransform (): void {
         const m = this._matrix;
         m.m00 = 1.0;
         m.m01 = 0.0;
@@ -371,8 +422,11 @@ export class CCSlot extends Slot {
         m.m13 = 0.0;
         this._worldMatrixDirty = true;
     }
-
-    _updateTransform () {
+    /**
+     * @en Update transform of slot.
+     * @zh 更新插槽的变换。
+     */
+    _updateTransform (): void {
         const m = this._matrix;
         m.m00 = this.globalTransformMatrix.a;
         m.m01 = this.globalTransformMatrix.b;
@@ -388,8 +442,11 @@ export class CCSlot extends Slot {
         }
         this._worldMatrixDirty = true;
     }
-
-    updateWorldMatrix () {
+    /**
+     * @en Update world matrix of slot.
+     * @zh 更新插槽的世界矩阵。
+     */
+    updateWorldMatrix (): void {
         if (!this._armature) return;
 
         const parentSlot = this._armature._parent as CCSlot;
@@ -410,8 +467,10 @@ export class CCSlot extends Slot {
             }
         }
     }
-
-    /* protected */ _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>) {
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
+    /* protected */ _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>): void {
         const aa = a.m00; const ab = a.m01; const ac = a.m04; const ad = a.m05; const atx = a.m12; const aty = a.m13;
         const ba = b.m00; const bb = b.m01; const bc = b.m04; const bd = b.m05; const btx = b.m12; const bty = b.m13;
         if (ab !== 0 || ac !== 0) {

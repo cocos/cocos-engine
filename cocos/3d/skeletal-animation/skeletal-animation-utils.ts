@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,7 +48,7 @@ export function selectJointsMediumFormat (device: Device): Format {
 }
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean) {
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean): void {
     out[base + 0] = mat.m00;
     out[base + 1] = mat.m01;
     out[base + 2] = mat.m02;
@@ -71,7 +70,7 @@ const qt_1 = new Quat();
 const v3_2 = new Vec3();
 
 // Dual Quaternion Skinning
-function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean): void {
     Mat4.toRTS(mat, qt_1, v3_1, v3_2);
     // sign consistency
     if (firstBone) { Quat.copy(dq_0, qt_1); } else if (Quat.dot(dq_0, qt_1) < 0) { Quat.multiplyScalar(qt_1, qt_1, -1); }
@@ -92,7 +91,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
     out[base + 10] = v3_2.z;
 }
 
-function roundUpTextureSize (targetLength: number, formatSize: number) {
+function roundUpTextureSize (targetLength: number, formatSize: number): number {
     const formatScale = 4 / Math.sqrt(formatSize);
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
@@ -157,7 +156,7 @@ export class JointTexturePool {
 
     private _chunkIdxMap = new Map<number, number>(); // hash -> chunkIdx
 
-    get pixelsPerJoint () {
+    get pixelsPerJoint (): number {
         return this._pixelsPerJoint;
     }
 
@@ -172,15 +171,19 @@ export class JointTexturePool {
         this._customPool.initialize({ format, roundUpFn: roundUpTextureSize });
     }
 
-    public clear () {
+    public clear (): void {
         this._pool.destroy();
         this._textureBuffers.clear();
     }
 
-    public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]) {
+    public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]): void {
         for (let i = 0; i < layouts.length; i++) {
             const layout = layouts[i];
-            const chunkIdx = this._customPool.createChunk(layout.textureLength);
+            let textureLength = layout.textureLength;
+            if (!(this._device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE)) {
+                textureLength *= 2; // RGBA8 format textures need 4 times the memory.
+            }
+            const chunkIdx = this._customPool.createChunk(textureLength);
             for (let j = 0; j < layout.contents.length; j++) {
                 const content = layout.contents[j];
                 const { skeleton } = content;
@@ -199,7 +202,7 @@ export class JointTexturePool {
      * @zh
      * 获取默认姿势的骨骼贴图。
      */
-    public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node) {
+    public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node): IJointTextureHandle | null {
         const hash = skeleton.hash ^ 0; // may not equal to skeleton.hash
         let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
@@ -257,7 +260,7 @@ export class JointTexturePool {
      * @zh
      * 获取指定动画片段的骨骼贴图。
      */
-    public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh, skinningRoot: Node) {
+    public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh, skinningRoot: Node): IJointTextureHandle | null {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
@@ -330,7 +333,7 @@ export class JointTexturePool {
         return texture;
     }
 
-    public releaseHandle (handle: IJointTextureHandle) {
+    public releaseHandle (handle: IJointTextureHandle): void {
         if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
             const hash = handle.skeletonHash ^ handle.clipHash;
@@ -342,7 +345,7 @@ export class JointTexturePool {
         }
     }
 
-    public releaseSkeleton (skeleton: Skeleton) {
+    public releaseSkeleton (skeleton: Skeleton): void {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
@@ -360,7 +363,7 @@ export class JointTexturePool {
         }
     }
 
-    public releaseAnimationClip (clip: AnimationClip) {
+    public releaseAnimationClip (clip: AnimationClip): void {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
@@ -378,7 +381,8 @@ export class JointTexturePool {
         }
     }
 
-    private _createAnimInfos (skeleton: Skeleton, clip: AnimationClip, skinningRoot: Node) {
+    private _createAnimInfos (skeleton: Skeleton, clip: AnimationClip, skinningRoot: Node): IInternalJointAnimInfo[]
+    {
         const animInfos: IInternalJointAnimInfo[] = [];
         const { joints, bindposes } = skeleton;
         const jointCount = joints.length;
@@ -462,7 +466,7 @@ export class JointAnimationInfo {
         this._device = device;
     }
 
-    public getData (nodeID = '-1') {
+    public getData (nodeID = '-1'): IAnimInfo {
         const res = this._pool.get(nodeID);
         if (res) { return res; }
         const buffer = this._device.createBuffer(new BufferInfo(
@@ -479,16 +483,16 @@ export class JointAnimationInfo {
         return info;
     }
 
-    public destroy (nodeID: string) {
+    public destroy (nodeID: string): void {
         const info = this._pool.get(nodeID);
         if (!info) { return; }
         info.buffer.destroy();
         this._pool.delete(nodeID);
     }
 
-    public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
+    public switchClip (info: IAnimInfo, clip: AnimationClip | null): IAnimInfo {
         info.currentClip = clip;
-        info.data[0] = -1;
+        info.data[0] = 0; // reset default frame 0
         info.buffer.update(info.data);
         info.dirty = false;
         if (JSB) {
@@ -497,7 +501,7 @@ export class JointAnimationInfo {
         return info;
     }
 
-    public clear () {
+    public clear (): void {
         for (const info of this._pool.values()) {
             info.buffer.destroy();
         }

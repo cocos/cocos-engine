@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -45,6 +44,8 @@
     #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_QNX)
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #include "platform/openharmony/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
 using Vec2 = ccstd::array<float, 2>;
@@ -225,19 +226,25 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
 
-        // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
-            boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName = results[5].str();
+            // support get font name from `60px American` or `60px "American abc-abc_abc"`
+            // support get font name contain space,example `times new roman`
+            // if regex rule that does not conform to the rules,such as Chinese,it defaults to Arial
+            std::match_results<ccstd::string::const_iterator> fontResults;
+            std::regex fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
+            ccstd::string tmp(results[4].str());
+            if (std::regex_match(tmp, fontResults, fontRe)) {
+                fontName = results[4].str();
+            }
         }
-        bool isItalic = font.find("italic", 0) != ccstd::string::npos || font.find("Italic", 0) != ccstd::string::npos;
+
         auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         bool isBold = !boldStr.empty() || font.find("bold", 0) != ccstd::string::npos || font.find("Bold", 0) != ccstd::string::npos;
-        //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, isBold);
-        _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos || font.find("Italic", 0) != ccstd::string::npos;
+        _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, isItalic, false, false);
     }
 #elif CC_PLATFORM == CC_PLATFORM_QNX
     if (_font != font) {
@@ -288,7 +295,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, isBold);
         _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
     }
-#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (_font != font) {
         _font = font;
         ccstd::string fontName = "sans-serif";
@@ -311,8 +318,8 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         double fontSize = atof(fontSizeStr.c_str());
         bool isBold = font.find("bold", 0) != ccstd::string::npos || font.find("Bold", 0) != ccstd::string::npos;
         bool isItalic = font.find("italic", 0) != ccstd::string::npos || font.find("Italic", 0) != ccstd::string::npos;
-        bool isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos || font.find("Small-Caps") !=ccstd::string::npos;
-        bool isOblique = font.find("oblique", 0) != ccstd::string::npos || font.find("Oblique", 0) != ccstd::string::npos ;
+        bool isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos || font.find("Small-Caps") != ccstd::string::npos;
+        bool isOblique = font.find("oblique", 0) != ccstd::string::npos || font.find("Oblique", 0) != ccstd::string::npos;
         //font-style: italic, oblique, normal
         //font-weight: normal, bold
         //font-variant: normal, small-caps

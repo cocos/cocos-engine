@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3, cclegacy, geometry } from '../../core';
 import { Light, LightType, nt2lm } from './light';
@@ -36,7 +35,7 @@ export class SphereLight extends Light {
      * @en The world position of the light source
      * @zh 光源中心点的世界坐标
      */
-    get position () {
+    get position (): Vec3 {
         return this._pos;
     }
 
@@ -91,7 +90,7 @@ export class SphereLight extends Light {
      * @en The luminance of the light source in HDR mode
      * @zh HDR 模式下光源的亮度
      */
-    get luminanceHDR () {
+    get luminanceHDR (): number {
         return this._luminanceHDR;
     }
     set luminanceHDR (value: number) {
@@ -110,7 +109,7 @@ export class SphereLight extends Light {
      * @en The AABB bounding box of the lighting area
      * @zh 受光源影响范围的 AABB 包围盒
      */
-    get aabb () {
+    get aabb (): geometry.AABB {
         return this._aabb;
     }
 
@@ -129,7 +128,7 @@ export class SphereLight extends Light {
         this._type = LightType.SPHERE;
     }
 
-    public initialize () {
+    public initialize (): void {
         super.initialize();
 
         const size = 0.15;
@@ -143,7 +142,7 @@ export class SphereLight extends Light {
      * @en Update the lighting area
      * @zh 更新光源影响范围
      */
-    public update () {
+    public update (): void {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             const range = this._range;

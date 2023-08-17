@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
 import { js } from '../../core';
@@ -29,22 +28,22 @@ import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
 import plistParser from './plist-parser';
-import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
+import { files, parsed } from './shared';
 import { CCON } from '../../serialization/ccon';
 import { Asset } from '../assets';
 
-export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type ParseHandler = (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 /**
  * @en
- * Parse the downloaded file, it's a singleton, all member can be accessed with `assetManager.parser`
+ * Parse the downloaded file, it's a singleton, you can access it via [[AssetManager.parser]].
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManaager.parser` 访问
+ * 解析已下载的文件，parser 是一个单例, 你能通过 [[assetManager.parser]] 访问它。
  *
  */
 export class Parser {
-    private _parsing = new Cache<CompleteCallback[]>();
+    private _parsing = new Cache<((err: Error | null, data?: any | null) => void)[]>();
 
     private _parsers: Record<string, ParseHandler> = {
         '.png': this.parseImage,
@@ -68,19 +67,35 @@ export class Parser {
         '.cconb': this.parseImport,
     };
 
-    public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
+    private static _instance: Parser;
+
+    public static get instance (): Parser {
+        if (!this._instance) {
+            this._instance = new Parser();
+        }
+        return this._instance;
+    }
+    private constructor () {}
+
+    /**
+     * @engineInternal
+     */
+    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)): void {
         if (file instanceof HTMLImageElement) {
             onComplete(null, file);
             return;
         }
-        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result) => {
+        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
             onComplete(null, result);
-        }, (err) => {
+        }, (err): void => {
             onComplete(err, null);
         });
     }
 
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -92,7 +107,10 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -104,7 +122,10 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -116,14 +137,20 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    /**
+     * @engineInternal
+     */
+    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
         onComplete(err, result);
     }
 
-    public parseImport (file: Record<string, any> | CCON, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
+    /**
+     * @engineInternal
+     */
+    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)): void {
         if (!file) {
             onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;
@@ -138,22 +165,27 @@ export class Parser {
         onComplete(err, result);
     }
 
-    public init () {
+    /**
+     * @engineInternal
+     */
+    public init (): void {
         this._parsing.clear();
     }
 
     /**
      * @en
-     * Register custom handler if you want to change default behavior or extend parser to parse other format file
+     * Register custom handler if you want to change default behavior or extend parser to parse other format file.
      *
      * @zh
-     * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的 handler。
      *
-     * @param type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
-     * @param handler - The corresponding handler
-     * @param handler.file - File
-     * @param handler.options - Some optional paramter
-     * @param handler.onComplete - callback when finishing parsing
+     * @param type
+     * @en Extension name likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
+     * @zh 形如 '.jpg' 的扩展名或形如 {'.jpg': jpgHandler, '.png': pngHandler} 的映射表。
+     * @param handler @en The corresponding handler. @zh 对应扩展名的处理方法。
+     * @param handler.file @en The file to be parsed. @zh 待解析的文件。
+     * @param handler.options @en Some optional parameters. @zh 一些可选的参数。
+     * @param handler.onComplete @en The callback invoked when parsing finished. @zh 完成解析的回调。
      *
      * @example
      * parser.register('.tga', (file, options, onComplete) => onComplete(null, null));
@@ -161,9 +193,12 @@ export class Parser {
      *                  '.ext': (file, options, onComplete) => onComplete(null, null)});
      *
      */
-    public register (type: string, handler: ParseHandler): void;
-    public register (map: Record<string, ParseHandler>): void;
-    public register (type: string | Record<string, ParseHandler>, handler?: ParseHandler) {
+    public register (type: string, handler: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void): void;
+    public register (map: Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>): void;
+    public register (
+        type: string | Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
+        handler?: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
+    ): void {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
         } else {
@@ -173,18 +208,18 @@ export class Parser {
 
     /**
      * @en
-     * Use corresponding handler to parse file
+     * Use corresponding handler to parse file.
      *
      * @zh
-     * 使用对应的handler来解析文件
+     * 使用对应的 handler 来解析文件。
      *
-     * @param id - The id of file
-     * @param file - File
-     * @param type - The corresponding type of file, likes '.jpg'.
-     * @param options - Some optional parameters will be transferred to the corresponding handler.
-     * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicates success
-     * @param onComplete.content - The parsed file
+     * @param id @en The id of file. @zh 文件的唯一 id。
+     * @param file @en The data of file. @zh 文件的数据。
+     * @param type @en The corresponding type of file, likes '.jpg'. @zh 需要使用的解析方法类型。
+     * @param options @en Some optional parameters will be transferred to the corresponding handler. @zh 传递到解析方法的额外参数。
+     * @param onComplete @en The callback invoked when finishing parsing. @zh 完成解析的回调。
+     * @param onComplete.err @en The occurred error, null indicates success. @zh 解析过程中发生的错误，null 表明解析成功。
+     * @param onComplete.content @en The parsed data. @zh 解析后的数据。
      *
      * @example
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {
@@ -192,7 +227,7 @@ export class Parser {
      * });
      *
      */
-    public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public parse (id: string, file: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
             onComplete(null, parsedAsset);
@@ -211,7 +246,7 @@ export class Parser {
         }
 
         this._parsing.add(id, [onComplete]);
-        parseHandler(file, options, (err, data) => {
+        parseHandler(file, options, (err, data): void => {
             if (err) {
                 files.remove(id);
             } else if (!isScene(data)) {
@@ -225,4 +260,4 @@ export class Parser {
     }
 }
 
-export default new Parser();
+export default Parser.instance;

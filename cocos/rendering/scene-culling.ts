@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,24 +20,25 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
-import { EDITOR } from 'internal:constants';
+*/
 import { Model } from '../render-scene/scene/model';
 import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
+import { Vec3, Pool, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { LODModelsCachedUtils } from './lod-models-utils';
+import { AABB } from '../core/geometry';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
-const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const roPool = new Pool<IRenderObject>((): IRenderObject => ({ model: null!, depth: 0 }), 128);
 
-function getRenderObject (model: Model, camera: Camera) {
+function getRenderObject (model: Model, camera: Camera): IRenderObject {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
@@ -50,7 +50,7 @@ function getRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
+export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera): void {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
@@ -58,7 +58,7 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { spotLights } = camera.scene!;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        if (light.baked) {
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
             continue;
         }
 
@@ -71,6 +71,18 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { sphereLights } = camera.scene!;
     for (let i = 0; i < sphereLights.length; i++) {
         const light = sphereLights[i];
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
         if (light.baked) {
             continue;
         }
@@ -79,8 +91,20 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             validPunctualLights.push(light);
         }
     }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+    // in jsb, std::vector is not synchronized, so we need to assign it manually
+    sceneData.validPunctualLights = validPunctualLights;
 }
-export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
+
+export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
@@ -90,37 +114,40 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    csmLayerObjects.array.forEach((obj, index) => {
+    for (let i = csmLayerObjects.length - 1; i >= 0; i--) {
+        const obj = csmLayerObjects.array[i];
         if (!obj) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         const model = obj.model;
         if (!model || !model.enabled || !model.node) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) {
-            return;
+        if (((visibility & model.node.layer) !== model.node.layer) && (!(visibility & model.visFlags))) {
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         if (!model.worldBounds || !model.castShadow) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-
-        // frustum culling
         const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
         if (!accurate) {
-            return;
+            continue;
         }
         dirShadowObjects.push(obj);
         if (layer.level < mainLight.csmLevel) {
             if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
                     && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                csmLayerObjects.fastRemove(index);
+                csmLayerObjects.fastRemove(i);
             }
         }
-    });
+    }
 }
 
-export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
+export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
     const sceneData = pipeline.pipelineSceneData;
@@ -157,10 +184,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    function enqueueRenderObject (model: Model) {
+    function enqueueRenderObject (model: Model): void {
         // filter model by view visibility
         if (model.enabled) {
-            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+            if (scene.isCulledByLod(camera, model)) {
                 return;
             }
 
@@ -181,9 +208,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
-    LODModelsCachedUtils.updateCachedLODModels(scene, camera);
     for (let i = 0; i < models.length; i++) {
         enqueueRenderObject(models[i]);
     }
-    LODModelsCachedUtils.clearCachedLODModels();
 }

@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") engine
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -100,6 +103,9 @@ namespace cc {
 %ignore JSBNativeDataHolder::getData;
 %ignore JSBNativeDataHolder::setData;
 
+%ignore CCObject::setScriptObject;
+%ignore CCObject::getScriptObject;
+
 }
 
 
@@ -169,7 +175,6 @@ namespace cc {
 
 %attribute(cc::CCObject, ccstd::string&, name, getName, setName);
 %attribute(cc::CCObject, cc::CCObject::Flags, hideFlags, getHideFlags, setHideFlags);
-%attribute(cc::CCObject, bool, replicated, isReplicated, setReplicated);
 %attribute(cc::CCObject, bool, isValid, isValid);
 
 // ----- Import Section ------

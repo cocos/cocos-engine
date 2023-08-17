@@ -1,0 +1,423 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        occlusion:                        { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:                        { value: 0.07, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 1.0, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: ScleraColorMap, tooltip: 'T_Sclera_D' } }
+        normalMap:                        { value: normal, editor: { displayName: ScleraNormalMap, tooltip: 'T_Sclera_N' } }
+        occlusionMap:                     { value: white }
+        irisGradientMap:                  { value: white, editor: { tooltip: 'T_Eye_Gradient' } }
+        irisColorMaskMap:                 { value: black, editor: { tooltip: 'T_Iris_A_M' } }
+        veinsColorMap:                    { value: black, editor: { tooltip: 'T_Veins_D' } }
+        irisNormalMap:                    { value: normal, editor: { parent: USE_IRIS_REFRACTION, tooltip: 'normalMap with conreal shape like T_Eye_N' } }
+        irisHeightMap:                    { value: black, editor: { tooltip: 'T_EyeMidPlaneDisplacement' } }
+        irisHeightMapAlpha:               { value: black, editor: { tooltip: 'T_EyeMidPlaneDisplacement Alpha Channel' } }
+        irisHeightScale:                  { value: 1.0, target: irisParams.x, editor: { parent: USE_IRIS_REFRACTION, slide: true, range: [0, 5.0], step: 0.001 } }
+        irisScale:                        { value: 0.5, target: irisParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        pupilScale:                       { value: 1.0, target: irisParams.w, editor: { slide: true, range: [1.0, 3.0], step: 0.001 } }
+        veinsBleeding:                    { value: 1.5, target: irisParams.y, editor: { slide: true, range: [0.0, 3.0], step: 0.001 } }
+        irisMainColor:                    { value: 0.8, target: irisColorParams.x, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        irisMainBright:                   { value: 1.0, target: irisColorParams.y, editor: { slide: true, range: [0.0, 5.0], step: 0.001 } }
+        irisEdgeColor:                    { value: 0.5, target: irisColorParams.z, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        irisEdgeBright:                   { value: 1.0, target: irisColorParams.w, editor: { slide: true, range: [0.0, 5.0], step: 0.001 } }
+        reflectionEnhancement:            { value: 1.5, target: emissiveScaleParam.x, editor: { slide: true, range: [1.0, 3.0], step: 0.001 } }
+        scleraBright:                     { value: 1.0, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        causticsPosition:                 { value: 0.3, target: causticsParams.x, editor: { parent: USE_IRIS_CAUSTICS, slide: true, range: [0.0, 1.0], step: 0.001 } }
+        causticsWidth:                    { value: 0.3, target: causticsParams.y, editor: { parent: USE_IRIS_CAUSTICS, slide: true, range: [0.0, 1.0], step: 0.001 } }
+        causticsIntensity:                { value: 1.0, target: causticsParams.w, editor: { parent: USE_IRIS_CAUSTICS, slide: true, range: [0.0, 3.0], step: 0.001 } }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs
+      frag: shadow-caster-fs
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+    - &reflect-map
+      vert: standard-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+    - &deferred-forward-transparent
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 pbrParams;
+    vec4 emissiveScaleParam;
+    vec4 irisParams;
+    vec4 irisColorParams;
+    vec4 causticsParams;
+  };
+}%
+
+CCProgram macro-remapping %{
+  // depend on UI macros
+#if USE_NORMAL_MAP
+  #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+}%
+
+CCProgram surface-vertex %{
+  out vec4 v_planeN;
+  out vec4 v_planeT;
+
+  #define CC_SURFACES_VERTEX_MODIFY_LOCAL_SHARED_DATA
+  void SurfacesVertexModifyLocalSharedData(inout SurfacesStandardVertexIntermediate In)
+  {
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    v_planeN.xyz = normalize((matWorldIT * vec4(0.0, 0.0, 1.0, 0.0)).xyz); // meta human exported mesh is facing to Z-Axis
+    v_planeT.xyz = normalize((matWorldIT * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
+    v_planeN.w = v_planeT.w = 1.0;
+  }
+}%
+
+CCProgram surface-fragment %{
+  uniform sampler2D albedoMap;
+  #if USE_NORMAL_MAP
+    uniform sampler2D normalMap;
+  #endif
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+  #endif
+
+  ////////////////////////////////////////////////////////////////User Define
+  in vec4 v_planeN;
+  in vec4 v_planeT;
+  #if USE_IRIS_REFRACTION
+    uniform sampler2D irisNormalMap;
+  #endif
+  uniform sampler2D irisHeightMap;
+  uniform sampler2D irisHeightMapAlpha;
+  uniform sampler2D irisColorMaskMap;
+  uniform sampler2D irisGradientMap;
+  uniform sampler2D veinsColorMap;
+
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, FSInput_texcoord).xyz - vec3(0.5);
+      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
+    #endif
+
+    return normalize(normal);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+  vec4 SurfacesFragmentModifyPBRParams()
+  {
+    vec4 pbr = pbrParams;
+    pbr.x = 1.0;
+    #if USE_OCCLUSION_MAP
+      pbr.x = mix(1.0, texture(occlusionMap, FSInput_texcoord).r, pbrParams.x);
+    #endif
+
+    return pbr;
+  }
+
+
+  #include <common/texture/texture-misc>
+  #include <common/lighting/functions>
+  #include <eye>
+
+  #define CONREAL_IOR 1.336
+  vec2 GetEllipseRefractionOffset(vec3 planeN, vec3 planeT, vec3 planeB, vec3 conrealNormal, vec3 refractDir, float height)
+  {
+    float NoR = dot(conrealNormal, -refractDir);
+    float lenR = height / max(NoR, EPSILON_LOWP);
+    vec3 refract = refractDir * lenR;
+    // project R onto plane UV space, -B for Y -> V dir correction
+    return vec2(dot(refract, planeT), dot(refract, -planeB));
+  }
+
+
+  // definition of SurfacesMaterialData structure with corresponding shading-model
+  #include <surfaces/data-structures/standard>
+
+  //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+    vec3 worldPos;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
+
+    float irisHeightScale = irisParams.x;
+    float IrisUVRadius = irisParams.z * 2.0; // default is 0.5
+    float PupilScale = irisParams.w;
+    float VeinsPower = irisParams.y;
+    float IrisColor1U = irisColorParams.x; // default is 0.8 for asian
+    float IrisColor2U = irisColorParams.z; // default is 0.5 for asian
+    float IrisColor1Bright = irisColorParams.y;
+    float IrisColor2Bright = irisColorParams.w;
+    float scleraBright = emissiveScaleParam.y;
+    vec3 scleraTintColor = vec3(1.0);
+
+    vec3 viewDir = normalize(cc_cameraPos.xyz - worldPos);
+
+    // vec2 irisUV = (FSInput_texcoord - vec2(0.5)) / IrisScale + vec2(0.5);
+    // if (irisUV.x > 0.0 && irisUV.y > 0.0 && irisUV.x < 1.0 && irisUV.y < 1.0)
+
+    // Iris Mask with Limbus Ring falloff
+    vec3 out_IrisUVMask = GetIrisUVMask(IrisUVRadius);
+
+    // Refraction
+    vec2 out_RefractedUV = FSInput_texcoord;
+    #if USE_IRIS_REFRACTION
+      float texHeight = SampleTextureExr(irisHeightMap, FSInput_texcoord).x;
+      float height = texHeight * irisHeightScale;
+
+      vec3 irisN = normalize(FSInput_worldNormal);
+      vec3 R = CalculateRefractDirection(irisN, viewDir, dot(irisN, viewDir), CONREAL_IOR);
+
+      vec3 receivePlaneN = v_planeN.xyz;
+      vec3 receivePlaneT = v_planeT.xyz;
+      vec3 receivePlaneB = CalculateBinormal(receivePlaneN, receivePlaneT, 1.0);
+
+      vec2 uv_offset = GetEllipseRefractionOffset(receivePlaneN, receivePlaneT, receivePlaneB, irisN, normalize(R), height);
+      out_RefractedUV = saturate(FSInput_texcoord + uv_offset /** texHeight*/ * 0.1); //需要边缘位移稍微小一点的话就加texHeight
+    #endif
+
+    // scaling pupil
+    vec2 out_IrisUV = GetIrisUV(out_RefractedUV, IrisUVRadius, PupilScale);
+
+    // generating iris color
+    vec3 out_IrisGeneratedColor = GetGeneratedColorForIris(out_IrisUV, irisColorMaskMap, IrisColor1U, IrisColor2U, IrisColor1Bright, IrisColor2Bright);
+
+    // blend iris and sclera use IrisMask
+    surfaceData.baseColor.rgb = GetBlendColorForIrisAndSclera(out_IrisUVMask, out_IrisGeneratedColor, irisHeightMapAlpha, albedoMap, veinsColorMap, scleraTintColor, VeinsPower, scleraBright);
+
+    // flatterned normal for iris area
+    surfaceData.worldNormal = normalize(lerp(surfaceData.worldNormal, FSInput_worldNormal, out_IrisUVMask.r));
+
+    // iris area flag (UVMask) and attenuation for caustics
+    // irisUVMask area is a little bit larger than irisGeneratedColor
+    float irisAttenuation = saturate(out_IrisUVMask.r * length(out_IrisGeneratedColor) * 10.0);
+    surfaceData.ior = irisAttenuation;
+    surfaceData.emissive = out_IrisUVMask;
+  }
+
+  // see <lighting-models/default-functions/XXXX> for more overrided functions, XXXX is lighting-model name
+  #include <lighting-models/includes/standard>
+  #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
+  {
+  #if USE_IRIS_REFRACTION
+    vec3 worldPos;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
+
+    vec3 L = lightingData.L;
+    vec3 viewDir = normalize(cc_cameraPos.xyz - worldPos);
+
+    LightingIntermediateData lightingDataRefract = lightingData;
+    vec3 newL = -CalculateRefractDirection(surfaceData.worldNormal, L, dot(surfaceData.worldNormal, L), CONREAL_IOR);
+    CCSurfacesLightingGetIntermediateData_PerLight(lightingDataRefract, newL);
+    if (surfaceData.emissive.x > 0.0) {
+      result.directSpecular = CalculateDirectSpecular(lightingDataRefract, miscData.lightColorAndIntensity);
+
+      #if !CC_FORWARD_ADD
+        lightingDataRefract.V = -CalculateRefractDirection(surfaceData.worldNormal, viewDir, dot(surfaceData.worldNormal, viewDir), CONREAL_IOR);
+        result.environmentSpecular = CalculateEnvironmentSpecular(lightingDataRefract, cc_ambientSky.w);
+      #endif
+    }
+  #endif
+
+    // enhanced more contrast for brighter part
+    result.environmentSpecular = pow(result.environmentSpecular, vec3(emissiveScaleParam.x));
+
+
+  #if USE_SCLERA_SSS
+    LightingIntermediateData lightingData3S = lightingData;
+    lightingData3S.N = normalize(FSInput_worldNormal);
+    CCSurfacesLightingGetIntermediateData_PerLight(lightingData3S, lightingData.L);
+    result.directDiffuse = CalculateDirectDiffuse(lightingData3S, miscData.lightColorAndIntensity);
+  #endif
+
+
+  #if USE_IRIS_CAUSTICS
+    vec3 receivePlaneN = v_planeN.xyz;
+    vec3 receivePlaneT = v_planeT.xyz;
+    vec3 receivePlaneB = CalculateBinormal(receivePlaneN, receivePlaneT, 1.0);
+
+    // conreal back face normal has inverse projector dir with plane T B
+    float projectorN = dot(surfaceData.worldNormal, receivePlaneN);
+    float projectorT = dot(surfaceData.worldNormal, receivePlaneT);
+    float projectorB = dot(surfaceData.worldNormal, receivePlaneB);
+    vec3 backN = normalize(projectorN * receivePlaneN - projectorT * receivePlaneT - projectorB * receivePlaneB);
+
+    LightingIntermediateData lightingDataCaustics = lightingData;
+    lightingDataCaustics.N = backN;
+    CCSurfacesLightingGetIntermediateData_PerLight(lightingDataCaustics, lightingData.L);
+
+    float causticsIntensity = causticsParams.w;
+
+    float irisMaskAttenuation = surfaceData.ior;
+    #if USE_IRIS_CAUSTICS_RANGE
+      // rangeFilter results according to UV distribution, 5.0 can be modified to match different UVs
+      float uvLength = saturate(length(FSInput_texcoord - vec2(0.5)) * 5.0);
+      float start = causticsParams.x, end = saturate(start + causticsParams.y), widthAtten = 0.2;
+      float rangeFilter = saturate(smoothstep(start, end, uvLength)) * (1.0 - saturate(smoothstep(end, saturate(end + widthAtten), uvLength)));
+      // rangeFilter can be ignored
+      irisMaskAttenuation *= rangeFilter;
+    #endif
+
+    vec3 directCaustics = vec3(pow(lightingDataCaustics.NoLSat, 10.0)) * 2.0;
+    result.directDiffuse += directCaustics * causticsIntensity * irisMaskAttenuation * miscData.lightColorAndIntensity.rgb * miscData.lightColorAndIntensity.w;
+    #if !CC_FORWARD_ADD
+      vec3 envCaustics = CalculateEnvironmentDiffuse(lightingDataCaustics, 1.0);
+      envCaustics = pow(envCaustics, vec3(4.0)) * 0.5;
+      result.environmentDiffuse += envCaustics * causticsIntensity * irisMaskAttenuation * cc_ambientSky.w;
+    #endif
+  #endif
+
+    // restore emissive
+    result.emissive = vec3(0.0);
+  }
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
+
+
+
+CCProgram standard-fs %{
+  // shading-model : standard
+  // lighting-model : standard (isotropy / anisotropy pbr)
+  // shader stage : fs
+  // technique usage/type : render-to-scene
+
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
+}%

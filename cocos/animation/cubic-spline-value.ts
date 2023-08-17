@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Quat, Vec2, Vec3, Vec4 } from '../core';
@@ -41,32 +40,32 @@ type ScaleFx<T> = (out: T, v: T, s: number) => T;
 type ScaleAndAddFx<T> = (out: T, v1: T, v2: T, s: number) => T;
 function makeCubicSplineValueConstructor<T> (
     name: string,
-    constructorX: new () => T,
+    ConstructorX: new () => T,
     scaleFx: ScaleFx<T>,
     scaleAndAdd: ScaleAndAddFx<T>,
 ): CubicSplineValueConstructor<T> {
-    let tempValue = new constructorX();
-    let m0 = new constructorX();
-    let m1 = new constructorX();
+    let tempValue = new ConstructorX();
+    let m0 = new ConstructorX();
+    let m1 = new ConstructorX();
 
     @ccclass(name)
     class CubicSplineValueClass implements ICubicSplineValue<T> {
         @serializable
-        public dataPoint: T = new constructorX();
+        public dataPoint: T = new ConstructorX();
 
         @serializable
-        public inTangent: T = new constructorX();
+        public inTangent: T = new ConstructorX();
 
         @serializable
-        public outTangent: T = new constructorX();
+        public outTangent: T = new ConstructorX();
 
         constructor (dataPoint?: T, inTangent?: T, outTangent?: T) {
-            this.dataPoint = dataPoint || new constructorX();
-            this.inTangent = inTangent || new constructorX();
-            this.outTangent = outTangent || new constructorX();
+            this.dataPoint = dataPoint || new ConstructorX();
+            this.inTangent = inTangent || new ConstructorX();
+            this.outTangent = outTangent || new ConstructorX();
         }
 
-        public lerp (to: CubicSplineValueClass, t: number, dt: number) {
+        public lerp (to: CubicSplineValueClass, t: number, dt: number):T {
             const p0 = this.dataPoint;
             const p1 = to.dataPoint;
             // dt => t_k+1 - t_k
@@ -85,15 +84,16 @@ function makeCubicSplineValueConstructor<T> (
             return tempValue;
         }
 
-        public getNoLerp () {
+        public getNoLerp (): T {
             return this.dataPoint;
         }
     }
 
-    // @ts-expect-error TS2367
-    if (constructorX === Quat) {
+    // TODO: This comparison appears to be unintentional because the types 'new () => T' and 'typeof Quat' have no overlap. @Lelie Leight
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
+    if (ConstructorX as any === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
-        CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {
+        CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number): Quat {
             const result = lerp.call(this, to, t, dt) as Quat;
             Quat.normalize(result, result);
             return result;
@@ -166,7 +166,7 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         this.outTangent = outTangent;
     }
 
-    public lerp (to: CubicSplineNumberValue, t: number, dt: number) {
+    public lerp (to: CubicSplineNumberValue, t: number, dt: number): number {
         const p0 = this.dataPoint;
         const p1 = to.dataPoint;
         // dt => t_k+1 - t_k
@@ -181,7 +181,7 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         return p0 * f_0 + m0 * f_1 + p1 * f_2 + m1 * f_3;
     }
 
-    public getNoLerp () {
+    public getNoLerp (): number {
         return this.dataPoint;
     }
 }

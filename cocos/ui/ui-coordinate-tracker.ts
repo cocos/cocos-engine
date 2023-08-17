@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -51,7 +50,7 @@ export class UICoordinateTracker extends Component {
      */
     @type(Node)
     @tooltip('i18n:UICoordinateTracker.target')
-    get target () {
+    get target (): Node | null {
         return this._target;
     }
 
@@ -73,7 +72,7 @@ export class UICoordinateTracker extends Component {
      */
     @type(Camera)
     @tooltip('i18n:UICoordinateTracker.camera')
-    get camera () {
+    get camera (): Camera | null {
         return this._camera;
     }
 
@@ -94,7 +93,7 @@ export class UICoordinateTracker extends Component {
      * 是否是缩放映射。
      */
     @tooltip('i18n:UICoordinateTracker.use_scale')
-    get useScale () {
+    get useScale (): boolean {
         return this._useScale;
     }
 
@@ -114,7 +113,7 @@ export class UICoordinateTracker extends Component {
      * 距相机多少距离为正常显示计算大小。
      */
     @tooltip('i18n:UICoordinateTracker.distance')
-    get distance () {
+    get distance (): number {
         return this._distance;
     }
 
@@ -155,11 +154,11 @@ export class UICoordinateTracker extends Component {
     protected _lastWPos = new Vec3();
     protected _lastCameraPos = new Vec3();
 
-    public onEnable () {
+    public onEnable (): void {
         this._checkCanMove();
     }
 
-    public update () {
+    public update (): void {
         const wPos = this.node.worldPosition;
         const camera = this._camera;
         if (!this._canMove || !camera || !camera.camera || (this._lastWPos.equals(wPos) && this._lastCameraPos.equals(camera.node.worldPosition))) {
@@ -181,7 +180,7 @@ export class UICoordinateTracker extends Component {
         }
     }
 
-    protected _checkCanMove () {
+    protected _checkCanMove (): void {
         this._canMove = !!(this._camera && this._target);
     }
 }

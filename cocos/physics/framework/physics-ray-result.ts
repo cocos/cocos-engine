@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3, IVec3Like } from '../../core';
 import { Collider } from '../../../exports/physics-framework';
@@ -86,7 +85,7 @@ export class PhysicsRayResult {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like): void {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
@@ -99,7 +98,7 @@ export class PhysicsRayResult {
      * @zh
      * 克隆。
      */
-    public clone () {
+    public clone (): PhysicsRayResult {
         const c = new PhysicsRayResult();
         Vec3.copy(c._hitPoint, this._hitPoint);
         Vec3.copy(c._hitNormal, this._hitNormal);
@@ -135,7 +134,7 @@ export class PhysicsLineStripCastResult extends PhysicsRayResult {
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
      * @engineInternal
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0): void {
         super._assign(hitPoint, distance, collider, hitNormal);
         this._id = id;
     }
@@ -146,7 +145,7 @@ export class PhysicsLineStripCastResult extends PhysicsRayResult {
      * @zh
      * 克隆。
      */
-    public clone () {
+    public clone (): PhysicsLineStripCastResult {
         const c = new PhysicsLineStripCastResult();
         Vec3.copy(c._hitPoint, this._hitPoint);
         Vec3.copy(c._hitNormal, this._hitNormal);

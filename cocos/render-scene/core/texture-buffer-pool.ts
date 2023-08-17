@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit,
     Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
@@ -59,7 +58,7 @@ export interface ITextureBufferPoolInfo {
     roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
 }
 
-function roundUp (n: number, alignment: number) {
+function roundUp (n: number, alignment: number): number {
     return Math.ceil(n / alignment) * alignment;
 }
 
@@ -82,7 +81,7 @@ export class TextureBufferPool {
         this._device = device;
     }
 
-    public initialize (info: ITextureBufferPoolInfo) {
+    public initialize (info: ITextureBufferPoolInfo): void {
         const formatInfo = FormatInfos[info.format];
         this._format = info.format;
         this._formatSize = formatInfo.size;
@@ -93,7 +92,7 @@ export class TextureBufferPool {
         if (info.inOrderFree) { this.alloc = this._McDonaldAlloc; }
     }
 
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this._chunkCount; ++i) {
             const chunk = this._chunks[i];
             chunk.texture.destroy();
@@ -102,7 +101,7 @@ export class TextureBufferPool {
         this._handles.length = 0;
     }
 
-    public alloc (size: number, chunkIdx?: number) {
+    public alloc (size: number, chunkIdx?: number): ITextureBufferHandle {
         size = roundUp(size, this._alignment);
 
         let index = -1;
@@ -149,7 +148,7 @@ export class TextureBufferPool {
         return texHandle;
     }
 
-    public free (handle: ITextureBufferHandle) {
+    public free (handle: ITextureBufferHandle): void {
         for (let i = 0; i < this._handles.length; ++i) {
             if (this._handles[i] === handle) {
                 this._chunks[handle.chunkIdx].end = handle.end;
@@ -159,7 +158,7 @@ export class TextureBufferPool {
         }
     }
 
-    public createChunk (length: number) {
+    public createChunk (length: number): number {
         const texSize = length * length * this._formatSize;
 
         debug(`TextureBufferPool: Allocate chunk ${this._chunkCount}, size: ${texSize}, format: ${this._format}`);
@@ -182,7 +181,7 @@ export class TextureBufferPool {
         return this._chunkCount++;
     }
 
-    public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
+    public update (handle: ITextureBufferHandle, buffer: ArrayBuffer): void {
         const buffers: ArrayBufferView[] = [];
         const regions: BufferTextureCopy[] = [];
         const start = handle.start / this._formatSize;
@@ -244,7 +243,7 @@ export class TextureBufferPool {
         this._device.copyBuffersToTexture(buffers, handle.texture, regions);
     }
 
-    private _findAvailableSpace (size: number, chunkIdx: number) {
+    private _findAvailableSpace (size: number, chunkIdx: number): number {
         const chunk = this._chunks[chunkIdx];
         let isFound = false;
         let start = chunk.start;
@@ -252,7 +251,7 @@ export class TextureBufferPool {
             isFound = true;
         } else {
             start = 0; // try to find from head again
-            const handles = this._handles.filter((h) => h.chunkIdx === chunkIdx).sort((a, b) => a.start - b.start);
+            const handles = this._handles.filter((h): boolean => h.chunkIdx === chunkIdx).sort((a, b): number => a.start - b.start);
             for (let i = 0; i < handles.length; i++) {
                 const handle = handles[i];
                 if ((start + size) <= handle.start) {
@@ -269,7 +268,7 @@ export class TextureBufferPool {
     }
 
     // [McDonald 12] Efficient Buffer Management
-    private _McDonaldAlloc (size: number) {
+    private _McDonaldAlloc (size: number): ITextureBufferHandle {
         size = roundUp(size, this._alignment);
 
         for (let i = 0; i < this._chunkCount; ++i) {

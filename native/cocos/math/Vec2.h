@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -461,7 +461,7 @@ public:
     /** @returns if points have fuzzy equality which means equal with some degree of variance.
      @since v2.1.4
      */
-    bool fuzzyEquals(const Vec2 &target, float variance) const;
+    bool fuzzyEquals(const Vec2 &b, float var) const;
 
     /** Calculates distance between point an origin
      @return float
@@ -607,10 +607,10 @@ public:
     }
 
     /** A general line-line intersection test
-     @param a   the startpoint for the first line L1 = (a - b)
-     @param b   the endpoint for the first line L1 = (a - b)
-     @param c   the startpoint for the second line L2 = (c - d)
-     @param d   the endpoint for the second line L2 = (c - d)
+     @param a   the start point for the first line L1 = (a - b)
+     @param b   the end point for the first line L1 = (a - b)
+     @param c   the start point for the second line L2 = (c - d)
+     @param d   the end point for the second line L2 = (c - d)
      @param s   the range for a hitpoint in L1 (p = a + s*(b - a))
      @param t   the range for a hitpoint in L2 (p = c + t*(d - c))
      @return    whether these two lines intersects.
@@ -618,7 +618,7 @@ public:
      Note that to truly test intersection for segments we have to make
      sure that s & t lie within [0..1] and for rays, make sure s & t > 0
      the hit point is        c + t * (d - c);
-     the hit point also is   a + b * (b - a);
+     the hit point also is   a + s * (b - a);
      @since 3.0
      */
     static bool isLineIntersect(const Vec2 &a, const Vec2 &b,

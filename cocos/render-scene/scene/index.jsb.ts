@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,15 +20,52 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { Vec3, Enum, cclegacy } from '../../core';
+import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
-export type Ambient = jsb.Ambient;
-export const Ambient = jsb.Ambient;
+export const LODData: typeof JsbLODData = jsb.LODData;
+export type LODData = JsbLODData;
+export const LODGroup: typeof JsbLODGroup = jsb.LODGroup;
+export type LODGroup = JsbLODGroup;
+
+import type {
+    Ambient as JsbAmbient,
+    Light as JsbLight,
+    DirectionalLight as JsbDirectionalLight,
+    SpotLight as JsbSpotLight,
+    SphereLight as JsbSphereLight,
+    PointLight as JsbPointLight,
+    RangedDirectionalLight as JsbRangedDirectionalLight,
+    Fog as JsbFog,
+    Shadows as JsbShadows,
+    Skybox as JsbSkybox,
+    PostSettings as JsbPostSettings
+} from './index';
+
+// NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
+import type {
+    FogInfo as JsbFogInfo,
+    ShadowsInfo as JsbShadowsInfo,
+} from '../../scene-graph/scene-globals';
+
+declare const jsb: any;
+
+export type Ambient = JsbAmbient;
+export const Ambient: typeof JsbAmbient = jsb.Ambient;
 cclegacy.Ambient = Ambient;
 
-export const LODData = jsb.LODData;
-export const LODGroup = jsb.LODGroup;
+/**
+ * @en Default sun illuminance
+ * @zh 默认太阳亮度
+ */
+Ambient.SUN_ILLUM = 65000.0;
+/**
+ * @en Default sky illuminance
+ * @zh 默认天空亮度
+ */
+Ambient.SKY_ILLUM = 20000.0;
+
 
 /**
  * Light related.
@@ -66,25 +102,36 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
-export const Light = jsb.Light;
-export type Light = jsb.Light;
+
+export const Light: typeof JsbLight = jsb.Light;
+export type Light = JsbLight;
 cclegacy.Light = jsb.Light;
 
-export const DirectionalLight = jsb.DirectionalLight;
-export type DirectionalLight = jsb.DirectionalLight;
+export const DirectionalLight: typeof JsbDirectionalLight = jsb.DirectionalLight;
+export type DirectionalLight = JsbDirectionalLight;
 cclegacy.DirectionalLight = jsb.DirectionalLight;
 
-export const SpotLight = jsb.SpotLight;
-export type SpotLight = jsb.SpotLight;
+export const SpotLight: typeof JsbSpotLight = jsb.SpotLight;
+export type SpotLight = JsbSpotLight;
 cclegacy.SpotLight = jsb.SpotLight;
 
-export const SphereLight = jsb.SphereLight;
-export type SphereLight = jsb.SphereLight;
+export const SphereLight: typeof JsbSphereLight = jsb.SphereLight;
+export type SphereLight = JsbSphereLight;
 cclegacy.SphereLight = jsb.SphereLight;
+
+export const PointLight: typeof JsbPointLight = jsb.PointLight;
+export type PointLight = JsbPointLight;
+cclegacy.PointLight = jsb.PointLight;
+
+export const RangedDirectionalLight: typeof JsbRangedDirectionalLight = jsb.RangedDirectionalLight;
+export type RangedDirectionalLight = JsbRangedDirectionalLight;
+cclegacy.RangedDirectionalLight = jsb.RangedDirectionalLight;
 
 /**
  * Fog related.
@@ -124,10 +171,11 @@ export const FogType = Enum({
      */
     LAYERED: 3,
 });
-export const FogInfo = jsb.FogInfo;
-export type FogInfo = jsb.FogInfo;
-export const Fog = jsb.Fog;
-export type Fog = jsb.Fog;
+
+export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
+export type FogInfo = JsbFogInfo;
+export const Fog: typeof JsbFog = jsb.Fog;
+export type Fog = JsbFog;
 cclegacy.Fog = Fog;
 
 /**
@@ -201,6 +249,13 @@ export const PCFType = Enum({
      * @readonly
      */
     SOFT_2X: 2,
+
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X: 3,
 });
 export const CSMLevel = Enum({
     /**
@@ -256,7 +311,7 @@ export const CSMLevel = Enum({
       * @en level 3
       * @readonly
       */
-    DisableRotaitonFix: 3,
+    DisableRotationFix: 3,
 });
 export const EnvironmentLightingType = Enum({
     /**
@@ -284,15 +339,53 @@ export const EnvironmentLightingType = Enum({
      */
     DIFFUSEMAP_WITH_REFLECTION: 2,
 });
-export const ShadowsInfo = jsb.ShadowsInfo;
-export type ShadowsInfo = jsb.ShadowsInfo;
-export const Shadows = jsb.Shadow;
-export type Shadows = jsb.Shadow;
+
+export const ToneMappingType = Enum({
+    DEFAULT: 0,
+    LINEAR: 1,
+});
+
+export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
+export type ShadowsInfo = JsbShadowsInfo;
+export const Shadows: typeof JsbShadows = jsb.Shadows;
+export type Shadows = JsbShadows;
 cclegacy.Shadows = Shadows;
 
-export const Skybox = jsb.Skybox;
-export type Skybox = jsb.Skybox;
+/**
+ * @en MAX_FAR. This is shadow camera max far.
+ * @zh 阴影相机的最远视距。
+ */
+
+Object.defineProperty(Shadows, "MAX_FAR", {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return 2000.0;
+    }
+});
+
+const COEFFICIENT_OF_EXPANSION = 2.0 * Math.sqrt(3.0);
+/**
+ * @en EXPANSION_RATIO. This is shadow boundingBox Coefficient of expansion.
+ * @zh 阴影包围盒扩大系数。
+ */
+Object.defineProperty(Shadows, 'COEFFICIENT_OF_EXPANSION', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return COEFFICIENT_OF_EXPANSION;
+    }
+});
+
+
+
+export const Skybox: typeof JsbSkybox = jsb.Skybox;
+export type Skybox = JsbSkybox;
 cclegacy.Skybox = Skybox;
+
+export const PostSettings: typeof JsbPostSettings = jsb.PostSettings;
+export type PostSettings = JsbPostSettings;
+cclegacy.PostSettings = PostSettings;
 
 export * from './model';
 export * from './submodel';

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -41,9 +40,9 @@ public:
     virtual uint32_t getObjectID() const = 0;
 };
 
-class IDistanceJoint : virtual public IBaseJoint {
+class ISphericalJoint : virtual public IBaseJoint {
 public:
-    ~IDistanceJoint() override = default;
+    ~ISphericalJoint() override = default;
     virtual void setPivotA(float x, float y, float z) = 0;
     virtual void setPivotB(float x, float y, float z) = 0;
 };
@@ -54,11 +53,58 @@ public:
     virtual void setPivotA(float x, float y, float z) = 0;
     virtual void setPivotB(float x, float y, float z) = 0;
     virtual void setAxis(float x, float y, float z) = 0;
+    virtual void setLimitEnabled(bool v) = 0;
+    virtual void setLowerLimit(float v) = 0;
+    virtual void setUpperLimit(float v) = 0;
+    virtual void setMotorEnabled(bool v) = 0;
+    virtual void setMotorVelocity(float v) = 0;
+    virtual void setMotorForceLimit(float v) = 0;
 };
 
 class IFixedJoint : virtual public IBaseJoint {
 public:
     ~IFixedJoint() override = default;
+    virtual void setBreakForce(float force) = 0;
+    virtual void setBreakTorque(float torque) = 0;
+};
+
+class IGenericJoint : virtual public IBaseJoint {
+public:
+    ~IGenericJoint() override = default;
+
+    virtual void setConstraintMode(uint32_t index, uint32_t mode) = 0;
+    virtual void setLinearLimit(uint32_t index, float lower, float upper) = 0;
+    virtual void setAngularExtent(float twist, float swing1, float swing2) = 0;
+    virtual void setLinearSoftConstraint(bool enable) = 0;
+    virtual void setLinearStiffness(float stiffness) = 0;
+    virtual void setLinearDamping(float damping) = 0;
+    virtual void setLinearRestitution(float restitution) = 0;
+
+    virtual void setSwingSoftConstraint(bool enable) = 0;
+    virtual void setTwistSoftConstraint(bool enable) = 0;
+    virtual void setSwingStiffness(float stiffness) = 0;
+    virtual void setSwingDamping(float damping) = 0;
+    virtual void setSwingRestitution(float restitution) = 0;
+    virtual void setTwistStiffness(float stiffness) = 0;
+    virtual void setTwistDamping(float damping) = 0;
+    virtual void setTwistRestitution(float restitution) = 0;
+
+    // motor
+    virtual void setDriverMode(uint32_t index, uint32_t mode) = 0;
+    virtual void setLinearMotorTarget(float x, float y, float z) = 0;
+    virtual void setLinearMotorVelocity(float x, float y, float z) = 0;
+    virtual void setLinearMotorForceLimit(float limit) = 0;
+
+    virtual void setAngularMotorTarget(float x, float y, float z) = 0;
+    virtual void setAngularMotorVelocity(float x, float y, float z) = 0;
+    virtual void setAngularMotorForceLimit(float limit) = 0;
+
+    virtual void setPivotA(float x, float y, float z) = 0;
+    virtual void setPivotB(float x, float y, float z) = 0;
+    virtual void setAutoPivotB(bool enable) = 0;
+    virtual void setAxis(float x, float y, float z) = 0;
+    virtual void setSecondaryAxis(float x, float y, float z) = 0;
+
     virtual void setBreakForce(float force) = 0;
     virtual void setBreakTorque(float torque) = 0;
 };

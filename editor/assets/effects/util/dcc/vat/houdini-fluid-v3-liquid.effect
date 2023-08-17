@@ -1,0 +1,478 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        vatSpeed:                         { value: 1.0, target: vatAnimParams.x, editor: { displayName: AnimationSpeed } }
+        vatNormalIntensity:               { value: 0.5, target: vatAnimParams.y, editor: { displayName: AnimationNormalIntensity, slide: true, range: [0, 1.0], step: 0.001 } }
+        vatLoopStartFrame:                { value: 0, target: vatBBMin.w, editor: { parent: USE_LOOP_ANIMATION, displayName: UnusedAnimationLoopStartFrame } }
+        vatLoopEndFrame:                  { value: 0, target: vatBBMax.w, editor: { parent: USE_LOOP_ANIMATION, displayName: UnusedAnimationLoopEndFrame } }
+        vatFrameCount:                    { value: 0.0, target: vatAnimParams.z, editor: { displayName: NumOfFrames } }
+        vatBoundingBoxMax:                { value: [1.0, 1.0, 1.0], target: vatBBMax.xyz, editor: { parent: USE_EDGE_FADING, displayName: BoundingBoxMax } }
+        vatBoundingBoxMin:                { value: [-1.0, -1.0, -1.0], target: vatBBMin.xyz, editor: { parent: USE_EDGE_FADING, displayName: BoundingBoxMin } }
+        vatLUTTextureWidth:               { value: 0, target: vatLUTParams.x, editor: { parent: USE_LOOKUP_AUTO_FRAME_COUNT, displayName: LUTTextureWidth } }
+        vatLUTTextureHeight:              { value: 0, target: vatLUTParams.y, editor: { parent: USE_LOOKUP_AUTO_FRAME_COUNT, displayName: LUTTextureHeight } }
+        vatVertexCount:                   { value: 0.0, target: vatLUTParams.z, editor: { parent: USE_LOOKUP_AUTO_FRAME_COUNT, displayName: FBXVertexCount } }
+        ReflectionIntensity:              { value: 30.0, target: vatLUTParams.w, editor: { parent: USE_REFRACTION, displayName: ReflectionIntensity } }
+        IOR:                              { value: 1.33, target: vatAnimParams.w, editor: { parent: USE_REFRACTION, displayName: IndexOfRefraction } }
+        mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:                        { value: normal }
+        normalMapDetailed:                { value: normal }
+        waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        detailedSpeed:                    { value: 0.2, target: waterParam.y, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        detailedTiling:                   { value: 0.2, target: waterParam.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        detailedIntensity:                { value: 0.5, target: waterParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        waterInScatterColor:              { value: [0.07, 0.13, 0.087, 1.0], target: waterColor, linear: true, editor: { parent: USE_WATER_SCATTERING, type: color } }
+        waterScatterCoef:                 { value: 3.0, target: waterColor.w, editor: { parent: USE_WATER_SCATTERING, range: [0, 10.0] } }
+        pbrMap:                           { value: grey }
+        occlusionMap:                     { value: white }
+        emissiveMap:                      { value: grey }
+        vatPositionMap:                   { value: grey, target: vatPositionTexture, editor: { displayName: PositionMap } }
+        vatPosSignMap:                    { value: white, target: vatPosSignTexture,  editor: { displayName: PosSignMap } }
+        vatRotationMap:                   { value: grey, target: vatRotationTexture, editor: { displayName: RotationMap } }
+        vatRotSignMap:                    { value: white, target: vatRotSignTexture,  editor: { displayName: RotSignMap } }
+        vatRotAlphaMap:                   { value: grey, target: vatRotAlphaTexture,  editor: { displayName: RotAlphaMap } }
+        vatLookupMap:                     { value: grey, target: vatLookupTexture, editor: { parent: USE_LOOKUP_TEXTURE, displayName: LookupMap } }
+      rasterizerState: &r1
+        cullMode: none
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs
+      frag: shadow-caster-fs
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+    - &reflect-map
+      vert: standard-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+      rasterizerState: *r1
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 vatAnimParams;
+    vec4 vatNoLUTParams;
+    vec4 vatLUTParams;
+    vec4 vatBBMax;
+    vec4 vatBBMin;
+    vec4 albedo;
+    vec4 albedoScaleAndCutoff;
+    vec4 pbrParams;
+    vec4 emissive;
+    vec4 emissiveScaleParam;
+    vec4 anisotropyParam;
+    vec4 waterParam;
+    vec4 waterColor;
+  };
+}%
+
+CCProgram macro-remapping %{
+  // ui displayed macros
+  #pragma define-meta HAS_SECOND_UV
+  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_REFRACTION default(true)
+  #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
+  #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
+  #define CC_SURFACES_LIGHTING_USE_FRESNEL USE_REFRACTION
+  #define CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR USE_REFRACTION
+  #define CC_SURFACES_TRANSFER_LOCAL_POS 1
+
+  // depend on UI macros
+#if USE_NORMAL_MAP
+  #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+}%
+
+CCProgram surface-vertex %{
+  #include <common/math/transform>
+  #include <common/math/number>
+  #include <common/texture/texture-misc>
+  #include <common/mesh/vat-animation>
+
+  uniform highp sampler2D vatPositionTexture;
+  uniform highp sampler2D vatPosSignTexture;
+  uniform highp sampler2D vatRotationTexture;
+  uniform highp sampler2D vatRotSignTexture;
+  uniform highp sampler2D vatRotAlphaTexture;
+  #if USE_LOOKUP_TEXTURE
+    uniform highp sampler2D vatLookupTexture;
+  #endif
+
+  #define CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
+  vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
+  {
+    vec3 pos = In.position.xyz;
+
+    vec2 originUV = In.texCoord, thisFrameUV, nextFrameUV;
+  #if CC_SURFACES_USE_SECOND_UV
+    originUV = In.texCoord1;
+  #endif
+
+    float numOfFrames = vatAnimParams.z, speed = vatAnimParams.x;
+    #if USE_LOOKUP_AUTO_FRAME_COUNT
+      numOfFrames = VATCalculateFrameCount(vatLUTParams.xy, vatLUTParams.z);
+    #endif
+
+    float frameLerp = VATGetAnimUV(thisFrameUV, nextFrameUV, originUV, numOfFrames, speed, cc_time.x
+    #if USE_LOOKUP_TEXTURE
+    , vatLookupTexture
+    #endif
+    );
+
+    pos = VATGetLocalPosition(thisFrameUV
+  #if USE_SMOOTH_ANIMATION
+    , nextFrameUV, frameLerp
+  #endif
+    , vatPositionTexture, vatPosSignTexture);
+    return pos;
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_LOCAL_SHARED_DATA
+  void SurfacesVertexModifyLocalSharedData(inout SurfacesStandardVertexIntermediate In)
+  {
+    vec3 normal = In.normal.xyz;
+
+    vec2 originUV = In.texCoord, thisFrameUV, nextFrameUV;
+  #if CC_SURFACES_USE_SECOND_UV
+    originUV = In.texCoord1;
+  #endif
+
+    float numOfFrames = vatNoLUTParams.x, speed = vatAnimParams.x;
+    #if USE_LOOKUP_AUTO_FRAME_COUNT
+      numOfFrames = VATCalculateFrameCount(vatLUTParams.xy, vatLUTParams.z);
+    #endif
+
+    float frameLerp = VATGetAnimUV(thisFrameUV, nextFrameUV, originUV, numOfFrames, speed, cc_time.x
+    #if USE_LOOKUP_TEXTURE
+    , vatLookupTexture
+    #endif
+    );
+
+    normal = VATGetLocalNormal(vec3(0.0, 1.0, 0.0), thisFrameUV
+  #if USE_SMOOTH_ANIMATION
+    , nextFrameUV, frameLerp
+  #endif
+    , vatRotationTexture, vatRotSignTexture, vatRotAlphaTexture);
+
+    normal = mix(In.normal.xyz, normal, vec3(vatAnimParams.y));
+    In.normal.xyz = normalize(normal);
+
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    vec3 originTangent = vec3(1.0, 0.0, 0.0);
+    vec3 tangent = VATGetLocalNormal(originTangent, thisFrameUV
+  #if USE_SMOOTH_ANIMATION
+    , nextFrameUV, frameLerp
+  #endif
+    , vatRotationTexture, vatRotSignTexture, vatRotAlphaTexture);
+
+    tangent = mix(originTangent, tangent, vec3(vatAnimParams.y));
+    In.tangent.xyz = normalize(tangent);
+  #endif
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    #if USE_EDGE_FADING
+      vec3 voxelUV = VATCalculateFluidVoxelUV(vatBBMin.xyz, vatBBMax.xyz, In.position.xyz);
+      In.texCoord = voxelUV.xz;
+    #endif
+  }
+}%
+
+CCProgram surface-fragment %{
+  #include <common/mesh/vat-animation>
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_NORMAL_MAP
+    uniform sampler2D normalMap;
+    uniform sampler2D normalMapDetailed;
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  #endif
+  #pragma define-meta DEFAULT_UV options([v_uv, v_uv1])
+  #if USE_PBR_MAP
+    uniform sampler2D pbrMap;
+  #endif
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+  #endif
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
+  #endif
+
+  #pragma define OCCLUSION_CHANNEL          r
+  #pragma define ROUGHNESS_CHANNEL          g
+  #pragma define METALLIC_CHANNEL           b
+  #pragma define SPECULAR_INTENSITY_CHANNEL a
+
+  #if USE_ALPHA_TEST
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
+  #endif
+
+  ////////////////////////////////////////////////////////////////water material
+  vec3 GetDetailedNormal(vec2 texCoord, float tiling, sampler2D normalMap, sampler2D normalMapDetailed, vec3 N, vec3 T)
+  {
+    float waterSpeed = waterParam.x;
+    float detailedSpeed = waterParam.y;
+    float detailedTiling = waterParam.z * tiling;
+    float detailedIntensity = waterParam.w;
+    float normalIntensity = emissiveScaleParam.w;
+
+    vec2 uv = texCoord * tiling + vec2(cc_time.w, cc_time.w) * waterSpeed;
+    vec3 nmmp = texture(normalMap, uv).xyz - vec3(0.5);
+    vec2 uvDetailed = texCoord * detailedTiling + vec2(0.0, cc_time.w) * detailedSpeed;
+    vec3 nmmpDetailed = texture(normalMapDetailed, uvDetailed).xyz - vec3(0.5);
+    // normal blending
+    nmmp = normalize(vec3(nmmp.xy + nmmpDetailed.xy * detailedIntensity, nmmp.z));
+    return normalize(CalculateNormalFromTangentSpace(nmmp, normalIntensity, N, T, FSInput_mirrorNormal));
+  }
+
+  vec3 GetFresnel(vec3 fresnel)
+  {
+    return saturate(fresnel * 1.5);
+  }
+
+  float GetVATEdgeFadeCoef()
+  {
+    float opacity = 1.0;
+    vec3 coef = vec3(FSInput_texcoord.x, 0.0, FSInput_texcoord.y);
+    if(coef.z < 0.3)
+      opacity *= coef.z / 0.3;
+    if(coef.z > 0.95)
+      opacity *= (1.0 - coef.z) / (1.0-0.95);
+    float edge = 0.2;
+    if(coef.x < edge)
+      opacity *= coef.x / edge;
+    if(coef.x > (1.0 - edge))
+      opacity *= (1.0 - coef.x) / edge;
+      return opacity;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_NORMAL_MAP
+      #if USE_EDGE_FADING
+        vec3 normalFadeTo = GetDetailedNormal(NORMAL_UV, 2.0, normalMap, normalMapDetailed, vec3(0.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0));
+        float fade = GetVATEdgeFadeCoef();
+        normal = mix(normalFadeTo, normal, fade);
+      #endif
+    #endif
+
+    return normalize(normal);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_IOR
+  float SurfacesFragmentModifyIOR()
+  {
+      return vatAnimParams.w;
+  }
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+vec4 SurfacesFragmentModifyTransmitScatteringParams()
+{
+  #if USE_WATER_SCATTERING
+    float depth = 1.0;
+    return vec4(waterColor.w, 1.0, 1.0, depth);
+  #else
+    return vec4(0.0, 0.0, 0.0, 0.0);
+  #endif
+}
+
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+{
+    return waterColor.rgb;
+}
+
+
+#include <../effects/advanced/common-functions>
+
+#include <surfaces/data-structures/standard>
+#define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+{
+  #if USE_EDGE_FADING && CC_SURFACES_TRANSFER_LOCAL_POS
+    surfaceData.baseColor.a = GetVATEdgeFadeCoef();
+    vec3 voxelUV = VATCalculateFluidVoxelUV(vatBBMin.xyz, vatBBMax.xyz, FSInput_localPos.xyz);
+    if(voxelUV.y < 0.5) discard;
+  #endif
+}
+
+#include <lighting-models/includes/common>
+#define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
+{
+  // enhanced reflection for waves
+  #if USE_REFRACTION
+    float curve = saturate(surfaceData.worldNormal.y);
+    float multiplier = 1.0 + pow(1.0 - curve, 0.3) * vatLUTParams.w;
+    result.environmentSpecular *= multiplier;
+  #endif
+
+  #if CC_SURFACES_LIGHTING_USE_FRESNEL
+    result.fresnel = GetFresnel(result.fresnel);
+  #endif
+}
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
+
+
+
+CCProgram standard-fs %{
+  // shading-model : standard
+  // lighting-model : standard (isotropy / anisotropy pbr)
+  // shader stage : fs
+  // technique usage/type : render-to-scene
+
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
+}%

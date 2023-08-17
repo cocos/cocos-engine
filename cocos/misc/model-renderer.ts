@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,14 +20,33 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
-    ccclass, serializable,
+    ccclass, serializable, tooltip, type, disallowAnimation,
 } from 'cc.decorator';
 import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
+import { CCBoolean, cclegacy, _decorator } from '../core';
+import { Model, SubModel } from '../render-scene/scene';
+import { isEnableEffect } from '../rendering/define';
+import { Root } from '../root';
+import { getPhaseID } from '../rendering/pass-phase';
+
+let _phaseID = getPhaseID('specular-pass');
+function getSkinPassIndex (subModel: SubModel): number {
+    const passes = subModel.passes;
+    const r = cclegacy.rendering;
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('specular-pass'), 'default');
+    for (let k = 0; k < passes.length; k++) {
+        if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
+        || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
+            return k;
+        }
+    }
+    return -1;
+}
 
 /**
  * @en Base class for all rendering components containing model.
@@ -40,7 +58,7 @@ export class ModelRenderer extends Renderer {
      * @en The visibility which will be applied to the committed models.
      * @zh 应用于所有提交渲染的 Model 的可见性
      */
-    get visibility () {
+    get visibility (): number {
         return this._visFlags;
     }
 
@@ -53,7 +71,7 @@ export class ModelRenderer extends Renderer {
      * @en The priority which will be applied to the committed models.(Valid only in transparent queues)
      * @zh 应用于所有提交渲染的 Model 的排序优先级（只在半透明渲染队列中起效）
      */
-    get priority () {
+    get priority (): number {
         return this._priority;
     }
 
@@ -77,20 +95,23 @@ export class ModelRenderer extends Renderer {
         return this._models;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         this._updatePriority();
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene (): void {
     }
 
-    protected _onVisibilityChange (val) {
+    protected _onVisibilityChange (val): void {
     }
 
-    protected _updatePriority () {
+    protected _updatePriority (): void {
         if (this._models.length > 0) {
             for (let i = 0; i < this._models.length; i++) {
                 this._models[i].priority = this._priority;

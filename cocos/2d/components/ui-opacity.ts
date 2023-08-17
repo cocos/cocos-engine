@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { Component } from '../../scene-graph/component';
 import { misc } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
@@ -55,7 +54,7 @@ export class UIOpacity extends Component {
      */
     @editable
     @tooltip('i18n:UIOpacity.opacity')
-    get opacity () {
+    get opacity (): number {
         return this._opacity;
     }
 
@@ -68,9 +67,15 @@ export class UIOpacity extends Component {
         this.node._uiProps.localOpacity = value / 255;
 
         this.setEntityLocalOpacityDirtyRecursively(true);
+
+        if (EDITOR_NOT_IN_PREVIEW) {
+            setTimeout(() => {
+                EditorExtends.Node.emit('change', this.node.uuid, this.node);
+            }, 200);
+        }
     }
 
-    private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
+    private setEntityLocalOpacityDirtyRecursively (dirty: boolean): void {
         if (JSB) {
             // const render = this.node._uiProps.uiComp as UIRenderer;
             // if (render) {
@@ -83,7 +88,7 @@ export class UIOpacity extends Component {
     }
 
     // for UIOpacity
-    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number): void {
         if (!node.isValid) {
             // Since children might be destroyed before the parent,
             // we should add protecting condition when executing recursion downwards.
@@ -117,12 +122,12 @@ export class UIOpacity extends Component {
     @serializable
     protected _opacity = 255;
 
-    public onEnable () {
+    public onEnable (): void {
         this.node._uiProps.localOpacity = this._opacity / 255;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.node._uiProps.localOpacity = 1;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }

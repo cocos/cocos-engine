@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { warnID, js, path, cclegacy } from '../../core';
@@ -33,7 +32,7 @@ import Task from './task';
 
 const infos: IAddressableInfo[] = [];
 
-export function parse (task: Task) {
+export function parse (task: Task): null {
     const options = task.options;
     const input = Array.isArray(task.input) ? task.input : [task.input];
 
@@ -58,7 +57,7 @@ export function parse (task: Task) {
                 case RequestType.UUID: {
                     const uuid = out.uuid = decodeUuid(item.uuid);
                     if (!item.bundle) {
-                        const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+                        const bundle = bundles.find((bundle): boolean => !!bundle.getAssetInfo(uuid));
                         item.bundle = (bundle && bundle.name);
                     }
                     if (bundles.has(item.bundle)) {
@@ -114,7 +113,7 @@ export function parse (task: Task) {
                     break;
                 case RequestType.SCENE:
                     if (!item.bundle) {
-                        const bundle = bundles.find((bundle) => !!bundle.getSceneInfo(item.scene));
+                        const bundle = bundles.find((bundle): boolean => !!bundle.getSceneInfo(item.scene));
                         item.bundle = bundle && bundle.name;
                     }
                     if (bundles.has(item.bundle)) {
@@ -156,7 +155,7 @@ export function parse (task: Task) {
     return null;
 }
 
-export function replaceOverrideAsset (task: Task) {
+export function replaceOverrideAsset (task: Task): void {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
         const item = input[i] as RequestItem;
@@ -168,7 +167,7 @@ export function replaceOverrideAsset (task: Task) {
                 item.ext = item.isNative ? item.ext : '.json';
                 continue;
             }
-            const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+            const bundle = bundles.find((bundle): boolean => !!bundle.getAssetInfo(uuid));
             if (bundle) {
                 item.overrideUuid = uuid;
                 let config = bundle.config;
@@ -188,7 +187,7 @@ export function replaceOverrideAsset (task: Task) {
     }
 }
 
-export function combine (task: Task) {
+export function combine (task: Task): any {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
         const item = input[i] as RequestItem;

@@ -13,10 +13,10 @@ exports.style = /* css */`
     .image-preview {
         height: 200px;
         background: var(--color-normal-fill-emphasis);
-        border: 1px solid var(--color-normal-border-emphasis);
         display: flex;
-        padding: 10px;
+        padding: 4px;
         position: relative;
+        box-sizing: border-box;
     }
     .image-preview > .image {
         width: 100%;
@@ -26,7 +26,7 @@ exports.style = /* css */`
         position: absolute;
         width: 100%;
         left: 0;
-        bottom: 4px;
+        bottom: 0;
         text-align: center;
     }
     .image-preview > .label > .size {

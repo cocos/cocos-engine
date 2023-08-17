@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -55,18 +54,26 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
     if (info.renderPass->getDepthStencilAttachment().format != Format::UNKNOWN) {
         CC_ASSERT(info.depthStencilTexture);
     }
+    if (info.renderPass->getDepthStencilResolveAttachment().format != Format::UNKNOWN) {
+        CC_ASSERT(info.depthStencilResolveTexture);
+    }
 
     for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         const auto &desc = info.renderPass->getColorAttachments()[i];
         const auto *tex = info.colorTextures[i];
         CC_ASSERT(tex && static_cast<const TextureValidator *>(tex)->isInited());
-        CC_ASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
+        CC_ASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::SHADING_RATE));
         CC_ASSERT(tex->getFormat() == desc.format);
     }
     if (info.depthStencilTexture) {
         CC_ASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited());
         CC_ASSERT(hasFlag(info.depthStencilTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
         CC_ASSERT(info.depthStencilTexture->getFormat() == info.renderPass->getDepthStencilAttachment().format);
+    }
+    if (info.depthStencilResolveTexture) {
+        CC_ASSERT(static_cast<TextureValidator *>(info.depthStencilResolveTexture)->isInited());
+        CC_ASSERT(hasFlag(info.depthStencilResolveTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
+        CC_ASSERT(info.depthStencilResolveTexture->getFormat() == info.renderPass->getDepthStencilResolveAttachment().format);
     }
 
     /////////// execute ///////////
@@ -79,6 +86,9 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
     }
     if (info.depthStencilTexture) {
         actorInfo.depthStencilTexture = static_cast<TextureValidator *>(info.depthStencilTexture)->getActor();
+    }
+    if (info.depthStencilResolveTexture) {
+        actorInfo.depthStencilResolveTexture = static_cast<TextureValidator *>(info.depthStencilResolveTexture)->getActor();
     }
     actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
 

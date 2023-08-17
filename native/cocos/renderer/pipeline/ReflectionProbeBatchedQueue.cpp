@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,38 +23,31 @@
 ****************************************************************************/
 
 #include "ReflectionProbeBatchedQueue.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "core/geometry/AABB.h"
+#include "core/geometry/Intersect.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "renderer/core/ProgramLib.h"
-#include "scene/ReflectionProbeManager.h"
 #include "scene/Camera.h"
-#include "scene/ReflectionProbe.h"
-#include "scene/Skybox.h"
 #include "scene/Define.h"
+#include "scene/ReflectionProbe.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/Skybox.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
-    & ~static_cast<uint32_t>(LayerList::PROFILER)
-    & ~static_cast<uint32_t>(LayerList::UI_3D)
-    & ~static_cast<uint32_t>(LayerList::GIZMOS)
-    & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO)
-    & ~static_cast<uint32_t>(LayerList::EDITOR);
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D) & ~static_cast<uint32_t>(LayerList::GIZMOS) & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(LayerList::EDITOR);
 const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
-const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{ CC_USE_RGBE_OUTPUT, true};
+const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
     _instancedQueue = ccnew RenderInstancedQueue;
-    _batchedQueue = ccnew RenderBatchedQueue;
 }
 
 ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
@@ -63,7 +55,6 @@ ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
 }
 
 void ReflectionProbeBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue)
     CC_SAFE_DELETE(_instancedQueue)
 }
 
@@ -77,18 +68,29 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     const scene::Skybox *skyBox = sceneData->getSkybox();
     const scene::RenderScene *const scene = camera->getScene();
 
-    if (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag) {
+    if (static_cast<uint32_t>(probe->getCamera()->getClearFlag()) & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             add(skyBox->getModel());
         }
     }
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
-        if (!node) continue;
-        if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer())
-            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {      
-            if (model->getWorldBounds()) {
-                if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
+        const auto *worldBounds = model->getWorldBounds();
+        if (scene->isCulledByLod(camera, model)) {
+            continue;
+        }
+        if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
+        uint32_t visibility = probe->getCamera()->getVisibility();
+        if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
+            if (((visibility & node->getLayer()) == node->getLayer()) ||
+                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (aabbWithAABB(*worldBounds, *probe->getBoundingBox())) {
+                    add(model);
+                }
+            }
+        } else {
+            if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (worldBounds->aabbFrustum(probe->getCamera()->getFrustum())) {
                     add(model);
                 }
             }
@@ -96,7 +98,6 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     }
 
     _instancedQueue->uploadBuffers(cmdBuffer);
-    _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
 void ReflectionProbeBatchedQueue::clear() {
@@ -105,11 +106,16 @@ void ReflectionProbeBatchedQueue::clear() {
     _passes.clear();
     _rgbeSubModels.clear();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
 
 void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     for (const auto &subModel : model->getSubModels()) {
+        // Filter transparent objects
+        const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
+        if (isTransparent) {
+            continue;
+        }
+
         auto passIdx = getReflectMapPassIndex(subModel);
         bool bUseReflectPass = true;
         if (passIdx == -1) {
@@ -123,10 +129,13 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
-        if (!bUseReflectPass) {      
-            auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
-            patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
-            subModel->onMacroPatchesStateChanged(patches);
+        if (!bUseReflectPass) {
+            _patches.clear();
+            for (const auto &patch : subModel->getPatches()) {
+                _patches.push_back(patch);
+            }
+            _patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
+            subModel->onMacroPatchesStateChanged(_patches);
             _rgbeSubModels.emplace_back(subModel);
         }
 
@@ -134,10 +143,6 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             auto *instancedBuffer = subModel->getPass(passIdx)->getInstancedBuffer();
             instancedBuffer->merge(subModel, passIdx);
             _instancedQueue->add(instancedBuffer);
-        } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = subModel->getPass(passIdx)->getBatchedBuffer();
-            batchedBuffer->merge(subModel, passIdx, model);
-            _batchedQueue->add(batchedBuffer);
         } else { // standard draw
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(passIdx));
@@ -146,9 +151,8 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     }
 }
 
-void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
+void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
         const auto *const subModel = _subModels[i];
@@ -165,15 +169,17 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
     }
     resetMacro();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
-void ReflectionProbeBatchedQueue::resetMacro() const {
+void ReflectionProbeBatchedQueue::resetMacro() {
     for (const auto &subModel : _rgbeSubModels) {
-        auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
-        for (auto iter = patches.begin(); iter != patches.end(); iter++) {
+        _patches.clear();
+        for (const auto &patch : subModel->getPatches()) {
+            _patches.push_back(patch);
+        }
+        for (auto iter = _patches.begin(); iter != _patches.end(); iter++) {
             if (iter->name == CC_USE_RGBE_OUTPUT) {
-                patches.erase(iter);
-                const_cast<scene::SubModel*>(subModel)->onMacroPatchesStateChanged(patches);
+                _patches.erase(iter);
+                const_cast<scene::SubModel *>(subModel)->onMacroPatchesStateChanged(_patches);
                 break;
             }
         }
@@ -187,7 +193,7 @@ bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *sub
 
 int ReflectionProbeBatchedQueue::getDefaultPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseID) {
             return i;
         }
@@ -198,7 +204,7 @@ int ReflectionProbeBatchedQueue::getDefaultPassIndex(const scene::SubModel *subM
 
 int ReflectionProbeBatchedQueue::getReflectMapPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseReflectMapID) {
             return i;
         }

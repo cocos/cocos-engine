@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 // cSpell:words Cardano's irreducibilis
 
 /**
@@ -5,7 +29,7 @@
  * The equation is formed from coeff0 + coeff1 * x + coeff2 * x^2 + coeff3 * x^3 = 0.
  * Modified from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c .
  */
-export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coeff3: number, solutions: [number, number, number]) {
+export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coeff3: number, solutions: [number, number, number]): number {
     // normal form: x^3 + Ax^2 + Bx + C = 0
     const a = coeff2 / coeff3;
     const b = coeff1 / coeff3;
@@ -58,6 +82,6 @@ export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coef
 
 const EQN_EPS = 1e-9;
 
-function isZero (x: number) {
+function isZero (x: number): boolean {
     return x > -EQN_EPS && x < EQN_EPS;
 }

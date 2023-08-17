@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,10 +31,10 @@ import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en Legacy 2D base class for rendering component, please use [[UIRenderer]] instead.
- * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]].
  * @zh 旧的 2D 渲染组件基类，请使用 [[UIRenderer]] 替代。
  * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
- * @deprecated since v3.4.1
+ * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
  */
 @ccclass('cc.UIComponent')
 @requireComponent(UITransform)
@@ -45,23 +44,26 @@ import { Stage } from '../renderer/stencil-manager';
 export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
-    public __preload () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        this.node._uiProps.uiComp = this;
+    public __preload (): void {
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
+        (this as any).node._uiProps.uiComp = this;
     }
 
-    public onEnable () {
+    public onEnable (): void {
     }
 
-    public onDisable () {
+    public onDisable (): void {
 
     }
 
-    public onDestroy () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        if (this.node._uiProps.uiComp === this) {
-            // @ts-expect-error temporary, UIComponent should be removed
-            this.node._uiProps.uiComp = null;
+    public onDestroy (): void {
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
+        if ((this as any).node._uiProps.uiComp === this) {
+            (this as any).node._uiProps.uiComp = null;
         }
     }
 
@@ -72,18 +74,31 @@ export class UIComponent extends Component {
      * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
-    public postUpdateAssembler (render: IBatcher) {
+    public postUpdateAssembler (render: IBatcher): void {
     }
 
-    public markForUpdateRenderData (enable = true) {
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
+    public markForUpdateRenderData (enable = true): void {
     }
 
-    public stencilStage : Stage = Stage.DISABLED;
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
+    public stencilStage: Stage = Stage.DISABLED;
 
-    public setNodeDirty () {
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
+    public setNodeDirty (): void {
     }
 
-    public setTextureDirty () {
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
+    public setTextureDirty (): void {
     }
 }

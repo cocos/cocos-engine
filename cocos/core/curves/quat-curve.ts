@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { assertIsTrue } from '../data/utils/asserts';
 import { IQuatLike, pingPong, Quat, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
@@ -104,7 +128,7 @@ export type { QuatKeyframeValue };
  */
 type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
 
-function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
+function createQuatKeyframeValue (params: QuatKeyframeValueParameters): QuatKeyframeValue {
     return new QuatKeyframeValue(params);
 }
 
@@ -255,7 +279,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     public assignSorted (
         times: Iterable<[number, QuatKeyframeValueParameters]> | readonly number[],
         values?: readonly QuatKeyframeValueParameters[],
-    ) {
+    ): void {
         if (values !== undefined) {
             assertIsTrue(Array.isArray(times));
             this.setKeyframes(
@@ -274,7 +298,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
      * @internal
      */
-    public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
+    public [serializeTag] (output: SerializationOutput, context: SerializationContext): void {
         if (!context.toCCON) {
             output.writeThis();
             return;
@@ -370,7 +394,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
      * @internal
      */
-    public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
+    public [deserializeTag] (input: SerializationInput, context: DeserializationContext): void {
         if (!context.fromCCON) {
             input.readThis();
             return;

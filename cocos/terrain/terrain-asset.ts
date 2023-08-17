@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset, Texture2D } from '../asset/assets';
@@ -33,7 +32,8 @@ export const TERRAIN_BLOCK_TILE_COMPLEXITY = 32;
 export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
 export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
 export const TERRAIN_HEIGHT_BASE = 32768;
-export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
+export const TERRAIN_HEIGHT_FACTORY = 1.0 / 128.0;
+export const TERRAIN_HEIGHT_FACTORY_V7 = 1.0 / 512.0;
 export const TERRAIN_HEIGHT_FMIN = (-TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
 export const TERRAIN_HEIGHT_FMAX = (65535 - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
 export const TERRAIN_NORTH_INDEX = 0;
@@ -47,6 +47,8 @@ export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION4 = 0x01010004;
 export const TERRAIN_DATA_VERSION5 = 0x01010005;
 export const TERRAIN_DATA_VERSION6 = 0x01010006;
+export const TERRAIN_DATA_VERSION7 = 0x01010007;
+export const TERRAIN_DATA_VERSION8 = 0x01010008;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 class TerrainBuffer {
@@ -55,7 +57,7 @@ class TerrainBuffer {
     private _buffView: DataView = new DataView(this.buffer.buffer);
     private _seekPos = 0;
 
-    public reserve (size: number) {
+    public reserve (size: number): void {
         if (this.buffer.byteLength > size) {
             return;
         }
@@ -74,35 +76,35 @@ class TerrainBuffer {
         this._buffView = new DataView(this.buffer.buffer);
     }
 
-    public assign (buff: Uint8Array) {
+    public assign (buff: Uint8Array): void {
         this.buffer = buff;
         this.length = buff.length;
         this._seekPos = buff.byteOffset;
         this._buffView = new DataView(buff.buffer);
     }
 
-    public writeInt8 (value: number) {
+    public writeInt8 (value: number): void {
         this.reserve(this.length + 1);
 
         this._buffView.setInt8(this.length, value);
         this.length += 1;
     }
 
-    public writeInt16 (value: number) {
+    public writeInt16 (value: number): void {
         this.reserve(this.length + 2);
 
         this._buffView.setInt16(this.length, value, true);
         this.length += 2;
     }
 
-    public writeInt32 (value: number) {
+    public writeInt32 (value: number): void {
         this.reserve(this.length + 4);
 
         this._buffView.setInt32(this.length, value, true);
         this.length += 4;
     }
 
-    public writeIntArray (value: number[]) {
+    public writeIntArray (value: number[]): void {
         this.reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
@@ -111,14 +113,14 @@ class TerrainBuffer {
         this.length += 4 * value.length;
     }
 
-    public writeFloat (value: number) {
+    public writeFloat (value: number): void {
         this.reserve(this.length + 4);
 
         this._buffView.setFloat32(this.length, value, true);
         this.length += 4;
     }
 
-    public writeFloatArray (value: number[]) {
+    public writeFloatArray (value: number[]): void {
         this.reserve(this.length + 4 * value.length);
 
         for (let i = 0; i < value.length; ++i) {
@@ -127,7 +129,23 @@ class TerrainBuffer {
         this.length += 4 * value.length;
     }
 
-    public writeString (value: string) {
+    public writeDouble (value: number): void {
+        this.reserve(this.length + 8);
+
+        this._buffView.setFloat64(this.length, value, true);
+        this.length += 8;
+    }
+
+    public writeDoubleArray (value: number[]): void {
+        this.reserve(this.length + 8 * value.length);
+
+        for (let i = 0; i < value.length; ++i) {
+            this._buffView.setFloat64(this.length + i * 8, value[i], true);
+        }
+        this.length += 8 * value.length;
+    }
+
+    public writeString (value: string): void {
         this.reserve(this.length + value.length + 4);
 
         this._buffView.setInt32(this.length, value.length, true);
@@ -137,25 +155,25 @@ class TerrainBuffer {
         this.length += value.length + 4;
     }
 
-    public readInt8 () {
+    public readInt8 (): number {
         const value = this._buffView.getInt8(this._seekPos);
         this._seekPos += 1;
         return value;
     }
 
-    public readInt16 () {
+    public readInt16 (): number {
         const value = this._buffView.getInt16(this._seekPos, true);
         this._seekPos += 2;
         return value;
     }
 
-    public readInt () {
+    public readInt (): number {
         const value = this._buffView.getInt32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
-    public readIntArray (value: number[]) {
+    public readIntArray (value: number[]): number[] {
         for (let i = 0; i < value.length; ++i) {
             value[i] = this._buffView.getInt32(this._seekPos + i * 4, true);
         }
@@ -163,13 +181,13 @@ class TerrainBuffer {
         return value;
     }
 
-    public readFloat () {
+    public readFloat (): number {
         const value = this._buffView.getFloat32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
 
-    public readFloatArray (value: number[]) {
+    public readFloatArray (value: number[]): number[] {
         for (let i = 0; i < value.length; ++i) {
             value[i] = this._buffView.getFloat32(this._seekPos + i * 4, true);
         }
@@ -177,7 +195,21 @@ class TerrainBuffer {
         return value;
     }
 
-    public readString () {
+    public readDouble (): number {
+        const value = this._buffView.getFloat64(this._seekPos, true);
+        this._seekPos += 8;
+        return value;
+    }
+
+    public readDoubleArray (value: number[]): number[] {
+        for (let i = 0; i < value.length; ++i) {
+            value[i] = this._buffView.getFloat64(this._seekPos + i * 4, true);
+        }
+        this._seekPos += 8 * value.length;
+        return value;
+    }
+
+    public readString (): string {
         const length = this.readInt();
 
         let value = '';
@@ -267,7 +299,7 @@ export class TerrainAsset extends Asset {
      * @en version
      * @zh 版本
      */
-    get version () {
+    get version (): number {
         return this._version;
     }
 
@@ -279,7 +311,7 @@ export class TerrainAsset extends Asset {
         this._tileSize = value;
     }
 
-    get tileSize () {
+    get tileSize (): number {
         return this._tileSize;
     }
 
@@ -291,7 +323,7 @@ export class TerrainAsset extends Asset {
         this._blockCount = value;
     }
 
-    get blockCount () {
+    get blockCount (): number[] {
         return this._blockCount;
     }
 
@@ -303,7 +335,7 @@ export class TerrainAsset extends Asset {
         this._lightMapSize = value;
     }
 
-    get lightMapSize () {
+    get lightMapSize (): number {
         return this._lightMapSize;
     }
 
@@ -315,7 +347,7 @@ export class TerrainAsset extends Asset {
         this._weightMapSize = value;
     }
 
-    get weightMapSize () {
+    get weightMapSize (): number {
         return this._weightMapSize;
     }
 
@@ -327,7 +359,7 @@ export class TerrainAsset extends Asset {
         this._heights = value;
     }
 
-    get heights () {
+    get heights (): Uint16Array {
         return this._heights;
     }
 
@@ -339,7 +371,7 @@ export class TerrainAsset extends Asset {
         this._normals = value;
     }
 
-    get normals () {
+    get normals (): Float32Array {
         return this._normals;
     }
 
@@ -351,7 +383,7 @@ export class TerrainAsset extends Asset {
         this._weights = value;
     }
 
-    get weights () {
+    get weights (): Uint8Array {
         return this._weights;
     }
 
@@ -363,7 +395,7 @@ export class TerrainAsset extends Asset {
         this._layerBuffer = value;
     }
 
-    get layerBuffer () {
+    get layerBuffer (): number[] {
         return this._layerBuffer;
     }
 
@@ -375,11 +407,11 @@ export class TerrainAsset extends Asset {
         this._layerInfos = value;
     }
 
-    get layerInfos () {
+    get layerInfos (): TerrainLayerInfo[] {
         return this._layerInfos;
     }
 
-    get layerBinaryInfos () {
+    get layerBinaryInfos (): TerrainLayerBinaryInfo[] {
         return this._layerBinaryInfos;
     }
 
@@ -390,7 +422,7 @@ export class TerrainAsset extends Asset {
      * @param yBlock block index y
      * @param layerId layer id
      */
-    public getLayer (xBlock: number, yBlock: number, layerId: number) {
+    public getLayer (xBlock: number, yBlock: number, layerId: number): number {
         const blockId = yBlock * this.blockCount[0] + xBlock;
         const index = blockId * 4 + layerId;
 
@@ -401,17 +433,17 @@ export class TerrainAsset extends Asset {
         return -1;
     }
 
-    public getHeight (i: number, j: number) {
+    public getHeight (i: number, j: number): number {
         const vertexCountX = this._blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
         return (this._heights[j * vertexCountX + i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY;
     }
 
-    public getVertexCountI () {
+    public getVertexCountI (): number {
         if (this._blockCount.length < 1) return 0;
         return this._blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
     }
 
-    public getVertexCountJ () {
+    public getVertexCountJ (): number {
         if (this._blockCount.length < 2) return 0;
         return this._blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
     }
@@ -419,14 +451,14 @@ export class TerrainAsset extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _setNativeData (_nativeData: Uint8Array) {
+    public _setNativeData (_nativeData: Uint8Array): void {
         this._data = _nativeData;
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _loadNativeData (_nativeData: Uint8Array) {
+    public _loadNativeData (_nativeData: Uint8Array): boolean {
         if (!_nativeData || _nativeData.length === 0) {
             return false;
         }
@@ -444,12 +476,20 @@ export class TerrainAsset extends Asset {
             && this._version !== TERRAIN_DATA_VERSION3
             && this._version !== TERRAIN_DATA_VERSION4
             && this._version !== TERRAIN_DATA_VERSION5
-            && this._version !== TERRAIN_DATA_VERSION6) {
+            && this._version !== TERRAIN_DATA_VERSION6
+            && this._version !== TERRAIN_DATA_VERSION7
+            && this._version !== TERRAIN_DATA_VERSION8) {
             return false;
         }
 
         // geometry info
-        this.tileSize = stream.readFloat();
+        if (this._version >= TERRAIN_DATA_VERSION7) {
+            this.tileSize = stream.readDouble();
+        } else {
+            this.tileSize = stream.readFloat();
+        }
+        this.tileSize = Math.floor(this.tileSize * 100) / 100.0;
+
         stream.readIntArray(this._blockCount);
         this.weightMapSize = stream.readInt16();
         this.lightMapSize = stream.readInt16();
@@ -459,6 +499,14 @@ export class TerrainAsset extends Asset {
         this.heights = new Uint16Array(heightBufferSize);
         for (let i = 0; i < this.heights.length; ++i) {
             this.heights[i] = stream.readInt16();
+        }
+
+        if (this._version < TERRAIN_DATA_VERSION8) {
+            for (let i = 0; i < this.heights.length; ++i) {
+                const h = (this._heights[i] - TERRAIN_HEIGHT_BASE) * TERRAIN_HEIGHT_FACTORY_V7;
+                const ch = TERRAIN_HEIGHT_BASE + h / TERRAIN_HEIGHT_FACTORY;
+                this.heights[i] = ch;
+            }
         }
 
         // normals
@@ -493,13 +541,22 @@ export class TerrainAsset extends Asset {
             for (let i = 0; i < this._layerBinaryInfos.length; ++i) {
                 this._layerBinaryInfos[i] = new TerrainLayerBinaryInfo();
                 this._layerBinaryInfos[i].slot = stream.readInt();
-                this._layerBinaryInfos[i].tileSize = stream.readFloat();
+                if (this._version >= TERRAIN_DATA_VERSION7) {
+                    this._layerBinaryInfos[i].tileSize = stream.readDouble();
+                } else {
+                    this._layerBinaryInfos[i].tileSize = stream.readFloat();
+                }
 
                 this._layerBinaryInfos[i].detailMapId = stream.readString();
                 if (this._version >= TERRAIN_DATA_VERSION4) {
                     this._layerBinaryInfos[i].normalMapId = stream.readString();
-                    this._layerBinaryInfos[i].roughness = stream.readFloat();
-                    this._layerBinaryInfos[i].metallic = stream.readFloat();
+                    if (this._version >= TERRAIN_DATA_VERSION7) {
+                        this._layerBinaryInfos[i].roughness = stream.readDouble();
+                        this._layerBinaryInfos[i].metallic = stream.readDouble();
+                    } else {
+                        this._layerBinaryInfos[i].roughness = stream.readFloat();
+                        this._layerBinaryInfos[i].metallic = stream.readFloat();
+                    }
                 }
             }
         }
@@ -514,10 +571,10 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
 
         // version
-        stream.writeInt32(TERRAIN_DATA_VERSION6);
+        stream.writeInt32(TERRAIN_DATA_VERSION8);
 
         // geometry info
-        stream.writeFloat(this.tileSize);
+        stream.writeDouble(this.tileSize);
         stream.writeIntArray(this._blockCount);
         stream.writeInt16(this.weightMapSize);
         stream.writeInt16(this.lightMapSize);
@@ -565,11 +622,11 @@ export class TerrainAsset extends Asset {
         stream.writeInt32(layerBinaryInfos.length);
         for (let i = 0; i < layerBinaryInfos.length; ++i) {
             stream.writeInt32(layerBinaryInfos[i].slot);
-            stream.writeFloat(layerBinaryInfos[i].tileSize);
+            stream.writeDouble(layerBinaryInfos[i].tileSize);
             stream.writeString(layerBinaryInfos[i].detailMapId);
             stream.writeString(layerBinaryInfos[i].normalMapId);
-            stream.writeFloat(layerBinaryInfos[i].roughness);
-            stream.writeFloat(layerBinaryInfos[i].metallic);
+            stream.writeDouble(layerBinaryInfos[i].roughness);
+            stream.writeDouble(layerBinaryInfos[i].metallic);
         }
 
         return stream.buffer;

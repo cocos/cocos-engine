@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import CANNON from '@cocos/cannon';
-import { Vec3, RecyclePool, error, js, geometry, IVec3Like } from '../../core';
+import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -35,11 +34,11 @@ import { CannonRigidBody } from './cannon-rigid-body';
 import { Node } from '../../scene-graph';
 
 export class CannonWorld implements IPhysicsWorld {
-    get impl () {
+    get impl (): CANNON.World {
         return this._world;
     }
 
-    setDefaultMaterial (mat: PhysicsMaterial) {
+    setDefaultMaterial (mat: PhysicsMaterial): void {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat.id] != null) {
@@ -47,11 +46,11 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         this._world.allowSleep = v;
     }
 
-    setGravity (gravity: IVec3Like) {
+    setGravity (gravity: IVec3Like): void {
         Vec3.copy(this._world.gravity, gravity);
     }
 
@@ -77,6 +76,42 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
     }
 
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
+        result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
+        orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
+    }
+
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
         (this._world.broadphase as any) = null;
@@ -98,7 +133,7 @@ export class CannonWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number): void {
         if (this.bodies.length === 0) return;
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
@@ -133,7 +168,7 @@ export class CannonWorld implements IPhysicsWorld {
         return CannonSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addSharedBody (sharedBody: CannonSharedBody) {
+    addSharedBody (sharedBody: CannonSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
@@ -141,7 +176,7 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    removeSharedBody (sharedBody: CannonSharedBody) {
+    removeSharedBody (sharedBody: CannonSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             js.array.fastRemoveAt(this.bodies, i);
@@ -153,7 +188,7 @@ export class CannonWorld implements IPhysicsWorld {
     //     this._cannonWorld.addContactMaterial(contactMaterial._getImpl());
     // }
 
-    addConstraint (constraint: CannonConstraint) {
+    addConstraint (constraint: CannonConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i < 0) {
             this.constraints.push(constraint);
@@ -161,7 +196,7 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    removeConstraint (constraint: CannonConstraint) {
+    removeConstraint (constraint: CannonConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i >= 0) {
             js.array.fastRemoveAt(this.constraints, i);
@@ -172,7 +207,7 @@ export class CannonWorld implements IPhysicsWorld {
 
 const from = new CANNON.Vec3();
 const to = new CANNON.Vec3();
-function setupFromAndTo (worldRay: geometry.Ray, distance: number) {
+function setupFromAndTo (worldRay: geometry.Ray, distance: number): void {
     Vec3.copy(from, worldRay.o);
     worldRay.computeHit(to, distance);
 }

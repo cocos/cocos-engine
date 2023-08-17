@@ -255,5 +255,33 @@ describe(`Node`, () => {
         expect(find('test c')).toBeFalsy();
         expect(find('test a')).toBe(nodeA);
         expect(nodeA.hideFlags & CCObject.Flags.DontSave).toBeFalsy();
-    })
+    });
+
+    test('flagChangedVersion', () => {
+        const node = new Node();
+        const val1 = node.flagChangedVersion;
+        expect(val1).toBe(0);
+        node.position = new Vec3(1, 2, 3);
+        const val2 = node.flagChangedVersion;
+        expect(val2).not.toBe(val1);
+        node.position = new Vec3(1, 2, 3);
+        node.scale = new Vec3(1, 2, 3);
+        node.eulerAngles = new Vec3(1, 2, 3);
+        expect(node.flagChangedVersion).toBe(val2);
+        Node.resetHasChangedFlags();
+        node.scale = new Vec3(3, 2, 1);
+        const val3 = node.flagChangedVersion;
+        expect(val3).not.toBe(val2);
+        expect(val3).not.toBe(val1);
+        node.scale = new Vec3(1, 2, 3);
+        expect(node.flagChangedVersion).toBe(val3);
+        Node.resetHasChangedFlags();
+        node.eulerAngles = new Vec3(3, 2, 1);
+        const val4 = node.flagChangedVersion;
+        expect(val4).not.toBe(val3);
+        expect(val4).not.toBe(val2);
+        expect(val4).not.toBe(val1);
+        node.eulerAngles = new Vec3(1, 2, 3);
+        expect(node.flagChangedVersion).toBe(val4);
+    });
 });

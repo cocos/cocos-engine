@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Quat, Vec3, geometry } from '../../../core';
@@ -125,24 +124,24 @@ export class PhysXShape implements IBaseShape {
     }
 
     setMaterial (v: PhysicsMaterial | null): void {
-        if (v == null) v = PhysicsSystem.instance.defaultMaterial;
         const mat = this.getSharedMaterial(v);
         this._impl.setMaterials(getShapeMaterials(mat));
     }
 
-    protected getSharedMaterial (v: PhysicsMaterial): any {
-        if (!PX.CACHE_MAT[v.id]) {
+    protected getSharedMaterial (v: PhysicsMaterial | null): any {
+        const v1 = (v == null) ? PhysicsSystem.instance.defaultMaterial : v;
+        if (!PX.CACHE_MAT[v1.id]) {
             const physics = PhysXInstance.physics;
-            const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
+            const mat = physics.createMaterial(v1.friction, v1.friction, v1.restitution);
             mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
             mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
-            PX.CACHE_MAT[v.id] = mat;
+            PX.CACHE_MAT[v1.id] = mat;
             return mat;
         }
-        const mat = PX.CACHE_MAT[v.id];
-        mat.setStaticFriction(v.friction);
-        mat.setDynamicFriction(v.friction);
-        mat.setRestitution(v.restitution);
+        const mat = PX.CACHE_MAT[v1.id];
+        mat.setStaticFriction(v1.friction);
+        mat.setDynamicFriction(v1.friction);
+        mat.setRestitution(v1.restitution);
         return mat;
     }
 
@@ -209,7 +208,7 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody.removeMask(v);
     }
 
-    updateFilterData (filterData: any) {
+    updateFilterData (filterData: any): void {
         this._word3 = EFilterDataWord3.DETECT_CONTACT_CCD;
         if (this._collider.needTriggerEvent) {
             this._word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
@@ -217,16 +216,16 @@ export class PhysXShape implements IBaseShape {
         if (this._collider.needCollisionEvent) {
             this._word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;
         }
-        filterData.word2 = this.id;
+        //filterData.word2 = this.id;//useless
         filterData.word3 = this._word3;
         this.setFilerData(filterData);
     }
 
-    updateEventListener () {
+    updateEventListener (): void {
         if (this._sharedBody) this.updateFilterData(this._sharedBody.filterData);
     }
 
-    updateByReAdd () {
+    updateByReAdd (): void {
         if (this._isEnabled) {
             this.removeFromBody();
             this.addToBody();
@@ -234,18 +233,18 @@ export class PhysXShape implements IBaseShape {
     }
 
     // virtual
-    setFilerData (filterData: any) {
+    setFilerData (filterData: any): void {
         this._impl.setQueryFilterData(filterData);
         this._impl.setSimulationFilterData(filterData);
     }
 
     // virtual
-    addToBody () {
+    addToBody (): void {
         this._sharedBody.addShape(this);
     }
 
     // virtual
-    removeFromBody () {
+    removeFromBody (): void {
         this._sharedBody.removeShape(this);
     }
 }

@@ -56,7 +56,7 @@ test('shrink', () => {
     }
     pool.freeArray(test);
     // @ts-expect-error
-    expect(pool._freepool.length).toBeGreaterThan(100);
+    expect(pool._freePool.length).toBeGreaterThan(100);
     // @ts-expect-error
     expect(pool._nextAvail).toBeGreaterThan(100);
 
@@ -66,7 +66,7 @@ test('shrink', () => {
     pool.tryShrink();
 
     // @ts-expect-error
-    expect(pool._freepool.length >= 50 && pool._freepool.length <= 100).toBeTruthy();
+    expect(pool._freePool.length >= 50 && pool._freePool.length <= 100).toBeTruthy();
     
     // @ts-expect-error
     expect(pool._nextAvail >= 50 && pool._nextAvail <= 100).toBeTruthy();
@@ -77,7 +77,7 @@ test('shrink', () => {
     pool.tryShrink();
 
     // @ts-expect-error
-    expect(pool._freepool.length >= 25 && pool._freepool.length <= 50).toBeTruthy();
+    expect(pool._freePool.length >= 25 && pool._freePool.length <= 50).toBeTruthy();
     
     // @ts-expect-error
     expect(pool._nextAvail >= 25 && pool._nextAvail <= 50).toBeTruthy();
@@ -117,5 +117,5 @@ test('destroy', () => {
     // @ts-expect-error
     expect(pool._nextAvail).toBe(-1);
     // @ts-expect-error
-    expect(pool._freepool.length).toBe(0);
+    expect(pool._freePool.length).toBe(0);
 });

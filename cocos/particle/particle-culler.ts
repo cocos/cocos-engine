@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../scene-graph/node';
@@ -29,7 +28,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
 import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
 import { Mode } from './animator/curve-range';
@@ -51,7 +50,7 @@ const _anim_module = [
 
 export class ParticleCuller {
     private _particleSystem: ParticleSystem;
-    private _processor: IParticleSystemRenderer;
+    private _processor: ParticleSystemRendererBase;
     private _node: Node;
     private _particlesAll: Particle[];
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
@@ -74,12 +73,12 @@ export class ParticleCuller {
         this._initModuleList();
     }
 
-    private _updateBoundingNode () {
+    private _updateBoundingNode (): void {
         this._nodeSize.set(this.maxPos.x - this.minPos.x, this.maxPos.y - this.minPos.y, this.maxPos.z - this.minPos.z);
         this._nodePos.set(this.minPos.x + this._nodeSize.x * 0.5, this.minPos.y + this._nodeSize.y * 0.5, this.minPos.z + this._nodeSize.z * 0.5);
     }
 
-    public setBoundingBoxSize (halfExt: Vec3) {
+    public setBoundingBoxSize (halfExt: Vec3): void {
         this.maxPos.x = this._nodePos.x + halfExt.x;
         this.maxPos.y = this._nodePos.y + halfExt.y;
         this.maxPos.z = this._nodePos.z + halfExt.z;
@@ -89,7 +88,7 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    public setBoundingBoxCenter (px: number, py: number, pz: number) {
+    public setBoundingBoxCenter (px: number, py: number, pz: number): void {
         this.maxPos.x = px + this._nodeSize.x * 0.5;
         this.maxPos.y = py + this._nodeSize.y * 0.5;
         this.maxPos.z = pz + this._nodeSize.z * 0.5;
@@ -99,8 +98,8 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    private _initModuleList () {
-        _anim_module.forEach((val) => {
+    private _initModuleList (): void {
+        _anim_module.forEach((val): void => {
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
@@ -123,7 +122,7 @@ export class ParticleCuller {
         }
     }
 
-    private _emit (count: number, dt: number, particleLst: Particle[]) {
+    private _emit (count: number, dt: number, particleLst: Particle[]): void {
         const ps = this._particleSystem;
         const node = this._node;
         const loopDelta = (ps.time % ps.duration) / ps.duration; // loop delta value
@@ -184,7 +183,7 @@ export class ParticleCuller {
         }
     }
 
-    private _updateParticles (dt: number, particleLst: Particle[]) {
+    private _updateParticles (dt: number, particleLst: Particle[]): void {
         const ps = this._particleSystem;
         ps.node.getWorldMatrix(_node_mat);
 
@@ -199,7 +198,7 @@ export class ParticleCuller {
             break;
         }
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
+        this._updateList.forEach((value: IParticleModule, key: string): void => {
             value.update(ps.simulationSpace, _node_mat);
         });
 
@@ -247,7 +246,7 @@ export class ParticleCuller {
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach((value) => {
+            this._runAnimateList.forEach((value): void => {
                 value.animate(p, dt);
             });
 
@@ -255,7 +254,7 @@ export class ParticleCuller {
         }
     }
 
-    private _calculateBounding (isInit: boolean) {
+    private _calculateBounding (isInit: boolean): void {
         const size: Vec3 = new Vec3();
         const position: Vec3 = new Vec3();
         const subPos: Vec3 = new Vec3();
@@ -293,7 +292,7 @@ export class ParticleCuller {
         }
     }
 
-    public calculatePositions () {
+    public calculatePositions (): void {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
         const rand = isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
         this._updateParticles(0, this._particlesAll);
@@ -303,11 +302,11 @@ export class ParticleCuller {
         this._updateBoundingNode();
     }
 
-    public clear () {
+    public clear (): void {
         this._particlesAll.length = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
 
     }
 }

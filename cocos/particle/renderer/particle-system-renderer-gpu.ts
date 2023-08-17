@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,14 +20,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../scene-graph';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec4, Quat, Vec3, cclegacy } from '../../core';
+import { Mat4, Vec2, Vec4, Quat, Vec3, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -38,7 +37,9 @@ import { Pass } from '../../render-scene/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../render-scene/scene/camera';
+import type { ParticleSystem } from '../particle-system';
 
+const _tempNodeScale = new Vec4();
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
 const _world_rot = new Quat();
@@ -74,7 +75,7 @@ const _vert_attr_name = {
     DIR_LIFE: 'a_dir_life',
     RANDOM_SEED: 'a_rndSeed',
     VERT_SIZE_FID: 'a_size_fid',
-    VERT_ROTATION_RND: 'a_rotation_rnd',
+    VERT_ROTATION: 'a_rotation',
     VERT_UV: 'a_uv',
 };
 
@@ -103,18 +104,20 @@ const _gpu_vert_attr_mesh = [
 const _gpu_vert_attr_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_UV, Format.RGB32F, false, 1),
 ];
 
 const _gpu_vert_attr_mesh_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),      // mesh uv
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),         // mesh normal
@@ -132,7 +135,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _frameTile_velLenScale: Vec4;
     private _unifrom_velLenScale: Vec4;
     private _tmp_velLenScale: Vec4;
-    private _node_scale: Vec4;
+    private _node_scale: Vec3;
     protected _vertAttrs: Attribute[] = [];
     protected _defaultMat: Material | null = null;
     private _particleNum = 0;
@@ -161,7 +164,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._unifrom_velLenScale = this._frameTile_velLenScale.clone();
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
-        this._node_scale = new Vec4();
+        this._node_scale = new Vec3();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -175,7 +178,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum = 0;
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: ParticleSystem): void {
         super.onInit(ps);
         this._setVertexAttrib();
         this._initModel();
@@ -184,24 +187,24 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._inited = true;
     }
 
-    public updateRenderMode () {
+    public updateRenderMode (): void {
         this._setVertexAttrib();
         this.updateMaterialParams();
         this.setVertexAttributes();
     }
 
-    public setVertexAttributes () {
+    public setVertexAttributes (): void {
         super.setVertexAttributes();
         this._model!.constructAttributeIndex();
     }
 
-    public clear () {
+    public clear (): void {
         super.clear();
         this._particleNum = 0;
         this.updateRenderData();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         super.onDestroy();
         if (this._forceTexture) this._forceTexture.destroy();
         if (this._velocityTexture) this._velocityTexture.destroy();
@@ -217,8 +220,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._animData = null;
     }
 
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
-        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+    public enableModule (name: string, val: boolean, pm: IParticleModule): void {
+        const mat: Material | null = this._particleSystem?.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
         }
@@ -230,15 +233,18 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public getFreeParticle (): Particle | null {
-        if (this._particleNum >= this._particleSystem._capacity) {
+        if (this._particleSystem && this._particleNum >= this._particleSystem?.capacity) {
             return null;
         }
 
         return this._tempParticle;
     }
 
-    public setNewParticle (p: Particle) {
-        this._model!.addGPUParticleVertexData(p, this._particleNum, this._particleSystem._time);
+    public setNewParticle (p: Particle): void {
+        if (!this._particleSystem) {
+            return;
+        }
+        this._model!.addGPUParticleVertexData(p, this._particleNum, this._particleSystem.time);
         this._particleNum++;
     }
 
@@ -246,31 +252,31 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
+    public updateRotation (pass: Pass | null): void {
         if (pass) {
             this.doUpdateRotation(pass);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (pass): void {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
         }
 
         if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
+            this._particleSystem?.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
+            this._particleSystem?.node.getWorldRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
-            if (cameraLst !== undefined) {
+            const cameraLst: Camera[] | undefined = this._particleSystem?.node.scene.renderScene?.cameras;
+            if (cameraLst !== undefined && this._particleSystem) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -283,28 +289,34 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale (pass: Pass | null) {
+    public updateScale (pass: Pass | null): void {
         if (pass) {
             this.doUpdateScale(pass);
         }
     }
 
-    private doUpdateScale (pass) {
-        switch (this._particleSystem.scaleSpace) {
+    private doUpdateScale (pass): void {
+        const nodeScale = this._node_scale;
+        switch (this._particleSystem?.scaleSpace) {
         case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
+            this._particleSystem.node.getScale(nodeScale);
             break;
         case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
+            this._particleSystem.node.getWorldScale(nodeScale);
             break;
         default:
             break;
         }
-        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+        // NOTE: the `_node_scale` should be a Vec3, but we implement `scale` uniform property as a Vec4,
+        // here we pass a temperate Vec4 object to prevent creating Vec4 object every time we set uniform.
+        pass.setUniform(pass.getHandle('scale'), _tempNodeScale.set(nodeScale.x, nodeScale.y, nodeScale.z));
     }
 
-    public updateParticles (dt: number) {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+    public updateParticles (dt: number): number {
+        if (!this._particleSystem) {
+            return this._particleNum;
+        }
+        if (EDITOR_NOT_IN_PREVIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
@@ -321,33 +333,36 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
             this.initShaderUniform(mat!);
         }
-        this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time, dt);
+        this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem.time, dt);
         this.updateShaderUniform(dt);
         this._model!.enabled = this._particleNum > 0;
         return this._particleNum;
     }
 
     // internal function
-    public updateRenderData () {
+    public updateRenderData (): void {
     }
 
-    public beforeRender () {
+    public beforeRender (): void {
         // update vertex buffer
         this._model!.updateIA(this._particleNum);
     }
 
-    public updateAlignSpace (space) {
+    public updateAlignSpace (space): void {
         this._alignSpace = space;
     }
 
-    public updateShaderUniform (dt: number) {
+    public updateShaderUniform (dt: number): void {
+        if (!this._particleSystem) {
+            return;
+        }
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
         }
 
         const pass = mat.passes[0];
-        _tempVec4.x = this._particleSystem._time;
+        _tempVec4.x = this._particleSystem.time;
         _tempVec4.y = dt;
         pass.setUniform(this._uTimeHandle, _tempVec4);
 
@@ -357,7 +372,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this.doUpdateRotation(pass);
     }
 
-    public initShaderUniform (mat: Material) {
+    public initShaderUniform (mat: Material): void {
         const pass = mat.passes[0];
 
         this._uTimeHandle = pass.getHandle('u_timeDelta');
@@ -372,11 +387,11 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         let enable = false;
         // force
-        const forceModule = this._particleSystem._forceOvertimeModule;
+        const forceModule = this._particleSystem?._forceOvertimeModule;
         enable = forceModule ? forceModule.enable : false;
         this._defines[FORCE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule.x, forceModule.y, forceModule.z);
+            const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule!.x, forceModule!.y, forceModule!.z);
             this._forceTexture = packed.texture;
             this._forceData = packed.texdata;
             const handle = pass.getHandle('force_over_time_tex0');
@@ -384,18 +399,18 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.bindSampler(binding, this._forceTexture.getGFXSampler()!);
             pass.bindTexture(binding, this._forceTexture.getGFXTexture()!);
             const spaceHandle = pass.getHandle('u_force_space');
-            pass.setUniform(spaceHandle, forceModule.space);
+            pass.setUniform(spaceHandle, forceModule!.space);
             const modeHandle = pass.getHandle('u_force_mode');
             pass.setUniform(modeHandle, this._forceTexture.height);
         }
 
         // velocity
-        const velocityModule = this._particleSystem._velocityOvertimeModule;
+        const velocityModule = this._particleSystem?._velocityOvertimeModule;
         enable = velocityModule ? velocityModule.enable : false;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule.x, velocityModule.y,
-                velocityModule.z, velocityModule.speedModifier);
+            const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule!.x, velocityModule!.y,
+                velocityModule!.z, velocityModule!.speedModifier);
             this._velocityTexture = packed.texture;
             this._velocityData = packed.texdata;
             const handle = pass.getHandle('velocity_over_time_tex0');
@@ -403,17 +418,17 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
             pass.bindTexture(binding, this._velocityTexture.getGFXTexture()!);
             const spaceHandle = pass.getHandle('u_velocity_space');
-            pass.setUniform(spaceHandle, velocityModule.space);
+            pass.setUniform(spaceHandle, velocityModule!.space);
             const modeHandle = pass.getHandle('u_velocity_mode');
             pass.setUniform(modeHandle, this._velocityTexture.height);
         }
 
         // color module
-        const colorModule = this._particleSystem._colorOverLifetimeModule;
+        const colorModule = this._particleSystem?._colorOverLifetimeModule;
         enable = colorModule ? colorModule.enable : false;
         this._defines[COLOR_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule.color);
+            const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule!.color);
             this._colorTexture = packed.texture;
             this._colorData = packed.texdata;
             const handle = pass.getHandle('color_over_time_tex0');
@@ -425,16 +440,16 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         // rotation module
-        const roationModule = this._particleSystem._rotationOvertimeModule;
+        const roationModule = this._particleSystem?._rotationOvertimeModule;
         enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
-            if (roationModule.separateAxes) {
+            if (roationModule!.separateAxes) {
                 // eslint-disable-next-line max-len
-                packed = packCurveRangeXYZ(this._rotationTexture, this._rotationData, _sample_num, roationModule.x, roationModule.y, roationModule.z);
+                packed = packCurveRangeXYZ(this._rotationTexture, this._rotationData, _sample_num, roationModule!.x, roationModule!.y, roationModule!.z);
             } else {
-                packed = packCurveRangeZ(this._rotationTexture, this._rotationData, _sample_num, roationModule.z);
+                packed = packCurveRangeZ(this._rotationTexture, this._rotationData, _sample_num, roationModule!.z);
             }
             this._rotationTexture = packed.texture;
             this._rotationData = packed.texdata;
@@ -449,15 +464,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         // size module
-        const sizeModule = this._particleSystem._sizeOvertimeModule;
+        const sizeModule = this._particleSystem?._sizeOvertimeModule;
         enable = sizeModule ? sizeModule.enable : false;
         this._defines[SIZE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
-            if (sizeModule.separateAxes) {
-                packed = packCurveRangeXYZ(this._sizeTexture, this._sizeData, _sample_num, sizeModule.x, sizeModule.y, sizeModule.z, true);
+            if (sizeModule!.separateAxes) {
+                packed = packCurveRangeXYZ(this._sizeTexture, this._sizeData, _sample_num, sizeModule!.x, sizeModule!.y, sizeModule!.z, true);
             } else {
-                packed = packCurveRangeN(this._sizeTexture, this._sizeData, _sample_num, sizeModule.size, true);
+                packed = packCurveRangeN(this._sizeTexture, this._sizeData, _sample_num, sizeModule!.size, true);
             }
             this._sizeTexture = packed.texture;
             this._sizeData = packed.texdata;
@@ -472,12 +487,12 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         // texture module
-        const textureModule = this._particleSystem._textureAnimationModule;
+        const textureModule = this._particleSystem?._textureAnimationModule;
         enable = textureModule ? textureModule.enable : false;
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
             // eslint-disable-next-line max-len
-            const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule.startFrame, textureModule.frameOverTime, true);
+            const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule!.startFrame, textureModule!.frameOverTime, true);
             this._animTexture = packed.texture;
             this._animData = packed.texdata;
             const handle = pass.getHandle('texture_animation_tex0');
@@ -486,8 +501,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.bindTexture(binding, this._animTexture.getGFXTexture()!);
             const infoHandle = pass.getHandle('u_anim_info');
             _tempVec4.x = this._animTexture.height;
-            _tempVec4.y = textureModule.numTilesX * textureModule.numTilesY;
-            _tempVec4.z = textureModule.cycleCount;
+            _tempVec4.y = textureModule!.numTilesX * textureModule!.numTilesY;
+            _tempVec4.z = textureModule!.cycleCount;
             pass.setUniform(infoHandle, _tempVec4);
         }
 
@@ -499,20 +514,20 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._particleNum;
     }
 
-    public onMaterialModified (index: number, material: Material) {
+    public onMaterialModified (index: number, material: Material): void {
         if (!this._inited) {
             return;
         }
         this.updateMaterialParams();
     }
 
-    public onRebuildPSO (index: number, material: Material) {
+    public onRebuildPSO (index: number, material: Material): void {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
     }
 
-    public updateVertexAttrib () {
+    public updateVertexAttrib (): void {
         if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
             return;
         }
@@ -534,7 +549,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttrib () {
+    private _setVertexAttrib (): void {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
             case RenderMode.StrecthedBillboard:
@@ -551,7 +566,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttribIns () {
+    private _setVertexAttribIns (): void {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
             this._vertAttrs = _gpu_vert_attr_ins.slice();
@@ -564,15 +579,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateMaterialParams () {
+    public updateMaterialParams (): void {
         if (!this._particleSystem) {
             return;
         }
         const ps = this._particleSystem;
         const shareMaterial = ps.sharedMaterial;
         if (shareMaterial !== null) {
-            const effectName = shareMaterial._effectAsset._name;
-            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0) as Texture2D;
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {
@@ -591,7 +605,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         ps.node.getWorldMatrix(_tempWorldTrans);
 
-        if (ps._simulationSpace === Space.World) {
+        if (ps.simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
@@ -610,7 +624,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         } else if (renderMode === RenderMode.Mesh) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
+            warn(`particle system renderMode ${renderMode} not support.`);
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
@@ -631,7 +645,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
-    public setUseInstance (value: boolean) {
+    public setUseInstance (value: boolean): void {
         if (this._useInstance === value) {
             return;
         }
@@ -643,7 +657,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this.updateRenderMode();
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
+    public getNoisePreview (out: number[], width: number, height: number): void {
 
     }
 }

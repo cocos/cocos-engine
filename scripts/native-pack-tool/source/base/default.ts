@@ -129,6 +129,13 @@ export abstract class NativePackTool {
     }
 
     /**
+     * Debug / Release
+     */
+    protected get buildType(): string {
+        return this.params.debug ? "Debug" : "Release";
+    }
+
+    /**
      * Read version number from cocos-version.json
      */
     protected tryReadProjectTemplateVersion(): { version: string, skipCheck: boolean | undefined } | null {
@@ -206,14 +213,14 @@ export abstract class NativePackTool {
                 return false;
             }
 
-            if(!fs.existsSync(srcFile)) {
+            if (!fs.existsSync(srcFile)) {
                 console.warn(`${f} not exists in ${commonSrc}`);
                 return false;
             }
 
-            if(!compFile(srcFile, dstFile)) {
+            if (!compFile(srcFile, dstFile)) {
                 console.log(`File ${dstFile} differs from ${srcFile}`);
-                return false;   
+                return false;
             }
         }
         return true;
@@ -357,6 +364,15 @@ export abstract class NativePackTool {
         }
     }
 
+    protected projectNameASCII(): string {
+        return /^[0-9a-zA-Z_-]+$/.test(this.params.projectName) ? this.params.projectName : 'CocosGame';
+    }
+
+    protected getExcutableNameOrDefault(): string {
+        const en = this.params.executableName;
+        return en ? en : this.projectNameASCII(); 
+    }
+
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
@@ -381,6 +397,21 @@ export abstract class NativePackTool {
                 });
             });
             delete tasks.projectReplaceProjectName;
+        }
+
+        if (tasks.projectReplaceProjectNameASCII) {
+            const cmd = tasks.projectReplaceProjectNameASCII;
+            if (cmd.srcProjectName !== this.projectNameASCII()) {
+                cmd.files.forEach((file) => {
+                    const fp = cchelper.join(this.paths.buildDir, file);
+                    replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
+                    replaceFilesDelay[fp].push({
+                        reg: cmd.srcProjectName,
+                        content: this.projectNameASCII(),
+                    });
+                });
+            }
+            delete tasks.projectReplaceProjectNameASCII;
         }
 
         if (tasks.projectReplacePackageName) {
@@ -423,15 +454,25 @@ export abstract class NativePackTool {
             }
         });
         Object.keys(config).forEach((key: string) => {
-            content += config[key] + '\n';
+            if(typeof config[key] !== 'string')  {
+                console.error(`cMakeConfig.${key} is not a string, "${config[key]}"`);
+            } else {
+                content += config[key] + '\n';
+            }
         });
         console.debug(`generateCMakeConfig, ${JSON.stringify(config)}`);
         await fs.outputFile(file, content);
     }
 
-    protected appendCmakeResDirArgs(args: string[]) {
-        args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}" -DAPP_NAME="${this.params.projectName}" `);
+    protected appendCmakeCommonArgs(args: string[]) {
+        args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}"`);
+        args.push(`-DAPP_NAME="${this.params.projectName}"`);
+        args.push(`-DLAUNCH_TYPE="${this.buildType}"`);
+        if (this.params.platformParams?.skipUpdateXcodeProject) {
+            args.push(`-DCMAKE_SUPPRESS_REGENERATION=ON`);
+        }
     }
+
 
     /**
      * 加密脚本，加密后，会修改 cmake 参数，因而需要再次执行 cmake 配置文件的生成
@@ -508,6 +549,7 @@ export class CocosParams<T> {
     public cmakePath: string;
     public platform: string;
     public platformName: string;
+    public executableName: string;
     /**
      * engine root
      */
@@ -573,6 +615,7 @@ export class CocosParams<T> {
         this.buildDir = params.buildDir;
         this.xxteaKey = params.xxteaKey;
         this.encrypted = params.encrypted;
+        this.executableName = params.executableName;
         Object.assign(this.cMakeConfig, params.cMakeConfig);
         this.platformParams = params.platformParams;
     }

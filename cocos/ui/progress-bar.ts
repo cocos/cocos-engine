@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -110,7 +109,7 @@ export class ProgressBar extends Component {
      */
     @type(Sprite)
     @tooltip('i18n:progress.bar_sprite')
-    get barSprite () {
+    get barSprite (): Sprite | null {
         return this._barSprite;
     }
 
@@ -132,7 +131,7 @@ export class ProgressBar extends Component {
      */
     @type(Mode)
     @tooltip('i18n:progress.mode')
-    get mode () {
+    get mode (): Mode {
         return this._mode;
     }
 
@@ -165,7 +164,7 @@ export class ProgressBar extends Component {
      * 进度条实际的总长度。
      */
     @tooltip('i18n:progress.total_length')
-    get totalLength () {
+    get totalLength (): number {
         return this._totalLength;
     }
 
@@ -192,7 +191,7 @@ export class ProgressBar extends Component {
     @range([0, 1, 0.1])
     @slide
     @tooltip('i18n:progress.progress')
-    get progress () {
+    get progress (): number {
         return this._progress;
     }
 
@@ -213,7 +212,7 @@ export class ProgressBar extends Component {
      * 进度条是否进行反方向变化。
      */
     @tooltip('i18n:progress.reverse')
-    get reverse () {
+    get reverse (): boolean {
         return this._reverse;
     }
 
@@ -241,7 +240,7 @@ export class ProgressBar extends Component {
     @serializable
     protected _reverse = false;
 
-    protected _initBarSprite () {
+    protected _initBarSprite (): void {
         if (this._barSprite) {
             const entity = this._barSprite.node;
             if (!entity) { return; }
@@ -275,7 +274,7 @@ export class ProgressBar extends Component {
         }
     }
 
-    protected _updateBarStatus () {
+    protected _updateBarStatus (): void {
         if (this._barSprite) {
             const entity = this._barSprite.node;
 

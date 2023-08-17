@@ -52,6 +52,13 @@ exports.template = /* html */`
 </section>
 `;
 
+
+exports.style = /* css */`
+.asset-label-atlas {
+    padding-right: 4px;
+}
+`;
+
 exports.$ = {
     spriteFrame: '#spriteFrame',
     itemWidth: '#itemWidth',

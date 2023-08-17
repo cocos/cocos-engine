@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,7 +34,7 @@ import { Frustum } from './frustum';
 /**
  * cache jsb attributes in js, reduce cross language invokations.
  */
-function cacheProperty (ctor: Constructor, property: string) {
+function cacheProperty (ctor: Constructor, property: string): void {
     const propDesc = Object.getOwnPropertyDescriptor(ctor.prototype, property);
     const propCacheKey = `_$cache_${property}`;
     const propRealKey = `_$_${property}`;
@@ -58,9 +59,9 @@ function cacheProperty (ctor: Constructor, property: string) {
 /**
  * cache native object's `underlyingData()` result in __data
  */
-function cacheUnderlyingData (ctor: Constructor) {
+function cacheUnderlyingData (ctor: Constructor): void {
     // eslint-disable-next-line func-names
-    ctor.prototype._arraybuffer = function () {
+    ctor.prototype._arraybuffer = function (): ArrayBuffer {
         if (!this.__data) {
             this.__data = this.underlyingData();
         }
@@ -82,11 +83,14 @@ interface FieldDesc {
 /**
  * define accessor for attr, read/write directly to the underlyingData as Float32Array[1]
  */
-const defineAttrFloat = (kls: Constructor, attr: string) => {
+const defineAttrFloat = (kls: Constructor, attr: string): void => {
     // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
+        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
         enumerable: true,
@@ -109,14 +113,17 @@ const defineAttrFloat = (kls: Constructor, attr: string) => {
 /**
  *  define accessor for attr, read/write directly to the underlyingData as Int32Array[1]
  */
-const defineAttrInt = (kls: Constructor, attr: string) => {
+const defineAttrInt = (kls: Constructor, attr: string): void => {
     // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     if (!desc) {
         console.error(`attr ${attr} not defined in class ${kls.toString()}`);
     }
     const cacheKey = `_$_${attr}`;
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
+        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
         enumerable: true,

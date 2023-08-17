@@ -1,11 +1,35 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { IMiniGame, SystemInfo } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let tt: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, tt);
 
 // #region platform related
@@ -15,7 +39,7 @@ minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
 
 // #region SystemInfo
 let systemInfo = minigame.getSystemInfoSync();
-minigame.getSystemInfoSync = () => systemInfo;
+minigame.getSystemInfoSync = (): SystemInfo => systemInfo;
 minigame.onWindowResize?.(() => {
     systemInfo = minigame.getSystemInfoSync();
 });
@@ -41,11 +65,11 @@ Object.defineProperty(minigame, 'orientation', {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
-    _accelerometerCb = (res: any) => {
+    _accelerometerCb = (res: any): void => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
@@ -63,13 +87,13 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
         cb(resClone);
     };
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
     if (_accelerometerCb) {
         tt.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
-minigame.startAccelerometer = function (res: any) {
+minigame.startAccelerometer = function (res: any): void {
     if (_accelerometerCb) {
         tt.onAccelerometerChange(_accelerometerCb);
     }
@@ -86,7 +110,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
 
 // #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     const locSystemInfo = tt.getSystemInfoSync() as SystemInfo;
     let { top, left, right } = locSystemInfo.safeArea;
     const { bottom, width, height } = locSystemInfo.safeArea;
@@ -102,3 +126,5 @@ minigame.getSafeArea = function () {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./bytedance')>());

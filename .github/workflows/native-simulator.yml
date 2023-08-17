@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
     - 'native/**'
+    - '.github\workflows\native-simulator.yml'
 
 # github.head_ref is only defined on pull_request events
 concurrency:
@@ -32,15 +33,12 @@ jobs:
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
-      - name: install vulkan-sdk
-        run: |
-          choco install vulkan-sdk
-      - name: generate bindings glue codes
-        run: |
-          cd ./tools/swig-config
-          echo "Create auto-generated jsbinding glue codes."
-          node genbindings.js &&
-          git status
+      - name: Install deps
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.2.189.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
       - name: gen simulator
         run: |
           gulp gen-simulator
@@ -66,11 +64,6 @@ jobs:
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
-      - name: Generate bindings
-        run: |
-          cd ./tools/swig-config
-          node genbindings.js
-          git status
       - name: gen simulator
         run: |
           gulp gen-simulator-release

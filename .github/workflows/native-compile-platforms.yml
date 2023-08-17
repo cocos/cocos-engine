@@ -5,6 +5,7 @@ on:
     paths:
     - 'templates/**'
     - 'native/**'
+    - '.github/workflows/native-compile-platforms.yml'
 
 # github.head_ref is only defined on pull_request events
 concurrency:
@@ -25,14 +26,11 @@ jobs:
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Install deps
-        run: |
-          choco install --forcex86 vulkan-sdk
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          echo "Create auto-generated jsbinding glue codes."
-          node genbindings.js &&
-          git status
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.2.189.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
       - name: Compile win64
         shell: bash
         env:
@@ -50,6 +48,7 @@ jobs:
           echo "set(USE_DRAGONBONES OFF)" >> build-win64/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win64/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-win64/proj/cfg.cmake
           mkdir build-win64/assets
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
@@ -75,11 +74,11 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
+      - uses: actions/setup-java@v3
+        id: setup-jdk
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -98,7 +97,16 @@ jobs:
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
           echo "set(CI_FORCE_MINIMAL_FEATURES ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
 
+          mkdir -p build-android/proj/res/values
+          cat << EOF > build-android/proj/res/values/strings.xml
+          <resources>
+              <string name="app_name" translatable="false">CocosGame</string>
+          </resources>
+          EOF
+          
           mkdir -p build-android/assets
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
@@ -115,7 +123,8 @@ jobs:
 
           echo "Compile Android - cmake ..."
           echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-          ./gradlew :CocosGame:assembleDebug --quiet
+          # ./gradlew :CocosGame:assembleDebug --quiet
+          ./gradlew :CocosGame:assembleRelease --quiet
           echo "Compile Android Debug Done!"
 
   compile_android:
@@ -135,12 +144,11 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
-
+      - uses: actions/setup-java@v3
+        id: setup-jdk
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -163,6 +171,15 @@ jobs:
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
+
+          mkdir -p build-android/proj/res/values
+          cat << EOF > build-android/proj/res/values/strings.xml
+          <resources>
+              <string name="app_name" translatable="false">CocosGame</string>
+          </resources>
+          EOF
 
           mkdir -p build-android/assets
 
@@ -196,11 +213,6 @@ jobs:
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -219,6 +231,7 @@ jobs:
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
@@ -248,11 +261,6 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -269,6 +277,7 @@ jobs:
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
@@ -301,11 +310,6 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -328,6 +332,7 @@ jobs:
           echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED OFF)" >> build-ios/proj/cfg.cmake
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-ios/proj/cfg.cmake
           mkdir build-ios/assets
           cd build-ios
           RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios

@@ -21,12 +21,14 @@ exports.template = /* html */`
 exports.style = /* css */`
 :host > .section {
     height: 200px;
+    padding: 4px 0 4px 4px;
+    box-sizing: border-box;
     display: flex;
     background: var(--color-normal-fill);
     border-bottom: 1px solid var(--color-normal-border);
- }
+}
 :host > .section > canvas { flex: 1; min-width: 0; }
-:host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
+:host > .section > .tools { display: flex; flex-direction: column; padding: 0 4px; }
 `;
 
 exports.$ = {
@@ -90,9 +92,10 @@ exports.methods = {
     },
 };
 
-exports.ready = async function () {
+exports.ready = async function() {
     const panel = this;
 
+    callMaterialPreviewFunction('resetCamera');
     callMaterialPreviewFunction('setLightEnable', true);
     panel.$.light.addEventListener('confirm', async () => {
         await callMaterialPreviewFunction('setLightEnable', this.$.light.checked);
@@ -106,7 +109,7 @@ exports.ready = async function () {
     });
 
     panel.$.canvas.addEventListener('mousedown', async (event) => {
-        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
         async function mousemove(event) {
             await callMaterialPreviewFunction('onMouseMove', {
@@ -134,6 +137,14 @@ exports.ready = async function () {
         panel.isPreviewDataDirty = true;
     });
 
+    panel.$.canvas.addEventListener('wheel', async (event) => {
+        await callMaterialPreviewFunction('onMouseWheel', {
+            wheelDeltaY: event.wheelDeltaY,
+            wheelDeltaX: event.wheelDeltaX
+        });
+        panel.isPreviewDataDirty = true;
+    });
+
     const GlPreview = Editor._Module.require('PreviewExtends').default;
     panel.glPreview = new GlPreview('scene:material-preview', 'query-material-preview-data');
 
@@ -149,8 +160,9 @@ exports.ready = async function () {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     const panel = this;
+    callMaterialPreviewFunction('resetCamera');
 
     panel.assetList = assetList;
     panel.metaList = metaList;
@@ -171,7 +183,7 @@ exports.update = async function (assetList, metaList) {
     panel.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { PrimitiveMode } from '../gfx';
 import { IGeometry } from './define';
@@ -29,7 +28,7 @@ import { IGeometry } from './define';
 /**
  * @deprecated
  */
-export function wireframe (indices: number[]) {
+export function wireframe (indices: number[]): number[] {
     const offsets = [[0, 1], [1, 2], [2, 0]];
     const lines: number[] = [];
     const lineIDs = {};
@@ -54,7 +53,7 @@ export function wireframe (indices: number[]) {
 /**
  * @deprecated
  */
-export function invWinding (indices: number[]) {
+export function invWinding (indices: number[]): number[] {
     const newIB: number[] = [];
     for (let i = 0; i < indices.length; i += 3) {
         newIB.push(indices[i], indices[i + 2], indices[i + 1]);
@@ -65,7 +64,7 @@ export function invWinding (indices: number[]) {
 /**
  * @deprecated
  */
-export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
+export function toWavefrontOBJ (primitive: IGeometry, scale = 1): string {
     if (!primitive.indices
         || !primitive.uvs
         || !primitive.normals
@@ -76,7 +75,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
     const t = primitive.uvs;
     const n = primitive.normals;
     const IB = primitive.indices;
-    const V = (i) => `${IB[i] + 1}/${IB[i] + 1}/${IB[i] + 1}`;
+    const V = (i): string => `${IB[i] + 1}/${IB[i] + 1}/${IB[i] + 1}`;
     let content = '';
     for (let i = 0; i < v.length; i += 3) {
         content += `v ${v[i] * scale} ${v[i + 1] * scale} ${v[i + 2] * scale}\n`;
@@ -96,7 +95,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
 /**
  * @deprecated
  */
-export function normals (positions: number[], nms: number[], length = 1) {
+export function normals (positions: number[], nms: number[], length = 1): number[] {
     const verts: number[] = new Array(2 * positions.length);
 
     for (let i = 0; i < positions.length / 3; ++i) {

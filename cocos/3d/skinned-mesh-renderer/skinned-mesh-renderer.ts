@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -24,7 +24,7 @@
 */
 
 import {
-    ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
+    ccclass, executeInEditMode, executionOrder, help, menu, type,
 } from 'cc.decorator';
 import type { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../asset/assets';
@@ -59,7 +59,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @zh 骨骼资源。
      */
     @type(Skeleton)
-    get skeleton () {
+    get skeleton (): Skeleton | null {
         return this._skeleton;
     }
 
@@ -74,19 +74,18 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @zh 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @type(Node)
-    @tooltip('i18n:model.skinning_root')
-    get skinningRoot () {
+    get skinningRoot (): Node | null {
         return this._skinningRoot;
     }
 
     set skinningRoot (value) {
+        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
         this._tryBindAnimation();
-        if (value === this._skinningRoot) { return; }
         this._update();
     }
 
-    get model () {
+    get model (): SkinningModel | BakedSkinningModel | null {
         return this._model as SkinningModel | BakedSkinningModel | null;
     }
 
@@ -101,12 +100,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._modelType = BakedSkinningModel;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         super.onLoad();
         this._tryBindAnimation();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this.associatedAnimation) {
             this.associatedAnimation.notifySkinnedMeshRemoved(this);
             assertIsTrue(this.associatedAnimation === null);
@@ -115,7 +114,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super.onDestroy();
     }
 
-    public uploadAnimation (clip: AnimationClip | null) {
+    public uploadAnimation (clip: AnimationClip | null): void {
         this._clip = clip;
         if (this.model && this.model.uploadAnimation) {
             this.model.uploadAnimation(clip);
@@ -126,7 +125,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * Set if bake mode should be used.
      * @internal This method only friends to skeletal animation component.
      */
-    public setUseBakedAnimation (val = true, force = false) {
+    public setUseBakedAnimation (val = true, force = false): void {
         const modelType = val ? BakedSkinningModel : SkinningModel;
         if (!force && this._modelType === modelType) { return; }
         this._modelType = modelType;
@@ -144,19 +143,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    public setMaterial (material: Material | null, index: number) {
-        super.setMaterial(material, index);
+    public setSharedMaterial (material: Material | null, index: number): void {
+        super.setSharedMaterial(material, index);
         if (this._modelType === SkinningModel) {
             this.getMaterialInstance(index);
         }
     }
 
-    protected _updateModelParams () {
+    protected _updateModelParams (): void {
         this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
     }
 
-    private _tryBindAnimation () {
+    private _tryBindAnimation (): void {
         const { _skinningRoot: skinningRoot } = this;
         if (!skinningRoot) {
             return;
@@ -181,7 +180,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    private _update () {
+    private _update (): void {
         if (this.model) {
             this.model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
             if (this.model.uploadAnimation) { this.model.uploadAnimation(this._clip); }

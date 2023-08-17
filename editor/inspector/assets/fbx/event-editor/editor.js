@@ -3,24 +3,18 @@ const { join } = require('path');
 module.paths.push(join(Editor.App.path, 'node_modules'));
 
 const eventItem = require('./event-item');
-const defaultFunc = [
-    {
-        func: '',
-        params: [],
-    },
-];
 
 exports.template = `<section v-if="show" id="event-editor" @mousedown.stop>
     <header class="flex">
-        <ui-label class="f1" :value="'Animation Event (frame: ' + RealFrame + ' )'"></ui-label>
-        <ui-icon value="close" @click="show = false"></ui-icon>
+        <ui-label class="title" :value="'Current Animation Frame: ' + RealFrame"></ui-label>
+        <ui-icon value="close" @click="hide" tooltip="Close"></ui-icon>
     </header>
     <div class="functions">
         <div class="tools flex">
             <ui-input class="f1" placeholder="i18n:animator.event.func_placeholder"
                 tooltip="i18n:animator.event.func_placeholder"
                 :value="newFuncName"
-                @change.stop="newFuncName = $event.target.value"
+                @change.stop="newFuncName = $event.target.value.trim()"
                 @keydown.enter="addFunc"
             ></ui-input>
             <ui-icon value="add"
@@ -35,6 +29,7 @@ exports.template = `<section v-if="show" id="event-editor" @mousedown.stop>
                 :index="index"
                 :key="index"
                 @update="updateValue"
+                @delete="deleteValue"
             ></event-item>
         </div>
         <div v-if="!value.length" class="empty">
@@ -56,8 +51,8 @@ exports.data = function() {
         dirty: false,
         debounceSave: null,
         // time value
-        frame: 0,
-        RealFrame: 0,
+        frame: -1,
+        RealFrame: -1,
         show: false,
     };
 };
@@ -77,24 +72,25 @@ exports.methods = {
             that.showToast(Editor.I18n.t('animator.event.enter_func_name'));
             return;
         }
-        that.value.push({
-            func: that.newFuncName,
-            params: [],
-            frame: that.frame,
+        that.$emit('addFunc', that.frame, that.newFuncName);
+        setTimeout(() => {
+            that.newFuncName = '';
         });
-        that.dirty = true;
-        that.debounceSave();
     },
 
     updateValue(eventInfo, index) {
         const that = this;
-        if (!eventInfo) {
-            that.value.splice(index, 1);
-        } else {
-            that.value[index] = eventInfo;
-        }
+        that.value[index] = eventInfo;
         that.dirty = true;
         that.debounceSave();
+    },
+
+    deleteValue(index) {
+        const that = this;
+        const eventInfo = that.value[index];
+        if (eventInfo) {
+            that.$emit('delFunc', eventInfo.frame, eventInfo);
+        }
     },
 
     showToast(msg, time = 800) {
@@ -112,23 +108,37 @@ exports.methods = {
         }, time);
     },
 
-    async saveData() {
+    saveData() {
         const that = this;
-        that.$emit('update', that.frame, that.value);
+        that.$emit('update', that.value);
         that.dirty = false;
     },
 
-    refresh() {
+    refresh(events) {
         const that = this;
-        let data = that.events.filter((item) => {
-            return item.frame === that.frame;
-        });
-        if (data.length < 1) {
-            that.value = [];
-            return;
+        const infos = [];
+
+        if (Array.isArray(events)) {
+            if (!events.length) {
+                this.frame = -1;
+            }
+
+            events.forEach((item) => {
+                if (item.info.frame === that.frame) {
+                    infos.push(item.info);
+                }
+            });
         }
-        that.value = JSON.parse(JSON.stringify(data));
-        that.newFuncName = '';
+
+        that.value = infos;
+        that.show = !!infos.length;
+
+    },
+    hide() {
+        this.$emit('hide');
+    },
+    unselect() {
+        this.show = false;
     },
 };
 

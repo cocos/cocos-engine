@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
@@ -65,26 +64,27 @@ import { BufferBarrier } from '../base/states/buffer-barrier';
 import { debug } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
-import { IWebGLBindingMapping } from './webgl-gpu-objects';
+import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
+import type { WebGLStateCache } from './webgl-state-cache';
 
 export class WebGLDevice extends Device {
-    get gl () {
+    get gl (): WebGLRenderingContext {
         return this._context!;
     }
 
-    get extensions () {
+    get extensions (): IWebGLExtensions {
         return this._swapchain!.extensions;
     }
 
-    get stateCache () {
+    get stateCache (): WebGLStateCache {
         return this._swapchain!.stateCache;
     }
 
-    get nullTex2D () {
+    get nullTex2D (): WebGLTexture {
         return this._swapchain!.nullTex2D;
     }
 
-    get nullTexCube () {
+    get nullTexCube (): WebGLTexture {
         return this._swapchain!.nullTexCube;
     }
 
@@ -92,8 +92,12 @@ export class WebGLDevice extends Device {
         return this._textureExclusive;
     }
 
-    get bindingMappings () {
+    get bindingMappings (): IWebGLBindingMapping {
         return this._bindingMappings!;
+    }
+
+    get blitManager (): IWebGLBlitManager {
+        return this._swapchain!.blitManager;
     }
 
     private _swapchain: WebGLSwapchain | null = null;
@@ -240,11 +244,11 @@ export class WebGLDevice extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+    public flushCommands (cmdBuffs: CommandBuffer[]): void {}
 
-    public acquire (swapchains: Swapchain[]) {}
+    public acquire (swapchains: Swapchain[]): void {}
 
-    public present () {
+    public present (): void {
         const queue = (this._queue as WebGLQueue);
         this._numDrawCalls = queue.numDrawCalls;
         this._numInstances = queue.numInstances;
@@ -252,7 +256,7 @@ export class WebGLDevice extends Device {
         queue.clear();
     }
 
-    protected initFormatFeatures (exts: IWebGLExtensions) {
+    protected initFormatFeatures (exts: IWebGLExtensions): void {
         this._formatFeatures.fill(FormatFeatureBit.NONE);
 
         this._textureExclusive.fill(true);
@@ -506,7 +510,7 @@ export class WebGLDevice extends Device {
         return [this._swapchain as Swapchain];
     }
 
-    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
         const hash = GeneralBarrier.computeHash(info);
         if (!this._generalBarrierss.has(hash)) {
             this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
@@ -514,7 +518,7 @@ export class WebGLDevice extends Device {
         return this._generalBarrierss.get(hash)!;
     }
 
-    public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -522,7 +526,7 @@ export class WebGLDevice extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public getBufferBarrier (info: Readonly<BufferBarrierInfo>) {
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier {
         const hash = BufferBarrier.computeHash(info);
         if (!this._bufferBarriers.has(hash)) {
             this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
@@ -530,7 +534,7 @@ export class WebGLDevice extends Device {
         return this._bufferBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         WebGLCmdFuncCopyBuffersToTexture(
             this,
             buffers as ArrayBufferView[],
@@ -539,7 +543,7 @@ export class WebGLDevice extends Device {
         );
     }
 
-    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {
         WebGLCmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGLTexture).gpuTexture,
@@ -552,7 +556,7 @@ export class WebGLDevice extends Device {
         texImages: Readonly<TexImageSource[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
-    ) {
+    ): void {
         WebGLCmdFuncCopyTexImagesToTexture(
             this,
             texImages,

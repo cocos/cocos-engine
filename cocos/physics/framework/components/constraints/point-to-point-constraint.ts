@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
     ccclass,
@@ -29,49 +28,58 @@ import {
     menu,
     type,
     serializable,
+    tooltip,
 } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Constraint } from './constraint';
-import { Vec3, IVec3Like, cclegacy } from '../../../../core';
+import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 
+/**
+ * @en The point to point constraint.
+ * It locks the relative position of the pivots between two rigid bodies.
+ * @zh 点对点约束。
+ * 点对点约束会锁定两个刚体间的连接点的相对位置。
+ */
 @ccclass('cc.PointToPointConstraint')
 @help('i18n:cc.PointToPointConstraint')
 @menu('Physics/PointToPointConstraint(beta)')
 export class PointToPointConstraint extends Constraint {
     /**
      * @en
-     * The position of the own rigid body in local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在本地空间中，自身刚体相对于约束关节的位置。
+     * 约束关节在连接刚体本地坐标系中的位置。
      */
     @type(Vec3)
-    get pivotA () {
+    @tooltip('i18n:physics3d.constraint.pivotA')
+    get pivotA (): IVec3Like {
         return this._pivotA;
     }
 
     set pivotA (v: IVec3Like) {
         Vec3.copy(this._pivotA, v);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.constraint.setPivotA(this._pivotA);
         }
     }
 
     /**
      * @en
-     * The position of the connected rigid body in the local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the connected rigid body.
      * @zh
-     * 在本地空间中，连接刚体相对于约束关节的位置。
+     * 约束关节在连接刚体本地坐标系中的位置。
      */
     @type(Vec3)
-    get pivotB () {
+    @tooltip('i18n:physics3d.constraint.pivotB')
+    get pivotB (): IVec3Like {
         return this._pivotB;
     }
 
     set pivotB (v: IVec3Like) {
         Vec3.copy(this._pivotB, v);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.constraint.setPivotB(this._pivotB);
         }
     }

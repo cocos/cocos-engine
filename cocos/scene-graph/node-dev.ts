@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,10 +30,23 @@ import { error, errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
 
 const Destroying = CCObject.Flags.Destroying;
+const IS_PREVIEW = !!legacyCC.GAME_VIEW;
 
-export function nodePolyfill (Node) {
+export function nodePolyfill (Node): void {
+    if ((EDITOR && !IS_PREVIEW) || TEST) {
+        Node.prototype._onPreDestroy = function (): boolean {
+            const destroyByParent: boolean = this._onPreDestroyBase();
+            if (!destroyByParent) {
+                // ensure this node can reattach to scene by undo system
+                // (simulate some destruct logic to make undo system work correctly)
+                this._parent = null;
+            }
+            return destroyByParent;
+        };
+    }
+
     if (EDITOR || TEST) {
-        Node.prototype._checkMultipleComp = function (ctor) {
+        Node.prototype._checkMultipleComp = function (ctor): boolean {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
                 if (existing.constructor === ctor) {
@@ -45,14 +57,39 @@ export function nodePolyfill (Node) {
             }
             return true;
         };
-
+        /**
+         * @method _getDependComponent
+         * @param {Component} depended
+         * @return {Component[]}
+         */
+        Node.prototype._getDependComponent = function (depended): Component[] {
+            const dependant: Component[] = [];
+            for (let i = 0; i < this._components.length; i++) {
+                const comp = this._components[i];
+                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
+                    const reqComps = comp.constructor._requireComponent;
+                    if (reqComps) {
+                        if (Array.isArray(reqComps)) {
+                            for (let i = 0; i < reqComps.length; i++) {
+                                if (depended instanceof reqComps[i]) {
+                                    dependant.push(comp);
+                                }
+                            }
+                        } else if (depended instanceof reqComps) {
+                            dependant.push(comp);
+                        }
+                    }
+                }
+            }
+            return dependant;
+        };
         /**
          * This api should only used by undo system
          * @method _addComponentAt
          * @param {Component} comp
          * @param {Number} index
          */
-        Node.prototype._addComponentAt = function (comp, index) {
+        Node.prototype._addComponentAt = function (comp, index): void {
             if (this._objFlags & Destroying) {
                 return error('isDestroying');
             }
@@ -87,7 +124,7 @@ export function nodePolyfill (Node) {
 
             comp.node = this;
             this._components.splice(index, 0, comp);
-            if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
+            if (EDITOR && !IS_PREVIEW && EditorExtends.Node && EditorExtends.Component) {
                 const node = EditorExtends.Node.getNode(this._id);
                 if (node) {
                     EditorExtends.Component.add(comp._id, comp);
@@ -99,56 +136,16 @@ export function nodePolyfill (Node) {
             return undefined;
         };
 
-        /**
-         * @method _getDependComponent
-         * @param {Component} depended
-         * @return {Component[]}
-         */
-        Node.prototype._getDependComponent = function (depended) {
-            const dependant: Component[] = [];
-            for (let i = 0; i < this._components.length; i++) {
-                const comp = this._components[i];
-                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
-                    const reqComps = comp.constructor._requireComponent;
-                    if (reqComps) {
-                        if (Array.isArray(reqComps)) {
-                            for (let i = 0; i < reqComps.length; i++) {
-                                if (depended instanceof reqComps[i]) {
-                                    dependant.push(comp);
-                                }
-                            }
-                        } else if (depended instanceof reqComps) {
-                            dependant.push(comp);
-                        }
-                    }
-                }
-            }
-            return dependant;
-        };
-
-        Node.prototype.onRestore = function () {
+        Node.prototype.onRestore = function (): void {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
                 legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
             }
         };
-
-        Node.prototype._onPreDestroy = function () {
-            const destroyByParent: boolean = this._onPreDestroyBase();
-            if (!destroyByParent) {
-                // ensure this node can reattach to scene by undo system
-                // (simulate some destruct logic to make undo system work correctly)
-                this._parent = null;
-            }
-            return destroyByParent;
-        };
-
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
-    }
 
-    if (EDITOR || TEST) {
-        Node.prototype._registerIfAttached = function (register) {
+        Node.prototype._registerIfAttached = function (register): void {
             if (!this._id) {
                 console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
                 return;
@@ -189,10 +186,10 @@ export function nodePolyfill (Node) {
 
     if (DEV) {
         // promote debug info
-        js.get(Node.prototype, ' INFO ', function () {
+        js.get(Node.prototype, ' INFO ', function (this: any) {
             let path = '';
-            // @ts-expect-error
-            let node = this;
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            let node: any = this;
             while (node && !(node instanceof legacyCC.Scene)) {
                 if (path) {
                     path = `${node.name}/${path}`;
@@ -201,7 +198,6 @@ export function nodePolyfill (Node) {
                 }
                 node = node._parent;
             }
-            // @ts-expect-error
             return `${this.name}, path: ${path}`;
         });
     }

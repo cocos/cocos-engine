@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR, TEST } from 'internal:constants';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -6,6 +30,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 interface ICachedStyle {
     width: string;
@@ -71,7 +96,7 @@ class ScreenAdapter extends EventTarget {
         return !!document[this._fn.fullscreenElement];
     }
 
-    public get devicePixelRatio () {
+    public get devicePixelRatio (): number {
         // TODO: remove the down sampling operation in DPR after supporting resolutionScale
         return Math.min(window.devicePixelRatio ?? 1, 2);
     }
@@ -91,12 +116,12 @@ class ScreenAdapter extends EventTarget {
         this._resizeFrame(this._convertToSizeInCssPixels(size));
     }
 
-    public get resolution () {
+    public get resolution (): Size {
         const windowSize = this.windowSize;
         const resolutionScale = this.resolutionScale;
         return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
-    public get resolutionScale () {
+    public get resolutionScale (): number {
         return this._resolutionScale;
     }
     public set resolutionScale (v: number) {
@@ -119,10 +144,11 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
-        const _top = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top') || '0');
-        const _bottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0');
-        const _left = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-left') || '0');
-        const _right = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-right') || '0');
+        const dpr = this.devicePixelRatio;
+        const _top = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top') || '0') * dpr;
+        const _bottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0') * dpr;
+        const _left = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-left') || '0') * dpr;
+        const _right = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-right') || '0') * dpr;
 
         return {
             top: _top,
@@ -157,6 +183,7 @@ class ScreenAdapter extends EventTarget {
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
+    private _isHeadlessMode = false;
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -201,7 +228,7 @@ class ScreenAdapter extends EventTarget {
             'msfullscreenerror',
         ],
     ];
-    private get _windowSizeInCssPixels () {
+    private get _windowSizeInCssPixels (): Size {
         if (TEST) {
             return new Size(window.innerWidth, window.innerHeight);
         }
@@ -237,6 +264,9 @@ class ScreenAdapter extends EventTarget {
         }
     }
     private get _windowType (): WindowType {
+        if (this._isHeadlessMode) {
+            return WindowType.Unknown;
+        }
         if (this.isFullScreen) {
             return WindowType.Fullscreen;
         }
@@ -294,10 +324,11 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
+        this._isHeadlessMode = options.isHeadlessMode;
         this._resizeFrame();
     }
 
@@ -339,33 +370,33 @@ class ScreenAdapter extends EventTarget {
         });
     }
 
-    private _registerEvent () {
-        document.addEventListener(this._fn.fullscreenerror, () => {
+    private _registerEvent (): void {
+        document.addEventListener(this._fn.fullscreenerror, (): void => {
             this._onFullscreenError?.();
         });
 
-        window.addEventListener('resize', () => {
+        window.addEventListener('resize', (): void => {
             if (!this.handleResizeEvent) {
                 return;
             }
             this._resizeFrame();
         });
         if (typeof window.matchMedia === 'function') {
-            const updateDPRChangeListener = () => {
+            const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
                 // NOTE: some browsers especially on iPhone doesn't support MediaQueryList
-                window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', () => {
+                window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', (): void => {
                     this.emit('window-resize', this.windowSize.width, this.windowSize.height);
                     updateDPRChangeListener();
                 }, { once: true });
             };
             updateDPRChangeListener();
         }
-        window.addEventListener('orientationchange', () => {
+        window.addEventListener('orientationchange', (): void => {
             if (this._orientationChangeTimeoutId !== -1) {
                 clearTimeout(this._orientationChangeTimeoutId);
             }
-            this._orientationChangeTimeoutId = setTimeout(() => {
+            this._orientationChangeTimeoutId = setTimeout((): void => {
                 if (!this.handleResizeEvent) {
                     return;
                 }
@@ -380,7 +411,7 @@ class ScreenAdapter extends EventTarget {
             this.emit('fullscreen-change', this.windowSize.width, this.windowSize.height);
         });
     }
-    private _convertToSizeInCssPixels (size: Size) {
+    private _convertToSizeInCssPixels (size: Size): Size {
         const clonedSize = size.clone();
         const dpr = this.devicePixelRatio;
         clonedSize.width /= dpr;
@@ -392,7 +423,7 @@ class ScreenAdapter extends EventTarget {
      * The frame size may be from screen size or an external editor options by setting screen.windowSize.
      * @param sizeInCssPixels you need to specify this size when the windowType is SubFrame.
      */
-    private _resizeFrame (sizeInCssPixels?: Size) {
+    private _resizeFrame (sizeInCssPixels?: Size): void {
         if (!this._gameFrame) {
             return;
         }
@@ -432,7 +463,7 @@ class ScreenAdapter extends EventTarget {
         this._updateContainer();
     }
 
-    private _getFullscreenTarget () {
+    private _getFullscreenTarget (): HTMLElement | undefined {
         const windowType = this._windowType;
         if (windowType === WindowType.Fullscreen) {
             return document[this._fn.fullscreenElement] as HTMLElement;
@@ -466,7 +497,7 @@ class ScreenAdapter extends EventTarget {
             }
         });
     }
-    private _updateFrameState () {
+    private _updateFrameState (): void {
         const orientation = this.orientation;
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -474,7 +505,7 @@ class ScreenAdapter extends EventTarget {
         this.isFrameRotated = systemInfo.isMobile
             && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
     }
-    private _updateContainer () {
+    private _updateContainer (): void {
         if (!this._gameContainer) {
             warnID(9201);
             return;
@@ -532,3 +563,5 @@ class ScreenAdapter extends EventTarget {
 }
 
 export const screenAdapter = new ScreenAdapter();
+
+checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

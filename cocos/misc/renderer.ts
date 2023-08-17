@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,13 +20,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { Component } from '../scene-graph';
 import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
-import { warnID, _decorator } from '../core';
+import { warnID, _decorator, errorID } from '../core';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -60,8 +59,8 @@ export class Renderer extends Component {
      * @en Get the default shared material
      * @zh 获取默认的共享材质
      */
-    get sharedMaterial () {
-        return this.getMaterial(0);
+    get sharedMaterial (): Material |null {
+        return this.getSharedMaterial(0);
     }
 
     /**
@@ -71,7 +70,7 @@ export class Renderer extends Component {
     @type(Material)
     @displayOrder(0)
     @displayName('Materials')
-    get sharedMaterials () {
+    get sharedMaterials (): (Material | null)[] {
         // if we don't create an array copy, the editor will modify the original array directly.
         return (EDITOR && this._materials.slice()) || this._materials;
     }
@@ -79,12 +78,12 @@ export class Renderer extends Component {
     set sharedMaterials (val) {
         for (let i = 0; i < val.length; i++) {
             if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
+                this.setSharedMaterial(val[i], i);
             }
         }
         if (val.length < this._materials.length) {
             for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(null, i);
+                this.setSharedMaterial(null, i);
             }
             this._materials.splice(val.length);
         }
@@ -94,7 +93,7 @@ export class Renderer extends Component {
      * @en The default material instance, it will create a new instance from the default shared material if not created yet.
      * @zh 获取默认的材质实例，如果还没有创建，将会根据默认共享材质创建一个新的材质实例
      */
-    get material (): MaterialInstance | null {
+    get material (): Material | MaterialInstance | null {
         return this.getMaterialInstance(0);
     }
 
@@ -109,7 +108,7 @@ export class Renderer extends Component {
      * @en The materials of the model.
      * @zh 所有模型材质。
      */
-    get materials (): (MaterialInstance | null)[] {
+    get materials (): (Material | MaterialInstance | null)[] {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
         }
@@ -140,10 +139,24 @@ export class Renderer extends Component {
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     /**
+     * @deprecated Since v3.7.3, please use [[getSharedMaterial]] instead.
+     */
+    public getMaterial (idx: number): Material | null {
+        return this.getSharedMaterial(idx);
+    }
+
+    /**
+     * @deprecated Since v3.8.1, please use [[setSharedMaterial]] instead.
+     */
+    public setMaterial (material: Material | null, index: number): void {
+        this.setSharedMaterial(material, index);
+    }
+
+    /**
      * @en Get the shared material asset of the specified sub-model.
      * @zh 获取指定子模型的共享材质资源。
      */
-    public getMaterial (idx: number): Material | null {
+    public getSharedMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
             return null;
         }
@@ -155,9 +168,9 @@ export class Renderer extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setMaterial (material: Material | null, index: number) {
+    public setSharedMaterial (material: Material | null, index: number): void {
         if (material && material instanceof MaterialInstance) {
-            console.error('Can\'t set a material instance to a sharedMaterial slot');
+            errorID(12012);
         }
         this._materials[index] = material;
         const inst = this._materialInstances[index];
@@ -195,7 +208,7 @@ export class Renderer extends Component {
      * @en Set the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
-    public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number) {
+    public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number): void {
         if (typeof matInst === 'number') {
             warnID(12007);
             const temp: any = matInst;
@@ -217,7 +230,7 @@ export class Renderer extends Component {
         // Skip identity check if it's a Material property
         // Or if there is a MaterialInstance already
         if (matInst !== this._materials[index] || curInst) {
-            this.setMaterial(matInst as Material, index);
+            this.setSharedMaterial(matInst as Material, index);
         }
     }
 
@@ -230,12 +243,15 @@ export class Renderer extends Component {
         return this._materialInstances[index] || this._materials[index];
     }
 
-    protected _onMaterialModified (index: number, material: Material | null) {
+    protected _onMaterialModified (index: number, material: Material | null): void {
     }
 
-    protected _onRebuildPSO (index: number, material: Material | null) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (index: number, material: Material | null): void {
     }
 
-    protected _clearMaterials () {
+    protected _clearMaterials (): void {
     }
 }

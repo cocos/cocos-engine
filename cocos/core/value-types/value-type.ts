@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -61,7 +60,7 @@ export class ValueType {
      * @param other @en The other object @zh 指定值。
      * @returns @en `true` if equal, otherwise returns `false` @zh 如果相等，则返回 `true`，否则返回 `false`。
      */
-    public equals (other: this) {
+    public equals (other: this): boolean {
         // errorID(100, js.getClassName(this) + '.equals');
         return false;
     }
@@ -75,7 +74,7 @@ export class ValueType {
      * 本方法的基类版本简单地返回 `this`，派生类**必须**重写本方法。
      * @param other @en The other object. @zh 指定值。
      */
-    public set (other: this) {
+    public set (other: this): void {
         errorID(100, `${js.getClassName(this)}.set`);
     }
 
@@ -88,7 +87,7 @@ export class ValueType {
      * 本方法的基类版本返回空字符串。
      * @returns @en The string representation of the current value. @zh 当前值的字符串表示。
      */
-    public toString () {
+    public toString (): string {
         return `${''}`;
     }
 }

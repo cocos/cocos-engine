@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "core/scene-graph/Node.h"
 #include "base/StringUtil.h"
@@ -366,9 +365,7 @@ void Node::setSiblingIndex(index_t index) {
             siblings.emplace_back(this);
         }
         _parent->updateSiblingIndex();
-        if (onSiblingIndexChanged != nullptr) {
-            onSiblingIndexChanged(index);
-        }
+        emit<SiblingIndexChanged>(index);
     }
 }
 
@@ -455,13 +452,13 @@ void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
 }
 
 void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-no-recursion)
-    const uint32_t currDirtyBits = getDirtyFlag();
+    const uint32_t currDirtyBits = _transformFlags;
     if (!currDirtyBits) {
         return;
     }
 
     Node *parent = getParent();
-    if (parent && parent->getDirtyFlag()) {
+    if (parent && parent->_transformFlags) {
         parent->updateWorldTransformRecursive(dirtyBits);
     }
     dirtyBits |= currDirtyBits;
@@ -492,11 +489,11 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             }
             if (dirtyBits & static_cast<uint32_t>(TransformBit::SCALE)) {
                 _worldScale.set(_localScale);
-                Mat4::fromRTS(_worldRotation, _worldPosition, _worldScale, &_worldMatrix);
             }
+            Mat4::fromRTS(_worldRotation, _worldPosition, _worldScale, &_worldMatrix);
         }
     }
-    setDirtyFlag(static_cast<uint32_t>(TransformBit::NONE));
+    _transformFlags = (static_cast<uint32_t>(TransformBit::NONE));
 }
 
 const Mat4 &Node::getWorldMatrix() const { // NOLINT(misc-no-recursion)
@@ -521,11 +518,10 @@ Mat4 Node::getWorldRT() {
 void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursion)
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t hasChangedFlags = getChangedFlags();
-    const uint32_t dirtyFlags = getDirtyFlag();
-    if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
-        setDirtyFlag(dirtyFlags | curDirtyBit);
+    const uint32_t transformFlags = _transformFlags;
+    if (isValid() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+        _transformFlags = (transformFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
-        emit<AncestorTransformChanged>(dirtyBit);
 
         for (Node *child : getChildren()) {
             child->invalidateChildren(dirtyBit | TransformBit::POSITION);
@@ -656,7 +652,7 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
             _parent->updateWorldTransform();
             if (mathutils::approx<float>(_parent->_worldMatrix.determinant(), 0.F, mathutils::EPSILON)) {
                 CC_LOG_WARNING("14300");
-                _dirtyFlag |= static_cast<uint32_t>(TransformBit::TRS);
+                _transformFlags |= static_cast<uint32_t>(TransformBit::TRS);
                 updateWorldTransform();
             } else {
                 Mat4 tmpMat4 = _parent->_worldMatrix.getInversed() * _worldMatrix;
@@ -875,6 +871,13 @@ void Node::onHierarchyChanged(Node *oldParent) {
 //
 void Node::_setChildren(ccstd::vector<IntrusivePtr<Node>> &&children) {
     _children = std::move(children);
+}
+
+void Node::destruct() {
+    CCObject::destruct();
+    _children.clear();
+    _scene = nullptr;
+    _userData = nullptr;
 }
 
 //

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,28 +33,34 @@
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
+#include "cocos/renderer/pipeline/custom/CustomFwd.h"
 
 namespace cc {
 
 namespace render {
 
 class PipelineRuntime;
+
+enum class PipelineType;
+enum class SubpassCapabilities : uint32_t;
+
+struct PipelineCapabilities;
 class RenderNode;
 class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
+class RenderQueueBuilder;
+class BasicRenderPassBuilder;
+class BasicMultisampleRenderPassBuilder;
+class BasicPipeline;
+class RenderSubpassBuilder;
+class MultisampleRenderSubpassBuilder;
 class ComputeQueueBuilder;
+class ComputeSubpassBuilder;
+class RenderPassBuilder;
+class MultisampleRenderPassBuilder;
 class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class SceneVisitor;
-class SceneTask;
-class SceneTransversal;
-class LayoutGraphBuilder;
 class Pipeline;
 class PipelineBuilder;
+class RenderingModule;
 class Factory;
 
 } // namespace render

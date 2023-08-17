@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,6 +26,7 @@
 
 #include "Define.h"
 #include "cocos/base/Macros.h"
+#include "scene/Define.h"
 namespace cc {
 namespace scene {
 class Camera;
@@ -36,7 +36,6 @@ class ReflectionProbe;
 namespace pipeline {
 struct RenderObject;
 class RenderInstancedQueue;
-class RenderBatchedQueue;
 class RenderPipeline;
 
 //const uint32_t phaseID(PassPhase::getPhaseID("shadow-caster"));
@@ -50,9 +49,9 @@ public:
     void clear();
     void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *, const scene::ReflectionProbe *probe);
     void add(const scene::Model *);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
 
-    void resetMacro()const;
+    void resetMacro();
 
     bool isUseReflectMapPass(const scene::SubModel *subModel) const;
 
@@ -70,11 +69,10 @@ private:
     ccstd::vector<gfx::Shader *> _shaders;
     // manage memory manually
     RenderInstancedQueue *_instancedQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
     uint32_t _phaseID{0};
     uint32_t _phaseReflectMapID{0};
     ccstd::vector<const scene::SubModel *> _rgbeSubModels;
+    ccstd::vector<scene::IMacroPatch> _patches;
 };
 
 } // namespace pipeline

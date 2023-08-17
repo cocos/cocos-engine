@@ -15,6 +15,31 @@ CCEffect %{
       migrations: &migs
         properties:
           mainColor:    { formerlySerializedAs: color }
+    - &planar-shadow
+      vert: planar-shadow-vs:vert
+      frag: planar-shadow-fs:frag
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+    - &deferred-forward
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: unlit-vs:vert
@@ -22,7 +47,7 @@ CCEffect %{
       depthStencilState: &d1
         depthTest: true
         depthWrite: false
-      blendState:
+      blendState: &b1
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -30,13 +55,22 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: *props
       migrations: *migs
+    - *planar-shadow
+    - &deferred-forward-transparent
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      propertyIndex: 0
+      migrations: *migs
+      depthStencilState: *d1
+      blendState: *b1
   - name: add
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: &r1 { cullMode: none }
       depthStencilState: *d1
-      blendState:
+      blendState: &b2
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -45,13 +79,22 @@ CCEffect %{
           blendDstAlpha: one
       properties: *props
       migrations: *migs
+    - &deferred-forward-add
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b2
+      propertyIndex: 0
+      migrations: *migs
   - name: alpha-blend
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
       rasterizerState: *r1
       depthStencilState: *d1
-      blendState:
+      blendState: &b3
         targets:
         - blend: true
           blendSrc: src_alpha
@@ -59,6 +102,15 @@ CCEffect %{
           blendSrcAlpha: src_alpha
           blendDstAlpha: one_minus_src_alpha
       properties: *props
+      migrations: *migs
+    - &deferred-forward-alpha-blend
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b3
+      propertyIndex: 0
       migrations: *migs
 }%
 
@@ -109,7 +161,6 @@ CCProgram unlit-vs %{
 CCProgram unlit-fs %{
   precision highp float;
   #include <legacy/output-standard>
-  #include <common/data/unpack>
   #include <legacy/fog-fs>
 
   #if USE_ALPHA_TEST
@@ -150,9 +201,45 @@ CCProgram unlit-fs %{
     #endif
 
     CC_APPLY_FOG(o);
-    #if CC_USE_RGBE_OUTPUT
-      o = packRGBE(o.rgb);
-    #endif
     return CCFragOutput(o);
+  }
+}%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <builtin/uniforms/cc-shadow>
+  #include <common/lighting/functions>
+
+  out float v_dist;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+    // World Space
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec3 worldPos = (matWorld * position).xyz;
+    vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+    position  = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar);
+    v_dist = shadowPos.w;
+    return position;
+  }
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-shadow>
+  #include <legacy/output>
+
+  in float v_dist;
+
+  vec4 frag () {
+    if(v_dist < 0.0)
+      discard;
+    return CCFragOutput(cc_shadowColor);
   }
 }%

@@ -1,7 +1,57 @@
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { EDITOR } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { Orientation } from '../enum-type';
+
+export interface SafeAreaEdge {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+}
+
+export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+
+export interface IScreenOptions {
+    /**
+     * Orientation options from editor builder.
+     */
+    configOrientation: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
+    /**
+     * Determine whether use headless renderer, which means do not support some screen operations.
+     */
+    isHeadlessMode: boolean;
+}
 
 // these value is defined in the native layer
 const orientationMap: Record<string, Orientation> = {
@@ -22,27 +72,32 @@ class ScreenAdapter extends EventTarget {
         return false;
     }
 
-    public get devicePixelRatio () {
+    public get devicePixelRatio (): number {
         return jsb.device.getDevicePixelRatio() || 1;
     }
 
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        const roundWidth = Math.round(window.innerWidth);
-        const roundHeight = Math.round(window.innerHeight);
+        // TODO: interface for OH only, we need a unified interface @qiuguohua
+        const width = globalThis.oh ? (jsb.device as any).getInnerWidth() : jsb.window.innerWidth;
+        // TODO: interface for OH only, we need a unified interface @qiuguohua
+        const height = globalThis.oh ? (jsb.device as any).getInnerHeight() : jsb.window.innerHeight;
+        // NOTE: fix precision issue on Metal render end.
+        const roundWidth = Math.round(width);
+        const roundHeight = Math.round(height);
         return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
         console.warn('Setting window size is not supported yet.');
     }
 
-    public get resolution () {
+    public get resolution (): Size {
         const windowSize = this.windowSize;
         const resolutionScale = this.resolutionScale;
         return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
-    public get resolutionScale () {
+    public get resolutionScale (): number {
         return this._resolutionScale;
     }
     public set resolutionScale (v: number) {
@@ -101,9 +156,11 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._cbToUpdateFrameBuffer();
+        if (!EDITOR) {
+            this._cbToUpdateFrameBuffer();
+        }
     }
 
     public requestFullScreen (): Promise<void> {
@@ -113,17 +170,19 @@ class ScreenAdapter extends EventTarget {
         return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
     }
 
-    private _registerEvent () {
-        jsb.onResize = (event: jsb.WindowEvent) => {
+    private _registerEvent (): void {
+        jsb.onResize = (event: jsb.WindowEvent): void => {
             if (event.width === 0 || event.height === 0) return;
             // TODO: remove this function calling
             window.resize(event.width / this.devicePixelRatio, event.height / this.devicePixelRatio);
             this.emit('window-resize', event.width, event.height, event.windowId);
         };
-        jsb.onOrientationChanged = (event) => {
+        jsb.onOrientationChanged = (event): void => {
             this.emit('orientation-change');
         };
     }
 }
 
 export const screenAdapter = new ScreenAdapter();
+
+checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,59 +34,30 @@ namespace cc {
 
 namespace render {
 
-RasterView::RasterView(const allocator_type& alloc) noexcept
-: slotName(alloc) {}
+ResolvePair::ResolvePair(const allocator_type& alloc) noexcept
+: source(alloc),
+  target(alloc) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
-: slotName(std::move(slotNameIn), alloc),
-  accessType(accessTypeIn),
-  attachmentType(attachmentTypeIn),
-  loadOp(loadOpIn),
-  storeOp(storeOpIn),
-  clearFlags(clearFlagsIn),
-  clearColor(clearColorIn) {}
+ResolvePair::ResolvePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, ResolveFlags resolveFlagsIn, gfx::ResolveMode modeIn, gfx::ResolveMode mode1In, const allocator_type& alloc) noexcept // NOLINT
+: source(std::move(sourceIn), alloc),
+  target(std::move(targetIn), alloc),
+  resolveFlags(resolveFlagsIn),
+  mode(modeIn),
+  mode1(mode1In) {}
 
-RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
-: slotName(std::move(rhs.slotName), alloc),
-  accessType(rhs.accessType),
-  attachmentType(rhs.attachmentType),
-  loadOp(rhs.loadOp),
-  storeOp(rhs.storeOp),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
+ResolvePair::ResolvePair(ResolvePair&& rhs, const allocator_type& alloc)
+: source(std::move(rhs.source), alloc),
+  target(std::move(rhs.target), alloc),
+  resolveFlags(rhs.resolveFlags),
+  mode(rhs.mode),
+  mode1(rhs.mode1) {}
 
-RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
-: slotName(rhs.slotName, alloc),
-  accessType(rhs.accessType),
-  attachmentType(rhs.attachmentType),
-  loadOp(rhs.loadOp),
-  storeOp(rhs.storeOp),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
-
-ComputeView::ComputeView(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
-ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, const allocator_type& alloc) noexcept
-: name(std::move(nameIn), alloc),
-  accessType(accessTypeIn),
-  clearFlags(clearFlagsIn),
-  clearColor(clearColorIn),
-  clearValueType(clearValueTypeIn) {}
-
-ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
-: name(std::move(rhs.name), alloc),
-  accessType(rhs.accessType),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
-  clearValueType(rhs.clearValueType) {}
-
-ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
-: name(rhs.name, alloc),
-  accessType(rhs.accessType),
-  clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
-  clearValueType(rhs.clearValueType) {}
+ResolvePair::ResolvePair(ResolvePair const& rhs, const allocator_type& alloc)
+: source(rhs.source, alloc),
+  target(rhs.target, alloc),
+  resolveFlags(rhs.resolveFlags),
+  mode(rhs.mode),
+  mode1(rhs.mode1) {}
 
 CopyPair::CopyPair(const allocator_type& alloc) noexcept
 : source(alloc),
@@ -125,6 +95,27 @@ CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
   sourceMostDetailedMip(rhs.sourceMostDetailedMip),
   sourceFirstSlice(rhs.sourceFirstSlice),
   sourcePlaneSlice(rhs.sourcePlaneSlice),
+  targetMostDetailedMip(rhs.targetMostDetailedMip),
+  targetFirstSlice(rhs.targetFirstSlice),
+  targetPlaneSlice(rhs.targetPlaneSlice) {}
+
+UploadPair::UploadPair(const allocator_type& alloc) noexcept
+: target(alloc) {}
+
+UploadPair::UploadPair(ccstd::vector<uint8_t> sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+: source(std::move(sourceIn)),
+  target(std::move(targetIn), alloc),
+  mipLevels(mipLevelsIn),
+  numSlices(numSlicesIn),
+  targetMostDetailedMip(targetMostDetailedMipIn),
+  targetFirstSlice(targetFirstSliceIn),
+  targetPlaneSlice(targetPlaneSliceIn) {}
+
+UploadPair::UploadPair(UploadPair&& rhs, const allocator_type& alloc)
+: source(std::move(rhs.source)),
+  target(std::move(rhs.target), alloc),
+  mipLevels(rhs.mipLevels),
+  numSlices(rhs.numSlices),
   targetMostDetailedMip(rhs.targetMostDetailedMip),
   targetFirstSlice(rhs.targetFirstSlice),
   targetPlaneSlice(rhs.targetPlaneSlice) {}

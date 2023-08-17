@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 #pragma once
 
 #include <array>
@@ -29,6 +28,7 @@
 #include <memory>
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
 
@@ -48,11 +48,14 @@ struct TgtEventInfo {
     EventPhaseType eventPhase{EventPhaseType::UNKNOWN};
     bool bubbles{true};
     bool cancelable{true};
+
     void stopPropagation() {
         propagationStopped = true;
     }
+
     void preventDefault() { /* TODO: */
     }
+
     bool propagationStopped{false};
 };
 
@@ -74,6 +77,7 @@ struct Event final : TgtEventInfo {
     auto get() const {
         return std::get<N>(args);
     }
+
     template <size_t N>
     auto get() {
         return std::get<N>(args);
@@ -83,6 +87,7 @@ struct Event final : TgtEventInfo {
     void set(A &&value) {
         std::get<N>(args) = value;
     }
+
     void initEvent(bool canBubbleArg, bool cancelableArg) {
         // TODO()
     }
@@ -105,7 +110,9 @@ public:
 class TgtMemberFnCmp {
 public:
     virtual ~TgtMemberFnCmp() = default;
+
     virtual void *getContext() = 0;
+
     virtual bool equals(TgtMemberFnCmp *) const = 0;
 };
 
@@ -114,10 +121,12 @@ class TgtMemberHandleFn final : public TgtMemberFnCmp {
 public:
     ~TgtMemberHandleFn() override = default;
     void *getContext() override { return context; }
+
     bool equals(TgtMemberFnCmp *other) const override {
         auto *fake = reinterpret_cast<TgtMemberHandleFn *>(other);
         return context == fake->context && func == fake->func;
     }
+
     Fn func;
     void *context;
 };
@@ -129,12 +138,17 @@ public:
         PENDING_ONCE,
         ONCE_DONE,
     };
+
     virtual ~TargetEventListenerBase() = default;
+
     virtual void *getContext() const = 0;
+
     virtual const char *getEventName() const { return nullptr; }
 
     bool isEnabled() const { return _enabled; }
+
     void setOnce() { _state = RunState::PENDING_ONCE; }
+
     inline size_t getEventTypeID() const { return _eventTypeID; }
 
     int32_t id{-1};
@@ -154,6 +168,7 @@ public:
     using _emitter_type = typename TgtEvent::_emitter_type;
     using EventType = typename TgtEvent::EventType;
     using _persist_function_type = typename TgtEvent::_persist_function_type;
+
     explicit TargetEventListener(_persist_function_type func) : _func(func) {
         _eventTypeID = TgtEvent::TYPE_ID;
     }
@@ -204,13 +219,17 @@ class TargetEventID final {
 public:
     using HandleType = TgtEvent;
     using IdType = TargetEventIdType;
+
     TargetEventID() = default;
+
     TargetEventID(IdType eventId) : _eventId(eventId) {} // NOLINT
 
     TargetEventID(const TargetEventID &) = default;
+
     TargetEventID(TargetEventID &&) noexcept = default;
 
     TargetEventID &operator=(const TargetEventID &) = default;
+
     TargetEventID &operator=(TargetEventID &&) noexcept = default;
 
     IdType value() { return _eventId; }
@@ -222,7 +241,9 @@ private:
 template <size_t N>
 struct TargetListenerContainer final {
     std::array<TargetEventListenerBase *, N> data{nullptr};
+
     inline TargetEventListenerBase *&operator[](size_t index) { return data[index]; }
+
     void clear() {
         for (size_t i = 0; i < N; i++) {
             auto &handlers = data[i];
@@ -232,6 +253,7 @@ struct TargetListenerContainer final {
             data[i] = nullptr;
         }
     }
+
     ~TargetListenerContainer() {
         clear();
     }
@@ -299,15 +321,18 @@ public:
     TargetEventID<TgtEvent> once(Fn &&func, O *ctx) {
         return this->template addEventListener(std::forward<Fn>(func), ctx, true);
     }
+
     template <typename TgtEvent, typename Fn>
     TargetEventID<TgtEvent> on(Fn &&func, bool useCapture = false) {
         static_assert(std::is_base_of<typename TgtEvent::_emitter_type, Self>::value, "mismatch target type");
         return this->template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, false);
     }
+
     template <typename TgtEvent, typename Fn, typename O>
     TargetEventID<TgtEvent> on(Fn &&func, O *ctx, bool useCapture = false) {
         return this->template addEventListener<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture, false);
     }
+
     template <typename TgtEvent>
     bool off(TargetEventID<TgtEvent> eventId) {
         CC_ASSERT(!_emittingEvent[TgtEvent::TYPE_ID]);
@@ -379,6 +404,7 @@ public:
 
         emitEvtObj<false, TgtEvent>(self, &eventObj);
     }
+
     template <bool useCapture, typename TgtEvent, typename EvtObj>
     void emitEvtObj(Self *self, EvtObj *eventObj) {
         using EventType = typename TgtEvent::EventType;
@@ -418,6 +444,7 @@ public:
         }
         _emittingEvent[TgtEvent::TYPE_ID]--;
     }
+
     template <typename TgtEvent, typename EvtType>
     std::enable_if_t<std::is_same_v<typename TgtEvent::EventType, std::decay_t<EvtType>>, void>
     dispatchEvent(Self *self, EvtType &eventObj) {
@@ -546,6 +573,29 @@ protected:
     TargetEventIdType _handlerId{1};
     std::array<int, EventCount> _emittingEvent{0};
 };
+
+template <typename T>
+class HeapObject final {
+public:
+    HeapObject() {
+        _data = ccnew T;
+    }
+
+    ~HeapObject() {
+        delete _data;
+    }
+
+    inline T &get() {
+        return *_data;
+    }
+
+private:
+    T *_data{nullptr};
+};
+
+template <typename Self, size_t EventCnt, bool HAS_PARENT>
+using EventTargetGuard = HeapObject<EventTargetImpl<Self, EventCnt, HAS_PARENT>>;
+
 } // namespace event
 } // namespace cc
 
@@ -585,40 +635,40 @@ protected:
 public:                                                                                                        \
     template <typename TgtEvent, typename Fn>                                                                  \
     cc::event::TargetEventID<TgtEvent> once(Fn &&func, bool useCapture) {                                      \
-        return _eventTargetImpl.once<TgtEvent>(std::forward<Fn>(func), useCapture);                            \
+        return _eventTargetImpl.get().once<TgtEvent>(std::forward<Fn>(func), useCapture);                      \
     }                                                                                                          \
                                                                                                                \
     template <typename TgtEvent, typename Fn, typename O>                                                      \
     cc::event::TargetEventID<TgtEvent> once(Fn &&func, O *ctx) {                                               \
-        return _eventTargetImpl.once<TgtEvent>(std::forward<Fn>(func), ctx);                                   \
+        return _eventTargetImpl.get().once<TgtEvent>(std::forward<Fn>(func), ctx);                             \
     }                                                                                                          \
     template <typename TgtEvent, typename Fn>                                                                  \
     cc::event::TargetEventID<TgtEvent> on(Fn &&func, bool useCapture = false) {                                \
         static_assert(std::is_base_of<typename TgtEvent::_emitter_type, Self>::value, "mismatch target type"); \
-        return _eventTargetImpl.on<TgtEvent, Fn>(std::forward<Fn>(func), useCapture);                          \
+        return _eventTargetImpl.get().on<TgtEvent, Fn>(std::forward<Fn>(func), useCapture);                    \
     }                                                                                                          \
     template <typename TgtEvent, typename Fn, typename O>                                                      \
     cc::event::TargetEventID<TgtEvent> on(Fn &&func, O *ctx, bool useCapture = false) {                        \
-        return _eventTargetImpl.on<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture);                  \
+        return _eventTargetImpl.get().on<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture);            \
     }                                                                                                          \
     template <typename TgtEvent>                                                                               \
     bool off(cc::event::TargetEventID<TgtEvent> eventId) {                                                     \
-        return _eventTargetImpl.off(eventId);                                                                  \
+        return _eventTargetImpl.get().off(eventId);                                                            \
     }                                                                                                          \
     void offAll() {                                                                                            \
-        _eventTargetImpl.offAll();                                                                             \
+        _eventTargetImpl.get().offAll();                                                                       \
     }                                                                                                          \
     template <typename TgtEvent>                                                                               \
     void off() {                                                                                               \
-        _eventTargetImpl.off<TgtEvent>();                                                                      \
+        _eventTargetImpl.get().off<TgtEvent>();                                                                \
     }                                                                                                          \
     template <typename TgtEvent, typename... ARGS>                                                             \
     void emit(ARGS &&...args) {                                                                                \
-        _eventTargetImpl.emit<TgtEvent>(this, std::forward<ARGS>(args)...);                                    \
+        _eventTargetImpl.get().emit<TgtEvent>(this, std::forward<ARGS>(args)...);                              \
     }                                                                                                          \
     template <typename TgtEvent, typename... ARGS>                                                             \
     void dispatchEvent(ARGS &&...args) {                                                                       \
-        _eventTargetImpl.dispatchEvent<TgtEvent, ARGS...>(this, std::forward<ARGS>(args)...);                  \
+        _eventTargetImpl.get().dispatchEvent<TgtEvent, ARGS...>(this, std::forward<ARGS>(args)...);            \
     }
 
 #define IMPL_EVENT_TARGET(TargetClass)                    \
@@ -648,18 +698,18 @@ public:
     constexpr static int __counter_offset__ = 0; \
     _DECLARE_TARGET_EVENT_BEGIN(TargetClass)
 
-#define DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(TargetClass, ...) \
-    constexpr static int __counter_offset__ = cc::event::intl::TotalEvents<__VA_ARGS__>;          \
+#define DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(TargetClass, ...)                        \
+    constexpr static int __counter_offset__ = cc::event::intl::TotalEvents<__VA_ARGS__>; \
     _DECLARE_TARGET_EVENT_BEGIN(TargetClass)
 
 #define DECLARE_TARGET_EVENT_END()                                                                    \
 private:                                                                                              \
     constexpr static int __counter_stop__ = __COUNTER__;                                              \
     constexpr static int __event_count__ = __counter_stop__ - __counter_start__ + __counter_offset__; \
-    cc::event::EventTargetImpl<Self, __event_count__, HAS_PARENT> _eventTargetImpl;                   \
+    cc::event::EventTargetGuard<Self, __event_count__, HAS_PARENT> _eventTargetImpl;                  \
                                                                                                       \
 public:                                                                                               \
     constexpr static int getEventCount() { return __event_count__; }                                  \
-    auto &getEventTarget() { return _eventTargetImpl; }
+    auto &getEventTarget() { return _eventTargetImpl.get(); }
 
 #include "intl/EventTargetMacros.h"

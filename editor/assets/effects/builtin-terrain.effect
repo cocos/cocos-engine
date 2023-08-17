@@ -1,4 +1,5 @@
-// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
 CCEffect %{
   techniques:
   - name: opaque
@@ -6,18 +7,18 @@ CCEffect %{
     - vert: terrain-vs
       frag: terrain-fs
       properties: &props
-        UVScale:      { value: [1, 1, 1, 1] }
-        metallic:     { value: [0, 0, 0, 0] }
-        roughness:    { value: [1, 1, 1, 1] }
-        weightMap:    { value: black }
-        detailMap0:   { value: grey }
-        detailMap1:   { value: grey }
-        detailMap2:   { value: grey }
-        detailMap3:   { value: grey }
-        normalMap0:   { value: normal }
-        normalMap1:   { value: normal }
-        normalMap2:   { value: normal }
-        normalMap3:   { value: normal }
+        UVScale:         { value: [1, 1, 1, 1] }
+        metallic:        { value: [0, 0, 0, 0] }
+        roughness:       { value: [1, 1, 1, 1] }
+        weightMap:       { value: black }
+        detailMap0:      { value: grey }
+        detailMap1:      { value: grey }
+        detailMap2:      { value: grey }
+        detailMap3:      { value: grey }
+        normalMap0:      { value: normal }
+        normalMap1:      { value: normal }
+        normalMap2:      { value: normal }
+        normalMap3:      { value: normal }
     - vert: terrain-vs
       frag: terrain-fs
       phase: forward-add
@@ -35,107 +36,58 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
-    - vert: shadow-caster-vs:vert
-      frag: shadow-caster-fs:frag
+    - vert: shadow-caster-vs
+      frag: shadow-caster-fs
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
-        cullMode: back
+        cullMode: none
+    - &reflect-map
+      vert: terrain-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred-forward
+      propertyIndex: 0
 }%
 
-CCProgram terrain-vs %{
-  precision mediump float;
-  #include <builtin/uniforms/cc-global>
-  #include <builtin/uniforms/cc-local>
-  #include <legacy/fog-vs>
-  #include <legacy/shadow-map-vs>
-
-  in vec3 a_position;
-  in vec3 a_normal;
-  in vec2 a_texCoord;
-
-  #if CC_RECEIVE_SHADOW
-    out vec2 v_shadowBias;
-  #endif
-
-  out highp vec3 v_position;
-  out mediump vec3 v_normal;
-  out mediump vec2 uvw;
-  out mediump vec2 uv0;
-  out mediump vec2 uv1;
-  out mediump vec2 uv2;
-  out mediump vec2 uv3;
-  out mediump vec3 luv;
-  out mediump vec3 diffuse;
-
-  uniform TexCoords {
+CCProgram shared-ubos %{
+  uniform Constants {
     vec4 UVScale;
-    vec4 lightMapUVParam;
-  };
-
-  void main () {
-    vec3 worldPos;
-    worldPos.x = cc_matWorld[3][0] + a_position.x;
-    worldPos.y = cc_matWorld[3][1] + a_position.y;
-    worldPos.z = cc_matWorld[3][2] + a_position.z;
-
-    vec4 pos = vec4(worldPos, 1.0);
-    pos = cc_matViewProj * pos;
-
-    uvw = a_texCoord;
-    uv0 = a_position.xz * UVScale.x;
-    uv1 = a_position.xz * UVScale.y;
-    uv2 = a_position.xz * UVScale.z;
-    uv3 = a_position.xz * UVScale.w;
-    #if CC_USE_LIGHTMAP
-      luv.xy = cc_lightingMapUVParam.xy + a_texCoord * cc_lightingMapUVParam.z;
-      luv.z = cc_lightingMapUVParam.w;
-    #endif
-
-    v_position = worldPos;
-    v_normal = a_normal;
-    CC_TRANSFER_FOG(vec4(worldPos, 1.0));
-
-    #if CC_RECEIVE_SHADOW
-      v_shadowBias = vec2(0.0, 0.0);
-    #endif
-
-    CC_TRANSFER_SHADOW(vec4(worldPos, 1.0));
-
-    gl_Position = pos;
-  }
-}%
-
-CCProgram terrain-fs %{
-  precision highp float;
-  #include <builtin/uniforms/cc-global>
-  #include <legacy/standard-surface-entry>
-  #include <legacy/fog-fs>
-  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-    #include <legacy/lightingmap-fs>
-  #endif
-  #pragma define-meta LAYERS range([0, 4])
-
-  in highp vec3 v_position;
-  in mediump vec3 v_normal;
-
-  #if CC_RECEIVE_SHADOW
-    in vec2 v_shadowBias;
-  #endif
-
-  in mediump vec2 uvw;
-  in mediump vec2 uv0;
-  in mediump vec2 uv1;
-  in mediump vec2 uv2;
-  in mediump vec2 uv3;
-  in mediump vec3 diffuse;
-  in mediump vec3 luv;
-
-  uniform PbrParams {
     vec4 metallic;
     vec4 roughness;
   };
+}%
 
+CCProgram macro-remapping %{
+  #pragma define-meta USE_NORMALMAP
+  #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMALMAP
+}%
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+  {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + In.position.x;
+    worldPos.y = cc_matWorld[3][1] + In.position.y;
+    worldPos.z = cc_matWorld[3][2] + In.position.z;
+    return worldPos;
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_CLIP_POS
+  vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
+  {
+    vec4 pos = vec4(In.worldPos, 1.0);
+    pos = cc_matViewProj * pos;
+    return pos;
+  }
+}%
+
+CCProgram surface-fragment %{
+  #pragma define-meta LAYERS range([0, 4])
   uniform sampler2D weightMap;
   uniform sampler2D detailMap0;
   uniform sampler2D detailMap1;
@@ -146,11 +98,25 @@ CCProgram terrain-fs %{
   uniform sampler2D normalMap2;
   uniform sampler2D normalMap3;
 
-  void surf (out StandardSurface s) {
-    #if LAYERS > 1
-      vec4 w = texture(weightMap, uvw);
-    #endif
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly(){}
 
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  #include <surfaces/data-structures/standard>
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+    vec2 uvw = FSInput_texcoord;
+    vec2 uv0, uv1, uv2, uv3;
+    #if CC_SURFACES_TRANSFER_LOCAL_POS
+      uv0 = FSInput_localPos.xz * UVScale.x;
+      uv1 = FSInput_localPos.xz * UVScale.y;
+      uv2 = FSInput_localPos.xz * UVScale.z;
+      uv3 = FSInput_localPos.xz * UVScale.w;
+    #endif
+    vec4 w = vec4(0.0);
+    #if LAYERS > 1
+        w = texture(weightMap, uvw);
+    #endif
     vec4 baseColor = vec4(0, 0, 0, 0);
     #if LAYERS == 1
       baseColor = texture(detailMap0, uv0);
@@ -169,8 +135,14 @@ CCProgram terrain-fs %{
     #else
       baseColor = texture(detailMap0, uv0);
     #endif
+    surfaceData.baseColor = vec4(SRGBToLinear(baseColor.rgb), 1.0);
 
-    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+    vec3 normal = FSInput_worldNormal;
+    vec3 tangent = vec3(1.0, 0.0, 0.0);
+    vec3 binormal = vec3(0.0, 0.0, 1.0);
+    binormal = cross(tangent, normal);
+    tangent = cross(normal, binormal);
+
     #if USE_NORMALMAP
       vec4 baseNormal = vec4(0, 0, 0, 0);
       #if LAYERS == 1
@@ -191,129 +163,131 @@ CCProgram terrain-fs %{
         baseNormal = texture(normalMap0, uv0);
       #endif
 
-      vec3 tangent = vec3(1.0, 0.0, 0.0);
-      vec3 binormal = vec3(0.0, 0.0, 1.0);
-
-      binormal = cross(tangent, v_normal);
-      tangent = cross(v_normal, binormal);
-
       vec3 nmmp = baseNormal.xyz - vec3(0.5);
-      s.normal =
-        nmmp.x * normalize(tangent) +
-        nmmp.y * normalize(binormal) +
-        nmmp.z * normalize(v_normal);
-    #else
-      s.normal = v_normal;
+      normal = CalculateNormalFromTangentSpace(nmmp, 1.0, normalize(normal.xyz), normalize(tangent), 1.0);
     #endif
+    surfaceData.worldNormal = normalize(normal);
+    surfaceData.worldTangent = normalize(tangent);
+    surfaceData.worldBinormal = normalize(binormal);
 
-    #if CC_RECEIVE_SHADOW
-      s.shadowBias = v_shadowBias;
-    #endif
-
-    s.albedo = vec4(SRGBToLinear(baseColor.rgb), 1.0);
-    s.occlusion = 1.0;
+    float roughnessValue = 1.0;
+    float metallicValue = 0.0;
     #if USE_PBR
-      s.roughness = 0.0;
       #if LAYERS == 1
-        s.roughness = roughness.x;
+        roughnessValue = roughness.x;
       #elif LAYERS == 2
-        s.roughness += roughness.x * w.r;
-        s.roughness += roughness.y * w.g;
+        roughnessValue += roughness.x * w.r;
+        roughnessValue += roughness.y * w.g;
       #elif LAYERS == 3
-        s.roughness += roughness.x * w.r;
-        s.roughness += roughness.y * w.g;
-        s.roughness += roughness.z * w.b;
+        roughnessValue += roughness.x * w.r;
+        roughnessValue += roughness.y * w.g;
+        roughnessValue += roughness.z * w.b;
       #elif LAYERS == 4
-        s.roughness += roughness.x * w.r;
-        s.roughness += roughness.y * w.g;
-        s.roughness += roughness.z * w.b;
-        s.roughness += roughness.w * w.a;
-      #else
-        s.roughness = 1.0;
+        roughnessValue += roughness.x * w.r;
+        roughnessValue += roughness.y * w.g;
+        roughnessValue += roughness.z * w.b;
+        roughnessValue += roughness.w * w.a;
       #endif
-
-      s.specularIntensity = 0.5;
-
-      s.metallic = 0.0;
       #if LAYERS == 1
-        s.specularIntensity = 0.5;
-        s.metallic = metallic.x;
+        metallicValue = metallic.x;
       #elif LAYERS == 2
-        s.metallic += metallic.x * w.r;
-        s.metallic += metallic.y * w.g;
+        metallicValue += metallic.x * w.r;
+        metallicValue += metallic.y * w.g;
       #elif LAYERS == 3
-        s.metallic += metallic.x * w.r;
-        s.metallic += metallic.y * w.g;
-        s.metallic += metallic.z * w.b;
+        metallicValue += metallic.x * w.r;
+        metallicValue += metallic.y * w.g;
+        metallicValue += metallic.z * w.b;
       #elif LAYERS == 4
-        s.metallic += metallic.x * w.r;
-        s.metallic += metallic.y * w.g;
-        s.metallic += metallic.z * w.b;
-        s.metallic += metallic.w * w.a;
-      #else
-        s.specularIntensity = 0.5;
-        s.metallic = 0.0;
+        metallicValue += metallic.x * w.r;
+        metallicValue += metallic.y * w.g;
+        metallicValue += metallic.z * w.b;
+        metallicValue += metallic.w * w.a;
       #endif
-    #else
-      s.roughness = 1.0;
-      s.specularIntensity = 0.5;
-      s.metallic = 0.0;
     #endif
-    s.emissive = vec3(0.0, 0.0, 0.0);
 
-    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, luv.xy, luv.z, s.normal);
-    #endif
+    surfaceData.ao = 1.0;
+    surfaceData.roughness = roughnessValue;
+    surfaceData.metallic = metallicValue;
+    surfaceData.specularIntensity = 0.5;
+    surfaceData.emissive = vec3(0.0);
   }
-
-  CC_STANDARD_SURFACE_ENTRY()
 }%
+
+CCProgram terrain-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-local>
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/terrain>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <builtin/uniforms/cc-global>
   #include <builtin/uniforms/cc-local>
-  #include <builtin/uniforms/cc-shadow>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
 
-  in vec3 a_position;
-  in vec3 a_normal;
-  in vec2 a_texCoord;
+CCProgram terrain-fs %{
 
-  out highp vec2 v_clip_depth;
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/terrain>
 
-  vec4 vert () {
-    vec4 worldPos;
-    worldPos.x = cc_matWorld[3][0] + a_position.x;
-    worldPos.y = cc_matWorld[3][1] + a_position.y;
-    worldPos.z = cc_matWorld[3][2] + a_position.z;
-    worldPos.w = 1.0;
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
 
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
 
-    v_clip_depth = clipPos.zw;
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
 
-    return clipPos;
-  }
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
 }%
 
 CCProgram shadow-caster-fs %{
   precision highp float;
-  #include <common/data/packing>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
 
-  #pragma define SHADOWMAP_FORMAT_RGBA8 1
-  #pragma define SHADOWMAP_FORMAT_FLOAT 0
-
-  in highp vec2 v_clip_depth;
-
-  vec4 frag () {
-    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
-
-    //todo: do not support linear mode spot shadow
-    
-    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-      return packDepthToRGBA(clipDepth);
-    #else
-      return vec4(clipDepth, 1.0, 1.0, 1.0);
-    #endif
-  }
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/terrain>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
 }%

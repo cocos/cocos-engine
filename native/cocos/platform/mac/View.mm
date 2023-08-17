@@ -38,6 +38,7 @@
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
+    NSRect _contentRect;
     AppDelegate *_delegate;
 }
 
@@ -73,6 +74,11 @@
                                                                        owner:self
                                                                     userInfo:nil] autorelease];
         [self addTrackingArea:trackingArea];
+        
+        NSWindow* window = self.window;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidMove:) name:NSWindowDidMoveNotification
+            object:window];
+        [self updateContentRect];
     }
     return self;
 }
@@ -88,6 +94,7 @@
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
     cc::events::WindowEvent::broadcast(ev);
+    [self updateContentRect];
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -110,6 +117,8 @@
         ev.height = static_cast<int>(nativeSize.height);
         cc::events::WindowEvent::broadcast(ev);
     }
+
+    [self updateContentRect];
 }
 
 - (void)viewDidChangeBackingProperties {
@@ -126,8 +135,14 @@
     }
 
     if (cc::EventDispatcher::initialized()) {
-        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), [self getWindowId]);
+        cc::WindowEvent ev;
+        ev.windowId = [self getWindowId];
+        ev.type = cc::WindowEvent::Type::RESIZED;
+        ev.width = static_cast<int>(width);
+        ev.height = static_cast<int>(height);
+        cc::events::WindowEvent::broadcast(ev);
     }
+    [self updateContentRect];
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -267,15 +282,61 @@
     return YES;
 }
 
-- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
-    const NSRect contentRect = [self frame];
-    const NSPoint pos = [event locationInWindow];
+- (void)updateContentRect {
+    NSWindow* window = self.window;
+    _contentRect = [window contentRectForFrameRect:[window frame]];
+}
 
+- (void)windowDidMove:(NSNotification *)aNotification {
+    [self updateContentRect];
+}
+
+- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
     _mouseEvent.windowId = [self getWindowId];
     _mouseEvent.type = type;
     _mouseEvent.button = button;
-    _mouseEvent.x = pos.x;
-    _mouseEvent.y = contentRect.size.height - pos.y;
+    _mouseEvent.xDelta = [event deltaX];
+    _mouseEvent.yDelta = [event deltaY];
+
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+    auto *window = static_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
+    const NSRect contentRect = [self frame];
+    if(!window->isPointerLock()) {
+        const NSPoint pos = [event locationInWindow];
+        _mouseEvent.x = pos.x;
+        _mouseEvent.y = contentRect.size.height - pos.y;
+    } else {
+        if(type == cc::MouseEvent::Type::MOVE) {
+            // Out of window only happens when mouse is moved.
+            _mouseEvent.x = _mouseEvent.x + [event deltaX];
+            _mouseEvent.y = _mouseEvent.y + [event deltaY];
+            float xMin = 0, xMax = 0;
+            float yMin = 0, yMax = 0;
+            xMax = contentRect.size.width;
+            yMax = contentRect.size.height;
+            --xMax;
+            --yMax;
+            if (_mouseEvent.x > xMax) {
+                _mouseEvent.x = xMax;
+            } else if (_mouseEvent.x < xMin) {
+                _mouseEvent.x = xMin;
+            }
+            
+            if (_mouseEvent.y > yMax) {
+                _mouseEvent.y = yMax;
+            } else if (_mouseEvent.y < yMin) {
+                _mouseEvent.y = yMin;
+            }
+        }
+
+        auto mainDisplayId = CGMainDisplayID();
+    
+        float windowX = _contentRect.origin.x;
+        float windowY =
+           CGDisplayPixelsHigh(mainDisplayId) - _contentRect.origin.y - _contentRect.size.height;
+       
+        window->setLastMousePos(windowX + _mouseEvent.x, windowY + _mouseEvent.y);
+    }
     cc::events::Mouse::broadcast(_mouseEvent);
 }
 - (int)getWindowId {

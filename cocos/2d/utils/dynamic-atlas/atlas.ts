@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
@@ -46,7 +70,11 @@ export class Atlas {
      * @method insertSpriteFrame
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
-    public insertSpriteFrame (spriteFrame: SpriteFrame) {
+    public insertSpriteFrame (spriteFrame: SpriteFrame): {
+        x: number;
+        y: number;
+        texture: DynamicAtlasTexture;
+    } | null {
         const rect = spriteFrame.rect;
         // Todo:No renderTexture
         const texture = spriteFrame.texture as Texture2D;
@@ -127,7 +155,7 @@ export class Atlas {
      * @method deleteAtlasTexture
      * @param texture  the texture that will be removed from the atlas.
      */
-    public deleteInnerTexture (texture: Texture2D) {
+    public deleteInnerTexture (texture: Texture2D): void {
         if (texture && this._innerTextureInfos[texture.getId()]) {
             delete this._innerTextureInfos[texture.getId()];
             this._count--;
@@ -143,7 +171,7 @@ export class Atlas {
      *
      * @method isEmpty
      */
-    public isEmpty () {
+    public isEmpty (): boolean {
         return this._count <= 0;
     }
 
@@ -156,7 +184,7 @@ export class Atlas {
      *
      * @method reset
     */
-    public reset () {
+    public reset (): void {
         this._x = space;
         this._y = space;
         this._nexty = space;
@@ -182,7 +210,7 @@ export class Atlas {
      *
      * @method destroy
     */
-    public destroy () {
+    public destroy (): void {
         this.reset();
         this._texture.destroy();
     }
@@ -198,7 +226,7 @@ export class DynamicAtlasTexture extends Texture2D {
      *
      * @method initWithSize
      */
-    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
+    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888): void {
         this.reset({
             width,
             height,
@@ -218,7 +246,7 @@ export class DynamicAtlasTexture extends Texture2D {
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (image: ImageAsset, x: number, y: number) {
+    public drawTextureAt (image: ImageAsset, x: number, y: number): void {
         const gfxTexture = this.getGFXTexture();
         if (!image || !gfxTexture) {
             return;

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,11 +20,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
+import { DRAW_INFO_SIZE, Buffer, Attribute, BufferInfo, DrawInfo,
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { Vec3 } from '../../core';
 import { scene } from '../../render-scene';
@@ -50,12 +49,12 @@ export class LineModel extends scene.Model {
     private _vertAttrsFloatCount = 0;
     private _vdataF32: Float32Array | null = null;
     private _vdataUint32: Uint32Array | null = null;
-    private _iaInfo: IndirectBuffer;
-    private _iaInfoBuffer: Buffer;
     private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount = 0;
     private _indexCount = 0;
     private _material: Material | null = null;
+    private _iaVertCount = 0;
+    private _iaIndexCount = 0;
 
     constructor () {
         super();
@@ -64,21 +63,14 @@ export class LineModel extends scene.Model {
         }
         this.type = scene.ModelType.LINE;
         this._capacity = 100;
-        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
-        this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDIRECT,
-            MemoryUsageBit.DEVICE,
-            DRAW_INFO_SIZE,
-            DRAW_INFO_SIZE,
-        ));
     }
 
-    public setCapacity (capacity: number) {
+    public setCapacity (capacity: number): void {
         this._capacity = capacity;
         this.createBuffer();
     }
 
-    public createBuffer () {
+    public createBuffer (): void {
         this._vertSize = 0;
         for (const a of _vertex_attrs) {
             (a as any).offset = this._vertSize;
@@ -90,7 +82,7 @@ export class LineModel extends scene.Model {
         this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
-    public updateMaterial (mat: Material) {
+    public updateMaterial (mat: Material): void {
         this._material = mat;
         super.setSubModelMaterial(0, mat);
     }
@@ -131,16 +123,15 @@ export class LineModel extends scene.Model {
 
         indexBuffer.update(indices);
 
-        this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
-        this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
-        this._iaInfoBuffer.update(this._iaInfo);
+        this._iaVertCount = this._capacity * this._vertCount;
+        this._iaIndexCount = (this._capacity - 1) * this._indexCount;
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
 
-    public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
+    public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange): void {
         if (positions.length > 1) {
             let offset = 0;
             Vec3.subtract(_temp_v1, positions[1], positions[0]);
@@ -221,15 +212,15 @@ export class LineModel extends scene.Model {
         this.updateIA(Math.max(0, positions.length - 1));
     }
 
-    public updateIA (count: number) {
+    public updateIA (count: number): void {
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
-        this._iaInfo.drawInfos[0].firstIndex = 0;
-        this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
-        this._iaInfoBuffer.update(this._iaInfo);
+        ia.firstIndex = 0;
+        ia.indexCount = this._indexCount * count;
+        ia.vertexCount = this._iaVertCount;
     }
 
-    private destroySubMeshData () {
+    private destroySubMeshData (): void {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;

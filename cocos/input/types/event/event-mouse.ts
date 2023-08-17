@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -125,7 +124,7 @@ export class EventMouse extends Event {
      *
      * @deprecated since v3.3, please use EventMouse.prototype.type instead.
      */
-    public get eventType () {
+    public get eventType (): string {
         return this._eventType;
     }
 
@@ -163,7 +162,7 @@ export class EventMouse extends Event {
      * @param scrollX - The scroll value on x axis
      * @param scrollY - The scroll value on y axis
      */
-    public setScrollData (scrollX: number, scrollY: number) {
+    public setScrollData (scrollX: number, scrollY: number): void {
         this._scrollX = scrollX;
         this._scrollY = scrollY;
     }
@@ -172,7 +171,7 @@ export class EventMouse extends Event {
      * @en Returns the scroll value on x axis.
      * @zh 获取鼠标滚动的 X 轴距离，只有滚动时才有效。
      */
-    public getScrollX () {
+    public getScrollX (): number {
         return this._scrollX;
     }
 
@@ -180,7 +179,7 @@ export class EventMouse extends Event {
      * @en Returns the scroll value on y axis.
      * @zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
      */
-    public getScrollY () {
+    public getScrollY (): number {
         return this._scrollY;
     }
 
@@ -190,7 +189,7 @@ export class EventMouse extends Event {
      * @param x - The location on x axis
      * @param y - The location on y axis
      */
-    public setLocation (x: number, y: number) {
+    public setLocation (x: number, y: number): void {
         this._x = x;
         this._y = y;
     }
@@ -200,7 +199,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标相对于左下角位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getLocation (out?: Vec2) {
+    public getLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -214,7 +213,7 @@ export class EventMouse extends Event {
      * @zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getLocationInView (out?: Vec2) {
+    public getLocationInView (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -228,7 +227,7 @@ export class EventMouse extends Event {
      * @zh 获取当前事件在 UI 窗口内的坐标位置，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation (out?: Vec2) {
+    public getUILocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -243,7 +242,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getPreviousLocation (out?: Vec2) {
+    public getPreviousLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -257,7 +256,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIPreviousLocation (out?: Vec2) {
+    public getUIPreviousLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -272,7 +271,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getDelta (out?: Vec2) {
+    public getDelta (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -285,7 +284,7 @@ export class EventMouse extends Event {
      * @en Returns the X axis delta distance from the previous location to current location.
      * @zh 获取鼠标距离上一次事件移动的 X 轴距离。
      */
-    public getDeltaX () {
+    public getDeltaX (): number {
         return this._x - this._prevX;
     }
 
@@ -293,7 +292,7 @@ export class EventMouse extends Event {
      * @en Returns the Y axis delta distance from the previous location to current location.
      * @zh 获取鼠标距离上一次事件移动的 Y 轴距离。
      */
-    public getDeltaY () {
+    public getDeltaY (): number {
         return this._y - this._prevY;
     }
 
@@ -302,7 +301,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标距离上一次事件移动在 UI 坐标系下的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIDelta (out?: Vec2) {
+    public getUIDelta (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -315,7 +314,7 @@ export class EventMouse extends Event {
      * @en Returns the X axis delta distance from the previous location to current location in the UI coordinates.
      * @zh 获取鼠标距离上一次事件移动在 UI 坐标系下的 X 轴距离。
      */
-    public getUIDeltaX () {
+    public getUIDeltaX (): number {
         return (this._x - this._prevX) / cclegacy.view.getScaleX();
     }
 
@@ -323,7 +322,7 @@ export class EventMouse extends Event {
      * @en Returns the Y axis delta distance from the previous location to current location in the UI coordinates.
      * @zh 获取鼠标距离上一次事件移动在 UI 坐标系下的 Y 轴距离。
      */
-    public getUIDeltaY () {
+    public getUIDeltaY (): number {
         return (this._y - this._prevY) / cclegacy.view.getScaleY();
     }
 
@@ -332,7 +331,7 @@ export class EventMouse extends Event {
      * @zh 设置鼠标按键。
      * @param button - The button code
      */
-    public setButton (button: number) {
+    public setButton (button: number): void {
         this._button = button;
     }
 
@@ -340,7 +339,7 @@ export class EventMouse extends Event {
      * @en Returns mouse button code.
      * @zh 获取鼠标按键。
      */
-    public getButton () {
+    public getButton (): number {
         return this._button;
     }
 
@@ -348,7 +347,7 @@ export class EventMouse extends Event {
      * @en Returns location data on X axis.
      * @zh 获取鼠标当前 X 轴位置。
      */
-    public getLocationX () {
+    public getLocationX (): number {
         return this._x;
     }
 
@@ -356,7 +355,7 @@ export class EventMouse extends Event {
      * @en Returns location data on Y axis.
      * @zh 获取鼠标当前 Y 轴位置。
      */
-    public getLocationY () {
+    public getLocationY (): number {
         return this._y;
     }
 
@@ -364,7 +363,7 @@ export class EventMouse extends Event {
      * @en Returns location data on X axis.
      * @zh 获取鼠标当前 X 轴位置。
      */
-    public getUILocationX () {
+    public getUILocationX (): number {
         const viewport = cclegacy.view.getViewportRect();
         return (this._x - viewport.x) / cclegacy.view.getScaleX();
     }
@@ -373,11 +372,12 @@ export class EventMouse extends Event {
      * @en Returns location data on Y axis.
      * @zh 获取鼠标当前 Y 轴位置。
      */
-    public getUILocationY () {
+    public getUILocationY (): number {
         const viewport = cclegacy.view.getViewportRect();
         return (this._y - viewport.y) / cclegacy.view.getScaleY();
     }
 }
 
-// @ts-expect-error TODO
-Event.EventMouse = EventMouse;
+// TODO: this is an injected property, should be deprecated
+// issue: https://github.com/cocos/cocos-engine/issues/14643
+(Event as any).EventMouse = EventMouse;

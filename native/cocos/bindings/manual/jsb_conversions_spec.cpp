@@ -1,15 +1,16 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,8 +21,9 @@
 ****************************************************************************/
 
 #include <sstream>
+#include "base/DeferredReleasePool.h"
+#include "base/TemplateUtils.h"
 #include "base/Value.h"
-#include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
@@ -40,11 +42,17 @@
 
 #include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#if CC_USE_PHYSICS_PHYSX
 #include "bindings/auto/jsb_physics_auto.h"
+#endif
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+
+#if CC_USE_SPINE
+#include "cocos/editor-support/spine-creator-support/Vector2.h"
+#endif
 
 ///////////////////////// utils /////////////////////////
 
@@ -55,29 +63,6 @@
         *nativeObj = *_privateObjL->get<target_type>();                      \
         return true;                                                         \
     }
-
-template <class... Fs>
-struct overloaded;
-
-template <class F0, class... Fs>
-struct overloaded<F0, Fs...> : F0, overloaded<Fs...> {
-    overloaded(F0 f0, Fs... rest) : F0(f0), overloaded<Fs...>(rest...) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-    using overloaded<Fs...>::operator();
-};
-
-template <class F0>
-struct overloaded<F0> : F0 {
-    overloaded(F0 f0) : F0(f0) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-};
-
-template <class... Fs>
-auto make_overloaded(Fs... fs) { // NOLINT(readability-identifier-naming)
-    return overloaded<Fs...>(fs...);
-}
 
 template <typename A, typename T, typename F>
 typename std::enable_if<std::is_member_function_pointer<F>::value, bool>::type
@@ -714,18 +699,20 @@ bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Obj
     return true;
 }
 
-// ccstd::variant<int32_t, bool, ccstd::string>;
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /*ctx*/) {
+    bool ret = true;
     if (from.isBoolean()) {
         *to = from.toBoolean();
     } else if (from.isNumber()) {
         *to = from.toInt32(); // NOTE: We only support macro with int32_t type now.
     } else if (from.isString()) {
         *to = from.toString();
+    } else {
+        ret = false;
     }
 
-    return true;
+    return ret;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -930,27 +917,23 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, 
             ccstd::string str;
             ret = sevalue_to_native(from, &str, ctx);
             *to = std::move(str);
-        }
-            break;
+        } break;
         case se::Value::Type::Boolean: {
             bool v{false};
             ret = sevalue_to_native(from, &v, ctx);
             *to = v;
-        }
-            break;
+        } break;
         case se::Value::Type::Number: {
             float v{0.F};
             ret = sevalue_to_native(from, &v, ctx);
             *to = v;
-        }
-            break;
+        } break;
         case se::Value::Type::Object: {
             CC_ASSERT_TRUE(from.toObject()->isArray());
             ccstd::vector<float> v;
             ret = sevalue_to_native(from, &v, ctx);
             *to = std::move(v);
-        }
-            break;
+        } break;
         default:
             *to = {};
             break;
@@ -960,7 +943,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, cc::IPropertyValue *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t len = 0;
         bool ok = from.toObject()->getArrayLength(&len);
@@ -981,26 +964,6 @@ bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float
     } else {
         CC_ABORT();
     }
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx) {
-    bool ok = false;
-    if (from.isObject() && from.toObject()->isArray()) {
-        cc::MaterialPropertyList propertyList{};
-        ok = sevalue_to_native(from, &propertyList, ctx);
-        if (ok) {
-            *to = std::move(propertyList);
-        }
-    } else {
-        cc::MaterialProperty property;
-        ok = sevalue_to_native(from, &property, ctx);
-        if (ok) {
-            *to = std::move(property);
-        }
-    }
-
     return true;
 }
 
@@ -1050,6 +1013,18 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Objec
     for (uint32_t i = 0; i < size; i++) {
         arr->getArrayElement(i, &tmp);
         (*to)[i] = tmp.toBoolean();
+    }
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::string, bool> *to, se::Object * /*ctx*/) {
+    if (from.isBoolean()) {
+        *to = from.toBoolean();
+    } else if (from.isString()) {
+        *to = from.toString();
+    } else {
+        CC_ASSERT(false);
     }
     return true;
 }
@@ -1134,20 +1109,22 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
         }
     }
 
-    ccstd::visit(make_overloaded(
+    ccstd::visit(cc::overloaded{
                      [&](auto &typedArray) {
                          typedArray.setJSTypedArray(from.toObject());
                      },
-                     [](ccstd::monostate /*unused*/) {}),
+                     [](ccstd::monostate & /*unused*/) {}},
                  *to);
     return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ctx*/) {
-    ccstd::visit([&](auto &typedArray) {
-        typedArray.setJSTypedArray(from.toObject());
-    },
+    ccstd::visit(cc::overloaded{
+                     [&](auto &typedArray) {
+                         typedArray.setJSTypedArray(from.toObject());
+                     },
+                     [](ccstd::monostate & /*unused*/) {}},
                  *to);
 
     return true;
@@ -1187,6 +1164,25 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
         ret->add(str);
     }
 
+    return true;
+}
+
+bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
+
+    se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
+    se::Value tmp;
+    set_member_field(obj, to, "x", &spine::Vector2::x, tmp);
+    set_member_field(obj, to, "y", &spine::Vector2::y, tmp);
+    return true;
+}
+
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    to.setObject(obj);
     return true;
 }
 #endif
@@ -1576,6 +1572,44 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactE
         array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
         array->setArrayElement(static_cast<uint>(t + 3), [&]() -> se::Value {
+            auto obj = se::Value();
+            nativevalue_to_se(from[i]->contacts, obj, ctx);
+            return obj;
+        }());
+    }
+    to.setObject(array);
+    return true;
+}
+
+bool nativevalue_to_se(const ccstd::vector<cc::physics::CharacterControllerContact> &from, se::Value &to, se::Object * /*ctx*/) {
+    const auto contactCount = from.size();
+    se::HandleObject array(se::Object::createArrayObject(contactCount));
+    for (size_t i = 0; i < contactCount; i++) {
+        auto t = i * cc::physics::CharacterControllerContact::COUNT;
+        uint32_t j = 0;
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldPosition.x));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldPosition.y));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldPosition.z));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldNormal.x));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldNormal.y));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].worldNormal.z));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].motionDirection.x));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].motionDirection.y));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].motionDirection.z));
+        array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].motionLength));
+    }
+    to.setObject(array);
+    return true;
+}
+
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTShapeEventPair>> &from, se::Value &to, se::Object *ctx) {
+    se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::CCTShapeEventPair::COUNT));
+    for (size_t i = 0; i < from.size(); i++) {
+        auto t = i * cc::physics::CCTShapeEventPair::COUNT;
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->cct));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shape));
+        //array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
+        array->setArrayElement(static_cast<uint>(t + 2), [&]() -> se::Value {
             auto obj = se::Value();
             nativevalue_to_se(from[i]->contacts, obj, ctx);
             return obj;

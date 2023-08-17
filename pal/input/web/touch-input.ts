@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { TouchCallback } from 'pal/input';
 import { EDITOR, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
@@ -27,7 +51,7 @@ export class TouchInputSource {
         }
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         // IDEA: need to register on window ?
         this._canvas?.addEventListener('touchstart', this._createCallback(InputEventType.TOUCH_START));
         this._canvas?.addEventListener('touchmove', this._createCallback(InputEventType.TOUCH_MOVE));
@@ -36,7 +60,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: TouchEvent) => {
+        return (event: TouchEvent): void => {
             const canvasRect = this._getCanvasRect();
             const handleTouches: Touch[] = [];
             const length = event.changedTouches.length;
@@ -82,7 +106,7 @@ export class TouchInputSource {
 
     private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
         // webxr has been converted to screen coordinates via camera
-        if (globalThis.__globalXR.ar && globalThis.__globalXR.ar.isWebXR()) {
+        if (globalThis.__globalXR && globalThis.__globalXR.ar && globalThis.__globalXR.ar.isWebXR()) {
             return new Vec2(touch.clientX, touch.clientY);
         }
 
@@ -99,7 +123,7 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
+    public on (eventType: InputEventType, callback: TouchCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

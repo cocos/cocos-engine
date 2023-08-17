@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
+import { systemInfo } from 'pal/system-info';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -62,29 +62,31 @@ import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, W
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug } from '../../core';
+import { debug, sys } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
-import { IWebGL2BindingMapping } from './webgl2-gpu-objects';
+import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
+import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import type { WebGL2StateCache } from './webgl2-state-cache';
 
 export class WebGL2Device extends Device {
-    get gl () {
+    get gl (): WebGL2RenderingContext {
         return this._context!;
     }
 
-    get extensions () {
+    get extensions (): IWebGL2Extensions {
         return this._swapchain!.extensions;
     }
 
-    get stateCache () {
+    get stateCache (): WebGL2StateCache {
         return this._swapchain!.stateCache;
     }
 
-    get nullTex2D () {
+    get nullTex2D (): WebGL2Texture {
         return this._swapchain!.nullTex2D;
     }
 
-    get nullTexCube () {
+    get nullTexCube (): WebGL2Texture {
         return this._swapchain!.nullTexCube;
     }
 
@@ -92,8 +94,12 @@ export class WebGL2Device extends Device {
         return this._textureExclusive;
     }
 
-    get bindingMappings () {
+    get bindingMappings (): IWebGL2BindingMapping {
         return this._bindingMappings!;
+    }
+
+    get blitManager (): IWebGL2BlitManager | null {
+        return this._swapchain!.blitManager;
     }
 
     private _swapchain: WebGL2Swapchain | null = null;
@@ -133,7 +139,7 @@ export class WebGL2Device extends Device {
         const gl = this._context = getContext(Device.canvas);
 
         if (!gl) {
-            console.error('This device does not support WebGL.');
+            console.error('This device does not support WebGL2.');
             return false;
         }
 
@@ -143,6 +149,18 @@ export class WebGL2Device extends Device {
 
         this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
         this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        // Implementation of WebGL2 in WECHAT browser and Safari in IOS exist bugs.
+        // It seems to be related to Safari's experimental features 'WebGL via Metal'.
+        // So limit using vertex uniform vectors no more than 256 in wechat browser,
+        // and using vertex uniform vectors no more than 512 in safari.
+        if (systemInfo.os === OS.IOS) {
+            const maxVertexUniformVectors = this._caps.maxVertexUniformVectors;
+            if (sys.browserType === BrowserType.WECHAT) {
+                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
+            } else if (sys.browserType === BrowserType.SAFARI) {
+                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
+            }
+        }
         this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
         this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
@@ -236,11 +254,11 @@ export class WebGL2Device extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void {}
 
-    public acquire (swapchains: Readonly<Swapchain[]>) {}
+    public acquire (swapchains: Readonly<Swapchain[]>): void {}
 
-    public present () {
+    public present (): void {
         const queue = (this._queue as WebGL2Queue);
         this._numDrawCalls = queue.numDrawCalls;
         this._numInstances = queue.numInstances;
@@ -248,7 +266,7 @@ export class WebGL2Device extends Device {
         queue.clear();
     }
 
-    protected initFormatFeatures (exts: IWebGL2Extensions) {
+    protected initFormatFeatures (exts: IWebGL2Extensions): void {
         this._formatFeatures.fill(FormatFeatureBit.NONE);
 
         this._textureExclusive.fill(true);
@@ -559,7 +577,7 @@ export class WebGL2Device extends Device {
         return [this._swapchain as Swapchain];
     }
 
-    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
         const hash = GeneralBarrier.computeHash(info);
         if (!this._generalBarrierss.has(hash)) {
             this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
@@ -567,7 +585,7 @@ export class WebGL2Device extends Device {
         return this._generalBarrierss.get(hash)!;
     }
 
-    public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -575,7 +593,7 @@ export class WebGL2Device extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public getBufferBarrier (info: Readonly<BufferBarrierInfo>) {
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier {
         const hash = BufferBarrier.computeHash(info);
         if (!this._bufferBarriers.has(hash)) {
             this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
@@ -583,7 +601,7 @@ export class WebGL2Device extends Device {
         return this._bufferBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
@@ -592,7 +610,7 @@ export class WebGL2Device extends Device {
         );
     }
 
-    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {
         WebGL2CmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGL2Texture).gpuTexture,
@@ -605,7 +623,7 @@ export class WebGL2Device extends Device {
         texImages: Readonly<TexImageSource[]>,
         texture: Texture,
         regions: Readonly<BufferTextureCopy[]>,
-    ) {
+    ): void {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,18 +20,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport } from '../base/define';
+import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport, TextureBlit, Filter } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
-    WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncCopyBuffersToTexture,
+    WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
@@ -48,7 +47,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         clearColors: Readonly<Color[]>,
         clearDepth: number,
         clearStencil: number,
-    ) {
+    ): void {
         WebGLCmdFuncBeginRenderPass(
             WebGLDeviceManager.instance,
             (renderPass as WebGLRenderPass).gpuRenderPass,
@@ -58,7 +57,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler): void {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
@@ -66,7 +65,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
 
             const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
-            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info as DrawInfo);
+            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
@@ -91,7 +90,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public setViewport (viewport: Readonly<Viewport>) {
+    public setViewport (viewport: Readonly<Viewport>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.viewport.left !== viewport.left
@@ -107,7 +106,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public setScissor (scissor: Readonly<Rect>) {
+    public setScissor (scissor: Readonly<Rect>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.scissorRect.x !== scissor.x
@@ -123,7 +122,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {
+    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
@@ -143,7 +142,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
@@ -154,7 +153,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {
+    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
@@ -165,9 +164,15 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    protected bindStates () {
+    protected bindStates (): void {
         WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
+    }
+
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+        const gpuTextureSrc = (srcTexture as WebGLTexture).gpuTexture;
+        const gpuTextureDst = (dstTexture as WebGLTexture).gpuTexture;
+        WebGLCmdFuncBlitTexture(WebGLDeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);
     }
 }

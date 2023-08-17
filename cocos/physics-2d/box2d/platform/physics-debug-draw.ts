@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import b2 from '@cocos/box2d';
 import { Color } from '../../../core';
@@ -45,7 +44,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         this._drawer = drawer;
     }
 
-    _DrawPolygon (vertices, vertexCount) {
+    _DrawPolygon (vertices, vertexCount): void {
         const drawer = this._drawer!;
 
         for (let i = 0; i < vertexCount; i++) {
@@ -61,37 +60,37 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.close();
     }
 
-    DrawPolygon (vertices, vertexCount, color) {
+    DrawPolygon (vertices, vertexCount, color): void {
         this._applyStrokeColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer!.stroke();
     }
 
-    DrawSolidPolygon (vertices, vertexCount, color) {
+    DrawSolidPolygon (vertices, vertexCount, color): void {
         this._applyFillColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer!.fill();
         this._drawer!.stroke();
     }
 
-    _DrawCircle (center: b2.Vec2, radius: number) {
+    _DrawCircle (center: b2.Vec2, radius: number): void {
         const p = this._xf.p;
         this._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO, (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
 
-    DrawCircle (center: b2.Vec2, radius: number, color) {
+    DrawCircle (center: b2.Vec2, radius: number, color): void {
         this._applyStrokeColor(color);
         this._DrawCircle(center, radius);
         this._drawer!.stroke();
     }
 
-    DrawSolidCircle (center: b2.Vec2, radius: number, axis, color) {
+    DrawSolidCircle (center: b2.Vec2, radius: number, axis, color): void {
         this._applyFillColor(color);
         this._DrawCircle(center, radius);
         this._drawer!.fill();
     }
 
-    DrawSegment (p1: b2.Vec2, p2: b2.Vec2, color) {
+    DrawSegment (p1: b2.Vec2, p2: b2.Vec2, color): void {
         const drawer = this._drawer!;
 
         if (p1.x === p2.x && p1.y === p2.y) {
@@ -109,7 +108,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.stroke();
     }
 
-    DrawTransform (xf: b2.Transform) {
+    DrawTransform (xf: b2.Transform): void {
         const drawer = this._drawer!;
 
         drawer.strokeColor = RED_COLOR;
@@ -137,13 +136,13 @@ export class PhysicsDebugDraw extends b2.Draw {
         drawer.stroke();
     }
 
-    DrawPoint (center, radius, color) {
+    DrawPoint (center, radius, color): void {
     }
 
-    DrawParticles () {
+    DrawParticles (): void {
     }
 
-    _applyStrokeColor (color) {
+    _applyStrokeColor (color): void {
         this._drawer!.strokeColor = _tmp_color.set(
             color.r * 255,
             color.g * 255,
@@ -152,7 +151,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         );
     }
 
-    _applyFillColor (color) {
+    _applyFillColor (color): void {
         this._drawer!.fillColor = _tmp_color.set(
             color.r * 255,
             color.g * 255,
@@ -161,11 +160,11 @@ export class PhysicsDebugDraw extends b2.Draw {
         );
     }
 
-    PushTransform (xf) {
+    PushTransform (xf): void {
         this._xf = xf;
     }
 
-    PopTransform () {
+    PopTransform (): void {
         this._xf = this._dxf;
     }
 }

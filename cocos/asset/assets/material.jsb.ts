@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,8 +27,9 @@ import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene';
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, cclegacy } from '../../core';
-import { type, serializable, ccclass } from '../../core/data/decorators';
 import './asset';
+import { patch_cc_Material } from '../../native-binding/decorators';
+import type { Material as JsbMaterial } from './material';
 
 /**
  * @en The basic infos for material initialization.
@@ -79,7 +79,7 @@ declare const jsb: any;
 const matProto: any = jsb.Material.prototype;
 
 type setProperyCB = (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) => void;
-function wrapSetProperty (cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+function wrapSetProperty(cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
     if (passIdx != undefined) {
         cb.call(target, name, val, passIdx);
     } else {
@@ -159,7 +159,7 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
             this.setPropertyNull(name);
         }
     }
-     else {
+    else {
         cclegacy.error(`Material.setProperty Unknown type: ${val}`);
     }
 };
@@ -255,9 +255,8 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     return ret || val;
 };
 
-// @ts-ignore
-export type Material = jsb.Material;
-export const Material = jsb.Material;
+export type Material = JsbMaterial;
+export const Material: typeof JsbMaterial = jsb.Material;
 cclegacy.Material = Material;
 
 const materialProto: any = Material.prototype;
@@ -284,7 +283,7 @@ materialProto._onPassesUpdated = function () {
 Object.defineProperty(materialProto, 'passes', {
     enumerable: true,
     configurable: true,
-    get () {
+    get() {
         if (!this._isCtorCalled) {
             // Builtin materials are created in cpp, the _passes property is not updated when access it in JS.
             // So we need to invoke getPasses() to sync _passes property.
@@ -297,11 +296,4 @@ Object.defineProperty(materialProto, 'passes', {
 });
 
 // handle meta data, it is generated automatically
-const MaterialProto = Material.prototype;
-// @ts-expect-error
-type(EffectAsset)(MaterialProto, '_effectAsset', () => null);
-serializable(MaterialProto, '_techIdx', () => 0);
-serializable(MaterialProto, '_defines', () => []);
-serializable(MaterialProto, '_states', () => []);
-serializable(MaterialProto, '_props', () => []);
-ccclass('cc.Material')(Material);
+patch_cc_Material({ Material, EffectAsset});

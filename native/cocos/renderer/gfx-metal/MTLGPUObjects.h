@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,6 +29,7 @@
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLSampler.h>
 #import <QuartzCore/CAMetalLayer.h>
+#include <array>
 #import "../../base/Utils.h"
 #import "MTLConfig.h"
 #import "MTLDevice.h"
@@ -48,6 +48,7 @@ class CCMTLFramebuffer;
 class CCMTLInputAssembler;
 class CCMTLPipelineState;
 class CCMTLSemaphore;
+class CCMTLCommandBuffer;
 
 namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
@@ -96,18 +97,30 @@ struct CCMTLGPUSubpassAttachment {
     uint32_t binding = INVALID_BINDING;
 };
 
+struct ResourceBinding {
+    uint32_t bufferBinding{0};
+    uint32_t textureBinding{0};
+    uint32_t samplerBinding{0};
+};
+
 struct CCMTLGPUShader {
     ccstd::unordered_map<uint32_t, CCMTLGPUUniformBlock> blocks;
     ccstd::unordered_map<uint32_t, CCMTLGPUSamplerBlock> samplers;
 
+    ccstd::unordered_map<uint32_t, ResourceBinding> resourceBinding;
+
     ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
     ccstd::vector<CCMTLGPUSubpassAttachment> outputs;
+
+    std::array<uint32_t, 3> workGroupSize{0, 0, 0};
 
     NSString *shaderSrc = nil;
     bool specializeColor = true;
 
     uint32_t bufferIndex = 0;
     uint32_t samplerIndex = 0;
+
+    std::string name;
 };
 
 struct CCMTLGPUPipelineState {
@@ -129,10 +142,11 @@ struct CCMTLGPUPipelineState {
 struct CCMTLGPUBuffer {
     uint32_t stride = 0;
     uint32_t count = 0;
-    uint32_t size = 0;
+    uint32_t instanceSize = 0;
     uint32_t startOffset = 0;
-    uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
+    uint8_t lastUpdateCycle = 0;
+    uint8_t *mappedData = nullptr;
 };
 
 struct CCMTLGPUTextureObject {
@@ -146,9 +160,7 @@ struct CCMTLGPUTextureViewObject {
 };
 
 struct CCMTLGPUInputAssembler {
-    id<MTLBuffer> mtlIndexBuffer = nil;
-    id<MTLBuffer> mtlIndirectBuffer = nil;
-    ccstd::vector<id<MTLBuffer>> mtlVertexBufers;
+    //
 };
 
 struct CCMTLGPUDescriptor {
@@ -186,13 +198,13 @@ public:
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
-            if (gpuBuffer->size + offset <= [cur->mtlBuffer length]) {
+            if (gpuBuffer->instanceSize + offset <= [cur->mtlBuffer length]) {
                 buffer = cur;
                 break;
             }
         }
         if (!buffer) {
-            uint32_t needs = mu::alignUp(gpuBuffer->size, MegaBytesToBytes);
+            uint32_t needs = mu::alignUp(gpuBuffer->instanceSize, MegaBytesToBytes);
 
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
@@ -204,7 +216,7 @@ public:
         gpuBuffer->mtlBuffer = buffer->mtlBuffer;
         gpuBuffer->startOffset = offset;
         gpuBuffer->mappedData = buffer->mappedData + offset;
-        buffer->curOffset = offset + gpuBuffer->size;
+        buffer->curOffset = offset + gpuBuffer->instanceSize;
     }
 
     void reset() {
@@ -313,6 +325,7 @@ struct CCMTLGPUCommandBufferObject {
 };
 
 struct CCMTLGPUDeviceObject {
+    CCMTLCommandBuffer *_transferCmdBuffer{nullptr};
 };
 
 struct CCMTLGPUQueryPool {

@@ -16,7 +16,12 @@ declare module 'pal/screen-adapter' {
          * Determine whether the game frame exact fits the screen.
          * Now it only works on Web platform.
          */
-        exactFitScreen: boolean,
+        exactFitScreen: boolean;
+
+        /**
+         * Determine whether use headless renderer, which means do not support some screen operations.
+         */
+        isHeadlessMode: boolean;
     }
 
     class ScreenAdapter {
@@ -75,12 +80,6 @@ declare module 'pal/screen-adapter' {
         public get resolution (): import('cocos/core/math').Size;
 
         /**
-         * Update the resolution by resolutionScale.
-         * This method rebuilds the size of frame buffer and the size of canvas.
-         * This method should be called when window resized (fullscreen changing included) or the resolution scale changed.
-         */
-        private _updateResolution ();
-        /**
          * Get and set the resolution scale of screen, which will affect the quality of the rendering.
          * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
          */
@@ -112,9 +111,12 @@ declare module 'pal/screen-adapter' {
          */
         public exitFullScreen (): Promise<void>;
 
-        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any)=>void, target?: any);
-        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any)=>void, target?: any);
+        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        once (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any) => void, target?: any);
     }
 
     export const screenAdapter: ScreenAdapter;
+
+    export {};
 }

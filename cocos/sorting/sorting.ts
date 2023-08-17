@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range, serializable, type } from 'cc.decorator';
+import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range, serializable, type } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
 import { Component } from '../scene-graph/component';
@@ -42,6 +41,7 @@ const MIN_INT16 = -1 << 15;
  */
 @ccclass('cc.Sorting')
 @menu('Sorting/Sorting')
+@help('i18n:cc.Sorting')
 @disallowMultiple
 @executeInEditMode
 export class Sorting extends Component {
@@ -51,7 +51,7 @@ export class Sorting extends Component {
      */
     @editable
     @type(SortingLayers.Enum)
-    get sortingLayer () {
+    get sortingLayer (): number {
         return this._sortingLayer;
     }
     set sortingLayer (val) {
@@ -65,7 +65,7 @@ export class Sorting extends Component {
      * @en Model Renderer's order within a sorting layer. In the default sorting rule, smaller values are rendered first.
      */
     @range([MIN_INT16, MAX_INT16, 1])
-    get sortingOrder () {
+    get sortingOrder (): number {
         return this._sortingOrder;
     }
     set sortingOrder (val) {
@@ -81,7 +81,7 @@ export class Sorting extends Component {
 
     private _modelRenderer: ModelRenderer | null = null;
 
-    protected __preload () {
+    protected __preload (): void {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
             warnID(16301, this.node.name);
@@ -89,7 +89,7 @@ export class Sorting extends Component {
         this._updateSortingPriority();
     }
 
-    protected _updateSortingPriority () {
+    protected _updateSortingPriority (): void {
         const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
         if (this._modelRenderer && this._modelRenderer.isValid) {

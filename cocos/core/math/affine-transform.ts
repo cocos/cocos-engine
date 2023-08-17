@@ -2,16 +2,16 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -33,14 +33,14 @@ import { legacyCC } from '../global-exports';
 
 /**
  * @en `AffineTransform` class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.
- * @zh 二维仿射变换矩阵，描述了平移、缩放和缩放。
+ * @zh 二维仿射变换矩阵，描述了平移、旋转和缩放。
  */
 export class AffineTransform {
     /**
      * @en Create an identity transformation matrix.
      * @zh 创建单位二维仿射变换矩阵，它不进行任何变换。
      */
-    public static identity () {
+    public static identity (): AffineTransform {
         return new AffineTransform();
     }
 
@@ -49,7 +49,7 @@ export class AffineTransform {
      * @zh 克隆指定的二维仿射变换矩阵。
      * @param affineTransform Specified `AffineTransform` objects
      */
-    public static clone (affineTransform: AffineTransform) {
+    public static clone (affineTransform: AffineTransform): AffineTransform {
         return new AffineTransform(
             affineTransform.a, affineTransform.b,
             affineTransform.c, affineTransform.d,
@@ -59,12 +59,13 @@ export class AffineTransform {
 
     /**
      * @en Concatenate a transform matrix to another. The results are reflected in the out `AffineTransform`.
-     * @zh 将两个矩阵相乘的结果赋值给出口矩阵。
+     * First apply t1, then t2: out * v = t2 * (t1 * v).
+     * @zh 将两个矩阵相乘的结果赋值给输出矩阵，先应用t1再应用t2: out * v = t2 * (t1 * v)。
      * @param out Out object to store the concat result
      * @param t1 The first transform object.
      * @param t2 The transform object to concatenate.
      */
-    public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform) {
+    public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform): void {
         const a = t1.a;
         const b = t1.b;
         const c = t1.c;
@@ -81,11 +82,11 @@ export class AffineTransform {
 
     /**
      * @en Get the invert transform of an `AffineTransform` object.
-     * @zh 将矩阵求逆的结果赋值给出口矩阵。
+     * @zh 将矩阵求逆的结果赋值给输出矩阵。
      * @param out Out object to store the invert result
      * @param t the input `AffineTransform` object
      */
-    public static invert (out: AffineTransform, t: AffineTransform) {
+    public static invert (out: AffineTransform, t: AffineTransform): void {
         const determinant = 1 / (t.a * t.d - t.b * t.c);
         out.a = determinant * t.d;
         out.b = -determinant * t.b;
@@ -97,11 +98,11 @@ export class AffineTransform {
 
     /**
      * @en Get an `AffineTransform` object from a given matrix 4x4.
-     * @zh 将四维矩阵转换为二维仿射变换矩阵并赋值给出口矩阵。
+     * @zh 将四维矩阵转换为二维仿射变换矩阵并赋值给输出矩阵。
      * @param out The output matrix to store the result
      * @param mat transform matrix.
      */
-    public static fromMat4 (out: AffineTransform, mat: Mat4) {
+    public static fromMat4 (out: AffineTransform, mat: Mat4): void {
         out.a = mat.m00;
         out.b = mat.m01;
         out.c = mat.m04;
@@ -112,24 +113,24 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
-     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给输出向量。
      * @param out The output vector to store the result
      * @param point Vector to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform);
+    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform): any;
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
-     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给输出向量。
      * @param out The output vector to store the result
      * @param x x to apply transform.
      * @param y y to apply transform.
      * @param t transform matrix.
      */
-    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform);
+    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform): any;
 
-    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform) {
+    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform): any {
         let x: number;
         let y: number;
         if (!t) {
@@ -146,24 +147,24 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a size.
-     * @zh 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给出口尺寸。
+     * @zh 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给输出尺寸。
      * @param out The output size to store the result
      * @param size The size to apply transform.
      * @param t transform matrix.
      */
-    public static transformSize (out: Size, size: Size, t: AffineTransform) {
+    public static transformSize (out: Size, size: Size, t: AffineTransform): void {
         out.width = t.a * size.width + t.c * size.height;
         out.height = t.b * size.width + t.d * size.height;
     }
 
     /**
      * @en Apply the `AffineTransform` on a rect.
-     * @zh 应用二维仿射变换矩阵到矩形上，并将结果赋值给出口矩形。
+     * @zh 应用二维仿射变换矩阵到矩形上，并将结果赋值给输出矩形。
      * @param out The output rect object to store the result
      * @param rect The rect object to apply transform.
      * @param t transform matrix.
      */
-    public static transformRect (out: Rect, rect: Rect, t: AffineTransform) {
+    public static transformRect (out: Rect, rect: Rect, t: AffineTransform): void {
         const or = rect.x + rect.width;
         const ot = rect.y + rect.height;
         const lbx = t.a * rect.x + t.c * rect.y + t.tx;
@@ -198,7 +199,8 @@ export class AffineTransform {
      * @param rect The rect object to apply transform.
      * @param anAffineTransform transform matrix.
      */
-    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect, anAffineTransform: AffineTransform) {
+    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect,
+        anAffineTransform: AffineTransform, flipY = true): void {
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;
@@ -206,16 +208,33 @@ export class AffineTransform {
         const yc = anAffineTransform.c * rect.height;
         const yd = anAffineTransform.d * rect.height;
 
-        out_tl.x = tx;
-        out_tl.y = ty;
-        out_tr.x = xa + tx;
-        out_tr.y = xb + ty;
-        out_bl.x = yc + tx;
-        out_bl.y = yd + ty;
-        out_br.x = xa + yc + tx;
-        out_br.y = xb + yd + ty;
+        if (flipY) {
+            out_tl.x = tx;
+            out_tl.y = ty;
+            out_tr.x = xa + tx;
+            out_tr.y = xb + ty;
+            out_bl.x = yc + tx;
+            out_bl.y = yd + ty;
+            out_br.x = xa + yc + tx;
+            out_br.y = xb + yd + ty;
+        } else {
+            out_bl.x = tx;
+            out_bl.y = ty;
+            out_br.x = xa + tx;
+            out_br.y = xb + ty;
+            out_tl.x = yc + tx;
+            out_tl.y = yd + ty;
+            out_tr.x = xa + yc + tx;
+            out_tr.y = xb + yd + ty;
+        }
     }
 
+    /**
+     * matrix layout
+     * |a  c  tx|
+     * |b  d  ty|
+     * |0  0  1 |
+     */
     public declare a: number;
     public declare b: number;
     public declare c: number;

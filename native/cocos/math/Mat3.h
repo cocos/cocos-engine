@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -44,7 +44,11 @@ class CC_DLL Mat3 {
 public:
     /**
      * Stores the columns of this 3x3 matrix.
-     * */
+     * matrix layout
+     * |m[0]  m[3]  m[6]|
+     * |m[1]  m[4]  m[7]|
+     * |m[2]  m[5]  m[8]|
+     */
     float m[9];
 
     /**
@@ -58,19 +62,11 @@ public:
     Mat3();
 
     /**
-     * Constructs a matrix initialized to the specified value.
-     *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
+     * Constructs a matrix initialized to the specified values which are column-major order.
      */
-    Mat3(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33);
+    Mat3(float m00, float m01, float m02,
+         float m03, float m04, float m05,
+         float m06, float m07, float m08);
 
     /**
      * Creates a matrix initialized to the specified column-major array.
@@ -117,20 +113,11 @@ public:
     ~Mat3() = default;
 
     /**
-     * Sets the values of this matrix.
-     *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
+     * Sets the values of this matrix which are column-major order.
      */
-    void set(float m11, float m12, float m13, float m21, float m22, float m23,
-             float m31, float m32, float m33);
+    void set(float m00, float m01, float m02,
+             float m03, float m04, float m05,
+             float m06, float m07, float m08);
 
     /**
      * Sets the values of this matrix to those in the specified column-major array.
@@ -167,7 +154,7 @@ public:
     void inverse();
 
     /**
-     * Calculates the adjugate of a matrix.
+     * Calculates the adjoint matrix.
      */
     static void adjoint(const Mat3 &mat, Mat3 *out);
 

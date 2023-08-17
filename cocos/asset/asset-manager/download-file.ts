@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,57 +20,55 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { CompleteCallback, IXHROptions } from './shared';
-
-type FileProgressCallback = (loaded: number, total: number) => void;
+export type FileProgressCallback = (loaded: number, total: number) => void;
 
 export default function downloadFile (
     url: string,
-    options: IXHROptions,
+    options: Record<string, any>,
     onProgress: FileProgressCallback | null | undefined,
-    onComplete: CompleteCallback,
+    onComplete: ((err: Error | null, data?: any) => void),
 ): XMLHttpRequest {
     const xhr = new XMLHttpRequest();
     const errInfo = `download failed: ${url}, status: `;
 
     xhr.open('GET', url, true);
 
-    if (options.xhrResponseType !== undefined) { xhr.responseType = options.xhrResponseType; }
-    if (options.xhrWithCredentials !== undefined) { xhr.withCredentials = options.xhrWithCredentials; }
-    if (options.xhrMimeType !== undefined && xhr.overrideMimeType) { xhr.overrideMimeType(options.xhrMimeType); }
-    if (options.xhrTimeout !== undefined) { xhr.timeout = options.xhrTimeout; }
+    if (options.xhrResponseType !== undefined) { xhr.responseType = options.xhrResponseType as XMLHttpRequestResponseType; }
+    if (options.xhrWithCredentials !== undefined) { xhr.withCredentials = options.xhrWithCredentials as boolean; }
+    if (options.xhrMimeType !== undefined && xhr.overrideMimeType) { xhr.overrideMimeType(options.xhrMimeType as string); }
+    if (options.xhrTimeout !== undefined) { xhr.timeout = options.xhrTimeout as number; }
 
     if (options.xhrHeader) {
         for (const header in options.xhrHeader) {
-            xhr.setRequestHeader(header, options.xhrHeader[header]);
+            xhr.setRequestHeader(header, options.xhrHeader[header] as string);
         }
     }
 
-    xhr.onload = () => {
+    xhr.onload = (): void => {
         if (xhr.status === 200 || xhr.status === 0) {
             if (onComplete) { onComplete(null, xhr.response); }
         } else if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(no response)`)); }
     };
 
     if (onProgress) {
-        xhr.onprogress = (e) => {
+        xhr.onprogress = (e): void => {
             if (e.lengthComputable) {
                 onProgress(e.loaded, e.total);
             }
         };
     }
 
-    xhr.onerror = () => {
+    xhr.onerror = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(error)`)); }
     };
 
-    xhr.ontimeout = () => {
+    xhr.ontimeout = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(time out)`)); }
     };
 
-    xhr.onabort = () => {
+    xhr.onabort = (): void => {
         if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(abort)`)); }
     };
 

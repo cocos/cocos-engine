@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,24 +20,30 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
+import type { RenderPipeline } from './rendering/render-pipeline';
+import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
+import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
 import { DebugView } from './rendering/debug-view';
-import { Camera, Light, Model } from './render-scene/scene';
+import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { LightType } from './render-scene/scene/light';
 import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
 import { DirectionalLight } from './render-scene/scene/directional-light';
 import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
+import { PointLight } from './render-scene/scene/point-light';
+import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
-import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
+import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
-import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow } from './rendering/define';
+import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
+import { XREye, XRPoseType } from './xr/xr-enums';
+import { ICustomJointTextureLayout } from './3d/skeletal-animation/skeletal-animation-utils';
 
 /**
  * @en Initialization information for the Root
@@ -130,7 +135,7 @@ export class Root {
      * @en The custom render pipeline
      * @zh 自定义渲染管线
      */
-    public get customPipeline (): Pipeline {
+    public get customPipeline (): BasicPipeline {
         return this._customPipeline!;
     }
 
@@ -218,7 +223,7 @@ export class Root {
     /**
      * @internal
      */
-    public get dataPoolManager () {
+    public get dataPoolManager (): DataPoolManager {
         return this._dataPoolMgr;
     }
 
@@ -252,7 +257,7 @@ export class Root {
     private _pipeline: PipelineRuntime | null = null;
     private _pipelineEvent: IPipelineEvent | null = null;
     private _classicPipeline: RenderPipeline | null = null;
-    private _customPipeline: Pipeline | null = null;
+    private _customPipeline: BasicPipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
@@ -283,7 +288,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(this._device), 4, (cam) => cam.destroy());
+        this._cameraPool = new Pool((): Camera => new Camera(this._device), 4, (cam): void => cam.destroy());
     }
 
     /**
@@ -291,7 +296,7 @@ export class Root {
      * @zh 初始化函数，用户不应该自己初始化 Root，它是由 [[Director]] 管理的。
      * @param info Root initialization information
      */
-    public initialize (info: IRootInfo) {
+    public initialize (info: IRootInfo): void {
         const swapchain: Swapchain = deviceManager.swapchain;
         const colorAttachment = new ColorAttachment();
         colorAttachment.format = swapchain.colorTexture.format;
@@ -309,7 +314,10 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
-        const customJointTextureLayouts = settings.querySettings(Settings.Category.ANIMATION, 'customJointTextureLayouts') || [];
+        const customJointTextureLayouts = settings.querySettings(
+            Settings.Category.ANIMATION,
+            'customJointTextureLayouts',
+        ) as ICustomJointTextureLayout[] || [];
         this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
         this._resizeMaxJointForDS();
     }
@@ -318,7 +326,7 @@ export class Root {
      * @en Destroy the root, user shouldn't invoke this function, it will cause undefined behavior.
      * @zh 销毁 Root，用户不应该调用此方法，会造成未知行为。
      */
-    public destroy () {
+    public destroy (): void {
         this.destroyScenes();
 
         if (this._pipeline) {
@@ -348,7 +356,7 @@ export class Root {
      * @param height The new height of the window.
      * @param windowId The system window ID, optional for now.
      */
-    public resize (width: number, height: number, windowId?: number) {
+    public resize (width: number, height: number, windowId?: number): void {
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
@@ -391,6 +399,7 @@ export class Root {
             this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
+            this._pipelineEvent = rppl;
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;
@@ -398,16 +407,19 @@ export class Root {
             this._usesCustomPipeline = false;
         }
 
-        if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
-            if (isCreateDefaultPipeline) {
-                this._pipeline.destroy();
-            }
-            this._classicPipeline = null;
-            this._customPipeline = null;
-            this._pipeline = null;
-            this._pipelineEvent = null;
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        if (renderMode !== LegacyRenderMode.HEADLESS || this._classicPipeline) {
+            if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
+                if (isCreateDefaultPipeline) {
+                    this._pipeline.destroy();
+                }
+                this._classicPipeline = null;
+                this._customPipeline = null;
+                this._pipeline = null;
+                this._pipelineEvent = null;
 
-            return false;
+                return false;
+            }
         }
 
         //-----------------------------------------------
@@ -434,9 +446,13 @@ export class Root {
      * @en Notify the pipeline and all scenes that the global pipeline state have been updated so that they can update their render data and states.
      * @zh 通知渲染管线和所有场景全局管线状态已更新，需要更新自身状态。
      */
-    public onGlobalPipelineStateChanged () {
+    public onGlobalPipelineStateChanged (): void {
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
+        }
+
+        if (this._pipeline!.pipelineSceneData.skybox.enabled) {
+            this._pipeline!.pipelineSceneData.skybox.model!.onGlobalPipelineStateChanged();
         }
 
         this._pipeline!.onGlobalPipelineStateChanged();
@@ -447,7 +463,7 @@ export class Root {
      * @zh 激活指定窗口为当前窗口 [[curWindow]]
      * @param window The render window to be activated
      */
-    public activeWindow (window: RenderWindow) {
+    public activeWindow (window: RenderWindow): void {
         this._curWindow = window;
     }
 
@@ -455,7 +471,7 @@ export class Root {
      * @en Reset the time cumulated
      * @zh 重置累计时间
      */
-    public resetCumulativeTime () {
+    public resetCumulativeTime (): void {
         this._cumulativeTime = 0;
     }
 
@@ -464,8 +480,7 @@ export class Root {
      * @zh 用于每帧执行渲染流程的入口函数
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
-    public frameMove (deltaTime: number) {
-        const { director, Director } = cclegacy;
+    public frameMove (deltaTime: number): void {
         this._frameTime = deltaTime;
 
         /*
@@ -487,46 +502,14 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
-        for (let i = 0; i < this._scenes.length; ++i) {
-            this._scenes[i].removeBatches();
+
+        if (globalThis.__globalXR?.isWebXR) {
+            this._doWebXRFrameMove();
+        } else {
+            this._frameMoveBegin();
+            this._frameMoveProcess();
+            this._frameMoveEnd();
         }
-
-        const windows = this._windows;
-        const cameraList = this._cameraList;
-        cameraList.length = 0;
-
-        for (let i = 0; i < windows.length; i++) {
-            const window = windows[i];
-            window.extractRenderCameras(cameraList);
-        }
-
-        if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire([deviceManager.swapchain]);
-            const scenes = this._scenes;
-            const stamp = director.getTotalFrames();
-
-            if (this._batcher) {
-                this._batcher.update();
-                this._batcher.uploadBuffers();
-            }
-
-            for (let i = 0; i < scenes.length; i++) {
-                scenes[i].update(stamp);
-            }
-
-            director.emit(Director.EVENT_BEFORE_COMMIT);
-            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
-
-            for (let i = 0; i < cameraList.length; ++i) {
-                cameraList[i].geometryRenderer?.update();
-            }
-            director.emit(Director.EVENT_BEFORE_RENDER);
-            this._pipeline.render(cameraList);
-            director.emit(Director.EVENT_AFTER_RENDER);
-            this._device.present();
-        }
-
-        if (this._batcher) this._batcher.reset();
     }
 
     /**
@@ -546,7 +529,7 @@ export class Root {
      * @zh 销毁指定的窗口
      * @param window The render window to be destroyed
      */
-    public destroyWindow (window: RenderWindow) {
+    public destroyWindow (window: RenderWindow): void {
         for (let i = 0; i < this._windows.length; ++i) {
             if (this._windows[i] === window) {
                 window.destroy();
@@ -560,7 +543,7 @@ export class Root {
      * @en Destroy all render windows
      * @zh 销毁全部窗口
      */
-    public destroyWindows () {
+    public destroyWindows (): void {
         for (const window of this._windows) {
             window.destroy();
         }
@@ -584,7 +567,7 @@ export class Root {
      * @zh 销毁指定的渲染场景
      * @param scene @en The render scene to be destroyed. @zh 要销毁的渲染场景
      */
-    public destroyScene (scene: RenderScene) {
+    public destroyScene (scene: RenderScene): void {
         for (let i = 0; i < this._scenes.length; ++i) {
             if (this._scenes[i] === scene) {
                 scene.destroy();
@@ -598,7 +581,7 @@ export class Root {
      * @en Destroy all render scenes.
      * @zh 销毁全部场景。
      */
-    public destroyScenes () {
+    public destroyScenes (): void {
         for (const scene of this._scenes) {
             scene.destroy();
         }
@@ -614,7 +597,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
+            this._modelPools.set(ModelCtor, new Pool((): Model => new ModelCtor(), 10, (obj): void => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -627,7 +610,7 @@ export class Root {
      * @zh 销毁指定的模型
      * @param m @en The model to be destroyed @zh 要销毁的模型
      */
-    public destroyModel (m: Model) {
+    public destroyModel (m: Model): void {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
@@ -658,7 +641,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool<Light>(() => new LightCtor(), 4, (obj) => obj.destroy()));
+            this._lightPools.set(LightCtor, new Pool<Light>((): T => new LightCtor(), 4, (obj): void => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
@@ -671,7 +654,7 @@ export class Root {
      * @zh 销毁指定的光源
      * @param l @en The light to be destroyed @zh 要销毁的光源
      */
-    public destroyLight (l: Light) {
+    public destroyLight (l: Light): void {
         if (l.scene) {
             switch (l.type) {
             case LightType.DIRECTIONAL:
@@ -682,6 +665,12 @@ export class Root {
                 break;
             case LightType.SPOT:
                 l.scene.removeSpotLight(l as SpotLight);
+                break;
+            case LightType.POINT:
+                l.scene.removePointLight(l as PointLight);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l as RangedDirectionalLight);
                 break;
             default:
                 break;
@@ -695,7 +684,7 @@ export class Root {
      * @zh 回收指定的光源到对象池
      * @param l @en The light to be recycled @zh 要回收的光源
      */
-    public recycleLight (l: Light) {
+    public recycleLight (l: Light): void {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
         if (p) {
             p.free(l);
@@ -710,6 +699,12 @@ export class Root {
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
                     break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l as PointLight);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l as RangedDirectionalLight);
+                    break;
                 default:
                     break;
                 }
@@ -717,8 +712,128 @@ export class Root {
         }
     }
 
-    private _resizeMaxJointForDS () {
-        const usedUBOVectorCount = (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT) / 4;
+    private _doWebXRFrameMove (): void {
+        const xr = globalThis.__globalXR;
+        if (!xr) {
+            return;
+        }
+
+        const windows = this._windows;
+        const cameraList = this._cameraList;
+        const viewCount = xr.webXRMatProjs ? xr.webXRMatProjs.length : 1;
+        if (!xr.webXRWindowMap) {
+            xr.webXRWindowMap = new Map<RenderWindow, number>();
+        }
+
+        let allcameras: Camera[] = [];
+        const webxrHmdPoseInfos = xr.webxrHmdPoseInfos;
+        for (let xrEye: XREye = 0; xrEye < viewCount; xrEye++) {
+            for (const window of windows) {
+                allcameras = allcameras.concat(window.cameras);
+                if (window.swapchain) {
+                    xr.webXRWindowMap.set(window, xrEye);
+                }
+            }
+
+            if (webxrHmdPoseInfos) {
+                let cameraPosition: number[] = [0, 0, 0];
+                for (let i = 0; i < webxrHmdPoseInfos.length; i++) {
+                    const info = webxrHmdPoseInfos[i];
+                    if ((info.code === XRPoseType.VIEW_LEFT && xrEye === XREye.LEFT)
+                    || (info.code === XRPoseType.VIEW_RIGHT && xrEye === XREye.RIGHT)) {
+                        cameraPosition[0] = info.position.x;
+                        cameraPosition[1] = info.position.y;
+                        cameraPosition[2] = info.position.z;
+                        break;
+                    }
+                }
+
+                for (const cam of allcameras) {
+                    if (cam.trackingType !== TrackingType.NO_TRACKING && cam.node) {
+                        const isTrackingRotation = cam.trackingType === TrackingType.ROTATION;
+                        if (isTrackingRotation) {
+                            cameraPosition = [0, 0, 0];
+                        }
+                        cam.node.setPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+                    }
+                }
+            }
+            allcameras.length = 0;
+
+            this._frameMoveBegin();
+
+            this._frameMoveProcess();
+
+            for (let i = cameraList.length - 1; i >= 0; i--) {
+                const camera = cameraList[i];
+                const isMismatchedCam = (xrEye === XREye.LEFT && camera.cameraType === CameraType.RIGHT_EYE)
+                        || (xrEye === XREye.RIGHT && camera.cameraType === CameraType.LEFT_EYE);
+                if (isMismatchedCam) {
+                    // currently is left eye loop, so right camera do not need active
+                    cameraList.splice(i, 1);
+                }
+            }
+
+            this._frameMoveEnd();
+        }
+    }
+
+    private _frameMoveBegin (): void {
+        for (let i = 0; i < this._scenes.length; ++i) {
+            this._scenes[i].removeBatches();
+        }
+
+        this._cameraList.length = 0;
+    }
+
+    private _frameMoveProcess (): void {
+        const { director } = cclegacy;
+        const windows = this._windows;
+        const cameraList = this._cameraList;
+
+        for (let i = 0; i < windows.length; i++) {
+            const window = windows[i];
+            window.extractRenderCameras(cameraList);
+        }
+
+        if (this._pipeline && cameraList.length > 0) {
+            this._device.acquire([deviceManager.swapchain]);
+            const scenes = this._scenes;
+            const stamp = director.getTotalFrames() as number;
+
+            if (this._batcher) {
+                this._batcher.update();
+                this._batcher.uploadBuffers();
+            }
+
+            for (let i = 0; i < scenes.length; i++) {
+                scenes[i].update(stamp);
+            }
+        }
+    }
+
+    private _frameMoveEnd (): void {
+        const { director, Director } = cclegacy;
+        const cameraList = this._cameraList;
+        if (this._pipeline && cameraList.length > 0) {
+            director.emit(Director.EVENT_BEFORE_COMMIT);
+            cameraList.sort((a: Camera, b: Camera): number => a.priority - b.priority);
+
+            for (let i = 0; i < cameraList.length; ++i) {
+                cameraList[i].geometryRenderer?.update();
+            }
+            director.emit(Director.EVENT_BEFORE_RENDER);
+            this._pipeline.render(cameraList);
+            director.emit(Director.EVENT_AFTER_RENDER);
+            this._device.present();
+        }
+
+        if (this._batcher) this._batcher.reset();
+    }
+
+    private _resizeMaxJointForDS (): void {
+        // TODO: usedUBOVectorCount should be estimated more carefully, the UBOs used could vary in different scenes.
+        const usedUBOVectorCount = Math.max((UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4, 100);
         let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - usedUBOVectorCount) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         localDescriptorSetLayout_ResizeMaxJoints(maxJoints);

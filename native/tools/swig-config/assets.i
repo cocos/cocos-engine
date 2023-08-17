@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") assets
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -62,6 +65,8 @@
 %ignore cc::EffectAsset::_techniques;
 %ignore cc::EffectAsset::_shaders;
 %ignore cc::EffectAsset::_combinations;
+%ignore cc::IPassInfoFull::passID;
+%ignore cc::IPassInfoFull::phaseID;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -121,6 +126,7 @@
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
 %attribute(cc::Asset, ccstd::string&, _uuid, getUuid, setUuid);
+%attribute(cc::Asset, ccstd::string&, uuid, getUuid);
 %attribute(cc::Asset, ccstd::string, nativeUrl, getNativeUrl);
 %attribute(cc::Asset, cc::NativeDep, _nativeDep, getNativeDep);
 %attribute(cc::Asset, bool, isDefault, isDefault);
@@ -139,7 +145,7 @@
 %attribute(cc::SimpleTexture, uint32_t, mipmapLevel, mipmapLevel);
 %attribute(cc::RenderTexture, cc::scene::RenderWindow*, window, getWindow);
 
-%attribute(cc::Mesh, ccstd::hash_t, _hash, getHash);
+%attribute(cc::Mesh, ccstd::hash_t, _hash, getHash, setHash);
 %attribute(cc::Mesh, ccstd::hash_t, hash, getHash);
 %attribute(cc::Mesh, cc::Uint8Array&, data, getData);
 %attribute(cc::Mesh, cc::Uint8Array&, _data, getData);

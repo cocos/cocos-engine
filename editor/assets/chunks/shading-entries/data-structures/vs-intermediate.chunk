@@ -26,8 +26,8 @@ struct SurfacesStandardVertexIntermediate
   #endif
 
   //transfered
-#if CC_RECEIVE_SHADOW
-  vec2 shadowBias;
+#if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+  vec4 shadowBiasAndProbeId;
 #endif
 
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG

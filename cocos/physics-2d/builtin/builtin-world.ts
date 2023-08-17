@@ -1,7 +1,31 @@
-import { EDITOR } from 'internal:constants';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
-import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, cclegacy, js } from '../../core';
+import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, js } from '../../core';
 import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
@@ -22,14 +46,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _debugGraphics: Graphics | null = null;
     private _debugDrawFlags = 0;
 
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
         this._debugDrawFlags = v;
     }
 
-    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D) {
+    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D): number | boolean {
         const collider1 = c1.collider; const collider2 = c2.collider;
         const collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
         return (collider1 !== collider2)
@@ -38,7 +62,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             && (collisionMatrix[collider2.group] & collider1.group);
     }
 
-    addShape (shape: BuiltinShape2D) {
+    addShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index === -1) {
@@ -56,7 +80,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    removeShape (shape: BuiltinShape2D) {
+    removeShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
@@ -70,17 +94,26 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     }
 
                     js.array.fastRemoveAt(contacts, i);
+
+                    const other = contact.shape1 === shape ? contact.shape2 : contact.shape1;
+                    const contactIndex = other!._contacts.indexOf(contact);
+                    if (contactIndex >= 0) {
+                        js.array.fastRemoveAt(other!._contacts, contactIndex);
+                    }
                 }
             }
         }
+        shape._contacts.length = 0;
     }
 
-    updateShapeGroup (shape: BuiltinShape2D) {
+    updateShapeGroup (shape: BuiltinShape2D): void {
         this.removeShape(shape);
-        this.addShape(shape);
+        if (shape.collider.enabledInHierarchy) {
+            this.addShape(shape);
+        }
     }
 
-    step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+    step (deltaTime: number, velocityIterations = 10, positionIterations = 10): void {
         // update collider
         const shapes = this._shapes;
         for (let i = 0, l = shapes.length; i < l; i++) {
@@ -107,7 +140,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    drawDebug () {
+    drawDebug (): void {
         if (!this._debugDrawFlags) {
             return;
         }
@@ -118,8 +151,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!debugDrawer) {
             return;
         }
-
         debugDrawer.clear();
+        debugDrawer.lineWidth = 3;
 
         const shapes = this._shapes;
 
@@ -158,7 +191,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    private _emitCollide (contact: BuiltinContact, collisionType?: string) {
+    private _emitCollide (contact: BuiltinContact, collisionType?: string): void {
         collisionType = collisionType || contact.type;
 
         const c1 = contact.shape1!.collider;
@@ -169,8 +202,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         c2.emit(collisionType, c2, c1);
     }
 
-    private _checkDebugDrawValid () {
-        if (EDITOR && !cclegacy.GAME_VIEW) return;
+    private _checkDebugDrawValid (): void {
+        if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
@@ -224,13 +257,13 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     // empty implements
-    impl () {
+    impl (): any {
         return null;
     }
-    setGravity () { }
-    setAllowSleep () { }
-    syncPhysicsToScene () { }
-    syncSceneToPhysics () { }
+    setGravity (): void { }
+    setAllowSleep (): void { }
+    syncPhysicsToScene (): void { }
+    syncSceneToPhysics (): void { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
     }

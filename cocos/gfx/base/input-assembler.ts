@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { murmurhash2_32_gc } from '../../core';
 import { Buffer } from './buffer';
@@ -79,7 +78,7 @@ export abstract class InputAssembler extends GFXObject {
     set vertexCount (count: number) {
         this._drawInfo.vertexCount = count;
     }
-    get vertexCount () {
+    get vertexCount (): number {
         return this._drawInfo.vertexCount;
     }
 
@@ -90,7 +89,7 @@ export abstract class InputAssembler extends GFXObject {
     set firstVertex (first: number) {
         this._drawInfo.firstVertex = first;
     }
-    get firstVertex () {
+    get firstVertex (): number {
         return this._drawInfo.firstVertex;
     }
 
@@ -101,7 +100,7 @@ export abstract class InputAssembler extends GFXObject {
     set indexCount (count: number) {
         this._drawInfo.indexCount = count;
     }
-    get indexCount () {
+    get indexCount (): number {
         return this._drawInfo.indexCount;
     }
 
@@ -112,7 +111,7 @@ export abstract class InputAssembler extends GFXObject {
     set firstIndex (first: number) {
         this._drawInfo.firstIndex = first;
     }
-    get firstIndex () {
+    get firstIndex (): number {
         return this._drawInfo.firstIndex;
     }
 
@@ -123,7 +122,7 @@ export abstract class InputAssembler extends GFXObject {
     set vertexOffset (offset: number) {
         this._drawInfo.vertexOffset = offset;
     }
-    get vertexOffset () {
+    get vertexOffset (): number {
         return this._drawInfo.vertexOffset;
     }
 
@@ -134,7 +133,7 @@ export abstract class InputAssembler extends GFXObject {
     set instanceCount (count: number) {
         this._drawInfo.instanceCount = count;
     }
-    get instanceCount () {
+    get instanceCount (): number {
         return this._drawInfo.instanceCount;
     }
 
@@ -145,7 +144,7 @@ export abstract class InputAssembler extends GFXObject {
     set firstInstance (first: number) {
         this._drawInfo.firstInstance = first;
     }
-    get firstInstance () {
+    get firstInstance (): number {
         return this._drawInfo.firstInstance;
     }
 

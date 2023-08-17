@@ -12,8 +12,6 @@ exports.template = /* html */`
             <ui-select class="preview-type">
             </ui-select>
         </div>
-    </div>
-    <div>
         <div>
             <ui-label value="" class="minPosLabel"></ui-label>
         </div>
@@ -29,11 +27,11 @@ exports.template = /* html */`
 
 exports.style = /* css */`
 .preview {
-    margin-top: 10px;
+
     border-top: 1px solid var(--color-normal-border);
 }
 .preview > .info {
-    padding-top: 8px;
+    padding: 4px 4px 0 4px;
 }
 .preview > .info > ui-label {
     margin-right: 6px;
@@ -43,7 +41,6 @@ exports.style = /* css */`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 10px;
 }
 .preview >.image > .canvas {
     flex: 1;
@@ -52,10 +49,10 @@ exports.style = /* css */`
     float: right;
 }
 .preview-channel {
-    visibility: hidden;
+    display: none;
 }
 .preview-channel.show {
-    visibility: visible;
+    display: inline-block;
 }
 `;
 
@@ -75,8 +72,8 @@ async function callMeshPreviewFunction(funcName, ...args) {
     return await Editor.Message.request('scene', 'call-preview-function', 'scene:mesh-preview', funcName, ...args);
 }
 const previewSelectType = {
-    shaded: 'shaded',
-    uv: 'uv layout',
+    shaded: 'Shaded',
+    uv: 'UV Layout',
 };
 const Elements = {
     preview: {
@@ -105,7 +102,7 @@ const Elements = {
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 // Non-model previews do not respond to events
                 if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
-                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callMeshPreviewFunction('onMouseMove', {
@@ -131,6 +128,16 @@ const Elements = {
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
 
+                panel.isPreviewDataDirty = true;
+            });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                // Non-model previews do not respond to events
+                if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
+                await callMeshPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
                 panel.isPreviewDataDirty = true;
             });
 
@@ -166,7 +173,7 @@ const Elements = {
                 panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`;
             } else {
                 panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
-                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">channel ${i}</option>`).join('');
+                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">Channel ${i}</option>`).join('');
             }
 
             panel.infoUpdate(info);
@@ -245,7 +252,6 @@ exports.methods = {
                 }
                 if (panel.$.previewType.value === previewSelectType.uv) {
                     info = panel.glPreview.computedUV(panel.previewUVs[panel.$.previewChannel.value], canvas.width, canvas.height);
-                    info.buffer = info.data;
                 }
 
                 panel.glPreview.drawGL(info);
@@ -258,10 +264,10 @@ exports.methods = {
         panel.animationId = requestAnimationFrame(() => {
             panel.refreshPreview();
         });
-    }
+    },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -270,7 +276,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -284,7 +290,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

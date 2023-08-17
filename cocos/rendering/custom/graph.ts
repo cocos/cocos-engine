@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -136,7 +135,7 @@ export class OutEI implements IterableIterator<ED> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): OutEI {
         return this;
     }
     next (): IteratorResult<ED> {
@@ -157,7 +156,7 @@ export class OutEPI implements IterableIterator<EPD> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): OutEPI {
         return this;
     }
     next (): IteratorResult<EPD> {
@@ -184,7 +183,7 @@ export class InEI implements IterableIterator<ED> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): InEI {
         return this;
     }
     next (): IteratorResult<ED> {
@@ -205,7 +204,7 @@ export class InEPI implements IterableIterator<EPD> {
         this.iterator = iterator;
         this.source = source;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): InEPI {
         return this;
     }
     next (): IteratorResult<EPD> {
@@ -251,7 +250,7 @@ export interface IncidenceGraph extends Graph {
 export interface BidirectionalGraph extends IncidenceGraph {
     inEdges (v: vertex_descriptor): in_edge_iterator;
     inDegree (v: vertex_descriptor): number;
-    degree (v: vertex_descriptor) : number;
+    degree (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------
@@ -263,7 +262,7 @@ export class AdjI implements IterableIterator<vertex_descriptor> {
         this.graph = graph;
         this.iterator = iterator;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): AdjI {
         return this;
     }
     next (): IteratorResult<vertex_descriptor> {
@@ -283,7 +282,7 @@ export class AdjPI implements IterableIterator<vertex_descriptor> {
         this.graph = graph;
         this.iterator = iterator;
     }
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): AdjPI {
         return this;
     }
     next (): IteratorResult<vertex_descriptor> {
@@ -425,7 +424,7 @@ export interface AddressableGraph extends ParentGraph {
     addressable (absPath: string): boolean;
     locate (absPath: string): vertex_descriptor | null;
     locateRelative (path: string, start?: vertex_descriptor | null): vertex_descriptor | null;
-    path (v: vertex_descriptor) : string;
+    path (v: vertex_descriptor): string;
 }
 
 //--------------------------------------------------------------------------
@@ -750,7 +749,7 @@ implements IncidenceGraph, VertexListGraph {
         this.edge_parallel_category = parallel.allow;
         this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
-    nullVertex () {
+    nullVertex (): vertex_descriptor | null {
         return this.g.nullVertex();
     }
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean {

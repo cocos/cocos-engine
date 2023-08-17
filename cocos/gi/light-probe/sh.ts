@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec4, Vec3, cclegacy, assertIsTrue } from '../../core';
 
@@ -31,7 +30,7 @@ export class LightProbeSampler {
     /**
      *  generate one sample from sphere uniformly
      */
-    public static uniformSampleSphere (u1: number, u2: number) {
+    public static uniformSampleSphere (u1: number, u2: number): Vec3 {
         const z = 1.0 - 2.0 * u1;
         const r = Math.sqrt(Math.max(0.0, 1.0 - z * z));
         const phi = 2.0 * Math.PI * u2;
@@ -45,7 +44,7 @@ export class LightProbeSampler {
     /**
      *  generate ucount1 * ucount2 samples from sphere uniformly
      */
-    public static uniformSampleSphereAll (sampleCount: number) {
+    public static uniformSampleSphereAll (sampleCount: number): Vec3[] {
         assertIsTrue(sampleCount > 0);
 
         const uCount1 = Math.floor(Math.sqrt(sampleCount));
@@ -71,7 +70,7 @@ export class LightProbeSampler {
     /**
      *  probability density function of uniform distribution on spherical surface
      */
-    public static uniformSpherePdf () { return 1.0 / (4.0 * Math.PI); }
+    public static uniformSpherePdf (): number { return 1.0 / (4.0 * Math.PI); }
 }
 
 /**
@@ -109,7 +108,7 @@ export class SH {
     /**
      * update ubo data by coefficients
      */
-    public static updateUBOData (data: Float32Array, offset: number, coefficients: Vec3[]) {
+    public static updateUBOData (data: Float32Array, offset: number, coefficients: Vec3[]): void {
         // cc_sh_linear_const_r
         data[offset++] = coefficients[3].x * this.basisOverPI[3];
         data[offset++] = coefficients[1].x * this.basisOverPI[1];
@@ -156,7 +155,7 @@ export class SH {
     /**
      * recreate a function from sh coefficients, which is same as SHEvaluate in shader
      */
-    public static shaderEvaluate (normal: Vec3, coefficients: Vec3[]) {
+    public static shaderEvaluate (normal: Vec3, coefficients: Vec3[]): Vec3 {
         const linearConstR = new Vec4(
             coefficients[3].x * this.basisOverPI[3],
             coefficients[1].x * this.basisOverPI[1],
@@ -228,7 +227,7 @@ export class SH {
     /**
      * recreate a function from sh coefficients
      */
-    public static evaluate (sample: Vec3, coefficients: Vec3[]) {
+    public static evaluate (sample: Vec3, coefficients: Vec3[]): Vec3 {
         const result = new Vec3(0.0, 0.0, 0.0);
 
         const size = coefficients.length;
@@ -243,7 +242,7 @@ export class SH {
     /**
      * project a function to sh coefficients
      */
-    public static project (samples: Vec3[], values: Vec3[]) {
+    public static project (samples: Vec3[], values: Vec3[]): Vec3[] {
         assertIsTrue(samples.length > 0 && samples.length === values.length);
 
         // integral using Monte Carlo method
@@ -270,7 +269,7 @@ export class SH {
     /**
      * calculate irradiance's sh coefficients from radiance's sh coefficients directly
      */
-    public static convolveCosine (radianceCoefficients: Vec3[]) {
+    public static convolveCosine (radianceCoefficients: Vec3[]): Vec3[] {
         const cosTheta: number[] = [0.8862268925, 1.0233267546, 0.4954159260];
         const irradianceCoefficients: Vec3[] = [];
 
@@ -290,21 +289,21 @@ export class SH {
     /**
      * return basis function count
      */
-    public static getBasisCount () {
+    public static getBasisCount (): number {
         return SH_BASIS_COUNT;
     }
 
     /**
      * evaluate from a basis function
      */
-    public static evaluateBasis (index: number, sample: Vec3) {
+    public static evaluateBasis (index: number, sample: Vec3): number {
         assertIsTrue(index < this.getBasisCount());
         const func = this.basisFunctions[index];
 
         return func(sample);
     }
 
-    public static reduceRinging (coefficients: Vec3[], lambda: number) {
+    public static reduceRinging (coefficients: Vec3[], lambda: number): void {
         if (lambda === 0.0) {
             return;
         }
@@ -318,11 +317,11 @@ export class SH {
         }
     }
 
-    private static lambda (l: number) {
+    private static lambda (l: number): number {
         return Math.sqrt((4.0 * Math.PI) / (2.0 * l + 1.0));
     }
 
-    private static toIndex (l: number, m: number) {
+    private static toIndex (l: number, m: number): number {
         return l * l + l + m;
     }
 }

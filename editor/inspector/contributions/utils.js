@@ -1,5 +1,5 @@
 'use strict';
-function translate(dump, path, dumps, assets) {
+function translate(dump, path, dumps, assets, ignoreCollectAssets) {
     const type = typeof dump;
     if (!dump || type !== 'object') {
         return;
@@ -23,14 +23,15 @@ function translate(dump, path, dumps, assets) {
                     // 仅当存在 value 数据时才添加 values
                     item.values = values;
                 }
-                collectAssets(item, assets);
-                translate(item.value, item.path, values, assets);
+                collectAssets(item, assets, ignoreCollectAssets);
+                translate(item.value, item.path, values, assets, ignoreCollectAssets);
                 // 如果是数组，内部元素不需要显示 displayName
                 delete item.displayName;
             }
         });
         return;
     }
+
     for (const name of Object.keys(dump)) {
         const item = dump[name];
         if (item === null || item === undefined) {
@@ -40,7 +41,16 @@ function translate(dump, path, dumps, assets) {
         if (typeof item === 'object') {
             item.name = name;
             item.path = `${path}.${name}`;
-            collectAssets(item, assets);
+
+            // Once parent data has visible = false，itself and children do not collect Assets any more.
+            let ignoreCollect = false;
+            if (ignoreCollectAssets) {
+                ignoreCollect = ignoreCollectAssets;
+            } else {
+                ignoreCollect = !item.visible;
+            }
+
+            collectAssets(item, assets, ignoreCollect);
             collectGroups(item);
             let values;
             if (dumps) {
@@ -56,7 +66,8 @@ function translate(dump, path, dumps, assets) {
                     values = undefined;
                 }
             }
-            translate(item.value, item.path, values, assets);
+
+            translate(item.value, item.path, values, assets, ignoreCollect);
         }
     }
 }
@@ -65,8 +76,8 @@ function translate(dump, path, dumps, assets) {
  * @param item
  * @param assets
  */
-function collectAssets(dump, assets) {
-    if (dump.visible && Array.isArray(dump.extends) && dump.value && dump.value.uuid) {
+function collectAssets(dump, assets, ignore) {
+    if (!ignore && Array.isArray(dump.extends) && dump.value && dump.value.uuid) {
         if (dump.extends.includes('cc.Asset')) {
             if (!assets[dump.type]) {
                 assets[dump.type] = {};
@@ -161,7 +172,6 @@ function translationDump(dump, dumps, assets) {
     }
     return dump;
 }
-exports.translationDump = translationDump;
 function translationSceneDump(dump, dumps, assets) {
     dump.autoReleaseAssets.path = 'autoReleaseAssets';
     Object.keys(dump._globals).forEach((key) => {
@@ -171,3 +181,6 @@ function translationSceneDump(dump, dumps, assets) {
         translate(property.value, property.path, dumps ? dumps.map((dump) => dump._globals[key].value) : undefined, assets);
     });
 }
+
+exports.translationDump = translationDump;
+

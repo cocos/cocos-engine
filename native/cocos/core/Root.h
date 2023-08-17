@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 #pragma once
 
 #include <cstdint>
@@ -30,12 +29,15 @@
 #include "core/event/Event.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/DebugView.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 class IXRInterface;
@@ -53,14 +55,6 @@ class Pipeline;
 } // namespace render
 class Batcher2d;
 
-struct CC_DLL DebugViewConfig {
-    uint8_t singleMode;
-    uint8_t compositeModeBitCount;
-    uint32_t compositeModeValue;
-    bool lightingWithAlbedo;
-    bool csmLayerColoration;
-};
-
 struct ISystemWindowInfo;
 class ISystemWindow;
 
@@ -70,6 +64,7 @@ class Root final {
     TARGET_EVENT_ARG0(BeforeCommit)
     TARGET_EVENT_ARG0(BeforeRender)
     TARGET_EVENT_ARG0(AfterRender)
+    TARGET_EVENT_ARG0(PipelineChanged)
     DECLARE_TARGET_EVENT_END()
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
@@ -255,8 +250,7 @@ public:
      * @zh
      * 渲染调试数据
      */
-    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
-    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
+    inline pipeline::DebugView *getDebugView() const { return _debugView.get(); }
 
     /**
      * @zh
@@ -301,6 +295,8 @@ public:
         return _cameraList;
     }
 
+    void frameSync();
+
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);
@@ -320,7 +316,7 @@ private:
     std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
-    DebugViewConfig _debugViewConfig;
+    std::unique_ptr<pipeline::DebugView> _debugView;
     float _cumulativeTime{0.F};
     float _frameTime{0.F};
     float _fpsTime{0.F};

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -45,7 +44,6 @@ class Root;
 struct IProgramInfo;
 namespace pipeline {
 class InstancedBuffer;
-class BatchedBuffer;
 } // namespace pipeline
 namespace scene {
 struct IMacroPatch;
@@ -59,7 +57,6 @@ using IPassDynamics = ccstd::unordered_map<uint32_t, PassDynamicsValue>;
 enum class BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 };
 
 struct IBlockRef {
@@ -162,9 +159,8 @@ public:
      * @en Gets a uniform's value.
      * @zh 获取指定普通向量类 uniform 的值。
      * @param handle The handle for the target uniform
-     * @param out The output property to store the result
      */
-    MaterialProperty &getUniform(uint32_t handle, MaterialProperty &out) const;
+    MaterialProperty getUniform(uint32_t handle) const;
 
     /**
      * @en Sets an array type uniform value, if a uniform requires frequent update, please use this method.
@@ -209,7 +205,6 @@ public:
     void update();
 
     pipeline::InstancedBuffer *getInstancedBuffer(int32_t extraKey = 0);
-    pipeline::BatchedBuffer *getBatchedBuffer(int32_t extraKey = 0);
 
     /**
      * @en Destroy the current pass.
@@ -264,10 +259,10 @@ public:
     // infos
     inline Root *getRoot() const { return _root; }
     inline gfx::Device *getDevice() const { return _device; }
-    inline IProgramInfo *getShaderInfo() const { return _shaderInfo; }
-    gfx::DescriptorSetLayout *getLocalSetLayout() const;
+    inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
+    const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
-    inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
+    inline const PassPropertyInfoMap &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
     inline MacroRecord &getDefines() { return _defines; }
     inline index_t getPassIndex() const { return _passIndex; }
@@ -277,16 +272,17 @@ public:
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *getRootBlock() { return _rootBlock; }
     inline bool isRootBufferDirty() const { return _rootBufferDirty; }
-    //NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
-    // In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
-    // If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
-    // So let's keep the _ prefix temporarily.
-    inline void _setRootBufferDirty(bool val) { _rootBufferDirty = val; } // NOLINT(readability-identifier-naming)
+    inline void setRootBufferDirty(bool val) { _rootBufferDirty = val; }
     // states
     inline pipeline::RenderPriority getPriority() const { return _priority; }
+    // It is added for internal use by the engine.
+    inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline gfx::PrimitiveMode getPrimitive() const { return _primitive; }
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
+    inline uint32_t getPassID() const { return _passID; }
+    inline uint32_t getSubpassOrPassID() const { return _subpassID == 0xFFFFFFFF ? _passID : _subpassID; }
+    inline uint32_t getPhaseID() const { return _phaseID; }
     inline const gfx::RasterizerState *getRasterizerState() const { return &_rs; }
     inline const gfx::DepthStencilState *getDepthStencilState() const { return &_depthStencilState; }
     inline const gfx::BlendState *getBlendState() const { return &_blendState; }
@@ -307,6 +303,20 @@ public:
     virtual void beginChangeStatesSilently() {}
     virtual void endChangeStatesSilently() {}
 
+private:
+    void buildUniformBlocks(
+        const ccstd::vector<IBlockInfo> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildMaterialUniformBlocks(
+        const ccstd::vector<gfx::UniformBlock> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildUniformBlock(
+        uint32_t binding, int32_t size,
+        gfx::BufferViewInfo &bufferViewInfo,
+        ccstd::vector<uint32_t> &startOffsets,
+        size_t &count);
+    bool isBlend();
+
 protected:
     void setState(const gfx::BlendState &bs, const gfx::DepthStencilState &dss, const gfx::RasterizerState &rs, gfx::DescriptorSet *ds);
     void doInit(const IPassInfoFull &info, bool copyDefines = false);
@@ -322,13 +332,13 @@ protected:
     index_t _propertyIndex{0};
     ccstd::string _programName;
     IPassDynamics _dynamics;
-    Record<ccstd::string, uint32_t> _propertyHandleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> _propertyHandleMap;
     IntrusivePtr<ArrayBuffer> _rootBlock;
     ccstd::vector<IBlockRef> _blocks; // Point to position in _rootBlock
 
-    IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
+    const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
-    Record<ccstd::string, IPropertyInfo> _properties;
+    PassPropertyInfoMap _properties;
     IntrusivePtr<gfx::Shader> _shader;
     gfx::BlendState _blendState{};
     gfx::DepthStencilState _depthStencilState{};
@@ -336,12 +346,14 @@ protected:
     pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
     pipeline::RenderPassStage _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t _phase{0};
+    uint32_t _passID{0xFFFFFFFF};
+    uint32_t _subpassID{0xFFFFFFFF};
+    uint32_t _phaseID{0xFFFFFFFF};
     ccstd::string _phaseString;
     gfx::PrimitiveMode _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit _dynamicStates{gfx::DynamicStateFlagBit::NONE};
-    Record<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
-    Record<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
+    ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
 
     ccstd::hash_t _hash{0U};
     // external references

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -52,6 +51,7 @@ public:
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
     VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR physicalDeviceFragmentShadingRateFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR};
     VkPhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceProperties2 physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -62,6 +62,8 @@ public:
     uint32_t minorVersion = 0;
 
     bool validationEnabled = false;
+    bool debugUtils = false;
+    bool debugReport = false;
 
     ccstd::vector<const char *> layers;
     ccstd::vector<const char *> extensions;
@@ -71,8 +73,6 @@ public:
             return std::strcmp(ext, extension.c_str()) == 0;
         });
     }
-
-    VkSampleCountFlagBits getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const;
 };
 
 struct CCVKAccessInfo {
@@ -119,6 +119,7 @@ public:
 
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    DepthStencilAttachment depthStencilResolveAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
@@ -127,8 +128,10 @@ public:
     // helper storage
     ccstd::vector<VkClearValue> clearValues;
     ccstd::vector<VkSampleCountFlagBits> sampleCounts; // per subpass
+    ccstd::vector<bool> hasSelfDependency; // per subpass
 
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
+    bool hasShadingAttachment(uint32_t subPassId) const;
 };
 
 struct CCVKGPUSwapchain;
@@ -146,10 +149,19 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     uint32_t size = 0U;
     uint32_t arrayLayers = 1U;
     uint32_t mipLevels = 1U;
-    SampleCount samples = SampleCount::ONE;
+    SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    bool memoryless = false;
+
+    /*
+     * allocate and bind memory by Texture.
+     * If any of the following conditions are met, then the statement is false
+     * 1. Texture is a swapchain image.
+     * 2. Texture has flag LAZILY_ALLOCATED.
+     * 3. Memory bound manually bound.
+     * 4. Sparse Image.
+     */
+    bool memoryAllocated = true;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
@@ -163,6 +175,8 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     // for barrier manager
     ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+
+    VkImage externalVKImage = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
@@ -176,6 +190,8 @@ struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
     uint32_t levelCount = 1U;
     uint32_t baseLayer = 0U;
     uint32_t layerCount = 1U;
+    uint32_t basePlane = 0U;
+    uint32_t planeCount = 1U;
 
     ccstd::vector<VkImageView> swapchainVkImageViews;
 
@@ -239,7 +255,7 @@ struct CCVKGPUBufferView : public CCVKGPUDeviceObject {
     uint32_t offset = 0U;
     uint32_t range = 0U;
 
-    uint8_t* mappedData() const {
+    uint8_t *mappedData() const {
         return gpuBuffer->mappedData + offset;
     }
 
@@ -254,6 +270,7 @@ struct CCVKGPUFramebuffer : public CCVKGPUDeviceObject {
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
     ccstd::vector<ConstPtr<CCVKGPUTextureView>> gpuColorViews;
     ConstPtr<CCVKGPUTextureView> gpuDepthStencilView;
+    ConstPtr<CCVKGPUTextureView> gpuDepthStencilResolveView;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
     std::vector<VkFramebuffer> vkFrameBuffers;
     CCVKGPUSwapchain *swapchain = nullptr;
@@ -427,7 +444,6 @@ public:
     ccstd::vector<VkLayerProperties> layers;
     ccstd::vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator{VK_NULL_HANDLE};
-    VkPipelineCache vkPipelineCache{VK_NULL_HANDLE};
     uint32_t minorVersion{0U};
 
     VkFormat depthFormat{VK_FORMAT_UNDEFINED};
@@ -773,9 +789,10 @@ private:
  */
 class CCVKGPUStagingBufferPool final {
 public:
-    static constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
+    static constexpr VkDeviceSize CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
 
     explicit CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
+
     : _device(device) {
     }
 
@@ -794,7 +811,7 @@ public:
         for (size_t idx = 0U; idx < bufferCount; idx++) {
             Buffer *cur = &_pool[idx];
             offset = roundUp(cur->curOffset, alignment);
-            if (CHUNK_SIZE - offset >= size) {
+            if (size + offset <= CHUNK_SIZE) {
                 buffer = cur;
                 break;
             }
@@ -942,6 +959,19 @@ public:
             }
         }
     }
+
+    void update(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor, AccessFlags flags) {
+        auto it = _gpuTextureViewSet.find(texture);
+        if (it == _gpuTextureViewSet.end()) return;
+        auto &descriptors = it->second.descriptors;
+        for (uint32_t i = 0U; i < descriptors.size(); i++) {
+            if (descriptors[i] == descriptor) {
+                doUpdate(texture, descriptor, flags);
+                break;
+            }
+        }
+    }
+
     void update(const CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {
         auto it = _samplers.find(sampler);
         if (it == _samplers.end()) return;
@@ -1025,10 +1055,17 @@ private:
 
     static void doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
         descriptor->imageView = texture->vkImageView;
+    }
+
+    static void doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor, AccessFlags flags) {
+        descriptor->imageView = texture->vkImageView;
         if (hasFlag(texture->gpuTexture->flags, TextureFlagBit::GENERAL_LAYOUT)) {
             descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
         } else {
-            if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+            if (hasAllFlags(flags, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
+                hasAllFlags(flags, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
+                descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+            } else if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             } else {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -1070,11 +1107,11 @@ public:
     void collect(uint32_t layoutId, VkDescriptorSet set);
     void collect(const CCVKGPUBuffer *buffer);
 
-#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                           \
+#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                        \
     void collect(const _type *gpuRes) { /* NOLINT(bugprone-macro-parentheses) N/A */ \
-        Resource &res = emplaceBack();                                                  \
-        res.type = typeValue;                                                           \
-        expr;                                                                           \
+        Resource &res = emplaceBack();                                               \
+        res.type = typeValue;                                                        \
+        expr;                                                                        \
     }
 
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.vkRenderPass = gpuRes->vkRenderPass)
@@ -1154,7 +1191,7 @@ public:
         _ias[buffer].insert(ia);
     }
 
-    void update(CCVKGPUBufferView* oldBuffer, CCVKGPUBufferView* newBuffer) {
+    void update(CCVKGPUBufferView *oldBuffer, CCVKGPUBufferView *newBuffer) {
         auto iter = _ias.find(oldBuffer);
         if (iter != _ias.end()) {
             for (const auto &ia : iter->second) {

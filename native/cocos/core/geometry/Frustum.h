@@ -1,19 +1,18 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -43,25 +42,65 @@ public:
      * Create a ortho frustum.
      * @zh
      * 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
      * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
-     * @return @en The out object @zh 返回正交视锥体.
+     *
+     * @deprecated since 3.8.0, please use [createOrthographic] instead of it.
      */
     static void createOrtho(Frustum *out, float width,
                             float height,
                             float near,
                             float far,
                             const Mat4 &transform);
+
+    /**
+     * @en
+     * Create a ortho frustum.
+     * @zh
+     * 创建一个正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
+     * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
+     * @param height @en The height of the frustum. @zh 正交视锥体的高度。
+     * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
+     */
+    static void createOrthographic(Frustum *out, float width,
+                                   float height,
+                                   float near,
+                                   float far,
+                                   const Mat4 &transform);
+
+    /**
+     * @en
+     * Create a perspective frustum.
+     * @zh
+     * 创建一个透视视锥体。
+     * @param out @en The result perspective frustum. @zh 输出的透视视锥体。
+     * @param fov @en The field of view of the frustum. @zh 视锥体的视野。
+     * @param aspect @en The aspect ratio of the frustum. @zh 视锥体的宽高比。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 视锥体的变换矩阵。
+     */
+    static void createPerspective(Frustum *out, float fov,
+                                  float aspect,
+                                  float near,
+                                  float far,
+                                  const Mat4 &transform);
+
     /**
      * @en Create a frustum from an AABB box.
      * @zh 从 AABB 包围盒中创建一个视锥体。
      * @param out @en The result frustum @zh 输出的视锥体对象。
      * @param aabb @en The AABB bounding box of the frustum @zh AABB 包围盒。
      * @return @en The out object @zh 返回视锥体.
+     *
+     * @deprecated since 3.8.0, please use [createOrthographic] instead of it.
      */
     static Frustum *createFromAABB(Frustum *out, const AABB &aabb);
 
@@ -126,7 +165,22 @@ public:
     void transform(const Mat4 &);
 
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
-    void split(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void createOrthographic(float width, float height, float near, float far, const Mat4 &transform);
+
+    /**
+     * @en
+     * Set as a perspective frustum.
+     * @zh
+     * 设置为一个透视视锥体。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
+     * @param fov @en The field of view of the frustum. @zh 视锥体的视野。
+     * @param aspect @en The aspect ratio of the frustum. @zh 视锥体的宽高比。
+     * @param transform @en The transform matrix of the frustum. @zh 视锥体的变换矩阵。
+     * 
+     * @deprecated since 3.8.0, please use [createPerspective] instead of it.
+     */
+    void split(float near, float far, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);
 
@@ -135,6 +189,8 @@ public:
      * Set whether to use accurate intersection testing function on this frustum.
      * @zh
      * 设置是否在此截锥体上使用精确的相交测试函数。
+     * 
+     * @deprecated since v3.8.0 no need to set accurate flag since it doesn't affect the calculation at all.
      */
     inline void setAccurate(bool accurate) {
         setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);

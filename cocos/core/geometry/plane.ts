@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Mat4, Vec3, Vec4 } from '../math';
 import enums from './enums';
@@ -35,48 +34,50 @@ const temp_vec4 = legacyCC.v4();
 /**
  * @en
  * Basic Geometry: Plane.
+ * Plane Equation: a*x + b*y + c*z - d = 0.
  * @zh
- * 基础几何 Plane。
+ * 基础几何：平面。
+ * 平面方程: a*x + b*y + c*z - d = 0。
  */
 
 export class Plane {
     /**
      * @en
-     * create a new plane
+     * Creates a new plane.
      * @zh
-     * 创建一个新的 plane。
-     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
-     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
-     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * 创建一个新的平面。
+     * @param nx @en The x component of normal vector. @zh 法向量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向量的 z 部分。
      * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
-     * @return
+     * @returns @en The created plane object. @zh 新创建的平面。
      */
-    public static create (nx: number, ny: number, nz: number, d: number) {
+    public static create (nx: number, ny: number, nz: number, d: number): Plane {
         return new Plane(nx, ny, nz, d);
     }
 
     /**
      * @en
-     * clone a new plane
+     * Clones a new plane.
      * @zh
-     * 克隆一个新的 plane。
-     * @param p @en The Plane object to be cloned from. @zh 克隆的来源。
-     * @return @en Cloned objects @zh 克隆出的对象。
+     * 克隆一个新的平面。
+     * @param p @en The Plane object to be cloned from. @zh 克隆的来源平面对象。
+     * @returns @en The cloned Plane object @zh 克隆出的平面对象。
      */
-    public static clone (p: Plane) {
+    public static clone (p: Plane): Plane {
         return new Plane(p.n.x, p.n.y, p.n.z, p.d);
     }
 
     /**
      * @en
-     * copy the values from one plane to another
+     * Copies the values from one plane to another.
      * @zh
      * 复制一个平面的值到另一个。
      * @param out @en The object to be operated on. @zh 接受操作的对象。
      * @param p @en The source of replication. @zh 复制的来源。
-     * @return @en The object to be operated on. @zh 接受操作的对象。
+     * @returns @en The object to be operated on. @zh 接受操作的对象。
      */
-    public static copy (out: Plane, p: Plane) {
+    public static copy (out: Plane, p: Plane): Plane {
         Vec3.copy(out.n, p.n);
         out.d = p.d;
 
@@ -85,16 +86,16 @@ export class Plane {
 
     /**
      * @en
-     * create a plane from three points
+     * Creates a plane from three points
      * @zh
      * 用三个点创建一个平面。
-     * @param out @en The object to be operated on. @zh 接受操作的对象。
-     * @param a @en Point a. @zh 点 a。
-     * @param b @en Point b. @zh 点 b。
-     * @param c @en Point c. @zh 点 c。
-     * @return out @en The object to be operated on. @zh 接受操作的对象。
+     * @param out @en The Plane object to be operated on. @zh 接受操作的对象。
+     * @param a @en The point a. @zh 点 a。
+     * @param b @en The point b. @zh 点 b。
+     * @param c @en The point c. @zh 点 c。
+     * @returns @en The Plane object to be operated on, same as `out` parameter. @zh 接受操作的对象，与 `out` 相同。
      */
-    public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3) {
+    public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3): Plane {
         Vec3.subtract(v1, b, a);
         Vec3.subtract(v2, c, a);
 
@@ -106,17 +107,17 @@ export class Plane {
 
     /**
      * @en
-     * Set the components of a plane to the given values
+     * Sets the components of a plane to the given values.
      * @zh
      * 将给定平面的属性设置为给定值。
-     * @param out @en The object to be operated on. @zh 接受操作的对象。
-     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
-     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
-     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * @param out @en The Plane object to be operated on. @zh 接受操作的对象。
+     * @param nx @en The x component of normal vector. @zh 法向量量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向量的 z 部分。
      * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
-     * @return out @en The object to be operated on. @zh 接受操作的对象。
+     * @returns @en The object to be operated on, same as the `out` parameter. @zh 接受操作的对象，与 `out` 参数相同。
      */
-    public static set (out: Plane, nx: number, ny: number, nz: number, d: number) {
+    public static set (out: Plane, nx: number, ny: number, nz: number, d: number): Plane {
         out.n.x = nx;
         out.n.y = ny;
         out.n.z = nz;
@@ -127,15 +128,15 @@ export class Plane {
 
     /**
      * @en
-     * create plane from normal and point
+     * Creates plane from normal and point.
      * @zh
      * 用一条法线和一个点创建平面。
      * @param out @en The object to be operated on. @zh 接受操作的对象。
-     * @param normal @en Normal of the plane. @zh 平面的法线。
+     * @param normal @en The normal of the plane. @zh 平面的法线。
      * @param point @en A point in the plane. @zh 平面上的一点。
-     * @return out @en The object to be operated on. @zh 接受操作的对象。
+     * @returns @en The object to be operated on, same as the `out` parameter. @zh 接受操作的对象，与 `out` 参数相同。
      */
-    public static fromNormalAndPoint (out: Plane, normal: Vec3, point: Vec3) {
+    public static fromNormalAndPoint (out: Plane, normal: Vec3, point: Vec3): Plane {
         Vec3.copy(out.n, normal);
         out.d = Vec3.dot(normal, point);
 
@@ -144,14 +145,14 @@ export class Plane {
 
     /**
      * @en
-     * normalize a plane
+     * Normalizes a plane.
      * @zh
      * 归一化一个平面。
      * @param out @en The object to be operated on. @zh 接受操作的对象。
      * @param a @en Source data for the operation. @zh 操作的源数据。
-     * @return out @en The object to be operated on. @zh 接受操作的对象。
+     * @returns @en The object to be operated on, sames as the `out` parameter. @zh 接受操作的对象，与 `out` 相同。
      */
-    public static normalize (out: Plane, a: Plane) {
+    public static normalize (out: Plane, a: Plane): Plane {
         const len = a.n.length();
         Vec3.normalize(out.n, a.n);
         if (len > 0) {
@@ -178,34 +179,34 @@ export class Plane {
 
     /**
      * @en
-     * Gets the type of the shape.
+     * Gets the type of the Plane, its value is `enums.SHAPE_PLANE`.
      * @zh
-     * 获取形状的类型。
+     * 获取形状的类型，值为 `enums.SHAPE_PLANE`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
     // compatibility with vector interfaces
     set x (val) { this.n.x = val; }
-    get x () { return this.n.x; }
+    get x (): number { return this.n.x; }
     set y (val) { this.n.y = val; }
-    get y () { return this.n.y; }
+    get y (): number { return this.n.y; }
     set z (val) { this.n.z = val; }
-    get z () { return this.n.z; }
+    get z (): number { return this.n.z; }
     set w (val) { this.d = val; }
-    get w () { return this.d; }
+    get w (): number { return this.d; }
 
     protected declare readonly _type: number;
 
     /**
      * @en
-     * Construct a plane.
+     * Constructs a plane.
      * @zh
      * 构造一个平面。
-     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
-     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
-     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * @param nx @en The x component of normal vector. @zh 法向量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向量的 z 部分。
      * @param d @en The distance between normal vector and the origin. @zh 与原点的距离。
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
@@ -216,17 +217,17 @@ export class Plane {
 
     /**
      * @en
-     * transform this plane.
+     * Transforms this plane by a 4x4 matrix.
      * @zh
-     * 变换一个平面。
-     * @param mat
+     * 使用一个 4x4 矩阵变换此平面。
+     * @param mat @en The 4x4 matrix for transformation @zh 用于变换的 4x4 矩阵。
      */
     public transform (mat: Mat4): void {
         Mat4.invert(temp_mat, mat);
         Mat4.transpose(temp_mat, temp_mat);
-        Vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
+        Vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, -this.d);
         Vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
         Vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
-        this.d = temp_vec4.w;
+        this.d = -temp_vec4.w;
     }
 }

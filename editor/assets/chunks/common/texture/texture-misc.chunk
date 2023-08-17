@@ -1,5 +1,11 @@
 
 // for exr data texture and sub resources
+vec3 SampleTextureExr(sampler2D exrRGBE, vec2 uv)
+{
+  vec3 data = unpackRGBE(texture(exrRGBE, uv));
+  return data;
+}
+
 vec3 SampleTextureExr(sampler2D exrRGBE, sampler2D exrSign, vec2 uv)
 {
   vec3 data = unpackRGBE(texture(exrRGBE, uv));

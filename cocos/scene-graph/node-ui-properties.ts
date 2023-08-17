@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,7 +36,7 @@ export class NodeUIProperties {
      * @en The UI transform component
      * @zh UI 变换组件
      */
-    get uiTransformComp () {
+    get uiTransformComp (): UITransform | null {
         if (!this._uiTransformComp) {
             this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
@@ -52,7 +51,7 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    get uiComp () {
+    get uiComp (): UIMeshRenderer | UIRenderer | null {
         return this._uiComp;
     }
     set uiComp (comp: UIMeshRenderer | UIRenderer | null) {
@@ -70,14 +69,19 @@ export class NodeUIProperties {
      * @zh 最终显示的 UI 透明度，受父节点透明度影响
      */
     private _opacity = 1;
-    public get opacity () { return this._opacity; }
+    /**
+     * NOTE: engineInternal tag cannot only mark opacity setter as internal.
+     * @engineInternal
+     */
+    public setOpacity (v: number): void { this._opacity = v; }
+    public get opacity (): number { return this._opacity; }
 
     /**
      * @en The opacity of the UI node itself
      * @zh 本节点的 UI 透明度
      */
     private _localOpacity = 1;
-    get localOpacity () { return this._localOpacity; }
+    get localOpacity (): number { return this._localOpacity; }
     set localOpacity (val) {
         this._localOpacity = val;
         this.colorDirty = true;
@@ -94,7 +98,7 @@ export class NodeUIProperties {
     /**
      * @deprecated since v3.4
      */
-    public applyOpacity (effectOpacity) {
+    public applyOpacity (effectOpacity): void {
         this._opacity = this._localOpacity * effectOpacity;
     }
 
@@ -103,5 +107,5 @@ export class NodeUIProperties {
      * @zh 为结点树的透明度状态设置脏标签，不再有效果
      * @deprecated since v3.4
      */
-    public static markOpacityTree (node, isDirty = true) {}
+    public static markOpacityTree (node, isDirty = true): void {}
 }

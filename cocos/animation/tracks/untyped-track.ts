@@ -1,10 +1,34 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, serializable } from 'cc.decorator';
 import { RealCurve, Color, Size, Vec2, Vec3, Vec4, getError } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { IValueProxyFactory } from '../value-proxy';
 import { ColorTrack, ColorTrackEval } from './color-track';
 import { SizeTrackEval } from './size-track';
-import { Channel, RealChannel, RuntimeBinding, Track, TrackPath } from './track';
+import { Channel, RealChannel, Track, TrackEval, TrackPath } from './track';
 import { Vec2TrackEval, Vec3TrackEval, Vec4TrackEval, VectorTrack } from './vector-track';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}UntypedTrackChannel`)
@@ -22,41 +46,41 @@ export class UntypedTrack extends Track {
     @serializable
     private _channels: UntypedTrackChannel[] = [];
 
-    public channels () {
+    public channels (): UntypedTrackChannel[] {
         return this._channels;
+    }
+
+    public [createEvalSymbol] (): TrackEval<unknown> {
+        throw new Error(`UntypedTrack should be handled specially. Please file an issue.`);
     }
 
     /**
      * @internal
      */
-    public [createEvalSymbol] (runtimeBinding: RuntimeBinding) {
-        if (!runtimeBinding.getValue) {
-            throw new Error(getError(3930));
-        }
-        const trySearchCurve = (property: string) => this._channels.find((channel) => channel.property === property)?.curve;
-        const value = runtimeBinding.getValue();
+    public createLegacyEval (hintValue?: unknown): Vec2TrackEval | Vec3TrackEval | Vec4TrackEval | ColorTrackEval | SizeTrackEval {
+        const trySearchCurve = (property: string): RealCurve | undefined => this._channels.find((channel): boolean => channel.property === property)?.curve;
         switch (true) {
         default:
             throw new Error(getError(3931));
-        case value instanceof Vec2:
+        case hintValue instanceof Vec2:
             return new Vec2TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
             );
-        case value instanceof Vec3:
+        case hintValue instanceof Vec3:
             return new Vec3TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
                 trySearchCurve('z'),
             );
-        case value instanceof Vec4:
+        case hintValue instanceof Vec4:
             return new Vec4TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
                 trySearchCurve('z'),
                 trySearchCurve('w'),
             );
-        case value instanceof Color:
+        case hintValue instanceof Color:
             // TODO: what if x, y, z, w?
             return new ColorTrackEval(
                 trySearchCurve('r'),
@@ -64,7 +88,7 @@ export class UntypedTrack extends Track {
                 trySearchCurve('b'),
                 trySearchCurve('a'),
             );
-        case value instanceof Size:
+        case hintValue instanceof Size:
             return new SizeTrackEval(
                 trySearchCurve('width'),
                 trySearchCurve('height'),
@@ -80,8 +104,8 @@ export class UntypedTrack extends Track {
     }
 
     public upgrade (refine: UntypedTrackRefine): Track | null {
-        const trySearchChannel = (property: string, outChannel: RealChannel) => {
-            const untypedChannel = this.channels().find((channel) => channel.property === property);
+        const trySearchChannel = (property: string, outChannel: RealChannel): void => {
+            const untypedChannel = this.channels().find((channel): boolean => channel.property === property);
             if (untypedChannel) {
                 outChannel.name = untypedChannel.name;
                 outChannel.curve.assignSorted(

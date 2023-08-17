@@ -52,6 +52,7 @@ declare module 'pal/input' {
      * Class designed for gamepad input
      */
     export class GamepadInputDevice {
+        private constructor(deviceId: number);
         /**
          * @engineInternal
          */
@@ -62,6 +63,7 @@ declare module 'pal/input' {
         public static _on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
 
         public static all: GamepadInputDevice[];
+        public static xr: (GamepadInputDevice | null);
         /**
          * @en The gamepad device id
          * @zh 手柄设备 id
@@ -159,6 +161,59 @@ declare module 'pal/input' {
          * @zh 开始按键
          */
         public get buttonStart (): InputSourceButton;
+
+        /**
+         * @en The grab Left Grip
+         * @zh 左手柄握住
+         */
+        public get gripLeft (): InputSourceButton;
+        /**
+         * @en The grab Right Grip
+         * @zh 右手柄握住
+         */
+        public get gripRight (): InputSourceButton;
+
+        /**
+         * @en The position Left hand
+         * @zh 左手位置
+         */
+        public get handLeftPosition (): InputSourcePosition;
+        /**
+         * @en The orientation Left hand
+         * @zh 左手方向
+         */
+        public get handLeftOrientation (): InputSourceOrientation;
+        /**
+         * @en The position Right hand
+         * @zh 右手位置
+         */
+        public get handRightPosition (): InputSourcePosition;
+        /**
+         * @en The orientation Right hand
+         * @zh 右手方向
+         */
+        public get handRightOrientation (): InputSourceOrientation;
+
+        /**
+         * @en The position Left aim
+         * @zh 左射线位置
+         */
+        public get aimLeftPosition (): InputSourcePosition;
+        /**
+         * @en The orientation Left aim
+         * @zh 左射线方向
+         */
+        public get aimLeftOrientation (): InputSourceOrientation;
+        /**
+         * @en The position Right aim
+         * @zh 右射线位置
+         */
+        public get aimRightPosition (): InputSourcePosition;
+        /**
+         * @en The orientation Right aim
+         * @zh 右射线方向
+         */
+        public get aimRightOrientation (): InputSourceOrientation;
     }
 
     type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;
@@ -274,6 +329,17 @@ declare module 'pal/input' {
         public get buttonRightStick (): InputSourceButton;
 
         /**
+         * @en The button Options
+         * @zh 选项按键
+         */
+        public get buttonOptions (): InputSourceButton;
+        /**
+         * @en The button Start
+         * @zh 开始按键
+         */
+        public get buttonStart (): InputSourceButton;
+
+        /**
          * @en The position Left hand
          * @zh 左手位置
          */
@@ -363,7 +429,7 @@ declare module 'pal/input' {
     /**
      * Class designed for Handheld input.
      */
-     export class HandheldInputDevice {
+    export class HandheldInputDevice {
         /**
          * Register the handheld event callback.
          * @engineInternal

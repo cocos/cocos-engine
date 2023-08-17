@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Vec3 } from '../../core';
@@ -63,6 +62,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._rigidBody = v;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node, this);
         this._sharedBody.reference = true;
+        this.setSleepThreshold(PhysicsSystem.instance.sleepThreshold);
     }
 
     onEnable (): void {
@@ -117,7 +117,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._isUsingCCD = v;
     }
 
-    isUsingCCD () { return this._isUsingCCD; }
+    isUsingCCD (): boolean { return this._isUsingCCD; }
 
     setLinearFactor (v: IVec3Like): void {
         if (this.isStatic) return;
@@ -135,8 +135,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean): void {
         if (this.isStaticOrKinematic) return;
-        const st = this.impl.getSleepThreshold() as number;
-        const wc = v ? Math.max(0.0, st - 0.001) : st + 0xffffffff;
+        const wc = v ? 0.0001 : 0xffffffff;
         this.impl.setWakeCounter(wc);
     }
 
@@ -168,12 +167,16 @@ export class PhysXRigidBody implements IRigidBody {
 
     setSleepThreshold (v: number): void {
         if (this.isStatic) return;
-        this.impl.setSleepThreshold(v);
+        //(approximated) mass-normalized kinetic energy
+        const ke = 0.5 * v * v;
+        this.impl.setSleepThreshold(ke);
     }
 
     getSleepThreshold (): number {
         if (this.isStatic) return 0;
-        return this.impl.getSleepThreshold();
+        const ke = this.impl.getSleepThreshold();
+        const v = Math.sqrt(2 * ke);
+        return v;
     }
 
     getLinearVelocity (out: IVec3Like): void {

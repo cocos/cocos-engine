@@ -31,7 +31,16 @@
 #endif
 
 #if CC_RECEIVE_SHADOW
-  #define VSOutput_shadowBias v_shadowBias
+  #define VSOutput_shadowBias v_shadowBiasAndProbeId.xy
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #define VSOutput_reflectionProbeId v_shadowBiasAndProbeId.z
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #define VSOutput_reflectionProbeBlendId v_shadowBiasAndProbeId.w
+  #endif
+  #if USE_INSTANCING
+    #define VSOutput_reflectionProbeData v_reflectionProbeData
+  #endif
 #endif
 
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
@@ -40,4 +49,8 @@
 
 #if CC_SURFACES_TRANSFER_LOCAL_POS
   #define VSOutput_localPos v_localPos
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  #define VSOutput_clipPos v_clipPos
 #endif

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
@@ -32,13 +31,13 @@ import { ISimplexShape } from '../../spec/i-physics-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
-    setShapeType (v: SimplexCollider.ESimplexType) {
+    setShapeType (v: SimplexCollider.ESimplexType): void {
         if (this._isBinding) {
             // TODO: change the type after init
         }
     }
 
-    setVertices (v: IVec3Like[]) {
+    setVertices (v: IVec3Like[]): void {
         const length = this.vertices.length;
         if (length === 4) {
             const ws = this._collider.node.worldScale;
@@ -58,17 +57,17 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         }
     }
 
-    get collider () {
+    get collider (): SimplexCollider {
         return this._collider as SimplexCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Particle | CANNON.ConvexPolyhedron {
         return this._shape as CANNON.Particle | CANNON.ConvexPolyhedron;
     }
 
     readonly vertices: CANNON.Vec3[] = [];
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         const type = this.collider.shapeType;
         if (type === SimplexCollider.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
@@ -83,7 +82,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         }
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.collider.updateVertices();
     }
@@ -94,14 +93,14 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
     }
 }
 
-const createTetra = (function () {
+const createTetra = (function (): (verts: CANNON.Vec3[]) => CANNON.ConvexPolyhedron {
     const faces = [
         [0, 3, 2], // -x
         [0, 1, 3], // -y
         [0, 2, 1], // -z
         [1, 2, 3], // +xyz
     ];
-    return function (verts: CANNON.Vec3[]) {
+    return function (verts: CANNON.Vec3[]): CANNON.ConvexPolyhedron {
         return new CANNON.ConvexPolyhedron(verts, faces);
     };
 }());

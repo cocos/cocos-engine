@@ -5,20 +5,19 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,9 +26,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { getError, logID } from '../core';
+import { ccwindow } from '../core/global-exports';
 
 interface IFile {
     type: string,
@@ -56,22 +56,22 @@ export class TiffReader {
     constructor () {
     }
 
-    public getUint8 (offset) {
+    public getUint8 (offset): any {
         return this._tiffData[offset];
     }
 
-    public getUint16 (offset) {
+    public getUint16 (offset): number {
         if (this._littleEndian) return (this._tiffData[offset + 1] << 8) | (this._tiffData[offset]);
         else return (this._tiffData[offset] << 8) | (this._tiffData[offset + 1]);
     }
 
-    public getUint32 (offset) {
+    public getUint32 (offset): number {
         const a = this._tiffData;
         if (this._littleEndian) return (a[offset + 3] << 24) | (a[offset + 2] << 16) | (a[offset + 1] << 8) | (a[offset]);
         else return (a[offset] << 24) | (a[offset + 1] << 16) | (a[offset + 2] << 8) | (a[offset + 3]);
     }
 
-    public checkLittleEndian () {
+    public checkLittleEndian (): boolean {
         const BOM = this.getUint16(0);
 
         if (BOM === 0x4949) {
@@ -86,7 +86,7 @@ export class TiffReader {
         return this._littleEndian;
     }
 
-    public hasTowel () {
+    public hasTowel (): boolean {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
             throw RangeError(getError(6020));
@@ -95,7 +95,7 @@ export class TiffReader {
         return true;
     }
 
-    public getFieldTypeName (fieldType) {
+    public getFieldTypeName (fieldType): any {
         const typeNames = fieldTypeNames;
         if (fieldType in typeNames) {
             return typeNames[fieldType];
@@ -103,7 +103,7 @@ export class TiffReader {
         return null;
     }
 
-    public getFieldTagName (fieldTag) {
+    public getFieldTagName (fieldTag): any {
         const tagNames = fieldTagNames;
 
         if (fieldTag in tagNames) {
@@ -114,7 +114,7 @@ export class TiffReader {
         }
     }
 
-    public getFieldTypeLength (fieldTypeName) {
+    public getFieldTypeLength (fieldTypeName): number {
         if (['BYTE', 'ASCII', 'SBYTE', 'UNDEFINED'].indexOf(fieldTypeName) !== -1) {
             return 1;
         } else if (['SHORT', 'SSHORT'].indexOf(fieldTypeName) !== -1) {
@@ -128,7 +128,7 @@ export class TiffReader {
         return 0;
     }
 
-    public getFieldValues (fieldTagName, fieldTypeName, typeCount, valueOffset) {
+    public getFieldValues (fieldTagName, fieldTypeName, typeCount, valueOffset): any[] {
         const fieldValues: any[] = [];
         const fieldTypeLength = this.getFieldTypeLength(fieldTypeName);
         const fieldValueSize = fieldTypeLength * typeCount;
@@ -156,14 +156,14 @@ export class TiffReader {
         }
 
         if (fieldTypeName === 'ASCII') {
-            fieldValues.forEach((e, i, a) => {
+            fieldValues.forEach((e, i, a): void => {
                 a[i] = String.fromCharCode(e);
             });
         }
         return fieldValues;
     }
 
-    public getBytes (numBytes, offset) {
+    public getBytes (numBytes, offset): any {
         if (numBytes <= 0) {
             logID(8001);
         } else if (numBytes <= 1) {
@@ -181,7 +181,7 @@ export class TiffReader {
         return 0;
     }
 
-    getBits (numBits, byteOffset, bitOffset) {
+    getBits (numBits, byteOffset, bitOffset): { bits: number; byteOffset: any; bitOffset: number; } {
         bitOffset = bitOffset || 0;
         const extraBytes = Math.floor(bitOffset / 8);
         const newByteOffset = byteOffset + extraBytes;
@@ -212,7 +212,7 @@ export class TiffReader {
         };
     }
 
-    parseFileDirectory (offset) {
+    parseFileDirectory (offset): void {
         const numDirEntries = this.getUint16(offset);
         const tiffFields: IFile[] = [];
         let i = 0;
@@ -239,7 +239,7 @@ export class TiffReader {
         }
     }
 
-    clampColorSample (colorSample, bitsPerSample) {
+    clampColorSample (colorSample, bitsPerSample): number {
         const multiplier = Math.pow(2, 8 - bitsPerSample);
 
         return Math.floor((colorSample * multiplier) + (multiplier - 1));
@@ -251,8 +251,8 @@ export class TiffReader {
      * @param {HTMLCanvasElement} canvas
      * @returns {*}
      */
-    parseTIFF (tiffData, canvas) {
-        canvas = canvas || document.createElement('canvas');
+    parseTIFF (tiffData, canvas): any {
+        canvas = canvas || ccwindow.document.createElement('canvas');
 
         this._tiffData = tiffData;
         this._canvas = canvas;
@@ -287,7 +287,7 @@ export class TiffReader {
         let bitsPerPixel = 0;
         let hasBytesPerPixel = false;
 
-        fileDirectory.BitsPerSample.values.forEach((bitsPerSample, i, bitsPerSampleValues) => {
+        fileDirectory.BitsPerSample.values.forEach((bitsPerSample, i, bitsPerSampleValues): void => {
             sampleProperties[i] = {
                 bitsPerSample,
                 hasBytesPerSample: false,
@@ -536,7 +536,7 @@ export class TiffReader {
                             }
 
                             // Invert samples.
-                            pixelSamples.forEach((sample, index, samples) => {
+                            pixelSamples.forEach((sample, index, samples): void => {
                                 samples[index] = invertValue - sample;
                             });
 

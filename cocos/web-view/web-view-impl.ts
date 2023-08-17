@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
@@ -29,6 +28,7 @@ import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
 import { director } from '../game/director';
 import { Node } from '../scene-graph';
+import type { Camera } from '../render-scene/scene';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
@@ -60,7 +60,7 @@ export abstract class WebViewImpl {
         this.createWebView();
     }
 
-    public reset () {
+    public reset (): void {
         this._wrapper = null;
         this._webview = null;
         this._loaded = false;
@@ -87,15 +87,15 @@ export abstract class WebViewImpl {
     public abstract setOnJSCallback(callback: () => void): void;
     public abstract setJavascriptInterfaceScheme(scheme: string): void;
 
-    get loaded () { return this._loaded; }
-    get componentEventList () { return this._componentEventList; }
-    get webview () { return this._webview; }
-    get state () { return this._state; }
-    get UICamera () {
+    get loaded (): boolean { return this._loaded; }
+    get componentEventList (): Map<EventType, (...args: any) => void> { return this._componentEventList; }
+    get webview (): HTMLIFrameElement | null { return this._webview; }
+    get state (): EventType { return this._state; }
+    get UICamera (): Camera | null {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }
 
-    protected dispatchEvent (key: EventType, ...args: any[any]) {
+    protected dispatchEvent (key: EventType, ...args: any[any]): void {
         const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;
@@ -103,7 +103,7 @@ export abstract class WebViewImpl {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this.removeWebView();
         this._wrapper = null;
         this._webview = null;

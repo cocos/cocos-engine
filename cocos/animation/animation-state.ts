@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
@@ -88,7 +87,7 @@ export class AnimationState extends Playable {
      * @en The clip that is being played by this animation state.
      * @zh 此动画状态正在播放的剪辑。
      */
-    get clip () {
+    get clip (): AnimationClip {
         return this._clip;
     }
 
@@ -96,11 +95,11 @@ export class AnimationState extends Playable {
      * @en The name of the playing animation.
      * @zh 动画的名字。
      */
-    get name () {
+    get name (): string {
         return this._name;
     }
 
-    get length () {
+    get length (): number {
         return this.duration;
     }
 
@@ -113,7 +112,7 @@ export class AnimationState extends Playable {
      * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount。
      * @default: WrapMode.Normal
      */
-    get wrapMode () {
+    get wrapMode (): WrapMode {
         return this._wrapMode;
     }
 
@@ -145,7 +144,7 @@ export class AnimationState extends Playable {
      *
      * @default 1
      */
-    get repeatCount () {
+    get repeatCount (): number {
         return this._repeatCount;
     }
 
@@ -167,7 +166,7 @@ export class AnimationState extends Playable {
      * @zh 延迟多少秒播放。
      * @default 0
      */
-    get delay () {
+    get delay (): number {
         return this._delay;
     }
 
@@ -216,7 +215,7 @@ export class AnimationState extends Playable {
      * @zh 播放速率。
      * @default: 1.0
      */
-    get speed () {
+    get speed (): number {
         return this._speed;
     }
 
@@ -236,7 +235,7 @@ export class AnimationState extends Playable {
      * @en Gets the time progress, in seconds.
      * @zh 获取动画的时间进度，单位为秒。
      */
-    get current () {
+    get current (): number {
         return this.getWrappedInfo(this.time).time;
     }
 
@@ -244,7 +243,7 @@ export class AnimationState extends Playable {
      * @en Gets the playback ratio.
      * @zh 获取动画播放的比例时间。
      */
-    get ratio () {
+    get ratio (): number {
         return this.duration === 0.0 ? 0.0 : this.current / this.duration;
     }
 
@@ -254,7 +253,7 @@ export class AnimationState extends Playable {
      * @zh
      * 此动画状态的权重。
      */
-    get weight () {
+    get weight (): number {
         return this._weight;
     }
 
@@ -328,11 +327,11 @@ export class AnimationState extends Playable {
     /**
      * This method is used for internal purpose only.
      */
-    get curveLoaded () {
+    get curveLoaded (): boolean {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask): void {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -380,7 +379,7 @@ export class AnimationState extends Playable {
             });
         }
 
-        if (!(EDITOR && !cclegacy.GAME_VIEW)) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (clip.containsAnyEvent()) {
                 this._clipEventEval = clip.createEventEvaluator(this._targetNode);
             }
@@ -392,7 +391,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (!this.isMotionless) {
             getGlobalAnimationManager().removeAnimation(this);
         }
@@ -408,7 +407,7 @@ export class AnimationState extends Playable {
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
      * To process animation events, use `Animation` instead.
      */
-    public emit (...args: any[]) {
+    public emit (...args: any[]): void {
         getGlobalAnimationManager().pushDelayEvent(this._emit, this, args);
     }
 
@@ -417,7 +416,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `Animation` instead.
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public on (type: string, callback: Function, target?: any) {
+    public on (type: string, callback: Function, target?: any): void | null {
         if (this._target && this._target.isValid) {
             return this._target.on(type, callback, target);
         } else {
@@ -430,7 +429,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `Animation` instead.
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public once (type: string, callback: Function, target?: any) {
+    public once (type: string, callback: Function, target?: any): void | null {
         if (this._target && this._target.isValid) {
             return this._target.once(type, callback, target);
         } else {
@@ -443,7 +442,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `Animation` instead.
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public off (type: string, callback: Function, target?: any) {
+    public off (type: string, callback: Function, target?: any): void {
         if (this._target && this._target.isValid) {
             this._target.off(type, callback, target);
         }
@@ -458,7 +457,7 @@ export class AnimationState extends Playable {
      * @param allowed True if the last frame events may be triggered.
      * This method is only used for internal purpose only.
      */
-    public allowLastFrameEvent (allowed: boolean) {
+    public allowLastFrameEvent (allowed: boolean): void {
         this._allowLastFrame = allowed;
     }
 
@@ -466,21 +465,21 @@ export class AnimationState extends Playable {
      * This method is used for internal purpose only.
      * @internal
      */
-    public _setEventTarget (target) {
+    public _setEventTarget (target): void {
         this._target = target;
     }
 
-    public setTime (time: number) {
+    public setTime (time: number): void {
         this._currentFramePlayed = false;
         this.time = time || 0.0;
 
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             const info = this.getWrappedInfo(time, this._wrappedInfo);
             this._clipEventEval?.ignore(info.ratio, info.direction);
         }
     }
 
-    public update (delta: number) {
+    public update (delta: number): void {
         // calculate delay time
 
         if (this._delayTime > 0.0) {
@@ -503,17 +502,17 @@ export class AnimationState extends Playable {
         this._process();
     }
 
-    public sample () {
+    public sample (): WrappedInfo {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.time);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._sampleEvents(info);
         }
         this._sampleEmbeddedPlayers(info);
         return info;
     }
 
-    protected onPlay () {
+    protected onPlay (): void {
         this.setTime(this._getPlaybackStart());
         this._delayTime = this._delay;
         this._onReplayOrResume();
@@ -521,7 +520,7 @@ export class AnimationState extends Playable {
         this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
-    protected onStop () {
+    protected onStop (): void {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
@@ -529,13 +528,13 @@ export class AnimationState extends Playable {
         this._clipEmbeddedPlayerEval?.notifyHostStop();
     }
 
-    protected onResume () {
+    protected onResume (): void {
         this._onReplayOrResume();
         this.emit(EventType.RESUME, this);
         this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
-    protected onPause () {
+    protected onPause (): void {
         this._onPauseOrStop();
         this.emit(EventType.PAUSE, this);
         this._clipEmbeddedPlayerEval?.notifyHostPause(this.current);
@@ -544,7 +543,7 @@ export class AnimationState extends Playable {
     /**
      * @internal
      */
-    protected _sampleCurves (time: number) {
+    protected _sampleCurves (time: number): void {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {
             poseOutput.weight = this.weight;
@@ -554,7 +553,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    private _process () {
+    private _process (): void {
         if (this._useSimpleProcess) {
             this.simpleProcess();
         } else {
@@ -562,7 +561,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    private process () {
+    private process (): void {
         // sample
         const info = this.sample();
 
@@ -587,7 +586,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    private simpleProcess () {
+    private simpleProcess (): void {
         const playbackStart = this._playbackRange.min;
         const playbackDuration = this._playbackDuration;
 
@@ -605,7 +604,7 @@ export class AnimationState extends Playable {
 
         if (this._clipEventEval || this._clipEmbeddedPlayerEval) {
             const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
-            if (!EDITOR || cclegacy.GAME_VIEW) {
+            if (!EDITOR_NOT_IN_PREVIEW) {
                 this._sampleEvents(wrapInfo);
             }
 
@@ -625,7 +624,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    private _needReverse (currentIterations: number) {
+    private _needReverse (currentIterations: number): boolean {
         const wrapMode = this.wrapMode;
         let needReverse = false;
 
@@ -646,7 +645,7 @@ export class AnimationState extends Playable {
         return needReverse;
     }
 
-    private getWrappedInfo (time: number, info?: WrappedInfo) {
+    private getWrappedInfo (time: number, info?: WrappedInfo): WrappedInfo {
         info = info || new WrappedInfo();
 
         const {
@@ -716,11 +715,11 @@ export class AnimationState extends Playable {
         return info;
     }
 
-    private _getPlaybackStart () {
+    private _getPlaybackStart (): number {
         return this._playbackRange.min;
     }
 
-    private _sampleEvents (wrapInfo: WrappedInfo) {
+    private _sampleEvents (wrapInfo: WrappedInfo): void {
         this._clipEventEval?.sample(
             wrapInfo.ratio,
             wrapInfo.direction,
@@ -728,24 +727,24 @@ export class AnimationState extends Playable {
         );
     }
 
-    private _sampleEmbeddedPlayers (wrapInfo: WrappedInfo) {
+    private _sampleEmbeddedPlayers (wrapInfo: WrappedInfo): void {
         this._clipEmbeddedPlayerEval?.evaluate(
             wrapInfo.time,
             Math.trunc(wrapInfo.iterations),
         );
     }
 
-    private _emit (type, state) {
+    private _emit (type, state): void {
         if (this._target && this._target.isValid) {
             this._target.emit(type, type, state);
         }
     }
 
-    private _onReplayOrResume () {
+    private _onReplayOrResume (): void {
         getGlobalAnimationManager().addAnimation(this);
     }
 
-    private _onPauseOrStop () {
+    private _onPauseOrStop (): void {
         getGlobalAnimationManager().removeAnimation(this);
     }
 }

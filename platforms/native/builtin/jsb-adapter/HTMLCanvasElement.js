@@ -2,6 +2,7 @@ const HTMLElement = require('./HTMLElement');
 const ImageData = require('./ImageData');
 const DOMRect = require('./DOMRect');
 const CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
+const jsbWindow = require('../../jsbWindow');
 
 const clamp = function (value) {
     value = Math.round(value);
@@ -106,11 +107,11 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     get clientWidth () {
-        return window.innerWidth;
+        return jsbWindow.innerWidth;
     }
 
     get clientHeight () {
-        return window.innerHeight;
+        return jsbWindow.innerHeight;
     }
 
     get data () {
@@ -121,7 +122,7 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     getBoundingClientRect () {
-        return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+        return new DOMRect(0, 0, jsbWindow.innerWidth, jsbWindow.innerHeight);
     }
 
     requestPointerLock () {

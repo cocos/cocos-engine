@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { BufferSource, BufferInfo, BufferViewInfo, BufferUsageBit } from '../base/define';
 import { Buffer } from '../base/buffer';
@@ -48,7 +47,7 @@ export class WebGLBuffer extends Buffer {
     private _gpuBufferView: IWebGLGPUBufferView | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
-    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -99,7 +98,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuBuffer) {
             WebGLCmdFuncDestroyBuffer(WebGLDeviceManager.instance, this._gpuBuffer);
             WebGLDeviceManager.instance.memoryStatus.bufferSize -= this._size;
@@ -111,7 +110,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public resize (size: number) {
+    public resize (size: number): void {
         if (this._isBufferView) {
             console.warn('cannot resize buffer views!');
             return;
@@ -141,7 +140,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public update (buffer: Readonly<BufferSource>, size?: number) {
+    public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;

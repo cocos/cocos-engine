@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -93,11 +92,13 @@ static cc::network::Downloader *localDownloader() {
 }
 
 static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
     gLocalDownloaderHandlers.emplace(task->identifier, callback);
+#endif
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
@@ -340,6 +341,8 @@ static bool JSBCore_os(se::State &s) { // NOLINT
     os.setString("OS X");
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     os.setString("OHOS");
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    os.setString("OpenHarmony");
 #endif
 
     s.rval() = os;
@@ -374,6 +377,16 @@ static bool JSB_getOSVersion(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
+static bool JSB_supportHPE(se::State &s) { // NOLINT
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    s.rval().setBoolean(getSupportHPE());
+#else
+    s.rval().setBoolean(false);
+#endif
+    return true;
+}
+SE_BIND_FUNC(JSB_supportHPE)
+
 static bool JSB_core_restartVM(se::State &s) { // NOLINT
     // REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     CC_CURRENT_APPLICATION()->restart();
@@ -386,6 +399,12 @@ static bool JSB_closeWindow(se::State &s) {
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)
+
+static bool JSB_exit(se::State &s) {
+    BasePlatform::getPlatform()->exit();
+    return true;
+}
+SE_BIND_FUNC(JSB_exit);
 
 static bool JSB_isObjectValid(se::State &s) { // NOLINT
     const auto &args = s.args();
@@ -600,7 +619,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
-                    
+
                     se::Value mipmapLevelDataSizeArr;
                     nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);
                     retObj->setProperty("mipmapLevelDataSize", mipmapLevelDataSizeArr);
@@ -770,9 +789,9 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
-        ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CC_ASSERT_NOT_NULL(systemWindowIntf);
-        systemWindowIntf->copyTextToClipboard(text);
+        ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+        CC_ASSERT_NOT_NULL(systemIntf);
+        systemIntf->copyTextToClipboard(text);
         return true;
     }
 
@@ -1379,7 +1398,11 @@ SE_BIND_PROP_GET(JSB_process_get_argv)
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
+#if CC_EDITOR
+    global->defineFunction("__require", _SE(require));
+#else
     global->defineFunction("require", _SE(require));
+#endif
     global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
@@ -1423,11 +1446,13 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__supportHPE", _SE(JSB_supportHPE));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__close", _SE(JSB_closeWindow));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
+    global->defineFunction("__exit", _SE(JSB_exit));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

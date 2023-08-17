@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,58 +29,24 @@
  */
 #pragma once
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
-#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
 
 namespace cc {
 
 namespace render {
 
-inline void save(OutputArchive& ar, const RasterView& v) {
-    save(ar, v.slotName);
-    save(ar, v.accessType);
-    save(ar, v.attachmentType);
-    save(ar, v.loadOp);
-    save(ar, v.storeOp);
-    save(ar, v.clearFlags);
-    save(ar, v.clearColor);
-}
-
-inline void load(InputArchive& ar, RasterView& v) {
-    load(ar, v.slotName);
-    load(ar, v.accessType);
-    load(ar, v.attachmentType);
-    load(ar, v.loadOp);
-    load(ar, v.storeOp);
-    load(ar, v.clearFlags);
-    load(ar, v.clearColor);
-}
-
-inline void save(OutputArchive& ar, const ComputeView& v) {
-    save(ar, v.name);
-    save(ar, v.accessType);
-    save(ar, v.clearFlags);
-    save(ar, v.clearColor);
-    save(ar, v.clearValueType);
-}
-
-inline void load(InputArchive& ar, ComputeView& v) {
-    load(ar, v.name);
-    load(ar, v.accessType);
-    load(ar, v.clearFlags);
-    load(ar, v.clearColor);
-    load(ar, v.clearValueType);
-}
-
 inline void save(OutputArchive& ar, const LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
     save(ar, v.level);
+    save(ar, v.culledByLight);
 }
 
 inline void load(InputArchive& ar, LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
     load(ar, v.level);
+    load(ar, v.culledByLight);
 }
 
 inline void save(OutputArchive& ar, const Descriptor& v) {
@@ -140,6 +105,22 @@ inline void load(InputArchive& ar, DescriptorBlockIndex& v) {
     load(ar, v.visibility);
 }
 
+inline void save(OutputArchive& ar, const ResolvePair& v) {
+    save(ar, v.source);
+    save(ar, v.target);
+    save(ar, v.resolveFlags);
+    save(ar, v.mode);
+    save(ar, v.mode1);
+}
+
+inline void load(InputArchive& ar, ResolvePair& v) {
+    load(ar, v.source);
+    load(ar, v.target);
+    load(ar, v.resolveFlags);
+    load(ar, v.mode);
+    load(ar, v.mode1);
+}
+
 inline void save(OutputArchive& ar, const CopyPair& v) {
     save(ar, v.source);
     save(ar, v.target);
@@ -184,6 +165,34 @@ inline void load(InputArchive& ar, MovePair& v) {
     load(ar, v.targetMostDetailedMip);
     load(ar, v.targetFirstSlice);
     load(ar, v.targetPlaneSlice);
+}
+
+inline void save(OutputArchive& ar, const PipelineStatistics& v) {
+    save(ar, v.numRenderPasses);
+    save(ar, v.numManagedTextures);
+    save(ar, v.totalManagedTextures);
+    save(ar, v.numUploadBuffers);
+    save(ar, v.numUploadBufferViews);
+    save(ar, v.numFreeUploadBuffers);
+    save(ar, v.numFreeUploadBufferViews);
+    save(ar, v.numDescriptorSets);
+    save(ar, v.numFreeDescriptorSets);
+    save(ar, v.numInstancingBuffers);
+    save(ar, v.numInstancingUniformBlocks);
+}
+
+inline void load(InputArchive& ar, PipelineStatistics& v) {
+    load(ar, v.numRenderPasses);
+    load(ar, v.numManagedTextures);
+    load(ar, v.totalManagedTextures);
+    load(ar, v.numUploadBuffers);
+    load(ar, v.numUploadBufferViews);
+    load(ar, v.numFreeUploadBuffers);
+    load(ar, v.numFreeUploadBufferViews);
+    load(ar, v.numDescriptorSets);
+    load(ar, v.numFreeDescriptorSets);
+    load(ar, v.numInstancingBuffers);
+    load(ar, v.numInstancingUniformBlocks);
 }
 
 } // namespace render

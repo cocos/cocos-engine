@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { getError } from '../core';
 
@@ -31,7 +30,7 @@ export class Playable {
      * @zh 该 `Playable` 是否正在播放状态。
      * @default false
      */
-    get isPlaying () {
+    get isPlaying (): boolean {
         return this._isPlaying;
     }
 
@@ -40,7 +39,7 @@ export class Playable {
      * @zh 该 `Playable` 是否已被暂停。
      * @default false
      */
-    get isPaused () {
+    get isPaused (): boolean {
         return this._isPaused;
     }
 
@@ -48,7 +47,7 @@ export class Playable {
      * @en Whether if this `Playable` has been paused or stopped.
      * @zh 该 `Playable` 是否已被暂停或停止。
      */
-    get isMotionless () {
+    get isMotionless (): boolean {
         return !this.isPlaying || this.isPaused;
     }
 
@@ -60,7 +59,7 @@ export class Playable {
      * @en Play this animation.
      * @zh 播放动画。
      */
-    public play () {
+    public play (): void {
         if (this._isPlaying) {
             if (this._isPaused) {
                 this._isPaused = false;
@@ -78,7 +77,7 @@ export class Playable {
      * @en Stop this animation.
      * @zh 停止动画播放。
      */
-    public stop () {
+    public stop (): void {
         if (this._isPlaying) {
             this._isPlaying = false;
             this.onStop();
@@ -92,7 +91,7 @@ export class Playable {
      * @en Pause this animation.
      * @zh 暂停动画。
      */
-    public pause () {
+    public pause (): void {
         if (this._isPlaying && !this._isPaused) {
             this._isPaused = true;
             this.onPause();
@@ -103,7 +102,7 @@ export class Playable {
      * @en Resume this animation.
      * @zh 重新播放动画。
      */
-    public resume () {
+    public resume (): void {
         if (this._isPlaying && this._isPaused) {
             this._isPaused = false;
             this.onResume();
@@ -114,7 +113,7 @@ export class Playable {
      * @en Perform a single frame step.
      * @zh 执行一帧动画。
      */
-    public step () {
+    public step (): void {
         this.pause();
         this._stepOnce = true;
         if (!this._isPlaying) {
@@ -122,27 +121,27 @@ export class Playable {
         }
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
 
     }
 
-    protected onPlay () {
+    protected onPlay (): void {
 
     }
 
-    protected onPause () {
+    protected onPause (): void {
 
     }
 
-    protected onResume () {
+    protected onResume (): void {
 
     }
 
-    protected onStop () {
+    protected onStop (): void {
 
     }
 
-    protected onError (message: string) {
+    protected onError (message: string): void {
 
     }
 }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,7 +23,7 @@
 */
 
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
-import { EDITOR, WECHAT } from 'internal:constants';
+import { EDITOR, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../scene-graph/component';
@@ -78,7 +77,7 @@ export class SubContextView extends Component {
      * 注意：该属性在运行时是只读的，请在编辑器环境下配置好设计分辨率。
      */
     @tooltip('i18n:subContextView.design_size')
-    get designResolutionSize () {
+    get designResolutionSize (): Size {
         return this._designResolutionSize;
     }
     set designResolutionSize (value) {
@@ -94,7 +93,7 @@ export class SubContextView extends Component {
      * @zh 设置开放数据域的渲染帧率。
      */
     @tooltip('i18n:subContextView.fps')
-    get fps () {
+    get fps (): number {
         return this._fps;
     }
     set fps (value) {
@@ -128,7 +127,7 @@ export class SubContextView extends Component {
         this._texture = new Texture2D();
     }
 
-    public onLoad () {
+    public onLoad (): void {
         if (minigame.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
             this._openDataContext = minigame.getOpenDataContext();
@@ -141,20 +140,20 @@ export class SubContextView extends Component {
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this._registerNodeEvent();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this._unregisterNodeEvent();
     }
 
-    private _initSharedCanvas () {
+    private _initSharedCanvas (): void {
         if (this._openDataContext) {
             const sharedCanvas = this._openDataContext.canvas;
             let designWidth = this._designResolutionSize.width;
             let designHeight = this._designResolutionSize.height;
-            if (WECHAT) {
+            if (WECHAT || WECHAT_MINI_PROGRAM) {
                 // HACK: on WeChat platform, at least one side of the width and height of sharedCanvas is greater than 513
                 // When the sharedCanvas is smaller than this size, the rendering doesn't work.
                 const minimumSize = 513;
@@ -171,7 +170,7 @@ export class SubContextView extends Component {
         }
     }
 
-    private _initContentNode () {
+    private _initContentNode (): void {
         if (this._openDataContext) {
             const sharedCanvas = this._openDataContext.canvas;
 
@@ -197,7 +196,7 @@ export class SubContextView extends Component {
         }
     }
 
-    private _updateSubContextView () {
+    private _updateSubContextView (): void {
         if (!this._openDataContext) {
             return;
         }
@@ -236,7 +235,7 @@ export class SubContextView extends Component {
         });
     }
 
-    private _updateSubContextTexture () {
+    private _updateSubContextTexture (): void {
         const img = this._imageAsset;
         if (!img || !this._openDataContext) {
             return;
@@ -255,23 +254,23 @@ export class SubContextView extends Component {
         this._texture.uploadData(sharedCanvas);
     }
 
-    private _registerNodeEvent () {
+    private _registerNodeEvent (): void {
         this.node.on(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
         this.node.on(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
-    private _unregisterNodeEvent () {
+    private _unregisterNodeEvent (): void {
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
         this.node.off(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
-    private _updateContentLayer () {
+    private _updateContentLayer (): void {
         this._content.layer = this.node.layer;
     }
 
-    public update (dt?: number) {
+    public update (dt?: number): void {
         const calledUpdateManually = (dt === undefined);
         if (calledUpdateManually) {
             this._updateSubContextTexture();
@@ -285,7 +284,7 @@ export class SubContextView extends Component {
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._content.destroy();
         this._texture.destroy();
         if (this._sprite) { this._sprite.destroy(); }

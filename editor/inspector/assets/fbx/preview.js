@@ -13,7 +13,7 @@ exports.template = /* html */`
     <div class= "noModel tips">
         <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
         <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
-    </div>    
+    </div>
     <div class="preview-container">
         <div class="animation-info">
             <div class="flex">
@@ -27,7 +27,7 @@ exports.template = /* html */`
                     <ui-icon value="event" name="add_event"></ui-icon>
                 </div>
                 <div class="time flex toolbar f1">
-                    <ui-label value="Time"></ui-label>
+                    <ui-label value="Frame"></ui-label>
                     <ui-num-input id="currentTime"></ui-num-input>
                     <div class="duration"></div>
                 </div>
@@ -74,9 +74,12 @@ exports.style = /* css*/`
 }
 .preview-container {
     min-height: 200px;
-    margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
+.preview-container > .animation-info {
+    padding-right: 4px;
+}
+
 .preview[hoving] > .preview-container {
     outline: 2px solid var(--color-focus-fill-weaker);
     outline-offset: -1px;
@@ -86,8 +89,8 @@ exports.style = /* css*/`
     outline-offset: -2px;
 }
 .preview-container > .model-info {
-    padding-top: 5px;
     display: none;
+    padding: 2px 4px;
 }
 .preview-container > .model-info > ui-label {
     margin-right: 6px;
@@ -97,14 +100,13 @@ exports.style = /* css*/`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin: 2px;
 }
 .preview-container >.image > .canvas {
     flex: 1;
 }
 .preview-container .toolbar {
     display: flex;
-    margin-top: 10px;
+    margin-top: 4px;
     justify-content: space-between;
 }
 
@@ -113,8 +115,7 @@ exports.style = /* css*/`
     flex: 1;
 }
 .preview-container .toolbar > * {
-    line-height: 25px;
-    margin-right: 5px;
+    margin-left: 4px;
 }
 
 ui-icon {
@@ -123,11 +124,13 @@ ui-icon {
 
 .time-line {
     position: relative;
+    padding: 4px;
 }
 
 .time-line .events {
     position: absolute;
-    bottom: 5px;
+    bottom: 2px;
+    z-index: 1;
     box-sizing: border-box;
     padding: 0 8px;
     width: 100%;
@@ -138,7 +141,7 @@ ui-icon {
 
 .events ui-icon {
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
 }
 
 .events ui-icon:hover {
@@ -165,7 +168,8 @@ ui-icon {
     background: var(--color-normal-fill);
 }
 #event-editor {
-    line-height: 24px;
+    position: relative;
+    line-height: 20px;
     width: 100%;
     height: 70%;
     overflow: hidden;
@@ -179,19 +183,21 @@ ui-icon {
   #event-editor > header {
     display: flex;
     justify-content: space-between;
-    height: 24px;
+    height: 20px;
     background: var(--color-normal-fill-emphasis);
-    padding: 5px;
+    padding: 2px 4px;
+  }
+  #event-editor > header .title {
+    color: var(--color-focus-fill);
   }
   #event-editor > .header .name {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor > .header .dirty {
     color: var(--color-focus-fill);
     margin: 0 2px;
   }
   #event-editor > .functions {
-    padding: 10px;
     overflow-y: auto;
     flex: 1;
     height: 100%;
@@ -203,18 +209,16 @@ ui-icon {
   #event-editor > .functions .line {
     display: flex;
     justify-content: space-between;
-    padding: 0 8px;
     flex: 1;
     background: unset;
-  }
-  #event-editor > .functions .line {
-    margin-bottom: 4px;
+    margin: 4px 0;
   }
   #event-editor > .functions .line .name {
-    min-width: 8px;
+    width: 40px;
+    text-align: center;
   }
-  #event-editor > .functions .line > * {
-    margin-right: 5px;
+  #event-editor > .functions .line ui-select {
+    margin-right: 8px;
   }
   #event-editor > .functions .line .operate {
     visibility: hidden;
@@ -225,19 +229,15 @@ ui-icon {
   #event-editor > .functions .header ui-input {
     background-color: transparent;
     border-color: transparent;
-    line-height: 18px;
   }
   #event-editor > .functions .header ui-input:hover {
     background-color: var(--color-normal-fill-emphasis);
   }
-  #event-editor > .functions > * {
-    margin-top: 10px;
-  }
   #event-editor ui-input,
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
-    width: 100%;
-    height: 25px;
+    flex: 1;
+    margin-left: 4px;
   }
   #event-editor ui-section {
     width: 100%;
@@ -248,15 +248,12 @@ ui-icon {
   }
   #event-editor .tools {
     display: flex;
-    border-bottom: 1px solid;
-    padding: 10px 0;
+    padding: 4px 0;
   }
   #event-editor .tools ui-icon {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor .params {
-    border: 1px rgba(136, 136, 136, 0.35) dashed;
-    border-radius: calc(var(--size-normal-radius) * 1px);
   }
   #event-editor .header ui-icon,
   #event-editor .params ui-icon {
@@ -265,6 +262,15 @@ ui-icon {
   #event-editor .empty {
     font-style: italic;
     text-align: center;
+  }
+  #event-editor .toast {
+    position: absolute;
+    top: 54px;
+    right: 4px;
+    z-index: 1;
+    padding: 0 4px;
+    background-color: var(--color-normal-fill-emphasis);
+    color: var(--color-warn-fill);
   }
 `;
 
@@ -346,7 +352,7 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callModelPreviewFunction('onMouseMove', {
@@ -372,6 +378,14 @@ const Elements = {
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
 
+                panel.isPreviewDataDirty = true;
+            });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                await callModelPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
                 panel.isPreviewDataDirty = true;
             });
 
@@ -435,8 +449,8 @@ const Elements = {
 
 exports.methods = {
     /**
-     * 
-     * @param {boolean} hasModel 
+     *
+     * @param {boolean} hasModel
      */
     updatePanelHidden(hasModel) {
         this.$.noModel.hidden = hasModel;
@@ -491,7 +505,11 @@ exports.methods = {
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
-            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'block' : 'none';
+            const isAnimationTab = this.activeTab === 'animation';
+            this.$.animationInfo.style.display = isAnimationTab ? 'block' : 'none';
+            if (!isAnimationTab) {
+                this.eventEditorVm.show = false;
+            }
             this.$.modelInfo.style.display = this.activeTab === 'model' ? 'block' : 'none';
             await this.stopAnimation();
         }
@@ -541,19 +559,22 @@ exports.methods = {
     },
 
     addEventToCurTime() {
-        this.events.addNewEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
+        this.events.addEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
     },
 
     updateEventInfo() {
         let eventInfos = [];
-        const events = this.curEditClipInfo.userData.events;
-        if (Array.isArray(events)) {
-            eventInfos = events.map((info) => {
-                return {
-                    ...info,
-                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-                };
-            });
+
+        if (this.curEditClipInfo && this.curEditClipInfo.userData) {
+            const events = this.curEditClipInfo.userData.events;
+            if (Array.isArray(events)) {
+                eventInfos = events.map((info) => {
+                    return {
+                        info,
+                        x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                    };
+                });
+            }
         }
 
         this.events.update.call(this, eventInfos);
@@ -640,22 +661,16 @@ exports.methods = {
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
+        this.curTotalFrames = 0;
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
-            this.$.animationTime.setConfig({
-                max: this.curTotalFrames,
-            });
-            this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
+
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
                 this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
-                this.updateEventInfo();
             }
 
-            if (this.$.animationTimeSlider) {
-                this.$.animationTimeSlider.max = this.curTotalFrames;
-            }
             await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
@@ -672,6 +687,12 @@ exports.methods = {
 
             await this.stopAnimation();
         }
+
+        this.$.animationTime.setConfig({
+            max: this.curTotalFrames,
+        });
+        this.$.duration.innerHTML = `Totals: ${this.curTotalFrames}`;
+        this.updateEventInfo();
     },
     onAnimationPlayStateChanged(state) {
         this.setCurPlayState(state);
@@ -679,11 +700,11 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
@@ -697,7 +718,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -739,7 +760,7 @@ exports.ready = function () {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -764,13 +785,16 @@ exports.update = async function (assetList, metaList) {
         this.splitClipIndex = 0;
         const clipInfo = animation.methods.getCurClipInfo.call(this);
         await this.onEditClipInfoChanged(clipInfo);
+    } else {
+        await this.setCurEditClipInfo();
     }
+    this.eventEditorVm.show = false;
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
     this.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

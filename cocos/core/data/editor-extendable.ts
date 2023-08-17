@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
 import { getClassName } from '../utils/js';
@@ -7,15 +31,15 @@ import { assertIsTrue } from './utils/asserts';
 // Functions and classes exposed from this module are useful to
 // make a class to be `EditorExtendableObject`.
 //
-// These helpers are used internally, don't expose them to user.
+// These helpers are used internally, don't expose them to the user.
 
 /**
- * Creates a mixin class which inherits from specific base class and implements the `EditorExtendableObject` interface.
+ * Creates a mixin class that inherits from the specific base class and implements the `EditorExtendableObject` interface.
  * @param Base The base class.
  * @param className Assign an optional cc class name. If the base class is not cc class, this param is required.
  * @returns The mixin class.
  */
-export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string) {
+export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string): new (...args: any[]) => EditorExtendableObject {
     return editorExtendableInternal(Base);
 }
 
@@ -33,12 +57,12 @@ export type EditorExtendable = InstanceType<typeof EditorExtendable>;
 // So we have to use its literal value below.
 assertIsTrue(editorExtrasTag === '__editorExtras__', 'editorExtrasTag needs to be updated.');
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string) {
-    type ResultType = new (...args: any[]) => (T & EditorExtendableObject);
+type ResultType<T> = new (...args: any[]) => (T & EditorExtendableObject);
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string): new (...args: any[]) => EditorExtendableObject {
     if (!EDITOR) {
-        return (Base ?? Empty) as unknown as ResultType;
+        return (Base ?? Empty) as unknown as ResultType<T>;
     }
 
     let name: string;
@@ -74,5 +98,5 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
         EditorExtendable = C;
     }
 
-    return EditorExtendable as unknown as ResultType;
+    return EditorExtendable as unknown as ResultType<T>;
 }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -58,6 +57,9 @@ public:
 
     bool initialize(const DeviceInfo &info);
     void destroy();
+
+    // aim to ensure waiting for work on gpu done when cpu encodes ahead of gpu certain frame(s).
+    virtual void frameSync() = 0;
 
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
     virtual void present() = 0;
@@ -119,8 +121,13 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline void setOptions(const DeviceOptions &opts) { _options = opts; }
-    inline const DeviceOptions &getOptions() const { return _options; }
+    virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
+    virtual SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+        std::ignore = format;
+        std::ignore = usage;
+        std::ignore = flags;
+        return SampleCount::X1;
+    };
 
 protected:
     static Device *instance;
@@ -197,15 +204,15 @@ public:
 
     ~DefaultResource() = default;
 
-    const Texture *getTexture(TextureType type) const;
+    Texture *getTexture(TextureType type) const;
+    Buffer *getBuffer() const;
 
 private:
-    IntrusivePtr<Texture> _texture1D;
     IntrusivePtr<Texture> _texture2D;
-    IntrusivePtr<Texture> _texture1DArray;
     IntrusivePtr<Texture> _texture2DArray;
     IntrusivePtr<Texture> _textureCube;
     IntrusivePtr<Texture> _texture3D;
+    IntrusivePtr<Buffer> _buffer;
 };
 
 //////////////////////////////////////////////////////////////////////////

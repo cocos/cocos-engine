@@ -367,6 +367,10 @@ cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and
 
 cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
+### 1514
+
+since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead.
+
 ### 1600
 
 <!-- DEPRECATED -->
@@ -1845,6 +1849,22 @@ Previous error occurred when instantiating animation clip %s on node %s.
 
 '%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
+### 3940
+
+Error when animation attempted to bind material uniform target: target %s is not a material.
+
+### 3941
+
+Error when animation attempted to bind material uniform target: material %s has no recorded pass %s.
+
+### 3942
+
+Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s.
+
+### 3943
+
+Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -1939,6 +1959,10 @@ Can not add a page without UITransform.
 
 Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
 
+### 4303
+
+The %s scrollBar on the '%s' node is not available, please check it.
+
 ### 4400
 
 Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!
@@ -1950,6 +1974,10 @@ Graphics: There is no model in %s.
 ### 4600
 
 Script attached to '%s' is missing or invalid.
+
+### 4601
+
+Failed to load wasm module, WebAssembly is not supported on this platform, but as a fallback Asm.js module is culled by mistake.
 
 ### 4700
 
@@ -2883,6 +2911,10 @@ Spine: Animation not found: %s
 
 Spine: Animation not found: %s
 
+### 7511
+
+Spine: Invalid input!
+
 ### 7600
 
 The context of RenderTexture is invalid.
@@ -3113,6 +3145,10 @@ Since v3.6, Because mask changes the inheritance relationship, you can directly 
 
 texture size exceeds current device limits %d/%d
 
+### 9101
+
+The length of the TypedArrayBuffer must be an integer.
+
 ### 9200
 
 <!-- DEPRECATED -->
@@ -3154,9 +3190,25 @@ Can't getGFXSampler with out device
 
 [Physics]: builtin physics system doesn't support cylinder collider
 
+### 9613
+
+[Physics]: cannon.js physics system doesn't support hinge drive and angular limit
+
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
+
+### 9630
+
+[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s
+
+### 9640
+
+[Physics][builtin]: sweep functions are not supported in builtin
+
+### 9641
+
+[Physics][cannon.js]: sweep functions are not supported in cannon.js
 
 ### 10001
 
@@ -3215,6 +3267,10 @@ PassUtils: illegal uniform handle, accessing uniform at offset %d
 
 Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s
 
+### 12012
+
+Can't set a material instance to a sharedMaterial slot
+
 ### 12100
 
 The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
@@ -3222,6 +3278,34 @@ The font size is too big to be fitted into texture atlas. Please switch to other
 ### 12101
 
 The asset %s has been destroyed!
+
+### 12102
+
+Base pass cannot override states, please use pass instance instead.
+
+### 12103
+
+Custom pipeline create shader %s failed. Please restart editor.
+
+### 12104
+
+Create shader %s failed.
+
+### 12105
+
+Pass resources incomplete.
+
+### 12106
+
+Cannot patch non-builtin macros.
+
+### 12107
+
+Custom pipeline invalid render pass, program: %s. Please restart editor.
+
+### 12108
+
+Custom pipeline invalid render phase, program: %s. Please restart editor.
 
 ### 13100
 
@@ -3245,7 +3329,7 @@ Can not decode CCON binary: lack of text decoder.
 
 ### 14000
 
-Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+State machine matched too many transitions(greater than %s) during this frame: %s.
 
 ### 14100
 
@@ -3324,3 +3408,15 @@ The asset replacing failed, can not found override asset('%s') for '%s'
 ### 16301
 
 node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first
+
+### 16302
+
+There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.
+
+### 16303
+
+Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro
+
+### 16304
+
+Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component.

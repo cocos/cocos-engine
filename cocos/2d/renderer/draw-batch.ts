@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Material } from '../../asset/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
@@ -34,7 +33,7 @@ import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 export class DrawBatch2D {
-    public get inputAssembler () {
+    public get inputAssembler (): InputAssembler | null {
         return this._inputAssembler;
     }
 
@@ -42,7 +41,7 @@ export class DrawBatch2D {
         this._inputAssembler = ia;
     }
 
-    public get descriptorSet () {
+    public get descriptorSet (): DescriptorSet | null {
         return this._descriptorSet;
     }
 
@@ -50,18 +49,18 @@ export class DrawBatch2D {
         this._descriptorSet = ds;
     }
 
-    public get visFlags () {
+    public get visFlags (): number {
         return this._visFlags;
     }
     public set visFlags (vis) {
         this._visFlags = vis;
     }
 
-    get passes () {
+    get passes (): Pass[] {
         return this._passes;
     }
 
-    public get shaders () {
+    public get shaders (): Shader[] {
         return this._shaders;
     }
 
@@ -82,11 +81,11 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     //private declare _nativeObj: any;
 
-    public destroy (ui: IBatcher) {
+    public destroy (ui: IBatcher): void {
         this._passes = [];
     }
 
-    public clear () {
+    public clear (): void {
         // this.bufferBatch = null;
         this._inputAssembler = null;
         this._descriptorSet = null;
@@ -103,7 +102,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, patches): void {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -125,7 +124,6 @@ export class DrawBatch2D {
                 // Hack: Cause pass.hash can not check all pass value
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
 
-                // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, dssHash);
 
                 this._shaders[i] = passInUse.getShaderVariant(patches)!;

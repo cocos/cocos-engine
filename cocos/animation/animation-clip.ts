@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,13 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue } from '../core';
+import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat,
+    Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue, RealCurve,
+} from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { Node } from '../scene-graph/node';
@@ -44,6 +45,9 @@ import './exotic-animation/exotic-animation';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
+import { AuxiliaryCurveEntry } from './auxiliary-curve-entry';
+import { removeIf } from '../core/utils/array';
+import { invokeComponentMethodsEngagedInAnimationEvent } from './event/event-emitter';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -84,6 +88,11 @@ export const removeEmbeddedPlayerTag = Symbol('[[RemoveEmbeddedPlayer]]');
 export const clearEmbeddedPlayersTag = Symbol('[[ClearEmbeddedPlayers]]');
 
 /**
+ * Tag to access the additive settings associated on animation clip.
+ */
+export const additiveSettingsTag = Symbol('[[Additive Settings]]');
+
+/**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
  * 它的数据主要被分为几层：轨道、关键帧和曲线。
  * @en The animation clip represents a sequence of key frame animation created with the animation editor or skeletal animation other DCC tools.
@@ -102,7 +111,7 @@ export class AnimationClip extends Asset {
      * const clip = AnimationClip.createWithSpriteFrames(spriteFrames, 10);
      * ```
      */
-    public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
+    public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number): AnimationClip {
         const clip = new AnimationClip();
         clip.sample = sample || clip.sample;
         clip.duration = spriteFrames.length / clip.sample;
@@ -149,7 +158,7 @@ export class AnimationClip extends Asset {
      * @zh 动画的周期。
      * @en Animation duration.
      */
-    get duration () {
+    get duration (): number {
         return this._duration;
     }
 
@@ -163,7 +172,7 @@ export class AnimationClip extends Asset {
      * @zh
      * 获取此动画中的轨道数量。
      */
-    get tracksCount () {
+    get tracksCount (): number {
         return this._tracks.length;
     }
 
@@ -177,7 +186,7 @@ export class AnimationClip extends Asset {
         return this._tracks;
     }
 
-    get hash () {
+    get hash (): number {
         // hashes should already be computed offline, but if not, make one
         if (this._hash) { return this._hash; }
         // Only hash exotic animations(including skeletal animations imported from model file).
@@ -190,7 +199,7 @@ export class AnimationClip extends Asset {
      * @zh 动画包含的事件数据。
      * @en Associated event data.
      */
-    get events () {
+    get events (): AnimationClip.IEvent[] {
         return this._events;
     }
 
@@ -224,7 +233,7 @@ export class AnimationClip extends Asset {
         };
     }
 
-    get [exoticAnimationTag] () {
+    get [exoticAnimationTag] (): ExoticAnimation | null {
         return this._exoticAnimation;
     }
 
@@ -232,7 +241,23 @@ export class AnimationClip extends Asset {
         this._exoticAnimation = value;
     }
 
-    public onLoaded () {
+    /**
+     * Gets if this animation clip contains additive animation.
+     * @experimental
+     */
+    get isAdditive_experimental (): boolean {
+        return this._additiveSettings.enabled;
+    }
+
+    /**
+     * Accesses the additive animation settings.
+     * @internal
+     */
+    get [additiveSettingsTag] (): AdditiveSettings {
+        return this._additiveSettings;
+    }
+
+    public onLoaded (): void {
         this.frameRate = this.sample;
         this.events = this._events;
     }
@@ -244,7 +269,7 @@ export class AnimationClip extends Asset {
      * 获取此动画所有轨道占据的时间范围。
      * @returns The time range.
      */
-    public range () {
+    public range (): Range {
         const range: Range = { min: Infinity, max: -Infinity };
         const { _tracks: tracks } = this;
         const nTracks = tracks.length;
@@ -265,7 +290,7 @@ export class AnimationClip extends Asset {
      * @param index Index to the track.
      * @returns The track.
      */
-    public getTrack (index: number) {
+    public getTrack (index: number): Track {
         return this._tracks[index];
     }
 
@@ -277,7 +302,7 @@ export class AnimationClip extends Asset {
      * @param track The track.
      * @returns Index to the track.
      */
-    public addTrack (track: Track) {
+    public addTrack (track: Track): number {
         const index = this._tracks.length;
         this._tracks.push(track);
         return index;
@@ -290,7 +315,7 @@ export class AnimationClip extends Asset {
      * 移除此动画中的指定轨道。
      * @param index Index to the track.
      */
-    public removeTrack (index: number) {
+    public removeTrack (index: number): void {
         this._tracks.splice(index, 1);
     }
 
@@ -300,7 +325,7 @@ export class AnimationClip extends Asset {
      * @zh
      * 移除此动画的所有轨道。
      */
-    public clearTracks () {
+    public clearTracks (): void {
         this._tracks.length = 0;
     }
 
@@ -308,7 +333,7 @@ export class AnimationClip extends Asset {
      * Returns if this clip has any event.
      * @internal Do not use this in your code.
      */
-    public containsAnyEvent () {
+    public containsAnyEvent (): boolean {
         return this._events.length !== 0;
     }
 
@@ -317,7 +342,7 @@ export class AnimationClip extends Asset {
      * @param targetNode Target node used to fire events.
      * @internal Do not use this in your code.
      */
-    public createEventEvaluator (targetNode: Node) {
+    public createEventEvaluator (targetNode: Node): EventEvaluator {
         return new EventEvaluator(
             targetNode,
             this._runtimeEvents.ratios,
@@ -330,7 +355,7 @@ export class AnimationClip extends Asset {
      * Returns if this clip has any embedded player.
      * @internal Do not use this in your code.
      */
-    public containsAnyEmbeddedPlayer () {
+    public containsAnyEmbeddedPlayer (): boolean {
         return this._embeddedPlayers.length !== 0;
     }
 
@@ -339,7 +364,7 @@ export class AnimationClip extends Asset {
      * @param targetNode Target node.
      * @internal Do not use this in your code.
      */
-    public createEmbeddedPlayerEvaluator (targetNode: Node) {
+    public createEmbeddedPlayerEvaluator (targetNode: Node): EmbeddedPlayerEvaluation {
         return new EmbeddedPlayerEvaluation(
             this._embeddedPlayers,
             targetNode,
@@ -352,7 +377,7 @@ export class AnimationClip extends Asset {
      * @returns The evaluator.
      * @internal Do not use this in your code.
      */
-    public createEvaluator (context: AnimationClipEvalContext) {
+    public createEvaluator (context: AnimationClipEvalContext): AnimationClipEvaluation {
         const {
             target,
         } = context;
@@ -375,7 +400,7 @@ export class AnimationClip extends Asset {
                 warnID(
                     3937,
                     this.name,
-                    (context.target instanceof Node) ? context.target.name : context.target,
+                    ((context.target instanceof Node) ? context.target.name : context.target) as string,
                 );
             }
             return trackTarget ?? undefined;
@@ -384,7 +409,7 @@ export class AnimationClip extends Asset {
         return this._createEvalWithBinder(target, binder, context.rootMotion);
     }
 
-    public destroy () {
+    public destroy (): boolean {
         if (cclegacy.director.root?.dataPoolManager) {
             (cclegacy.director.root.dataPoolManager).releaseAnimationClip(this);
         }
@@ -472,7 +497,7 @@ export class AnimationClip extends Asset {
      * @param refine How to decide the type on specified path.
      * @internal DO NOT USE THIS IN YOUR CODE.
      */
-    public upgradeUntypedTracks (refine: UntypedTrackRefine) {
+    public upgradeUntypedTracks (refine: UntypedTrackRefine): void {
         const newTracks: Track[] = [];
         const removals: Track[] = [];
         const { _tracks: tracks } = this;
@@ -498,7 +523,7 @@ export class AnimationClip extends Asset {
     /**
      * @internal Export for test.
      */
-    public [searchForRootBonePathSymbol] () {
+    public [searchForRootBonePathSymbol] (): string {
         return this._searchForRootBonePath();
     }
 
@@ -512,7 +537,7 @@ export class AnimationClip extends Asset {
      * @en Frame keys referenced by curves.
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    get keys () {
+    get keys (): number[][] {
         return this._getLegacyData().keys;
     }
 
@@ -526,7 +551,7 @@ export class AnimationClip extends Asset {
      * @en Curves this animation contains.
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    get curves () {
+    get curves (): legacy.LegacyClipCurve[] {
         this._legacyDataDirty = true;
         return this._getLegacyData().curves;
     }
@@ -538,7 +563,7 @@ export class AnimationClip extends Asset {
     /**
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    get commonTargets () {
+    get commonTargets (): legacy.LegacyCommonTarget[] {
         return this._getLegacyData().commonTargets;
     }
 
@@ -554,14 +579,14 @@ export class AnimationClip extends Asset {
      * 此动画的数据。
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    get data () {
+    get data (): Uint8Array | null {
         return this._getLegacyData().data;
     }
 
     /**
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    public getPropertyCurves () {
+    public getPropertyCurves (): readonly legacy.LegacyRuntimeCurve[] {
         return this._getLegacyData().getPropertyCurves();
     }
 
@@ -580,7 +605,7 @@ export class AnimationClip extends Asset {
      * You should call this function after you changed the `events` data to take effect.
      * @deprecated Since V3.3. Please Assign to `this.events`.
      */
-    public updateEventDatas () {
+    public updateEventDatas (): void {
         this.events = this._events;
     }
 
@@ -589,7 +614,7 @@ export class AnimationClip extends Asset {
      * @en Returns if this animation contains event data.
      * @protected
      */
-    public hasEvents () {
+    public hasEvents (): boolean {
         return this.events.length !== 0;
     }
 
@@ -599,7 +624,7 @@ export class AnimationClip extends Asset {
      * DO NOT use it in your code since it might be removed for the future at any time.
      * @internal Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
-    public syncLegacyData () {
+    public syncLegacyData (): void {
         if (this._legacyData) {
             this._fromLegacy(this._legacyData);
             this._legacyData = undefined;
@@ -611,7 +636,7 @@ export class AnimationClip extends Asset {
     /**
      * @internal
      */
-    get [embeddedPlayerCountTag] () {
+    get [embeddedPlayerCountTag] (): number {
         return this._embeddedPlayers.length;
     }
 
@@ -625,14 +650,14 @@ export class AnimationClip extends Asset {
     /**
      * @internal
      */
-    public [addEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+    public [addEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer): void {
         this._embeddedPlayers.push(embeddedPlayer);
     }
 
     /**
      * @internal
      */
-    public [removeEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+    public [removeEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer): void {
         const iEmbeddedPlayer = this._embeddedPlayers.indexOf(embeddedPlayer);
         if (iEmbeddedPlayer >= 0) {
             this._embeddedPlayers.splice(iEmbeddedPlayer, 1);
@@ -642,8 +667,95 @@ export class AnimationClip extends Asset {
     /**
      * @internal
      */
-    public [clearEmbeddedPlayersTag] () {
+    public [clearEmbeddedPlayersTag] (): void {
         this._embeddedPlayers.length = 0;
+    }
+
+    /**
+     * @zh 获取此动画剪辑中的辅助曲线数量。
+     * @en Gets the count of auxiliary curves within this animation clip.
+     */
+    public get auxiliaryCurveCount_experimental (): number {
+        return this._auxiliaryCurveEntries.length;
+    }
+
+    /**
+     * @zh 返回此动画剪辑中所有辅助曲线的名称。
+     * @en Returns names of all auxiliary curves within this animation clip.
+     */
+    public getAuxiliaryCurveNames_experimental (): readonly string[] {
+        return this._auxiliaryCurveEntries.map((entry) => entry.name);
+    }
+
+    /**
+     * @zh 返回此动画剪辑中是否存在指定的辅助曲线。
+     * @en Returns if the specified auxiliary curve exists in this animation clip.
+     */
+    public hasAuxiliaryCurve_experimental (name: string): boolean {
+        return !!this._findAuxiliaryCurveEntry(name);
+    }
+
+    /**
+     * @zh 添加一条辅助曲线。如果已存在同名的辅助曲线，则直接返回。
+     * @en Adds an auxiliary curve. Directly return if there is already such named auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @returns @zh 新增或已存在的辅助曲线。 @en The newly created or existing auxiliary curve.
+     * @experimental
+     */
+    public addAuxiliaryCurve_experimental (name: string): RealCurve {
+        let entry = this._findAuxiliaryCurveEntry(name);
+        if (!entry) {
+            entry = new AuxiliaryCurveEntry();
+            entry.name = name;
+            this._auxiliaryCurveEntries.push(entry);
+        }
+        return entry.curve;
+    }
+
+    /**
+     * @zh 获取指定的辅助曲线。
+     * @en Gets the specified auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @returns @zh 指定的辅助曲线。@en The specified auxiliary curve.
+     * @experimental
+     */
+    public getAuxiliaryCurve_experimental (name: string): RealCurve {
+        const entry = this._findAuxiliaryCurveEntry(name);
+        assertIsTrue(entry);
+        return entry.curve;
+    }
+
+    /**
+     * @zh 重命名指定的辅助曲线。
+     * @en Renames the specified auxiliary curve.
+     * @param name @zh 要重命名的辅助曲线的名称。@en Name of the auxiliary curve to rename.
+     * @param newName @zh 新名称。@en New name.
+     */
+    public renameAuxiliaryCurve_experimental (name: string, newName: string): void {
+        const entry = this._findAuxiliaryCurveEntry(name);
+        if (entry) {
+            entry.name = newName;
+        }
+    }
+
+    /**
+     * @zh 移除指定的辅助曲线。
+     * @en Removes the specified auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @experimental
+     */
+    public removeAuxiliaryCurve_experimental (name: string): void {
+        removeIf(this._auxiliaryCurveEntries, (entry) => entry.name === name);
+    }
+
+    /**
+     * @internal
+     */
+    public _trySyncLegacyData (): void {
+        if (this._legacyDataDirty) {
+            this._legacyDataDirty = false;
+            this.syncLegacyData();
+        }
     }
 
     @serializable
@@ -670,15 +782,21 @@ export class AnimationClip extends Asset {
     @serializable
     private _embeddedPlayers: EmbeddedPlayer[] = [];
 
+    @serializable
+    private _additiveSettings = new AdditiveSettings();
+
+    @serializable
+    private _auxiliaryCurveEntries: AuxiliaryCurveEntry[] = [];
+
     private _runtimeEvents: {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     } = {
-        ratios: [],
-        eventGroups: [],
-    };
+            ratios: [],
+            eventGroups: [],
+        };
 
-    private _createEvalWithBinder (target: unknown, binder: Binder, rootMotionOptions: RootMotionOptions | undefined) {
+    private _createEvalWithBinder (target: unknown, binder: Binder, rootMotionOptions: RootMotionOptions | undefined): AnimationClipEvaluation {
         if (this._legacyDataDirty) {
             this._legacyDataDirty = false;
             this.syncLegacyData();
@@ -694,7 +812,7 @@ export class AnimationClip extends Asset {
             );
         }
 
-        const trackEvalStatues: TrackEvalStatus[] = [];
+        const trackEvalStatues: TrackEvalStatus<unknown>[] = [];
         let exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
 
         const { _tracks: tracks } = this;
@@ -707,15 +825,29 @@ export class AnimationClip extends Asset {
             if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
                 continue;
             }
-            const trackTarget = binder(track[trackBindingTag]);
-            if (!trackTarget) {
+            const runtimeBinding = binder(track[trackBindingTag]);
+            if (!runtimeBinding) {
                 continue;
             }
-            const trackEval = track[createEvalSymbol](trackTarget);
-            trackEvalStatues.push({
-                binding: trackTarget,
-                trackEval,
-            });
+
+            let trackEval: TrackEval<unknown>;
+            if (!(track instanceof UntypedTrack)) {
+                trackEval = track[createEvalSymbol]();
+            } else {
+                // Handle untyped track specially.
+                if (!runtimeBinding.getValue) {
+                    // If we can not get a value from binding,
+                    // we're not able to instantiate the untyped track.
+                    // This matches the behavior prior to V3.3.
+                    errorID(3930);
+                    continue;
+                }
+
+                const hintValue = runtimeBinding.getValue();
+                trackEval = track.createLegacyEval(hintValue);
+            }
+
+            trackEvalStatues.push(new TrackEvalStatus(runtimeBinding, trackEval));
         }
 
         if (this._exoticAnimation) {
@@ -735,7 +867,7 @@ export class AnimationClip extends Asset {
         target: unknown,
         rootMotionOptions: RootMotionOptions,
         rootMotionTrackExcludes: Track[],
-    ) {
+    ): RootMotionEvaluation | undefined {
         if (!(target instanceof Node)) {
             errorID(3920);
             return undefined;
@@ -756,7 +888,7 @@ export class AnimationClip extends Asset {
         // const { } = rootMotionOptions;
 
         const boneTransform = new BoneTransform();
-        const rootMotionsTrackEvaluations: TrackEvalStatus[] = [];
+        const rootMotionsTrackEvaluations: TrackEvalStatus<unknown>[] = [];
         const { _tracks: tracks } = this;
         const nTracks = tracks.length;
         for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
@@ -772,15 +904,12 @@ export class AnimationClip extends Asset {
             }
             rootMotionTrackExcludes.push(track);
             const property = trsPath.property;
-            const trackTarget = createBoneTransformBinding(boneTransform, property);
-            if (!trackTarget) {
+            const runtimeBinding = createBoneTransformBinding(boneTransform, property);
+            if (!runtimeBinding) {
                 continue;
             }
-            const trackEval = track[createEvalSymbol](trackTarget);
-            rootMotionsTrackEvaluations.push({
-                binding: trackTarget,
-                trackEval,
-            });
+            const trackEval = track[createEvalSymbol]();
+            rootMotionsTrackEvaluations.push(new TrackEvalStatus(runtimeBinding, trackEval));
         }
         const rootMotionEvaluation = new RootMotionEvaluation(
             rootBone,
@@ -792,7 +921,7 @@ export class AnimationClip extends Asset {
         return rootMotionEvaluation;
     }
 
-    private _searchForRootBonePath () {
+    private _searchForRootBonePath (): string {
         const paths = this._tracks.map((track) => {
             const trsPath = track[trackBindingTag].parseTrsPath();
             if (trsPath) {
@@ -833,7 +962,7 @@ export class AnimationClip extends Asset {
         return highestPathsAreSame ? firstPath.path : '';
     }
 
-    private _getLegacyData () {
+    private _getLegacyData (): legacy.AnimationClipLegacyData {
         if (!this._legacyData) {
             this._legacyData = this._toLegacy();
         }
@@ -852,7 +981,7 @@ export class AnimationClip extends Asset {
         return legacyClipData;
     }
 
-    private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
+    private _fromLegacy (legacyData: legacy.AnimationClipLegacyData): void {
         const newTracks = legacyData.toTracks();
         const nNewTracks = newTracks.length;
         for (let iNewTrack = 0; iNewTrack < nNewTracks; ++iNewTrack) {
@@ -860,7 +989,7 @@ export class AnimationClip extends Asset {
         }
     }
 
-    private _collectAnimatedJoints () {
+    private _collectAnimatedJoints (): string[] {
         const joints = new Set<string>();
 
         const { _tracks: tracks } = this;
@@ -883,7 +1012,22 @@ export class AnimationClip extends Asset {
 
         return Array.from(joints);
     }
+
+    private _findAuxiliaryCurveEntry (name: string): AuxiliaryCurveEntry | undefined {
+        return this._auxiliaryCurveEntries.find((entry) => entry.name === name);
+    }
 }
+
+@ccclass('cc.AnimationClipAdditiveSettings')
+class AdditiveSettings {
+    @serializable
+    public enabled = false;
+
+    @serializable
+    public refClip: AnimationClip | null = null;
+}
+
+export { AdditiveSettings as AnimationClipAdditiveSettings };
 
 type WrapMode_ = WrapMode;
 
@@ -893,9 +1037,26 @@ export declare namespace AnimationClip {
 
 cclegacy.AnimationClip = AnimationClip;
 
-interface TrackEvalStatus {
-    binding: RuntimeBinding;
-    trackEval: TrackEval;
+class TrackEvalStatus<TValue> {
+    constructor (binding: RuntimeBinding<TValue>, trackEval: TrackEval<TValue>) {
+        this._binding = binding;
+        this._trackEval = trackEval;
+        this._shouldEvaluateDefault = !!binding.getValue && trackEval.requiresDefault;
+    }
+
+    public evaluate (time: number): void {
+        const { _binding: binding, _trackEval: trackEval } = this;
+        const defaultValue = this._shouldEvaluateDefault
+            // See `this._shouldEvaluateDefault` for the assertion.
+            ? (binding.getValue!)() as TValue extends unknown ? unknown : Readonly<TValue>
+            : undefined;
+        const value = trackEval.evaluate(time, defaultValue);
+        binding.setValue(value);
+    }
+
+    private _binding: RuntimeBinding<TValue>;
+    private _trackEval: TrackEval<TValue>;
+    private _shouldEvaluateDefault = true;
 }
 
 interface AnimationClipEvalContext {
@@ -949,7 +1110,7 @@ class EmbeddedPlayerEvaluation {
         );
     }
 
-    public destroy () {
+    public destroy (): void {
         const {
             _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
@@ -965,7 +1126,7 @@ class EmbeddedPlayerEvaluation {
      * @param time The time([0, clipDuration]).
      * @param iterations The iterations the evaluation occurred. Should be integral.
      */
-    public evaluate (time: number, iterations: number) {
+    public evaluate (time: number, iterations: number): void {
         assertIsTrue(Number.isInteger(iterations));
         const {
             _embeddedPlayers: embeddedPlayers,
@@ -1001,7 +1162,7 @@ class EmbeddedPlayerEvaluation {
         }
     }
 
-    public notifyHostSpeedChanged (speed: number) {
+    public notifyHostSpeedChanged (speed: number): void {
         // Transmit the speed to embedded players that want a reconciled speed.
         const {
             _embeddedPlayers: embeddedPlayers,
@@ -1025,7 +1186,7 @@ class EmbeddedPlayerEvaluation {
      * Notifies that the host has ran into **playing** state.
      * @param time The time where host ran into playing state.
      */
-    public notifyHostPlay (time: number) {
+    public notifyHostPlay (time: number): void {
         // Host has switched to "playing", this can be happened when:
         // - Previous state is "stopped": we must have stopped all embedded players.
         // - Is pausing: we need to resume all embedded players.
@@ -1061,7 +1222,7 @@ class EmbeddedPlayerEvaluation {
     /**
      * Notifies that the host has ran into **pause** state.
      */
-    public notifyHostPause (time: number) {
+    public notifyHostPause (time: number): void {
         // Host is paused, simply transmit this to embedded players.
         const {
             _embeddedPlayers: embeddedPlayers,
@@ -1084,7 +1245,7 @@ class EmbeddedPlayerEvaluation {
     /**
      * Notifies that the host has ran into **stopped** state.
      */
-    public notifyHostStop () {
+    public notifyHostStop (): void {
         // Now that host is stopped, we stop all embedded players' playing
         // regardless of their progresses.
         const {
@@ -1117,7 +1278,7 @@ class EmbeddedPlayerEvaluation {
 
 class AnimationClipEvaluation {
     constructor (
-        trackEvalStatuses: TrackEvalStatus[],
+        trackEvalStatuses: TrackEvalStatus<unknown>[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
     ) {
@@ -1130,7 +1291,7 @@ class AnimationClipEvaluation {
      * Evaluates this animation.
      * @param time The time.
      */
-    public evaluate (time: number) {
+    public evaluate (time: number): void {
         const {
             _trackEvalStatues: trackEvalStatuses,
             _exoticAnimationEvaluator: exoticAnimationEvaluator,
@@ -1138,9 +1299,7 @@ class AnimationClipEvaluation {
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
         for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
-            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
-            const value = trackEval.evaluate(time, binding);
-            binding.setValue(value);
+            trackEvalStatuses[iTrackEvalStatus].evaluate(time);
         }
 
         if (exoticAnimationEvaluator) {
@@ -1153,7 +1312,7 @@ class AnimationClipEvaluation {
      * @param startTime Start time.
      * @param endTime End time.
      */
-    public evaluateRootMotion (time: number, motionLength: number) {
+    public evaluateRootMotion (time: number, motionLength: number): void {
         const { _rootMotionEvaluation: rootMotionEvaluation } = this;
         if (rootMotionEvaluation) {
             rootMotionEvaluation.evaluate(time, motionLength);
@@ -1161,7 +1320,7 @@ class AnimationClipEvaluation {
     }
 
     private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
-    private _trackEvalStatues:TrackEvalStatus[] = [];
+    private _trackEvalStatues: TrackEvalStatus<unknown>[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
 }
 
@@ -1171,7 +1330,7 @@ class BoneTransform {
     public rotation = new Quat();
     public eulerAngles = new Vec3();
 
-    public getTransform (out: Mat4) {
+    public getTransform (out: Mat4): void {
         Mat4.fromRTS(out, this.rotation, this.position, this.scale);
     }
 }
@@ -1191,7 +1350,7 @@ class BoneGlobalTransform extends BoneTransform {
         return this._transform;
     }
 
-    public invalidate () {
+    public invalidate (): void {
         this._dirty = true;
     }
 
@@ -1206,12 +1365,12 @@ class RootMotionEvaluation {
         private _rootBone: Node,
         private _duration: number,
         private _boneTransform: BoneTransform,
-        private _trackEvalStatuses: TrackEvalStatus[],
+        private _trackEvalStatuses: TrackEvalStatus<unknown>[],
     ) {
 
     }
 
-    public evaluate (time: number, motionLength: number) {
+    public evaluate (time: number, motionLength: number): void {
         const motionTransform = this._calcMotionTransform(time, motionLength, this._motionTransformCache);
 
         const {
@@ -1233,7 +1392,7 @@ class RootMotionEvaluation {
         rootBone.setScale(scaleMotion);
     }
 
-    private _calcMotionTransform (time: number, motionLength: number, outTransform: Mat4) {
+    private _calcMotionTransform (time: number, motionLength: number, outTransform: Mat4): Mat4 {
         const { _duration: duration } = this;
         const remainLength = duration - time;
         assertIsTrue(remainLength >= 0);
@@ -1244,7 +1403,7 @@ class RootMotionEvaluation {
         } else {
             Mat4.identity(outTransform);
 
-            const accumulateMotionTransform = (from: Mat4, to: Mat4) => {
+            const accumulateMotionTransform = (from: Mat4, to: Mat4): void => {
                 relativeTransform(motionTransformCache, from, to);
                 Mat4.multiply(outTransform, outTransform, motionTransformCache);
             };
@@ -1271,16 +1430,14 @@ class RootMotionEvaluation {
         return outTransform;
     }
 
-    private _evaluateAt (time: number, outTransform: Mat4) {
+    private _evaluateAt (time: number, outTransform: Mat4): Mat4 {
         const {
             _trackEvalStatuses: trackEvalStatuses,
         } = this;
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
         for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
-            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
-            const value = trackEval.evaluate(time, binding);
-            binding.setValue(value);
+            trackEvalStatuses[iTrackEvalStatus].evaluate(time);
         }
 
         this._boneTransform.getTransform(outTransform);
@@ -1297,36 +1454,40 @@ class RootMotionEvaluation {
     private _scaleMotionCache = new Vec3();
 }
 
-function relativeTransform (out: Mat4, from: Mat4, to: Mat4) {
+function relativeTransform (out: Mat4, from: Mat4, to: Mat4): void {
     Mat4.invert(out, from);
     Mat4.multiply(out, to, out);
 }
 
-function createBoneTransformBinding (boneTransform: BoneTransform, property: TrsTrackPath[1]) {
+function createBoneTransformBinding (boneTransform: BoneTransform, property: TrsTrackPath[1]):  {
+    setValue(value: Vec3): void;
+} | {
+    setValue(value: Quat): void;
+} | undefined {
     switch (property) {
     default:
         return undefined;
     case 'position':
         return {
-            setValue (value: Vec3) {
+            setValue (value: Vec3): void {
                 Vec3.copy(boneTransform.position, value);
             },
         };
     case 'rotation':
         return {
-            setValue (value: Quat) {
+            setValue (value: Quat): void {
                 Quat.copy(boneTransform.rotation, value);
             },
         };
     case 'scale':
         return {
-            setValue (value: Vec3) {
+            setValue (value: Vec3): void {
                 Vec3.copy(boneTransform.scale, value);
             },
         };
     case 'eulerAngles':
         return {
-            setValue (value: Vec3) {
+            setValue (value: Vec3): void {
                 Vec3.copy(boneTransform.eulerAngles, value);
             },
         };
@@ -1356,11 +1517,11 @@ class EventEvaluator {
 
     }
 
-    public setWrapMode (wrapMode: WrapMode) {
+    public setWrapMode (wrapMode: WrapMode): void {
         this._wrapMode = wrapMode;
     }
 
-    public ignore (ratio: number, direction: number) {
+    public ignore (ratio: number, direction: number): void {
         this._ignoreIndex = InvalidIndex;
         this._sampled = false;
 
@@ -1377,7 +1538,19 @@ class EventEvaluator {
         }
     }
 
-    public sample (ratio: number, direction: number, iterations: number) {
+    public reset (): void {
+        this._lastFrameIndex = -1;
+        this._lastIterations = 0.0;
+        this._lastDirection = 0;
+        this._ignoreIndex = InvalidIndex;
+        this._sampled = false;
+    }
+
+    public sample (ratio: number, direction: number, iterations: number): void {
+        if (this._eventGroups.length === 0) {
+            return;
+        }
+
         const length = this._eventGroups.length;
         let eventIndex = getEventGroupIndexAtRatio(ratio, this._ratios);
         if (eventIndex < 0) {
@@ -1457,7 +1630,7 @@ class EventEvaluator {
     private _ignoreIndex = InvalidIndex;
     private _sampled = false;
 
-    private _doFire (eventIndex: number, delay: boolean) {
+    private _doFire (eventIndex: number, delay: boolean): void {
         if (delay) {
             getGlobalAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
         } else {
@@ -1465,7 +1638,7 @@ class EventEvaluator {
         }
     }
 
-    private _checkAndFire (eventIndex: number) {
+    private _checkAndFire (eventIndex: number): void {
         if (!this._targetNode || !this._targetNode.isValid) {
             return;
         }
@@ -1476,31 +1649,22 @@ class EventEvaluator {
         }
 
         const eventGroup = eventGroups[eventIndex];
-        const components = this._targetNode.components;
         const nEvents = eventGroup.events.length;
         for (let iEvent = 0; iEvent < nEvents; ++iEvent) {
             const event = eventGroup.events[iEvent];
-            const { functionName } = event;
-            const nComponents = components.length;
-            for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
-                const component = components[iComponent];
-                const fx = component[functionName];
-                if (typeof fx === 'function') {
-                    fx.apply(component, event.parameters);
-                }
-            }
+            invokeComponentMethodsEngagedInAnimationEvent(this._targetNode, event.functionName, event.parameters);
         }
     }
 }
 
-function wrapIterations (iterations: number) {
+function wrapIterations (iterations: number): number {
     if (iterations - (iterations | 0) === 0) {
         iterations -= 1;
     }
     return iterations | 0;
 }
 
-function getEventGroupIndexAtRatio (ratio: number, ratios: readonly number[]) {
+function getEventGroupIndexAtRatio (ratio: number, ratios: readonly number[]): number {
     const result = binarySearchEpsilon(ratios, ratio);
     return result;
 }

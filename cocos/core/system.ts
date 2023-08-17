@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -62,7 +61,7 @@ export class System implements ISchedulable {
      * @param a System a
      * @param b System b
      */
-    public static sortByPriority (a:System, b:System) {
+    public static sortByPriority (a:System, b:System): number {
         if (a._priority < b._priority) {
             return 1;
         } else if (a._priority > b.priority) {
@@ -76,19 +75,19 @@ export class System implements ISchedulable {
      * @en Init the system, will be invoked by [[Director]] when registered, should be implemented if needed.
      * @zh 系统初始化函数，会在注册时被 [[Director]] 调用，如果需要的话应该由子类实现
      */
-    init () {}
+    init (): void {}
     /**
      * @en Update function of the system, it will be invoked between all components update phase and late update phase.
      * @zh 系统的帧更新函数，它会在所有组件的 update 和 lateUpdate 之间被调用
      * @param dt Delta time after the last frame
      */
-    update (dt: number) {}
+    update (dt: number): void {}
     /**
      * @en Post update function of the system, it will be invoked after all components late update phase and before the rendering process.
      * @zh 系统的帧后处理函数，它会在所有组件的 lateUpdate 之后以及渲染之前被调用
      * @param dt Delta time after the last frame
      */
-    postUpdate (dt: number) {}
+    postUpdate (dt: number): void {}
 
-    destroy () {}
+    destroy (): void {}
 }

@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="nr") pipeline
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -24,8 +27,10 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/DebugView.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -33,6 +38,7 @@
 #include "bindings/auto/jsb_pipeline_auto.h"
 #include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
 #include "renderer/pipeline/PipelineUBO.h"
 
@@ -65,7 +71,6 @@ using namespace cc;
 %ignore cc::pipeline::PipelineSceneData::getShadowFramebufferMap;
 %ignore cc::pipeline::PipelineSceneData::getCSMLayers;
 %ignore cc::pipeline::PipelineSceneData::getCSMSupported;
-%ignore cc::pipeline::PipelineSceneData::setCSMSupported;
 %ignore cc::pipeline::UBOBloom;
 
 //TODO: Use regex to write the following ignore pattern
@@ -153,6 +158,9 @@ using namespace cc;
 %attribute(cc::pipeline::RenderPipeline, cc::scene::Model*, profiler, getProfiler, setProfiler);
 %attribute(cc::pipeline::RenderPipeline, float, shadingScale, getShadingScale, setShadingScale);
 
+%attribute(cc::pipeline::RenderPipeline, uint32_t, _tag, getTag, setTag);
+%attribute(cc::pipeline::RenderPipeline, cc::pipeline::RenderFlowList , _flows, getFlows, setFlows);
+
 
 %attribute(cc::pipeline::PipelineSceneData, bool, isHDR, isHDR, setHDR);
 %attribute(cc::pipeline::PipelineSceneData, float, shadingScale, getShadingScale, setShadingScale);
@@ -160,13 +168,30 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Ambient*, ambient, getAmbient);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Skybox*, skybox, getSkybox);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
+%attribute(cc::pipeline::PipelineSceneData, cc::scene::Skin*, skin, getSkin);
+%attribute(cc::pipeline::PipelineSceneData, cc::scene::PostSettings*, postSettings, getPostSettings);
 %attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
+%attribute(cc::pipeline::PipelineSceneData, ccstd::vector<const cc::scene::Light *>, validPunctualLights, getValidPunctualLights, setValidPunctualLights);
+%attribute(cc::pipeline::PipelineSceneData, bool, csmSupported, getCSMSupported);
+%attribute(cc::pipeline::PipelineSceneData, cc::scene::Model*, standardSkinModel, getStandardSkinModel, setStandardSkinModel);
+%attribute(cc::pipeline::PipelineSceneData, cc::scene::Model*, skinMaterialModel, getSkinMaterialModel, setSkinMaterialModel);
+
+%attribute(cc::pipeline::RenderStage, ccstd::string&, _name, getName, setName);
+%attribute(cc::pipeline::RenderStage, uint32_t, _priority, getPriority, setPriority);
+%attribute(cc::pipeline::RenderStage, uint32_t, _tag, getTag, setTag);
 
 %attribute(cc::pipeline::BloomStage, float, threshold, getThreshold, setThreshold);
 %attribute(cc::pipeline::BloomStage, float, intensity, getIntensity, setIntensity);
 %attribute(cc::pipeline::BloomStage, int, iterations, getIterations, setIterations);
 
+%attribute(cc::pipeline::RenderFlow, ccstd::string&, _name, getName, setName);
+%attribute(cc::pipeline::RenderFlow, uint32_t, _priority, getPriority, setPriority);
+%attribute(cc::pipeline::RenderFlow, uint32_t, _tag, getTag, setTag);
+%attribute(cc::pipeline::RenderFlow, cc::pipeline::RenderStageList, _stages, getStages, setStages);
 
+%attribute(cc::pipeline::DebugView, cc::pipeline::DebugViewSingleType, singleMode, getSingleMode, setSingleMode);
+%attribute(cc::pipeline::DebugView, bool, lightingWithAlbedo, isLightingWithAlbedo, setLightingWithAlbedo);
+%attribute(cc::pipeline::DebugView, bool, csmLayerColoration, isCsmLayerColoration, setCsmLayerColoration);
 
 #define CC_USE_GEOMETRY_RENDERER 1
 
@@ -193,6 +218,7 @@ using namespace cc;
 
 %import "core/event/Event.h"
 
+%import "core/assets/Asset.h"
 %import "core/assets/Material.h"
 
 %import "renderer/gfx-base/GFXDef-common.h"
@@ -206,6 +232,7 @@ using namespace cc;
 %include "renderer/pipeline/RenderPipeline.h"
 %include "renderer/pipeline/RenderFlow.h"
 %include "renderer/pipeline/RenderStage.h"
+%include "renderer/pipeline/DebugView.h"
 
 %include "renderer/pipeline/forward/ForwardPipeline.h"
 %include "renderer/pipeline/forward/ForwardFlow.h"
@@ -224,6 +251,8 @@ using namespace cc;
 %include "renderer/pipeline/deferred/BloomStage.h"
 %include "renderer/pipeline/deferred/PostProcessStage.h"
 %include "renderer/pipeline/PipelineSceneData.h"
-%include "renderer/pipeline/BatchedBuffer.h"
 %include "renderer/pipeline/GeometryRenderer.h"
+
+%include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+%include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 

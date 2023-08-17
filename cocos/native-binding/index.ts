@@ -1,8 +1,31 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import type { Color, Vec2 } from '../core';
 
-// @ts-expect-error this is a virtual module
 export * from 'internal:native';
 
 /**
@@ -57,17 +80,17 @@ export declare namespace native {
     }
 
     export namespace EventAssetsManager {
-        export const ERROR_NO_LOCAL_MANIFEST:number;
-        export const ERROR_DOWNLOAD_MANIFEST:number;
-        export const ERROR_PARSE_MANIFEST :number;
-        export const NEW_VERSION_FOUND :number;
-        export const ALREADY_UP_TO_DATE :number;
-        export const UPDATE_PROGRESSION :number;
-        export const ASSET_UPDATED :number;
-        export const ERROR_UPDATING :number;
-        export const UPDATE_FINISHED :number;
-        export const UPDATE_FAILED :number;
-        export const ERROR_DECOMPRESS :number;
+        export const ERROR_NO_LOCAL_MANIFEST: number;
+        export const ERROR_DOWNLOAD_MANIFEST: number;
+        export const ERROR_PARSE_MANIFEST: number;
+        export const NEW_VERSION_FOUND: number;
+        export const ALREADY_UP_TO_DATE: number;
+        export const UPDATE_PROGRESSION: number;
+        export const ASSET_UPDATED: number;
+        export const ERROR_UPDATING: number;
+        export const UPDATE_FINISHED: number;
+        export const UPDATE_FAILED: number;
+        export const ERROR_DECOMPRESS: number;
     }
 
     export interface ManifestAsset {

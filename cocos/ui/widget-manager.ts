@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,7 +26,7 @@
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Director, director } from '../game/director';
-import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
+import { Vec2, Vec3, visibleRect, js, cclegacy, approx, EPSILON } from '../core';
 import { View } from './view';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
@@ -43,7 +42,7 @@ const _tempVec2_1 = new Vec2();
 const _tempVec2_2 = new Vec2();
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: Node, widget: Widget) {
+function align (node: Node, widget: Widget): void {
     // Hack: this flag use to ONCE mode
     if (widget._hadAlignOnce) return;
     if ((!EDITOR) && widget.alignMode === AlignMode.ONCE) {
@@ -125,6 +124,11 @@ function align (node: Node, widget: Widget) {
             } else {
                 x = localRight + (anchorX - 1) * width;
             }
+            if (!approx(scaleX, 0, EPSILON)) {
+                width /= scaleX;
+            } else {
+                width = uiTrans.width;
+            }
         }
 
         widget._lastSize.width = width;
@@ -183,6 +187,11 @@ function align (node: Node, widget: Widget) {
             } else {
                 y = localTop + (anchorY - 1) * height;
             }
+            if (!approx(scaleY, 0, EPSILON)) {
+                height /= scaleY;
+            } else {
+                height = uiTrans.height;
+            }
         }
 
         widget._lastSize.height = height;
@@ -193,7 +202,7 @@ function align (node: Node, widget: Widget) {
 }
 
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
-function visitNode (node: any) {
+function visitNode (node: any): void {
     const widget = node.getComponent(Widget);
     if (widget && widget.enabled) {
         if (DEV) {
@@ -218,7 +227,7 @@ function visitNode (node: any) {
 }
 
 // This function will be called on AFTER_SCENE_LAUNCH and AFTER_UPDATE
-function refreshScene () {
+function refreshScene (): void {
     const scene = director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -249,7 +258,7 @@ function refreshScene () {
 const activeWidgets: Widget[] = [];
 
 // updateAlignment from scene to node recursively
-function updateAlignment (node: Node) {
+function updateAlignment (node: Node): void {
     const parent = node.parent;
     if (parent && Node.isNode(parent)) {
         updateAlignment(parent);
@@ -262,6 +271,11 @@ function updateAlignment (node: Node) {
     }
 }
 
+/**
+ * @en widget Manager， use to align widget
+ * @zh widget 管理器，用于对齐操作
+ * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
@@ -273,7 +287,7 @@ export const widgetManager = cclegacy._widgetManager = {
         animatedSinceLastFrame: false,
     } : null,
 
-    init () {
+    init (): void {
         director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
@@ -284,19 +298,19 @@ export const widgetManager = cclegacy._widgetManager = {
             screenAdapter.on('window-resize', thisOnResized);
         }
     },
-    add (widget: Widget) {
+    add (widget: Widget): void {
         this._nodesOrderDirty = true;
     },
-    remove (widget: Widget) {
+    remove (widget: Widget): void {
         this._activeWidgetsIterator.remove(widget);
     },
-    onResized () {
+    onResized (): void {
         const scene = director.getScene();
         if (scene) {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized (node: Node) {
+    refreshWidgetOnResized (node: Node): void {
         const widget = Node.isNode(node) && node.getComponent(Widget);
         if (widget && widget.enabled && (
             widget.alignMode === AlignMode.ON_WINDOW_RESIZE || widget.alignMode === AlignMode.ALWAYS
@@ -309,8 +323,8 @@ export const widgetManager = cclegacy._widgetManager = {
             this.refreshWidgetOnResized(child);
         }
     },
-    updateOffsetsToStayPut (widget: Widget, e?: AlignFlags) {
-        function i (t: number, c: number) {
+    updateOffsetsToStayPut (widget: Widget, e?: AlignFlags): void {
+        function i (t: number, c: number): number {
             return Math.abs(t - c) > 1e-10 ? c : t;
         }
         const widgetNode = widget.node;

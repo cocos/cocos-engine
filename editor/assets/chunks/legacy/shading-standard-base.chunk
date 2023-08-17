@@ -7,9 +7,10 @@
 #include <legacy/shadow-map-base>
 #include <common/data/unpack>
 #include <common/texture/texture-lod>
+#include <builtin/uniforms/cc-environment>
+#include <common/math/number>
+#include <common/lighting/functions>
 #if CC_USE_IBL
-  #include <builtin/uniforms/cc-environment>
-
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
@@ -17,6 +18,7 @@
 
 #if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
+  #include <builtin/functionalities/probe>
 #endif
 #if CC_USE_LIGHT_PROBE
 #include <legacy/sh-fs>
@@ -27,7 +29,7 @@ float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
   float OneMinusNoHSqr = dot(NxH, NxH);
   float a = roughness * roughness;
   float n = NoH * a;
-  float p = a / (OneMinusNoHSqr + n * n);
+  float p = a / max(EPSILON, OneMinusNoHSqr + n * n);
   return p * p;
 }
 
@@ -42,7 +44,7 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
   vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
   AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
-  return specular * AB.x + AB.y;
+  return max(vec3(0.0), specular * AB.x + AB.y);
 }
 
 #if USE_REFLECTION_DENOISE
@@ -101,7 +103,24 @@ struct StandardSurface {
   #if CC_RECEIVE_SHADOW
     vec2 shadowBias;
   #endif
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    float reflectionProbeId;
+  #endif
+
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    float reflectionProbeBlendId;
+    float reflectionProbeBlendFactor;
+  #endif
+
 };
+
+ vec3 SampleReflectionProbe(samplerCube tex, vec3 R, float roughness, float mipCount, bool isRGBE) {
+    vec4 envmap = fragTextureLod(tex, R, roughness * (mipCount - 1.0));
+    if (isRGBE)
+      return unpackRGBE(envmap);
+    else
+      return SRGBToLinear(envmap.rgb);
+  }
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
@@ -120,15 +139,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      if (cc_shadowLPNNInfo.w > 0.0) {
-        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-          shadow = CCCSMFactorBase(position, N, s.shadowBias);
-        #endif
-      } else {
-        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-          shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
-        #endif
-      }
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      #endif
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      #endif
     }
   #endif
 
@@ -142,14 +158,14 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
     #if CC_USE_LIGHTMAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
       shadow *= s.lightmap.a; // apply baked shadows for real-time lighting
-      s.occlusion *= s.lightmap_test;
       finalColor += diffuse * lightmap.rgb;
     #else
       finalColor += diffuse * lightmap.rgb * shadow; // apply real-time shadows for baked color
     #endif
+    s.occlusion *= s.lightmap_test;
   #endif
   
-  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE
+  #if !CC_DISABLE_DIRECTIONAL_LIGHT
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
   
@@ -166,14 +182,15 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     finalColor += lightingColor * dirlightContrib;
   #endif
 
-  float fAmb = 0.5 - N.y * 0.5;
+  float fAmb = max(EPSILON, 0.5 - N.y * 0.5);
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
 
-  vec3 env = vec3(0.0);
+  vec3 env = vec3(0.0), rotationDir;
   #if CC_USE_IBL
     #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
       // Diffuse reflection irradiance
-      vec4 diffuseMap = texture(cc_diffuseMap, N);
+      rotationDir = RotationVecFromAxisY(N.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+      vec4 diffuseMap = texture(cc_diffuseMap, rotationDir);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
         ambDiff = unpackRGBE(diffuseMap);
       #else
@@ -184,7 +201,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #if !CC_USE_REFLECTION_PROBE
       vec3 R = normalize(reflect(-V, N));
 
-      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+      rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
       #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
         env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
       #else
@@ -194,24 +211,76 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
           env = unpackRGBE(envmap);
         #else
           env = SRGBToLinear(envmap.rgb);
-          #endif
+        #endif
       #endif
     #endif
   #endif
 
+  float lightIntensity = cc_ambientSky.w;
   #if CC_USE_REFLECTION_PROBE
     vec4 probe = vec4(0.0);
     vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+      if(s.reflectionProbeId < 0.0){
+        env = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
+      }else{
+        vec3 centerPos, boxHalfSize;
+        float mipCount;
+        GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
+        vec4 fixedR = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
+        env = mix(SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE) * lightIntensity,
+          SampleReflectionProbe(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness, mipCount, isReflectProbeUsingRGBE(s.reflectionProbeId)), fixedR.w);
+      }
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
-      vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
-      probe = texture(cc_reflectionProbePlanarMap, screenUV);
+      if(s.reflectionProbeId < 0.0){
+        vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
+        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, 1.0);
+      }else{
+        vec4 plane;
+        float planarReflectionDepthScale, mipCount;
+        GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, s.reflectionProbeId);
+        R = normalize(CalculateReflectDirection(N, V, max(abs(dot(N, V)), 0.0)));
+        vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(N, V, s.position, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
+        vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
+        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount);
+      } 
+      env = unpackRGBE(probe);
+    #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+      if (s.reflectionProbeId < 0.0) {
+        env = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
+      } else {
+        vec3 centerPos, boxHalfSize;
+        float mipCount;
+        GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
+        vec4 fixedR = CalculateBoxProjectedDirection(R, s.position, centerPos, boxHalfSize);
+
+        env = SampleReflectionProbe(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness, mipCount, isReflectProbeUsingRGBE(s.reflectionProbeId));
+        if (s.reflectionProbeBlendId < 0.0) {
+          vec3 skyBoxEnv = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE) * lightIntensity;
+          #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+            //blend with skybox
+            env = mix(env, skyBoxEnv, s.reflectionProbeBlendFactor);
+          #else
+            env = mix(skyBoxEnv, env, fixedR.w);
+          #endif
+        } else {
+          vec3 centerPosBlend, boxHalfSizeBlend;
+          float mipCountBlend;
+          GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, s.reflectionProbeBlendId);
+          vec4 fixedRBlend = CalculateBoxProjectedDirection(R, s.position, centerPosBlend, boxHalfSizeBlend);
+          vec3 probe1 = SampleReflectionProbe(cc_reflectionProbeBlendCubemap, fixedRBlend.xyz, s.roughness, mipCountBlend, isBlendReflectProbeUsingRGBE(s.reflectionProbeBlendId));
+          env = mix(env, probe1, s.reflectionProbeBlendFactor);
+        }
+      }
     #endif
-    env = unpackRGBE(probe);
   #endif
 
-  finalColor += env * cc_ambientSky.w * specular * s.occlusion;
+  #if CC_USE_REFLECTION_PROBE
+    //If using reflection probe, no need to multiply by the ambient light intensity.
+    lightIntensity = s.reflectionProbeId < 0.0 ? lightIntensity : 1.0;
+  #endif
+
+  finalColor += env * lightIntensity * specular * s.occlusion;
 
 
 #if CC_USE_LIGHT_PROBE

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -42,10 +41,25 @@ GLES3Framebuffer::~GLES3Framebuffer() {
     destroy();
 }
 
+void GLES3Framebuffer::updateExtent() {
+    if (!_colorTextures.empty()) {
+        const auto *tex = _colorTextures[0];
+        _gpuFBO->width = tex->getWidth();
+        _gpuFBO->height = tex->getHeight();
+        return;
+    }
+    if (_depthStencilTexture != nullptr) {
+        _gpuFBO->width = _depthStencilTexture->getWidth();
+        _gpuFBO->height = _depthStencilTexture->getHeight();
+        return;
+    }
+}
+
 void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO = ccnew GLES3GPUFramebuffer;
-    _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
+    updateExtent();
 
+    _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
         auto *colorTexture = static_cast<GLES3Texture *>(_colorTextures.at(i));
@@ -56,6 +70,12 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     if (_depthStencilTexture) {
         auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilTexture);
         _gpuFBO->gpuDepthStencilView = depthTexture->gpuTextureView();
+        GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
+    }
+
+    if (_depthStencilResolveTexture) {
+        auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilResolveTexture);
+        _gpuFBO->gpuDepthStencilResolveView = depthTexture->gpuTextureView();
         GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
     }
 
@@ -72,6 +92,10 @@ void GLES3Framebuffer::doDestroy() {
         }
         if (_depthStencilTexture) {
             auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilTexture);
+            GLES3Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
+        }
+        if (_depthStencilResolveTexture) {
+            auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilResolveTexture);
             GLES3Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
         }
 

@@ -1,19 +1,18 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "renderer/core/PassUtils.h"
 #include <cstdint>
@@ -36,66 +35,38 @@ const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
          CC_LOG_ERROR("type2reader unknown type");
      }},
     {gfx::Type::INT, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<int32_t>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p[0] = static_cast<int32_t>(a[idx]);
+        v = static_cast<int32_t>(a[idx]);
      }},
     {gfx::Type::INT2, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
+        v = Vec2(a[idx], a[idx + 1]);
      }},
     {gfx::Type::INT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
+        v = Vec3(a[idx], a[idx + 1], a[idx + 2]);
      }},
     {gfx::Type::INT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
-         p->w = a[idx + 3];
+        v = Vec4(a[idx], a[idx + 1], a[idx + 2], a[idx + 3]);
      }},
     {gfx::Type::FLOAT, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<float>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p[0] = a[idx];
+        v = a[idx];
      }},
     {gfx::Type::FLOAT2, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
+        v = Vec2(a[idx], a[idx + 1]);
      }},
     {gfx::Type::FLOAT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
+        v = Vec3(a[idx], a[idx + 1], a[idx + 2]);
      }},
     {gfx::Type::FLOAT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
-         p->w = a[idx + 3];
+        v = Vec4(a[idx], a[idx + 1], a[idx + 2], a[idx + 3]);
      }},
     {gfx::Type::MAT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Mat3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         memcpy(&p->m[0], &a[idx], sizeof(Mat3));
+        Mat3 mat3;
+        memcpy(&mat3.m[0], &a[idx], sizeof(Mat3));
+        v = mat3;
      }},
     {gfx::Type::MAT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Mat4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         memcpy(&p->m[0], &a[idx], sizeof(Mat4));
+        Mat4 mat4;
+        memcpy(&mat4.m[0], &a[idx], sizeof(Mat4));
+        v = mat4;
      }},
 };
 
@@ -193,7 +164,6 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
          memcpy(&a[idx], &p->m[0], sizeof(Mat4));
      }},
 };
-
 
 const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator = {
     {gfx::Type::UNKNOWN, [](const MaterialProperty & /*v*/) -> bool {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -52,56 +51,30 @@ void RenderDrawInfo::changeMeshBuffer() {
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
     CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
-    if (!_iaPool) {
-        _iaPool = ccnew ccstd::vector<gfx::InputAssembler*>;
-    }
-    if (_nextFreeIAHandle >= _iaPool->size()) {
-        initIAInfo(device);
-    }
-    auto* ia = (*_iaPool)[_nextFreeIAHandle++];
-    ia->setFirstIndex(getIndexOffset());
-    ia->setIndexCount(getIbCount());
-    return ia;
+    return initIAInfo(device);
 }
 
 void RenderDrawInfo::uploadBuffers() {
     CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     if (_drawInfoAttrs._vbCount == 0 || _drawInfoAttrs._ibCount == 0) return;
     uint32_t size = _drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
-    gfx::Buffer* vBuffer = _iaInfo->vertexBuffers[0];
+    gfx::Buffer* vBuffer = _ia->getVertexBuffers()[0];
     vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
-    gfx::Buffer* iBuffer = _iaInfo->indexBuffer;
+    gfx::Buffer* iBuffer = _ia->getIndexBuffer();
     uint32_t iSize = _drawInfoAttrs._ibCount * 2;
     iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
 }
 
-void RenderDrawInfo::resetMeshIA() {
+void RenderDrawInfo::resetMeshIA() { // NOLINT(readability-make-member-function-const)
     CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
-    _nextFreeIAHandle = 0;
 }
 
 void RenderDrawInfo::destroy() {
-    _nextFreeIAHandle = 0;
-    if (_iaInfo) {
-        CC_SAFE_DELETE(_iaInfo->indexBuffer);
-        if (!_iaInfo->vertexBuffers.empty()) {
-            // only one vb
-            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
-            _iaInfo->vertexBuffers.clear();
-        }
-        CC_SAFE_DELETE(_iaInfo);
-    }
-
-    if (_iaPool) {
-        for (auto* ia : *_iaPool) {
-            CC_SAFE_DELETE(ia);
-        }
-        _iaPool->clear();
-        CC_SAFE_DELETE(_iaPool);
-    }
-
+    _vb = nullptr;
+    _ib = nullptr;
+    _ia = nullptr;
     if (_localDSBF) {
         CC_SAFE_DELETE(_localDSBF->ds);
         CC_SAFE_DELETE(_localDSBF->uboBuf);
@@ -110,34 +83,33 @@ void RenderDrawInfo::destroy() {
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
-    if (_iaPool->empty()) {
-        _iaInfo = ccnew gfx::InputAssemblerInfo();
+    if (!_ia) {
+        gfx::InputAssemblerInfo iaInfo = {};
         uint32_t vbStride = 9 * sizeof(float); // magic Number
         uint32_t ibStride = sizeof(uint16_t);
-        auto* vertexBuffer = device->createBuffer({
+        _vb = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             vbStride * 3,
             vbStride,
         });
-        auto* indexBuffer = device->createBuffer({
+        _ib = device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
             ibStride * 3,
             ibStride,
         });
 
-        _iaInfo->attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
-        _iaInfo->vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo->indexBuffer = indexBuffer;
-    }
-    auto* ia = device->createInputAssembler(*_iaInfo);
-    _iaPool->emplace_back(ia);
+        iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        iaInfo.vertexBuffers.emplace_back(_vb);
+        iaInfo.indexBuffer = _ib;
 
-    return ia;
+        _ia = device->createInputAssembler(iaInfo);
+    }
+    return _ia;
 }
 
-void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
+void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, const gfx::DescriptorSetLayout* dsLayout) {
     if (_localDSBF == nullptr) {
         _localDSBF = new LocalDSBF();
         auto* device = Root::getInstance()->getDevice();

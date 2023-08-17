@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
@@ -32,7 +31,9 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { ShadowFlow } from './shadow-flow';
-import { Camera, CSMLevel, DirectionalLight } from '../../render-scene/scene';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { CSMLevel } from '../../render-scene/scene/shadows';
+import { Camera } from '../../render-scene/scene/camera';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -59,7 +60,7 @@ export class ShadowStage extends RenderStage {
      * @param shadowFrameBuffer
      * @param level 层级
      */
-    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0) {
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0): void {
         this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
@@ -74,7 +75,7 @@ export class ShadowStage extends RenderStage {
     private _level = 0;
     private _isShadowMapCleared = false;
 
-    public destroy () {
+    public destroy (): void {
         this._shadowFrameBuffer = null;
         this._globalDS = null;
         this._light = null;
@@ -82,7 +83,7 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue?.clear();
     }
 
-    public clearFramebuffer (camera: Camera) {
+    public clearFramebuffer (camera: Camera): void {
         if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
 
         colors[0].w = camera.clearColor.w;
@@ -99,13 +100,19 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.endRenderPass();
         this._isShadowMapCleared = true;
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
@@ -152,8 +159,14 @@ export class ShadowStage extends RenderStage {
 
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -162,7 +175,7 @@ export class ShadowStage extends RenderStage {
         this._isShadowMapCleared = false;
     }
 
-    public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
+    public activate (pipeline: ForwardPipeline, flow: ShadowFlow): void {
         super.activate(pipeline, flow);
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
         this._isShadowMapCleared = false;

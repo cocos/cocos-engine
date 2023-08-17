@@ -20,11 +20,9 @@ exports.ready = function() {
         if (this.checkDisabledEditEvent()) {
             return;
         }
-        this.eventEditorVm.events = this.eventVm.events;
         this.eventEditorVm.frame = eventInfo.frame;
         this.eventEditorVm.RealFrame = Math.round(eventInfo && eventInfo.frame * this.curEditClipInfo.fps || 0);
-        this.eventEditorVm.refresh();
-        this.eventEditorVm.show = true;
+        this.eventEditorVm.refresh(this.eventVm.events);
     });
     this.eventVm.$on('del', (eventInfo) => {
         if (this.checkDisabledEditEvent()) {
@@ -32,10 +30,26 @@ exports.ready = function() {
         }
         this.events.delEvent.call(this, eventInfo.frame);
     });
+
+    this.eventVm.$on('move', (eventItem, timelineX) => {
+        if (this.checkDisabledEditEvent()) {
+            return;
+        }
+        this.events.moveEvent.call(this, eventItem, timelineX);
+    });
+
+    this.eventVm.$on('moveEnd', (eventItem) => {
+        if (this.checkDisabledEditEvent()) {
+            return;
+        }
+        this.eventVm.openEventEditor(eventItem.info);
+        this.dispatch('snapshot');
+    });
 };
 
-exports.update = function(eventInfo) {
-    this.eventVm.events = eventInfo;
+exports.update = function(eventInfos) {
+    this.eventVm.refresh(eventInfos);
+    this.eventEditorVm.refresh(eventInfos);
 };
 
 exports.apply = async function() {
@@ -52,44 +66,84 @@ exports.apply = async function() {
     this.events.eventsMap = {};
 };
 
-exports.addNewEvent = function(time) {
+exports.addEvent = function(time, newFuncName = '') {
     const newInfo = {
+        // 注意: frame 是时间
         frame: time,
-        func: '',
+        func: newFuncName,
         params: [],
     };
+
     const userData = this.curEditClipInfo.userData;
     if (!userData.events) {
         userData.events = [newInfo];
     } else {
-        userData.events.push(newInfo);
-        userData.events.sort((a, b) => a.frame - b.frame);
+        // 已经存在空记录
+        if (!newFuncName && userData.events.some(event => event.frame === time && event.func === newFuncName)) {
+            return;
+        }
+
+        let exist = false;
+        for (const event of userData.events) {
+            if (event.frame === time && event.func === '') {
+                event.func = newFuncName;
+                exist = true;
+                break;
+            }
+        }
+
+        if (!exist) {
+            userData.events.push(newInfo);
+            userData.events.sort((a, b) => a.frame - b.frame);
+        }
     }
-    this.events.eventsMap[this.curEditClipInfo.clipUUID] = userData.events;
+
+    this.updateEventInfo();
+    this.dispatch('change');
+    this.dispatch('snapshot');
+
+    this.eventVm.openEventEditor(newInfo);
+};
+
+exports.delEvent = function(frame, info) {
+    const userData = this.curEditClipInfo.userData;
+    if (info) {
+        userData.events = userData.events.filter((item) => item !== info);
+    } else {
+        // 删除多个
+        userData.events = userData.events.filter((item) => item.frame !== frame);
+    }
+
     this.updateEventInfo();
     this.dispatch('change');
     this.dispatch('snapshot');
 };
 
-exports.delEvent = function(time) {
+exports.moveEvent = function(eventItem, timelineX) {
+    const frame = Math.min(this.$.animationTime._config.max, Math.max(0, Math.round(this.$.animationTime.pixelToValue(timelineX))));
+
+    eventItem.info.frame = frame / this.curEditClipInfo.fps;
+    eventItem.x = this.$.animationTime.valueToPixel(frame);
+
+    this.dispatch('change');
+};
+
+exports.unselect = function() {
+    this.eventVm.unselect();
+    this.eventEditorVm.unselect();
+};
+
+exports.updateEventInfo = function(eventInfos) {
     const userData = this.curEditClipInfo.userData;
-    userData.events = userData.events.filter((item) => item.frame !== time);
-    this.events.eventsMap[this.curEditClipInfo.clipUUID] = userData.events;
+    if (userData && userData.events && Array.isArray(eventInfos)) {
+        eventInfos.forEach((eventInfo) => {
+            if (!userData.events.includes(eventInfo)) {
+                userData.events.push(eventInfo);
+            }
+        });
+    }
+
     this.updateEventInfo();
     this.dispatch('change');
     this.dispatch('snapshot');
-};
-
-exports.updateEventInfo = function(time, eventInfos) {
-    const userData = this.curEditClipInfo.userData;
-    let newEvents = [];
-    if (userData.events) {
-        newEvents = userData.events.filter((item) => item.frame !== time);
-    }
-
-    newEvents.push(...eventInfos);
-    userData.events = newEvents;
-    this.events.eventsMap[this.curEditClipInfo.clipUUID] = newEvents;
-    this.updateEventInfo();
-    this.dispatch('update');
 };

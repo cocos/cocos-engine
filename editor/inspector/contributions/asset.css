@@ -17,20 +17,32 @@
 
 :host > .container > .header {
     display: flex;
+    align-items: center;
+    height: 28px;
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
+
+:host > ui-section.container > .header {
+    display: flex;
     flex: 1;
+    min-width: 0;
+    border-bottom: none;
 }
 
 :host > .container > .header > .icon {
     width: 16px;
     font-size: 12px;
     cursor: pointer;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .image {
-    width: 20px;
-    height: 20px;
-    margin-top: 2px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .icon:hover,
@@ -40,7 +52,6 @@
 
 :host > .container > .header > .name {
     flex: 1;
-    padding-left: 4px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -51,9 +62,13 @@
     opacity: 0.55;
 }
 
+:host > .container > .header > .copy {
+    margin-right: 4px;
+}
+
 :host > .container > .header > .help {
     display: none;
-    margin-right: 10px;
+    margin-right: 4px;
 }
 
 :host > .container > .header > .lock {
@@ -67,20 +82,16 @@
 
 :host > .container > .header > .tiny {
     display: none;
-    padding: 0 4px;
-    height: 20px;
-    line-height: 20px;
-    margin-left: 8px;
-    margin-top: 2px;
+    margin-right: 4px;
+    padding: 0 3px;
 }
 
 :host > .container > .header[dirty] > .tiny {
-    display: inline-block;
+    display: inline-flex;
 }
 
 :host > .container > .content {
     display: flex;
-    padding-top: 5px;
     flex: 1;
     min-height: 0;
     flex-direction: column;
@@ -94,7 +105,7 @@
 
 :host > .container > .content > .content-section {
     flex: 1;
-    overflow: scroll;
+    overflow: auto;
 }
 
 :host > .container > .content > section > ui-panel {
@@ -118,4 +129,8 @@
     left: 0;
     top: 0;
     z-index: 1;
+}
+
+:host([type="asset"][sub-type="unknown"]) {
+    display: none;
 }

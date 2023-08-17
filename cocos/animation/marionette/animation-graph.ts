@@ -1,19 +1,44 @@
-import { ccclass, serializable } from 'cc.decorator';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
-import { MotionEval, MotionEvalContext } from './motion';
-import type { Condition } from './condition';
-import { Asset } from '../../asset/assets';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift, Vec3, Quat } from '../../core';
+import type { Condition } from './state-machine/condition';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
-import { TriggerResetMode, Value, VariableType } from './variable';
+import { createVariable, VariableDescription, VariableType, VariableTypeValueTypeMap } from './variable';
 import { InvalidTransitionError } from './errors';
-import { createEval } from './create-eval';
-import { MotionState } from './motion-state';
-import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
+import { MotionState } from './state-machine/motion-state';
+import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state-machine/state';
 import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraphLike } from './animation-graph-like';
+import { createInstanceofProxy, renameObjectProperty } from '../../core/utils/internal';
+import { PoseGraph } from './pose-graph/pose-graph';
+import { AnimationGraphEventBinding } from './event/event-binding';
+import { instantiate } from '../../serialization';
 
 export { State };
 
@@ -48,7 +73,7 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
         }
     }
 
-    public copyTo (that: Transition) {
+    public copyTo (that: Transition): void {
         that.conditions = this.conditions.map((condition) => condition.clone());
     }
 
@@ -64,33 +89,8 @@ export type { TransitionView as Transition };
 
 export type TransitionInternal = Transition;
 
-export enum TransitionInterruptionSource {
-    NONE,
-    CURRENT_STATE,
-    NEXT_STATE,
-    CURRENT_STATE_THEN_NEXT_STATE,
-    NEXT_STATE_THEN_CURRENT_STATE,
-}
-
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationTransition`)
-class AnimationTransition extends Transition {
-    /**
-     * The transition duration.
-     * The unit of the duration is the real duration of transition source
-     * if `relativeDuration` is `true` or seconds otherwise.
-     */
-    @serializable
-    public duration = 0.3;
-
-    /**
-     * Determines the unit of transition duration. See `duration`.
-     */
-    @serializable
-    public relativeDuration = false;
-
-    @serializable
-    public exitConditionEnabled = true;
-
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}DurationalTransition`)
+class DurationalTransition extends Transition {
     /**
      * @en The start time of (final) destination motion state when this transition starts.
      * Its unit is seconds if `relativeDestinationStart` is `false`,
@@ -108,7 +108,53 @@ class AnimationTransition extends Transition {
     @serializable
     public relativeDestinationStart = false;
 
-    get exitCondition () {
+    /**
+     * @zh 过渡开始事件绑定，此处绑定的事件会在过渡开始时触发。
+     * @en Transition start event binding. The event bound here will be triggered on the transition starts.
+     */
+    @serializable
+    @editable
+    public startEventBinding = new AnimationGraphEventBinding();
+
+    /**
+     * @zh 过渡结束事件绑定，此处绑定的事件会在过渡结束时触发。
+     * @en Transition end event binding. The event bound here will be triggered on the transition ends.
+     */
+    @serializable
+    @editable
+    public endEventBinding = new AnimationGraphEventBinding();
+
+    public copyTo (that: DurationalTransition): void {
+        super.copyTo(that);
+        that.destinationStart = this.destinationStart;
+        that.relativeDestinationStart = this.relativeDestinationStart;
+        this.startEventBinding.copyTo(that.startEventBinding);
+        this.endEventBinding.copyTo(that.endEventBinding);
+    }
+
+    [ownerSymbol]: StateMachine | undefined;
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationTransition`)
+class AnimationTransition extends DurationalTransition {
+    /**
+     * The transition duration.
+     * The unit of the duration is the real duration of transition source
+     * if `relativeDuration` is `true` or seconds otherwise.
+     */
+    @serializable
+    public duration = 0.3;
+
+    /**
+     * Determines the unit of transition duration. See `duration`.
+     */
+    @serializable
+    public relativeDuration = false;
+
+    @serializable
+    public exitConditionEnabled = true;
+
+    get exitCondition (): number {
         return this._exitCondition;
     }
 
@@ -117,35 +163,13 @@ class AnimationTransition extends Transition {
         this._exitCondition = value;
     }
 
-    /**
-     * @internal This field is exposed for **experimental editor only** usage.
-     */
-    get interruptible () {
-        return this.interruptionSource !== TransitionInterruptionSource.NONE;
-    }
-
-    set interruptible (value) {
-        this.interruptionSource = value
-            ? TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
-            : TransitionInterruptionSource.NONE;
-    }
-
-    public copyTo (that: AnimationTransition) {
+    public copyTo (that: AnimationTransition): void {
         super.copyTo(that);
         that.duration = this.duration;
         that.relativeDuration = this.relativeDuration;
         that.exitConditionEnabled = this.exitConditionEnabled;
         that.exitCondition = this.exitCondition;
-        that.destinationStart = this.destinationStart;
-        that.relativeDestinationStart = this.relativeDestinationStart;
-        that.interruptible = this.interruptible;
     }
-
-    /**
-     * @internal This field is exposed for **internal** usage.
-     */
-    @serializable
-    public interruptionSource = TransitionInterruptionSource.NONE;
 
     @serializable
     private _exitCondition = 1.0;
@@ -165,47 +189,86 @@ export function isAnimationTransition (transition: TransitionView): transition i
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyState`)
 export class EmptyState extends State {
     public declare __brand: 'EmptyState';
-
-    public _clone () {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        const that = new EmptyState();
-        this.copyTo(that);
-        return that;
-    }
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyStateTransition`)
-export class EmptyStateTransition extends Transition {
+export class EmptyStateTransition extends DurationalTransition {
     /**
      * The transition duration, in seconds.
      */
     @serializable
     public duration = 0.3;
 
-    /**
-     * @en The start time of (final) destination motion state when this transition starts.
-     * Its unit is seconds if `relativeDestinationStart` is `false`,
-     * Otherwise, its unit is the duration of destination motion state.
-     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。
-     * 如果 `relativeDestinationStart`为 `false`，其单位是秒，否则其单位是目标动作状态的周期。
-     */
-    @serializable
-    public destinationStart = 0.0;
-
-    /**
-      * @en Determines the unit of destination start time. See `destinationStart`.
-      * @zh 决定了目标起始时间的单位。见 `destinationStart`。
-      */
-    @serializable
-    public relativeDestinationStart = false;
-
-    public copyTo (that: EmptyStateTransition) {
+    public copyTo (that: EmptyStateTransition): void {
         super.copyTo(that);
         that.duration = this.duration;
-        that.destinationStart = this.destinationStart;
-        that.relativeDestinationStart = this.relativeDestinationStart;
     }
 }
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ProceduralPoseState`)
+class ProceduralPoseState extends State {
+    @serializable
+    public graph = new PoseGraph();
+
+    /**
+     * @zh 状态进入事件绑定，此处绑定的事件会在状态机向该状态过渡时触发。
+     * @en State entered event binding. The event bound here will be triggered
+     * when the state machine starts to transition into this state.
+     */
+    @serializable
+    @editable
+    public transitionInEventBinding = new AnimationGraphEventBinding();
+
+    /**
+     * @zh 状态离开事件绑定，此处绑定的事件会在状态机从该状态离开时触发。
+     * @en State left event binding. The event bound here will be triggered
+     * when the state machine starts to transition out from this state.
+     */
+    @serializable
+    @editable
+    public transitionOutEventBinding = new AnimationGraphEventBinding();
+
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    public __callOnAfterDeserializeRecursive (): void {
+        this.graph.__callOnAfterDeserializeRecursive();
+    }
+
+    public copyTo (that: MotionState): ProceduralPoseState {
+        super.copyTo(that);
+        this.transitionInEventBinding.copyTo(that.transitionInEventBinding);
+        this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);
+        return this;
+    }
+}
+
+type ProceduralPoseState_ = ProceduralPoseState;
+const ProceduralPoseState_ = createInstanceofProxy(ProceduralPoseState);
+export {
+    ProceduralPoseState_ as ProceduralPoseState,
+};
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ProceduralPoseTransition`)
+class ProceduralPoseTransition extends DurationalTransition {
+    /**
+     * The transition duration, in seconds.
+     */
+    @serializable
+    public duration = 0.3;
+
+    public copyTo (that: ProceduralPoseTransition): void {
+        super.copyTo(that);
+        that.duration = this.duration;
+    }
+}
+
+type ProceduralPoseTransition_ = ProceduralPoseTransition;
+const ProceduralPoseTransition_ = createInstanceofProxy(ProceduralPoseTransition);
+export {
+    ProceduralPoseTransition_ as ProceduralPoseTransition,
+};
 
 @ccclass('cc.animation.StateMachine')
 export class StateMachine extends EditorExtendable {
@@ -225,22 +288,32 @@ export class StateMachine extends EditorExtendable {
     private _anyState: State;
 
     /**
+     * @internal
+     */
+    public _allowEmptyStates = true;
+
+    /**
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         this[onAfterDeserializedTag]();
         const nStates = this._states.length;
         for (let iState = 0; iState < nStates; ++iState) {
             const state = this._states[iState];
             if (state instanceof SubStateMachine) {
                 state.stateMachine.__callOnAfterDeserializeRecursive();
+            } else if (state instanceof ProceduralPoseState) {
+                state.__callOnAfterDeserializeRecursive();
+            } else if (state instanceof MotionState) {
+                state.__callOnAfterDeserializeRecursive();
             }
         }
     }
 
-    constructor () {
+    constructor (allowEmptyStates?: boolean) {
         super();
+        this._allowEmptyStates = allowEmptyStates ?? false;
         this._entryState = this._addState(new State());
         this._entryState.name = 'Entry';
         this._exitState = this._addState(new State());
@@ -249,7 +322,7 @@ export class StateMachine extends EditorExtendable {
         this._anyState.name = 'Any';
     }
 
-    public [onAfterDeserializedTag] () {
+    public [onAfterDeserializedTag] (): void {
         this._states.forEach((state) => own(state, this));
         this._transitions.forEach((transition) => {
             transition.from[outgoingsSymbol].push(transition);
@@ -257,28 +330,28 @@ export class StateMachine extends EditorExtendable {
         });
     }
 
-    [createEval] (context: MotionEvalContext): MotionEval | null {
-        throw new Error('Method not implemented.');
+    public get allowEmptyStates (): boolean {
+        return this._allowEmptyStates;
     }
 
     /**
      * The entry state.
      */
-    get entryState () {
+    get entryState (): State {
         return this._entryState;
     }
 
     /**
      * The exit state.
      */
-    get exitState () {
+    get exitState (): State {
         return this._exitState;
     }
 
     /**
      * The any state.
      */
-    get anyState () {
+    get anyState (): State {
         return this._anyState;
     }
 
@@ -346,22 +419,34 @@ export class StateMachine extends EditorExtendable {
      * @returns The newly created state machine.
      */
     public addSubStateMachine (): SubStateMachine {
-        return this._addState(new SubStateMachine());
+        return this._addState(new SubStateMachine(this._allowEmptyStates));
     }
 
     /**
      * Adds an empty state into this state machine.
      * @returns The newly created empty state.
      */
-    public addEmpty () {
+    public addEmpty (): EmptyState {
+        if (!this._allowEmptyStates) {
+            throw new Error(`Empty states are now allowed in this state machine.`);
+        }
         return this._addState(new EmptyState());
+    }
+
+    /**
+     * @zh 向此状态机中添加一项姿势状态。
+     * @en Adds an pose state into this state machine.
+     * @returns @zh 新创建的姿势状态。 @en The newly created pose state.
+     */
+    public addProceduralPoseState (): ProceduralPoseState {
+        return this._addState(new ProceduralPoseState());
     }
 
     /**
      * Removes specified state from this state machine.
      * @param state The state to remove.
      */
-    public remove (state: State) {
+    public remove (state: State): void {
         assertsOwnedBy(state, this);
 
         if (state === this.entryState
@@ -397,6 +482,14 @@ export class StateMachine extends EditorExtendable {
      * @param from Source state.
      * @param to Target state.
      * @param condition The transition condition.
+     */
+    public connect (from: ProceduralPoseState, to: State, conditions?: Condition[]): ProceduralPoseTransition;
+
+    /**
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
+     * @param condition The transition condition.
      * @throws `InvalidTransitionError` if:
      * - the target state is entry or any, or
      * - the source state is exit.
@@ -421,7 +514,9 @@ export class StateMachine extends EditorExtendable {
             ? new AnimationTransition(from, to, conditions)
             : from instanceof EmptyState
                 ? new EmptyStateTransition(from, to, conditions)
-                : new Transition(from, to, conditions);
+                : from instanceof ProceduralPoseState
+                    ? new ProceduralPoseTransition(from, to, conditions)
+                    : new Transition(from, to, conditions);
 
         own(transition, this);
         this._transitions.push(transition);
@@ -431,7 +526,7 @@ export class StateMachine extends EditorExtendable {
         return transition;
     }
 
-    public disconnect (from: State, to: State) {
+    public disconnect (from: State, to: State): void {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
 
@@ -458,7 +553,7 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    public removeTransition (removal: Transition) {
+    public removeTransition (removal: Transition): void {
         assertIsTrue(
             js.array.remove(this._transitions, removal),
         );
@@ -471,7 +566,7 @@ export class StateMachine extends EditorExtendable {
         markAsDangling(removal);
     }
 
-    public eraseOutgoings (from: State) {
+    public eraseOutgoings (from: State): void {
         assertsOwnedBy(from, this);
 
         const oTransitions = from[outgoingsSymbol];
@@ -489,7 +584,7 @@ export class StateMachine extends EditorExtendable {
         oTransitions.length = 0;
     }
 
-    public eraseIncomings (to: State) {
+    public eraseIncomings (to: State): void {
         assertsOwnedBy(to, this);
 
         const iTransitions = to[incomingsSymbol];
@@ -507,7 +602,7 @@ export class StateMachine extends EditorExtendable {
         iTransitions.length = 0;
     }
 
-    public eraseTransitionsIncludes (state: State) {
+    public eraseTransitionsIncludes (state: State): void {
         this.eraseIncomings(state);
         this.eraseOutgoings(state);
     }
@@ -540,7 +635,7 @@ export class StateMachine extends EditorExtendable {
      * @param adjusting @en The transition to adjust the priority. @zh 需要调整优先级的过渡。
      * @param diff @en Indicates how to adjust the priority. @zh 指示如何调整优先级。
      */
-    public adjustTransitionPriority (adjusting: Transition, diff: number) {
+    public adjustTransitionPriority (adjusting: Transition, diff: number): void {
         const { from } = adjusting;
         if (diff === 0) {
             return;
@@ -578,11 +673,11 @@ export class StateMachine extends EditorExtendable {
         }
         // eslint-disable-next-line no-lone-blocks
         { // 2. Adjust the order in outgoing array.
-            move(outgoings, iAdjusting, iNew);
+            shift(outgoings, iAdjusting, iNew);
         }
     }
 
-    public copyTo (that: StateMachine) {
+    public copyTo (that: StateMachine): void {
         // Clear that first
         const thatStatesOld = that._states.filter((state) => {
             switch (state) {
@@ -611,8 +706,15 @@ export class StateMachine extends EditorExtendable {
                 stateMap.set(state, that._anyState);
                 break;
             default:
-                if (state instanceof MotionState || state instanceof SubStateMachine || state instanceof EmptyState) {
-                    const thatState = state._clone();
+                if (state instanceof MotionState
+                    || state instanceof SubStateMachine
+                    || state instanceof EmptyState
+                    || state instanceof ProceduralPoseState
+                ) {
+                    if (state instanceof EmptyState && !that._allowEmptyStates) {
+                        continue;
+                    }
+                    const thatState = instantiate(state);
                     that._addState(thatState);
                     stateMap.set(state, thatState);
                 } else {
@@ -622,6 +724,11 @@ export class StateMachine extends EditorExtendable {
             }
         }
         for (const transition of this._transitions) {
+            if (!that._allowEmptyStates) {
+                if (transition.from instanceof EmptyState || transition.to instanceof EmptyState) {
+                    continue;
+                }
+            }
             const thatFrom = stateMap.get(transition.from);
             const thatTo = stateMap.get(transition.to);
             assertIsTrue(thatFrom && thatTo);
@@ -633,19 +740,22 @@ export class StateMachine extends EditorExtendable {
             } else if (thatTransition instanceof EmptyStateTransition) {
                 assertIsTrue(transition instanceof EmptyStateTransition);
                 transition.copyTo(thatTransition);
+            } else if (thatTransition instanceof ProceduralPoseState) {
+                assertIsTrue(transition instanceof ProceduralPoseState);
+                transition.copyTo(thatTransition);
             } else {
                 transition.copyTo(thatTransition);
             }
         }
     }
 
-    public clone () {
-        const that = new StateMachine();
+    public clone (): StateMachine {
+        const that = new StateMachine(this._allowEmptyStates);
         this.copyTo(that);
         return that;
     }
 
-    private _addState<T extends State> (state: T) {
+    private _addState<T extends State> (state: T): T {
         own(state, this);
         this._states.push(state);
         return state;
@@ -654,24 +764,31 @@ export class StateMachine extends EditorExtendable {
 
 @ccclass('cc.animation.SubStateMachine')
 export class SubStateMachine extends InteractiveState {
-    get stateMachine () {
+    constructor (allowEmptyStates?: boolean) {
+        super();
+        this._stateMachine = new StateMachine(allowEmptyStates);
+    }
+
+    get stateMachine (): StateMachine {
         return this._stateMachine;
     }
 
-    public copyTo (that: SubStateMachine) {
+    public copyTo (that: SubStateMachine): void {
         super.copyTo(that);
         this._stateMachine.copyTo(that._stateMachine);
     }
 
-    public _clone () {
-        const that = new SubStateMachine();
-        this.copyTo(that);
-        return that;
-    }
-
     @serializable
-    private _stateMachine: StateMachine = new StateMachine();
+    private _stateMachine: StateMachine;
 }
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseGraphStash`)
+class PoseGraphStash extends EditorExtendable {
+    @serializable
+    public graph = new PoseGraph();
+}
+
+export { PoseGraphStash };
 
 @ccclass('cc.animation.Layer')
 export class Layer implements OwnedBy<AnimationGraph> {
@@ -689,132 +806,60 @@ export class Layer implements OwnedBy<AnimationGraph> {
     @serializable
     public mask: AnimationMask | null = null;
 
+    @serializable
+    public additive = false;
+
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    public __callOnAfterDeserializeRecursive (): void {
+        this.stateMachine._allowEmptyStates = true;
+        this.stateMachine.__callOnAfterDeserializeRecursive();
+        for (const stashId in this._stashes) {
+            const stash = this._stashes[stashId];
+            stash.graph.__callOnAfterDeserializeRecursive();
+        }
+    }
+
+    public stashes (): Iterable<Readonly<[string, PoseGraphStash]>> {
+        return Object.entries(this._stashes);
+    }
+
+    public getStash (id: string): PoseGraphStash | undefined {
+        return this._stashes[id];
+    }
+
+    public addStash (id: string): PoseGraphStash {
+        return this._stashes[id] = new PoseGraphStash();
+    }
+
+    public removeStash (id: string): void {
+        delete this._stashes[id];
+    }
+
+    public renameStash (id: string, newId: string): void {
+        this._stashes = renameObjectProperty(this._stashes, id, newId);
+    }
+
     /**
      * @marked_as_engine_private
      */
     constructor () {
-        this._stateMachine = new StateMachine();
+        this._stateMachine = new StateMachine(true);
     }
 
-    get stateMachine () {
+    get stateMachine (): StateMachine {
         return this._stateMachine;
     }
+
+    @serializable
+    private _stashes: Record<string, PoseGraphStash> = {};
 }
 
 export enum LayerBlending {
     override,
     additive,
-}
-
-const TRIGGER_VARIABLE_FLAG_VALUE_START = 0;
-const TRIGGER_VARIABLE_FLAG_VALUE_MASK = 1;
-const TRIGGER_VARIABLE_FLAG_RESET_MODE_START = 1;
-const TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
-
-// DO NOT CHANGE TO THIS VALUE. This is related to V3.5 migration.
-const TRIGGER_VARIABLE_DEFAULT_FLAGS = 0;
-
-// Let's ensure `0`'s meaning: `value: false, resetMode: TriggerSwitchMode: TriggerResetMode.AFTER_CONSUMED`
-assertIsTrue((
-    (0 << TRIGGER_VARIABLE_FLAG_VALUE_START)
-    | (TriggerResetMode.AFTER_CONSUMED << TRIGGER_VARIABLE_FLAG_RESET_MODE_START)
-) === TRIGGER_VARIABLE_DEFAULT_FLAGS);
-
-type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
-
-@ccclass('cc.animation.PlainVariable')
-class PlainVariable {
-    // TODO: we should not specify type here but due to de-serialization limitation
-    // See: https://github.com/cocos-creator/3d-tasks/issues/7909
-    @serializable
-    private _type: PlainVariableType = VariableType.FLOAT;
-
-    // Same as `_type`
-    @serializable
-    private _value: Value = 0.0;
-
-    constructor (type?: PlainVariableType) {
-        if (typeof type === 'undefined') {
-            return;
-        }
-
-        this._type = type;
-        switch (type) {
-        default:
-            break;
-        case VariableType.FLOAT:
-            this._value = 0;
-            break;
-        case VariableType.INTEGER:
-            this._value = 0.0;
-            break;
-        case VariableType.BOOLEAN:
-            this._value = false;
-            break;
-        }
-    }
-
-    get type () {
-        return this._type;
-    }
-
-    get value () {
-        return this._value;
-    }
-
-    set value (value) {
-        if (DEBUG) {
-            switch (this._type) {
-            default:
-                break;
-            case VariableType.FLOAT:
-                assertIsTrue(typeof value === 'number');
-                break;
-            case VariableType.INTEGER:
-                assertIsTrue(Number.isInteger(value));
-                break;
-            case VariableType.BOOLEAN:
-                assertIsTrue(typeof value === 'boolean');
-                break;
-            }
-        }
-        this._value = value;
-    }
-}
-
-@ccclass('cc.animation.TriggerVariable')
-class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> {
-    get type () {
-        return VariableType.TRIGGER as const;
-    }
-
-    get value () {
-        return !!((this._flags & TRIGGER_VARIABLE_FLAG_VALUE_MASK) >> TRIGGER_VARIABLE_FLAG_VALUE_START);
-    }
-
-    set value (value) {
-        if (value) {
-            this._flags |= (1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
-        } else {
-            this._flags &= ~(1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
-        }
-    }
-
-    get resetMode () {
-        return ((this._flags & TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK) >> TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
-    }
-
-    set resetMode (value: TriggerResetMode) {
-        // Clear
-        this._flags &= ~TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK;
-        // Set
-        this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
-    }
-
-    // l -> h
-    // value(1 bits) | reset_mode(2 bits)
-    @serializable
-    private _flags = TRIGGER_VARIABLE_DEFAULT_FLAGS;
 }
 
 /**
@@ -830,22 +875,6 @@ export interface AnimationGraphRunTime {
     readonly __brand: 'AnimationGraph';
 }
 
-interface BasicVariableDescription<TType> {
-    readonly type: TType;
-
-    value: TType extends VariableType.FLOAT ? number :
-        TType extends VariableType.INTEGER ? number :
-            TType extends VariableType.BOOLEAN ? boolean :
-                TType extends VariableType.TRIGGER ? boolean :
-                    never;
-}
-
-export type VariableDescription =
-    | BasicVariableDescription<VariableType.FLOAT>
-    | BasicVariableDescription<VariableType.INTEGER>
-    | BasicVariableDescription<VariableType.BOOLEAN>
-    | TriggerVariable;
-
 @ccclass('cc.animation.AnimationGraph')
 export class AnimationGraph extends AnimationGraphLike implements AnimationGraphRunTime {
     public declare readonly __brand: 'AnimationGraph';
@@ -860,12 +889,11 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
         super();
     }
 
-    onLoaded () {
+    onLoaded (): void {
         const { _layers: layers } = this;
         const nLayers = layers.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
-            const layer = layers[iLayer];
-            layer.stateMachine.__callOnAfterDeserializeRecursive();
+            layers[iLayer].__callOnAfterDeserializeRecursive();
         }
     }
 
@@ -881,7 +909,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * Adds a layer.
      * @returns The new layer.
      */
-    public addLayer () {
+    public addLayer (): Layer {
         const layer = new Layer();
         this._layers.push(layer);
         return layer;
@@ -891,7 +919,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * Removes a layer.
      * @param index Index to the layer to remove.
      */
-    public removeLayer (index: number) {
+    public removeLayer (index: number): void {
         js.array.removeAt(this._layers, index);
     }
 
@@ -900,62 +928,30 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param index
      * @param newIndex
      */
-    public moveLayer (index: number, newIndex: number) {
-        move(this._layers, index, newIndex);
+    public moveLayer (index: number, newIndex: number): void {
+        shift(this._layers, index, newIndex);
     }
 
     /**
-     * Adds a boolean variable.
+     * Adds a variable into this graph.
      * @param name The variable's name.
-     * @param value The variable's default value.
+     * @param type The variable's type.
+     * @param initialValue Initial value.
      */
-    public addBoolean (name: string, value = false) {
-        const variable = new PlainVariable(VariableType.BOOLEAN);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.BOOLEAN>;
-    }
-
-    /**
-     * Adds a floating variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     */
-    public addFloat (name: string, value = 0.0) {
-        const variable = new PlainVariable(VariableType.FLOAT);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.FLOAT>;
-    }
-
-    /**
-     * Adds an integer variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     */
-    public addInteger (name: string, value = 0) {
-        const variable = new PlainVariable(VariableType.INTEGER);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.INTEGER>;
-    }
-
-    /**
-     * Adds a trigger variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     * @param resetMode The trigger's reset mode.
-     */
-    public addTrigger (name: string, value = false, resetMode = TriggerResetMode.AFTER_CONSUMED) {
-        const variable = new TriggerVariable();
-        variable.resetMode = resetMode;
-        variable.value = value;
+    public addVariable<TVariableType extends VariableType> (
+        name: string, type: TVariableType, initialValue?: VariableTypeValueTypeMap[TVariableType],
+    ): VariableDescription {
+        const variable = createVariable(type, initialValue);
         this._variables[name] = variable;
+        return variable;
     }
 
-    public removeVariable (name: string) {
+    public removeVariable (name: string): void {
         delete this._variables[name];
     }
 
     public getVariable (name: string): VariableDescription | undefined {
-        return this._variables[name] as VariableDescription | undefined;
+        return this._variables[name];
     }
 
     /**
@@ -969,18 +965,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param name @zh 要重命名的变量的名字。 @en The name of the variable to be renamed.
      * @param newName @zh 新的名字。 @en New name.
      */
-    public renameVariable (name: string, newName: string) {
-        const { _variables: variables } = this;
-        if (!(name in variables)) {
-            return;
-        }
-        if (newName in variables) {
-            return;
-        }
-        // Rename but also retain order.
-        this._variables = Object.entries(variables).reduce((result, [k, v]) => {
-            result[k === name ? newName : k] = v;
-            return result;
-        }, {} as AnimationGraph['_variables']);
+    public renameVariable (name: string, newName: string): void {
+        this._variables = renameObjectProperty(this._variables, name, newName);
     }
 }

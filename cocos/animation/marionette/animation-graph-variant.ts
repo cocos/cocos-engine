@@ -1,10 +1,34 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, editable, serializable, type } from 'cc.decorator';
 import { removeIf } from '../../core/utils/array';
 import { AnimationClip } from '../animation-clip';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraph } from './animation-graph';
 import { AnimationGraphLike } from './animation-graph-like';
-import { ReadonlyClipOverrideMap } from './graph-eval';
+import type { ReadonlyClipOverrideMap } from './clip-overriding';
 
 /**
  * @en
@@ -34,7 +58,7 @@ export class AnimationGraphVariant extends AnimationGraphLike implements Animati
 
     @type(AnimationGraph)
     @editable
-    get original () {
+    get original (): AnimationGraph | null {
         return this._graph;
     }
 
@@ -55,24 +79,24 @@ export class AnimationGraphVariant extends AnimationGraphLike implements Animati
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ClipOverrideMap`)
 class ClipOverrideMap implements ReadonlyClipOverrideMap {
-    get size () {
+    get size (): number {
         return this._entries.length;
     }
 
-    public [Symbol.iterator] () {
+    public [Symbol.iterator] (): IterableIterator<ClipOverrideEntry> {
         return this._entries[Symbol.iterator]();
     }
 
-    public has (original: AnimationClip) {
+    public has (original: AnimationClip): boolean {
         return !!this._entries.find(({ original: o }) => o === original);
     }
 
-    public get (original: AnimationClip) {
+    public get (original: AnimationClip): AnimationClip | undefined {
         const entry = this._entries.find(({ original: o }) => o === original);
         return entry?.substitution;
     }
 
-    public set (original: AnimationClip, substitution: AnimationClip) {
+    public set (original: AnimationClip, substitution: AnimationClip): void {
         const entry = this._entries.find(({ original: o }) => o === original);
         if (entry) {
             entry.substitution = substitution;
@@ -84,11 +108,11 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
         }
     }
 
-    public delete (original: AnimationClip) {
+    public delete (original: AnimationClip): void {
         removeIf(this._entries, ({ original: o }) => o === original);
     }
 
-    public clear () {
+    public clear (): void {
         this._entries.length = 0;
     }
 

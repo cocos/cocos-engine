@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -46,7 +45,7 @@ const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 let QUAD_INDICES;
 
-function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]) {
+function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]): void {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -86,7 +85,7 @@ function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, 
     }
 }
 
-function _calculateVertices (sprite: Sprite) {
+function _calculateVertices (sprite: Sprite): void {
     const uiTrans = sprite.node._uiProps.uiTransformComp!;
     const width = uiTrans.width;
     const height = uiTrans.height;
@@ -131,7 +130,7 @@ function _calculateVertices (sprite: Sprite) {
     }
 }
 
-function _calculateUVs (spriteFrame: SpriteFrame) {
+function _calculateUVs (spriteFrame: SpriteFrame): void {
     const atlasWidth = spriteFrame.width;
     const atlasHeight = spriteFrame.height;
     const textureRect = spriteFrame.getRect();
@@ -167,7 +166,7 @@ function _calculateUVs (spriteFrame: SpriteFrame) {
     }
 }
 
-function _getVertAngle (start: Vec2, end: Vec2) {
+function _getVertAngle (start: Vec2, end: Vec2): number {
     const placementX = end.x - start.x;
     const placementY = end.y - start.y;
 
@@ -189,7 +188,7 @@ function _getVertAngle (start: Vec2, end: Vec2) {
     }
 }
 
-function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2) {
+function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2): void {
     const vertices = _vertices;
     const v0x = vertices[0];
     const v0y = vertices[1];
@@ -218,7 +217,7 @@ function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2
     _generateUV(progressX, progressY, dataList, offset + 2);
 }
 
-function _generateUV (progressX: number, progressY: number, data: IRenderData[], offset: number) {
+function _generateUV (progressX: number, progressY: number, data: IRenderData[], offset: number): void {
     const uvs = _uvs;
     const px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
     const px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
@@ -422,7 +421,7 @@ export const radialFilled: IAssembler = {
             const x = vert.x;
             const y = vert.y;
             let rhw = m.m03 * x + m.m07 * y + m.m15;
-            rhw = rhw ? Math.abs(1 / rhw) : 1;
+            rhw = rhw ? 1 / rhw : 1;
 
             vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
             vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;

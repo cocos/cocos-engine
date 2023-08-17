@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -33,15 +32,15 @@ import assetManager from './asset-manager';
 import { BuiltinBundleName } from './shared';
 import Bundle from './bundle';
 import { Settings, settings, cclegacy } from '../../core';
-import releaseManager from './release-manager';
+import { releaseManager } from './release-manager';
 import { Material } from '../assets';
 
-class BuiltinResMgr {
+export class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
     protected _materialsToBeCompiled: Material[] = [];
 
     // this should be called after renderer initialized
-    public init () {
+    public init (): void {
         const resources = this._resources;
         const len = 2;
         const numChannels = 4;
@@ -303,35 +302,35 @@ class BuiltinResMgr {
         }
     }
 
-    public addAsset (key: string, asset: Asset) {
+    public addAsset (key: string, asset: Asset): void {
         this._resources[key] = asset;
     }
 
-    public get<T extends Asset> (uuid: string) {
+    public get<T extends Asset> (uuid: string): T {
         return this._resources[uuid] as T;
     }
 
     /**
      * @internal
      */
-    public loadBuiltinAssets () {
+    public loadBuiltinAssets (): Promise<void> {
         const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
         if (TEST || !builtinAssets) return Promise.resolve();
         const resources = this._resources;
-        return new Promise<void>((resolve, reject) => {
-            assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
+        return new Promise<void>((resolve, reject): void => {
+            assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle): void => {
                 if (err) {
                     reject(err);
                     return;
                 }
-                assetManager.loadAny(builtinAssets, (err, assets) => {
+                assetManager.loadAny(builtinAssets, (err, assets): void => {
                     if (err) {
                         reject(err);
                     } else {
-                        assets.forEach((asset) => {
+                        assets.forEach((asset): void => {
                             resources[asset.name] = asset;
                             // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
-                            if (!EDITOR || cclegacy.GAME_VIEW) { releaseManager.addIgnoredAsset(asset); }
+                            if (!EDITOR_NOT_IN_PREVIEW) { releaseManager.addIgnoredAsset(asset); }
                             if (asset instanceof cclegacy.Material) {
                                 this._materialsToBeCompiled.push(asset as Material);
                             }
@@ -343,7 +342,7 @@ class BuiltinResMgr {
         });
     }
 
-    public compileBuiltinMaterial () {
+    public compileBuiltinMaterial (): void {
         // NOTE: Builtin material should be compiled again after the render pipeline setup
         for (let i = 0; i < this._materialsToBeCompiled.length; ++i) {
             const mat = this._materialsToBeCompiled[i];

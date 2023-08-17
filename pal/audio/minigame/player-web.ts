@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { clamp01 } from '../../../cocos/core';
@@ -6,6 +30,7 @@ import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
+import { Game, game } from '../../../cocos/game';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
@@ -15,7 +40,7 @@ export class OneShotAudioWeb {
     private _onPlayCb?: () => void;
     private _url: string;
 
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -23,7 +48,7 @@ export class OneShotAudioWeb {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -46,7 +71,7 @@ export class OneShotAudioWeb {
     public play (): void {
         this._bufferSourceNode.start();
         this.onPlay?.();
-        this._bufferSourceNode.onended = () => {
+        this._bufferSourceNode.onended = (): void => {
             audioBufferManager.tryReleasingCache(this._url);
             this._onEndCb?.();
         };
@@ -56,6 +81,7 @@ export class OneShotAudioWeb {
         this._bufferSourceNode.onended = null;  // stop will call ended callback
         audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
+        this._bufferSourceNode.disconnect();
         this._bufferSourceNode.buffer = null;
     }
 }
@@ -88,20 +114,20 @@ export class AudioPlayerWeb implements OperationQueueable {
 
         this._src = url;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    destroy () {
+    destroy (): void {
         this._audioTimer.destroy();
         if (this._audioBuffer) {
-            // @ts-expect-error need to release AudioBuffer instance
-            this._audioBuffer = null;
+            // NOTE: need to release AudioBuffer instance
+            this._audioBuffer = null as any;
         }
         audioBufferManager.tryReleasingCache(this._src);
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    private _onHide () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -110,10 +136,10 @@ export class AudioPlayerWeb implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd (): void {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
-            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onShow, this);
+            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
             return;
         }
         if (this._state === AudioState.INTERRUPTED) {
@@ -157,8 +183,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioWeb> {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume, url);
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
                 resolve(oneShotAudio);
             }).catch(reject);
         });
@@ -239,7 +265,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._state = AudioState.PLAYING;
             this._audioTimer.start();
 
-            this._sourceNode.onended = () => {
+            this._sourceNode.onended = (): void => {
                 this._audioTimer.stop();
                 this._eventTarget.emit(AudioEvent.ENDED);
                 this._state = AudioState.INIT;
@@ -248,12 +274,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
-    private _stopSourceNode () {
+    private _stopSourceNode (): void {
         try {
             if (this._sourceNode) {
                 this._sourceNode.onended = null;  // stop will call ended callback
                 this._sourceNode.stop();
+                this._sourceNode.disconnect();
                 this._sourceNode.buffer = null;
+                this._sourceNode = undefined;
             }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.
@@ -282,10 +310,10 @@ export class AudioPlayerWeb implements OperationQueueable {
         return Promise.resolve();
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

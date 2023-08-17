@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -131,14 +130,14 @@ DefaultResource::DefaultResource(Device *device) {
     ccstd::vector<uint8_t> buffer(bufferSize, 255);
     const uint8_t *bufferData = buffer.data();
     if (device->getCapabilities().maxTextureSize >= 2) {
-        _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, 
-            Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+        _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
+                                            Format::RGBA8, 2, 2, TextureFlagBit::NONE});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture2D, &region, 1);
     }
     if (device->getCapabilities().maxTextureSize >= 2) {
-        _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
-            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 6});
+        _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
+                                              Format::RGBA8, 2, 2, TextureFlagBit::NONE, 6});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
         region.texSubres.baseArrayLayer = 1;
@@ -154,30 +153,30 @@ DefaultResource::DefaultResource(Device *device) {
     }
 
     if (device->getCapabilities().max3DTextureSize >= 2) {
-        _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
-            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
+        _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
+                                            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::X1, 2});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 2}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture3D, &region, 1);
     }
     if (device->getCapabilities().maxArrayTextureLayers >= 2) {
-        _texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
-            Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
-        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
-        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
-        region.texSubres.baseArrayLayer = 1;
-        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
-    }
-    if (device->getCapabilities().maxArrayTextureLayers >= 2) {
-        _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
-            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
+        _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
+                                                 Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
         region.texSubres.baseArrayLayer = 1;
         device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
     }
+    {
+        BufferInfo bufferInfo = {};
+        bufferInfo.usage = BufferUsageBit::STORAGE | BufferUsageBit::TRANSFER_DST | BufferUsageBit::TRANSFER_SRC | BufferUsageBit::VERTEX | BufferUsageBit::INDEX | BufferUsageBit::INDIRECT;
+        bufferInfo.memUsage = MemoryUsageBit::DEVICE | MemoryUsageBit::HOST;
+        bufferInfo.size = 5 * sizeof(uint32_t); // for indirect command buffer
+        bufferInfo.stride = bufferInfo.size;
+        _buffer = device->createBuffer(bufferInfo);
+    }
 }
 
-const Texture *DefaultResource::getTexture(TextureType type) const {
+Texture *DefaultResource::getTexture(TextureType type) const {
     switch (type) {
         case TextureType::TEX2D:
             return _texture2D;
@@ -185,14 +184,16 @@ const Texture *DefaultResource::getTexture(TextureType type) const {
             return _textureCube;
         case TextureType::TEX3D:
             return _texture3D;
-        case TextureType::TEX1D_ARRAY:
-            return _texture1DArray;
         case TextureType::TEX2D_ARRAY:
             return _texture2DArray;
         default:
             CC_ABORT();
             return nullptr;
     }
+}
+
+Buffer *DefaultResource::getBuffer() const {
+    return _buffer;
 }
 
 } // namespace gfx

@@ -1,0 +1,64 @@
+CCEffect %{
+  temporaries:
+    b1: &b1
+      targets:
+      - blend: true
+        blendSrc: src_alpha
+        blendDst: one_minus_src_alpha
+        blendSrcAlpha: src_alpha
+        blendDstAlpha: one_minus_src_alpha
+    d1: &d1 { depthTest: true, depthWrite: false }
+    r1: &r1 { cullMode: none }
+    p1: &p1
+      mainTexture:            { value: white }
+      mainTiling_Offset:      { value: [1, 1, 0, 0]  }
+      frameTile_velLenScale:  { value: [1, 1, 0, 0]  }
+    p2: &p2
+      <<: *p1
+      tintColor:              { value: [0.5, 0.5, 0.5, 0.5], editor: { type: color } }
+
+  techniques:
+  - name: add
+    passes:
+    - vert: builtin/internal/particle-trail:vs_main
+      frag: tinted-fs:add
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      properties: *p2
+    - vert: builtin/internal/particle-trail:vs_main
+      frag: tinted-fs:add
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+}%
+
+// TODO: soft particle
+
+CCProgram tinted-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec2 uv;
+  in vec4 color;
+  #if CC_DRAW_WIRE_FRAME
+    in vec3 vBarycentric;
+  #endif
+
+  uniform sampler2D mainTexture;
+  uniform FragConstants {
+    vec4 tintColor;
+  };
+
+  vec4 add () {
+    vec4 col = 2.0 * color * tintColor * texture(mainTexture, uv);
+#if CC_DRAW_WIRE_FRAME
+    if (any(lessThan(vBarycentric, vec3(0.02)))) {
+        col = vec4(0., 1., 1., 1.);
+    }
+#endif
+    return CCFragOutput(col);
+  }
+}%

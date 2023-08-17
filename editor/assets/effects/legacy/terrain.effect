@@ -1,0 +1,323 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: terrain-vs
+      frag: terrain-fs
+      properties: &props
+        UVScale:      { value: [1, 1, 1, 1] }
+        metallic:     { value: [0, 0, 0, 0] }
+        roughness:    { value: [1, 1, 1, 1] }
+        weightMap:    { value: black }
+        detailMap0:   { value: grey }
+        detailMap1:   { value: grey }
+        detailMap2:   { value: grey }
+        detailMap3:   { value: grey }
+        normalMap0:   { value: normal }
+        normalMap1:   { value: normal }
+        normalMap2:   { value: normal }
+        normalMap3:   { value: normal }
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+      properties: *props
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-add
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: back
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred-forward
+      propertyIndex: 0
+}%
+
+CCProgram terrain-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
+  #if CC_RECEIVE_SHADOW
+    out vec2 v_shadowBias;
+  #endif
+
+  out highp vec3 v_position;
+  out mediump vec3 v_normal;
+  out mediump vec2 uvw;
+  out mediump vec2 uv0;
+  out mediump vec2 uv1;
+  out mediump vec2 uv2;
+  out mediump vec2 uv3;
+  out mediump vec3 luv;
+  out mediump vec3 diffuse;
+
+  uniform TexCoords {
+    vec4 UVScale;
+    vec4 lightMapUVParam;
+  };
+
+  void main () {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+
+    vec4 pos = vec4(worldPos, 1.0);
+    pos = cc_matViewProj * pos;
+
+    uvw = a_texCoord;
+    uv0 = a_position.xz * UVScale.x;
+    uv1 = a_position.xz * UVScale.y;
+    uv2 = a_position.xz * UVScale.z;
+    uv3 = a_position.xz * UVScale.w;
+    #if CC_USE_LIGHTMAP
+      luv.xy = cc_lightingMapUVParam.xy + a_texCoord * cc_lightingMapUVParam.z;
+      luv.z = cc_lightingMapUVParam.w;
+    #endif
+
+    v_position = worldPos;
+    v_normal = a_normal;
+    CC_TRANSFER_FOG(vec4(worldPos, 1.0));
+
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = vec2(0.0, 0.0);
+    #endif
+
+    CC_TRANSFER_SHADOW(vec4(worldPos, 1.0));
+
+    gl_Position = pos;
+  }
+}%
+
+CCProgram terrain-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/standard-surface-entry>
+  #include <legacy/fog-fs>
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-fs>
+  #endif
+  #pragma define-meta LAYERS range([0, 4])
+
+  in highp vec3 v_position;
+  in mediump vec3 v_normal;
+
+  #if CC_RECEIVE_SHADOW
+    in vec2 v_shadowBias;
+  #endif
+
+  in mediump vec2 uvw;
+  in mediump vec2 uv0;
+  in mediump vec2 uv1;
+  in mediump vec2 uv2;
+  in mediump vec2 uv3;
+  in mediump vec3 diffuse;
+  in mediump vec3 luv;
+
+  uniform PbrParams {
+    vec4 metallic;
+    vec4 roughness;
+  };
+
+  uniform sampler2D weightMap;
+  uniform sampler2D detailMap0;
+  uniform sampler2D detailMap1;
+  uniform sampler2D detailMap2;
+  uniform sampler2D detailMap3;
+  uniform sampler2D normalMap0;
+  uniform sampler2D normalMap1;
+  uniform sampler2D normalMap2;
+  uniform sampler2D normalMap3;
+
+  void surf (out StandardSurface s) {
+    #if LAYERS > 1
+      vec4 w = texture(weightMap, uvw);
+    #endif
+
+    vec4 baseColor = vec4(0, 0, 0, 0);
+    #if LAYERS == 1
+      baseColor = texture(detailMap0, uv0);
+    #elif LAYERS == 2
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
+    #elif LAYERS == 3
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
+      baseColor += texture(detailMap2, uv2) * w.b;
+    #elif LAYERS == 4
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
+      baseColor += texture(detailMap2, uv2) * w.b;
+      baseColor += texture(detailMap3, uv3) * w.a;
+    #else
+      baseColor = texture(detailMap0, uv0);
+    #endif
+
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+    #if USE_NORMALMAP
+      vec4 baseNormal = vec4(0, 0, 0, 0);
+      #if LAYERS == 1
+        baseNormal = texture(normalMap0, uv0);
+      #elif LAYERS == 2
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+      #elif LAYERS == 3
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+        baseNormal += texture(normalMap2, uv2) * w.b;
+      #elif LAYERS == 4
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+        baseNormal += texture(normalMap2, uv2) * w.b;
+        baseNormal += texture(normalMap3, uv3) * w.a;
+      #else
+        baseNormal = texture(normalMap0, uv0);
+      #endif
+
+      vec3 tangent = vec3(1.0, 0.0, 0.0);
+      vec3 binormal = vec3(0.0, 0.0, 1.0);
+
+      binormal = cross(tangent, v_normal);
+      tangent = cross(v_normal, binormal);
+
+      vec3 nmmp = baseNormal.xyz - vec3(0.5);
+      s.normal =
+        nmmp.x * normalize(tangent) +
+        nmmp.y * normalize(binormal) +
+        nmmp.z * normalize(v_normal);
+    #else
+      s.normal = v_normal;
+    #endif
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
+    #endif
+
+    s.albedo = vec4(SRGBToLinear(baseColor.rgb), 1.0);
+    s.occlusion = 1.0;
+    #if USE_PBR
+      s.roughness = 0.0;
+      #if LAYERS == 1
+        s.roughness = roughness.x;
+      #elif LAYERS == 2
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+      #elif LAYERS == 3
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+        s.roughness += roughness.z * w.b;
+      #elif LAYERS == 4
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+        s.roughness += roughness.z * w.b;
+        s.roughness += roughness.w * w.a;
+      #else
+        s.roughness = 1.0;
+      #endif
+
+      s.specularIntensity = 0.5;
+
+      s.metallic = 0.0;
+      #if LAYERS == 1
+        s.specularIntensity = 0.5;
+        s.metallic = metallic.x;
+      #elif LAYERS == 2
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+      #elif LAYERS == 3
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+        s.metallic += metallic.z * w.b;
+      #elif LAYERS == 4
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+        s.metallic += metallic.z * w.b;
+        s.metallic += metallic.w * w.a;
+      #else
+        s.specularIntensity = 0.5;
+        s.metallic = 0.0;
+      #endif
+    #else
+      s.roughness = 1.0;
+      s.specularIntensity = 0.5;
+      s.metallic = 0.0;
+    #endif
+    s.emissive = vec3(0.0, 0.0, 0.0);
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, luv.xy, luv.z, s.normal);
+    #endif
+  }
+
+  CC_STANDARD_SURFACE_ENTRY()
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-shadow>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
+  out highp vec2 v_clip_depth;
+
+  vec4 vert () {
+    vec4 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.w = 1.0;
+
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <common/data/packing>
+
+  #pragma define SHADOWMAP_FORMAT_RGBA8 1
+  #pragma define SHADOWMAP_FORMAT_FLOAT 0
+
+  in highp vec2 v_clip_depth;
+
+  vec4 frag () {
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+
+    //todo: do not support linear mode spot shadow
+
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
+  }
+}%

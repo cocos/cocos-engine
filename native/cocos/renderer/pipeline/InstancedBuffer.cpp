@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,7 +38,9 @@ InstancedBuffer::InstancedBuffer(const scene::Pass *pass)
   _device(gfx::Device::getInstance()) {
 }
 
-InstancedBuffer::~InstancedBuffer() = default;
+InstancedBuffer::~InstancedBuffer() {
+    destroy();
+}
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
@@ -65,6 +66,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     auto *lightingMap = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
     auto *reflectionProbeCubemap = descriptorSet->getTexture(REFLECTIONPROBECUBEMAP::BINDING);
     auto *reflectionProbePlanarMap = descriptorSet->getTexture(REFLECTIONPROBEPLANARMAP::BINDING);
+    auto *reflectionProbeBlendCubemap = descriptorSet->getTexture(REFLECTIONPROBEBLENDCUBEMAP::BINDING);
     uint32_t reflectionProbeType = subModel->getReflectionProbeType();
     auto *shader = shaderImplant;
     if (!shader) {
@@ -72,7 +74,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     }
 
     for (auto &instance : _instances) {
-        if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.count >= MAX_CAPACITY) {
+        if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.drawInfo.instanceCount >= MAX_CAPACITY) {
             continue;
         }
 
@@ -90,11 +92,14 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
         if (instance.reflectionProbePlanarMap != reflectionProbePlanarMap) {
             continue;
         }
+        if (instance.reflectionProbeBlendCubemap != reflectionProbeBlendCubemap) {
+            continue;
+        }
 
         if (instance.stride != stride) {
             continue;
         }
-        if (instance.count >= instance.capacity) { // resize buffers
+        if (instance.drawInfo.instanceCount >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
             const auto newSize = instance.stride * instance.capacity;
             instance.data = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
@@ -106,7 +111,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
         if (instance.descriptorSet != descriptorSet) {
             instance.descriptorSet = descriptorSet;
         }
-        memcpy(instance.data + instance.stride * instance.count++, attrs.buffer.buffer()->getData(), stride);
+        memcpy(instance.data + instance.stride * instance.drawInfo.instanceCount++, attrs.buffer.buffer()->getData(), stride);
         _hasPendingModels = true;
         return;
     }
@@ -139,24 +144,25 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     vertexBuffers.emplace_back(vb);
     const gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
     auto *ia = _device->createInputAssembler(iaInfo);
-    InstancedItem item = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet,
-                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType};
+    InstancedItem item = {INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet,
+                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType, reflectionProbeBlendCubemap,
+                          ia->getDrawInfo()};
+    item.drawInfo.instanceCount = 1;
     _instances.emplace_back(item);
     _hasPendingModels = true;
 }
 
 void InstancedBuffer::uploadBuffers(gfx::CommandBuffer *cmdBuff) const {
     for (const auto &instance : _instances) {
-        if (!instance.count) continue;
+        if (!instance.drawInfo.instanceCount) continue;
 
         cmdBuff->updateBuffer(instance.vb, instance.data, instance.vb->getSize());
-        instance.ia->setInstanceCount(instance.count);
     }
 }
 
 void InstancedBuffer::clear() {
     for (auto &instance : _instances) {
-        instance.count = 0;
+        instance.drawInfo.instanceCount = 0;
     }
     _hasPendingModels = false;
 }

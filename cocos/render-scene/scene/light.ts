@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3 } from '../../core';
 import { TransformBit } from '../../scene-graph/node-enum';
@@ -30,7 +29,7 @@ import { Node } from '../../scene-graph';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 
 // Color temperature (in Kelvin) to RGB
-export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
+export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number): void {
     if (kelvin < 1000.0) {
         kelvin = 1000.0;
     } else if (kelvin > 15000.0) {
@@ -64,10 +63,12 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
-export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
+export const nt2lm = (size: number): number => 4 * Math.PI * Math.PI * size * size;
 
 /**
  * @en The abstract light class of the render scene
@@ -78,7 +79,7 @@ export class Light {
      * @en Whether it's a baked light source, baked light will be ignored in real time lighting pass
      * @zh 是否是烘焙光源，烘焙光源会在实时光照计算中被忽略
      */
-    get baked () {
+    get baked (): boolean {
         return this._baked;
     }
 
@@ -92,6 +93,7 @@ export class Light {
      */
     set color (color: Vec3) {
         this._color.set(color);
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get color (): Vec3 {
@@ -104,6 +106,7 @@ export class Light {
      */
     set useColorTemperature (enable: boolean) {
         this._useColorTemperature = enable;
+        if (enable) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get useColorTemperature (): boolean {
@@ -117,6 +120,7 @@ export class Light {
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get colorTemperature (): number {
@@ -129,6 +133,10 @@ export class Light {
      */
     get colorTemperatureRGB (): Vec3 {
         return this._colorTempRGB;
+    }
+
+    get finalColor (): Readonly<Vec3> {
+        return this._finalColor;
     }
 
     /**
@@ -154,7 +162,7 @@ export class Light {
      * @en The node which owns the light source
      * @zh 光源归属的节点
      */
-    get node () {
+    get node (): Node | null {
         return this._node;
     }
 
@@ -162,7 +170,7 @@ export class Light {
      * @en The type of the light source, e.g. directional light, spot light, etc
      * @zh 光源的类型，比如方向光、聚光灯等
      */
-    get type () : LightType {
+    get type (): LightType {
         return this._type;
     }
 
@@ -170,7 +178,7 @@ export class Light {
      * @en The name of the light source
      * @zh 光源的名字
      */
-    get name () {
+    get name (): string | null {
         return this._name;
     }
 
@@ -182,7 +190,7 @@ export class Light {
      * @en The render scene which owns the current light
      * @zh 光源所属的渲染场景
      */
-    get scene () {
+    get scene (): RenderScene | null {
         return this._scene;
     }
 
@@ -193,6 +201,8 @@ export class Light {
     protected _colorTemp = 6550.0;
 
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
+
+    private _finalColor: Vec3 = new Vec3(1, 1, 1);
 
     protected _scene: RenderScene | null = null;
 
@@ -206,7 +216,7 @@ export class Light {
 
     protected _visibility = CAMERA_DEFAULT_MASK;
 
-    public initialize () {
+    public initialize (): void {
         this.color = new Vec3(1, 1, 1);
         this.colorTemperature = 6550.0;
     }
@@ -216,7 +226,7 @@ export class Light {
      * @zh 将光源挂载到渲染场景上
      * @param scene @en The render scene @zh 渲染场景
      */
-    public attachToScene (scene: RenderScene) {
+    public attachToScene (scene: RenderScene): void {
         this._scene = scene;
     }
 
@@ -224,14 +234,14 @@ export class Light {
      * @en Detach the light from the render scene
      * @zh 将光源从渲染场景上移除
      */
-    public detachFromScene () {
+    public detachFromScene (): void {
         this._scene = null;
     }
 
-    public destroy () {
+    public destroy (): void {
         this._name = null;
         this._node = null;
     }
 
-    public update () {}
+    public update (): void {}
 }

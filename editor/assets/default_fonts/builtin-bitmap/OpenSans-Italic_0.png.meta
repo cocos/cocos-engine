@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "1a8fc1a3-80e2-4d20-9087-426d2162ba44",
@@ -117,7 +117,7 @@
         "pivotY": 0.5,
         "meshType": 0
       },
-      "ver": "1.0.11",
+      "ver": "1.0.12",
       "imported": true,
       "files": [
         ".json"

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IVec3Like } from '../../core';
@@ -30,13 +29,13 @@ import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltInWorld } from './builtin-world';
 
 export class BuiltinRigidBody implements IRigidBody {
-    get impl () { return this; }
-    get isAwake () { return true; }
-    get isSleepy () { return false; }
-    get isSleeping () { return false; }
+    get impl (): BuiltinRigidBody { return this; }
+    get isAwake (): boolean { return true; }
+    get isSleepy (): boolean { return false; }
+    get isSleeping (): boolean { return false; }
 
-    get rigidBody () { return this._rigidBody; }
-    get sharedBody () { return this._sharedBody; }
+    get rigidBody (): RigidBody { return this._rigidBody; }
+    get sharedBody (): BuiltinSharedBody { return this._sharedBody; }
 
     private _rigidBody!: RigidBody;
     protected _sharedBody!: BuiltinSharedBody;
@@ -47,30 +46,30 @@ export class BuiltinRigidBody implements IRigidBody {
         this._sharedBody.reference = true;
     }
 
-    onEnable () {
+    onEnable (): void {
         this._sharedBody.enabled = true;
     }
 
-    onDisable () {
+    onDisable (): void {
         this._sharedBody.enabled = false;
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         (this._rigidBody as any) = null;
         (this._sharedBody as any) = null;
     }
 
-    setMass (v: number) { }
-    setType (v: ERigidBodyType) { }
-    setLinearDamping (v: number) { }
-    setAngularDamping (v: number) { }
-    useGravity (v: boolean) { }
-    useCCD (v: boolean) { }
-    isUsingCCD () { return false; }
-    setLinearFactor (v: IVec3Like) { }
-    setAngularFactor (v: IVec3Like) { }
-    setAllowSleep (v: boolean) { }
+    setMass (v: number): void { }
+    setType (v: ERigidBodyType): void { }
+    setLinearDamping (v: number): void { }
+    setAngularDamping (v: number): void { }
+    useGravity (v: boolean): void { }
+    useCCD (v: boolean): void { }
+    isUsingCCD (): boolean { return false; }
+    setLinearFactor (v: IVec3Like): void { }
+    setAngularFactor (v: IVec3Like): void { }
+    setAllowSleep (v: boolean): void { }
     wakeUp (): void { }
     sleep (): void { }
     clearState (): void { }

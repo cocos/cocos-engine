@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,6 +36,7 @@ import * as RF from './utils/requiring-frame';
 
 import { legacyCC } from '../global-exports';
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
+import { setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
 
 const DELIMETER = attributeUtils.DELIMETER;
 const CCCLASS_TAG = '__ctors__'; // Still use this historical name to avoid unsynchronized version issue
@@ -51,14 +51,14 @@ export const ENUM_TAG = 'Enum';
  */
 export const BITMASK_TAG = 'BitMask';
 
-function pushUnique (array, item) {
+function pushUnique (array, item): void {
     if (array.indexOf(item) < 0) {
         array.push(item);
     }
 }
 
-// both getter and prop must register the name into __props__ array
-function appendProp (cls, name) {
+// both getter and prop must register the name into `__props__` array
+function appendProp (cls, name): void {
     if (DEV) {
         // if (!IDENTIFIER_RE.test(name)) {
         //    error('The property name "' + name + '" is not compliant with JavaScript naming standards');
@@ -72,10 +72,11 @@ function appendProp (cls, name) {
     pushUnique(cls.__props__, name);
 }
 
-function defineProp (cls, className, propName, val) {
+function defineProp (cls, className, propName, val): void {
     if (DEV) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
+            // eslint-disable-next-line no-prototype-builtins
             .some((x) => x.prototype.hasOwnProperty(propName))) {
             errorID(3637, className, propName, className);
             return;
@@ -94,7 +95,7 @@ function defineProp (cls, className, propName, val) {
     }
 }
 
-function defineGetSet (cls, name, propName, val) {
+function defineGetSet (cls, name, propName, val): void {
     const getter = val.get;
     const setter = val.set;
 
@@ -123,7 +124,7 @@ function defineGetSet (cls, name, propName, val) {
     }
 }
 
-function getDefault (defaultVal) {
+function getDefault (defaultVal): any {
     if (typeof defaultVal === 'function') {
         if (EDITOR) {
             try {
@@ -139,7 +140,7 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-function doDefine (className, baseClass, options) {
+function doDefine (className, baseClass, options): any {
     const ctor = options.ctor;
 
     if (DEV) {
@@ -160,7 +161,7 @@ function doDefine (className, baseClass, options) {
     return ctor;
 }
 
-function define (className, baseClass, options) {
+function define (className, baseClass, options): any {
     const Component = legacyCC.Component;
     const frame = RF.peek();
 
@@ -198,10 +199,10 @@ function define (className, baseClass, options) {
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
         }
 
-        // Note: `options.ctor` should be same as `cls` except if
+        // Note: `options.ctor` should be the same as `cls` except if
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
-        // So we can not use `options.ctor`. Instead we should use `cls` which is the "real" registered cc-class.
+        // So we can not use `options.ctor`. Instead, we should use `cls` which is the "real" registered cc-class.
         EditorExtends.emit('class-registered', cls, frame, className);
     }
 
@@ -223,7 +224,7 @@ function define (className, baseClass, options) {
     return cls;
 }
 
-function getNewValueTypeCodeJit (value) {
+function getNewValueTypeCodeJit (value): string {
     const clsName = js.getClassName(value);
     const type = value.constructor;
     let res = `new ${clsName}(`;
@@ -244,9 +245,9 @@ function getNewValueTypeCodeJit (value) {
 
 // TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCodeJit to misc.js or a new source file
 
-// convert a normal string including newlines, quotes and unicode characters into a string literal
+// convert a normal string including newlines, quotes and Unicode characters into a string literal
 // ready to use in JavaScript source
-function escapeForJS (s) {
+function escapeForJS (s): string {
     return JSON.stringify(s)
         // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
         .replace(/\u2028/g, '\\u2028')
@@ -256,7 +257,7 @@ function escapeForJS (s) {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function declareProperties (cls, className, properties, baseClass) {
+function declareProperties (cls, className, properties, baseClass): void {
     cls.__props__ = [];
 
     if (baseClass && baseClass.__props__) {
@@ -278,7 +279,7 @@ function declareProperties (cls, className, properties, baseClass) {
     }
 
     const attrs = attributeUtils.getClassAttrs(cls);
-    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop + DELIMETER}serializable`] !== false);
+    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
 }
 
 export function CCClass<TFunction> (options: {
@@ -287,7 +288,7 @@ export function CCClass<TFunction> (options: {
     ctor: TFunction;
     properties?: any;
     editor?: any;
-}) {
+}): any {
     let name = options.name;
     const base = options.extends/* || CCObject */;
 
@@ -311,7 +312,7 @@ export function CCClass<TFunction> (options: {
         if (js.isChildClassOf(base, legacyCC.Component)) {
             legacyCC.Component._registerEditorProps(cls, editor);
         } else if (DEV) {
-            warnID(3623, name);
+            warnID(3623, name!);
         }
     }
 
@@ -344,7 +345,7 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
 // @param {Object} serializableFields
 // @private
 //
-CCClass.fastDefine = function (className, constructor, serializableFields) {
+CCClass.fastDefine = function (className, constructor, serializableFields): void {
     js.setClassName(className, constructor);
     const props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
     const attrs = attributeUtils.getClassAttrs(constructor);
@@ -359,13 +360,13 @@ CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 
 /**
- * Returns if the class is a cc-class or is fast defined.
+ * Returns if the class is a cc-class or is fast-defined.
  * @param constructor The constructor of the class.
  * @returns Judge result.
  * @engineInternal
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function isCCClassOrFastDefined<T> (constructor: Constructor<T>) {
+export function isCCClassOrFastDefined<T> (constructor: Constructor<T>): boolean {
     // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
     return  constructor?.hasOwnProperty?.('__values__');
 }
@@ -376,7 +377,7 @@ CCClass.isCCClassOrFastDefined = isCCClassOrFastDefined;
  * Return all super classes.
  * @param constructor The Constructor.
  */
-function getInheritanceChain (constructor) {
+function getInheritanceChain (constructor): any[] {
     const chain: any[] = [];
     for (; ;) {
         constructor = getSuper(constructor);
@@ -416,12 +417,12 @@ interface AttributesRecord {
     default?: unknown;
 }
 
-function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter) {
+function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
     const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
 
     let attrs: IParsedAttribute | null = null;
     let propertyNamePrefix = '';
-    function initAttrs () {
+    function initAttrs (): any {
         propertyNamePrefix = propertyName + DELIMETER;
         return attrs = attributeUtils.getClassAttrs(constructor);
     }
@@ -455,8 +456,11 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         // }
         else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
-                (attrs || initAttrs())[`${propertyNamePrefix}type`] = ENUM_TAG;
-                attrs![`${propertyNamePrefix}enumList`] = Enum.getList(type);
+                setPropertyEnumTypeOnAttrs(
+                    attrs || initAttrs(),
+                    propertyName,
+                    type,
+                );
             } else if (BitMask.isBitMask(type)) {
                 (attrs || initAttrs())[`${propertyNamePrefix}type`] = BITMASK_TAG;
                 attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
@@ -479,10 +483,12 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
     } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
-        warnID(3654, className, propertyName);
+        // TODO: we close this warning for now:
+        // issue: https://github.com/cocos/3d-tasks/issues/14887
+        // warnID(3654, className, propertyName);
     }
 
-    const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string) => {
+    const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string): void => {
         if (attributeName in attributes) {
             const val = attributes[attributeName];
             if (typeof val === expectType) {
@@ -515,6 +521,8 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         }
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
+        parseSimpleAttribute('userData', 'object');
+        parseSimpleAttribute('radioGroup', 'boolean');
     }
 
     const isStandaloneMode = attributes.__internalFlags & PropertyStashInternalFlag.STANDALONE;
@@ -588,7 +596,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     parseSimpleAttribute('step', 'number');
 }
 
-CCClass.isArray = function (defaultVal) {
+CCClass.isArray = function (defaultVal): boolean {
     defaultVal = getDefault(defaultVal);
     return Array.isArray(defaultVal);
 };
@@ -596,6 +604,7 @@ CCClass.isArray = function (defaultVal) {
 CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
-CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
+// NOTE: the type of getNewValueTypeCode can be ((value: any) => string) or boolean.
+CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as any;
 
 legacyCC.Class = CCClass;

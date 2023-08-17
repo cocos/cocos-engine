@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { RecyclePool, CachedArray } from '../core';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
@@ -34,7 +33,7 @@ import { getPhaseID } from './pass-phase';
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
  * @zh 比较排序函数。不透明对象按优先级 -> 深度由前向后 -> Shader ID 顺序排序。
  */
-export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
+export function opaqueCompareFn (a: IRenderPass, b: IRenderPass): number {
     return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderId - b.shaderId);
 }
 
@@ -42,7 +41,7 @@ export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
  * @en Comparison sorting function. Transparent objects are sorted by priority -> depth back to front -> shader ID.
  * @zh 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> Shader ID 顺序排序。
  */
-export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
+export function transparentCompareFn (a: IRenderPass, b: IRenderPass): number {
     return (a.priority - b.priority) || (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
 }
 
@@ -67,7 +66,7 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>(() => ({
+        this._passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
             priority: 0,
             hash: 0,
             depth: 0,
@@ -82,7 +81,7 @@ export class RenderQueue {
      * @en Clear the render queue
      * @zh 清空渲染队列。
      */
-    public clear () {
+    public clear (): void {
         this.queue.clear();
         this._passPool.reset();
     }
@@ -119,11 +118,11 @@ export class RenderQueue {
      * @en Sort the current queue
      * @zh 排序渲染队列。
      */
-    public sort () {
+    public sort (): void {
         this.queue.sort();
     }
 
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
             const { inputAssembler } = subModel;
@@ -139,7 +138,7 @@ export class RenderQueue {
     }
 }
 
-export function convertRenderQueue (desc: RenderQueueDesc) {
+export function convertRenderQueue (desc: RenderQueueDesc): RenderQueue {
     let phase = 0;
     for (let j = 0; j < desc.stages.length; j++) {
         phase |= getPhaseID(desc.stages[j]);
@@ -168,7 +167,7 @@ export function convertRenderQueue (desc: RenderQueueDesc) {
  * @zh 清空指定的渲染队列
  * @param rq The render queue
  */
-export function renderQueueClearFunc (rq: RenderQueue) {
+export function renderQueueClearFunc (rq: RenderQueue): void {
     rq.clear();
 }
 
@@ -177,6 +176,6 @@ export function renderQueueClearFunc (rq: RenderQueue) {
  * @zh 对指定的渲染队列执行排序
  * @param rq The render queue
  */
-export function renderQueueSortFunc (rq: RenderQueue) {
+export function renderQueueSortFunc (rq: RenderQueue): void {
     rq.sort();
 }

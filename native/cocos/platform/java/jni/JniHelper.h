@@ -1,20 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cc-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,7 +35,7 @@
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
 
-//The macro must be used this way to find the native method. The principle is not well understood.
+// The macro must be used this way to find the native method. The principle is not well understood.
 #define JNI_METHOD2(CLASS2, FUNC2) Java_##CLASS2##_##FUNC2
 #define JNI_METHOD1(CLASS1, FUNC1) JNI_METHOD2(CLASS1, FUNC1)
 
@@ -48,7 +47,7 @@
             CC_LOG_DEBUG("deleteLocalRef file: %s, func: %s, line: %d", __FILE__, __FUNCTION__, __LINE__); \
         } while (0)
 #else
-    #define ccDeleteLocalRef(jenv, ref) jenv->DeleteLocalRef(ref); //NOLINT
+    #define ccDeleteLocalRef(jenv, ref) jenv->DeleteLocalRef(ref); // NOLINT
 #endif
 #define CLEAR_EXCEPTON(env)           \
     do {                              \
@@ -62,7 +61,7 @@ struct android_app;
 
 namespace cc {
 
-using JniMethodInfo = struct JniMethodInfo_ { //NOLINT(readability-identifier-naming)
+using JniMethodInfo = struct JniMethodInfo_ { // NOLINT(readability-identifier-naming)
     JNIEnv *env;
     jclass classID;
     jmethodID methodID;
@@ -75,16 +74,18 @@ public:
     static JavaVM *getJavaVM();
     static JNIEnv *getEnv();
     static jobject getActivity();
-    static void init(JNIEnv *env, jobject activity);
+    static jobject getContext();
+
+    static void init(JNIEnv *env, jobject context);
     static void onDestroy();
 
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getStaticMethodInfo(JniMethodInfo &methodInfo,
                                     const char *className,
                                     const char *methodName,
                                     const char *paramCode);
 
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getMethodInfo(JniMethodInfo &methodInfo,
                               const char *className,
                               const char *methodName,
@@ -389,14 +390,14 @@ public:
         }
         return ret;
     }
-    static bool setClassLoaderFrom(jobject activityInstance);
+    static bool setClassLoaderFrom(jobject contextInstance);
 
 private:
-    static jobject sActivity;
+    static jobject sContext;
     static JavaVM *sJavaVM;
 
     static JNIEnv *cacheEnv();
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getMethodInfoDefaultClassLoader(JniMethodInfo &methodinfo,
                                                 const char *className,
                                                 const char *methodName,

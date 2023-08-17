@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventType } from './web-view-enums';
@@ -30,6 +29,9 @@ import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
 import { contains } from '../core/utils/misc';
+import { ccwindow } from '../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 const _mat4_temp = mat4();
 
@@ -38,11 +40,11 @@ export class WebViewImplWeb extends WebViewImpl {
         super(component);
     }
 
-    _bindDomEvent () {
+    _bindDomEvent (): void {
         if (!this.webview) {
             return;
         }
-        const onLoaded = (e: Event) => {
+        const onLoaded = (e: Event): void => {
             this._forceUpdate = true;
             this.dispatchEvent(EventType.LOADED);
 
@@ -56,7 +58,7 @@ export class WebViewImplWeb extends WebViewImpl {
         this.webview.addEventListener('load', onLoaded);
     }
 
-    public loadURL (url: string) {
+    public loadURL (url: string): void {
         if (this.webview) {
             this.webview.src = url;
             // emit loading event
@@ -64,8 +66,8 @@ export class WebViewImplWeb extends WebViewImpl {
         }
     }
 
-    public createWebView () {
-        const wrapper = document.createElement('div');
+    public createWebView (): void {
+        const wrapper = ccdocument.createElement('div');
         this._wrapper = wrapper;
         wrapper.id = 'webview-wrapper';
         wrapper.style['-webkit-overflow'] = 'auto';
@@ -77,7 +79,7 @@ export class WebViewImplWeb extends WebViewImpl {
         wrapper.style['-webkit-transform-origin'] = '0px 100% 0px';
         game.container!.appendChild(wrapper);
 
-        const webview = document.createElement('iframe');
+        const webview = ccdocument.createElement('iframe');
         this._webview = webview;
         webview.id = 'webview';
         webview.style.border = 'none';
@@ -87,7 +89,7 @@ export class WebViewImplWeb extends WebViewImpl {
         this._bindDomEvent();
     }
 
-    public removeWebView () {
+    public removeWebView (): void {
         const wrapper = this._wrapper;
         if (contains(game.container, wrapper)) {
             game.container!.removeChild(wrapper);
@@ -95,19 +97,19 @@ export class WebViewImplWeb extends WebViewImpl {
         this.reset();
     }
 
-    public enable () {
+    public enable (): void {
         if (this._wrapper) {
             this._wrapper.style.visibility = 'visible';
         }
     }
 
-    public disable () {
+    public disable (): void {
         if (this._wrapper) {
             this._wrapper.style.visibility = 'hidden';
         }
     }
 
-    public evaluateJS (str: string) {
+    public evaluateJS (str: string): void {
         if (this.webview) {
             const win = this.webview.contentWindow;
             if (win) {
@@ -121,15 +123,15 @@ export class WebViewImplWeb extends WebViewImpl {
         }
     }
 
-    public setOnJSCallback (callback: () => void) {
+    public setOnJSCallback (callback: () => void): void {
         warn('The platform does not support');
     }
 
-    public setJavascriptInterfaceScheme (scheme: string) {
+    public setJavascriptInterfaceScheme (scheme: string): void {
         warn('The platform does not support');
     }
 
-    public syncMatrix () {
+    public syncMatrix (): void {
         if (!this._wrapper || !this._uiTrans || !this._component || this._wrapper.style.visibility === 'hidden') return;
 
         const camera = this.UICamera;

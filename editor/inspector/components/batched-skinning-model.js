@@ -1,8 +1,9 @@
-const { template, $, update } = require('./base');
+const { template, $, update, close } = require('./base');
 
 exports.template = template;
 exports.$ = $;
 exports.update = update;
+exports.close = close;
 
 exports.ready = function() {
     const $prop = document.createElement('ui-prop');
@@ -20,10 +21,8 @@ exports.ready = function() {
     $prop.appendChild($button);
 
     $button.addEventListener('confirm', async () => {
-        Editor.Message.send('scene', 'snapshot');
-
         const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
-
+        const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
         for (const uuid of uuids) {
             await Editor.Message.request('scene', 'execute-component-method', {
                 uuid: uuid,
@@ -39,7 +38,6 @@ exports.ready = function() {
                 args: [],
             });
         }
-
-        Editor.Message.send('scene', 'snapshot');
+        await Editor.Message.request('scene', 'end-recording', undoID);
     });
 };

@@ -2,20 +2,19 @@
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -40,6 +39,9 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { ccwindow } from '../../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -101,7 +103,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderStyleSheet: HTMLStyleElement | null = null;
     private _domId = `EditBoxId_${++_domCount}`;
 
-    public init (delegate: EditBox) {
+    public init (delegate: EditBox): void {
         if (!delegate) {
             return;
         }
@@ -120,7 +122,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._addDomToGameContainer();
     }
 
-    public clear () {
+    public clear (): void {
         this._removeEventListeners();
         this._removeDomFromGameContainer();
 
@@ -134,16 +136,16 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._delegate = null;
     }
 
-    public update () {
+    public update (): void {
         this._updateMatrix();
     }
 
-    public setTabIndex (index: number) {
+    public setTabIndex (index: number): void {
         this._edTxt!.tabIndex = index;
         tabIndexUtil.resort();
     }
 
-    public setSize (width: number, height: number) {
+    public setSize (width: number, height: number): void {
         const elem = this._edTxt;
         if (elem) {
             elem.style.width = `${width}px`;
@@ -151,7 +153,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    public beginEditing () {
+    public beginEditing (): void {
         if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
             _currentEditBoxImpl.setFocus(false);
         }
@@ -163,42 +165,42 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._edTxt!.focus();
     }
 
-    public endEditing () {
+    public endEditing (): void {
         this._edTxt!.blur();
     }
 
-    private _createInput () {
+    private _createInput (): void {
         this._isTextArea = false;
-        this._edTxt = document.createElement('input');
+        this._edTxt = ccdocument.createElement('input');
     }
 
-    private _createTextArea () {
+    private _createTextArea (): void {
         this._isTextArea = true;
-        this._edTxt = document.createElement('textarea');
+        this._edTxt = ccdocument.createElement('textarea');
     }
 
-    private _addDomToGameContainer () {
+    private _addDomToGameContainer (): void {
         if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
-            document.head.appendChild(this._placeholderStyleSheet!);
+            ccdocument.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
-    private _removeDomFromGameContainer () {
+    private _removeDomFromGameContainer (): void {
         const hasElem = contains(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
             game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = contains(ccdocument.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet!);
+            ccdocument.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
         this._placeholderStyleSheet = null;
     }
 
-    private _showDom () {
+    private _showDom (): void {
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();
@@ -211,7 +213,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    private _hideDom () {
+    private _hideDom (): void {
         const elem = this._edTxt;
         if (elem && this._delegate) {
             elem.style.display = 'none';
@@ -222,7 +224,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    private _showDomOnMobile () {
+    private _showDomOnMobile (): void {
         if (sys.os !== OS.ANDROID && sys.os !== OS.OHOS) {
             return;
         }
@@ -231,7 +233,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._adjustWindowScroll();
     }
 
-    private _hideDomOnMobile () {
+    private _hideDomOnMobile (): void {
         if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
             screenAdapter.handleResizeEvent = true;
         }
@@ -239,29 +241,29 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._scrollBackWindow();
     }
 
-    private _adjustWindowScroll () {
+    private _adjustWindowScroll (): void {
         setTimeout(() => {
-            if (window.scrollY < SCROLLY) {
+            if (ccwindow.scrollY < SCROLLY) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
     }
 
-    private _scrollBackWindow () {
+    private _scrollBackWindow (): void {
         setTimeout(() => {
             if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
-                if (window.top) {
-                    window.top.scrollTo(0, 0);
+                if (ccwindow.top) {
+                    ccwindow.top.scrollTo(0, 0);
                 }
 
                 return;
             }
 
-            window.scrollTo(0, 0);
+            ccwindow.scrollTo(0, 0);
         }, DELAY_TIME);
     }
 
-    private _updateMatrix () {
+    private _updateMatrix (): void {
         if (!this._edTxt) {
             return;
         }
@@ -277,9 +279,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         const transform = node._uiProps.uiTransformComp;
         if (transform) {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
+            Mat4.transform(_matrix, _matrix, _vec3);
         }
-
-        Mat4.transform(_matrix, _matrix, _vec3);
 
         if (!node._uiProps.uiTransformComp) {
             return;
@@ -288,7 +289,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         const camera = director.root!.batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
-        // camera.getWorldToCameraMatrix(_matrix_temp);
         camera.node.getWorldRT(_matrix_temp);
         const m12 = _matrix_temp.m12;
         const m13 = _matrix_temp.m13;
@@ -296,22 +296,29 @@ export class EditBoxImpl extends EditBoxImplBase {
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
-        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = game.container;
-        const a = _matrix_temp.m00 * scaleX;
-        const b = _matrix.m01;
-        const c = _matrix.m04;
-        const d = _matrix_temp.m05 * scaleY;
+        Vec3.set(_vec3, scaleX, scaleY, 1);
+        Mat4.scale(_matrix_temp, _matrix_temp, _vec3);
 
+        const container = game.container;
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
         offsetX += viewport.x / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
-        const tx = _matrix_temp.m12 * scaleX + offsetX;
-        const ty = _matrix_temp.m13 * scaleY + offsetY;
+        _matrix_temp.m12 += offsetX;
+        _matrix_temp.m13 += offsetY;
+
+        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
+
+        const a = _matrix_temp.m00;
+        const b = _matrix_temp.m01;
+        const c = _matrix_temp.m04;
+        const d = _matrix_temp.m05;
+
+        const tx = _matrix_temp.m12;
+        const ty = _matrix_temp.m13;
 
         const matrix = `matrix(${a},${-b},${-c},${d},${tx},${-ty})`;
         this._edTxt.style.transform = matrix;
@@ -320,7 +327,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._edTxt.style['-webkit-transform-origin'] = '0px 100% 0px';
     }
 
-    private _updateInputType () {
+    private _updateInputType (): void {
         const delegate = this._delegate;
         const inputMode = delegate!.inputMode;
         const inputFlag = delegate!.inputFlag;
@@ -390,7 +397,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.textTransform = textTransform;
     }
 
-    private _updateMaxLength () {
+    private _updateMaxLength (): void {
         let maxLength = this._delegate!.maxLength;
         if (maxLength < 0) {
             maxLength = 65535;
@@ -398,7 +405,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._edTxt!.maxLength = maxLength;
     }
 
-    private _initStyleSheet () {
+    private _initStyleSheet (): void {
         if (!this._edTxt) {
             return;
         }
@@ -428,10 +435,10 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.overflowY = 'scroll';
         }
 
-        this._placeholderStyleSheet = document.createElement('style');
+        this._placeholderStyleSheet = ccdocument.createElement('style');
     }
 
-    private _updateStyleSheet () {
+    private _updateStyleSheet (): void {
         const delegate = this._delegate;
         const elem = this._edTxt;
         if (elem && delegate) {
@@ -444,7 +451,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    private _updateTextLabel (textLabel) {
+    private _updateTextLabel (textLabel): void {
         if (!textLabel) {
             return;
         }
@@ -494,7 +501,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    private _updatePlaceholderLabel (placeholderLabel) {
+    private _updatePlaceholderLabel (placeholderLabel): void {
         if (!placeholderLabel) {
             return;
         }
@@ -551,7 +558,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
     }
 
-    private _registerEventListeners () {
+    private _registerEventListeners (): void {
         if (!this._edTxt) {
             return;
         }
@@ -560,16 +567,16 @@ export class EditBoxImpl extends EditBoxImplBase {
         let inputLock = false;
         const cbs = this.__eventListeners;
 
-        cbs.compositionStart = () => {
+        cbs.compositionStart = (): void => {
             inputLock = true;
         };
 
-        cbs.compositionEnd = () => {
+        cbs.compositionEnd = (): void => {
             inputLock = false;
             this._delegate!._editBoxTextChanged(elem.value);
         };
 
-        cbs.onInput = () => {
+        cbs.onInput = (): void => {
             if (inputLock) {
                 return;
             }
@@ -582,7 +589,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             delegate!._editBoxTextChanged(elem.value);
         };
 
-        cbs.onClick = () => {
+        cbs.onClick = (): void => {
             if (this._editing) {
                 if (sys.isMobile) {
                     this._adjustWindowScroll();
@@ -590,7 +597,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             }
         };
 
-        cbs.onKeydown = (e) => {
+        cbs.onKeydown = (e): void => {
             if (e.keyCode === KeyCode.ENTER) {
                 e.propagationStopped = true;
                 this._delegate!._editBoxEditingReturn();
@@ -606,7 +613,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             }
         };
 
-        cbs.onBlur = () => {
+        cbs.onBlur = (): void => {
             // on mobile, sometimes input element doesn't fire compositionend event
             if (sys.isMobile && inputLock) {
                 cbs.compositionEnd();
@@ -624,7 +631,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
     }
-    private _removeEventListeners () {
+    private _removeEventListeners (): void {
         if (!this._edTxt) {
             return;
         }

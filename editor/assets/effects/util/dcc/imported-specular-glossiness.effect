@@ -1,0 +1,455 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveMap:           { value: grey }
+        emissiveScale:         { value: 1.0 }
+        emissiveScaleMap:      { value: grey }
+        shininessExponentMap:  { value: grey }
+        shininessExponent:     { value: 100.0 }
+        specularGlossinessMap: { value: grey }
+        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } }
+        specularMap:           { value: grey }
+        specularFactor:        { value: 1.0 }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } }
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        normalMap:             { value: normal }
+        glossiness:            { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:              { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:           { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
+        occlusionMap:          { value: white }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs
+      frag: shadow-caster-fs
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } }
+        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      propertyIndex: 0
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState: &b1
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+    - &deferred-forward
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred-forward
+      embeddedMacros: { CC_PIPELINE_TYPE: 0 }
+      depthStencilState: *d1
+      blendState: *b1
+      propertyIndex: 0
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4  tilingOffset;
+    vec4  diffuseColor;
+    vec4  specularColor;
+    vec4  emissive;
+    float emissiveScale;
+    float alphaThreshold;
+    float shininessExponent;
+    float glossiness;
+    float metallic;
+    float normalScale;
+    float transparencyFactor;
+    float diffuseFactor;
+    float specularFactor;
+  };
+}%
+
+CCProgram macro-remapping %{
+  // ui displayed macros
+  #pragma define-meta HAS_SECOND_UV
+  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_REFLECTION_DENOISE
+  #pragma define-meta IS_ANISOTROPY
+  #pragma define-meta USE_VERTEX_COLOR
+
+  #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
+  #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
+  #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
+  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
+
+  // if disabled, simulate convoluted IBL without convolution
+  #pragma define-meta USE_COMPATIBLE_LIGHTING
+  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
+
+  // depend on UI macros
+#if IS_ANISOTROPY || USE_NORMAL_MAP
+  #define CC_SURFACES_USE_TANGENT_SPACE 1
+#endif
+
+  // functionality for each effect
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
+}%
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
+  #if CC_SURFACES_USE_SECOND_UV
+    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
+  #endif
+  }
+}%
+
+
+CCProgram surface-fragment %{
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_MAX 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
+
+  #if USE_SHININESS_MAP
+    uniform sampler2D shininessExponentMap;
+    #pragma define-meta  GLOSSINESS_MAP_CHANNEL options([r,g,b,a])
+  #endif
+  #if USE_SPECULAR_GLOSSINESS_MAP
+    uniform sampler2D specularGlossinessMap;
+  #endif
+  #if USE_SPECULAR_MAP
+    uniform sampler2D specularMap;
+  #endif
+   #if USE_METALLIC_MAP
+    uniform sampler2D metallicMap;
+  #endif
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+  #endif
+  #if USE_TRANSPARENCY_MAP
+    uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
+  #endif
+
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
+  #endif
+
+  #if USE_NORMAL_MAP
+    uniform sampler2D normalMap;
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  #endif
+
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+    #pragma define-meta OCCLUSION_UV options([v_uv, v_uv1])
+    #pragma define-meta  OCCLUSION_CHANNEL options([r,g,b,a])
+  #endif
+
+  float discolor(vec3 srcColor)
+  {
+    return dot(GRAY_VECTOR, srcColor);
+  }
+  float convertShininessExponent(float shininessExp)
+  {
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      // 2-100
+      float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
+      // 2-1024
+      float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
+      float glossiness = pow(l2, 0.5);
+    #else // DCC_APP_NAME == DCC_APP_CINEMA4D / DCC_APP_GLTF / DCC_APP_OTHERS
+      // 2-1024
+      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
+    #endif
+      return glossiness;
+  }
+  float getSpecularIntensityFromRoughness(float roughness)
+  {
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      float specularIntensityMultiplier = mix(1.0, 5.0, roughness);
+    #elif DCC_APP_NAME == DCC_APP_CINEMA4D
+      float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
+      float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
+    #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
+      float specularIntensityMultiplier = 1.0;
+    #endif
+      return specularIntensityMultiplier;
+  }
+
+  vec4 getSpecularColorAndFactor()
+  {
+    vec3 inSpecular = specularColor.rgb * specularFactor;
+    float inFactor = 1.0; //reserved
+    #if USE_SPECULAR_GLOSSINESS_MAP
+      inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
+    #endif
+    #if USE_SPECULAR_MAP
+        vec4 specularTex = texture(specularMap, TEXTURE_UV);
+        specularTex.rgb = SRGBToLinear(specularTex.rgb);
+        inSpecular = specularTex.rgb;
+    #endif
+    return vec4(inSpecular, inFactor);
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+      #if USE_ALPHA_TEST
+        float alpha = diffuseColor.a;
+        #if USE_VERTEX_COLOR
+          alpha *= FSInput_vertexColor.a;
+        #endif
+        #if USE_ALBEDO_MAP
+          alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+        #endif
+        #if USE_TRANSPARENCY_MAP
+          alpha = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+          #if DCC_APP_NAME == DCC_APP_MAYA
+            alpha = 1.0 - alpha;
+          #endif
+        #endif
+        if (alpha < alphaThreshold) discard;
+      #endif
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+  vec3 SurfacesFragmentModifyWorldNormal()
+  {
+    vec3 normal = FSInput_worldNormal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      normal = CalculateNormalFromTangentSpace(nmmp, normalScale, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
+    #endif
+
+    return normalize(normal);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+  vec3 SurfacesFragmentModifyEmissive()
+  {
+    vec3 emissiveColor = emissive.rgb;
+    #if USE_EMISSIVE_MAP
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
+    #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+
+    return emissiveColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  #include <surfaces/data-structures/standard>
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+      vec4 baseColor = vec4(1.0);
+      #if USE_VERTEX_COLOR
+        baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
+        baseColor.a *= FSInput_vertexColor.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        vec4 texColor = texture(albedoMap, TEXTURE_UV);
+        texColor.rgb = SRGBToLinear(texColor.rgb);
+        texColor.a *= transparencyFactor;
+        baseColor *= texColor;
+      #else
+        baseColor *= diffuseColor;
+      #endif
+      baseColor.rgb *= diffuseFactor;
+
+      #if USE_TRANSPARENCY_MAP
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+        #if DCC_APP_NAME == DCC_APP_MAYA
+          baseColor.a = 1.0 - baseColor.a;
+        #endif
+      #endif
+
+      #if USE_ALPHA_TEST
+        if (baseColor.a < alphaThreshold) discard;
+      #endif
+
+      vec4 specularColorAndFactor = getSpecularColorAndFactor();
+      //glossiness
+      float inGlossiness = 0.0, inSpecularIntensity = 1.0;
+      #if HAS_EXPORTED_GLOSSINESS
+        #if USE_SPECULAR_GLOSSINESS_MAP
+          inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
+        #else
+          inGlossiness = glossiness;
+        #endif
+      #else
+        #if USE_SHININESS_MAP
+          #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL
+            inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).GLOSSINESS_MAP_CHANNEL;
+          #else
+            inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
+          #endif
+        #else
+          inGlossiness = convertShininessExponent(shininessExponent);
+        #endif
+        inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
+      #endif
+
+      //metallic
+      float inMetallic = 0.0;
+      vec3 albedo = baseColor.rgb;
+      #if HAS_EXPORTED_METALLIC
+        inMetallic = metallic;
+        float spec = specularFactor;
+        #if USE_SPECULAR_MAP
+          spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+        #endif
+        inSpecularIntensity *= spec * 0.5; //0.5 is suitable for blender
+      #else
+        GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
+        inSpecularIntensity *= inMetallic; //simulate specular color is black
+      #endif
+      baseColor.rgb = albedo;
+
+      surfaceData.baseColor = baseColor;
+      surfaceData.specularIntensity = inSpecularIntensity * 0.5;
+      surfaceData.roughness = 1.0 - inGlossiness;
+      surfaceData.metallic = inMetallic;
+      surfaceData.ao = 1.0;
+      #if USE_OCCLUSION_MAP
+        surfaceData.ao = texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+      #endif
+  }
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-vs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-vertex>
+
+  // 4. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-vs>
+
+  // 5. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/vs>
+}%
+
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-to-shadowmap/vs>
+}%
+
+
+
+CCProgram standard-fs %{
+  // shading-model : standard
+  // lighting-model : standard (isotropy / anisotropy pbr)
+  // shader stage : fs
+  // technique usage/type : render-to-scene
+
+  precision highp float;
+  // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+
+  // 2. common include with corresponding shader stage, include before surface functions
+  #include <surfaces/includes/common-fs>
+
+  // 3. user surface functions that can use user (effect) parameters (ubo Constants)
+  //    see surfaces/default-functions/xxx.chunk
+  #include <shared-ubos>
+  #include <surface-fragment>
+
+  // 4. lighting-model (optional)
+  #include <lighting-models/includes/standard>
+
+  // 5. surface include with corresponding shader stage and shading-model (optional)
+  #include <surfaces/includes/standard-fs>
+
+  // 6. shader entry with corresponding shader stage and technique usage/type
+  #include <shading-entries/main-functions/render-to-scene/fs>
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-to-shadowmap>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%

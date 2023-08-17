@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { lerp, Quat, errorID, cclegacy, binarySearchEpsilon, ValueType, bezierByTime, BezierControlPoints, easing } from '../core';
 import { ILerpable, isLerpable } from './types';
@@ -54,7 +53,7 @@ export class RatioSampler {
         this._findRatio = canOptimize ? quickFindIndex : binarySearchEpsilon;
     }
 
-    public sample (ratio: number) {
+    public sample (ratio: number): number {
         return this._findRatio(this.ratios, ratio);
     }
 }
@@ -70,7 +69,7 @@ cclegacy.RatioSampler = RatioSampler;
 export class AnimCurve {
     public static Linear = null;
 
-    public static Bezier (controlPoints: number[]) {
+    public static Bezier (controlPoints: number[]): BezierControlPoints {
         return controlPoints as BezierControlPoints;
     }
 
@@ -98,7 +97,7 @@ export class AnimCurve {
         // Install values.
         this._values = propertyCurveData.values;
 
-        const getCurveType = (easingMethod: legacy.LegacyEasingMethod) => {
+        const getCurveType = (easingMethod: legacy.LegacyEasingMethod): legacy.LegacyEasingMethod | null => {
             if (typeof easingMethod === 'string') {
                 return easingMethod;
             } else if (Array.isArray(easingMethod)) {
@@ -140,11 +139,11 @@ export class AnimCurve {
         }
     }
 
-    public hasLerp () {
+    public hasLerp (): boolean {
         return !!this._lerp;
     }
 
-    public valueAt (index: number) {
+    public valueAt (index: number): any {
         if (this._array === undefined) {
             const value = this._values[index];
             if (value && value.getNoLerp) {
@@ -163,7 +162,7 @@ export class AnimCurve {
         }
     }
 
-    public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number) {
+    public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number): any {
         if (this._lerp) {
             const type = this.types ? this.types[from] : this.type;
             const dRatio = (toRatio - fromRatio);
@@ -199,14 +198,14 @@ export class AnimCurve {
         }
     }
 
-    public empty () {
+    public empty (): boolean {
         return this._values.length === 0;
     }
 
     /**
      * Returns if this curve only yields constants.
      */
-    public constant () {
+    public constant (): boolean {
         return this._values.length === 1;
     }
 }
@@ -219,7 +218,7 @@ export class EventInfo {
      * @param func event function
      * @param params event params
      */
-    public add (func: string, params: any[]) {
+    public add (func: string, params: any[]): void {
         this.events.push({
             func: func || '',
             params: params || [],
@@ -237,7 +236,7 @@ export class EventInfo {
  * @param sampler @zh 采样器。@en The sampler.
  * @param ratio @zh 采样比率。@en Sample ratio([0, 1]).
  */
-export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
+export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number): any {
     let index = sampler.sample(ratio);
     if (index < 0) {
         index = ~index;
@@ -267,7 +266,7 @@ cclegacy.sampleAnimationCurve = sampleAnimationCurve;
  * If it's string, then ratio will be computed with cc.easing function
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMethod) {
+export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMethod): number {
     if (typeof type === 'string') {
         const func = easing[type];
         if (func) {
@@ -286,7 +285,7 @@ export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMeth
 /**
  * Use this function if intervals between frames are same.
  */
-function quickFindIndex (ratios: number[], ratio: number) {
+function quickFindIndex (ratios: number[], ratio: number): number {
     const length = ratios.length - 1;
 
     if (length === 0) { return 0; }
@@ -313,12 +312,14 @@ function quickFindIndex (ratios: number[], ratio: number) {
     return ~(floorIndex + 1);
 }
 
-const selectLerpFx = (() => {
-    function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
+const selectLerpFx = ((): (value: any) => legacy.LegacyLerpFunction<any> | undefined => {
+    function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>): (from: T, to: T, ratio: number) => T {
         const tempValue = new constructor();
-        return (from: T, to: T, ratio: number) => {
-            // @ts-expect-error Hard to typing
-            constructor.lerp(tempValue, from, to, ratio);
+        return (from: T, to: T, ratio: number): T => {
+            // TODO: `ValueType` class doesn't define lerp method
+            // please fix the type @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
+            (constructor as any).lerp(tempValue, from, to, ratio);
             return tempValue;
         };
     }
@@ -328,9 +329,9 @@ const selectLerpFx = (() => {
         return from.lerp(to, t, dt);
     }
 
-    function makeQuatSlerpFx () {
+    function makeQuatSlerpFx (): (from: Quat, to: Quat, t: number, dt: number) => Quat {
         const tempValue = new Quat();
-        return (from: Quat, to: Quat, t: number, dt: number) => Quat.slerp(tempValue, from, to, t);
+        return (from: Quat, to: Quat, t: number, dt: number): Quat => Quat.slerp(tempValue, from, to, t);
     }
 
     return (value: any): legacy.LegacyLerpFunction<any> | undefined => {

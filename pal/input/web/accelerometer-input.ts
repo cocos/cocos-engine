@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { AccelerometerCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
@@ -25,17 +49,17 @@ export class AccelerometerInputSource {
         this._didAccelerateFunc  = this._didAccelerate.bind(this);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         this._accelTimer = performance.now();
         window.addEventListener(this._deviceEventName, this._didAccelerateFunc, false);
     }
 
-    private _unregisterEvent () {
+    private _unregisterEvent (): void {
         this._accelTimer = 0;
         window.removeEventListener(this._deviceEventName, this._didAccelerateFunc, false);
     }
 
-    private _didAccelerate (event: DeviceMotionEvent | DeviceOrientationEvent) {
+    private _didAccelerate (event: DeviceMotionEvent | DeviceOrientationEvent): void {
         const now = performance.now();
         if (now - this._accelTimer < this._intervalInMileSeconds) {
             return;
@@ -94,7 +118,7 @@ export class AccelerometerInputSource {
         this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
     }
 
-    public start () {
+    public start (): void {
         // for iOS 13+, safari
         if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then((response) => {
@@ -106,13 +130,13 @@ export class AccelerometerInputSource {
             this._registerEvent();
         }
     }
-    public stop () {
+    public stop (): void {
         this._unregisterEvent();
     }
-    public setInterval (intervalInMileSeconds: number) {
+    public setInterval (intervalInMileSeconds: number): void {
         this._intervalInMileSeconds = intervalInMileSeconds;
     }
-    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
+    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

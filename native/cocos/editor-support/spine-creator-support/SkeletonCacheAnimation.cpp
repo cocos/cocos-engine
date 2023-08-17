@@ -244,14 +244,14 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         tempG = _nodeColor.g * multiplier;
         tempB = _nodeColor.b * multiplier;
 
-        finalColor.a = (uint8_t)floorf(tempA);
-        finalColor.r = (uint8_t)floorf(colorData->finalColor.r * tempR);
-        finalColor.g = (uint8_t)floorf(colorData->finalColor.g * tempG);
-        finalColor.b = (uint8_t)floorf(colorData->finalColor.b * tempB);
+        finalColor.r = static_cast<uint8_t>(std::round(colorData->finalColor.r * tempR));
+        finalColor.g = static_cast<uint8_t>(std::round(colorData->finalColor.g * tempG));
+        finalColor.b = static_cast<uint8_t>(std::round(colorData->finalColor.b * tempB));
+        finalColor.a = static_cast<uint8_t>(std::round(tempA));
 
-        darkColor.r = (uint8_t)floorf(colorData->darkColor.r * tempR);
-        darkColor.g = (uint8_t)floorf(colorData->darkColor.g * tempG);
-        darkColor.b = (uint8_t)floorf(colorData->darkColor.b * tempB);
+        darkColor.r = static_cast<uint8_t>(std::round(colorData->darkColor.r * tempR));
+        darkColor.g = static_cast<uint8_t>(std::round(colorData->darkColor.g * tempG));
+        darkColor.b = static_cast<uint8_t>(std::round(colorData->darkColor.b * tempB));
         darkColor.a = _premultipliedAlpha ? 255 : 0;
     };
 

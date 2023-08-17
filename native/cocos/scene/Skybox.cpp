@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "scene/Skybox.h"
 #include "3d/misc/CreateMesh.h"
@@ -38,6 +37,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace scene {
@@ -188,7 +188,7 @@ void SkyboxInfo::setReflectionMap(TextureCube *val) {
     }
 }
 
-TextureCube* SkyboxInfo::getReflectionMap() const {
+TextureCube *SkyboxInfo::getReflectionMap() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         return _reflectionHDR;
@@ -200,6 +200,32 @@ void SkyboxInfo::setSkyboxMaterial(Material *val) {
     _editableMaterial = val;
     if (_resource != nullptr) {
         _resource->setSkyboxMaterial(val);
+    }
+}
+
+void SkyboxInfo::setMaterialProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) const {
+    if (_resource == nullptr) return;
+    auto *skyboxMat = _resource->getSkyboxMaterial();
+    if (_resource->isEnabled() && skyboxMat != nullptr) {
+        skyboxMat->setProperty(name, val, passIdx);
+        auto &passs = skyboxMat->getPasses();
+        for (const auto &pass : *passs) {
+            pass->update();
+        }
+    }
+}
+
+void SkyboxInfo::updateEnvMap(TextureCube *val) {
+    if (!val) {
+        setApplyDiffuseMap(false);
+        setUseIBL(false);
+        setEnvLightingType(EnvironmentLightingType::HEMISPHERE_DIFFUSE);
+    }
+    if (_resource) {
+        _resource->setEnvMaps(_envmapHDR, _envmapLDR);
+        _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
+        _resource->setEnvmap(val);
     }
 }
 

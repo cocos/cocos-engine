@@ -8,7 +8,7 @@ const defaultParams = {
 
 exports.template = /* html */`
 <div @change.stop="onConfirm" v-if="event">
-    <ui-section class="config" expand>
+    <ui-section expand>
         <div slot="header" class="header" @click.stop>
             <ui-input name="funcName" placeholder="function Name"
                 :value="event.func"
@@ -80,16 +80,6 @@ exports.props = [
     'index',
 ];
 
-exports.computed = {
-    selectEvent() {
-        const that = this;
-        if (!that.selectInfo) {
-            return null;
-        }
-        return that.selectInfo.data;
-    },
-};
-
 exports.methods = {
     onConfirm(event) {
         const that = this;
@@ -126,27 +116,20 @@ exports.methods = {
         const that = this;
         const name = event.target.getAttribute('name');
         let index = event.target.getAttribute('index');
-        const eventInfo = that.event;
-        let dirty = false;
         switch (name) {
             case 'delFunc':
-                that.$emit('update', null, that.index);
+                that.$emit('delete', that.index);
                 return;
             case 'addParams':
-                dirty = true;
-                eventInfo.params.splice(eventInfo.params.length - 1, 0, 'param');
+                that.event.params.splice(that.event.params.length - 1, 0, 'param');
                 break;
             case 'delParams':
-                dirty = true;
-                eventInfo.params.splice(index, 1);
+                that.event.params.splice(index, 1);
                 break;
             case 'clearParams':
-                if (eventInfo.params.length) {
-                    dirty = true;
-                    eventInfo.params = [];
-                }
+                that.event.params = [];
                 break;
         }
-        dirty && that.$emit('update', that.event, that.index);
+        that.$emit('update', that.event, that.index);
     },
 };

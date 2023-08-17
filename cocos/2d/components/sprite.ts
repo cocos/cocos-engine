@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,7 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp } from '../../core';
+import { Vec2, cclegacy, ccenum, clamp, warn } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
@@ -178,7 +177,7 @@ export class Sprite extends UIRenderer {
     @type(SpriteAtlas)
     @displayOrder(4)
     @tooltip('i18n:sprite.atlas')
-    get spriteAtlas () {
+    get spriteAtlas (): SpriteAtlas | null {
         return this._atlas;
     }
     set spriteAtlas (value) {
@@ -198,7 +197,7 @@ export class Sprite extends UIRenderer {
     @type(SpriteFrame)
     @displayOrder(5)
     @tooltip('i18n:sprite.sprite_frame')
-    get spriteFrame () {
+    get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
     set spriteFrame (value) {
@@ -231,7 +230,7 @@ export class Sprite extends UIRenderer {
     @type(SpriteType)
     @displayOrder(6)
     @tooltip('i18n:sprite.type')
-    get type () {
+    get type (): SpriteType {
         return this._type;
     }
     set type (value: SpriteType) {
@@ -257,7 +256,7 @@ export class Sprite extends UIRenderer {
     @type(FillType)
     @displayOrder(6)
     @tooltip('i18n:sprite.fill_type')
-    get fillType () {
+    get fillType (): FillType {
         return this._fillType;
     }
     set fillType (value: FillType) {
@@ -288,7 +287,7 @@ export class Sprite extends UIRenderer {
      */
     @displayOrder(6)
     @tooltip('i18n:sprite.fill_center')
-    get fillCenter () {
+    get fillCenter (): Vec2 {
         return this._fillCenter;
     }
     set fillCenter (value) {
@@ -315,7 +314,7 @@ export class Sprite extends UIRenderer {
     @range([0, 1, 0.1])
     @displayOrder(6)
     @tooltip('i18n:sprite.fill_start')
-    get fillStart () {
+    get fillStart (): number {
         return this._fillStart;
     }
 
@@ -343,7 +342,7 @@ export class Sprite extends UIRenderer {
     @range([-1, 1, 0.1])
     @displayOrder(6)
     @tooltip('i18n:sprite.fill_range')
-    get fillRange () {
+    get fillRange (): number {
         return this._fillRange;
     }
     set fillRange (value) {
@@ -371,7 +370,7 @@ export class Sprite extends UIRenderer {
     })
     @displayOrder(8)
     @tooltip('i18n:sprite.trim')
-    get trim () {
+    get trim (): boolean {
         return this._isTrimmedMode;
     }
 
@@ -387,10 +386,14 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Grayscale mode.
+     * @zh 是否以灰度模式渲染。
+     */
     @editable
     @displayOrder(5)
     @tooltip('i18n:sprite.gray_scale')
-    get grayscale () {
+    get grayscale (): boolean {
         return this._useGrayscale;
     }
     set grayscale (value) {
@@ -418,7 +421,7 @@ export class Sprite extends UIRenderer {
     @type(SizeMode)
     @displayOrder(5)
     @tooltip('i18n:sprite.size_mode')
-    get sizeMode () {
+    get sizeMode (): SizeMode {
         return this._sizeMode;
     }
     set sizeMode (value) {
@@ -432,9 +435,25 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Enum for fill type.
+     * @zh 填充类型。
+     */
     public static FillType = FillType;
+    /**
+     * @en Enum for sprite type.
+     * @zh Sprite 类型。
+     */
     public static Type = SpriteType;
+    /**
+     * @en Sprite's size mode, including trimmed size, raw size, and none.
+     * @zh 精灵尺寸调整模式。
+     */
     public static SizeMode = SizeMode;
+    /**
+     * @en Event types for sprite.
+     * @zh sprite 的事件类型。
+     */
     public static EventType = EventType;
 
     @serializable
@@ -458,17 +477,17 @@ export class Sprite extends UIRenderer {
     @serializable
     protected _atlas: SpriteAtlas | null = null;
 
-    public __preload () {
+    public __preload (): void {
         this.changeMaterialForDefine();
         super.__preload();
+        this._applySpriteSize();
 
         if (EDITOR) {
-            this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
 
         // Force update uv, material define, active material, etc
@@ -482,14 +501,14 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         super.onDisable();
         if (this._spriteFrame && this._type === SpriteType.SLICED) {
             this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (EDITOR) {
             this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -502,20 +521,22 @@ export class Sprite extends UIRenderer {
      * If there is no atlas, the switch fails.
      *
      * @zh
-     * 精灵图集内的精灵替换
-     *
-     * @returns
+     * 选取使用精灵图集中的其他精灵。
+     * @param name @en Name of the spriteFrame to switch. @zh 要切换的 spriteFrame 名字。
      */
-    public changeSpriteFrameFromAtlas (name: string) {
+    public changeSpriteFrameFromAtlas (name: string): void {
         if (!this._atlas) {
-            console.warn('SpriteAtlas is null.');
+            warn('SpriteAtlas is null.');
             return;
         }
         const sprite = this._atlas.getSpriteFrame(name);
         this.spriteFrame = sprite;
     }
 
-    public changeMaterialForDefine () {
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public changeMaterialForDefine (): void {
         let texture;
         const lastInstanceMaterialType = this._instanceMaterialType;
         if (this._spriteFrame) {
@@ -541,7 +562,7 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    protected _updateBuiltinMaterial () {
+    protected _updateBuiltinMaterial (): Material {
         let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
@@ -555,11 +576,11 @@ export class Sprite extends UIRenderer {
         return mat;
     }
 
-    protected _render (render: IBatcher) {
+    protected _render (render: IBatcher): void {
         render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
     }
 
-    protected _canRender () {
+    protected _canRender (): boolean {
         if (!super._canRender()) {
             return false;
         }
@@ -572,7 +593,7 @@ export class Sprite extends UIRenderer {
         return true;
     }
 
-    protected _flushAssembler () {
+    protected _flushAssembler (): void {
         const assembler = Sprite.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -580,10 +601,10 @@ export class Sprite extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this.renderData!.material = this.getRenderMaterial(0);
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
                     this._assembler.updateUVs(this);
@@ -602,7 +623,7 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    private _applySpriteSize () {
+    private _applySpriteSize (): void {
         if (this._spriteFrame) {
             if (BUILD || !this._spriteFrame.isDefault) {
                 if (SizeMode.RAW === this._sizeMode) {
@@ -616,7 +637,7 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    private _resized () {
+    private _resized (): void {
         if (!EDITOR) {
             return;
         }
@@ -641,7 +662,7 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    private _activateMaterial () {
+    private _activateMaterial (): void {
         const spriteFrame = this._spriteFrame;
         const material = this.getRenderMaterial(0);
         if (spriteFrame) {
@@ -655,13 +676,13 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    private _updateUVs () {
+    private _updateUVs (): void {
         if (this._assembler) {
             this._assembler.updateUVs(this);
         }
     }
 
-    private _applySpriteFrame (oldFrame: SpriteFrame | null) {
+    private _applySpriteFrame (oldFrame: SpriteFrame | null): void {
         const spriteFrame = this._spriteFrame;
 
         if (oldFrame && this._type === SpriteType.SLICED) {

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture, UBOCamera, UBOCSM, UBOGlobal, UBOShadow } from '../define';
@@ -72,7 +71,7 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline) {
+    public activate (pipeline: RenderPipeline): void {
         super.activate(pipeline);
 
         // 0: SHADOWMAP_FLOAT, 1: SHADOWMAP_RGBE.
@@ -103,7 +102,7 @@ export class ShadowFlow extends RenderFlow {
         pipeline.onGlobalPipelineStateChanged();
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const csmLayers = pipeline.pipelineSceneData.csmLayers;
@@ -166,7 +165,7 @@ export class ShadowFlow extends RenderFlow {
         _validLights.length = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
         if (this._pipeline) {
             const shadowFrameBufferMap = this._pipeline.pipelineSceneData.shadowFrameBufferMap;
@@ -197,7 +196,7 @@ export class ShadowFlow extends RenderFlow {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
+    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain): void {
         const { device } = pipeline;
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
@@ -250,7 +249,7 @@ export class ShadowFlow extends RenderFlow {
         shadowFrameBufferMap.set(light, shadowFrameBuffer);
     }
 
-    private _renderStage (camera: Camera, light: Light, shadowFrameBuffer: Framebuffer, globalDS: DescriptorSet, level = 0) {
+    private _renderStage (camera: Camera, light: Light, shadowFrameBuffer: Framebuffer, globalDS: DescriptorSet, level = 0): void {
         for (let i = 0; i < this._stages.length; i++) {
             const shadowStage = this._stages[i] as ShadowStage;
             shadowStage.setUsage(globalDS, light, shadowFrameBuffer, level);
@@ -258,7 +257,7 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
-    private clearShadowMap (validLights: Light[], camera: Camera) {
+    private clearShadowMap (validLights: Light[], camera: Camera): void {
         const pipeline = this._pipeline;
         const scene = pipeline.pipelineSceneData;
 
@@ -293,7 +292,7 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
-    private resizeShadowMap () {
+    private resizeShadowMap (): void {
         const shadows = this._pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const pipeline = this._pipeline;

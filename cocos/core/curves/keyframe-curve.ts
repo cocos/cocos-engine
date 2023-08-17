@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { CCClass } from '../data/class';
 import { assertIsTrue } from '../data/utils/asserts';
@@ -19,7 +43,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @zh
      * 获取关键帧数量。
      */
-    get keyFramesCount () {
+    get keyFramesCount (): number {
         return this._times.length;
     }
 
@@ -29,7 +53,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @zh
      * 获取此曲线上最小的关键帧时间。
      */
-    get rangeMin () {
+    get rangeMin (): number {
         return this._times[0];
     }
 
@@ -39,7 +63,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @zh
      * 获取此曲线上最大的关键帧时间。
      */
-    get rangeMax () {
+    get rangeMax (): number {
         return this._times[this._values.length - 1];
     }
 
@@ -49,7 +73,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @zh
      * 返回关键帧对的迭代器。
      */
-    [Symbol.iterator] () {
+    [Symbol.iterator] (): { next: () => IteratorResult<KeyFrame<TKeyframeValue>> } {
         let index = 0;
         return {
             next: (): IteratorResult<KeyFrame<TKeyframeValue>> => {
@@ -144,7 +168,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * 移除此曲线的一个关键帧。
      * @param index Index to the keyframe.
      */
-    public removeKeyframe (index: number) {
+    public removeKeyframe (index: number): void {
         this._times.splice(index, 1);
         this._values.splice(index, 1);
     }
@@ -157,7 +181,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @param time Time to search.
      * @returns Index to the keyframe or negative number if not found.
      */
-    public indexOfKeyframe (time: number) {
+    public indexOfKeyframe (time: number): number {
         return binarySearchEpsilon(this._times, time);
     }
 
@@ -169,7 +193,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @param index Index to the keyframe.
      * @param time New time.
      */
-    public updateTime (index: number, time: number) {
+    public updateTime (index: number, time: number): void {
         const value = this._values[index];
         this.removeKeyframe(index);
         this._insertNewKeyframe(time, value);
@@ -194,7 +218,7 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      */
     public assignSorted (times: readonly number[], values: TKeyframeValue[]): void;
 
-    public assignSorted (times: Iterable<[number, TKeyframeValue]> | readonly number[], values?: readonly TKeyframeValue[]) {
+    public assignSorted (times: Iterable<[number, TKeyframeValue]> | readonly number[], values?: readonly TKeyframeValue[]): void {
         if (values !== undefined) {
             assertIsTrue(Array.isArray(times));
             this.setKeyframes(
@@ -216,23 +240,23 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
      * @zh
      * 移除所有关键帧。
      */
-    public clear () {
+    public clear (): void {
         this._times.length = 0;
         this._values.length = 0;
     }
 
-    protected searchKeyframe (time: number) {
+    protected searchKeyframe (time: number): number {
         return binarySearchEpsilon(this._times, time);
     }
 
-    protected setKeyframes (times: number[], values: TKeyframeValue[]) {
+    protected setKeyframes (times: number[], values: TKeyframeValue[]): void {
         assertIsTrue(times.length === values.length);
         assertIsTrue(isSorted(times));
         this._times = times;
         this._values = values;
     }
 
-    private _insertNewKeyframe (time: number, value: TKeyframeValue) {
+    private _insertNewKeyframe (time: number, value: TKeyframeValue): number {
         const times = this._times;
         const values = this._values;
         const nFrames = times.length;
@@ -267,7 +291,7 @@ CCClass.fastDefine('cc.KeyframeCurve', KeyframeCurve, {
     _values: [],
 });
 
-function isSorted (values: number[]) {
+function isSorted (values: number[]): boolean {
     return values.every(
         (value, index, array) => index === 0
             || value > array[index - 1] || approx(value, array[index - 1], 1e-6),

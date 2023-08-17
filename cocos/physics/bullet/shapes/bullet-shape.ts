@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3, IVec3Like, geometry } from '../../../core';
-import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
+import { Collider, PhysicsMaterial, PhysicsSystem, RigidBody } from '../../../../exports/physics-framework';
 import { BulletWorld } from '../bullet-world';
 import { EBtSharedBodyDirty } from '../bullet-enum';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
@@ -41,27 +40,28 @@ export abstract class BulletShape implements IBaseShape {
         this._sharedBody.wrappedWorld.updateNeedEmitEvents(this.collider.needCollisionEvent || this.collider.needTriggerEvent);
     }
 
-    setMaterial (v: PhysicsMaterial | null) {
-        if (!this._isTrigger && this._isEnabled && v) {
+    setMaterial (v: PhysicsMaterial | null): void {
+        const v1 = (v == null) ? PhysicsSystem.instance.defaultMaterial : v;
+        if (!this._isTrigger && this._isEnabled) {
             if (this._compound) {
-                if (!ccMaterialBooks[v._uuid]) ccMaterialBooks[v._uuid] = bt.ccMaterial_new();
-                const mat = ccMaterialBooks[v._uuid];
-                bt.ccMaterial_set(mat, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
+                if (!ccMaterialBooks[v1._uuid]) ccMaterialBooks[v1._uuid] = bt.ccMaterial_new();
+                const mat = ccMaterialBooks[v1._uuid];
+                bt.ccMaterial_set(mat, v1.restitution, v1.friction, v1.rollingFriction, v1.spinningFriction);
                 bt.CollisionShape_setMaterial(this._impl, mat);
             } else {
-                bt.CollisionObject_setMaterial(this._sharedBody.body, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
+                bt.CollisionObject_setMaterial(this._sharedBody.body, v1.restitution, v1.friction, v1.rollingFriction, v1.spinningFriction);
             }
         }
     }
 
-    setCenter (v: IVec3Like) {
+    setCenter (v: IVec3Like): void {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
         cocos2BulletVec3(bt.Transform_getOrigin(this.transform), v3_0);
         this.updateCompoundTransform();
     }
 
-    setAsTrigger (v: boolean) {
+    setAsTrigger (v: boolean): void {
         if (this._isTrigger === v) return;
 
         if (this._isEnabled) {
@@ -71,12 +71,12 @@ export abstract class BulletShape implements IBaseShape {
         this._isTrigger = v;
     }
 
-    get attachedRigidBody () {
+    get attachedRigidBody (): RigidBody | null {
         if (this._sharedBody.wrappedBody) return this._sharedBody.wrappedBody.rigidBody;
         return null;
     }
 
-    get impl () { return this._impl; }
+    get impl (): number { return this._impl; }
     get collider (): Collider { return this._collider; }
     get sharedBody (): BulletSharedBody { return this._sharedBody; }
 
@@ -93,7 +93,7 @@ export abstract class BulletShape implements IBaseShape {
     protected _collider!: Collider;
     protected _sharedBody!: BulletSharedBody;
 
-    getAABB (v: geometry.AABB) {
+    getAABB (v: geometry.AABB): void {
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
         bt.Transform_setIdentity(bt_transform);
         bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletCache.instance.BT_QUAT_0, this._collider.node.worldRotation));
@@ -106,12 +106,12 @@ export abstract class BulletShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: geometry.Sphere) {
+    getBoundingSphere (v: geometry.Sphere): void {
         v.radius = bt.CollisionShape_getLocalBoundingSphere(this._impl);
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    initialize (com: Collider) {
+    initialize (com: Collider): void {
         this._collider = com;
         this._isInitialized = true;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BulletWorld).getSharedBody(this._collider.node);
@@ -120,7 +120,7 @@ export abstract class BulletShape implements IBaseShape {
         this.setWrapper();
     }
 
-    setWrapper () {
+    setWrapper (): void {
         if (BulletCache.isNotEmptyShape(this._impl)) {
             bt.CollisionShape_setUserPointer(this._impl, this._impl);
             BulletCache.setWrapper(this._impl, BulletShape.TYPE, this);
@@ -130,24 +130,24 @@ export abstract class BulletShape implements IBaseShape {
     // virtual
     protected abstract onComponentSet(): void;
 
-    onLoad () {
+    onLoad (): void {
         this.setCenter(this._collider.center);
         this.setAsTrigger(this._collider.isTrigger);
     }
 
-    onEnable () {
+    onEnable (): void {
         this._isEnabled = true;
         this._sharedBody.addShape(this, this._isTrigger);
 
         this.setMaterial(this.collider.sharedMaterial);
     }
 
-    onDisable () {
+    onDisable (): void {
         this._isEnabled = false;
         this._sharedBody.removeShape(this, this._isTrigger);
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         (this._collider as any) = null;
         bt._safe_delete(this.quat, EBulletType.EBulletTypeQuat);
@@ -159,7 +159,7 @@ export abstract class BulletShape implements IBaseShape {
         }
     }
 
-    updateByReAdd () {
+    updateByReAdd (): void {
         if (this._isEnabled) {
             this._sharedBody.removeShape(this, this._isTrigger);
             this._sharedBody.addShape(this, this._isTrigger);
@@ -198,17 +198,17 @@ export abstract class BulletShape implements IBaseShape {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
-    setCompound (compound: Bullet.ptr) {
+    setCompound (compound: Bullet.ptr): void {
         if (this._compound) bt.CompoundShape_removeChildShape(this._compound, this._impl);
         if (compound) bt.CompoundShape_addChildShape(compound, this.transform, this._impl);
         this._compound = compound;
     }
 
-    updateScale () {
+    updateScale (): void {
         this.setCenter(this._collider.center);
     }
 
-    updateCompoundTransform () {
+    updateCompoundTransform (): void {
         if (this._compound) {
             bt.CompoundShape_updateChildTransform(this._compound, this._impl, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
@@ -218,7 +218,7 @@ export abstract class BulletShape implements IBaseShape {
         }
     }
 
-    needCompound () {
+    needCompound (): boolean {
         if (this._collider.type === EColliderType.TERRAIN) { return true; }
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;

@@ -5,9 +5,26 @@ exports.updateElementReadonly = function(element, readonly) {
     }
 
     if (readonly) {
-        element.setAttribute('disabled', true);
+        element.setAttribute('readonly', true);
     } else {
-        element.removeAttribute('disabled');
+        element.removeAttribute('readonly');
+    }
+
+    const parentElement = element.parentElement;
+    if (parentElement && parentElement.tagName === 'UI-PROP') {
+        if (readonly) {
+            parentElement.setAttribute('disabled', true);
+            parentElement.setAttribute('readonly', true);
+        } else {
+            parentElement.removeAttribute('disabled');
+            parentElement.removeAttribute('readonly');
+        }
+    } else {
+        if (readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
     }
 };
 
@@ -76,7 +93,7 @@ exports.setPropValue = function(prop, type, event) {
         if (propNames.length > 1) {
             for (let i = 0; i < lastIndex; i++) {
                 const propName = propNames[i];
-                if (!target[propName]) {
+                if (!target[propName] || typeof target[propName] !== 'object') {
                     target[propName] = {};
                 }
                 target = target[propName];

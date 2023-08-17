@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color, macro, warnID } from '../../../core';
@@ -30,6 +29,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
+import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -46,11 +46,11 @@ export class CanvasPool {
         return _canvasPool;
     }
     public pool: ISharedLabelData[] = [];
-    public get () {
+    public get (): ISharedLabelData {
         let data = this.pool.pop();
 
         if (!data) {
-            const canvas = document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d');
             data = {
                 canvas,
@@ -61,7 +61,7 @@ export class CanvasPool {
         return data;
     }
 
-    public put (canvas: ISharedLabelData) {
+    public put (canvas: ISharedLabelData): void {
         if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
             return;
         }
@@ -97,6 +97,7 @@ interface ILabelInfo {
     isOutlined: boolean;
     out: Color;
     margin: number;
+    fontScale: number;
 }
 
 const WHITE = Color.WHITE.clone();
@@ -132,31 +133,32 @@ class LetterTexture {
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = char.charCodeAt(0) + labelInfo.hash;
+        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
     }
 
-    public updateRenderData () {
+    public updateRenderData (): void {
         this._updateProperties();
         this._updateTexture();
     }
 
-    public destroy () {
+    public destroy (): void {
         this.image = null;
         // Label._canvasPool.put(this._data);
         CanvasPool.getInstance().put(this.data as ISharedLabelData);
     }
 
-    private _updateProperties () {
+    private _updateProperties (): void {
         this.data = CanvasPool.getInstance().get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context) {
+            const fontScale = this.labelInfo.fontScale;
             this.context.font = this.labelInfo.fontDesc;
             const width = safeMeasureText(this.context, this.char, this.labelInfo.fontDesc);
             const blank = this.labelInfo.margin * 2 + bleed;
-            this.width = parseFloat(width.toFixed(2)) + blank;
-            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
-            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
+            this.width = parseFloat(width.toFixed(2)) * fontScale + blank;
+            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize * fontScale + blank;
+            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) * fontScale / 2;
         }
 
         if (this.canvas.width !== this.width) {
@@ -174,7 +176,7 @@ class LetterTexture {
         this.image.reset(this.canvas);
     }
 
-    private _updateTexture () {
+    private _updateTexture (): void {
         if (!this.context || !this.canvas) {
             return;
         }
@@ -183,6 +185,7 @@ class LetterTexture {
         const labelInfo = this.labelInfo;
         const width = this.canvas.width;
         const height = this.canvas.height;
+        const fontScale = labelInfo.fontScale;
 
         context.textAlign = 'center';
         context.textBaseline = 'alphabetic';
@@ -190,9 +193,12 @@ class LetterTexture {
         // Add a white background to avoid black edges.
         context.fillStyle = _backgroundStyle;
         context.fillRect(0, 0, width, height);
-        context.font = labelInfo.fontDesc;
+        context.font = labelInfo.fontDesc.replace(
+            /(\d+)(\.\d+)?(px|em|rem|pt)/g,
+            (w, m: string, n: string, u: string) => (+m * fontScale + (+n || 0) * fontScale).toString() + u,
+        );
 
-        const fontSize = labelInfo.fontSize;
+        const fontSize = labelInfo.fontSize * fontScale;
         const startX = width / 2;
         const startY = height / 2 + fontSize * MIDDLE_RATIO + fontSize * BASELINE_OFFSET;
         const color = labelInfo.color;
@@ -202,7 +208,7 @@ class LetterTexture {
         if (labelInfo.isOutlined) {
             const strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
-            context.lineWidth = labelInfo.margin * 2;
+            context.lineWidth = labelInfo.margin * 2 * fontScale;
             context.strokeText(this.char, startX, startY);
         }
         context.fillText(this.char, startX, startY);
@@ -222,7 +228,7 @@ export class LetterRenderTexture extends Texture2D {
      * @param [height]
      * @param [string]
      */
-    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
+    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888): void {
         this.reset({
             width,
             height,
@@ -237,7 +243,7 @@ export class LetterRenderTexture extends Texture2D {
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (image: ImageAsset, x: number, y: number) {
+    public drawTextureAt (image: ImageAsset, x: number, y: number): void {
         const gfxTexture = this.getGFXTexture();
         if (!image || !gfxTexture) {
             return;
@@ -259,11 +265,11 @@ export class LetterRenderTexture extends Texture2D {
 }
 
 export class LetterAtlas {
-    get width () {
+    get width (): number {
         return this._width;
     }
 
-    get height () {
+    get height (): number {
         return this._height;
     }
 
@@ -287,7 +293,7 @@ export class LetterAtlas {
         director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
     }
 
-    public insertLetterTexture (letterTexture: LetterTexture) {
+    public insertLetterTexture (letterTexture: LetterTexture): FontLetterDefinition | null {
         const texture = letterTexture.image;
         const device = director.root!.device;
         if (!texture || !this.fontDefDictionary || !device) {
@@ -338,7 +344,7 @@ export class LetterAtlas {
         return letterDefinition;
     }
 
-    public update () {
+    public update (): void {
         if (!this._dirty) {
             return;
         }
@@ -346,7 +352,7 @@ export class LetterAtlas {
         this._dirty = false;
     }
 
-    public reset () {
+    public reset (): void {
         this._x = space;
         this._y = space;
         this._nextY = space;
@@ -364,7 +370,7 @@ export class LetterAtlas {
         this.fontDefDictionary.clear();
     }
 
-    public destroy () {
+    public destroy (): void {
         this.reset();
         if (this.fontDefDictionary) {
             this.fontDefDictionary.texture.destroy();
@@ -372,15 +378,15 @@ export class LetterAtlas {
         }
     }
 
-    getTexture () {
+    getTexture (): any {
         return this.fontDefDictionary.getTexture();
     }
 
-    public beforeSceneLoad () {
+    public beforeSceneLoad (): void {
         this.clearAllCache();
     }
 
-    public clearAllCache () {
+    public clearAllCache (): void {
         this.destroy();
 
         const texture = new LetterRenderTexture();
@@ -389,11 +395,11 @@ export class LetterAtlas {
         this.fontDefDictionary.texture = texture;
     }
 
-    public getLetter (key: string) {
+    public getLetter (key: string): any {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo) {
+    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
         const hash = char.charCodeAt(0) + labelInfo.hash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
@@ -420,6 +426,7 @@ export interface IShareLabelInfo {
     isOutlined: boolean;
     out: Color;
     margin: number;
+    fontScale: number;
 }
 
 export const shareLabelInfo: IShareLabelInfo = {
@@ -435,9 +442,10 @@ export const shareLabelInfo: IShareLabelInfo = {
     isOutlined: false,
     out: Color.WHITE.clone(),
     margin: 0,
+    fontScale: 1,
 };
 
-export function computeHash (labelInfo) {
+export function computeHash (labelInfo): string {
     const hashData = '';
     const color = labelInfo.color.toHEX();
     let out = '';

@@ -7,31 +7,37 @@ module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
 const propUtils = require('../utils/prop');
 
+const cssMediaWidth = 340;
+
 exports.template = `
 <style>
 .widget-component {
     position: relative;
-    line-height: 22px;
-    margin-bottom: 15px;
+    margin-bottom: 4px;
+    margin-left: 4px;
+}
+
+.widget-component[layout='horizontal'] {
+    margin-left: 8px;
 }
 
 .widget-component[layout='vertical']>.layout {
     padding-left: 0;
-    padding-top: 10px;
+    padding-top: 8px;
 }
 
 .widget-component[layout='vertical']>.layout .rect {
     position: relative;
     top: 0;
     left: 0;
-    height: 165px;
+    height: 154px;
     width: 150px;
     margin: 0 auto;
 }
 .widget-component[layout='horizontal']>.layout .rect {
     position: absolute;
     top: calc(50% - 65px);
-    left: -10px;
+    left: -5px;
 }
 .widget-component .m20-t {
     margin-top: 20px;
@@ -39,9 +45,9 @@ exports.template = `
 
 .widget-component>.layout {
     position: relative;
-    padding-left: 140px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-left: 150px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .widget-component>.layout .ui-prop {
@@ -55,12 +61,6 @@ exports.template = `
 
 .widget-component>.layout ui-checkbox {
     user-select: none;
-}
-
-.widget-component>.layout .rect {
-    position: absolute;
-    top: calc(-15%);
-    left: -10px;
 }
 
 .widget-component>.layout .rect>.top {
@@ -95,7 +95,7 @@ exports.template = `
 .widget-component>.layout .rect>.left {
     position: absolute;
     top: 140px;
-    left: -5px;
+    left: -2px;
     width: 140px;
     text-align: center;
     height: 20px;
@@ -121,7 +121,7 @@ exports.template = `
     left: 25%;
     width: 50%;
     height: 50%;
-    z-index: 10;
+    z-index: 2;
     background-color: var(--color-normal-fill);
     border: 1px solid var(--color-normal-fill-important);
     border-radius: 2px;
@@ -176,8 +176,8 @@ exports.template = `
 
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[top] {
     position: absolute;
-    top: -12px;
-    left: calc(50% - 5px);
+    top: -15px;
+    left: calc(50% - 7px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -185,16 +185,16 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[right] {
     transform: rotate(90deg);
     position: absolute;
-    right: -13px;
-    top: calc(50% - 5px);
+    right: -15px;
+    top: calc(50% - 7px);
     font-size: 11px;
     line-height: 11px;
 }
 
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[bottom] {
     position: absolute;
-    bottom: -12px;
-    left: calc(50% - 5px);
+    bottom: -15px;
+    left: calc(50% - 7px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -202,8 +202,8 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[left] {
     transform: rotate(90deg);
     position: absolute;
-    left: -13px;
-    top: calc(50% - 5px);
+    left: -15px;
+    top: calc(50% - 7px);
     font-size: 11px;
     line-height: 11px;
 }
@@ -267,6 +267,7 @@ exports.template = `
 }
 
 .widget-component>.layout>.right>.line {
+    --ui-prop-margin-left: 0;
     display: flex;
     justify-content: space-between;
 }
@@ -323,7 +324,7 @@ exports.template = `
 .widget-component .button-group .button .icon {
     width: 18px;
     height: 18px;
-    margin: 2px auto 0 auto;
+    margin: 1px auto 0 auto;
     font-size: 0;
     position: relative;
 }
@@ -564,6 +565,12 @@ exports.methods = {
 
         this.$refs.summitProp.dispatch('change-dump');
     },
+    snapshot() {
+        // next tick snapshot
+        setTimeout(() => {
+            this.$refs.summitProp.dispatch('confirm-dump');
+        });
+    },
 
     getUnit(type) {
         const data = this.dump.value;
@@ -660,6 +667,7 @@ exports.methods = {
         const { dump } = update(this.dump, true);
         this.$refs.summitProp.dump = dump;
         this.$refs.summitProp.dispatch('change-dump');
+        this.snapshot();
     },
 
     select(event) {
@@ -810,7 +818,6 @@ exports.methods = {
                 break;
         }
 
-        Editor.Message.send('scene', 'snapshot');
         const dump = this.dump;
         if (horizontal) {
             if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value || !this.isHorizontalAlignValid) {
@@ -891,6 +898,8 @@ exports.methods = {
             }
             this.dimensionVertical = this.getDimensionVertical();
         }
+
+        this.snapshot();
     },
 
     toggleLock(direction) {
@@ -929,6 +938,7 @@ exports.methods = {
         }
 
         this.$refs.summitProp.dispatch('change-dump');
+        this.snapshot();
     },
     isLock(direction) {
         const lockValue = this.dump.value._lockFlags.value;
@@ -1044,7 +1054,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorLeft')" :invalid="isInvalid('editorLeft')"
                         :disabled="!dump.value.isAlignLeft.value" :value="dump.value.editorLeft.value"
-                        @change="change('editorLeft', $event.target.value)" @unit-click="changeUnit('editorLeft')"
+                        @change="change('editorLeft', $event.target.value)" 
+                        @confirm="snapshot()" 
+                        @unit-click="changeUnit('editorLeft')"
                         v-show="dump.value.isAlignLeft.value">
                     </ui-num-input>
                 </ui-prop>
@@ -1063,6 +1075,7 @@ const template = /* html*/`
                         :disabled="!dump.value.isAlignHorizontalCenter.value"
                         :value="dump.value.editorHorizontalCenter.value"
                         @change="change('editorHorizontalCenter', $event.target.value)"
+                        @confirm="snapshot()" 
                         @unit-click="changeUnit('editorHorizontalCenter')"></ui-num-input>
                 </ui-prop>
 
@@ -1076,7 +1089,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorRight')" :invalid="isInvalid('editorRight')"
                         :disabled="!dump.value.isAlignRight.value" :value="dump.value.editorRight.value"
-                        @change="change('editorRight', $event.target.value)" v-show="dump.value.isAlignRight.value"
+                        v-show="dump.value.isAlignRight.value"
+                        @change="change('editorRight', $event.target.value)" 
+                        @confirm="snapshot()" 
                         @unit-click="changeUnit('editorRight')">
                     </ui-num-input>
                 </ui-prop>
@@ -1119,7 +1134,9 @@ const template = /* html*/`
                         </div>
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorTop')" :invalid="isInvalid('editorTop')"
-                        @change="change('editorTop', $event.target.value)" :disabled="!dump.value.isAlignTop.value"
+                        :disabled="!dump.value.isAlignTop.value"
+                        @change="change('editorTop', $event.target.value)" 
+                        @confirm="snapshot()" 
                         :value="dump.value.editorTop.value" @unit-click="changeUnit('editorTop')"
                         v-show="dump.value.isAlignTop.value">
                     </ui-num-input>
@@ -1137,6 +1154,7 @@ const template = /* html*/`
                     <ui-num-input tabindex="0" :unit="getUnit('editorVerticalCenter')"
                         :invalid="isInvalid('editorVerticalCenter')" :disabled="!dump.value.isAlignVerticalCenter.value"
                         @change="change('editorVerticalCenter', $event.target.value)"
+                        @confirm="snapshot()" 
                         :value="dump.value.editorVerticalCenter.value" @unit-click="changeUnit('editorVerticalCenter')"
                         v-show="dump.value.isAlignVerticalCenter.value"></ui-num-input>
                 </ui-prop>
@@ -1151,7 +1169,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorBottom')" :invalid="isInvalid('editorBottom')"
                         :disabled="!dump.value.isAlignBottom.value" :value="dump.value.editorBottom.value"
-                        @change="change('editorBottom', $event.target.value)" @unit-click="changeUnit('editorBottom')"
+                        @change="change('editorBottom', $event.target.value)" 
+                        @confirm="snapshot()" 
+                        @unit-click="changeUnit('editorBottom')"
                         v-show="dump.value.isAlignBottom.value">
                     </ui-num-input>
                 </ui-prop>
@@ -1186,17 +1206,19 @@ const computed = {
     },
 };
 exports.ready = function() {
-    let requestAnimationFrameId = null;
-    this.resizeObserver = new window.ResizeObserver(() => {
-        if (requestAnimationFrameId !== null) { return; }
-        requestAnimationFrameId = window.requestAnimationFrame(() => {
+    this.resizeObserver = new window.ResizeObserver((entries) => {
+        window.requestAnimationFrame(() => {
+            // avoid error: ResizeObserver loop limit exceeded
+            if (!Array.isArray(entries) || !entries.length) {
+                return;
+            }
+
             const rect = this.$this.getBoundingClientRect();
-            if (rect.width > 300) {
+            if (rect.width > cssMediaWidth) {
                 this.layout = 'horizontal';
             } else {
                 this.layout = 'vertical';
             }
-            requestAnimationFrameId = null;
         });
     });
 
@@ -1214,7 +1236,7 @@ exports.update = function(dump) {
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
     const rect = this.$this.getBoundingClientRect();
-    if (rect.width > 300) {
+    if (rect.width > cssMediaWidth) {
         this.layout = 'horizontal';
     } else {
         this.layout = 'vertical';

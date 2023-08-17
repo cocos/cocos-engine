@@ -26,7 +26,7 @@
 import CANNON from '@cocos/cannon';
 import '../cocos/physics/cannon/instantiate';
 
-if (window) window.CANNON = CANNON;
+if (globalThis) globalThis.CANNON = CANNON;
 
 // polyfill config
 (CANNON as any).CC_CONFIG = {
@@ -37,12 +37,12 @@ if (window) window.CANNON = CANNON;
 };
 
 // overwrite
-(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset () {
+(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset (): void {
     for (const key in this.matrix) {
         delete this.matrix[key];
     }
 };
 
-(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body) {
+(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body): boolean {
     return ((r as any).collisionFilterMask & b.collisionFilterGroup) !== 0;
 };

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,7 +27,11 @@ import { Material } from '../../asset/assets';
 import { UIRenderer } from '../framework/ui-renderer';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
-// Stage types
+/**
+ * @en Stencil stage types enum.
+ * @zh 模板状态类型枚举。
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export enum Stage {
     // Stencil disabled
     DISABLED = 0,
@@ -46,6 +49,11 @@ export enum Stage {
     ENTER_LEVEL_INVERTED = 6,
 }
 
+/**
+ * @en Native stencil buffer format enum.
+ * @zh 原生模板缓冲格式枚举。
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export enum StencilSharedBufferView {
     stencilTest,
     func,
@@ -58,6 +66,11 @@ export enum StencilSharedBufferView {
     count,
 }
 
+/**
+ * @en Stencil state manager.
+ * @zh 模板状态管理器。
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     private _maskStack: any[] = [];
@@ -72,32 +85,71 @@ export class StencilManager {
         ref: 1,
     };
 
-    private _stage:Stage = Stage.DISABLED;
-    get stage () {
+    private _stage: Stage = Stage.DISABLED;
+    /**
+     * @en Stencil stage.
+     * @zh 模板缓冲阶段。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get stage (): Stage {
         return this._stage;
     }
-    set stage (val:Stage) {
+    set stage (val: Stage) {
         this._stage = val;
     }
 
-    get pattern () {
+    /**
+     * @en Stencil pattern.
+     * @zh 模板缓冲样式。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    get pattern (): {
+        stencilTest: boolean;
+        func: ComparisonFunc;
+        stencilMask: number;
+        writeMask: number;
+        failOp: StencilOp;
+        zFailOp: StencilOp;
+        passOp: StencilOp;
+        ref: number;
+    } {
         return this._stencilPattern;
     }
 
-    public pushMask (mask: any) {
+    /**
+     * @en Add mask nesting.
+     * @zh 添加mask嵌套。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public pushMask (mask: any): void {
         this._maskStack.push(mask);
     }
 
-    public clear (comp: UIRenderer | UIMeshRenderer) {
+    /**
+     * @en clear stencil stage.
+     * @zh 清空模板状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public clear (comp: UIRenderer | UIMeshRenderer): Stage {
         const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
         return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }
 
-    public enableMask () {
+    /**
+     * @en Open stencil stage to enabled.
+     * @zh 开启模板状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public enableMask (): void {
         this.stage = Stage.ENABLED;
     }
 
-    public exitMask () {
+    /**
+     * @en exit stencil.
+     * @zh 退出模板状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public exitMask (): void {
         if (this._maskStack.length === 0) {
             // cc.errorID(9001);
             return;
@@ -110,15 +162,25 @@ export class StencilManager {
         }
     }
 
-    public getWriteMask () {
+    /**
+     * @en Get write mask count.
+     * @zh 获取写入模板缓冲的位数。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public getWriteMask (): number {
         return 1 << (this._maskStack.length - 1);
     }
 
-    public getExitWriteMask () {
+    /**
+     * @en Get write mask count when exit.
+     * @zh 获取退出时模板缓冲的位数。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public getExitWriteMask (): number {
         return 1 << this._maskStack.length;
     }
 
-    public getStencilRef () {
+    private getStencilRef (): number {
         let result = 0;
         for (let i = 0; i < this._maskStack.length; ++i) {
             result += (0x00000001 << i);
@@ -126,17 +188,27 @@ export class StencilManager {
         return result;
     }
 
-    public getMaskStackSize () {
+    /**
+     * @en Get mask nesting count.
+     * @zh 获取mask嵌套数量。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public getMaskStackSize (): number {
         return this._maskStack.length;
     }
 
-    public reset () {
+    /**
+     * @en Reset stencil stage.
+     * @zh 重置模板状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public reset (): void {
         // reset stack and stage
         this._maskStack.length = 0;
         this.stage = Stage.DISABLED;
     }
 
-    public destroy () {
+    public destroy (): void {
         this.stencilStateMap.forEach((value, key) => {
             value.destroy();
         });
@@ -146,7 +218,12 @@ export class StencilManager {
     private stencilStateMap = new Map<number, DepthStencilState>();
     private stencilStateMapWithDepth = new Map<number, DepthStencilState>();
 
-    public getStencilStage (stage: Stage, mat?: Material) {
+    /**
+     * @en Get stencil stage.
+     * @zh 获取模板状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public getStencilStage (stage: Stage, mat?: Material): DepthStencilState {
         let key = 0;
         let depthTest = false;
         let depthWrite = false;
@@ -196,12 +273,17 @@ export class StencilManager {
         return depthStencilState;
     }
 
-    public getStencilHash (stage: Stage) {
+    /**
+     * @en Get stencil hash.
+     * @zh 获取模板状态的哈希值。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
+    public getStencilHash (stage: Stage): number {
         return (stage << 8) | this._maskStack.length;
     }
 
     // Notice: Only children node in Mask need use this.stage
-    private setStateFromStage (stage) {
+    private setStateFromStage (stage): void {
         const pattern = this._stencilPattern;
         if (stage === Stage.DISABLED) {
             pattern.stencilTest = false;

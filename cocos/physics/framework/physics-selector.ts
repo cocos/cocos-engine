@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,28 +20,32 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint } from '../spec/i-physics-constraint';
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint,
+    IConfigurableConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
     IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
+import { IBoxCharacterController, ICapsuleCharacterController } from '../spec/i-character-controller';
 import { errorID, IVec3Like, warn, cclegacy } from '../../core';
-import { EColliderType, EConstraintType } from './physics-enum';
+import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
-export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string;
+export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
     PhysicsWorld?: Constructor<IPhysicsWorld>,
     RigidBody?: Constructor<IRigidBody>,
+    BoxCharacterController?: Constructor<IBoxCharacterController>,
+    CapsuleCharacterController?: Constructor<ICapsuleCharacterController>,
     BoxShape?: Constructor<IBoxShape>,
     SphereShape?: Constructor<ISphereShape>,
     CapsuleShape?: Constructor<ICapsuleShape>,
@@ -56,11 +59,12 @@ interface IPhysicsWrapperObject {
     HingeConstraint?: Constructor<IHingeConstraint>,
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
+    ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
 }
 
-type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
+interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
-interface IPhysicsSelector {
+export interface IPhysicsSelector {
     /**
      * @en
      * The id of the physics engine being used by the physics system.
@@ -114,7 +118,7 @@ interface IPhysicsSelector {
     [x: string]: any,
 }
 
-function updateLegacyMacro (id: string) {
+function updateLegacyMacro (id: string): void {
     cclegacy._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     cclegacy._global.CC_PHYSICS_CANNON = id === 'cannon.js';
     cclegacy._global.CC_PHYSICS_AMMO = id === 'bullet';
@@ -138,7 +142,7 @@ export interface IWorldInitData {
 }
 let worldInitData: IWorldInitData | null;
 
-function switchTo (id: IPhysicsEngineId) {
+function switchTo (id: IPhysicsEngineId): void {
     if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
@@ -177,7 +181,7 @@ export const selector: IPhysicsSelector = {
     runInEditor: !EDITOR,
 };
 
-export function constructDefaultWorld (data: IWorldInitData) {
+export function constructDefaultWorld (data: IWorldInitData): void {
     if (!worldInitData) worldInitData = data;
     if (!selector.runInEditor) return;
     if (!selector.physicsWorld) {
@@ -191,7 +195,7 @@ export function constructDefaultWorld (data: IWorldInitData) {
 
 /// Utility Function For Create Wrapper Entity ///
 
-const FUNC = (...v: any) => 0 as any;
+const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
     setGravity: FUNC,
@@ -202,6 +206,12 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     syncSceneToPhysics: FUNC,
     raycast: FUNC,
     raycastClosest: FUNC,
+    sweepBox: FUNC,
+    sweepBoxClosest: FUNC,
+    sweepSphere: FUNC,
+    sweepSphereClosest: FUNC,
+    sweepCapsule: FUNC,
+    sweepCapsuleClosest: FUNC,
     emitEvents: FUNC,
     destroy: FUNC,
 };
@@ -224,9 +234,13 @@ enum ECheckType {
     HingeConstraint,
     ConeTwistConstraint,
     FixedConstraint,
+    ConfigurableConstraint,
+    // CHARACTER CONTROLLER //
+    BoxCharacterController,
+    CapsuleCharacterController,
 }
 
-function check (obj: any, type: ECheckType) {
+function check (obj: any, type: ECheckType): boolean {
     if (obj == null) {
         if (selector.id) {
             warn(`${selector.id} physics does not support ${ECheckType[type]}`);
@@ -347,7 +361,7 @@ export function createShape (type: EColliderType): IBaseShape {
     return CREATE_COLLIDER_PROXY[type]();
 }
 
-function initColliderProxy () {
+function initColliderProxy (): void {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
@@ -401,7 +415,7 @@ function initColliderProxy () {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint, IConfigurableConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,
@@ -414,8 +428,38 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setPivotA: FUNC,
     setPivotB: FUNC,
     setAxis: FUNC,
+    setSecondaryAxis: FUNC,
     setBreakForce: FUNC,
     setBreakTorque: FUNC,
+    setConstraintMode: FUNC,
+    setLinearLimit: FUNC,
+    setAngularExtent: FUNC,
+    setLinearSoftConstraint: FUNC,
+    setLinearStiffness: FUNC,
+    setLinearDamping: FUNC,
+    setLinearRestitution: FUNC,
+    setSwingSoftConstraint: FUNC,
+    setTwistSoftConstraint: FUNC,
+    setSwingStiffness: FUNC,
+    setSwingDamping: FUNC,
+    setSwingRestitution: FUNC,
+    setTwistStiffness: FUNC,
+    setTwistDamping: FUNC,
+    setTwistRestitution: FUNC,
+    setDriverMode: FUNC,
+    setLinearMotorTarget: FUNC,
+    setLinearMotorVelocity: FUNC,
+    setLinearMotorForceLimit: FUNC,
+    setAngularMotorTarget: FUNC,
+    setAngularMotorVelocity: FUNC,
+    setAngularMotorForceLimit: FUNC,
+    setAutoPivotB: FUNC,
+    setLimitEnabled: FUNC,
+    setLowerLimit: FUNC,
+    setUpperLimit: FUNC,
+    setMotorEnabled: FUNC,
+    setMotorVelocity: FUNC,
+    setMotorForceLimit: FUNC,
 };
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {
@@ -423,7 +467,7 @@ export function createConstraint (type: EConstraintType): IBaseConstraint {
     return CREATE_CONSTRAINT_PROXY[type]();
 }
 
-function initConstraintProxy () {
+function initConstraintProxy (): void {
     if (CREATE_CONSTRAINT_PROXY.INITED) return;
     CREATE_CONSTRAINT_PROXY.INITED = true;
 
@@ -445,5 +489,67 @@ function initConstraintProxy () {
     CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {
         if (check(selector.wrapper.FixedConstraint, ECheckType.FixedConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.FixedConstraint!();
+    };
+
+    CREATE_CONSTRAINT_PROXY[EConstraintType.CONFIGURABLE] = function createConfigurableConstraint (): IConfigurableConstraint {
+        if (check(selector.wrapper.ConfigurableConstraint, ECheckType.ConfigurableConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.ConfigurableConstraint!();
+    };
+}
+
+/// CREATE CHARACTER CONTROLLER ///
+const CREATE_CHARACTER_CONTROLLER_PROXY = { INITED: false };
+
+interface IEntireCharacterController extends IBoxCharacterController, ICapsuleCharacterController { }
+const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
+    initialize: FUNC,
+    onLoad: FUNC,
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC,
+    onGround: FUNC,
+    getPosition: FUNC,
+    setPosition: FUNC,
+    setStepOffset: FUNC,
+    setSlopeLimit: FUNC,
+    setContactOffset: FUNC,
+    setDetectCollisions: FUNC,
+    setOverlapRecovery: FUNC,
+    setGroup: FUNC,
+    getGroup: FUNC,
+    addGroup: FUNC,
+    removeGroup: FUNC,
+    setMask: FUNC,
+    getMask: FUNC,
+    addMask: FUNC,
+    removeMask: FUNC,
+    move: FUNC,
+    updateEventListener: FUNC,
+    //IBoxCharacterController
+    setHalfHeight: FUNC,
+    setHalfSideExtent: FUNC,
+    setHalfForwardExtent: FUNC,
+    //ICapsuleCharacterController
+    setRadius: FUNC,
+    setHeight: FUNC,
+};
+
+export function createCharacterController (type: ECharacterControllerType): IEntireCharacterController {
+    initCharacterControllerProxy();
+    return CREATE_CHARACTER_CONTROLLER_PROXY[type]();
+}
+
+function initCharacterControllerProxy (): void {
+    if (CREATE_CHARACTER_CONTROLLER_PROXY.INITED) return;
+    CREATE_CHARACTER_CONTROLLER_PROXY.INITED = true;
+
+    CREATE_CHARACTER_CONTROLLER_PROXY[ECharacterControllerType.BOX] = function createBoxCharacterController (): IBoxCharacterController {
+        if (check(selector.wrapper.BoxCharacterController, ECheckType.BoxCharacterController)) { return ENTIRE_CHARACTER_CONTROLLER; }
+        return new selector.wrapper.BoxCharacterController!();
+    };
+
+    CREATE_CHARACTER_CONTROLLER_PROXY[ECharacterControllerType.CAPSULE] = function createCapsuleCharacterController (): ICapsuleCharacterController {
+        if (check(selector.wrapper.CapsuleCharacterController, ECheckType.CapsuleCharacterController)) { return ENTIRE_CHARACTER_CONTROLLER; }
+        return new selector.wrapper.CapsuleCharacterController!();
     };
 }

@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,12 +24,10 @@
 ****************************************************************************/
 
 #include "GbufferStage.h"
-#include "../BatchedBuffer.h"
 #include "../InstancedBuffer.h"
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
-#include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
@@ -48,12 +46,11 @@ RenderStageInfo GbufferStage::initInfo = {
     "GbufferStage",
     static_cast<uint32_t>(DeferredStagePriority::GBUFFER),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
-    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-     {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
+    {ccnew RenderQueueDesc{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
+     ccnew RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue = ccnew RenderBatchedQueue;
     _instancedQueue = ccnew RenderInstancedQueue;
 }
 
@@ -70,16 +67,15 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint32_t phase = convertPhase(descriptor.stages);
-        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint32_t phase = convertPhase(descriptor->stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor->sortMode);
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
     _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 }
 
 void GbufferStage::destroy() {
-    CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
     RenderStage::destroy();
@@ -87,7 +83,6 @@ void GbufferStage::destroy() {
 
 void GbufferStage::dispenseRenderObject2Queues() {
     _instancedQueue->clear();
-    _batchedQueue->clear();
 
     const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     for (auto *queue : _renderQueues) {
@@ -103,7 +98,7 @@ void GbufferStage::dispenseRenderObject2Queues() {
         const auto subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
             const auto &subModel = subModels[subModelIdx];
-            const auto &passes = subModel->getPasses();
+            const auto &passes = *(subModel->getPasses());
             const auto passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
@@ -112,10 +107,6 @@ void GbufferStage::dispenseRenderObject2Queues() {
                     auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
-                } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = pass->getBatchedBuffer();
-                    batchedBuffer->merge(subModel, passIdx, model);
-                    _batchedQueue->add(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, subModelIdx, passIdx);
@@ -139,7 +130,6 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
     // record commands
     _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 }
 
 void GbufferStage::render(scene::Camera *camera) {
@@ -234,10 +224,9 @@ void GbufferStage::render(scene::Camera *camera) {
     dispenseRenderObject2Queues();
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
     _instancedQueue->uploadBuffers(cmdBuff);
-    _batchedQueue->uploadBuffers(cmdBuff);
 
     // if empty == true, gbuffer and lightig passes will be ignored
-    bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
+    bool empty = _renderQueues[0]->empty() && _instancedQueue->empty();
     if (!empty) {
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
     }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { IVec3Like, Vec3, Quat, Mat4 } from '../../../core';
 import { FixedConstraint, PhysicsSystem } from '../../framework';
@@ -32,6 +31,10 @@ import { PhysXInstance } from '../physx-instance';
 import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXWorld } from '../physx-world';
 import { PhysXJoint } from './physx-joint';
+
+const v3_0 = new Vec3();
+const quat_0 = new Quat();
+const mat_0 = new Mat4();
 
 export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
     setBreakForce (v: number): void {
@@ -58,33 +61,33 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         this.updateFrame();
     }
 
-    updateFrame () {
+    updateFrame (): void {
         const bodyA = (this._rigidBody.body as PhysXRigidBody).sharedBody;
         const cb = this.constraint.connectedBody;
-        const bodyB = cb ? (cb.body as PhysXRigidBody).sharedBody : (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(bodyA.node);
 
-        const pos : Vec3 = new Vec3();
-        const rot : Quat = new Quat();
+        Mat4.fromRT(mat_0, bodyA.node.worldRotation, bodyA.node.worldPosition);
+        Mat4.invert(mat_0, mat_0);
+        Mat4.getRotation(quat_0, mat_0);
+        Mat4.getTranslation(v3_0, mat_0);
+        this._impl.setLocalPose(0, getTempTransform(v3_0, quat_0));
 
-        const trans = new Mat4();
-        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.worldPosition);
-        Mat4.invert(trans, trans);
-        Mat4.getRotation(rot, trans);
-        Mat4.getTranslation(pos, trans);
-        this._impl.setLocalPose(0, getTempTransform(pos, rot));
-
-        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.worldPosition);
-        Mat4.invert(trans, trans);
-        Mat4.getRotation(rot, trans);
-        Mat4.getTranslation(pos, trans);
-        this._impl.setLocalPose(1, getTempTransform(pos, rot));
+        if (cb) {
+            const bodyB = (cb.body as PhysXRigidBody).sharedBody;
+            Mat4.fromRT(mat_0, bodyB.node.worldRotation, bodyB.node.worldPosition);
+            Mat4.invert(mat_0, mat_0);
+            Mat4.getRotation(quat_0, mat_0);
+            Mat4.getTranslation(v3_0, mat_0);
+            this._impl.setLocalPose(1, getTempTransform(v3_0, quat_0));
+        } else {
+            this._impl.setLocalPose(1, getTempTransform(Vec3.ZERO, Quat.IDENTITY));
+        }
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.updateFrame();
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.updateFrame();
     }
 }

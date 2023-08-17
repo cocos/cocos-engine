@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -80,7 +79,7 @@ export class NodeEventProcessor {
     /**
      * Whether the node event is enabled
      */
-    public get isEnabled () {
+    public get isEnabled (): boolean {
         return this._isEnabled;
     }
 
@@ -107,7 +106,7 @@ export class NodeEventProcessor {
     /**
      * The owner of node event processor.
      */
-    public get node () {
+    public get node (): Node {
         return this._node;
     }
 
@@ -145,7 +144,7 @@ export class NodeEventProcessor {
      * @param recursive Recursively set the state or not
      * @returns void
      */
-    public setEnabled (value: boolean, recursive = false) {
+    public setEnabled (value: boolean, recursive = false): void {
         if (this._isEnabled === value) {
             return;
         }
@@ -159,9 +158,21 @@ export class NodeEventProcessor {
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
-                // @ts-expect-error child._eventProcessor is a protected property.
-                child._eventProcessor.setEnabled(value, true);
+                child.eventProcessor.setEnabled(value, true);
             }
+        }
+        // When a node is dispatching touch events and the node is set to disabled,
+        // the dispatching events function will hang until the node is enabled.
+        // If the node is re-enabled, any touch events will be handled by this node,
+        // even if the touch events are not in the scope of this node. This is an error.
+        // So, sending a cancel event when the node is set to disabled.
+        if (this._dispatchingTouch && !this._isEnabled) {
+            // Dispatch touch cancel event when node is destroyed.
+            const cancelEvent = new EventTouch([this._dispatchingTouch], true, InputEventType.TOUCH_CANCEL);
+            cancelEvent.touch = this._dispatchingTouch;
+            this.dispatchEvent(cancelEvent);
+            this.claimedTouchIdList.length = 0;
+            this._dispatchingTouch = null;
         }
     }
 
@@ -192,7 +203,7 @@ export class NodeEventProcessor {
         }
     }
 
-    public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
@@ -205,7 +216,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
@@ -219,7 +230,7 @@ export class NodeEventProcessor {
         return callback;
     }
 
-    public off (type: NodeEventType, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public off (type: NodeEventType, callback?: AnyFunction, target?: unknown, useCapture?: boolean): void {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion> | null;
         if (useCapture) {
@@ -230,7 +241,7 @@ export class NodeEventProcessor {
         invoker?.off(type, callback, target);
     }
 
-    public targetOff (target: unknown) {
+    public targetOff (target: unknown): void {
         this.capturingTarget?.removeAll(target);
         this.bubblingTarget?.removeAll(target);
 
@@ -246,11 +257,11 @@ export class NodeEventProcessor {
         }
     }
 
-    public emit (type: SystemEventTypeUnion, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: SystemEventTypeUnion, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void {
         this.bubblingTarget?.emit(type, arg0, arg1, arg2, arg3, arg4);
     }
 
-    public dispatchEvent (event: Event) {
+    public dispatchEvent (event: Event): void {
         const owner = this.node;
         let target: Node;
         let i = 0;
@@ -309,7 +320,7 @@ export class NodeEventProcessor {
         _cachedArray.length = 0;
     }
 
-    public hasEventListener (type: SystemEventTypeUnion, callback?: AnyFunction, target?: unknown) {
+    public hasEventListener (type: SystemEventTypeUnion, callback?: AnyFunction, target?: unknown): boolean {
         let has = false;
         if (this.bubblingTarget) {
             has = this.bubblingTarget.hasEventListener(type, callback, target);
@@ -329,7 +340,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: Node[]) {
+    public getCapturingTargets (type: string, targets: Node[]): void {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTarget?.hasEventListener(type)) {
@@ -348,7 +359,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: Node[]) {
+    public getBubblingTargets (type: string, targets: Node[]): void {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTarget?.hasEventListener(type)) {
@@ -358,7 +369,11 @@ export class NodeEventProcessor {
         }
     }
 
-    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
+    public onUpdatingSiblingIndex (): void {
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+    }
+
+    private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null): IMask[] | null {
         const node = this.node;
         if (ctor) {
             let index = 0;
@@ -385,21 +400,21 @@ export class NodeEventProcessor {
         return null;
     }
 
-    private _attachMask () {
+    private _attachMask (): void {
         this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
     }
 
-    private _isTouchEvent (type: NodeEventType) {
+    private _isTouchEvent (type: NodeEventType): boolean {
         const index = _touchEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _isMouseEvent (type: NodeEventType) {
+    private _isMouseEvent (type: NodeEventType): boolean {
         const index = _mouseEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _hasTouchListeners () {
+    private _hasTouchListeners (): boolean {
         for (let i = 0; i < _touchEvents.length; ++i) {
             const eventType = _touchEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -409,7 +424,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasMouseListeners () {
+    private _hasMouseListeners (): boolean {
         for (let i = 0; i < _mouseEvents.length; ++i) {
             const eventType = _mouseEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -419,7 +434,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasPointerListeners () {
+    private _hasPointerListeners (): boolean {
         const has = this._hasTouchListeners();
         if (has) {
             return true;
@@ -427,7 +442,7 @@ export class NodeEventProcessor {
         return this._hasMouseListeners();
     }
 
-    private _tryEmittingAddEvent (typeToAdd: NodeEventType) {
+    private _tryEmittingAddEvent (typeToAdd: NodeEventType): void {
         const isTouchEvent = this._isTouchEvent(typeToAdd);
         const isMouseEvent = this._isMouseEvent(typeToAdd);
         if (isTouchEvent) {
@@ -447,7 +462,6 @@ export class NodeEventProcessor {
      */
     private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
         const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
-        // @ts-expect-error Property '_registerOffCallback' is private
         callbacksInvoker._registerOffCallback(() => {
             if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
                 this.shouldHandleEventTouch = false;
@@ -464,7 +478,10 @@ export class NodeEventProcessor {
 
     // #region handle mouse event
 
-    private _handleEventMouse (eventMouse: EventMouse): boolean {
+    /**
+     * @engineInternal
+     */
+    public _handleEventMouse (eventMouse: EventMouse): boolean {
         switch (eventMouse.type) {
         case InputEventType.MOUSE_DOWN:
             return this._handleMouseDown(eventMouse);
@@ -573,7 +590,10 @@ export class NodeEventProcessor {
 
     // #region handle touch event
 
-    private _handleEventTouch (eventTouch: EventTouch) {
+    /**
+     * @engineInternal
+     */
+    public _handleEventTouch (eventTouch: EventTouch): boolean | void {
         switch (eventTouch.type) {
         case InputEventType.TOUCH_START:
             return this._handleTouchStart(eventTouch);
@@ -588,7 +608,7 @@ export class NodeEventProcessor {
         }
     }
 
-    private _handleTouchStart (event: EventTouch) {
+    private _handleTouchStart (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -607,7 +627,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleTouchMove (event: EventTouch) {
+    private _handleTouchMove (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -620,14 +640,13 @@ export class NodeEventProcessor {
         return true;
     }
 
-    private _handleTouchEnd (event: EventTouch) {
+    private _handleTouchEnd (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;
         }
 
         event.getLocation(pos);
-        //console.log('pos: ' + pos);
 
         if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_END;
@@ -639,7 +658,7 @@ export class NodeEventProcessor {
         this._dispatchingTouch = null;
     }
 
-    private _handleTouchCancel (event: EventTouch) {
+    private _handleTouchCancel (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;

@@ -1,14 +1,14 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -37,7 +37,7 @@ import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy 
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 
-const repeat = (n: number) => n - Math.floor(n);
+const repeat = (n: number): number => n - Math.floor(n);
 const batch_id: Attribute = new Attribute(AttributeName.ATTR_BATCH_ID, Format.R32F);
 const batch_uv: Attribute = new Attribute(AttributeName.ATTR_BATCH_UV, Format.RG32F);
 const batch_extras_size = FormatInfos[batch_id.format].size + FormatInfos[batch_uv.format].size;
@@ -88,7 +88,7 @@ export class SkinnedMeshUnit {
         Vec2.copy(this._offset, offset);
     }
 
-    get offset () {
+    get offset (): Vec2 {
         return this._offset;
     }
 
@@ -101,7 +101,7 @@ export class SkinnedMeshUnit {
         Vec2.copy(this._size, size);
     }
 
-    get size () {
+    get size (): Vec2 {
         return this._size;
     }
 
@@ -114,11 +114,12 @@ export class SkinnedMeshUnit {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
-        this.material = comp.getMaterial(0);
+        this.material = comp.getSharedMaterial(0);
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
 
-    get copyFrom () {
+    get copyFrom (): SkinnedMeshRenderer | null
+    {
         return null;
     }
 }
@@ -172,7 +173,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     @override
     @visible(false)
-    get mesh () {
+    get mesh (): Mesh | null {
         return super.mesh;
     }
 
@@ -182,7 +183,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     @override
     @visible(false)
-    get skeleton () {
+    get skeleton (): Skeleton | null {
         return super.skeleton;
     }
 
@@ -190,12 +191,12 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         super.skeleton = val;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         super.onLoad();
         this.cook();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         for (const tex in this._textures) {
             this._textures[tex].destroy();
         }
@@ -210,20 +211,20 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onMaterialModified (idx: number, material: Material | null) {
+    public _onMaterialModified (idx: number, material: Material | null): void {
         this.cookMaterials();
         super._onMaterialModified(idx, this.getMaterialInstance(idx));
     }
 
-    public cook () {
+    public cook (): void {
         this.cookMaterials();
         this.cookSkeletons();
         this.cookMeshes();
     }
 
-    public cookMaterials () {
+    public cookMaterials (): void {
         if (!this._batchMaterial) {
-            this._batchMaterial = this.getMaterial(0);
+            this._batchMaterial = this.getSharedMaterial(0);
         }
         const mat = this.getMaterialInstance(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
@@ -258,7 +259,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         }
     }
 
-    public cookSkeletons () {
+    public cookSkeletons (): void {
         if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
         // merge joints accordingly
         const joints: string[] = [];
@@ -299,7 +300,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         this.skeleton = skeleton;
     }
 
-    public cookMeshes () {
+    public cookMeshes (): void {
         let isValid = false;
         for (let u = 0; u < this.units.length; u++) {
             const unit = this.units[u];
@@ -344,7 +345,10 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
             const newMesh = this._createUnitMesh(i, unit.mesh);
             const dataView = new DataView(newMesh.data.buffer);
-            Mat4.inverseTranspose(m4_local, unit._localTransform);
+
+            Mat4.invert(m4_local, unit._localTransform);
+            Mat4.transpose(m4_local, m4_local);
+
             const { offset } = unit;
             const { size } = unit;
             for (let b = 0; b < newMesh.struct.vertexBundles.length; b++) {
@@ -449,7 +453,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         this._updateModels();
     }
 
-    protected cookTextures (target: Texture2D, prop: string, passIdx: number) {
+    protected cookTextures (target: Texture2D, prop: string, passIdx: number): void {
         const texImages: TexImageSource[] = [];
         const texImageRegions: BufferTextureCopy[] = [];
         const texBuffers: ArrayBufferView[] = [];
@@ -480,7 +484,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }
 
-    protected createTexture (prop: string) {
+    protected createTexture (prop: string): Texture2D {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
         tex.setMipFilter(Filter.NEAREST);
@@ -493,7 +497,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         return tex;
     }
 
-    protected resizeAtlases () {
+    protected resizeAtlases (): void {
         for (const prop in this._textures) {
             const tex = this._textures[prop];
             tex.reset({
@@ -504,7 +508,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         }
     }
 
-    private _createUnitMesh (unitIdx: number, mesh: Mesh) {
+    private _createUnitMesh (unitIdx: number, mesh: Mesh): Mesh {
         // add batch ID to this temp mesh
         // first, update bookkeeping
         const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(mesh.struct));

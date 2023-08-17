@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
 import { RenderDrawInfo } from './render-draw-info';
@@ -56,15 +80,15 @@ export class RenderEntity {
     protected declare _boolSharedBuffer: Uint8Array;
 
     private declare _nativeObj: NativeRenderEntity;
-    get nativeObj () {
+    get nativeObj (): NativeRenderEntity {
         return this._nativeObj;
     }
 
-    get renderDrawInfoArr () {
+    get renderDrawInfoArr (): RenderDrawInfo[] {
         return this._dynamicDrawInfoArr;
     }
 
-    get renderEntityType () {
+    get renderEntityType (): RenderEntityType {
         return this._renderEntityType;
     }
     // set renderEntityType (val:RenderEntityType) {
@@ -72,7 +96,7 @@ export class RenderEntity {
     // }
 
     protected _color: Color = Color.WHITE;
-    get color () {
+    get color (): Color {
         return this._color;
     }
     set color (val: Color) {
@@ -86,7 +110,7 @@ export class RenderEntity {
     }
 
     protected _localOpacity = 255;
-    get localOpacity () {
+    get localOpacity (): number {
         return this._localOpacity;
     }
     set localOpacity (val: number) {
@@ -97,7 +121,7 @@ export class RenderEntity {
     }
 
     protected _colorDirty = true;
-    get colorDirty () {
+    get colorDirty (): boolean {
         return this._colorDirty;
     }
     set colorDirty (val: boolean) {
@@ -108,7 +132,7 @@ export class RenderEntity {
     }
 
     protected _enabled = false;
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
     set enabled (val: boolean) {
@@ -128,7 +152,7 @@ export class RenderEntity {
         }
     }
 
-    public addDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null) {
+    public addDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null): void {
         if (JSB) {
             if (renderDrawInfo) {
                 this._dynamicDrawInfoArr.push(renderDrawInfo);
@@ -137,27 +161,27 @@ export class RenderEntity {
         }
     }
 
-    public removeDynamicRenderDrawInfo () {
+    public removeDynamicRenderDrawInfo (): void {
         if (JSB) {
             this._dynamicDrawInfoArr.pop();
             this._nativeObj.removeDynamicRenderDrawInfo();
         }
     }
 
-    public clearDynamicRenderDrawInfos () {
+    public clearDynamicRenderDrawInfos (): void {
         if (JSB) {
             this._dynamicDrawInfoArr.length = 0;
             this._nativeObj.clearDynamicRenderDrawInfos();
         }
     }
 
-    public clearStaticRenderDrawInfos () {
+    public clearStaticRenderDrawInfos (): void {
         if (JSB) {
             this._nativeObj.clearStaticRenderDrawInfos();
         }
     }
 
-    public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number) {
+    public setDynamicRenderDrawInfo (renderDrawInfo: RenderDrawInfo | null, index: number): void {
         if (JSB) {
             if (renderDrawInfo) {
                 if (this._dynamicDrawInfoArr.length < index + 1) {
@@ -171,7 +195,7 @@ export class RenderEntity {
         }
     }
 
-    public setMaskMode (mode: MaskMode) {
+    public setMaskMode (mode: MaskMode): void {
         if (JSB) {
             this._uint8SharedBuffer[RenderEntityUInt8SharedBufferView.maskMode] = mode;
         }
@@ -187,7 +211,7 @@ export class RenderEntity {
         return null;
     }
 
-    setNode (node: Node | null) {
+    setNode (node: Node | null): void {
         if (JSB) {
             if (this._node !== node) {
                 this._nativeObj.node = node;
@@ -196,7 +220,7 @@ export class RenderEntity {
         this._node = node;
     }
 
-    setRenderTransform (renderTransform: Node | null) {
+    setRenderTransform (renderTransform: Node | null): void {
         if (JSB) {
             if (this._renderTransform !== renderTransform) {
                 this._nativeObj.renderTransform = renderTransform;
@@ -205,7 +229,7 @@ export class RenderEntity {
         this._renderTransform = renderTransform;
     }
 
-    setStencilStage (stage: Stage) {
+    setStencilStage (stage: Stage): void {
         if (JSB) {
             if (this._stencilStage !== stage) {
                 this._nativeObj.stencilStage = stage;
@@ -214,14 +238,14 @@ export class RenderEntity {
         this._stencilStage = stage;
     }
 
-    setUseLocal (useLocal: boolean) {
+    setUseLocal (useLocal: boolean): void {
         if (JSB) {
             this._boolSharedBuffer[RenderEntityBoolSharedBufferView.useLocal] = useLocal ? 1 : 0;
         }
         this._useLocal = useLocal;
     }
 
-    private initSharedBuffer () {
+    private initSharedBuffer (): void {
         if (JSB) {
             //this._sharedBuffer = new Float32Array(RenderEntitySharedBufferView.count);
             const buffer = this._nativeObj.getEntitySharedBufferForJS();

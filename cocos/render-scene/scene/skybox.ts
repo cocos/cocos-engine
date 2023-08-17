@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
@@ -210,6 +209,10 @@ export class Skybox {
         }
     }
 
+    get editableMaterial (): MaterialInstance | null {
+        return this._editableMaterial;
+    }
+
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -227,7 +230,7 @@ export class Skybox {
     protected _reflectionLDR: TextureCube | null = null;
     protected _rotationAngle = 0;
 
-    public initialize (skyboxInfo: SkyboxInfo) {
+    public initialize (skyboxInfo: SkyboxInfo): void {
         this._activated = false;
         this._enabled = skyboxInfo.enabled;
         this._useIBL = skyboxInfo.useIBL;
@@ -241,7 +244,7 @@ export class Skybox {
      * @param envmapHDR @en Environment map for HDR mode @zh HDR 模式下的环境贴图
      * @param envmapLDR @en Environment map for LDR mode @zh LDR 模式下的环境贴图
      */
-    public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
+    public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null): void {
         this._envmapHDR = envmapHDR;
         this._envmapLDR = envmapLDR;
 
@@ -255,7 +258,7 @@ export class Skybox {
      * @param diffuseMapHDR @en Diffuse map for HDR mode @zh HDR 模式下的漫反射贴图
      * @param diffuseMapLDR  @en Diffuse map for LDR mode @zh LDR 模式下的漫反射贴图
      */
-    public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
+    public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null): void {
         this._diffuseMapHDR = diffuseMapHDR;
         this._diffuseMapLDR = diffuseMapLDR;
         this._updateGlobalBinding();
@@ -267,7 +270,7 @@ export class Skybox {
      * @zh 设置自定义的天空盒材质
      * @param skyboxMat  @en Skybox material @zh 天空盒材质
      */
-    public setSkyboxMaterial (skyboxMat: Material | null) {
+    public setSkyboxMaterial (skyboxMat: Material | null): void {
         if (skyboxMat) {
             this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
             this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
@@ -283,7 +286,7 @@ export class Skybox {
      * @param reflectionHDR  @en Reflection convolution map for HDR mode @zh HDR 模式下的反射卷积图
      * @param reflectionLDR  @en Reflection convolution map for LDR mode @zh LDR 模式下的反射卷积图
      */
-    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
+    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null): void {
         this._reflectionHDR = reflectionHDR;
         this._reflectionLDR = reflectionLDR;
         this._updateGlobalBinding();
@@ -295,20 +298,20 @@ export class Skybox {
      * @zh 设置天空盒旋转角度
      * @param angle  @en rotation angle @zh 旋转角度
      */
-    public setRotationAngle (angle: number) {
+    public setRotationAngle (angle: number): void {
         this._rotationAngle = angle;
     }
 
-    public getRotationAngle () {
+    public getRotationAngle (): number {
         return this._rotationAngle;
     }
 
-    public updateMaterialRenderInfo () {
+    public updateMaterialRenderInfo (): void {
         this._updateGlobalBinding();
         this._updatePipeline();
     }
 
-    public activate () {
+    public activate (): void {
         const pipeline = cclegacy.director.root.pipeline;
         this._globalDSManager = pipeline.globalDSManager;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
@@ -357,12 +360,13 @@ export class Skybox {
         this._activated = true;
     }
 
-    protected _updatePipeline () {
+    protected _updatePipeline (): void {
         const root = cclegacy.director.root as Root;
         const pipeline = root.pipeline;
 
         const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
-        const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
+        const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap && this.diffuseMap !== this._default)
+            ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
         const useConvMapValue = this.useConvolutionMap;
 
@@ -394,7 +398,7 @@ export class Skybox {
         }
     }
 
-    protected _updateGlobalBinding () {
+    protected _updateGlobalBinding (): void {
         if (this._globalDSManager) {
             const device = deviceManager.gfxDevice;
             if (this.reflectionMap) {
@@ -424,7 +428,7 @@ export class Skybox {
         }
     }
 
-    protected _updateSubModes () {
+    protected _updateSubModes (): void {
         if (this._model) {
             const subModels = this._model.subModels;
             for (let i = 0; i < subModels.length; i++) {

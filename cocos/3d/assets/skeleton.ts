@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,7 +48,7 @@ export class Skeleton extends Asset {
      * @en The path of all bones, the length always equals the length of [[bindposes]]
      * @zh 所有关节的路径。该数组的长度始终与 [[bindposes]] 的长度相同。
      */
-    get joints () {
+    get joints (): string[] {
         return this._joints;
     }
 
@@ -61,7 +60,7 @@ export class Skeleton extends Asset {
      * @en The bind poses matrix of all bones, the length always equals the length of [[joints]]
      * @zh 所有关节的绑定姿势矩阵。该数组的长度始终与 [[joints]] 的长度相同。
      */
-    get bindposes () {
+    get bindposes (): Mat4[] {
         return this._bindposes;
     }
 
@@ -73,7 +72,7 @@ export class Skeleton extends Asset {
      * @en Gets the inverse bind poses matrix
      * @zh 获取反向绑定姿势矩阵
      */
-    get inverseBindposes () {
+    get inverseBindposes (): Mat4[] {
         if (!this._invBindposes) {
             this._invBindposes = [];
             for (let i = 0; i < this._bindposes.length; i++) {
@@ -89,7 +88,7 @@ export class Skeleton extends Asset {
      * @en Gets the hash of the skeleton asset
      * @zh 获取骨骼资源的哈希值
      */
-    get hash () {
+    get hash (): number {
         // hashes should already be computed offline, but if not, make one
         if (!this._hash) {
             let str = '';
@@ -106,7 +105,7 @@ export class Skeleton extends Asset {
         return this._hash;
     }
 
-    public destroy () {
+    public destroy (): boolean {
         (cclegacy.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
         return super.destroy();
     }
@@ -116,7 +115,7 @@ export class Skeleton extends Asset {
      * @zh 检查当前骨骼对象是否是有效的，取决于它是否包含关节路径和绑定姿势数据。
      * @returns @en Whether the skeleton is valid or not @zh 此骨骼是否有效
      */
-    public validate () {
+    public validate (): boolean {
         return this.joints.length > 0 && this.bindposes.length > 0;
     }
 }

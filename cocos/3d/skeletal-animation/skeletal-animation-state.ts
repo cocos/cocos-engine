@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -70,7 +69,7 @@ export class SkeletalAnimationState extends AnimationState {
         this._animInfoMgr = cclegacy.director.root.dataPoolManager.jointAnimationInfo;
     }
 
-    public initialize (root: Node) {
+    public initialize (root: Node): void {
         if (this._curveLoaded) { return; }
         this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
@@ -84,7 +83,7 @@ export class SkeletalAnimationState extends AnimationState {
         this.setUseBaked(baked);
     }
 
-    protected onPlay () {
+    protected onPlay (): void {
         super.onPlay();
         const baked = this._parent!.useBakedAnimation;
         if (baked) {
@@ -99,7 +98,7 @@ export class SkeletalAnimationState extends AnimationState {
     /**
      * @internal This method only friends to `SkeletalAnimation`.
      */
-    public setUseBaked (useBaked: boolean) {
+    public setUseBaked (useBaked: boolean): void {
         if (useBaked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
@@ -120,7 +119,7 @@ export class SkeletalAnimationState extends AnimationState {
      * @param sockets @en The sockets need update @zh 需要重建的挂点列表
      * @returns void
      */
-    public rebuildSocketCurves (sockets: Socket[]) {
+    public rebuildSocketCurves (sockets: Socket[]): void {
         this._sockets.length = 0;
         if (!this._targetNode) { return; }
         const root = this._targetNode;
@@ -170,7 +169,7 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _sampleCurvesBaked (time: number) {
+    private _sampleCurvesBaked (time: number): void {
         const ratio = time / this.duration;
         const info = this._animInfo!;
         const clip = this.clip;
@@ -184,6 +183,7 @@ export class SkeletalAnimationState extends AnimationState {
             users.forEach((user) => {
                 user.uploadAnimation(clip);
             });
+            info.data[0] = -1; // reset frame index to -1. sampleCurves will calculate frame to 0.
         }
 
         const curFrame = (ratio * this._frames + 0.5) | 0;

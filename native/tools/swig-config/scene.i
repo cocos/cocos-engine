@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") scene
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -19,9 +22,13 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "scene/Skin.h"
+#include "scene/PostSettings.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -55,6 +62,28 @@
 using namespace cc;
 %}
 
+%typemap(out, func_only=1) cc::MaterialProperty %{
+	ccstd::visit(
+        [&](auto &param) {
+            using ParamType = std::remove_reference_t<decltype(param)>;
+            if constexpr (std::is_same_v<ParamType, int32_t> || std::is_same_v<ParamType, float>) {
+                ok = nativevalue_to_se(param, s.rval());
+            } else {
+                auto *temp = ccnew ParamType(param);
+                ok = nativevalue_to_se(temp, s.rval());
+                if (ok) {
+                    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
+                } else {
+                    s.rval().setUndefined();
+                    delete temp;
+                }
+            }
+        },
+        result);
+
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+%}
+
 // ----- Ignore Section ------
 // Brief: Classes, methods or attributes need to be ignored
 //
@@ -75,6 +104,8 @@ using namespace cc;
 
 %ignore cc::Root::getEventProcessor;
 %ignore cc::Node::getEventProcessor;
+
+%ignore cc::scene::IMacroPatch::IMacroPatch(const std::pair<const std::string, cc::MacroValue>&);
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
@@ -137,6 +168,8 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::isTransformDirty;
+%ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
@@ -161,6 +194,8 @@ using namespace cc;
 %ignore cc::JointInfo;
 %ignore cc::BakedJointInfo;
 %ignore cc::ITemplateInfo;
+
+%ignore cc::Root::frameSync;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -198,6 +233,7 @@ using namespace cc;
 %rename(_activate) cc::Scene::activate;
 
 %rename(_updatePassHash) cc::scene::Pass::updatePassHash;
+%rename(_getUniform) cc::scene::Pass::getUniform;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -243,6 +279,7 @@ using namespace cc;
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
 %attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
+%attribute(cc::Root, cc::pipeline::DebugView*, debugView, getDebugView);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
@@ -255,17 +292,17 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::IProgramInfo*, shaderInfo, getShaderInfo);
 %attribute(cc::scene::Pass, cc::gfx::DescriptorSetLayout*, localSetLayout, getLocalSetLayout);
 %attribute(cc::scene::Pass, ccstd::string&, program, getProgram);
-%attribute(cc::scene::Pass, %arg(Record<ccstd::string, cc::IPropertyInfo> &), properties, getProperties);
+%attribute(cc::scene::Pass, cc::PassPropertyInfoMap& , properties, getProperties);
 %attribute(cc::scene::Pass, cc::MacroRecord&, defines, getDefines);
 %attribute(cc::scene::Pass, index_t, passIndex, getPassIndex);
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);
 %attribute(cc::scene::Pass, cc::scene::IPassDynamics &, dynamics, getDynamics);
 %attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty);
-%attribute(cc::scene::Pass, bool, _rootBufferDirty, isRootBufferDirty, _setRootBufferDirty);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPriority, priority, getPriority);
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);
 %attribute(cc::scene::Pass, uint32_t, phase, getPhase);
+%attribute(cc::scene::Pass, uint32_t, phaseID, getPhaseID);
 %attribute(cc::scene::Pass, cc::gfx::RasterizerState *, rasterizerState, getRasterizerState);
 %attribute(cc::scene::Pass, cc::gfx::DepthStencilState *, depthStencilState, getDepthStencilState);
 %attribute(cc::scene::Pass, cc::gfx::BlendState *, blendState, getBlendState);
@@ -281,6 +318,7 @@ using namespace cc;
 %attribute(cc::Node, float, angle, getAngle, setAngle);
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
+%attribute(cc::Node, uint32_t, flagChangedVersion, getFlagChangedVersion);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
 %attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
 
@@ -299,6 +337,7 @@ using namespace cc;
 %attribute(cc::scene::Light, ccstd::string&, name, getName, setName);
 %attribute(cc::scene::Light, cc::scene::RenderScene*, scene, getScene);
 %attribute(cc::scene::Light, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::Light, cc::Vec3&, colorTemperatureRGB, getColorTemperatureRGB, setColorTemperatureRGB);
 
 %attribute(cc::scene::LODData, float, screenUsagePercentage, getScreenUsagePercentage, setScreenUsagePercentage);
 %attribute(cc::scene::LODData, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
@@ -357,6 +396,17 @@ using namespace cc;
 %attribute(cc::scene::SphereLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
 %attribute(cc::scene::SphereLight, cc::geometry::AABB&, aabb, getAABB);
 
+%attribute(cc::scene::PointLight, cc::Vec3&, position, getPosition, setPosition);
+%attribute(cc::scene::PointLight, float, range, getRange, setRange);
+%attribute(cc::scene::PointLight, float, luminance, getLuminance, setLuminance);
+%attribute(cc::scene::PointLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
+%attribute(cc::scene::PointLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
+%attribute(cc::scene::PointLight, cc::geometry::AABB&, aabb, getAABB);
+
+%attribute(cc::scene::RangedDirectionalLight, float, illuminance, getIlluminance, setIlluminance);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceHDR, getIlluminanceHDR, setIlluminanceHDR);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceLDR, getIlluminanceLDR, setIlluminanceLDR);
+
 %attribute(cc::scene::Camera, cc::scene::CameraISO, iso, getIso, setIso);
 %attribute(cc::scene::Camera, float, isoValue, getIsoValue);
 %attribute(cc::scene::Camera, float, ec, getEc, setEc);
@@ -396,11 +446,15 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::pipeline::GeometryRenderer *, geometryRenderer, getGeometryRenderer);
 %attribute(cc::scene::Camera, uint32_t, systemWindowId, getSystemWindowId);
 %attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
+%attribute(cc::scene::Camera, cc::scene::TrackingType, trackingType, getTrackingType, setTrackingType);
+%attribute(cc::scene::Camera, cc::scene::CameraType, cameraType, getCameraType, setCameraType);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::PointLight>>&, pointLights, getPointLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::RangedDirectionalLight>>&, rangedDirLights, getRangedDirLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
 
@@ -425,6 +479,12 @@ using namespace cc;
 %attribute(cc::scene::Fog, float, fogTop, getFogTop, setFogTop);
 %attribute(cc::scene::Fog, float, fogRange, getFogRange, setFogRange);
 %attribute(cc::scene::Fog, cc::Vec4&, colorArray, getColorArray);
+
+%attribute(cc::scene::Skin, bool, enabled, isEnabled, setEnabled);
+%attribute(cc::scene::Skin, float, blurRadius, getBlurRadius, setBlurRadius);
+%attribute(cc::scene::Skin, float, sssIntensity, getSSSIntensity, setSSSIntensity);
+
+%attribute(cc::scene::PostSettings, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
 
 %attribute(cc::scene::Model, cc::scene::RenderScene*, scene, getScene, setScene);
 %attribute(cc::scene::Model, ccstd::vector<cc::IntrusivePtr<cc::scene::SubModel>> &, _subModels, getSubModels);
@@ -452,17 +512,19 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
-%attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, cc::scene::UseReflectionProbeType, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
+%attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
+%attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
+%attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
 
-%attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
+%attribute(cc::scene::SubModel, cc::scene::SharedPassArray &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
 %attribute(cc::scene::SubModel, cc::RenderingSubMesh*, subMesh, getSubMesh, setSubMesh);
 %attribute(cc::scene::SubModel, cc::pipeline::RenderPriority, priority, getPriority, setPriority);
 %attribute(cc::scene::SubModel, cc::gfx::InputAssembler *, inputAssembler, getInputAssembler, setInputAssembler);
 %attribute(cc::scene::SubModel, cc::gfx::DescriptorSet *, descriptorSet, getDescriptorSet, setDescriptorSet);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::scene::IMacroPatch> &, patches, getPatches);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarInstanceShader, getPlanarInstanceShader, setPlanarInstanceShader);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarShader, getPlanarShader, setPlanarShader);
 
 %attribute(cc::scene::ShadowsInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::ShadowsInfo, cc::scene::ShadowType, type, getType, setType);
@@ -524,6 +586,8 @@ using namespace cc;
 %attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
 
+%attribute(cc::scene::PostSettingsInfo, cc::scene::ToneMappingType, toneMappingType, getToneMappingType, setToneMappingType);
+
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
 %attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
@@ -535,7 +599,13 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
+%attribute(cc::scene::ReflectionProbe, ccstd::vector<cc::IntrusivePtr<cc::RenderTexture>> &, bakedCubeTextures, getBakedCubeTextures);
+%attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
+%attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
+%attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
+%attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);
 
 
 // ----- Import Section ------
@@ -617,9 +687,13 @@ using namespace cc;
 %include "scene/Fog.h"
 %include "scene/Shadow.h"
 %include "scene/Skybox.h"
+%include "scene/Skin.h"
+%include "scene/PostSettings.h"
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
+%include "scene/PointLight.h"
+%include "scene/RangedDirectionalLight.h"
 %include "scene/Model.h"
 %include "scene/SubModel.h"
 %include "scene/Pass.h"

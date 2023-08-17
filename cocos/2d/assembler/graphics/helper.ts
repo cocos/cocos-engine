@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,7 +35,7 @@ const sign = Math.sign;
 
 const KAPPA90 = 0.5522847493;
 
-export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
+export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean): void {
     counterclockwise = counterclockwise || false;
 
     let a = 0;
@@ -98,7 +97,7 @@ export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: n
     }
 }
 
-export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: number) {
+export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: number): void {
     ctx.moveTo(cx - rx, cy);
     ctx.bezierCurveTo(cx - rx, cy + ry * KAPPA90, cx - rx * KAPPA90, cy + ry, cx, cy + ry);
     ctx.bezierCurveTo(cx + rx * KAPPA90, cy + ry, cx + rx, cy + ry * KAPPA90, cx + rx, cy);
@@ -107,7 +106,7 @@ export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: numb
     ctx.close();
 }
 
-export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number) {
+export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number): void {
     if (r < 0.1) {
         ctx.rect(x, y, w, h);
     } else {
@@ -133,7 +132,7 @@ export function tesselateBezier (
     x3: number, y3: number,
     x4: number, y4: number,
     level: number, type: number,
-) {
+): void {
     let x12 = 0;
     let y12 = 0;
     let x23 = 0;

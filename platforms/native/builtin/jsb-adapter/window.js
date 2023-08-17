@@ -1,60 +1,62 @@
+const jsbWindow = require('../../jsbWindow');
+
 function inject () {
-    window.ontouchstart = null;
-    window.ontouchmove = null;
-    window.ontouchend = null;
-    window.ontouchcancel = null;
+    jsbWindow.ontouchstart = null;
+    jsbWindow.ontouchmove = null;
+    jsbWindow.ontouchend = null;
+    jsbWindow.ontouchcancel = null;
 
-    window.pageXOffset = window.pageYOffset = window.clientTop = window.clientLeft = 0;
-    window.outerWidth = window.innerWidth;
-    window.outerHeight = window.innerHeight;
-    window.clientWidth = window.innerWidth;
-    window.clientHeight = window.innerHeight;
-    if (!__EDITOR__) {
-        window.top = window.parent = window;
-        window.location = require('./location');
-        window.document = require('./document');
-        window.navigator = require('./navigator');
-    }
+    jsbWindow.pageXOffset = jsbWindow.pageYOffset = jsbWindow.clientTop = jsbWindow.clientLeft = 0;
+    jsbWindow.outerWidth = jsbWindow.innerWidth;
+    jsbWindow.outerHeight = jsbWindow.innerHeight;
+    jsbWindow.clientWidth = jsbWindow.innerWidth;
+    jsbWindow.clientHeight = jsbWindow.innerHeight;
+    // if (!__EDITOR__) {
+        jsbWindow.top = jsbWindow.parent = jsbWindow;
+        jsbWindow.location = require('./location');
+        jsbWindow.document = require('./document');
+        jsbWindow.navigator = require('./navigator');
+    // }
 
-    window.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
-    window.Element = require('./Element');
-    window.HTMLElement = require('./HTMLElement');
-    window.HTMLCanvasElement = require('./HTMLCanvasElement');
-    window.HTMLImageElement = require('./HTMLImageElement');
-    window.HTMLMediaElement = require('./HTMLMediaElement');
-    window.HTMLVideoElement = require('./HTMLVideoElement');
-    window.HTMLScriptElement = require('./HTMLScriptElement');
-    window.__canvas = new HTMLCanvasElement();
-    window.__canvas._width = window.innerWidth;
-    window.__canvas._height = window.innerHeight;
+    jsbWindow.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
+    jsbWindow.Element = require('./Element');
+    jsbWindow.HTMLElement = require('./HTMLElement');
+    jsbWindow.HTMLCanvasElement = require('./HTMLCanvasElement');
+    jsbWindow.HTMLImageElement = require('./HTMLImageElement');
+    jsbWindow.HTMLMediaElement = require('./HTMLMediaElement');
+    jsbWindow.HTMLVideoElement = require('./HTMLVideoElement');
+    jsbWindow.HTMLScriptElement = require('./HTMLScriptElement');
+    jsbWindow.__canvas = new jsbWindow.HTMLCanvasElement();
+    jsbWindow.__canvas._width = jsbWindow.innerWidth;
+    jsbWindow.__canvas._height = jsbWindow.innerHeight;
 
-    window.Image = require('./Image');
-    window.FileReader = require('./FileReader');
-    window.FontFace = require('./FontFace');
-    window.FontFaceSet = require('./FontFaceSet');
-    window.EventTarget = require('./EventTarget');
-    window.Event = window.Event || require('./Event');
-    window.TouchEvent = require('./TouchEvent');
-    window.MouseEvent = require('./MouseEvent');
-    window.KeyboardEvent = require('./KeyboardEvent');
-    window.DeviceMotionEvent = require('./DeviceMotionEvent');
+    jsbWindow.Image = require('./Image');
+    jsbWindow.FileReader = require('./FileReader');
+    jsbWindow.FontFace = require('./FontFace');
+    jsbWindow.FontFaceSet = require('./FontFaceSet');
+    jsbWindow.EventTarget = require('./EventTarget');
+    jsbWindow.Event = jsbWindow.Event || require('./Event');
+    jsbWindow.TouchEvent = require('./TouchEvent');
+    jsbWindow.MouseEvent = require('./MouseEvent');
+    jsbWindow.KeyboardEvent = require('./KeyboardEvent');
+    jsbWindow.DeviceMotionEvent = require('./DeviceMotionEvent');
 
     // ES6
     const m_fetch = require('./fetch');
-    window.fetch = m_fetch.fetch;
-    window.Headers = m_fetch.Headers;
-    window.Request = m_fetch.Request;
-    window.Response = m_fetch.Response;
+    jsbWindow.fetch = m_fetch.fetch;
+    jsbWindow.Headers = m_fetch.Headers;
+    jsbWindow.Request = m_fetch.Request;
+    jsbWindow.Response = m_fetch.Response;
 
     // const PORTRAIT = 0;
     // const LANDSCAPE_LEFT = -90;
     // const PORTRAIT_UPSIDE_DOWN = 180;
     // const LANDSCAPE_RIGHT = 90;
-    window.orientation = jsb.device.getDeviceOrientation();
+    jsbWindow.orientation = jsb.device.getDeviceOrientation();
 
-    // window.devicePixelRatio is readonly
+    // jsb.window.devicePixelRatio is readonly
     if (!__EDITOR__) {
-        Object.defineProperty(window, 'devicePixelRatio', {
+        Object.defineProperty(jsbWindow, 'devicePixelRatio', {
             get () {
                 return jsb.device.getDevicePixelRatio ? jsb.device.getDevicePixelRatio() : 1;
             },
@@ -64,36 +66,36 @@ function inject () {
         });
     }
 
-    window.screen = {
+    jsbWindow.screen = {
         availTop: 0,
         availLeft: 0,
-        availHeight: window.innerWidth,
-        availWidth: window.innerHeight,
+        availHeight: jsbWindow.innerWidth,
+        availWidth: jsbWindow.innerHeight,
         colorDepth: 8,
         pixelDepth: 8,
         left: 0,
         top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: jsbWindow.innerWidth,
+        height: jsbWindow.innerHeight,
         orientation: { //FIXME:cjh
             type: 'portrait-primary', // portrait-primary, portrait-secondary, landscape-primary, landscape-secondary
         },
         onorientationchange (event) {},
     };
 
-    window.addEventListener = function (eventName, listener, options) {
-        window.__canvas.addEventListener(eventName, listener, options);
+    jsbWindow.addEventListener = function (eventName, listener, options) {
+        jsbWindow.__canvas.addEventListener(eventName, listener, options);
     };
 
-    window.removeEventListener = function (eventName, listener, options) {
-        window.__canvas.removeEventListener(eventName, listener, options);
+    jsbWindow.removeEventListener = function (eventName, listener, options) {
+        jsbWindow.__canvas.removeEventListener(eventName, listener, options);
     };
 
-    window.dispatchEvent = function (event) {
-        window.__canvas.dispatchEvent(event);
+    jsbWindow.dispatchEvent = function (event) {
+        jsbWindow.__canvas.dispatchEvent(event);
     };
 
-    window.getComputedStyle = function (element) {
+    jsbWindow.getComputedStyle = function (element) {
         return {
            position: 'absolute',
            left: '0px',
@@ -102,34 +104,34 @@ function inject () {
         };
     };
 
-    window.resize = function (width, height) {
-        window.innerWidth = width;
-        window.innerHeight = height;
-        window.outerWidth = window.innerWidth;
-        window.outerHeight = window.innerHeight;
-        window.__canvas._width = window.innerWidth;
-        window.__canvas._height = window.innerHeight;
-        window.screen.availWidth = window.innerWidth;
-        window.screen.availHeight = window.innerHeight;
-        window.screen.width = window.innerWidth;
-        window.screen.height = window.innerHeight;
-        window.clientWidth = window.innerWidth;
-        window.clientHeight = window.innerHeight;
+    jsbWindow.resize = function (width, height) {
+        jsbWindow.innerWidth = width;
+        jsbWindow.innerHeight = height;
+        jsbWindow.outerWidth = jsbWindow.innerWidth;
+        jsbWindow.outerHeight = jsbWindow.innerHeight;
+        jsbWindow.__canvas._width = jsbWindow.innerWidth;
+        jsbWindow.__canvas._height = jsbWindow.innerHeight;
+        jsbWindow.screen.availWidth = jsbWindow.innerWidth;
+        jsbWindow.screen.availHeight = jsbWindow.innerHeight;
+        jsbWindow.screen.width = jsbWindow.innerWidth;
+        jsbWindow.screen.height = jsbWindow.innerHeight;
+        jsbWindow.clientWidth = jsbWindow.innerWidth;
+        jsbWindow.clientHeight = jsbWindow.innerHeight;
         // emit resize consistent with web behavior
-        const resizeEvent = new Event('resize');
-        resizeEvent._target = window;
-        window.dispatchEvent(resizeEvent);
+        const resizeEvent = new jsbWindow.Event('resize');
+        resizeEvent._target = jsbWindow;
+        jsbWindow.dispatchEvent(resizeEvent);
     };
 
-    window.focus = function () {};
-    window.scroll = function () {};
+    jsbWindow.focus = function () {};
+    jsbWindow.scroll = function () {};
 
-    window._isInjected = true;
+    jsbWindow._isInjected = true;
 }
 
-if (!window._isInjected) {
+if (!jsbWindow._isInjected) {
     inject();
 }
 if (!__EDITOR__) {
-    window.localStorage = sys.localStorage;
+    jsbWindow.localStorage = sys.localStorage;
 }

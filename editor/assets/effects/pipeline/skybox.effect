@@ -6,11 +6,18 @@ CCEffect %{
       properties: &props
         environmentMap:     { value: grey }
       priority: max - 10
-      rasterizerState:
+      rasterizerState: &r1
         cullMode: none
-      depthStencilState:
+      depthStencilState: &d1
         depthTest: true
         depthWrite: false
+    - vert: sky-vs:vert
+      frag: sky-fs:frag
+      propertyIndex: 0
+      priority: max - 10
+      phase: deferred-forward
+      rasterizerState: *r1
+      depthStencilState: *d1
 }%
 
 CCProgram sky-vs %{
@@ -69,9 +76,6 @@ CCProgram sky-fs %{
       vec3 c = SRGBToLinear(fragTextureLod(environmentMap, rotationDir.xyz, 0.0).rgb);
     #endif
     vec4 color = CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
-    #if CC_USE_RGBE_OUTPUT
-      color = packRGBE(color.rgb);
-    #endif
     return color;
   }
 }%

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,15 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
 #include "base/Ptr.h"
 #include "base/std/any.h"
 #include "bindings/utils/BindingUtils.h"
-//#include "core/components/Component.h"
-//#include "core/event/Event.h"
+// #include "core/components/Component.h"
+// #include "core/event/Event.h"
 #include "core/data/Object.h"
 #include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
@@ -75,15 +74,13 @@ class Node : public CCObject {
     TARGET_EVENT_ARG1(ChildAdded, Node *)
     TARGET_EVENT_ARG1(ChildRemoved, Node *)
     TARGET_EVENT_ARG1(ParentChanged, Node *)
-    TARGET_EVENT_ARG0(NodeDestroyed)
     TARGET_EVENT_ARG0(MobilityChanged)
     TARGET_EVENT_ARG1(LayerChanged, uint32_t)
     TARGET_EVENT_ARG0(SiblingOrderChanged)
+    TARGET_EVENT_ARG1(SiblingIndexChanged, index_t)
     TARGET_EVENT_ARG0(ActiveInHierarchyChanged)
-    TARGET_EVENT_ARG1(AncestorTransformChanged, TransformBit)
     TARGET_EVENT_ARG0(Reattach)
     TARGET_EVENT_ARG0(RemovePersistRootNode)
-    TARGET_EVENT_ARG0(DestroyComponents)
     TARGET_EVENT_ARG0(UITransformDirty)
     TARGET_EVENT_ARG1(ActiveNode, bool)
     TARGET_EVENT_ARG1(BatchCreated, bool)
@@ -93,6 +90,7 @@ class Node : public CCObject {
     TARGET_EVENT_ARG3(LocalScaleUpdated, float, float, float)
     TARGET_EVENT_ARG10(LocalRTSUpdated, float, float, float, float, float, float, float, float, float, float)
     TARGET_EVENT_ARG1(EditorAttached, bool)
+    TARGET_EVENT_ARG0(LightProbeBakingChanged)
     DECLARE_TARGET_EVENT_END()
 public:
     class UserData : public RefCounted {
@@ -139,6 +137,7 @@ public:
     virtual void onPostActivated(bool active) {}
 
     void setParent(Node *parent, bool isKeepWorld = false);
+    inline void modifyParent(Node *parent) { _parent = parent; }
 
     inline Scene *getScene() const { return _scene; };
 
@@ -153,6 +152,8 @@ public:
         }
         return false;
     }
+
+    void destruct() override;
 
     inline void destroyAllChildren() {
         for (const auto &child : _children) {
@@ -469,9 +470,15 @@ public:
         _hasChangedFlagsVersion = globalFlagChangeVersion;
         _hasChangedFlags = value;
     }
+    /**
+     * @zh 节点的变换改动版本号。
+     * @en The transformation change version number of the node.
+     */
+    inline uint32_t getFlagChangedVersion() const {
+        return _hasChangedFlagsVersion;
+    }
 
-    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
-    inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
+    inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
         emit<LayerChanged>(layer);
@@ -580,7 +587,6 @@ public:
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
-    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
     // For deserialization
     ccstd::string _id;
     Node *_parent{nullptr};
@@ -639,10 +645,11 @@ private:
     Vec3 _localPosition{Vec3::ZERO};
     Vec3 _localScale{Vec3::ONE};
     Quaternion _localRotation{Quaternion::identity()};
+    Vec3 _euler{0, 0, 0};
+
     // world transform
     Vec3 _worldPosition{Vec3::ZERO};
     Vec3 _worldScale{Vec3::ONE};
-    Vec3 _euler{0, 0, 0};
     Quaternion _worldRotation{Quaternion::identity()};
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
@@ -650,7 +657,7 @@ private:
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
     uint32_t _eventMask{0};                                             // Uint32: 0
     uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
-    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    uint32_t _transformFlags{0};                                        // Uint32: 2
     index_t _siblingIndex{0};                                           // Int32: 0
     uint8_t _activeInHierarchy{0};                                      // Uint8: 0
     uint8_t _active{1};                                                 // Uint8: 1

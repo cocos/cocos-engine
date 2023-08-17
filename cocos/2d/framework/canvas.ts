@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -74,7 +73,7 @@ export class Canvas extends RenderRoot2D {
      *
      * @deprecated since v3.0, please use [[Camera.priority]] to control overlapping between cameras.
      */
-    get renderMode () {
+    get renderMode (): number {
         return this._renderMode;
     }
     set renderMode (val) {
@@ -85,9 +84,13 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
+    /**
+     * @en The camera component that will be aligned with this canvas
+     * @zh 将与此 canvas 对齐的相机组件
+     */
     @type(Camera)
     @tooltip('i18n:canvas.camera')
-    get cameraComponent () {
+    get cameraComponent (): Camera | null {
         return this._cameraComponent;
     }
 
@@ -99,8 +102,12 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
+    /**
+     * @en Align canvas with screen
+     * @zh 是否使用屏幕对齐画布
+     */
     @tooltip('i18n:canvas.align')
-    get alignCanvasWithScreen () {
+    get alignCanvasWithScreen (): boolean {
         return this._alignCanvasWithScreen;
     }
 
@@ -110,12 +117,6 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
-    // /**
-    //  * @zh
-    //  * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-    //  */
-    // public static instance: Canvas | null = null;
-
     @type(Camera)
     protected _cameraComponent: Camera | null = null;
     @serializable
@@ -123,7 +124,7 @@ export class Canvas extends RenderRoot2D {
 
     protected _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
-    protected _fitDesignResolution: (() => void) | undefined;
+    protected fitDesignResolution_EDITOR: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;
@@ -133,16 +134,33 @@ export class Canvas extends RenderRoot2D {
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
 
         if (EDITOR) {
-            this._fitDesignResolution = () => {
+            this.fitDesignResolution_EDITOR = (): void => {
                 // TODO: support paddings of locked widget
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
-                Vec3.set(_worldPos, nodeSize.width * 0.5, nodeSize.height * 0.5, 0);
+                const trans = this.node._uiProps.uiTransformComp!;
+
+                let scaleX = this.node.scale.x;
+                let anchorX = trans.anchorX;
+                if (scaleX < 0) {
+                    anchorX = 1.0 - anchorX;
+                    scaleX = -scaleX;
+                }
+                nodeSize.width = scaleX === 0 ? nodeSize.width : nodeSize.width / scaleX;
+
+                let scaleY = this.node.scale.y;
+                let anchorY = trans.anchorY;
+                if (scaleY < 0) {
+                    anchorY = 1.0 - anchorY;
+                    scaleY = -scaleY;
+                }
+                nodeSize.height = scaleY === 0 ? nodeSize.height : nodeSize.height / scaleY;
+
+                Vec3.set(_worldPos, nodeSize.width * anchorX, nodeSize.height * anchorY, 0);
 
                 if (!this._pos.equals(_worldPos)) {
                     this.node.setPosition(_worldPos);
                 }
-                const trans = this.node._uiProps.uiTransformComp!;
                 if (trans.width !== nodeSize.width) {
                     trans.width = nodeSize.width;
                 }
@@ -153,13 +171,13 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    public __preload () {
+    public __preload (): void {
         // Stretch to matched size during the scene initialization
         const widget = this.getComponent('cc.Widget') as unknown as Widget;
         if (widget) {
             widget.updateAlignment();
         } else if (EDITOR) {
-            this._fitDesignResolution!();
+            this.fitDesignResolution_EDITOR!();
         }
 
         if (!EDITOR) {
@@ -172,9 +190,6 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
 
         if (EDITOR) {
-            // Constantly align canvas node in edit mode
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
@@ -185,31 +200,27 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         if (!EDITOR && this._cameraComponent) {
             this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         super.onDisable();
         if (this._cameraComponent) {
             this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         super.onDestroy();
 
-        if (EDITOR) {
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-        } else {
-            this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
-        }
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
-    protected _onResizeCamera () {
+    protected _onResizeCamera (): void {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
             if (this._cameraComponent.targetTexture) {
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
@@ -223,7 +234,7 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    private _getViewPriority () {
+    private _getViewPriority (): number {
         if (this._cameraComponent) {
             let priority = this.cameraComponent?.priority as number;
             priority = this._renderMode === RenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);

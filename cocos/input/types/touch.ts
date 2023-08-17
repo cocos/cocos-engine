@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,7 +38,7 @@ export class Touch {
     private _startPoint: Vec2 = new Vec2();
     private _startPointCaptured = false;
 
-    get lastModified () {
+    get lastModified (): number {
         return this._lastModified;
     }
 
@@ -57,7 +56,7 @@ export class Touch {
      * @zh 获取当前触点位置。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getLocation (out?: Vec2) {
+    public getLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -70,7 +69,7 @@ export class Touch {
      * @en Returns X axis location value.
      * @zh 获取当前触点 X 轴位置。
      */
-    public getLocationX () {
+    public getLocationX (): number {
         return this._point.x;
     }
 
@@ -78,7 +77,7 @@ export class Touch {
      * @en Returns Y axis location value.
      * @zh 获取当前触点 Y 轴位置。
      */
-    public getLocationY () {
+    public getLocationY (): number {
         return this._point.y;
     }
 
@@ -87,7 +86,7 @@ export class Touch {
      * @zh 获取当前触点在 UI 坐标系中的位置。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation (out?: Vec2) {
+    public getUILocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -101,7 +100,7 @@ export class Touch {
      * @en Returns X axis location value in UI coordinates.
      * @zh 获取当前触点在 UI 坐标系中 X 轴位置。
      */
-    public getUILocationX () {
+    public getUILocationX (): number {
         const viewport = cclegacy.view.getViewportRect();
         return (this._point.x - viewport.x) / cclegacy.view.getScaleX();
     }
@@ -110,7 +109,7 @@ export class Touch {
      * @en Returns Y axis location value in UI coordinates.
      * @zh 获取当前触点在 UI 坐标系中 Y 轴位置。
      */
-    public getUILocationY () {
+    public getUILocationY (): number {
         const viewport = cclegacy.view.getViewportRect();
         return (this._point.y - viewport.y) / cclegacy.view.getScaleY();
     }
@@ -120,7 +119,7 @@ export class Touch {
      * @zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getPreviousLocation (out?: Vec2) {
+    public getPreviousLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -134,7 +133,7 @@ export class Touch {
      * @zh 获取触点在上一次事件时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIPreviousLocation (out?: Vec2) {
+    public getUIPreviousLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -149,7 +148,7 @@ export class Touch {
      * @zh 获取触点落下时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getStartLocation (out?: Vec2) {
+    public getStartLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -163,7 +162,7 @@ export class Touch {
      * @zh 获取触点落下时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIStartLocation (out?: Vec2) {
+    public getUIStartLocation (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -178,7 +177,7 @@ export class Touch {
      * @zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getDelta (out?: Vec2) {
+    public getDelta (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -193,7 +192,7 @@ export class Touch {
      * @zh 获取触点距离上一次事件移动在 UI 坐标系中的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIDelta (out?: Vec2) {
+    public getUIDelta (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -210,7 +209,7 @@ export class Touch {
      * @zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getLocationInView (out?: Vec2) {
+    public getLocationInView (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -224,7 +223,7 @@ export class Touch {
      * @zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getPreviousLocationInView (out?: Vec2) {
+    public getPreviousLocationInView (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -238,7 +237,7 @@ export class Touch {
      * @zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getStartLocationInView (out?: Vec2) {
+    public getStartLocationInView (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -251,7 +250,7 @@ export class Touch {
      * @en Returns the id of the touch point.
      * @zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
      */
-    public getID () {
+    public getID (): number {
         return this._id;
     }
 
@@ -262,7 +261,7 @@ export class Touch {
      * @param x - x position of the touch point
      * @param y - y position of the touch point
      */
-    public setTouchInfo (id = 0, x?: number, y?: number) {
+    public setTouchInfo (id = 0, x?: number, y?: number): void {
         this._prevPoint = this._point;
         this._point = new Vec2(x || 0, y || 0);
         this._id = id;
@@ -288,7 +287,7 @@ export class Touch {
      */
     public setPoint (x: number, y: number): void;
 
-    public setPoint (x: number | Vec2, y?: number) {
+    public setPoint (x: number | Vec2, y?: number): void {
         if (typeof x === 'object') {
             this._point.x = x.x;
             this._point.y = x.y;
@@ -314,7 +313,7 @@ export class Touch {
      */
     public setPrevPoint (x: number, y: number): void;
 
-    public setPrevPoint (x: number | Vec2, y?: number) {
+    public setPrevPoint (x: number | Vec2, y?: number): void {
         if (typeof x === 'object') {
             this._prevPoint = new Vec2(x.x, x.y);
         } else {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,18 +36,19 @@
 #include <variant>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
-#include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 
 namespace render {
 
-struct NullTag {};
+struct NullTag {
+};
 
 struct ResourceLifeRecord {
     uint32_t start{0};
@@ -60,50 +60,107 @@ struct LeafStatus {
     bool needCulling{false};
 };
 
-struct BufferRange {
-    uint32_t offset{0};
-    uint32_t size{0};
-};
-
-inline bool operator<(const BufferRange& lhs, const BufferRange& rhs) noexcept {
-    return std::forward_as_tuple(lhs.offset, lhs.size) <
-           std::forward_as_tuple(rhs.offset, rhs.size);
-}
-
-struct TextureRange {
-    uint32_t firstSlice{0};
-    uint32_t numSlices{1};
-    uint32_t mipLevel{0};
-    uint32_t levelCount{1};
-};
-
-inline bool operator<(const TextureRange& lhs, const TextureRange& rhs) noexcept {
-    return std::forward_as_tuple(lhs.firstSlice, lhs.numSlices, lhs.mipLevel, lhs.levelCount) <
-           std::forward_as_tuple(rhs.firstSlice, rhs.numSlices, rhs.mipLevel, rhs.levelCount);
-}
-
-using Range = ccstd::variant<BufferRange, TextureRange>;
-
-using ResourceUsage = ccstd::variant<gfx::BufferUsageBit, gfx::TextureUsageBit>;
-
 struct AccessStatus {
-    uint32_t vertID{0xFFFFFFFF};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
-    gfx::PassType passType{gfx::PassType::RASTER};
     gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
-    ResourceUsage usage;
-    Range range;
-};
-
-struct ResourceTransition {
-    AccessStatus lastStatus;
-    AccessStatus currStatus;
+    gfx::ResourceRange range;
 };
 
 struct ResourceAccessNode {
-    std::vector<AccessStatus> attachmentStatus;
-    struct ResourceAccessNode* nextSubpass{nullptr};
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {resourceStatus.get_allocator().resource()};
+    }
+
+    ResourceAccessNode(const allocator_type& alloc) noexcept; // NOLINT
+    ResourceAccessNode(ResourceAccessNode&& rhs, const allocator_type& alloc);
+    ResourceAccessNode(ResourceAccessNode const& rhs, const allocator_type& alloc);
+
+    ResourceAccessNode(ResourceAccessNode&& rhs) noexcept = default;
+    ResourceAccessNode(ResourceAccessNode const& rhs) = delete;
+    ResourceAccessNode& operator=(ResourceAccessNode&& rhs) = default;
+    ResourceAccessNode& operator=(ResourceAccessNode const& rhs) = default;
+
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> resourceStatus;
+};
+
+struct LayoutAccess {
+    gfx::AccessFlagBit prevAccess{gfx::AccessFlagBit::NONE};
+    gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
+};
+
+struct AttachmentInfo {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {parentName.get_allocator().resource()};
+    }
+
+    AttachmentInfo(const allocator_type& alloc) noexcept; // NOLINT
+    AttachmentInfo(AttachmentInfo&& rhs, const allocator_type& alloc);
+    AttachmentInfo(AttachmentInfo const& rhs, const allocator_type& alloc);
+
+    AttachmentInfo(AttachmentInfo&& rhs) noexcept = default;
+    AttachmentInfo(AttachmentInfo const& rhs) = delete;
+    AttachmentInfo& operator=(AttachmentInfo&& rhs) = default;
+    AttachmentInfo& operator=(AttachmentInfo const& rhs) = default;
+
+    ccstd::pmr::string parentName;
+    uint32_t attachmentIndex{0};
+    uint32_t isResolveView{0};
+};
+
+struct FGRenderPassInfo {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {orderedViews.get_allocator().resource()};
+    }
+
+    FGRenderPassInfo(const allocator_type& alloc) noexcept; // NOLINT
+    FGRenderPassInfo(FGRenderPassInfo&& rhs, const allocator_type& alloc);
+    FGRenderPassInfo(FGRenderPassInfo const& rhs, const allocator_type& alloc);
+
+    FGRenderPassInfo(FGRenderPassInfo&& rhs) noexcept = default;
+    FGRenderPassInfo(FGRenderPassInfo const& rhs) = delete;
+    FGRenderPassInfo& operator=(FGRenderPassInfo&& rhs) = default;
+    FGRenderPassInfo& operator=(FGRenderPassInfo const& rhs) = default;
+
+    ccstd::vector<LayoutAccess> colorAccesses;
+    LayoutAccess dsAccess;
+    LayoutAccess dsResolveAccess;
+    gfx::RenderPassInfo rpInfo;
+    ccstd::pmr::vector<ccstd::pmr::string> orderedViews;
+    PmrTransparentMap<ccstd::pmr::string, AttachmentInfo> viewIndex;
+    uint32_t resolveCount{0};
+    uint32_t uniqueRasterViewCount{0};
+};
+
+struct Barrier {
+    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    gfx::BarrierType type{gfx::BarrierType::FULL};
+    gfx::GFXObject* barrier{nullptr};
+    RenderGraph::vertex_descriptor beginVert{0xFFFFFFFF};
+    RenderGraph::vertex_descriptor endVert{0xFFFFFFFF};
+    AccessStatus beginStatus;
+    AccessStatus endStatus;
+};
+
+struct BarrierNode {
+    ccstd::vector<Barrier> frontBarriers;
+    ccstd::vector<Barrier> rearBarriers;
+};
+
+struct SliceNode {
+    bool full{false};
+    ccstd::vector<uint32_t> mips;
+};
+
+struct TextureNode {
+    bool full{false};
+    ccstd::vector<SliceNode> slices;
+};
+
+struct ResourceNode {
+    bool full{false};
+    ccstd::vector<TextureNode> planes;
 };
 
 struct ResourceAccessGraph {
@@ -190,19 +247,8 @@ struct ResourceAccessGraph {
     using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceAccessGraph>;
     using edges_size_type = uint32_t;
 
-    ~ResourceAccessGraph() {
-        for (auto& node : access) {
-            auto* resNode = node.nextSubpass;
-            node.nextSubpass = nullptr;
-            while(resNode) {
-                auto* oldResNode = resNode;
-                resNode = resNode->nextSubpass;
-                oldResNode->nextSubpass = nullptr;
-                delete oldResNode;
-            }
-        }
-    }
-
+                    LayoutAccess getAccess(ccstd::pmr::string, RenderGraph::vertex_descriptor vertID);
+                
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -227,16 +273,18 @@ struct ResourceAccessGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct PassIDTag {
-    } static constexpr PassID{}; // NOLINT
-    struct AccessNodeTag {
-    } static constexpr AccessNode{}; // NOLINT
+    struct PassIDTag {};
+    struct PassNodeTag {};
+    struct RenderPassInfoTag {};
+    struct BarrierTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
-    ccstd::pmr::vector<ResourceAccessNode> access;
+    ccstd::pmr::vector<ResourceAccessNode> passResource;
+    ccstd::pmr::vector<FGRenderPassInfo> rpInfo;
+    ccstd::pmr::vector<BarrierNode> barrier;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
@@ -245,9 +293,12 @@ struct ResourceAccessGraph {
     vertex_descriptor presentPassID{0xFFFFFFFF};
     PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
     PmrFlatSet<vertex_descriptor> culledPasses;
-    PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
+    PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
+    PmrFlatMap<ccstd::pmr::string, PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string>> movedTarget;
+    PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrFlatMap<ccstd::pmr::string, ResourceNode> movedTargetStatus;
 };
 
 struct RelationGraph {
@@ -357,8 +408,7 @@ struct RelationGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct DescIDTag {
-    } static constexpr DescID{}; // NOLINT
+    struct DescIDTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -368,22 +418,26 @@ struct RelationGraph {
     PmrUnorderedMap<ResourceAccessGraph::vertex_descriptor, vertex_descriptor> vertexMap;
 };
 
-struct Barrier {
-    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    gfx::BarrierType type{gfx::BarrierType::FULL};
-    gfx::GFXObject* barrier{nullptr};
-    AccessStatus beginStatus;
-    AccessStatus endStatus;
-};
+struct RenderingInfo {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {clearColors.get_allocator().resource()};
+    }
 
-struct BarrierPair {
-    std::vector<Barrier> frontBarriers;
-    std::vector<Barrier> rearBarriers;
-};
+    RenderingInfo(const allocator_type& alloc) noexcept; // NOLINT
+    RenderingInfo(RenderingInfo&& rhs, const allocator_type& alloc);
+    RenderingInfo(RenderingInfo const& rhs, const allocator_type& alloc);
 
-struct BarrierNode {
-    BarrierPair blockBarrier;
-    std::vector<BarrierPair> subpassBarriers;
+    RenderingInfo(RenderingInfo&& rhs) noexcept = default;
+    RenderingInfo(RenderingInfo const& rhs) = delete;
+    RenderingInfo& operator=(RenderingInfo&& rhs) = default;
+    RenderingInfo& operator=(RenderingInfo const& rhs) = default;
+
+    gfx::RenderPassInfo renderpassInfo;
+    gfx::FramebufferInfo framebufferInfo;
+    ccstd::pmr::vector<gfx::Color> clearColors;
+    float clearDepth{0};
+    uint8_t clearStencil{0};
 };
 
 struct FrameGraphDispatcher {
@@ -392,13 +446,12 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& renderGraphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 
@@ -411,16 +464,33 @@ struct FrameGraphDispatcher {
 
     void run();
 
-    inline const BarrierMap& getBarriers() const { return barrierMap; }
+    const BarrierNode& getBarrier(RenderGraph::vertex_descriptor u) const;
 
-    BarrierMap barrierMap;
+    const ResourceAccessNode& getAccessNode(RenderGraph::vertex_descriptor u) const;
+
+    const gfx::RenderPassInfo& getRenderPassInfo(RenderGraph::vertex_descriptor u) const;
+        
+    RenderingInfo getRenderPassAndFrameBuffer(RenderGraph::vertex_descriptor u, const ResourceGraph& resg) const;
+        
+    LayoutAccess getResourceAccess(ResourceGraph::vertex_descriptor r, RenderGraph::vertex_descriptor p) const;
+
+    // those resource been moved point to another resID
+    ResourceGraph::vertex_descriptor realResourceID(const ccstd::pmr::string& name) const;
+
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        const PmrTransparentMap<ccstd::pmr::string, RasterView>& rasterViews,
+        boost::container::pmr::memory_resource* scratch) const;
+
+    PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> buildDescriptorIndex(
+        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
+        boost::container::pmr::memory_resource* scratch) const;
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
-    const RenderGraph& graph;
-    LayoutGraphData& layoutGraph;
+    const RenderGraph& renderGraph;
+    const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
-    PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
     RelationGraph relationGraph;
     bool _enablePassReorder{false};
     bool _enableAutoBarrier{true};

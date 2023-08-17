@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,48 +31,46 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { js, cclegacy } from '../../core';
 
-const compressedImageAsset: ImageAsset[] = [];
-
 /**
- * @en The create information for [[Texture2D]]
+ * @en The create information for [[Texture2D]].
  * @zh 用来创建贴图的信息。
  */
 export interface ITexture2DCreateInfo {
     /**
-     * @en The pixel width
+     * @en The pixel width.
      * @zh 像素宽度。
      */
     width: number;
 
     /**
-     * @en The pixel height
+     * @en The pixel height.
      * @zh 像素高度。
      */
     height: number;
 
     /**
-     * @en The pixel format
+     * @en The pixel format.
      * @zh 像素格式。
      * @default PixelFormat.RGBA8888
      */
     format?: PixelFormat;
 
     /**
-     * @en The mipmap level count
+     * @en The mipmap level count.
      * @zh mipmap 层级。
      * @default 1
      */
     mipmapLevel?: number;
 
     /**
-     * @en The selected base mipmap level
+     * @en The selected base mipmap level.
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
     baseLevel?: number;
 
     /**
-     * @en The selected maximum mipmap level
+     * @en The selected maximum mipmap level.
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1000
      */
@@ -92,64 +89,53 @@ export class Texture2D extends SimpleTexture {
      * @zh 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
-    get mipmaps () {
+    get mipmaps (): ImageAsset[] {
         return this._mipmaps;
     }
     set mipmaps (value) {
-        if (value.length > 0 && value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
-            compressedImageAsset.length = 0;
-            const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
-            const data: Uint8Array = value[0].data as Uint8Array;
-            const _width = value[0].width;
-            const _height = value[0].height;
-            const _format = value[0].format;
+        this._mipmaps = value;
 
-            let byteOffset = 0;
-            for (let i = 0; i < mipmapLevelDataSize.length; i++) {
-                // fixme: We can't use srcView, we must make an in-memory copy. The reason is unknown
-                const srcView = new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]);
-                const dstView = new Uint8Array(mipmapLevelDataSize[i]);
-                dstView.set(srcView);
-                compressedImageAsset[i] = new ImageAsset({
-                    _data: dstView,
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: _format,
-                    mipmapLevelDataSize: [],
-                });
-
-                compressedImageAsset[i]._uuid = value[0]._uuid;
-                this.setMipFilter(Filter.LINEAR);
-                byteOffset += mipmapLevelDataSize[i];
+        const mipmaps: ImageAsset[] = [];
+        if (value.length === 1) {
+            // might contain auto generated mipmaps
+            const image = value[0];
+            mipmaps.push(...image.extractMipmaps());
+        } else if (value.length > 1) {
+            // image asset mip0 as mipmaps
+            for (let i = 0; i < value.length; ++i) {
+                const image = value[i];
+                mipmaps.push(image.extractMipmap0());
             }
-            this._setMipmapParams(compressedImageAsset);
-        } else {
-            this._setMipmapParams(value);
         }
+
+        this._setMipmapParams(mipmaps);
     }
 
-    private _setMipmapParams (value: ImageAsset[]) {
-        this._mipmaps = value;
-        this._setMipmapLevel(this._mipmaps.length);
-        if (this._mipmaps.length > 0) {
-            const imageAsset: ImageAsset = this._mipmaps[0];
+    /**
+     * TODO: See: cocos/cocos-engine#15305
+     */
+    private _setMipmapParams (value: ImageAsset[]): void {
+        this._generatedMipmaps = value;
+        this._setMipmapLevel(this._generatedMipmaps.length);
+        if (this._generatedMipmaps.length > 0) {
+            const imageAsset: ImageAsset = this._generatedMipmaps[0];
             this.reset({
                 width: imageAsset.width,
                 height: imageAsset.height,
                 format: imageAsset.format,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
-            this._mipmaps.forEach((mipmap, level) => {
+            this._generatedMipmaps.forEach((mipmap, level) => {
                 this._assignImage(mipmap, level);
             });
+            //
         } else {
             this.reset({
                 width: 0,
                 height: 0,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
@@ -164,7 +150,7 @@ export class Texture2D extends SimpleTexture {
      * 注意，`this.image = img` 等价于 `this.mipmaps = [img]`，
      * 也就是说，通过 `this.image` 设置 0 级 Mipmap 时将隐式地清除之前的所有 Mipmap。
      */
-    get image () {
+    get image (): ImageAsset | null {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
     }
 
@@ -178,11 +164,16 @@ export class Texture2D extends SimpleTexture {
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
-    public initialize () {
+    private _generatedMipmaps: ImageAsset[] = [];
+
+    /**
+     * @engineInternal
+     */
+    public initialize (): void {
         this.mipmaps = this._mipmaps;
     }
 
-    public onLoaded () {
+    public onLoaded (): void {
         this.initialize();
     }
 
@@ -191,9 +182,9 @@ export class Texture2D extends SimpleTexture {
      * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
      * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
      * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
-     * @param info The create information
+     * @param info @en The create information. @zh 创建贴图的相关信息。
      */
-    public reset (info: ITexture2DCreateInfo) {
+    public reset (info: ITexture2DCreateInfo): void {
         this._width = info.width;
         this._height = info.height;
         this._setGFXFormat(info.format);
@@ -218,7 +209,7 @@ export class Texture2D extends SimpleTexture {
      * @param maxLevel Mipmap maximum level
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 1000) {
+    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 1000): void {
         this.reset({
             width,
             height,
@@ -229,33 +220,33 @@ export class Texture2D extends SimpleTexture {
         });
     }
 
-    public toString () {
+    public toString (): string {
         return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }
 
-    public updateMipmaps (firstLevel = 0, count?: number) {
-        if (firstLevel >= this._mipmaps.length) {
+    public updateMipmaps (firstLevel = 0, count?: number): void {
+        if (firstLevel >= this._generatedMipmaps.length) {
             return;
         }
 
         const nUpdate = Math.min(
-            count === undefined ? this._mipmaps.length : count,
-            this._mipmaps.length - firstLevel,
+            count === undefined ? this._generatedMipmaps.length : count,
+            this._generatedMipmaps.length - firstLevel,
         );
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            this._assignImage(this._mipmaps[level], level);
+            this._assignImage(this._generatedMipmaps[level], level);
         }
     }
 
     /**
      * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
      * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
-     * @returns HTML element or `null`
+     * @returns @en HTMLElement or `null`. @zh HTML 元素或者 null。
      * @deprecated Please use [[ImageAsset.data]] instead
      */
-    public getHtmlElementObj () {
+    public getHtmlElementObj (): HTMLCanvasElement | HTMLImageElement | null {
         return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;
     }
 
@@ -263,17 +254,18 @@ export class Texture2D extends SimpleTexture {
      * @en Destroy the current 2d texture, clear up all mipmap levels and the related GPU resources.
      * @zh 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
-    public destroy () {
+    public destroy (): boolean {
         this._mipmaps = [];
+        this._generatedMipmaps = [];
         return super.destroy();
     }
 
     /**
-     * @en Gets the description of the 2d texture
+     * @en Gets the description of the 2d texture.
      * @zh 返回此贴图的描述。
-     * @returns The description
+     * @returns @en The description. @zh 贴图的描述信息。
      */
-    public description () {
+    public description (): string {
         const url = this._mipmaps[0] ? this._mipmaps[0].url : '';
         return `<cc.Texture2D | Name = ${url} | Dimension = ${this.width} x ${this.height}>`;
     }
@@ -281,16 +273,19 @@ export class Texture2D extends SimpleTexture {
     /**
      * @en Release used GPU resources.
      * @zh 释放占用的 GPU 资源。
-     * @deprecated please use [[destroy]] instead
+     * @deprecated please use [[destroy]] instead.
      */
-    public releaseTexture () {
+    public releaseTexture (): void {
         this.destroy();
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _serialize (ctxForExporting: any) {
+    public _serialize (ctxForExporting: any): {
+        base: any;
+        mipmaps: (string | null)[];
+    } | null {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
@@ -312,7 +307,7 @@ export class Texture2D extends SimpleTexture {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _deserialize (serializedData: any, handle: any) {
+    public _deserialize (serializedData: any, handle: any): void {
         const data = serializedData as ITexture2DSerializeData;
         super._deserialize(data.base, handle);
 
@@ -328,7 +323,10 @@ export class Texture2D extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
+    /**
+     * @engineInternal
+     */
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
         const texInfo = new TextureInfo(TextureType.TEX2D);
         texInfo.width = this._width;
         texInfo.height = this._height;
@@ -336,21 +334,24 @@ export class Texture2D extends SimpleTexture {
         return texInfo;
     }
 
-    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
+    /**
+     * @engineInternal
+     */
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo {
         const texViewInfo = new TextureViewInfo();
         texViewInfo.type = TextureType.TEX2D;
         Object.assign(texViewInfo, presumed);
         return texViewInfo;
     }
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         const imageAsset = new ImageAsset();
         imageAsset.initDefault();
         this.image = imageAsset;
     }
 
-    public validate () {
+    public validate (): boolean {
         return this.mipmaps && this.mipmaps.length !== 0;
     }
 }

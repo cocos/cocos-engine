@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,38 +37,38 @@ import { Mesh } from '../../3d/assets/mesh';
 export type IBArray = Uint8Array | Uint16Array | Uint32Array;
 
 /**
- * @en The interface of geometric information
+ * @en The interface of geometric information.
  * @zh 几何信息。
  */
 export interface IGeometricInfo {
     /**
-     * @en Vertex positions
+     * @en Vertex positions.
      * @zh 顶点位置。
      */
     positions: Float32Array;
 
     /**
-     * @en Indices data
+     * @en Indices data.
      * @zh 索引数据。
      */
     indices?: IBArray;
 
     /**
-     * @en Whether the geometry is treated as double sided
+     * @en Whether the geometry is treated as double sided.
      * @zh 是否将图元按双面对待。
      */
     doubleSided?: boolean;
 
     /**
-     * @en The bounding box
+     * @en The bounding box.
      * @zh 此几何体的轴对齐包围盒。
      */
     boundingBox: { max: Vec3 | Readonly<Vec3>; min: Vec3 | Readonly<Vec3> };
 }
 
 /**
- * @en Flat vertex buffer
- * @zh 扁平化顶点缓冲区
+ * @en Flat vertex buffer.
+ * @zh 扁平化顶点缓冲区。
  */
 export interface IFlatBuffer {
     stride: number;
@@ -84,17 +83,17 @@ export interface IFlatBuffer {
 export class RenderingSubMesh {
     /**
      * @en
-     * mesh object where this sub mesh locates
+     * mesh object where this sub mesh locates.
      * @zh
-     * 子网格所处的网格模型对象
+     * 子网格所处的网格模型对象。
      */
     public mesh?: Mesh;
 
     /**
      * @en
-     * sub mesh's index in mesh
+     * sub mesh's index in mesh.
      * @zh
-     * 子网格在网格模型中的索引
+     * 子网格在网格模型中的索引。
      */
     public subMeshIdx?: number;
 
@@ -126,14 +125,14 @@ export class RenderingSubMesh {
 
     /**
      * @en
-     * sub mesh's constructor
+     * sub mesh's constructor.
      * @zh
-     * 子网格构造函数
-     * @param vertexBuffers @en vertex buffers @zh 顶点缓冲区数组
-     * @param attributes @en vertex attributes @zh 顶点属性数组
-     * @param primitiveMode @en primitive mode @zh 图元类型
-     * @param indexBuffer @en index buffer @zh 索引缓冲区
-     * @param indirectBuffer @en indirect buffer @zh 间接缓冲区
+     * 子网格构造函数。
+     * @param vertexBuffers @en vertex buffers. @zh 顶点缓冲区数组。
+     * @param attributes @en vertex attributes. @zh 顶点属性数组。
+     * @param primitiveMode @en primitive mode. @zh 图元类型。
+     * @param indexBuffer @en index buffer. @zh 索引缓冲区。
+     * @param indirectBuffer @en indirect buffer. @zh 间接缓冲区。
      */
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
@@ -150,34 +149,34 @@ export class RenderingSubMesh {
     }
 
     /**
-     * @en All vertex attributes used by the sub mesh
+     * @en All vertex attributes used by the sub mesh.
      * @zh 所有顶点属性。
      */
-    get attributes () { return this._attributes; }
+    get attributes (): Attribute[] { return this._attributes; }
 
     /**
-     * @en All vertex buffers used by the sub mesh
+     * @en All vertex buffers used by the sub mesh.
      * @zh 使用的所有顶点缓冲区。
      */
-    get vertexBuffers () { return this._vertexBuffers; }
+    get vertexBuffers (): Buffer[] { return this._vertexBuffers; }
 
     /**
-     * @en Index buffer used by the sub mesh
+     * @en Index buffer used by the sub mesh.
      * @zh 使用的索引缓冲区，若未使用则无需指定。
      */
-    get indexBuffer () { return this._indexBuffer; }
+    get indexBuffer (): Buffer | null { return this._indexBuffer; }
 
     /**
-     * @en Indirect buffer used by the sub mesh
+     * @en Indirect buffer used by the sub mesh.
      * @zh 间接绘制缓冲区。
      */
-    get indirectBuffer () { return this._indirectBuffer; }
+    get indirectBuffer (): Buffer | null { return this._indirectBuffer; }
 
     /**
-     * @en Primitive mode used by the sub mesh
+     * @en Primitive mode used by the sub mesh.
      * @zh 图元类型。
      */
-    get primitiveMode () { return this._primitiveMode; }
+    get primitiveMode (): PrimitiveMode { return this._primitiveMode; }
 
     /**
      * @en The geometric info of the sub mesh, used for raycast.
@@ -198,7 +197,7 @@ export class RenderingSubMesh {
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find((element) => element.name === AttributeName.ATTR_POSITION);
+        const pAttri = this.attributes.find((element): boolean => element.name === AttributeName.ATTR_POSITION);
         if (pAttri) {
             const conut = FormatInfos[pAttri.format].count;
             if (conut === 2) {
@@ -232,11 +231,11 @@ export class RenderingSubMesh {
      * @en Invalidate the geometric info of the sub mesh after geometry changed.
      * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
      */
-    public invalidateGeometricInfo () { this._geometricInfo = undefined; }
+    public invalidateGeometricInfo (): void { this._geometricInfo = undefined; }
 
     /**
-     * @en the draw range
-     * @zh 渲染范围
+     * @en the draw range.
+     * @zh 渲染范围。
      */
     set drawInfo (info: DrawInfo | null | undefined) {
         this._drawInfo = info;
@@ -247,16 +246,16 @@ export class RenderingSubMesh {
     }
 
     /**
-     * @en Flatted vertex buffers
+     * @en Flatted vertex buffers.
      * @zh 扁平化的顶点缓冲区。
      */
-    get flatBuffers () { return this._flatBuffers; }
+    get flatBuffers (): IFlatBuffer[] { return this._flatBuffers; }
 
     /**
-     * @en generate flatted vertex buffers
+     * @en generate flatted vertex buffers.
      * @zh 生成扁平化的顶点缓冲区。
      */
-    public genFlatBuffers () {
+    public genFlatBuffers (): void {
         if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
 
         const { mesh } = this;
@@ -293,10 +292,10 @@ export class RenderingSubMesh {
     }
 
     /**
-     * @en The vertex buffer for joint after mapping
+     * @en The vertex buffer for joint after mapping.
      * @zh 骨骼索引按映射表处理后的顶点缓冲。
      */
-    get jointMappedBuffers () {
+    get jointMappedBuffers (): Buffer[] {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: Buffer[] = this._jointMappedBuffers = [];
         const indices: number[] = this._jointMappedBufferIndices = [];
@@ -325,7 +324,7 @@ export class RenderingSubMesh {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
+                mapBuffer(dataView, (cur): number => idxMap.indexOf(cur), jointFormat, jointOffset,
                     bundle.view.length, bundle.view.stride, dataView);
                 const buffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -345,16 +344,16 @@ export class RenderingSubMesh {
     }
 
     /**
-     * @en The input assembler info
-     * @zh 输入汇集器信息
+     * @en The input assembler info.
+     * @zh 输入汇集器信息。
      */
-    get iaInfo () { return this._iaInfo; }
+    get iaInfo (): InputAssemblerInfo { return this._iaInfo; }
 
     /**
-     * @en destroy sub mesh
-     * @zh 销毁子网格
+     * @en Destroys sub mesh.
+     * @zh 销毁子网格。
      */
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this.vertexBuffers.length; i++) {
             this.vertexBuffers[i].destroy();
         }
@@ -387,7 +386,7 @@ export class RenderingSubMesh {
      * 一旦你调用此函数， 顶点属性永久被添加， 后续调用无效果。
      * @param device @en Device used to create related rendering resources @zh 用于创建相关渲染资源的设备对象
      */
-    public enableVertexIdChannel (device: Device) {
+    public enableVertexIdChannel (device: Device): void {
         if (this._vertexIdChannel) {
             return;
         }
@@ -408,7 +407,7 @@ export class RenderingSubMesh {
         };
     }
 
-    private _allocVertexIdBuffer (device: Device) {
+    private _allocVertexIdBuffer (device: Device): Buffer {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0)
             ? 0
             // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.

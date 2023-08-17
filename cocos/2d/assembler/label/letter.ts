@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,12 +22,13 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { js, Color } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
-import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
+import type { RenderData } from '../../renderer/render-data';
 
 const tempColor = new Color(255, 255, 255, 255);
 
@@ -37,11 +37,13 @@ const tempColor = new Color(255, 255, 255, 255);
  * 可通过 `UI.letter` 获取该组装器。
  */
 export const letter = {
-    createData (comp: Label) {
-        return comp.requestRenderData();
+    createData (comp: Label): RenderData {
+        const renderData = comp.requestRenderData();
+        renderData.resize(0, 0);
+        return renderData;
     },
 
-    fillBuffers (comp: Label, renderer: IBatcher) {
+    fillBuffers (comp: Label, renderer: IBatcher): void {
         if (!comp.renderData) {
             return;
         }
@@ -52,7 +54,23 @@ export const letter = {
         fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
     },
 
-    appendQuad: bmfont.appendQuad,
+    updateColor (label: Label): void {
+        if (JSB) {
+            const renderData = label.renderData!;
+            const vertexCount = renderData.vertexCount;
+            if (vertexCount === 0) return;
+            const vData = renderData.chunk.vb;
+            const stride = renderData.floatStride;
+            let colorOffset = 5;
+            for (let i = 0; i < vertexCount; i++) {
+                vData[colorOffset] = 1;
+                vData[colorOffset + 1] = 1;
+                vData[colorOffset + 2] = 1;
+                vData[colorOffset + 3] = 1;
+                colorOffset += stride;
+            }
+        }
+    },
 };
 
 js.addon(letter, letterFont);

@@ -26,11 +26,11 @@ const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (window.dragonBones === undefined || window.middleware === undefined) return;
+    if (globalThis.dragonBones === undefined || globalThis.middleware === undefined) return;
     const ArmatureDisplayComponent = cc.internal.ArmatureDisplay;
     if (ArmatureDisplayComponent === undefined) return;
-    const dragonBones = window.dragonBones;
-    const middleware = window.middleware;
+    const dragonBones = globalThis.dragonBones;
+    const middleware = globalThis.middleware;
 
     // dragonbones global time scale.
     Object.defineProperty(dragonBones, 'timeScale', {
@@ -308,7 +308,7 @@ const cacheManager = require('./jsb-cache-manager');
             const rawData = JSON.parse(this.dragonBonesJson);
             this._uuid = rawData.name;
         }
-        
+
         const armatureKey = `${this._uuid}#${atlasUUID}`;
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
@@ -675,9 +675,18 @@ const cacheManager = require('./jsb-cache-manager');
     const _tempAttachMat4 = cc.mat4();
 
     armatureDisplayProto._render = function () {
+    };
+
+    armatureDisplayProto._updateBatch = function () {
+        if (this.nativeDisplay) {
+            this.nativeDisplay.setBatchEnabled(this.enableBatch);
+            this.markForUpdateRenderData();
+        }
+    };
+
+    armatureDisplayProto.syncAttachedNode = function () {
         const nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
-
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
 
@@ -691,7 +700,6 @@ const cacheManager = require('./jsb-cache-manager');
             sharedBufferOffset[0] = 0;
 
             const socketNodes = this.socketNodes;
-
             for (let l = sockets.length - 1; l >= 0; l--) {
                 const sock = sockets[l];
                 const boneNode = sock.target;
@@ -715,13 +723,6 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m13 = attachInfo[matOffset + 13];
                 boneNode.matrix = tm;
             }
-        }
-    };
-
-    armatureDisplayProto._updateBatch = function () {
-        if (this.nativeDisplay) {
-            this.nativeDisplay.setBatchEnabled(this.enableBatch);
-            this.markForUpdateRenderData();
         }
     };
 

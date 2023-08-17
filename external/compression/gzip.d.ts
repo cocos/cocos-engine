@@ -42,10 +42,10 @@ export declare class GZip {
     flushBuffer(): void;
     addBuffer(a: number): void;
     IsPat(): number;
-    Rec(): 0 | -1;
-    CreateTree(currentTree: any, numval: any, lengths: any, show: any): 0 | -1;
+    Rec(): number;
+    CreateTree(currentTree: any, numval: any, lengths: any, show: any): number;
     DecodeValue(currentTree: any): any;
-    DeflateLoop(): 1 | 0;
+    DeflateLoop(): number;
     unzipFile(name: string): string;
     nextFile(): void;
     skipdir(): number;

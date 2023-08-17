@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -152,7 +151,11 @@ struct ControllerEvent {
         UNKNOWN
     };
     Type type = Type::UNKNOWN;
-    std::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+    ccstd::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+};
+
+struct ControllerChangeEvent {
+    ccstd::vector<uint32_t> controllerIds;
 };
 
 class MouseEvent {
@@ -168,6 +171,8 @@ public:
 
     float x = 0.0F;
     float y = 0.0F;
+    float xDelta = 0.0F;
+    float yDelta = 0.0F;
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
@@ -261,6 +266,7 @@ public:
     bool ctrlKeyActive = false;
     bool metaKeyActive = false;
     bool shiftKeyActive = false;
+    ccstd::string code;
     // TODO(mingo): support caps lock?
 };
 union EventParameterType {
@@ -293,6 +299,13 @@ public:
     Type type{Type::UNKNOWN}; // NOLINT(modernize-use-nullptr)
 };
 
+enum class ScriptEngineEvent {
+    BEFORE_INIT,
+    AFTER_INIT,
+    BEFORE_CLEANUP,
+    AFTER_CLEANUP,
+};
+
 namespace events {
 DECLARE_EVENT_BUS(Engine)
 
@@ -307,11 +320,14 @@ DECLARE_BUS_EVENT_ARG1(Touch, Engine, const cc::TouchEvent &)
 DECLARE_BUS_EVENT_ARG1(Mouse, Engine, const cc::MouseEvent &)
 DECLARE_BUS_EVENT_ARG1(Keyboard, Engine, const cc::KeyboardEvent &)
 DECLARE_BUS_EVENT_ARG1(Controller, Engine, const cc::ControllerEvent &)
+DECLARE_BUS_EVENT_ARG1(ControllerChange, Engine, const cc::ControllerChangeEvent &)
 DECLARE_BUS_EVENT_ARG1(Tick, Engine, float)
 DECLARE_BUS_EVENT_ARG3(Resize, Engine, int, int, uint32_t /* windowId*/)
 DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
+DECLARE_BUS_EVENT_ARG1(PointerLock, Engine, bool)
 DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
 DECLARE_BUS_EVENT_ARG0(Close, Engine)
 DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)
+DECLARE_BUS_EVENT_ARG1(ScriptEngine, Engine, ScriptEngineEvent)
 } // namespace events
 } // namespace cc

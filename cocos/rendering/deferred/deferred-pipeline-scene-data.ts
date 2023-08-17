@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Device } from '../../gfx';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
@@ -58,11 +57,11 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         }
     }
 
-    get antiAliasing () {
+    get antiAliasing (): AntiAliasing {
         return this._antiAliasing;
     }
 
-    public get bloomMaterial () {
+    public get bloomMaterial (): Material {
         return this._bloomMaterial;
     }
 
@@ -73,7 +72,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _bloomMaterial: Material;
 
-    public get postprocessMaterial () {
+    public get postprocessMaterial (): Material {
         return this._postprocessMaterial;
     }
 
@@ -84,11 +83,11 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _postprocessMaterial: Material;
 
-    public updatePipelineSceneData () {
+    public updatePipelineSceneData (): void {
         this.updatePipelinePassInfo();
     }
 
-    private updateBloomPass () {
+    private updateBloomPass (): void {
         if (!this._bloomMaterial) return;
 
         const prefilterPass = this._bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
@@ -114,7 +113,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         combinePass.endChangeStatesSilently();
     }
 
-    private updatePostProcessPass () {
+    private updatePostProcessPass (): void {
         if (!this.postprocessMaterial) return;
 
         const passPost = this.postprocessMaterial.passes[0];
@@ -123,7 +122,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passPost.endChangeStatesSilently();
     }
 
-    public initPipelinePassInfo () {
+    public initPipelinePassInfo (): void {
         // builtin deferred material
         const deferredMat = new Material();
         deferredMat._uuid = 'builtin-deferred-material';
@@ -142,9 +141,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this._antiAliasing = AntiAliasing.FXAA;
-        }
         postMat.initialize({
             effectName: 'pipeline/post-process',
             defines: {
@@ -160,7 +156,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         this.updatePipelinePassInfo();
     }
 
-    public get deferredLightingMaterial () {
+    public get deferredLightingMaterial (): Material {
         return this._deferredLightingMaterial;
     }
 
@@ -173,23 +169,23 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     protected declare _deferredLightingMaterial: Material;
     protected declare _deferredPostMaterial: Material;
 
-    protected updatePipelinePassInfo () {
+    protected updatePipelinePassInfo (): void {
         this.updateBloomPass();
         this.updatePostProcessPass();
         this.updateDeferredPassInfo();
     }
 
-    public activate (device: Device) {
+    public activate (device: Device): boolean {
         super.activate(device);
         this.initPipelinePassInfo();
         return true;
     }
 
-    private updateDeferredPassInfo () {
+    private updateDeferredPassInfo (): void {
         this.updateDeferredLightPass();
     }
 
-    private updateDeferredLightPass () {
+    private updateDeferredLightPass (): void {
         if (!this._deferredLightingMaterial) return;
 
         // It's temporary solution for main light shadowmap

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
     ccclass,
@@ -57,7 +56,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置胶囊体在本地坐标系下的球半径。
      */
     @tooltip('i18n:physics3d.collider.capsule_radius')
-    public get radius () {
+    public get radius (): number {
         return this._radius;
     }
 
@@ -76,7 +75,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
     @tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
-    public get cylinderHeight () {
+    public get cylinderHeight (): number {
         return this._cylinderHeight;
     }
 
@@ -96,7 +95,7 @@ export class CapsuleCollider extends Collider {
      */
     @type(EAxisDirection)
     @tooltip('i18n:physics3d.collider.capsule_direction')
-    public get direction () {
+    public get direction (): EAxisDirection {
         return this._direction;
     }
 
@@ -116,7 +115,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取或设置在本地坐标系下胶囊体的高度，最小值为球的直径。
      */
-    public get height () {
+    public get height (): number {
         return this._radius * 2 + this._cylinderHeight;
     }
 
@@ -132,7 +131,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取胶囊体在世界坐标系下相应胶囊体朝向上的高度，只读属性。
      */
-    public get worldHeight () {
+    public get worldHeight (): number {
         return this._radius * 2 * this._getRadiusScale() + this._cylinderHeight * this._getHeightScale();
     }
 
@@ -142,7 +141,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape () {
+    public get shape (): ICapsuleShape {
         return this._shape as ICapsuleShape;
     }
 
@@ -161,7 +160,7 @@ export class CapsuleCollider extends Collider {
         super(EColliderType.CAPSULE);
     }
 
-    private _getRadiusScale () {
+    private _getRadiusScale (): number {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
         if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(absMax(ws.x, ws.z));
@@ -169,7 +168,7 @@ export class CapsuleCollider extends Collider {
         return Math.abs(absMax(ws.x, ws.y));
     }
 
-    private _getHeightScale () {
+    private _getHeightScale (): number {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
         if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(ws.y);

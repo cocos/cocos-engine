@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 export const TERRAIN_LOD_VERTS = 33;
 export const TERRAIN_LOD_TILES = 32;
@@ -39,7 +38,7 @@ export class TerrainLodKey {
     public west = 0;
     public east = 0;
 
-    public equals (rk: TerrainLodKey) {
+    public equals (rk: TerrainLodKey): boolean {
         return this.level === rk.level && this.north === rk.north && this.south === rk.south && this.west === rk.west && this.east === rk.east;
     }
 }
@@ -58,7 +57,7 @@ export class TerrainIndexData {
 }
 
 export class TerrainLod {
-    public static mapIndex (i: number, j: number, k: number) {
+    public static mapIndex (i: number, j: number, k: number): number {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
@@ -143,7 +142,7 @@ export class TerrainLod {
         }
     }
 
-    public getIndexData (k: TerrainLodKey) {
+    public getIndexData (k: TerrainLodKey): TerrainIndexData | null {
         for (let i = 0; i < this._indexMap.length; ++i) {
             if (this._indexMap[i].key.equals(k)) {
                 return this._indexMap[i];
@@ -153,7 +152,7 @@ export class TerrainLod {
         return null;
     }
 
-    private _genBodyIndex (level: number) {
+    private _genBodyIndex (level: number): void {
         const step = 1 << level;
         let tiles = TERRAIN_LOD_TILES >> level;
         let start = 0;
@@ -206,7 +205,7 @@ export class TerrainLod {
         this._bodyIndexPool[level].indices = indices;
     }
 
-    private _genConnecterIndexNorth (level: number, connecter: number) {
+    private _genConnecterIndexNorth (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_NORTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -249,7 +248,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexSouth (level: number, connecter: number) {
+    private _genConnecterIndexSouth (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_SOUTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -292,7 +291,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexWest (level: number, connecter: number) {
+    private _genConnecterIndexWest (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_WEST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -335,7 +334,7 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _genConnecterIndexEast (level: number, connecter: number) {
+    private _genConnecterIndexEast (level: number, connecter: number): void {
         const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_EAST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
@@ -378,11 +377,11 @@ export class TerrainLod {
         this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
-    private _getConnenterIndex (i: number, j: number, k: number) {
+    private _getConnenterIndex (i: number, j: number, k: number): TerrainIndexPool {
         return this._connecterIndexPool[TerrainLod.mapIndex(i, j, k)];
     }
 
-    private _genIndexData (k: TerrainLodKey) {
+    private _genIndexData (k: TerrainLodKey): TerrainIndexData | null {
         let data = this.getIndexData(k);
         if (data != null) {
             return data;

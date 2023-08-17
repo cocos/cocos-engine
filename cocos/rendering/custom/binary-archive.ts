@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { OutputArchive, InputArchive } from './archive';
 
 export class BinaryOutputArchive implements OutputArchive {
@@ -64,11 +88,14 @@ export class BinaryInputArchive implements InputArchive {
     }
     readString (): string {
         const length = this.readNumber();
-        const value = new Uint8Array(this.dataView.buffer, this.offset, length);
+        // we only support ascii string now, so we can use String.fromCharCode
+        // see https://stackoverflow.com/questions/67057689/typscript-type-uint8array-is-missing-the-following-properties-from-type-numb
+        // answer on stackoverflow might be wrong.
+        // [[wrong]] const str =  String.fromCharCode.apply(null, [...new Uint8Array(this.dataView.buffer, this.offset, length)]);
+        const str =  String.fromCharCode.apply(null, Array.from(new Uint8Array(this.dataView.buffer, this.offset, length)));
         this.offset += length;
-        return this.textDecoder.decode(value);
+        return str;
     }
     offset = 0;
     dataView: DataView;
-    textDecoder = new TextDecoder('utf-8');
 }

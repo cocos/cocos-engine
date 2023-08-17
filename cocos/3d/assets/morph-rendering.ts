@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
-    AttributeName, Buffer, BufferUsageBit, Device, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format,
+    AttributeName, Buffer, BufferUsageBit, Device, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format, Texture, Sampler,
 } from '../../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from '../../asset/assets/texture-2d';
@@ -143,11 +142,11 @@ export class StdMorphRendering implements MorphRendering {
             subMeshInstances[iSubMesh] = this._subMeshRenderings[iSubMesh]?.createInstance() ?? null;
         }
         return {
-            setWeights (subMeshIndex: number, weights: number[]) {
+            setWeights (subMeshIndex: number, weights: number[]): void {
                 subMeshInstances[subMeshIndex]?.setWeights(weights);
             },
 
-            requiredPatches: (subMeshIndex: number) => {
+            requiredPatches: (subMeshIndex: number): IMacroPatch[] | null => {
                 assertIsNonNullable(this._mesh.struct.morph);
                 const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
@@ -172,11 +171,11 @@ export class StdMorphRendering implements MorphRendering {
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, descriptorSet: DescriptorSet) => {
+            adaptPipelineState: (subMeshIndex: number, descriptorSet: DescriptorSet): void => {
                 subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
             },
 
-            destroy: () => {
+            destroy: (): void => {
                 for (const subMeshInstance of subMeshInstances) {
                     subMeshInstance?.destroy();
                 }
@@ -289,26 +288,31 @@ class GpuComputing implements SubMeshMorphRendering {
         });
     }
 
-    public destroy () {
+    public destroy (): void {
         for (const attribute of this._attributes) {
             attribute.morphTexture.destroy();
         }
     }
 
-    public createInstance () {
+    public createInstance (): {
+        setWeights: (weights: number[]) => void;
+        requiredPatches: () => IMacroPatch[];
+        adaptPipelineState: (descriptorSet: DescriptorSet) => void;
+        destroy: () => void;
+    } {
         const morphUniforms = new MorphUniforms(this._gfxDevice, this._subMeshMorph.targets.length);
         morphUniforms.setMorphTextureInfo(this._textureInfo.width, this._textureInfo.height);
         morphUniforms.setVerticesCount(this._verticesCount);
         morphUniforms.commit();
         return {
-            setWeights: (weights: number[]) => {
+            setWeights: (weights: number[]): void => {
                 morphUniforms.setWeights(weights);
                 morphUniforms.commit();
             },
 
             requiredPatches: (): IMacroPatch[] => [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true }],
 
-            adaptPipelineState: (descriptorSet: DescriptorSet) => {
+            adaptPipelineState: (descriptorSet: DescriptorSet): void => {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
@@ -327,7 +331,7 @@ class GpuComputing implements SubMeshMorphRendering {
                 descriptorSet.update();
             },
 
-            destroy: () => {
+            destroy: (): void => {
 
             },
         };
@@ -368,11 +372,16 @@ class CpuComputing implements SubMeshMorphRendering {
     /**
      * DO NOT use this field.
      */
-    get data () {
+    get data (): {
+        name: string;
+        targets: {
+            displacements: Float32Array;
+        }[];
+    }[] {
         return this._attributes;
     }
 
-    public createInstance () {
+    public createInstance (): CpuComputingRenderingInstance {
         return new CpuComputingRenderingInstance(
             this,
             this._attributes[0].targets[0].displacements.length / 3,
@@ -405,7 +414,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         });
     }
 
-    public setWeights (weights: number[]) {
+    public setWeights (weights: number[]): void {
         for (let iAttribute = 0; iAttribute < this._attributes.length; ++iAttribute) {
             const myAttribute = this._attributes[iAttribute];
             const valueView = myAttribute.morphTexture.valueView;
@@ -441,7 +450,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (descriptorSet: DescriptorSet) {
+    public adaptPipelineState (descriptorSet: DescriptorSet): void {
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
@@ -461,7 +470,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         descriptorSet.update();
     }
 
-    public destroy () {
+    public destroy (): void {
         this._morphUniforms.destroy();
         for (let iAttribute = 0; iAttribute < this._attributes.length; ++iAttribute) {
             const myAttribute = this._attributes[iAttribute];
@@ -489,36 +498,46 @@ class MorphUniforms {
         ));
     }
 
-    public destroy () {
+    public destroy (): void {
         this._remoteBuffer.destroy();
     }
 
-    public get buffer () {
+    public get buffer (): Buffer {
         return this._remoteBuffer;
     }
 
-    public setWeights (weights: number[]) {
+    public setWeights (weights: number[]): void {
         assertIsTrue(weights.length === this._targetCount);
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
             this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cclegacy.sys.isLittleEndian);
         }
     }
 
-    public setMorphTextureInfo (width: number, height: number) {
+    public setMorphTextureInfo (width: number, height: number): void {
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cclegacy.sys.isLittleEndian);
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cclegacy.sys.isLittleEndian);
     }
 
-    public setVerticesCount (count: number) {
+    public setVerticesCount (count: number): void {
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, cclegacy.sys.isLittleEndian);
     }
 
-    public commit () {
+    public commit (): void {
         this._remoteBuffer.update(this._localBuffer.buffer);
     }
 }
 
-function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
+function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number): {
+    width: number;
+    height: number;
+    create: () => {
+        readonly texture: Texture;
+        readonly sampler: Sampler;
+        readonly valueView: Float32Array;
+        destroy(): void;
+        updatePixels(): void;
+    };
+} {
     const hasFeatureFloatTexture = gfxDevice.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE;
 
     let pixelRequired: number;
@@ -543,7 +562,13 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
     return {
         width,
         height,
-        create: () => {
+        create: (): {
+            readonly texture: Texture;
+            readonly sampler: Sampler;
+            readonly valueView: Float32Array;
+            destroy(): void;
+            updatePixels(): void;
+        } => {
             const arrayBuffer = new ArrayBuffer(width * height * pixelBytes);
             const valueView = new Float32Array(arrayBuffer);
             const updateView = UpdateViewConstructor === Float32Array ? valueView : new UpdateViewConstructor(arrayBuffer);
@@ -567,28 +592,28 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
                 /**
                  * Gets the GFX texture.
                  */
-                get texture () {
+                get texture (): Texture {
                     return textureAsset.getGFXTexture()!;
                 },
 
                 /**
                  * Gets the GFX sampler.
                  */
-                get sampler () {
+                get sampler (): Sampler {
                     return sampler;
                 },
 
                 /**
                  * Value view.
                  */
-                get valueView () {
+                get valueView (): Float32Array {
                     return valueView;
                 },
 
                 /**
                  * Destroy the texture. Release its GPU resources.
                  */
-                destroy () {
+                destroy (): void {
                     textureAsset.destroy();
                     // Samplers allocated from `samplerLib` are not required and
                     // should not be destroyed.
@@ -598,7 +623,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
                 /**
                  * Update the pixels content to `valueView`.
                  */
-                updatePixels () {
+                updatePixels (): void {
                     textureAsset.uploadData(updateView);
                 },
             };
@@ -612,7 +637,7 @@ type MorphTexture = ReturnType<ReturnType<typeof createVec4TextureFactory>['crea
  * When use vertex-texture-fetch technique, we do need `gl_vertexId` when we sample per-vertex data.
  * WebGL 1.0 does not have `gl_vertexId`; WebGL 2.0, however, does.
  */
-function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: Device) {
+function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: Device): void {
     mesh.renderingSubMeshes[subMeshIndex].enableVertexIdChannel(gfxDevice);
 }
 
@@ -624,7 +649,10 @@ function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: Device) {
  * - the width is ensured to be multiple of 4.
  * @param nPixels Least pixel capacity.
  */
-function bestSizeToHavePixels (nPixels: number) {
+function bestSizeToHavePixels (nPixels: number): {
+    width: number;
+    height: number;
+} {
     if (nPixels < 5) {
         nPixels = 5;
     }

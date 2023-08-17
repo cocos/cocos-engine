@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
@@ -34,10 +33,11 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { IWebGLBlitManager } from './webgl-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
-function initStates (gl: WebGLRenderingContext) {
+function initStates (gl: WebGLRenderingContext): void {
     gl.activeTexture(gl.TEXTURE0);
     gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -88,7 +88,7 @@ function getExtension (gl: WebGLRenderingContext, ext: string): any {
     return null;
 }
 
-export function getExtensions (gl: WebGLRenderingContext) {
+export function getExtensions (gl: WebGLRenderingContext): IWebGLExtensions {
     const res: IWebGLExtensions = {
         EXT_texture_filter_anisotropic: getExtension(gl, 'EXT_texture_filter_anisotropic'),
         EXT_blend_minmax: getExtension(gl, 'EXT_blend_minmax'),
@@ -155,13 +155,13 @@ export function getExtensions (gl: WebGLRenderingContext) {
 
         // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
         if ((systemInfo.os === OS.IOS && systemInfo.osMainVersion <= 10)
-            || (WECHAT && systemInfo.os === OS.ANDROID)) {
+            || ((WECHAT || WECHAT_MINI_PROGRAM) && systemInfo.os === OS.ANDROID)) {
             res.destroyShadersImmediately = false;
         }
 
         // getUniformLocation has always been problematic because the
         // paradigm differs from GLES, and many platforms get it wrong [eyerolling]
-        if (WECHAT) {
+        if (WECHAT || WECHAT_MINI_PROGRAM) {
             // wEcHaT just returns { id: -1 } for inactive names
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
         }
@@ -171,13 +171,13 @@ export function getExtensions (gl: WebGLRenderingContext) {
         }
 
         // compressedTexSubImage2D too
-        if (WECHAT) {
+        if (WECHAT || WECHAT_MINI_PROGRAM) {
             res.noCompressedTexSubImage2D = true;
         }
 
         // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices
         // the query interface returns null.
-        if (TAOBAO && systemInfo.os === OS.ANDROID) {
+        if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.ANDROID) {
             res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
             res.OES_texture_half_float_linear = {};
             res.OES_texture_float = {};
@@ -215,8 +215,12 @@ export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | 
 }
 
 export class WebGLSwapchain extends Swapchain {
-    get extensions () {
+    get extensions (): IWebGLExtensions {
         return this._extensions as IWebGLExtensions;
+    }
+
+    get blitManager (): IWebGLBlitManager {
+        return this._blitManager!;
     }
 
     public stateCache: WebGLStateCache = new WebGLStateCache();
@@ -227,8 +231,9 @@ export class WebGLSwapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
+    private _blitManager: IWebGLBlitManager | null = null;
 
-    public initialize (info: Readonly<SwapchainInfo>) {
+    public initialize (info: Readonly<SwapchainInfo>): void {
         this._canvas = info.windowHandle;
 
         this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
@@ -260,7 +265,6 @@ export class WebGLSwapchain extends Swapchain {
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
@@ -269,7 +273,6 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,
@@ -310,6 +313,7 @@ export class WebGLSwapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+        this._blitManager = new IWebGLBlitManager();
     }
 
     public destroy (): void {
@@ -328,11 +332,16 @@ export class WebGLSwapchain extends Swapchain {
             this.nullTexCube = null!;
         }
 
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null!;
+        }
+
         this._extensions = null;
         this._canvas = null;
     }
 
-    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
         if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
@@ -342,7 +351,7 @@ export class WebGLSwapchain extends Swapchain {
         }
     }
 
-    private _onWebGLContextLost (event: Event) {
+    private _onWebGLContextLost (event: Event): void {
         warnID(11000);
         warn(event);
         // 2020.9.3: `preventDefault` is not available on some platforms

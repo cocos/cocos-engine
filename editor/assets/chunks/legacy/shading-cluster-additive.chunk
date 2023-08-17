@@ -1,17 +1,20 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-#pragma define CLUSTERS_X 16
-#pragma define CLUSTERS_Y 8
-#pragma define CLUSTERS_Z 24
+#pragma define CLUSTERS_X 16u
+#pragma define CLUSTERS_Y 8u
+#pragma define CLUSTERS_Z 24u
 #pragma define MAX_LIGHTS_PER_CLUSTER 100u
 
-#pragma glBinding(4)
-readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
+#pragma rate b_ccLightsBuffer pass
+#pragma glBinding(0)
+layout(std430) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
 
-#pragma glBinding(5)
-readonly buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
+#pragma rate b_clusterLightIndicesBuffer pass
+#pragma glBinding(1)
+layout(std430) readonly buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
 
-#pragma glBinding(6)
-readonly buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
+#pragma rate b_clusterLightGridBuffer pass
+#pragma glBinding(2)
+layout(std430) readonly buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 
 struct CCLight
 {
@@ -19,6 +22,7 @@ struct CCLight
   vec4 cc_lightColor;
   vec4 cc_lightSizeRangeAngle;
   vec4 cc_lightDir;
+  vec4 cc_lightBoundingSizeVS;
 };
 
 struct Cluster
@@ -43,10 +47,11 @@ float screen2EyeDepth(float depth, float near, float far)
 CCLight getCCLight(uint i)
 {
   CCLight light;
-  light.cc_lightPos = b_ccLights[4u * i + 0u];
-  light.cc_lightColor = b_ccLights[4u * i + 1u];
-  light.cc_lightSizeRangeAngle = b_ccLights[4u * i + 2u];
-  light.cc_lightDir = b_ccLights[4u * i + 3u];
+  light.cc_lightPos = b_ccLights[5u * i + 0u];
+  light.cc_lightColor = b_ccLights[5u * i + 1u];
+  light.cc_lightSizeRangeAngle = b_ccLights[5u * i + 2u];
+  light.cc_lightDir = b_ccLights[5u * i + 3u];
+  light.cc_lightBoundingSizeVS = b_ccLights[5u * i + 4u];
   return light;
 }
 
@@ -79,7 +84,7 @@ uint getClusterIndex(vec4 fragCoord, vec4 worldPos)
   float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
   float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
   uvec3 indices = uvec3(uvec2(fragCoord.xy / vec2(clusterSizeX, clusterSizeY)), zIndex);
-  uint cluster = (16u * 8u) * indices.z + 16u * indices.y + indices.x;
+  uint cluster = (CLUSTERS_X * CLUSTERS_Y) * indices.z + CLUSTERS_X * indices.y + indices.x;
   return cluster;
 }
 
@@ -121,7 +126,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float att = GetDistAtt(distSqr, attRadiusSqrInv);
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
-    if (light.cc_lightPos.w > 0.0) {
+    if (IS_SPOT_LIGHT(light.cc_lightPos.w)) {
       float cosInner = max(dot(-light.cc_lightDir.xyz, SL), 0.01);
       float cosOuter = light.cc_lightSizeRangeAngle.z;
       float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
@@ -133,7 +138,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-      if (light.cc_lightPos.w > 0.0) {
+      if (IS_SPOT_LIGHT(light.cc_lightPos.w)  && light.cc_lightSizeRangeAngle.w > 0.0) {
         shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
       }
     #endif

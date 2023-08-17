@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
@@ -35,7 +34,7 @@ const CANNON_AABB_LOCAL = new CANNON.AABB();
 const CANNON_AABB = new CANNON.AABB();
 const CANNON_TRANSFORM = new CANNON.Transform();
 // eslint-disable-next-line func-names
-CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, quat: CANNON.Quaternion, min: CANNON.Vec3, max: CANNON.Vec3) {
+CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, quat: CANNON.Quaternion, min: CANNON.Vec3, max: CANNON.Vec3): void {
     const frame = CANNON_TRANSFORM;
     const result = CANNON_AABB;
     Vec3.copy(frame.position, pos);
@@ -50,11 +49,11 @@ CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, qu
 };
 
 export class CannonTerrainShape extends CannonShape implements ITerrainShape {
-    get collider () {
+    get collider (): TerrainCollider {
         return this._collider as TerrainCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Heightfield {
         return this._shape as CANNON.Heightfield;
     }
 
@@ -97,7 +96,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
         this._terrainID = '';
     }
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         const terrain = this.collider.terrain;
         if (terrain) {
             const sizeI = terrain.getVertexCountI();
@@ -115,12 +114,12 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
         this._shape = new CANNON.Heightfield(this.data, this.options);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setTerrain(this.collider.terrain);
     }
 
-    updateProperties (data: number[][], elementSize: number) {
+    updateProperties (data: number[][], elementSize: number): void {
         const impl = this.impl;
         impl.data = data;
         impl.elementSize = elementSize;
@@ -134,7 +133,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
     }
 
     // override
-    protected _setCenter (v: IVec3Like) {
+    protected _setCenter (v: IVec3Like): void {
         const terrain = this.collider.terrain;
         if (terrain) {
             Quat.fromEuler(this._orient, -90, 0, 0);

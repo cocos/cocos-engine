@@ -1,19 +1,18 @@
 /* eslint-disable max-len */
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB, WEBGPU } from 'internal:constants';
 import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
@@ -93,15 +92,15 @@ export class DeviceManager {
     private _swapchain!: Swapchain;
     private _renderType: RenderType = RenderType.UNKNOWN;
 
-    public get gfxDevice () {
+    public get gfxDevice (): Device {
         return this._gfxDevice;
     }
 
-    public get swapchain () {
+    public get swapchain (): Swapchain {
         return this._swapchain;
     }
 
-    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo) {
+    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): void {
         // Avoid setup to be called twice.
         if (this.initialized) { return; }
         const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
@@ -113,14 +112,13 @@ export class DeviceManager {
         if (this._renderType === RenderType.WEBGL) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
-            if (JSB && window.gfx) {
+            if (JSB && (globalThis as any).gfx) {
                 this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
-                let useWebGL2 = (!!window.WebGL2RenderingContext);
-                const userAgent = window.navigator.userAgent.toLowerCase();
-                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
-                ) {
+                let useWebGL2 = (!!globalThis.WebGL2RenderingContext);
+                const userAgent = globalThis.navigator.userAgent.toLowerCase();
+                // UC browser implementation doesn't conform to WebGL2 standard
+                if (sys.browserType === BrowserType.UC) {
                     useWebGL2 = false;
                 }
 
@@ -158,10 +156,10 @@ export class DeviceManager {
             return;
         }
 
-        if (this._canvas) { this._canvas.oncontextmenu = () => false; }
+        if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
     }
 
-    private _initSwapchain () {
+    private _initSwapchain (): void {
         const swapchainInfo = new SwapchainInfo(1, this._canvas!);
         const windowSize = screen.windowSize;
         swapchainInfo.width = windowSize.width;

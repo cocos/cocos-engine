@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,7 +37,7 @@
 #include "base/Macros.h"
 #include "base/std/container/string.h"
 
-//#define RECORD_JSB_INVOKING
+// #define RECORD_JSB_INVOKING
 
 #ifndef CC_DEBUG
     #undef RECORD_JSB_INVOKING
@@ -106,19 +105,19 @@ void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                            se_finalize_ptr finalizeCb,
                            se::Class *,
                            const char *);
-void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
+void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                       se_function_ptr,
                       const char *);
-void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
+void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                       se_function_ptr,
                       const char *);
 
     #ifdef __GNUC__
         #define SE_UNUSED __attribute__((unused))
-        #define SE_HOT __attribute__((hot))
+        #define SE_HOT    __attribute__((hot))
     #else
         #define SE_UNUSED
-        #define SE_HOT 
+        #define SE_HOT
     #endif
 
     #define SAFE_INC_REF(obj) \
@@ -142,6 +141,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
 
     #define SE_BIND_FUNC_FAST(funcName)                                                                          \
         void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {                            \
+            JsbInvokeScope(#funcName);                                                                           \
             auto *thisObject = static_cast<se::Object *>(_v8args.This()->GetAlignedPointerFromInternalField(0)); \
             auto *nativeObject = thisObject != nullptr ? thisObject->getPrivateData() : nullptr;                 \
             funcName(nativeObject);                                                                              \
@@ -159,25 +159,25 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
         void funcName##Registry(se::Object *thisObject);
 
     // v8 doesn't need to create a new JSObject in SE_BIND_CTOR while SpiderMonkey needs.
-    #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                \
-        void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {              \
-            JsbInvokeScope(#funcName);                                                             \
+    #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                    \
+        void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {  \
+            JsbInvokeScope(#funcName);                                                 \
             jsbConstructorWrapper(_v8args, funcName, _SE(finalizeCb), cls, #funcName); \
         }
 
-    #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                                              \
-        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
-            JsbInvokeScope(#funcName);                                                                                            \
-            jsbGetterWrapper(_v8args, funcName, #funcName);                                                                       \
+    #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                           \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) { \
+            JsbInvokeScope(#funcName);                                                         \
+            jsbGetterWrapper(_v8args, funcName, #funcName);                                    \
         }
 
     #define SE_BIND_PROP_GET(funcName)         SE_BIND_PROP_GET_IMPL(funcName, )
     #define SE_BIND_FUNC_AS_PROP_GET(funcName) SE_BIND_PROP_GET_IMPL(funcName, _asGetter)
 
-    #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                                                                      \
-        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
-            JsbInvokeScope(#funcName);                                                                                                                    \
-            jsbSetterWrapper(_v8args, funcName, #funcName);                                                                                       \
+    #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                           \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) { \
+            JsbInvokeScope(#funcName);                                                         \
+            jsbSetterWrapper(_v8args, funcName, #funcName);                                    \
         }
 
     #define SE_BIND_PROP_SET(funcName)         SE_BIND_PROP_SET_IMPL(funcName, )
@@ -189,7 +189,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
     #define SE_QUOTEME(x)  SE_QUOTEME_(x)
 
     // IDEA: implement this macro
-    //#define SE_REPORT_ERROR(fmt, ...) SE_LOGE(SE_STR_CONCAT3("[ERROR] ( %s, %d): ", fmt, "\n"), __FILE__, __LINE__, ##__VA_ARGS__)
+    // #define SE_REPORT_ERROR(fmt, ...) SE_LOGE(SE_STR_CONCAT3("[ERROR] ( %s, %d): ", fmt, "\n"), __FILE__, __LINE__, ##__VA_ARGS__)
     #define SE_REPORT_ERROR(fmt, ...) selogMessage(cc::LogLevel::ERR, "[SE_ERROR]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__)
 
     #if CC_DEBUG > 0
@@ -198,7 +198,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
             do {                                                                                                            \
                 if (!(cond)) {                                                                                              \
                     selogMessage(cc::LogLevel::ERR, "[SE_ASSERT]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__); \
-                    CC_ABORT();                                                                                       \
+                    CC_ABORT();                                                                                             \
                 }                                                                                                           \
             } while (false)
 

@@ -1,18 +1,21 @@
 
 import { AnimationClip } from "../../../cocos/animation/animation-clip";
-import { AnimationBlend1D } from "../../../cocos/animation/marionette/animation-blend-1d";
-import { AnimationBlend2D } from "../../../cocos/animation/marionette/animation-blend-2d";
-import { AnimationBlendDirect } from "../../../cocos/animation/marionette/animation-blend-direct";
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D, AnimationBlendDirect } from "../../../cocos/animation/marionette/motion";
 import { AnimationController } from "../../../cocos/animation/marionette/animation-controller";
 import {
     StateMachine,
     SubStateMachine,
     AnimationGraph,
+    ProceduralPoseState,
 } from "../../../cocos/animation/marionette/animation-graph";
-import { ClipMotion } from "../../../cocos/animation/marionette/clip-motion";
-import { Motion } from "../../../cocos/animation/marionette/motion";
-import { MotionState } from "../../../cocos/animation/marionette/motion-state";
+import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
 import { EditorExtendableObject } from "../../../cocos/core/data/editor-extras-tag";
+import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
+import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
+import { PoseNodePlayMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion";
+import { PoseNodeSampleMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/sample-motion";
+import { PoseGraph } from "../../../cocos/animation/marionette/pose-graph/pose-graph";
+import { AnimationGraphVariant } from "../../../cocos/animation/marionette/animation-graph-variant";
 
 export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph): Generator<EditorExtendableObject> {
     for (const layer of animationGraph.layers) {
@@ -55,6 +58,9 @@ export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph)
 export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<AnimationClip> {
     for (const layer of animationGraph.layers) {
         yield* visitStateMachine(layer.stateMachine);
+        for (const [_stashId, stash] of layer.stashes()) {
+            yield* visitPoseGraph(stash.graph);
+        }
     }
 
     function* visitStateMachine(stateMachine: StateMachine): Generator<AnimationClip> {
@@ -64,6 +70,8 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
                 if (motion) {
                     yield* visitMotion(motion);
                 }
+            } else if (state instanceof ProceduralPoseState) {
+                yield* visitPoseGraph(state.graph);
             } else if (state instanceof SubStateMachine) {
                 yield* visitStateMachine(state.stateMachine);
             }
@@ -83,13 +91,39 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
             }
         }
     }
+
+    function* visitPoseGraph(poseGraph: PoseGraph) {
+        for (const shell of poseGraph.nodes()) {
+            yield* visitPoseNode(shell);
+        }
+    }
+
+    function* visitPoseNode(node: PoseGraphNode): Generator<AnimationClip> {
+        if (node instanceof PoseNodePlayMotion || node instanceof PoseNodeSampleMotion) {
+            if (node.motion) {
+                yield* visitMotion(node.motion);
+            }
+        } else if (node instanceof PoseNodeStateMachine) {
+            yield* visitStateMachine(node.stateMachine);
+        }
+    }
 }
 
 export function* visitAnimationClipsInController(animationController: AnimationController): Generator<AnimationClip> {
     const {
         graph,
     } = animationController;
-    if (graph) {
-        yield* visitAnimationClips(graph as AnimationGraph);
+    if (graph instanceof AnimationGraph) {
+        yield* visitAnimationClips(graph);
+    } else if (graph instanceof AnimationGraphVariant) {
+        const {
+            original,
+            clipOverrides,
+        } = graph;
+        if (original) {
+            for (const clip of visitAnimationClips(original)) {
+                yield clipOverrides.get(clip) ?? clip;
+            }
+        }
     }
 }

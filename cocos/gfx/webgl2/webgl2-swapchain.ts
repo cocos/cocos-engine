@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
@@ -33,10 +32,11 @@ import { Format, TextureInfo, TextureFlagBit, TextureType,
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { OS } from '../../../pal/system-info/enum-type';
+import { IWebGL2BlitManager } from './webgl2-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
-function initStates (gl: WebGL2RenderingContext) {
+function initStates (gl: WebGL2RenderingContext): void {
     gl.activeTexture(gl.TEXTURE0);
     gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -85,7 +85,7 @@ function getExtension (gl: WebGL2RenderingContext, ext: string): any {
     return null;
 }
 
-export function getExtensions (gl: WebGL2RenderingContext) {
+export function getExtensions (gl: WebGL2RenderingContext): IWebGL2Extensions {
     const res: IWebGL2Extensions = {
         EXT_texture_filter_anisotropic: getExtension(gl, 'EXT_texture_filter_anisotropic'),
         EXT_color_buffer_half_float: getExtension(gl, 'EXT_color_buffer_half_float'),
@@ -120,7 +120,7 @@ export function getExtensions (gl: WebGL2RenderingContext) {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
-        if (globalThis.__globalXR.webxrCompatible) {
+        if (globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
@@ -156,8 +156,12 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
 }
 
 export class WebGL2Swapchain extends Swapchain {
-    get extensions () {
+    get extensions (): IWebGL2Extensions {
         return this._extensions as IWebGL2Extensions;
+    }
+
+    get blitManager (): IWebGL2BlitManager | null {
+        return this._blitManager;
     }
 
     public stateCache: WebGL2StateCache = new WebGL2StateCache();
@@ -167,8 +171,9 @@ export class WebGL2Swapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGL2ContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGL2Extensions | null = null;
+    private _blitManager: IWebGL2BlitManager | null = null;
 
-    public initialize (info: Readonly<SwapchainInfo>) {
+    public initialize (info: Readonly<SwapchainInfo>): void {
         this._canvas = info.windowHandle;
 
         this._webGL2ContextLostHandler = this._onWebGLContextLost.bind(this);
@@ -197,7 +202,6 @@ export class WebGL2Swapchain extends Swapchain {
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGL2Texture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
@@ -206,7 +210,6 @@ export class WebGL2Swapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new WebGL2Texture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,
@@ -247,6 +250,8 @@ export class WebGL2Swapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+
+        this._blitManager = new IWebGL2BlitManager();
     }
 
     public destroy (): void {
@@ -265,11 +270,16 @@ export class WebGL2Swapchain extends Swapchain {
             this.nullTexCube = null!;
         }
 
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null;
+        }
+
         this._extensions = null;
         this._canvas = null;
     }
 
-    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
         if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
@@ -279,7 +289,7 @@ export class WebGL2Swapchain extends Swapchain {
         }
     }
 
-    private _onWebGLContextLost (event: Event) {
+    private _onWebGLContextLost (event: Event): void {
         warnID(11000);
         warn(event);
         // 2020.9.3: `preventDefault` is not available on some platforms

@@ -1,18 +1,18 @@
 /*
  Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /**
  * @category pipeline
@@ -34,7 +34,6 @@ import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from '../enum';
@@ -76,13 +75,11 @@ export class GbufferStage extends RenderStage {
     protected _renderQueues: RenderQueue[] = [];
 
     private _renderArea = new Rect();
-    private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
 
     constructor () {
         super();
-        this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
     }
 
@@ -94,19 +91,18 @@ export class GbufferStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow): void {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
         }
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         this._instancedQueue.clear();
-        this._batchedQueue.clear();
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
@@ -131,10 +127,6 @@ export class GbufferStage extends RenderStage {
                         const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, p);
                         this._instancedQueue.queue.add(instancedBuffer);
-                    } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = pass.getBatchedBuffer();
-                        batchedBuffer.merge(subModel, p, ro.model);
-                        this._batchedQueue.queue.add(batchedBuffer);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
@@ -148,7 +140,6 @@ export class GbufferStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         this._instancedQueue.uploadBuffers(cmdBuff);
-        this._batchedQueue.uploadBuffers(cmdBuff);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
@@ -175,7 +166,6 @@ export class GbufferStage extends RenderStage {
             this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
     }

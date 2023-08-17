@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca",
@@ -34,7 +34,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.11",
+      "ver": "1.0.12",
       "importer": "sprite-frame",
       "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
       "imported": true,

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,20 +20,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
-import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../../core';
+*/
+import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { CCBoolean, CCObject, Color, Enum, Vec3, warn } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { ReflectionProbeManager } from '../../rendering/reflection-probe-manager';
+import { ReflectionProbeManager } from './reflection-probe-manager';
 import { Component } from '../../scene-graph/component';
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
+import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
     /**
@@ -62,6 +62,7 @@ export enum ProbeResolution {
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
 @playOnFocus
+@help('i18n:cc.ReflectionProbe')
 export class ReflectionProbe extends Component {
     protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
     protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
@@ -92,10 +93,17 @@ export class ReflectionProbe extends Component {
     @serializable
     private _probeId = -1;
 
+    @serializable
+    private _fastBake = false;
+
     protected _probe: scene.ReflectionProbe | null = null;
 
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
+
+    private _sourceCameraPos = new Vec3(0, 0, 0);
+
+    private _position = new Vec3(0, 0, 0);
 
     /**
      * @en
@@ -103,15 +111,19 @@ export class ReflectionProbe extends Component {
      * @zh
      * 获取或设置包围盒的大小。
      */
-    set size (value) {
+    set size (value: Vec3) {
         this._size.set(value);
+        absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.onUpdateProbes();
+            ReflectionProbeManager.probeManager.updateProbeData();
+            ReflectionProbeManager.probeManager.updateProbeOfModels();
         }
     }
     @type(Vec3)
-    get size () {
+    get size (): Vec3 {
         return this._size;
     }
 
@@ -120,12 +132,12 @@ export class ReflectionProbe extends Component {
      * @zh 设置探针类型，环境反射或者平面反射
      */
     @type(Enum(ProbeType))
-    set probeType (value: number) {
+    set probeType (value: ProbeType) {
+        this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
             const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
             this._probeType = value;
-            this.probe.probeType = value;
 
             if (this._probeType === ProbeType.CUBE) {
                 if (lastSizeIsNoExist) {
@@ -144,7 +156,7 @@ export class ReflectionProbe extends Component {
                     this._objFlags ^= CCObject.Flags.IsRotationLocked;
                 }
                 if (!this._sourceCamera) {
-                    console.warn('the reflection camera is invalid, please set the reflection camera');
+                    warn('the reflection camera is invalid, please set the reflection camera');
                 } else {
                     this.probe.switchProbeType(value, this._sourceCamera.camera);
                 }
@@ -156,7 +168,7 @@ export class ReflectionProbe extends Component {
             this.size = this._size;
         }
     }
-    get probeType () {
+    get probeType (): ProbeType {
         return this._probeType;
     }
 
@@ -171,7 +183,7 @@ export class ReflectionProbe extends Component {
         this.probe.resolution = value;
     }
 
-    get resolution () {
+    get resolution (): number {
         return this._resolution;
     }
 
@@ -184,7 +196,7 @@ export class ReflectionProbe extends Component {
         this._clearFlag = value;
         this.probe.clearFlag = this._clearFlag;
     }
-    get clearFlag () {
+    get clearFlag (): number {
         return this._clearFlag;
     }
 
@@ -198,7 +210,7 @@ export class ReflectionProbe extends Component {
         this._backgroundColor = val;
         this.probe.backgroundColor = this._backgroundColor;
     }
-    get backgroundColor () {
+    get backgroundColor (): Color {
         return this._backgroundColor;
     }
 
@@ -208,7 +220,7 @@ export class ReflectionProbe extends Component {
      */
     @type(Layers.BitMask)
     @tooltip('i18n:camera.visibility')
-    get visibility () {
+    get visibility (): number {
         return this._visibility;
     }
     set visibility (val) {
@@ -233,17 +245,36 @@ export class ReflectionProbe extends Component {
             }
         }
     }
-    get sourceCamera () {
+    get sourceCamera (): Camera {
         return this._sourceCamera!;
+    }
+
+    /**
+     * @en fast bake no convolution.
+     * @zh 快速烘焙不会进行卷积。
+     */
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
+    @type(CCBoolean)
+    @tooltip('i18n:reflection_probe.fastBake')
+    get fastBake (): boolean {
+        return this._fastBake;
+    }
+
+    set fastBake (val) {
+        this._fastBake = val;
     }
 
     set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
-        ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        ReflectionProbeManager.probeManager.onUpdateProbes();
     }
 
-    get probe () {
+    get cubemap (): TextureCube | null {
+        return this._cubemap;
+    }
+
+    get probe (): scene.ReflectionProbe {
         return this._probe!;
     }
 
@@ -251,7 +282,7 @@ export class ReflectionProbe extends Component {
      * @en Reflection probe cube mode preview sphere
      * @zh 反射探针cube模式的预览小球
      */
-    set previewSphere (val: Node) {
+    set previewSphere (val: Node | null) {
         this._previewSphere = val;
         if (this.probe) {
             this.probe.previewSphere = val;
@@ -261,7 +292,7 @@ export class ReflectionProbe extends Component {
         }
     }
 
-    get previewSphere () {
+    get previewSphere (): Node | null {
         return this._previewSphere!;
     }
 
@@ -273,46 +304,60 @@ export class ReflectionProbe extends Component {
         this._previewPlane = val;
         if (this.probe) {
             this.probe.previewPlane = val;
+            if (this._previewPlane) {
+                ReflectionProbeManager.probeManager.updatePreviewPlane(this.probe);
+            }
         }
     }
 
-    get previewPlane () {
+    get previewPlane (): Node {
         return this._previewPlane!;
     }
 
-    public onLoad () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            this._createProbe();
+    public onLoad (): void {
+        this._createProbe();
+        if (EDITOR) {
+            ReflectionProbeManager.probeManager.registerEvent();
         }
     }
 
-    onEnable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.register(this._probe!);
+    onEnable (): void {
+        if (this._probe) {
+            const probe = ReflectionProbeManager.probeManager.getProbeById(this._probeId);
+            if (probe !== null && probe !== this._probe) {
+                this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
+                this._probe.updateProbeId(this._probeId);
+            }
+            ReflectionProbeManager.probeManager.register(this._probe);
+            ReflectionProbeManager.probeManager.onUpdateProbes();
+            this._probe.enable();
         }
     }
-    onDisable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.unregister(this._probe!);
+    onDisable (): void {
+        if (this._probe) {
+            ReflectionProbeManager.probeManager.unregister(this._probe);
+            this._probe.disable();
         }
     }
 
-    public start () {
+    public start (): void {
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
+        ReflectionProbeManager.probeManager.updateProbeData();
+        this._position = this.node.getWorldPosition().clone();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this.probe) {
             this.probe.destroy();
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         if (!this.probe) return;
-        if (EDITOR) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
@@ -325,12 +370,29 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-
-            if (this.node.hasChangedFlags) {
-                this.probe.updateBoundingBox();
+        }
+        if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
+            if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)
+            || !this._sourceCameraPos.equals(this.sourceCamera.node.getWorldPosition())) {
+                this._sourceCameraPos = this.sourceCamera.node.getWorldPosition();
+                this.probe.renderPlanarReflection(this.sourceCamera.camera);
             }
-            if (this.node.hasChangedFlags & TransformBit.POSITION) {
-                ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        }
+
+        if (this.node.hasChangedFlags & TransformBit.POSITION) {
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.onUpdateProbes();
+            ReflectionProbeManager.probeManager.updateProbeData();
+        }
+
+        //update probe info for realtime
+        if (!EDITOR) {
+            const worldPos = this.node.getWorldPosition();
+            if (!this._position.equals(worldPos)) {
+                this._position = worldPos;
+                this.probe.updateBoundingBox();
+                ReflectionProbeManager.probeManager.updateProbeData();
+                ReflectionProbeManager.probeManager.updateProbeOfModels();
             }
         }
     }
@@ -339,13 +401,13 @@ export class ReflectionProbe extends Component {
      * @en Clear the baked cubemap.
      * @zh 清除烘焙的cubemap
      */
-    public clearBakedCubemap () {
+    public clearBakedCubemap (): void {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
         ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
     }
 
-    private _createProbe () {
+    private _createProbe (): void {
         if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
         }

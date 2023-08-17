@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -44,6 +43,8 @@ class Skybox;
 class Fog;
 class Octree;
 class Light;
+class Skin;
+class PostSettings;
 } // namespace scene
 namespace gi {
 class LightProbes;
@@ -65,6 +66,7 @@ public:
     inline const RenderObjectList &getRenderObjects() const { return _renderObjects; }
     inline void setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
     inline const ccstd::vector<const scene::Light *> &getValidPunctualLights() const { return _validPunctualLights; }
+    inline void setValidPunctualLights(ccstd::vector<const scene::Light *> lights) { _validPunctualLights = std::move(lights); }
     inline bool isHDR() const { return _isHDR; }
     inline void setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *getShadows() const { return _shadow; }
@@ -74,6 +76,8 @@ public:
     inline scene::Fog *getFog() const { return _fog; }
     inline scene::Octree *getOctree() const { return _octree; }
     inline gi::LightProbes *getLightProbes() const { return _lightProbes; }
+    inline scene::Skin *getSkin() const { return _skin; }
+    inline scene::PostSettings *getPostSettings() const { return _postSettings; }
     inline gfx::InputAssembler *getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *getOcclusionQueryShader() const { return _occlusionQueryShader; }
@@ -90,6 +94,10 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
+    inline scene::Model *getStandardSkinModel() const { return _standardSkinModel.get(); }
+    void setStandardSkinModel(scene::Model *val);
+    inline scene::Model *getSkinMaterialModel() const { return _skinMaterialModel.get(); }
+    void setSkinMaterialModel(scene::Model *val);
 
 protected:
     void initOcclusionQuery();
@@ -104,6 +112,8 @@ protected:
     IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+    IntrusivePtr<scene::Model> _standardSkinModel;
+    IntrusivePtr<scene::Model> _skinMaterialModel;
 
     gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
@@ -122,8 +132,12 @@ protected:
     scene::Octree *_octree{nullptr};
     // manage memory manually
     gi::LightProbes *_lightProbes{nullptr};
-
+    // manage memory manually
+    scene::Skin *_skin{nullptr};
+    // manage memory manually
     CSMLayers *_csmLayers{nullptr};
+    // manage memory manually
+    scene::PostSettings *_postSettings{nullptr};
 
     bool _isHDR{true};
     bool _csmSupported{true};

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,11 +31,10 @@
 #pragma once
 #include <string_view>
 #include <tuple>
-#include "cocos/renderer/pipeline/custom/GraphImpl.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Overload.h"
-#include "cocos/renderer/pipeline/custom/PathUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GraphImpl.h"
+#include "cocos/renderer/pipeline/custom/details/Overload.h"
+#include "cocos/renderer/pipeline/custom/details/PathUtils.h"
 
 namespace cc {
 
@@ -795,7 +793,7 @@ holds_alternative(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexce
 
 template <>
 inline bool
-holds_alternative<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
+holds_alternative<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -814,8 +812,8 @@ inline ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, LayoutGraph& /*g*/);
 
 template <>
-inline uint32_t&
-get<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
+inline RenderPassType&
+get<RenderPassType>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -836,8 +834,8 @@ inline const ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, const LayoutGraph& /*g*/);
 
 template <>
-inline const uint32_t&
-get<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
+inline const RenderPassType&
+get<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -853,7 +851,7 @@ get<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     return g.phases[handle.value];
 }
 
-inline uint32_t&
+inline RenderPassType&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
@@ -869,7 +867,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     return g.phases[handle.value];
 }
 
-inline const uint32_t&
+inline const RenderPassType&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
@@ -890,9 +888,9 @@ inline ValueT*
 get_if(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline uint32_t*
-get_if<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
-    uint32_t* ptr = nullptr;
+inline RenderPassType*
+get_if<RenderPassType>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
+    RenderPassType* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -928,9 +926,9 @@ inline const ValueT*
 get_if(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline const uint32_t*
-get_if<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
-    const uint32_t* ptr = nullptr;
+inline const RenderPassType*
+get_if<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
+    const RenderPassType* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -1145,7 +1143,7 @@ inline void removePathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noe
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(std::string_view(pathName));
+    auto iter = g.pathIndex.find(std::string_view{pathName});
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -1203,14 +1201,14 @@ inline void remove_vertex_value_impl(const LayoutGraph::VertexHandle& h, LayoutG
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
+                g.stages.erase(g.stages.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
+                g.phases.erase(g.phases.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
@@ -1226,15 +1224,15 @@ inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noex
     impl::removeVectorVertex(const_cast<LayoutGraph&>(g), u, LayoutGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.descriptors.erase(g.descriptors.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.descriptors.erase(g.descriptors.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, LayoutGraph &g, LayoutGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, uint32_t>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderPassType>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.stages.size())};
     g.stages.emplace_back(std::forward<ValueT>(val));
@@ -1845,7 +1843,7 @@ inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(std::string_view(pathName));
+    auto iter = g.pathIndex.find(std::string_view{pathName});
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -1903,14 +1901,14 @@ inline void remove_vertex_value_impl(const LayoutGraphData::VertexHandle& h, Lay
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
+                g.stages.erase(g.stages.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
+                g.phases.erase(g.phases.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
@@ -1926,9 +1924,9 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
     impl::removeVectorVertex(const_cast<LayoutGraphData&>(g), u, LayoutGraphData::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.updateFrequencies.erase(g.updateFrequencies.begin() + std::ptrdiff_t(u));
-    g.layouts.erase(g.layouts.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.updateFrequencies.erase(g.updateFrequencies.begin() + static_cast<std::ptrdiff_t>(u));
+    g.layouts.erase(g.layouts.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 import { System, errorID, cclegacy, js } from '../core';
@@ -55,14 +54,14 @@ export class AnimationManager extends System {
     private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
 
-    public addCrossFade (crossFade: CrossFade) {
+    public addCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
         if (index === -1) {
             this._crossFades.push(crossFade);
         }
     }
 
-    public removeCrossFade (crossFade: CrossFade) {
+    public removeCrossFade (crossFade: CrossFade): void {
         const index = this._crossFades.array.indexOf(crossFade);
         if (index >= 0) {
             this._crossFades.fastRemoveAt(index);
@@ -71,7 +70,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public update (dt: number) {
+    public update (dt: number): void {
         const { _delayEvents, _crossFades: crossFadesIter, _sockets } = this;
 
         { // Update cross fades
@@ -105,18 +104,18 @@ export class AnimationManager extends System {
         _delayEvents.length = 0;
     }
 
-    public destruct () {
+    public destruct (): void {
 
     }
 
-    public addAnimation (anim: AnimationState) {
+    public addAnimation (anim: AnimationState): void {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
             this._anims.push(anim);
         }
     }
 
-    public removeAnimation (anim: AnimationState) {
+    public removeAnimation (anim: AnimationState): void {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
             this._anims.fastRemoveAt(index);
@@ -125,7 +124,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]) {
+    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]): void {
         this._delayEvents.push({
             fn,
             thisArg,
@@ -133,7 +132,7 @@ export class AnimationManager extends System {
         });
     }
 
-    public addSockets (root: Node, sockets: Socket[]) {
+    public addSockets (root: Node, sockets: Socket[]): void {
         for (let i = 0; i < sockets.length; ++i) {
             const socket = sockets[i];
             if (this._sockets.find((s) => s.target === socket.target)) { continue; }
@@ -145,7 +144,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public removeSockets (root: Node, sockets: Socket[]) {
+    public removeSockets (root: Node, sockets: Socket[]): void {
         for (let i = 0; i < sockets.length; ++i) {
             const socketToRemove = sockets[i];
             for (let j = 0; j < this._sockets.length; ++j) {
@@ -161,7 +160,7 @@ export class AnimationManager extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, () => {
+director.on(Director.EVENT_INIT, (): void => {
     const animationManager = new AnimationManager();
     director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });

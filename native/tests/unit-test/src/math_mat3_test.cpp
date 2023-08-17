@@ -105,9 +105,12 @@ TEST(mathMat3Test, test4) {
     // fromQuat
     logLabel = "test the mat3 fromQuat function";
     cc::Mat3 fromQuat;
-    cc::Quaternion quat(0, 0, 3, 1);
+    cc::Quaternion quat;
+    cc::Quaternion::createFromAxisAngle(cc::Vec3(0, 0, 1), M_PI / 2, &quat);
     cc::Mat3::fromQuat(quat, &fromQuat);
-    ExpectEq(copyMat.m[0] == 3 && copyMat.m[3] == 6 && copyMat.m[4] == 7, true);
+    cc::Vec3 vec3;
+    vec3.transformMat3(cc::Vec3(1, 1, 0), fromQuat);
+    ExpectEq(vec3.approxEquals(cc::Vec3(-1, 1, 0)), true);
     // add
     logLabel = "test the mat3 add function";
     cc::Mat3 lAdd(9, 3, 9, 0, 8, 0, 0, 0, 0);

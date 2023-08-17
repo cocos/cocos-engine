@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { Mesh } from '../../3d';
@@ -33,7 +32,7 @@ import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
 import { errorID, warnID, cclegacy } from '../../core';
 
-function isSupportGPUParticle () {
+function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;
     if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
         & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
@@ -52,7 +51,7 @@ export default class ParticleSystemRenderer {
     @type(RenderMode)
     @displayOrder(0)
     @tooltip('i18n:particleSystemRenderer.renderMode')
-    public get renderMode () {
+    public get renderMode (): number {
         return this._renderMode;
     }
 
@@ -71,7 +70,7 @@ export default class ParticleSystemRenderer {
      */
     @displayOrder(1)
     @tooltip('i18n:particleSystemRenderer.velocityScale')
-    public get velocityScale () {
+    public get velocityScale (): number {
         return this._velocityScale;
     }
 
@@ -88,7 +87,7 @@ export default class ParticleSystemRenderer {
      */
     @displayOrder(2)
     @tooltip('i18n:particleSystemRenderer.lengthScale')
-    public get lengthScale () {
+    public get lengthScale (): number {
         return this._lengthScale;
     }
 
@@ -119,7 +118,7 @@ export default class ParticleSystemRenderer {
     @type(Mesh)
     @displayOrder(7)
     @tooltip('i18n:particleSystemRenderer.mesh')
-    public get mesh () {
+    public get mesh (): Mesh | null {
         return this._mesh;
     }
 
@@ -138,16 +137,16 @@ export default class ParticleSystemRenderer {
     @disallowAnimation
     @visible(false)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
-    public get particleMaterial () {
+    public get particleMaterial (): Material | null {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(0) as Material;
+        return this._particleSystem.getSharedMaterial(0) as Material;
     }
 
     public set particleMaterial (val: Material | null) {
         if (this._particleSystem) {
-            this._particleSystem.setMaterial(val, 0);
+            this._particleSystem.setSharedMaterial(val, 0);
         }
     }
 
@@ -159,7 +158,7 @@ export default class ParticleSystemRenderer {
     @displayOrder(8)
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
-    public get cpuMaterial () {
+    public get cpuMaterial (): Material | null {
         return this._cpuMaterial;
     }
 
@@ -188,7 +187,7 @@ export default class ParticleSystemRenderer {
     @displayOrder(8)
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return this._useGPU; })
-    public get gpuMaterial () {
+    public get gpuMaterial (): Material | null {
         return this._gpuMaterial;
     }
 
@@ -218,23 +217,23 @@ export default class ParticleSystemRenderer {
     @disallowAnimation
     @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
-    public get trailMaterial () {
+    public get trailMaterial (): Material | null {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(1) as Material;
+        return this._particleSystem.getSharedMaterial(1) as Material;
     }
 
     public set trailMaterial (val: Material | null) {
         if (this._particleSystem) {
-            this._particleSystem.setMaterial(val, 1);
+            this._particleSystem.setSharedMaterial(val, 1);
         }
     }
 
     @serializable
     private _mainTexture: Texture2D | null = null;
 
-    public get mainTexture () {
+    public get mainTexture (): Texture2D | null {
         return this._mainTexture;
     }
 
@@ -247,7 +246,7 @@ export default class ParticleSystemRenderer {
 
     @displayOrder(10)
     @tooltip('i18n:particleSystemRenderer.useGPU')
-    public get useGPU () {
+    public get useGPU (): boolean {
         return this._useGPU;
     }
 
@@ -272,7 +271,7 @@ export default class ParticleSystemRenderer {
     @type(AlignmentSpace)
     @displayOrder(10)
     @tooltip('i18n:particle_system.alignSpace')
-    public get alignSpace () {
+    public get alignSpace (): number {
         return this._alignSpace;
     }
 
@@ -288,7 +287,7 @@ export default class ParticleSystemRenderer {
 
     private _particleSystem: any = null!; // ParticleSystem
 
-    create (ps) {
+    create (ps): void {
         // if particle system is null we run the old routine
         // else if particle system is not null we do nothing
         if (this._particleSystem === null) {
@@ -298,7 +297,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    onInit (ps) {
+    onInit (ps): void {
         this.create(ps);
         const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
@@ -319,7 +318,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    private _switchProcessor () {
+    private _switchProcessor (): void {
         if (!this._particleSystem) {
             return;
         }

@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
  https://www.cocos.com/
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -17,7 +18,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Fog } from '../render-scene/scene/fog';
 import { Ambient } from '../render-scene/scene/ambient';
@@ -31,7 +32,11 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { cclegacy } from '../core';
+import { legacyCC } from '../core/global-exports';
+import { Skin } from '../render-scene/scene/skin';
+import { Model } from '../render-scene/scene/model';
+import { PostSettings } from '../render-scene/scene/post-settings';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -41,14 +46,14 @@ export class PipelineSceneData {
       * @zh 是否开启 HDR。
       * @readonly
       */
-    public get isHDR () {
+    public get isHDR (): boolean {
         return this._isHDR;
     }
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
     }
-    public get shadingScale () {
+    public get shadingScale (): number {
         return this._shadingScale;
     }
 
@@ -56,11 +61,45 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
-    public get csmSupported () {
+    public get csmSupported (): boolean {
         return this._csmSupported;
     }
     public set csmSupported (val: boolean) {
         this._csmSupported = val;
+    }
+
+    /**
+     * @engineInternal
+     * @en Get the Separable-SSS skin standard model.
+     * @zh 获取全局的4s标准模型
+     * @returns The model id
+     */
+    get standardSkinModel (): Model | null { return this._standardSkinModel; }
+    set standardSkinModel (val: Model | null) {
+        this._standardSkinModel = val;
+    }
+
+    /**
+     * @engineInternal
+     * @en Set the Separable-SSS skin standard model component.
+     * @zh 设置一个全局的4s标准模型组件
+     * @returns The model id
+     */
+    get standardSkinMeshRenderer (): MeshRenderer | null { return this._standardSkinMeshRenderer; }
+    set standardSkinMeshRenderer (val: MeshRenderer | null) {
+        if (this._standardSkinMeshRenderer && this._standardSkinMeshRenderer !== val) {
+            this._standardSkinMeshRenderer.clearGlobalStandardSkinObjectFlag();
+        }
+
+        this._standardSkinMeshRenderer = val;
+        this.standardSkinModel = val ? val.model : null;
+    }
+
+    get skinMaterialModel (): Model {
+        return this._skinMaterialModel!;
+    }
+    set skinMaterialModel (val: Model) {
+        this._skinMaterialModel = val;
     }
 
     public fog: Fog = new Fog();
@@ -69,7 +108,9 @@ export class PipelineSceneData {
     public shadows: Shadows = new Shadows();
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
-    public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
+    public skin: Skin = new Skin();
+    public postSettings: PostSettings = new PostSettings();
+    public lightProbes = legacyCC.internal.LightProbes ? new legacyCC.internal.LightProbes() : null;
 
     /**
       * @en The list for valid punctual Lights, only available after the scene culling of the current frame.
@@ -95,12 +136,15 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
+    private _standardSkinMeshRenderer: MeshRenderer | null = null;
+    private _standardSkinModel: Model | null = null;
+    private _skinMaterialModel: Model | null = null;
 
     constructor () {
         this._shadingScale = 1.0;
     }
 
-    public activate (device: Device) {
+    public activate (device: Device): boolean {
         this._device = device;
 
         this.initGeometryRendererMaterials();
@@ -109,12 +153,12 @@ export class PipelineSceneData {
         return true;
     }
 
-    public initGeometryRendererMaterials () {
+    public initGeometryRendererMaterials (): void {
         let offset = 0;
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
             this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'builtin-geometry-renderer', technique: tech });
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'internal/builtin-geometry-renderer', technique: tech });
 
             for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
                 this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
@@ -124,15 +168,15 @@ export class PipelineSceneData {
         }
     }
 
-    public get geometryRendererPasses () {
+    public get geometryRendererPasses (): Pass[] {
         return this._geometryRendererPasses;
     }
 
-    public get geometryRendererShaders () {
+    public get geometryRendererShaders (): Shader[] {
         return this._geometryRendererShaders;
     }
 
-    public initOcclusionQuery () {
+    public initOcclusionQuery (): void {
         if (!this._occlusionQueryInputAssembler) {
             this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
         }
@@ -140,7 +184,7 @@ export class PipelineSceneData {
         if (!this._occlusionQueryMaterial) {
             const mat = new Material();
             mat._uuid = 'default-occlusion-query-material';
-            mat.initialize({ effectName: 'builtin-occlusion-query' });
+            mat.initialize({ effectName: 'internal/builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
             if (mat.passes.length > 0) {
                 this._occlusionQueryShader = mat.passes[0].getShaderVariant();
@@ -156,10 +200,10 @@ export class PipelineSceneData {
         return null;
     }
 
-    public updatePipelineSceneData () {
+    public updatePipelineSceneData (): void {
     }
 
-    public destroy () {
+    public destroy (): void {
         this.shadows.destroy();
         this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
@@ -169,9 +213,12 @@ export class PipelineSceneData {
         this._occlusionQueryVertexBuffer = null;
         this._occlusionQueryIndicesBuffer?.destroy();
         this._occlusionQueryIndicesBuffer = null;
+        this._standardSkinMeshRenderer = null;
+        this._standardSkinModel = null;
+        this._skinMaterialModel = null;
     }
 
-    private _createOcclusionQueryIA () {
+    private _createOcclusionQueryIA (): InputAssembler {
         // create vertex buffer
         const device = this._device;
         const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);
@@ -179,7 +226,9 @@ export class PipelineSceneData {
         const vbSize = vbStride * 8;
         this._occlusionQueryVertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
         ));
         this._occlusionQueryVertexBuffer.update(vertices);
 
@@ -189,7 +238,9 @@ export class PipelineSceneData {
         const ibSize = ibStride * 36;
         this._occlusionQueryIndicesBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
         ));
         this._occlusionQueryIndicesBuffer.update(indices);
 

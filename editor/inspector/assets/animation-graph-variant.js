@@ -29,7 +29,8 @@ exports.$ = {
 
 exports.style = `
 .asset-animation-graph-variant {
-    padding-top: 10px;
+    padding-top: 4px;
+    padding-right: 4px;
 }
 
 .asset-animation-graph-variant .clips {
@@ -40,10 +41,6 @@ exports.style = `
 .asset-animation-graph-variant .table {
     border-collapse: collapse;
     margin-left: -8px;
-}
-
-.asset-animation-graph-variant .table td {
-    border: 1px solid var(--color-default-border-weaker);
 }
 
 .asset-animation-graph-variant .thead td {
@@ -83,6 +80,10 @@ exports.methods = {
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-animation-graph-variant', this.asset.uuid, this.animationGraphVariant);
+    },
+
+    abort() {
+        this.reset();
     },
 
     reset() {
