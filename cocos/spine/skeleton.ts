@@ -95,7 +95,7 @@ interface AnimationItem {
 }
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal 
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -103,7 +103,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -111,7 +111,7 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum.
+ * @engineInternal
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -125,7 +125,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal Since v3.7.2, this is an engine private interface.
+ * @engineInternal 
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -253,11 +253,11 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
     /**
-     * @internal
+     * @engineInternal
      */
     public _startEntry: spine.TrackEntry;
     /**
-     * @internal
+     * @engineInternal
      */
     public _endEntry: spine.TrackEntry;
     // Paused or playing state
@@ -306,7 +306,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
 
@@ -342,7 +342,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface
+     * @engineInternal
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -368,7 +368,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -393,7 +393,7 @@ export class Skeleton extends UIRenderer {
 
     // value of 0 represents no animation
     /**
-     * @internal
+     * @engineInternal
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -416,7 +416,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @engineInternal
      */
     set _animationIndex (value: number) {
         let animsEnum;
@@ -629,7 +629,7 @@ export class Skeleton extends UIRenderer {
     // For Redo, Undo
     // call markForUpdateRenderData to make sure renderData will be re-built.
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     public onRestore (): void {
         this.updateMaterial();
@@ -1064,7 +1064,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
