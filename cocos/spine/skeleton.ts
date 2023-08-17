@@ -44,9 +44,6 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
-import { sp } from 'typedoc-index';
-import { IKConstraint, Slot } from '@cocos/dragonbones-js';
-import { Skin } from 'cocos/render-scene/scene';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
@@ -98,7 +95,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal 
+ * @engineInternal
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -625,7 +622,7 @@ export class Skeleton extends UIRenderer {
 
     get data (): spine.SkeletonData | null {
         if (this._skeletonData) {
-            return this._skeleton.data
+            return this._skeleton.data;
         }
         return null;
     }
@@ -644,43 +641,43 @@ export class Skeleton extends UIRenderer {
         return null;
     }
 
-    get drawOrder(): Array<spine.Slot> | null {
+    get drawOrder (): Array<spine.Slot> | null {
         if (this._skeleton) {
             return this._skeleton.drawOrder;
         }
         return null;
     }
 
-    get ikConstraints(): Array<spine.IkConstraint> | null {
+    get ikConstraints (): Array<spine.IkConstraint> | null {
         if (this._skeleton) {
             return this._skeleton.ikConstraints;
         }
         return null;
     }
 
-    get transformConstraints(): Array<spine.TransformConstraint> | null {
+    get transformConstraints (): Array<spine.TransformConstraint> | null {
         if (this._skeleton) {
             return this._skeleton.transformConstraints;
         }
         return null;
     }
 
-    get pathConstraints(): Array<spine.PathConstraint> | null {
+    get pathConstraints (): Array<spine.PathConstraint> | null {
         if (this._skeleton) {
             return this._skeleton.pathConstraints;
         }
         return null;
     }
 
-    get time(): number {
-        if(this._skeleton) {
+    get time (): number {
+        if (this._skeleton) {
             return this._skeleton.time;
         }
         return 0;
     }
 
-    get skin(): spine.Skin | null {
-        if(this._skeleton) {
+    get skin (): spine.Skin | null {
+        if (this._skeleton) {
             return this._skeleton.skin;
         }
         return null;
@@ -696,8 +693,8 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public onRestore (): void {
-        this.updateMaterial ();
-        this.markForUpdateRenderData ();
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
     /**
      * @en Gets the animation state object.
@@ -834,7 +831,7 @@ export class Skeleton extends UIRenderer {
         return null;
     }
 
-    public getAttachment(slotIndex: number, attachmentName: string): spine.Attachment | null {
+    public getAttachment (slotIndex: number, attachmentName: string): spine.Attachment | null {
         if (this._skeleton) {
             return this._skeleton.getAttachment(slotIndex, attachmentName);
         }
@@ -852,7 +849,7 @@ export class Skeleton extends UIRenderer {
      * @param {String} slotName
      * @param {String} attachmentName
      */
-    public setAttachment (slotName: string, attachmentName: string) {
+    public setAttachment (slotName: string, attachmentName: string): void {
         if (this._skeleton) {
             this._skeleton.setAttachment(slotName, attachmentName);
         }
@@ -908,22 +905,22 @@ export class Skeleton extends UIRenderer {
         return trackEntry;
     }
 
-    public findIkConstraint(constraintName: string): spine.IkConstraint | null {
+    public findIkConstraint (constraintName: string): spine.IkConstraint | null {
         if (this._skeleton) {
             return this._skeleton.findIkConstraint(constraintName);
         }
         return null;
     }
 
-    public findTransformConstraint(constraintName: string): spine.TransformConstraint | null {
+    public findTransformConstraint (constraintName: string): spine.TransformConstraint | null {
         if (this._skeleton) {
             return this._skeleton.findTransformConstraint(constraintName);
         }
         return null;
     }
 
-    public findPathConstraint(constraintName: string): spine.PathConstraint | null {
-        if(this._skeletonData) {
+    public findPathConstraint (constraintName: string): spine.PathConstraint | null {
+        if (this._skeletonData) {
             return this._skeleton.findPathConstraint(constraintName);
         }
         return null;
@@ -1011,7 +1008,7 @@ export class Skeleton extends UIRenderer {
         this.invalidAnimationCache();
     }
 
-    public setNewSkin (newSkin: spine.Skin) {
+    public setNewSkin (newSkin: spine.Skin): void {
         if (this._skeleton) {
             this._skeleton.setSkin(newSkin);
         }
@@ -1194,7 +1191,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal 
+     * @engineInternal
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;

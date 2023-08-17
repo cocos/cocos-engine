@@ -25,7 +25,7 @@
 import spine from './spine-core.js';
 import { js } from '../../core';
 
-function overrideDefineArrayProp (prototype, getPropVector, name): void {
+function overrideDefineArrayProp (prototype: any, getPropVector: Function, name: string): void {
     Object.defineProperty(prototype, name, {
         get (): any[] {
             const array: any[] = [];
@@ -41,7 +41,7 @@ function overrideDefineArrayProp (prototype, getPropVector, name): void {
     });
 }
 
-function overrideDefineArrayFunction (prototype, getPropVector, name): void {
+function overrideDefineArrayFunction (prototype: any, getPropVector: Function, name: string): void {
     Object.defineProperty(prototype, name, {
         value () {
             const array: any[] = [];
@@ -127,36 +127,6 @@ function overrideClass (wasm): void {
     spine.SwirlEffect = wasm.SwirlEffect;
 
     spine.SkeletonInstance = wasm.SkeletonInstance;
-}
-
-function overrideProperty_MathUtils (): void {
-    const prototype = spine.MathUtils.prototype as any;
-    const propertyPolyfills = [
-        {
-            proto: prototype,
-            property: 'PI',
-            getter: prototype.PI,
-            setter: prototype.PI,
-        } 
-    ];
-    propertyPolyfills.forEach((prop): void => {
-        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
-    }); 
-}
-
-function overrideProperty_Color (): void {
-    const prototype = spine.Color.prototype as any;
-    const propertyPolyfills = [
-        {
-            proto: prototype,
-            property: 'a',
-            getter: prototype.a,
-            setter: prototype.a
-        } 
-    ];
-    propertyPolyfills.forEach((prop): void => {
-        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
-    }); 
 }
 
 function overrideProperty_BoneData (): void {
