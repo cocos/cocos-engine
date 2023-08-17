@@ -290,6 +290,14 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _debugRenderer: Graphics | null = null;
+    /**
+     * @engineInternal
+     */
+    public _startSlotIndex;
+    /**
+     * @engineInternal
+     */
+    public _endSlotIndex;
 
     private _slotTextures: Map<number, Texture2D> | null = null;
 
@@ -298,7 +306,8 @@ export class Skeleton extends UIRenderer {
         this._useVertexOpacity = true;
         this._startEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
         this._endEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
-
+        this._startSlotIndex = -1;
+        this._endSlotIndex = -1;
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
         }
@@ -620,69 +629,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    get data (): spine.SkeletonData | null {
-        if (this._skeletonData) {
-            return this._skeleton.data;
-        }
-        return null;
-    }
-
-    get bones (): Array<spine.Bone> | null {
-        if (this._skeleton) {
-            return this._skeleton.bones;
-        }
-        return null;
-    }
-
-    get slots (): Array<spine.Slot> | null {
-        if (this._skeleton) {
-            return this._skeleton.slots;
-        }
-        return null;
-    }
-
-    get drawOrder (): Array<spine.Slot> | null {
-        if (this._skeleton) {
-            return this._skeleton.drawOrder;
-        }
-        return null;
-    }
-
-    get ikConstraints (): Array<spine.IkConstraint> | null {
-        if (this._skeleton) {
-            return this._skeleton.ikConstraints;
-        }
-        return null;
-    }
-
-    get transformConstraints (): Array<spine.TransformConstraint> | null {
-        if (this._skeleton) {
-            return this._skeleton.transformConstraints;
-        }
-        return null;
-    }
-
-    get pathConstraints (): Array<spine.PathConstraint> | null {
-        if (this._skeleton) {
-            return this._skeleton.pathConstraints;
-        }
-        return null;
-    }
-
-    get time (): number {
-        if (this._skeleton) {
-            return this._skeleton.time;
-        }
-        return 0;
-    }
-
-    get skin (): spine.Skin | null {
-        if (this._skeleton) {
-            return this._skeleton.skin;
-        }
-        return null;
-    }
-
     public __preload (): void {
         super.__preload();
         this._updateSkeletonData();
@@ -810,6 +756,19 @@ export class Skeleton extends UIRenderer {
         this._flushAssembler();
     }
 
+        /**
+     * @en Sets slots visible range.
+     * @zh 设置骨骼插槽可视范围。
+     */
+    public setSlotsRange (startSlotIndex, endSlotIndex) {
+        if (this.isAnimationCached()) {
+            warn('Slots visible range can not be modified in cached mode.');
+        } else {
+            this._startSlotIndex = startSlotIndex;
+            this._endSlotIndex = endSlotIndex;
+        }
+    }
+
     /**
      * @en
      * Returns the attachment for the slot and attachment name.
@@ -824,19 +783,12 @@ export class Skeleton extends UIRenderer {
      * @param {String} attachmentName
      * @return {sp.spine.Attachment}
      */
-    public getAttachmentByName (slotName: string, attachmentName: string): spine.Attachment | null {
+    public getAttachment (slotName: string, attachmentName: string): spine.Attachment | null {
         if (this._skeleton) {
             return this._skeleton.getAttachmentByName(slotName, attachmentName);
         }
         return null;
-    }
-
-    public getAttachment (slotIndex: number, attachmentName: string): spine.Attachment | null {
-        if (this._skeleton) {
-            return this._skeleton.getAttachment(slotIndex, attachmentName);
-        }
-        return null;
-    }
+    } 
 
     /**
      * @en
@@ -855,6 +807,17 @@ export class Skeleton extends UIRenderer {
         }
         this.invalidAnimationCache();
     }
+
+    /**
+     * @en
+     * Get Texture Atlas used in attachments.
+     * @zh 获取附件图集。
+     * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
+     * @return TextureRegion contains texture and atlas text information.
+     */
+        public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment) {
+            return (regionAttachment as spine.RegionAttachment).region;
+        }
 
     /**
      * @en Set the current animation. Any queued animations are cleared.<br>
@@ -1006,12 +969,6 @@ export class Skeleton extends UIRenderer {
             }
         }
         this.invalidAnimationCache();
-    }
-
-    public setNewSkin (newSkin: spine.Skin): void {
-        if (this._skeleton) {
-            this._skeleton.setSkin(newSkin);
-        }
     }
 
     /**
@@ -1372,13 +1329,6 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    public getRootBone (): spine.Bone | null {
-        if (this._skeleton) {
-            return this._skeleton.getRootBone();
-        }
-        return null;
-    }
-
     /**
      * @en
      * Invalidates the animation cache, which is then recomputed on each frame.
@@ -1412,13 +1362,6 @@ export class Skeleton extends UIRenderer {
         return null;
     }
 
-    public findBoneIndex (boneName: string): number {
-        if (this._skeleton) {
-            return this._skeleton.findBoneIndex(boneName);
-        }
-        return 0;
-    }
-
     /**
      * @en
      * Finds a slot by name. This does a string comparison for every slot.<br>
@@ -1434,13 +1377,6 @@ export class Skeleton extends UIRenderer {
             return this._skeleton.findSlot(slotName);
         }
         return null;
-    }
-
-    public findSlotIndex (slotName: string): number {
-        if (this._skeleton) {
-            return this._skeleton.findSlotIndex(slotName);
-        }
-        return 0;
     }
 
     // ANIMATION
