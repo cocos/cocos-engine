@@ -38,7 +38,7 @@ const upperBound = { x: 0, y: 0 };
 function getFilter (shape: B2Shape2D): B2.Filter {
     const comp = shape.collider;
     if (comp.body) {
-        tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body.group : comp.group;
+        tempFilter.categoryBits = (comp.group as PhysicsGroup) === PhysicsGroup.DEFAULT ? comp.body.group : comp.group;
     } else {
         tempFilter.categoryBits = comp.group;
     }

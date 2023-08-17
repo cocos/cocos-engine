@@ -23,4 +23,5 @@
  THE SOFTWARE.
  */
 
+// eslint-disable-next-line no-restricted-exports
 export { waitForBox2dWasmInstantiation as default } from '../cocos/physics-2d/box2d-wasm/instantiated';

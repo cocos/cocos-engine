@@ -88,7 +88,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: any | null = null;
+    _debugGraphics: any = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -132,6 +132,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 3;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
             this._b2DebugDrawer = debugDraw;
             this._world.SetDebugDraw(debugDraw);
@@ -177,7 +178,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         callback.init(type, mask);
         this._world.RayCast(callback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = callback.getFixtures() as b2.Fixture[];
         if (fixtures.length > 0) {
             const points = callback.getPoints();
             const normals = callback.getNormals();
@@ -299,10 +300,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
         // read private property
         const compPrivate = comp as any;
-        const linearVelocity = compPrivate._linearVelocity;
+        const linearVelocity = compPrivate._linearVelocity as Vec2;
         bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity);
+        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
         b2Body.m_userData = body;

@@ -71,6 +71,6 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         tempB2Vec2_1.y = offsetY;
         shape.SetAsBoxWithCenterAndAngle(width, height, tempB2Vec2_1, 0);
 
-        return [shape];
+        return [shape as unknown as B2.PolygonShape];
     }
 }
