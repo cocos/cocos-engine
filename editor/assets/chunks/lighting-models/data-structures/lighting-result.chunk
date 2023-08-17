@@ -24,6 +24,8 @@ struct LightingResult
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec3 directTransmitDiffuse, environmentTransmitDiffuse;
 #endif
+  // used for retro/internal-reflection such as TRT, Dual-Lobe Specular, Sheen...
+  // multi-layer (coat) just temporary use here, it should be moved to LightingResultPerLayer member
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
   vec3 direct2ndSpecular, environment2ndSpecular;
   vec3 specularColorWithLighting2ndSpecular;
