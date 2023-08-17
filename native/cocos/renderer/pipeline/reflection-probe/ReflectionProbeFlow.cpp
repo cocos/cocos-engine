@@ -63,6 +63,11 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = scene::ReflectionProbeManager::getInstance()->getAllProbes();
     for (auto *probe : probes) {
+#if CC_EDITOR
+        if (camera->getCameraUsage() != scene::CameraUsage::SCENE_VIEW) {
+            continue;
+        }
+#endif
         if (probe->needRender()) {
             renderStage(camera, probe);
         }
@@ -81,9 +86,13 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
                 //update camera dirction
                 probe->updateCameraDir(faceIdx);
-                RenderTexture *rt = probe->getBakedCubeTextures()[faceIdx];
+                ccstd::vector<IntrusivePtr<cc::RenderTexture>> cubeFaces = probe->getBakedCubeTextures();
+                if (cubeFaces.empty()) {
+                    probe->setNeedRender(false);
+                    return;
+                }
                 auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
-                reflectionProbeStage->setUsage(rt->getWindow()->getFramebuffer(), probe);
+                reflectionProbeStage->setUsage(cubeFaces[faceIdx]->getWindow()->getFramebuffer(), probe);
                 reflectionProbeStage->render(camera);
             }
             probe->setNeedRender(false);

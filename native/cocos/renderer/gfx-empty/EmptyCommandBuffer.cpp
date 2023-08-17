@@ -45,6 +45,15 @@ void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 void EmptyCommandBuffer::endRenderPass() {
 }
 
+void EmptyCommandBuffer::insertMarker(const MarkerInfo &marker) {
+}
+
+void EmptyCommandBuffer::beginMarker(const MarkerInfo &marker) {
+}
+
+void EmptyCommandBuffer::endMarker() {
+}
+
 void EmptyCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
 }
 

@@ -626,6 +626,7 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public onRestore (): void {
 
     }
@@ -730,8 +731,10 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData!.uuid, skeletonData);
-            this._skeleton = skeletonInfo.skeleton;
+            if (this.skeletonData) {
+                const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
+                this._skeleton = skeletonInfo.skeleton;
+            }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
             this._state = this._instance.getAnimationState();
@@ -993,15 +996,7 @@ export class Skeleton extends UIRenderer {
             for (let i = 0; i < this._drawList.length; i++) {
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(
-                        this,
-                        meshBuffer,
-                        origin + dc.indexOffset,
-                        dc.indexCount,
-                        dc.texture,
-                        dc.material!,
-                        this._enableBatch,
-                    );
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset, dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -1189,7 +1184,7 @@ export class Skeleton extends UIRenderer {
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode): void {
-        if (this._preCacheMode !== cacheMode) {
+        if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._updateSkeletonData();
@@ -1407,7 +1402,7 @@ export class Skeleton extends UIRenderer {
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
-            const boneName = getBoneName(bones[i]);
+            const boneName: string = getBoneName(bones[i]);
             this._cachedSockets.set(boneName, bd.index);
         }
     }
@@ -1473,7 +1468,9 @@ export class Skeleton extends UIRenderer {
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
-                if (!JSB) this._instance.setDebugMode(false);
+                if (this._instance) {
+                    this._instance.setDebugMode(false);
+                }
             }
         }
     }

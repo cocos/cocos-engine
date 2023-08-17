@@ -48,13 +48,12 @@ export class ClipMotion extends Motion {
 
     public [createEval] (
         context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
     ): ClipMotionEval | null {
         if (!this.clip) {
             return null;
         }
-        const clipMotionEval = new ClipMotionEval(context, this.clip, overrides, ignoreEmbeddedPlayers);
+        const clipMotionEval = new ClipMotionEval(context, this.clip, ignoreEmbeddedPlayers);
         if (RUNTIME_ID_ENABLED) {
             clipMotionEval.runtimeId = getMotionRuntimeID(this);
         }
@@ -82,12 +81,11 @@ class ClipMotionEval implements MotionEval {
     constructor (
         context: AnimationGraphBindingContext,
         clip: AnimationClip,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
     ) {
         this._originalClip = clip;
         this._ignoreEmbeddedPlayers = ignoreEmbeddedPlayers;
-        const overriding = clipOverrides?.get(clip) ?? clip;
+        const overriding = context.clipOverrides?.get(clip) ?? clip;
         this._setClip(overriding, context);
     }
 
@@ -160,15 +158,15 @@ class ClipMotionEval implements MotionEval {
         return pose;
     }
 
-    public overrideClips (clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         const { _originalClip: originalClip } = this;
-        const overriding = clipOverrides.get(originalClip);
+        const overriding = context.clipOverrides?.get(originalClip);
         if (overriding) {
             this._setClip(overriding, context);
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         this._frameEventEval?.reset();
     }
 
@@ -216,7 +214,7 @@ class ClipMotionPort implements MotionPort {
         return this._eval[evaluatePortTag](progress, context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._eval.reenter();
     }
 

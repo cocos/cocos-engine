@@ -416,17 +416,8 @@ void Pass::resetUBOs() {
             ofs += size;
         }
     };
-    auto *programLib = render::getProgramLibrary();
-    if (programLib) {
-        const auto &set = _shaderInfo->descriptors.at(
-            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
-        for (const auto &block : set.blocks) {
-            updateBuffer(block);
-        }
-    } else {
-        for (const auto &u : _shaderInfo->blocks) {
-            updateBuffer(u);
-        }
+    for (const auto &u : _shaderInfo->blocks) {
+        updateBuffer(u);
     }
     _rootBufferDirty = true;
 }
@@ -507,6 +498,10 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
         _defines[patch.name] = patch.value;
     }
 
+    if (isBlend()) {
+        _defines["CC_IS_TRANSPARENCY_PASS"] = MacroValue(true);
+    }
+
     gfx::Shader *shader = nullptr;
     auto *programLib = render::getProgramLibrary();
     if (programLib) {
@@ -525,6 +520,17 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
         }
     }
     return shader;
+}
+
+bool Pass::isBlend() {
+    bool isBlend = false;
+    for (const auto target : _blendState.targets) {
+        if (target.blend) {
+            isBlend = true;
+        }
+    }
+
+    return isBlend;
 }
 
 IPassInfoFull Pass::getPassInfoFull() const {

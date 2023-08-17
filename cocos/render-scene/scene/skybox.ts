@@ -365,7 +365,8 @@ export class Skybox {
         const pipeline = root.pipeline;
 
         const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
-        const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
+        const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap && this.diffuseMap !== this._default)
+            ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
         const useConvMapValue = this.useConvolutionMap;
 

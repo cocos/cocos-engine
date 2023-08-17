@@ -246,6 +246,10 @@ void cmdFuncGLES2BlitTexture(GLES2Device *device,
 
 void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);
 
+void cmdFuncGLES2InsertMarker(GLES2Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES2PushGroupMarker(GLES2Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES2PopGroupMarker(GLES2Device *device);
+
 GLint cmdFuncGLES2GetMaxSampleCount();
 
 } // namespace gfx

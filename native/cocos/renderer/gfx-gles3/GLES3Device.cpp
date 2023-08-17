@@ -148,6 +148,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     }
 
+    if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
+        _gpuConstantRegistry->debugMarker = true;
+    }
+
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
         fbfLevelStr                += "_DEPTH_STENCIL";
@@ -604,7 +608,7 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(GLES3DeviceCopyTextureToBuffers);
-    cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
+    cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTextureView(), buffers, regions, count);
 }
 
 void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {

@@ -30,6 +30,7 @@ CCEffect %{
         gradientIntensity:                { value: 0.5, target: emissiveScaleParam.y, editor: { parent: USE_GRADIENT_COLOR, slide: true, range: [0, 1.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
+        coatDataMap:                      { value: white, editor: { parent: USE_COAT_DATA_MAP, tooltip: 'r: Coat Roughness g: Coat Specular Intensity b: Coat Opacity.' } }
         coatNormalMap:                    { value: normal, editor: { parent: USE_FLAKE } }
         flakeDataMap:                     { value: white, editor: { parent: USE_FLAKE } }
         pbrMap:                           { value: grey }
@@ -193,6 +194,9 @@ CCProgram surface-fragment %{
     uniform sampler2D coatNormalMap;
     uniform sampler2D flakeDataMap;
   #endif
+  #if USE_COAT_DATA_MAP
+    uniform sampler2D coatDataMap;
+  #endif
 
   #pragma define OCCLUSION_CHANNEL          r
   #pragma define ROUGHNESS_CHANNEL          g
@@ -206,7 +210,12 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_PARAMS
   vec4 SurfacesFragmentModifyClearCoatParams()
   {
-    return vec4(coatParam.x, coatParam.y - 0.99, coatParam.z, coatParam.w * 2.0);
+    vec4 params = vec4(coatParam.x, coatParam.y - 0.99, coatParam.z, coatParam.w * 2.0);
+    #if USE_COAT_DATA_MAP
+      vec4 coatData = texture(coatDataMap, FSInput_texcoord);
+      params *= vec4(coatData.r, 1.0, coatData.b, coatData.g);
+    #endif
+    return params;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_CLEAR_COAT_COLOR

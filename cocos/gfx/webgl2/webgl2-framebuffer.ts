@@ -77,7 +77,7 @@ export class WebGL2Framebuffer extends Framebuffer {
             },
             get height (): number {
                 if (this.isOffscreen) {
-                    return width;
+                    return height;
                 } else if (this.gpuColorViews.length > 0) {
                     return this.gpuColorViews[0].gpuTexture.height;
                 } else {

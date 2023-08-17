@@ -1,4 +1,5 @@
 import { AnimationController } from "../../../../../cocos/animation/animation";
+import { AnimationGraphVariant } from "../../../../../cocos/animation/marionette/animation-graph-variant";
 import { lerp } from "../../../../../exports/base";
 import { AnimationGraphEvalMock } from "../../utils/eval-mock";
 import { createAnimationGraph, StateMachineParams, VariableDeclarationParams } from "../../utils/factory";
@@ -187,4 +188,49 @@ describe(`Reentering`, () => {
             },
         };
     }
+});
+
+test(`Clip overriding in state machine node`, () => {
+    const fixture = {
+        animation_1: new LinearRealValueAnimationFixture(1., 2., 3.),
+        animation_2: new LinearRealValueAnimationFixture(-0.5, -3, 1),
+    };
+
+    const valueObserver = new SingleRealValueObserver();
+
+    const motion1 = fixture.animation_1.createMotion(valueObserver.getCreateMotionContext());
+    const motion2 = fixture.animation_2.createMotion(valueObserver.getCreateMotionContext());
+
+    const animationGraph = createAnimationGraph({
+        layers: [{
+            // Outer SM.
+            stateMachine: {
+                entryTransitions: [{ to: 'innerSM' }],
+                states: {
+                    'innerSM': {
+                        type: 'procedural',
+                        graph: {
+                            rootNode: {
+                                'type': 'state-machine',
+                                // Inner SM.
+                                stateMachine: {
+                                    entryTransitions: [{ to: 'm' }],
+                                    states: { 'm': { type: 'motion', motion: motion1 } },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }],
+    });
+
+    const animationGraphVariant = new AnimationGraphVariant();
+    animationGraphVariant.original = animationGraph;
+    animationGraphVariant.clipOverrides.set(motion1.clip, motion2.clip);
+
+    const evalMock = new AnimationGraphEvalMock(valueObserver.root, animationGraphVariant);
+
+    evalMock.step(fixture.animation_2.duration * 0.3);
+    expect(valueObserver.value).toBeCloseTo(fixture.animation_2.getExpected(evalMock.current), 5);
 });

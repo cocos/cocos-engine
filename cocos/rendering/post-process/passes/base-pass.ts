@@ -55,7 +55,7 @@ export abstract class BasePass {
     abstract name: string;
     effectName = 'pipeline/post-process/blit-screen';
 
-    _id = 0
+    _id = 0;
     constructor () {
         this._id = _BasePassID++;
     }
@@ -65,7 +65,7 @@ export abstract class BasePass {
 
     // private _materialMap: Map<Camera, Material> = new Map()
 
-    _material: Material | undefined
+    _material: Material | undefined;
     get material (): Material {
         const effectReloaded = false;
         // if (EDITOR && this._material) {
@@ -97,7 +97,7 @@ export abstract class BasePass {
     }
 
     enable = true;
-    outputNames: string[] = []
+    outputNames: string[] = [];
 
     lastPass: BasePass | undefined;
 

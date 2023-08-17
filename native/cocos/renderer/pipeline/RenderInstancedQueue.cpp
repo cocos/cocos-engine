@@ -68,7 +68,7 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Re
             cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             gfx::PipelineState *lastPSO = nullptr;
             for (const auto &instance : instances) {
-                if (!instance.count) {
+                if (!instance.drawInfo.instanceCount) {
                     continue;
                 }
                 auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);

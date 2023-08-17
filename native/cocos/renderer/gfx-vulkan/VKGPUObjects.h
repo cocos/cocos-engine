@@ -62,6 +62,8 @@ public:
     uint32_t minorVersion = 0;
 
     bool validationEnabled = false;
+    bool debugUtils = false;
+    bool debugReport = false;
 
     ccstd::vector<const char *> layers;
     ccstd::vector<const char *> extensions;
