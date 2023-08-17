@@ -429,12 +429,6 @@ void MeshUtils::decodeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
         auto vertex = Uint8Array(data.buffer(), view.offset, view.length);
         int res = meshopt_decodeVertexBuffer(buffer->getData(), view.count, view.stride, vertex.buffer()->getData() + vertex.byteOffset(), view.length);
         if (res < 0) {
-            auto dataView = Uint8Array(vertex.buffer(), view.offset, view.length);
-            CC_LOG_INFO("data view [0] %d", dataView[0]);
-            CC_LOG_INFO("data view [1] %d", dataView[1]);
-            CC_LOG_INFO("data view [2] %d", dataView[2]);
-            CC_LOG_INFO("data view [3] %d", dataView[3]);
-            CC_LOG_INFO("data view [4] %d", dataView[4]);
             assert(false && "failed to decode vertex buffer");
         }
 

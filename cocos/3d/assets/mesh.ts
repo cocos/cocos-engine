@@ -711,12 +711,6 @@ export class Mesh extends Asset {
      */
     public reset (info: Mesh.ICreateInfo): void {
         this.destroyRenderingMesh();
-        // if (info.struct.compressed) {
-        //     info = inflateMesh(info);
-        // }
-        // if (info.struct.encoded) {
-        //     info = decodeMesh(info);
-        // }
         this._struct = info.struct;
         this._data = info.data;
         this._hash = 0;
