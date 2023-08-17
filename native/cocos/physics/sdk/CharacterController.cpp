@@ -68,6 +68,10 @@ void CLASS::move(float x, float y, float z, float minDist, float elapsedTime) { 
     _impl->move(x, y, z, minDist, elapsedTime);                                 \
 }                                                                               \
                                                                                 \
+void CLASS::syncPhysicsToScene() {                                              \
+    _impl->syncPhysicsToScene();                                                \
+}                                                                               \
+                                                                                \
 void CLASS::setStepOffset(float v) {                                            \
     _impl->setStepOffset(v);                                                    \
 }                                                                               \
