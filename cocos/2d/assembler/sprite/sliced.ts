@@ -49,7 +49,7 @@ export const sliced: IAssembler = {
         renderData.resize(16, 54);
         this.QUAD_INDICES = new Uint16Array(54);
         this.createQuadIndices(4, 4);
-        renderData.chunk.setIndexBuffer(this.QUAD_INDICES as Uint16Array);
+        renderData.chunk.setIndexBuffer(this.QUAD_INDICES);
         return renderData;
     },
 
