@@ -296,7 +296,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p: IParticleModule = this._animateList[PARTICLE_MODULE_ORDER[i]];
             if (p) {
                 this._runAnimateList.push(p);
             }
