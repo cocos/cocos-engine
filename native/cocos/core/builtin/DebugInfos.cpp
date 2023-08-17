@@ -445,6 +445,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 12009, "GeometryRenderer: too many triangles." },
 { 12010, "PassUtils: illegal uniform handle, accessing uniform at offset %d" },
 { 12011, "Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s" },
+{ 12012, "Can't set a material instance to a sharedMaterial slot" },
 { 12100, "The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size." },
 { 12101, "The asset %s has been destroyed!" },
 { 12102, "Base pass cannot override states, please use pass instance instead." },
