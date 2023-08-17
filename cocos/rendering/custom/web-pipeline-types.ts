@@ -74,9 +74,10 @@ function getPassIndexFromLayout (subModel: SubModel, phaseLayoutId: number): num
 }
 
 export class ProbeHelperQueue {
-    probeMap: Map<SubModel, number> = new Map<SubModel, number>();
+    probeMap: Array<SubModel> = new Array<SubModel>();
+    defaultId: number = getLayoutId('default', 'default');
     removeMacro (): void {
-        for (const [subModel] of this.probeMap) {
+        for (const subModel of this.probeMap) {
             let patches: IMacroPatch[] = [];
             patches = patches.concat(subModel.patches!);
             if (!patches.length) continue;
@@ -104,7 +105,7 @@ export class ProbeHelperQueue {
             let passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
             let bUseReflectPass = true;
             if (passIdx < 0) {
-                probeLayoutId = getLayoutId('default', 'default');
+                probeLayoutId = this.defaultId;
                 passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
                 bUseReflectPass = false;
             }
@@ -117,8 +118,8 @@ export class ProbeHelperQueue {
                 ];
                 patches = patches.concat(useRGBEPatchs);
                 subModel.onMacroPatchesStateChanged(patches);
+                this.probeMap.push(subModel);
             }
-            this.probeMap.set(subModel, probeLayoutId);
         }
     }
 }
@@ -316,7 +317,7 @@ export class RenderQueue extends UpdateRecyclePool {
     }
 
     update (): void {
-        this.probeQueue.probeMap.clear();
+        this.probeQueue.probeMap.length = 0;
         this.opaqueQueue.instances.length = 0;
         this.transparentQueue.instances.length = 0;
         this._clearInstances(this.opaqueInstancingQueue.batches);

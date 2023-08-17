@@ -222,8 +222,8 @@ function addRenderObject (
         const subModel = subModels[subModelIdx];
         const passes = subModel.passes;
         const passCount = passes.length;
-        const probePhase = probeQueue.probeMap.get(subModel);
-        if (probePhase !== undefined) phaseLayoutId = probePhase;
+        const probePhase = probeQueue.probeMap.includes(subModel);
+        if (probePhase) phaseLayoutId = probeQueue.defaultId;
         for (let passIdx = 0; passIdx < passCount; ++passIdx) {
             if (model === skyboxModel && !subModelIdx && !passIdx && isDrawOpaqueOrMask) {
                 queue.opaqueQueue.add(model, computeSortingDepth(camera, model), subModelIdx, passIdx);
