@@ -44,6 +44,9 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
+import { sp } from 'typedoc-index';
+import { IKConstraint, Slot } from '@cocos/dragonbones-js';
+import { Skin } from 'cocos/render-scene/scene';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
@@ -95,7 +98,7 @@ interface AnimationItem {
 }
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal 
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -103,7 +106,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -111,7 +114,7 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum.
+ * @engineInternal
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -125,7 +128,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal Since v3.7.2, this is an engine private interface.
+ * @engineInternal
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -253,11 +256,11 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
     /**
-     * @internal
+     * @engineInternal
      */
     public _startEntry: spine.TrackEntry;
     /**
-     * @internal
+     * @engineInternal
      */
     public _endEntry: spine.TrackEntry;
     // Paused or playing state
@@ -306,7 +309,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
 
@@ -342,7 +345,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface
+     * @engineInternal
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -368,7 +371,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -393,7 +396,7 @@ export class Skeleton extends UIRenderer {
 
     // value of 0 represents no animation
     /**
-     * @internal
+     * @engineInternal
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -416,7 +419,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @engineInternal
      */
     set _animationIndex (value: number) {
         let animsEnum;
@@ -620,15 +623,81 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    get data (): spine.SkeletonData | null {
+        if (this._skeletonData) {
+            return this._skeleton.data
+        }
+        return null;
+    }
+
+    get bones (): Array<spine.Bone> | null {
+        if (this._skeleton) {
+            return this._skeleton.bones;
+        }
+        return null;
+    }
+
+    get slots (): Array<spine.Slot> | null {
+        if (this._skeleton) {
+            return this._skeleton.slots;
+        }
+        return null;
+    }
+
+    get drawOrder(): Array<spine.Slot> | null {
+        if (this._skeleton) {
+            return this._skeleton.drawOrder;
+        }
+        return null;
+    }
+
+    get ikConstraints(): Array<spine.IkConstraint> | null {
+        if (this._skeleton) {
+            return this._skeleton.ikConstraints;
+        }
+        return null;
+    }
+
+    get transformConstraints(): Array<spine.TransformConstraint> | null {
+        if (this._skeleton) {
+            return this._skeleton.transformConstraints;
+        }
+        return null;
+    }
+
+    get pathConstraints(): Array<spine.PathConstraint> | null {
+        if (this._skeleton) {
+            return this._skeleton.pathConstraints;
+        }
+        return null;
+    }
+
+    get time(): number {
+        if(this._skeleton) {
+            return this._skeleton.time;
+        }
+        return 0;
+    }
+
+    get skin(): spine.Skin | null {
+        if(this._skeleton) {
+            return this._skeleton.skin;
+        }
+        return null;
+    }
+
     public __preload (): void {
         super.__preload();
         this._updateSkeletonData();
         this._updateDebugDraw();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    /**
+     * @engineInternal
+     */
     public onRestore (): void {
-
+        this.updateMaterial ();
+        this.markForUpdateRenderData ();
     }
     /**
      * @en Gets the animation state object.
@@ -745,6 +814,52 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
+     * @en
+     * Returns the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment object.
+     * @zh
+     * 通过 slot 和 attachment 的名称获取 attachment。Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment 对象。
+     *
+     * @method getAttachment
+     * @param {String} slotName
+     * @param {String} attachmentName
+     * @return {sp.spine.Attachment}
+     */
+    public getAttachmentByName (slotName: string, attachmentName: string): spine.Attachment | null {
+        if (this._skeleton) {
+            return this._skeleton.getAttachmentByName(slotName, attachmentName);
+        }
+        return null;
+    }
+
+    public getAttachment(slotIndex: number, attachmentName: string): spine.Attachment | null {
+        if (this._skeleton) {
+            return this._skeleton.getAttachment(slotIndex, attachmentName);
+        }
+        return null;
+    }
+
+    /**
+     * @en
+     * Sets the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * @zh
+     * 通过 slot 和 attachment 的名字来设置 attachment。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
+     * @method setAttachment
+     * @param {String} slotName
+     * @param {String} attachmentName
+     */
+    public setAttachment (slotName: string, attachmentName: string) {
+        if (this._skeleton) {
+            this._skeleton.setAttachment(slotName, attachmentName);
+        }
+        this.invalidAnimationCache();
+    }
+
+    /**
      * @en Set the current animation. Any queued animations are cleared.<br>
      * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
      * @param trackIndex @en Index of track. @zh 动画通道索引。
@@ -791,6 +906,27 @@ export class Skeleton extends UIRenderer {
         }
         this.markForUpdateRenderData();
         return trackEntry;
+    }
+
+    public findIkConstraint(constraintName: string): spine.IkConstraint | null {
+        if (this._skeleton) {
+            return this._skeleton.findIkConstraint(constraintName);
+        }
+        return null;
+    }
+
+    public findTransformConstraint(constraintName: string): spine.TransformConstraint | null {
+        if (this._skeleton) {
+            return this._skeleton.findTransformConstraint(constraintName);
+        }
+        return null;
+    }
+
+    public findPathConstraint(constraintName: string): spine.PathConstraint | null {
+        if(this._skeletonData) {
+            return this._skeleton.findPathConstraint(constraintName);
+        }
+        return null;
     }
 
     /**
@@ -873,6 +1009,12 @@ export class Skeleton extends UIRenderer {
             }
         }
         this.invalidAnimationCache();
+    }
+
+    public setNewSkin (newSkin: spine.Skin) {
+        if (this._skeleton) {
+            this._skeleton.setSkin(newSkin);
+        }
     }
 
     /**
@@ -1052,7 +1194,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal 
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1157,7 +1299,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @engineInternal
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
@@ -1233,6 +1375,13 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    public getRootBone (): spine.Bone | null {
+        if (this._skeleton) {
+            return this._skeleton.getRootBone();
+        }
+        return null;
+    }
+
     /**
      * @en
      * Invalidates the animation cache, which is then recomputed on each frame.
@@ -1266,6 +1415,13 @@ export class Skeleton extends UIRenderer {
         return null;
     }
 
+    public findBoneIndex (boneName: string): number {
+        if (this._skeleton) {
+            return this._skeleton.findBoneIndex(boneName);
+        }
+        return 0;
+    }
+
     /**
      * @en
      * Finds a slot by name. This does a string comparison for every slot.<br>
@@ -1281,6 +1437,13 @@ export class Skeleton extends UIRenderer {
             return this._skeleton.findSlot(slotName);
         }
         return null;
+    }
+
+    public findSlotIndex (slotName: string): number {
+        if (this._skeleton) {
+            return this._skeleton.findSlotIndex(slotName);
+        }
+        return 0;
     }
 
     // ANIMATION
