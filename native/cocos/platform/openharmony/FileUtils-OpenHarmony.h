@@ -29,11 +29,10 @@
 #include <rawfile/raw_dir.h>
 #include <rawfile/raw_file.h>
 #include <rawfile/raw_file_manager.h>
-#include "base/Macros.h"
-#include "cocos/platform/FileUtils.h"
 #include <napi/native_api.h>
 
-class NativeResourceManager;
+#include "base/Macros.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 
@@ -62,13 +61,10 @@ public:
     bool removeDirectory(const std::string &dirPath) override;
 
     static std::string _ohWritablePath;
-
 private:
     bool isFileExistInternal(const std::string &strFilePath) const override;
-
     bool isDirectoryExistInternal(const std::string &dirPath) const override;
 
-    friend class FileUtils;
     static NativeResourceManager* _nativeResourceManager;
 };
 

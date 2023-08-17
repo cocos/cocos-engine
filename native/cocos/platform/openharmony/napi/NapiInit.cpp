@@ -23,26 +23,18 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <ace/xcomponent/native_interface_xcomponent.h>
+#include "NapiHelper.h"
+#include "napi.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 #include "napi_macros.h"
 #include <hilog/log.h>
 
-#define LOGE(...) ((void) OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "HMG_LOG", __VA_ARGS__))
-
-const char kLibname[] = "cocos";
+static const char kLibname[] = "cocos";
 /*
  * function for module exports
  */
 static napi_value init(napi_env env, napi_value exports) {
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getContext", cc::NapiHelper::getContext),
-    };
-
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-    bool ret = cc::NapiHelper::exportFunctions(env, exports);
-    if (!ret) {
-        LOGE("Init failed");
-    }
+    cc::NapiHelper::init(Napi::Env(env), Napi::Object(env, exports));
     return exports;
 }
 

@@ -249,16 +249,16 @@ void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
 }
 
 void OpenHarmonyWebView::GetInterfaces(std::vector<napi_property_descriptor> &descriptors) {
-    descriptors = {
-        DECLARE_NAPI_FUNCTION("shouldStartLoading", OpenHarmonyWebView::napiShouldStartLoading),
-        DECLARE_NAPI_FUNCTION("finishLoading", OpenHarmonyWebView::napiFinishLoading),
-        DECLARE_NAPI_FUNCTION("failLoading", OpenHarmonyWebView::napiFailLoading),
-        DECLARE_NAPI_FUNCTION("jsCallback", OpenHarmonyWebView::napiJsCallback),
-    };
+//cjh    descriptors = {
+//        DECLARE_NAPI_FUNCTION("shouldStartLoading", OpenHarmonyWebView::napiShouldStartLoading),
+//        DECLARE_NAPI_FUNCTION("finishLoading", OpenHarmonyWebView::napiFinishLoading),
+//        DECLARE_NAPI_FUNCTION("failLoading", OpenHarmonyWebView::napiFailLoading),
+//        DECLARE_NAPI_FUNCTION("jsCallback", OpenHarmonyWebView::napiJsCallback),
+//    };
 }
 
 napi_value OpenHarmonyWebView::napiShouldStartLoading(napi_env env, napi_callback_info info) {
-//    size_t      argc = 2;
+//cjh    size_t      argc = 2;
 //    napi_value  args[2];
 //    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 //
@@ -276,7 +276,7 @@ napi_value OpenHarmonyWebView::napiShouldStartLoading(napi_env env, napi_callbac
 }
 
 napi_value OpenHarmonyWebView::napiFinishLoading(napi_env env, napi_callback_info info) {
-//    size_t      argc = 2;
+//cjh    size_t      argc = 2;
 //    napi_value  args[2];
 //    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 //
@@ -294,7 +294,7 @@ napi_value OpenHarmonyWebView::napiFinishLoading(napi_env env, napi_callback_inf
 }
 
 napi_value OpenHarmonyWebView::napiFailLoading(napi_env env, napi_callback_info info) {
-//    size_t      argc = 2;
+//cjh    size_t      argc = 2;
 //    napi_value  args[2];
 //    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 //
@@ -312,7 +312,7 @@ napi_value OpenHarmonyWebView::napiFailLoading(napi_env env, napi_callback_info 
 }
 
 napi_value OpenHarmonyWebView::napiJsCallback(napi_env env, napi_callback_info info) {
-//    size_t      argc = 2;
+//cjh    size_t      argc = 2;
 //    napi_value  args[2];
 //    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 //

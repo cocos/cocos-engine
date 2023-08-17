@@ -173,7 +173,6 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
     void*             window          = nullptr;
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
-    CC_LOG_INFO("cjh onMessageCallback ...");
     while (true) {
         //loop until all msg dispatch
         if (!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
@@ -250,7 +249,7 @@ void OpenHarmonyPlatform::timerCb(uv_timer_t* handle) {
     OpenHarmonyPlatform::getInstance()->runTask();
 }
 
-void OpenHarmonyPlatform::workerInit(napi_env env, uv_loop_t* loop) {
+void OpenHarmonyPlatform::workerInit(uv_loop_t* loop) {
     _workerLoop = loop;
     if (_workerLoop) {
         uv_async_init(_workerLoop, &_messageSignal, reinterpret_cast<uv_async_cb>(OpenHarmonyPlatform::onMessageCallback));

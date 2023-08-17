@@ -48,7 +48,7 @@ public:
     void onHideNative();
     void onDestroyNative();
 
-    void workerInit(napi_env env, uv_loop_t* loop);
+    void workerInit(uv_loop_t* loop);
 
     void setNativeXComponent(OH_NativeXComponent* component);
 

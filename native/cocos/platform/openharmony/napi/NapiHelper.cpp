@@ -26,11 +26,11 @@
 #include "platform/openharmony/napi/NapiHelper.h"
 #include <js_native_api.h>
 #include <js_native_api_types.h>
+
 #include "platform/openharmony/napi/napi_macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
-#include "bindings/jswrapper/SeApi.h"
 
 #if CC_USE_EDITBOX
     #include "ui/edit-box/EditBox-openharmony.h"
@@ -39,26 +39,7 @@
     #include "ui/webview/WebViewImpl-openharmony.h"
 #endif
 
-#include <hilog/log.h>
-
-#define LOGE(...) ((void) OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "HMG_LOG", __VA_ARGS__))
-
-#define NODE_API_CALL_BASE(env, the_call, ret_val) \
-    do {                                           \
-        if ((the_call) != napi_ok) {               \
-            assert(false);                         \
-        }                                          \
-    } while (0)
-
-// Returns nullptr if the_call doesn't return napi_ok.
-#define NODE_API_CALL(status, env, the_call) \
-    status = the_call;                       \
-    if (status != napi_ok)                   \
-        LOGE("error:%d", status);            \
-    NODE_API_CALL_BASE(env, status, nullptr)
-
 namespace cc {
-const int32_t kMaxStringLen = 512;
 
 // Must be the same as the value called by js
 enum ContextType {
@@ -73,13 +54,13 @@ enum ContextType {
     WEBVIEW_UTILS,
     UV_ASYNC_SEND,
 };
-NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
-NapiHelper::PostSyncMessage2UIThreadCb NapiHelper::_postSyncMsg2UIThreadCb;
+// NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
+// NapiHelper::PostSyncMessage2UIThreadCb NapiHelper::_postSyncMsg2UIThreadCb;
 
-static napi_value js_set_PostMessage2UIThreadCallback(napi_env env, napi_callback_info info) {
-    size_t argc = 1;
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
+static void js_set_PostMessage2UIThreadCallback(const Napi::CallbackInfo &info) {
+    // size_t argc = 1;
+    // napi_value result = nullptr;
+    // napi_get_undefined(env, &result);
     // napi_value argv = nullptr;
     // napi_value this_arg = nullptr;
     // napi_status status = napi_get_cb_info(env, info, &argc, &argv, &this_arg, nullptr);
@@ -112,11 +93,11 @@ static napi_value js_set_PostMessage2UIThreadCallback(napi_env env, napi_callbac
     //     return result;
     // }
     // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    
-    return result;
+
+    // return result;
 }
 
-static napi_value js_set_PostSyncMessage2UIThreadCallback(napi_env env, napi_callback_info info) {
+static void js_set_PostSyncMessage2UIThreadCallback(const Napi::CallbackInfo &info) {
     // const auto& args = s.args();
     // size_t argc = args.size();
     // CC_UNUSED bool ok = true;
@@ -150,230 +131,194 @@ static napi_value js_set_PostSyncMessage2UIThreadCallback(napi_env env, napi_cal
     // }
     // SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     // return false;
-    return nullptr;
+    // return nullptr;
 }
 
 // NAPI Interface
-napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
+static bool exportFunctions(Napi::Env env, Napi::Object exports) {
+    Napi::MaybeOrValue<Napi::Value> xcomponentObject = exports.Get(OH_NATIVE_XCOMPONENT_OBJ);
+    if (!xcomponentObject.IsObject()) {
+        CC_LOG_ERROR("Could not get property: %s", OH_NATIVE_XCOMPONENT_OBJ);
+        return false;
+    }
+
+    auto* nativeXComponent = Napi::ObjectWrap<OH_NativeXComponent>::Unwrap(xcomponentObject.As<Napi::Object>());
+    if (nativeXComponent == nullptr) {
+        CC_LOG_ERROR("nativeXComponent is nullptr");
+        return false;
+    }
+
+    char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
+    uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
+    int32_t ret = OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        CC_LOG_ERROR("OH_NativeXComponent_GetXComponentId failed");
+        return false;
+    }
+
+    OpenHarmonyPlatform::getInstance()->setNativeXComponent(nativeXComponent);
+    return true;
+}
+
+// APP Lifecycle
+static void napiOnCreate(const Napi::CallbackInfo &info) {
+    // uv_loop_t* loop = nullptr;
+    // NAPI_CALL(env, napi_get_uv_event_loop(env, &loop));
+    // OpenHarmonyPlatform::getInstance()->onCreateNative(env, loop);
+}
+
+static void napiOnShow(const Napi::CallbackInfo &info) {
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_SHOW, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
+}
+
+static void napiOnHide(const Napi::CallbackInfo &info) {
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_HIDE, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
+}
+
+static void napiOnDestroy(const Napi::CallbackInfo &info) {
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_DESTROY, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
+}
+
+// JS Page : Lifecycle
+static void napiOnPageShow(const Napi::CallbackInfo &info) {
+
+}
+
+static void napiOnPageHide(const Napi::CallbackInfo &info) {
+
+}
+
+static void napiNativeEngineInit(const Napi::CallbackInfo &info) {
+//cjh    se::ScriptEngine::setEnv(env);
+    CC_LOG_INFO("cjh napiNativeEngineInit ...");
+    OpenHarmonyPlatform::getInstance()->run(0, nullptr);
+}
+
+static void napiNativeEngineStart(const Napi::CallbackInfo &info) {
+    OpenHarmonyPlatform::getInstance()->requestVSync();
+}
+
+static void napiWorkerInit(const Napi::CallbackInfo &info) {
+    CC_LOG_INFO("cjh napiWorkerInit ...");
+    Napi::Env env = info.Env();
+    uv_loop_t* loop = nullptr;
+    NAPI_CALL_RETURN_VOID(napi_env(env), napi_get_uv_event_loop(napi_env(env), &loop));
+    OpenHarmonyPlatform::getInstance()->workerInit(loop);
+}
+
+static void napiResourceManagerInit(const Napi::CallbackInfo &info) {
+    if (info.Length() != 1) {
+        Napi::Error::New(info.Env(), "1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    FileUtilsOpenHarmony::initResourceManager(napi_env(info.Env()), napi_value(info[0]));
+}
+
+static void napiWritablePathInit(const Napi::CallbackInfo &info) {
+    if (info.Length() != 1) {
+        Napi::Error::New(info.Env(), "1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    if (!info[0].IsString()) {
+        Napi::Error::New(info.Env(), "string expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    FileUtilsOpenHarmony::_ohWritablePath = info[0].As<Napi::String>().Utf8Value();
+}
+
+static void napiASend(const Napi::CallbackInfo &info) {
+    OpenHarmonyPlatform::getInstance()->triggerMessageSignal();
+}
+
+// NAPI Interface
+static Napi::Value getContext(const Napi::CallbackInfo &info) {
     CC_LOG_INFO("cjh getContext ...");
-    napi_status status;
-    napi_value  exports;
-    size_t      argc = 1;
-    napi_value  args[1];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
 
+    Napi::Env env = info.Env();
+    size_t argc = info.Length();
     if (argc != 1) {
-        CC_LOG_INFO("cjh getContext Wrong number of arguments ...");
-        napi_throw_type_error(env, NULL, "Wrong number of arguments");
-        return nullptr;
+        Napi::Error::New(env, "Wrong argument count, 1 expected!").ThrowAsJavaScriptException();
+        return {};
     }
 
-    napi_valuetype valuetype;
-    status = napi_typeof(env, args[0], &valuetype);
-    if (status != napi_ok) {
-        CC_LOG_INFO("cjh getContext napi_typeof ...");
-        return nullptr;
-    }
-    if (valuetype != napi_number) {
-        CC_LOG_INFO("cjh getContext napi_number ...");
-        napi_throw_type_error(env, NULL, "Wrong arguments");
-        return nullptr;
+    if (!info[0].IsNumber()) {
+        Napi::TypeError::New(env, "number expected!").ThrowAsJavaScriptException();
+        return {};
     }
 
-    int64_t value;
-    NAPI_CALL(env, napi_get_value_int64(env, args[0], &value));
-    NAPI_CALL(env, napi_create_object(env, &exports));
+    auto exports = Napi::Object::New(env);
+    int64_t value = info[0].As<Napi::Number>().Int64Value();
+
     CC_LOG_INFO("cjh getContext value: %d", (int)value);
     switch (value) {
         case APP_LIFECYCLE: {
-            // Register app lifecycle
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("onCreate", NapiHelper::napiOnCreate),
-                DECLARE_NAPI_FUNCTION("onShow", NapiHelper::napiOnShow),
-                DECLARE_NAPI_FUNCTION("onHide", NapiHelper::napiOnHide),
-                DECLARE_NAPI_FUNCTION("onDestroy", NapiHelper::napiOnDestroy),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-        }
-        break;
+            exports["onCreate"] = Napi::Function::New(env, napiOnCreate);
+            exports["onShow"] = Napi::Function::New(env, napiOnShow);
+            exports["onCreate"] = Napi::Function::New(env, napiOnHide);
+            exports["onCreate"] = Napi::Function::New(env, napiOnDestroy);
+        } break;
         case JS_PAGE_LIFECYCLE: {
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("onPageShow", NapiHelper::napiOnPageShow),
-                DECLARE_NAPI_FUNCTION("onPageHide", NapiHelper::napiOnPageHide),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            exports["onPageShow"] = Napi::Function::New(env, napiOnPageShow);
+            exports["onPageHide"] = Napi::Function::New(env, napiOnPageHide);
         } break;
         case XCOMPONENT_REGISTER_LIFECYCLE_CALLBACK: {
+
         } break;
         case NATIVE_RENDER_API: {
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("nativeEngineInit", NapiHelper::napiNativeEngineInit),
-                DECLARE_NAPI_FUNCTION("nativeEngineStart", NapiHelper::napiNativeEngineStart),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            exports["nativeEngineInit"] = Napi::Function::New(env, napiNativeEngineInit);
+            exports["nativeEngineStart"] = Napi::Function::New(env, napiNativeEngineStart);
         } break;
         case WORKER_INIT: {
-//            se::ScriptEngine::setEnv(env);
+//cjh            se::ScriptEngine::setEnv(env);
             CC_LOG_INFO("cjh getContext WORKER_INIT ...");
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("workerInit", NapiHelper::napiWorkerInit),
-                DECLARE_NAPI_FUNCTION("setPostMessageFunction", js_set_PostMessage2UIThreadCallback),
-                DECLARE_NAPI_FUNCTION("setPostSyncMessageFunction", js_set_PostSyncMessage2UIThreadCallback),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+
+            exports["workerInit"] = Napi::Function::New(env, napiWorkerInit);
+            exports["setPostMessageFunction"] = Napi::Function::New(env, js_set_PostMessage2UIThreadCallback);
+            exports["setPostSyncMessageFunction"] = Napi::Function::New(env, js_set_PostSyncMessage2UIThreadCallback);
         } break;
         case ENGINE_UTILS: {
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("resourceManagerInit", NapiHelper::napiResourceManagerInit),
-                DECLARE_NAPI_FUNCTION("writablePathInit", NapiHelper::napiWritablePathInit),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            exports["resourceManagerInit"] = Napi::Function::New(env, napiResourceManagerInit);
+            exports["writablePathInit"] = Napi::Function::New(env, napiWritablePathInit);
         } break;
         case EDITBOX_UTILS: {
-            #if CC_USE_EDITBOX
-                std::vector<napi_property_descriptor> desc;
-                OpenHarmonyEditBox::GetInterfaces(desc);
-                NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-            #endif
+            //cjh #if CC_USE_EDITBOX
+            //     std::vector<napi_property_descriptor> desc;
+            //     OpenHarmonyEditBox::GetInterfaces(desc);
+            //     NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+            // #endif
         } break;
         case WEBVIEW_UTILS: {
-            #if CC_USE_WEBVIEW
-                std::vector<napi_property_descriptor> desc;
-                OpenHarmonyWebView::GetInterfaces(desc);
-                NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-            #endif
+            //cjh #if CC_USE_WEBVIEW
+            //     std::vector<napi_property_descriptor> desc;
+            //     OpenHarmonyWebView::GetInterfaces(desc);
+            //     NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+            // #endif
         } break;
         case UV_ASYNC_SEND: {
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            exports["send"] = Napi::Function::New(env, napiASend);
         } break;
         default:
-            LOGE("unknown type");
+            CC_LOG_ERROR("unknown type");
     }
 
     CC_LOG_INFO("cjh getContext return ...");
     return exports;
 }
 
-
-// NAPI Interface
-bool NapiHelper::exportFunctions(napi_env env, napi_value exports) {
-    napi_status status;
-    // Application/SDK etc. Init
-    // XComponent Init:
-    napi_value        exportInstance   = nullptr;
-    OH_NativeXComponent* nativeXComponent = nullptr;
-    int32_t           ret;
-
-    char     idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
-    uint64_t idSize                           = OH_XCOMPONENT_ID_LEN_MAX + 1;
-
-    status = napi_get_named_property(env, exports, OH_NATIVE_XCOMPONENT_OBJ, &exportInstance);
-    if (status != napi_ok) {
-        return false;
+/* static */
+Napi::Object NapiHelper::init(Napi::Env env, Napi::Object exports) {
+    exports["getContext"] = Napi::Function::New(env, getContext);
+    bool ret = exportFunctions(env, exports);
+    if (!ret) {
+        CC_LOG_ERROR("Init failed");
     }
-
-    napi_valuetype type;
-    status = napi_typeof(env, exportInstance, &type);
-    if (status == napi_ok) {
-        LOGE("exportInstance type: %{public}d", type);
-    }
-
-    status = napi_unwrap(env, exportInstance, reinterpret_cast<void**>(&nativeXComponent));
-    if (status != napi_ok) {
-        LOGE("napi_unwrap %{public}d", (int)status);
-        return false;
-    }
-
-    ret = OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
-    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
-        LOGE("OH_NativeXComponent_GetXComponentId succeed");
-        return false;
-    }
-
-    OpenHarmonyPlatform::getInstance()->setNativeXComponent(nativeXComponent);
-    LOGE("exportFunctions return true");
-    return true;
+    return exports;
 }
 
-napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
-    // uv_loop_t* loop = nullptr;
-    // NAPI_CALL(env, napi_get_uv_event_loop(env, &loop));
-    // OpenHarmonyPlatform::getInstance()->onCreateNative(env, loop);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiOnShow(napi_env env, napi_callback_info info) {
-    cc::WorkerMessageData data{cc::MessageType::WM_APP_SHOW, nullptr, nullptr};
-    OpenHarmonyPlatform::getInstance()->enqueue(data);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiOnHide(napi_env env, napi_callback_info info) {
-    cc::WorkerMessageData data{cc::MessageType::WM_APP_HIDE, nullptr, nullptr};
-    OpenHarmonyPlatform::getInstance()->enqueue(data);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiOnDestroy(napi_env env, napi_callback_info info) {
-    cc::WorkerMessageData data{cc::MessageType::WM_APP_DESTROY, nullptr, nullptr};
-    OpenHarmonyPlatform::getInstance()->enqueue(data);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiOnPageShow(napi_env env, napi_callback_info info) {
-    return nullptr;
-}
-
-napi_value NapiHelper::napiOnPageHide(napi_env env, napi_callback_info info) {
-    return nullptr;
-}
-
-napi_value NapiHelper::napiNativeEngineInit(napi_env env, napi_callback_info info) {
-//    se::ScriptEngine::setEnv(env);
-    CC_LOG_INFO("cjh napiNativeEngineInit ...");
-    OpenHarmonyPlatform::getInstance()->run(0, nullptr);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiNativeEngineStart(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->requestVSync();
-    return nullptr;
-}
-
-napi_value NapiHelper::napiWorkerInit(napi_env env, napi_callback_info info) {
-    CC_LOG_INFO("cjh napiWorkerInit ...");
-    uv_loop_t* loop = nullptr;
-    NAPI_CALL(env, napi_get_uv_event_loop(env, &loop));
-    OpenHarmonyPlatform::getInstance()->workerInit(env, loop);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiResourceManagerInit(napi_env env, napi_callback_info info) {
-    size_t      argc = 1;
-    napi_value  args[1];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    FileUtilsOpenHarmony::initResourceManager(env, args[0]);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiWritablePathInit(napi_env env, napi_callback_info info) {
-    size_t      argc = 1;
-    napi_value  args[1];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-
-    napi_status status;
-    char   buffer[kMaxStringLen];
-    size_t result = 0;
-    NODE_API_CALL(status, env, napi_get_value_string_utf8(env, args[0], buffer, kMaxStringLen, &result));
-    FileUtilsOpenHarmony::_ohWritablePath = std::string(buffer);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiASend(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->triggerMessageSignal();
-    return nullptr;
-}
-}
+} // namespace cc
