@@ -379,6 +379,11 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
                             warnID(3606, `cc.${type}`, `"${className}.${propertyName}"`, defaultType);
                         }
                     } else if (type == attributeUtils.CCString && defaultValue == null) {
+                        /**
+                         * Reasons for using == instead of ===
+                         * 1. support for comparing string and object
+                         * 2. support undefined and null
+                         */
                         warnID(3607, `"${className}.${propertyName}"`);
                     } else {
                         // just check default loosely
