@@ -197,11 +197,11 @@ public:
          */
         ccstd::optional<IDynamicStruct> dynamic;
 
-        std::optional<bool> encoded;
+        ccstd::optional<bool> encoded;
 
-        std::optional<bool> compressed;
+        ccstd::optional<bool> compressed;
 
-        std::optional<bool> quantized;
+        ccstd::optional<bool> quantized;
     };
 
     struct ICreateInfo {

@@ -36,7 +36,7 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
-import { decodeMesh, inflateMesh } from '../misc/create-mesh';
+import { MeshUtils } from '../misc/create-mesh';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -402,17 +402,12 @@ export class Mesh extends Asset {
         this._initialized = true;
 
         let info = { struct: this.struct, data: this.data };
-        console.log('[Mesh] decode mesh data: ', info.data.byteLength / 1024, 'KB');
-        const start_time = sys.now();
         if (info.struct.compressed) { // decompress mesh data
-            info = inflateMesh(info);
+            info = MeshUtils.inflateMesh(info);
         }
         if (this.struct.encoded) { // decode mesh data
-            info = decodeMesh(info);
+            info = MeshUtils.decodeMesh(info);
         }
-        const end_time = sys.now();
-        console.log('[Mesh] decode mesh data: ', info.data.byteLength / 1024, 'KB');
-        console.log(`[Mesh] decode mesh data time: ${end_time - start_time} ms`);
 
         this._struct = info.struct;
         this._data = info.data;
@@ -488,7 +483,7 @@ export class Mesh extends Asset {
                 }
 
                 let indexBuffer: Buffer | null = null;
-                let ib: any = null;
+                let ib: Uint8Array | Uint16Array | Uint32Array | undefined;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
 
@@ -810,7 +805,8 @@ export class Mesh extends Asset {
                 for (let i = 0; i < struct.vertexBundles.length; i++) {
                     const vtxBdl = struct.vertexBundles[i];
                     for (let j = 0; j < vtxBdl.attributes.length; j++) {
-                        if (vtxBdl.attributes[j].name === AttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === AttributeName.ATTR_NORMAL) {
+                        if (vtxBdl.attributes[j].name === (AttributeName.ATTR_POSITION as string)
+                            || vtxBdl.attributes[j].name === (AttributeName.ATTR_NORMAL as string)) {
                             const { format } = vtxBdl.attributes[j];
 
                             const inputView = new DataView(
@@ -910,7 +906,8 @@ export class Mesh extends Asset {
                     for (let v = 0; v < dstBundle.view.count; ++v) {
                         dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                         vbView.set(dstAttrView, srcVBOffset);
-                        if ((attr.name === AttributeName.ATTR_POSITION || attr.name === AttributeName.ATTR_NORMAL) && worldMatrix) {
+                        if ((attr.name === (AttributeName.ATTR_POSITION as string)
+                            || attr.name === (AttributeName.ATTR_NORMAL as string)) && worldMatrix) {
                             const f32_temp = new Float32Array(vbView.buffer, srcVBOffset, 3);
                             vec3_temp.set(f32_temp[0], f32_temp[1], f32_temp[2]);
                             switch (attr.name) {
@@ -1316,7 +1313,7 @@ export class Mesh extends Asset {
         const primitive = this._struct.primitives[primitiveIndex];
         for (const vertexBundleIndex of primitive.vertexBundelIndices) {
             const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
-            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === (attributeName as string));
             if (iAttribute < 0) {
                 continue;
             }

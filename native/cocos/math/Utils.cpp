@@ -50,7 +50,7 @@ float maxComponent(const Vec3 &v) {
     return std::max(std::max(v.x, v.y), v.z);
 }
 
-unsigned short floatToHalf(float fval) {
+uint16_t floatToHalf(float fval) {
     union {
         float f;
         unsigned int ui;
@@ -72,10 +72,10 @@ unsigned short floatToHalf(float fval) {
     /* NaN; note that we convert all types of NaN to qNaN */
     h = (em > (255 << 23)) ? 0x7e00 : h;
 
-    return static_cast<unsigned short>(s | h);
+    return static_cast<uint16_t>(s | h);
 }
 
-float halfToFloat(unsigned short hval) {
+float halfToFloat(uint16_t hval) {
     union {
         float f;
         unsigned int ui;
@@ -103,7 +103,7 @@ float halfToFloat(unsigned short hval) {
         }
     }
 
-    u.ui = ((unsigned int)(s << 31)) | em | m;
+    u.ui = ((uint16_t)(s << 31)) | em | m;
     return u.f;
 }
 

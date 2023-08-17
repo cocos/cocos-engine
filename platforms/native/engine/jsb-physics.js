@@ -211,8 +211,16 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepBox(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepBox(
+            raycastOptions,
+            halfExtent.x,
+            halfExtent.y,
+            halfExtent.z,
+            orientation.w,
+            orientation.x,
+            orientation.y,
+            orientation.z,
+        );
         if (isHit) {
             const hits = this._impl.sweepResult();
             for (let i = 0; i < hits.length; i++) {
@@ -231,8 +239,16 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepBoxClosest(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepBoxClosest(
+            raycastOptions,
+            halfExtent.x,
+            halfExtent.y,
+            halfExtent.z,
+            orientation.w,
+            orientation.x,
+            orientation.y,
+            orientation.z,
+        );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -298,8 +314,15 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepCapsuleClosest(raycastOptions, radius, height,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepCapsuleClosest(
+            raycastOptions,
+            radius,
+            height,
+            orientation.w,
+            orientation.x,
+            orientation.y,
+            orientation.z,
+        );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -608,7 +631,7 @@ class PlaneShape extends Shape {
 
 function getConvexMesh (v) {
     if (!jsbPhy.CACHE.convex[v._uuid]) {
-        const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+        const posArr = cc.physics.utils.shrinkPositions(v.renderingSubMeshes[0].geometricInfo.positions);
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
         jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
@@ -618,9 +641,8 @@ function getConvexMesh (v) {
 
 function getTriangleMesh (v) {
     if (!jsbPhy.CACHE.trimesh[v._uuid]) {
-        const indArr = v.readIndices(0);
-        // const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
-        const posArr = v.readAttribute(0, 'a_position');
+        const posArr = v.renderingSubMeshes[0].geometricInfo.positions;
+        const indArr = v.renderingSubMeshes[0].geometricInfo.indices;
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const trimesh = {
             positions: new Float32Array(posArr),

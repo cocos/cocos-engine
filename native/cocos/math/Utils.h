@@ -284,9 +284,9 @@ auto absMax(F a, F b) {
     return std::fabs(a) > std::fabs(b) ? a : b;
 }
 
-unsigned short floatToHalf(float fval);
+uint16_t floatToHalf(float fval);
 
-float halfToFloat(unsigned short hval);
+float halfToFloat(uint16_t hval);
 
 } // namespace mathutils
 } // namespace cc

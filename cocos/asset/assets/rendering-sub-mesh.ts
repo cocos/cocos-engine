@@ -29,6 +29,7 @@ import {
 } from '../../gfx';
 import { Vec3, approx, cclegacy, floatToHalf, halfToFloat, pseudoRandomRange } from '../../core';
 import { Mesh } from '../../3d/assets/mesh';
+import { Root } from '../../root';
 
 /**
  * @en Array views for index buffer
@@ -123,6 +124,12 @@ export class RenderingSubMesh {
 
     private _drawInfo?: DrawInfo | null = null;
 
+    private static EMPTY_GEOMETRIC_INFO: IGeometricInfo = {
+        positions: new Float32Array(),
+        indices: new Uint8Array(),
+        boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO },
+    };
+
     /**
      * @en
      * sub mesh's constructor.
@@ -135,8 +142,11 @@ export class RenderingSubMesh {
      * @param indirectBuffer @en indirect buffer. @zh 间接缓冲区。
      */
     constructor (
-        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
-        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+        vertexBuffers: Buffer[],
+        attributes: Attribute[],
+        primitiveMode: PrimitiveMode,
+        indexBuffer: Buffer | null = null,
+        indirectBuffer: Buffer | null = null,
         isOwnerOfIndexBuffer = true,
     ) {
         this._attributes = attributes;
@@ -187,26 +197,80 @@ export class RenderingSubMesh {
             return this._geometricInfo;
         }
         if (this.mesh === undefined) {
-            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
         }
         if (this.subMeshIdx === undefined) {
-            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
         }
         const { mesh } = this; const index = this.subMeshIdx;
-        const pAttri = this.attributes.find((element) => element.name === AttributeName.ATTR_POSITION);
-        if (!pAttri) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        const pAttri = this.attributes.find((element) => element.name === (AttributeName.ATTR_POSITION as string));
+
+        if (!pAttri) {
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+        }
 
         let positions: Float32Array | undefined;
-        if (pAttri.format === Format.RGB32F || pAttri.format === Format.RGBA32F) {
+        switch (pAttri.format) {
+        case Format.RG32F:
+        case Format.RGB32F:
+        {
             positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
-        } else {
-            // convert half to float
+            if (!positions) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            break;
+        }
+        case Format.RGBA32F:
+        {
+            const data = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            const count = data.length / 4;
+            positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; ++i) {
+                const dstPtr = i * 3;
+                const srcPtr = i * 4;
+                positions[dstPtr] = data[srcPtr];
+                positions[dstPtr + 1] = data[srcPtr + 1];
+                positions[dstPtr + 2] = data[srcPtr + 2];
+            }
+            break;
+        }
+        case Format.RG16F:
+        case Format.RGB16F:
+        {
             const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
             positions = new Float32Array(data.length);
             for (let i = 0; i < data.length; ++i) {
                 positions[i] = halfToFloat(data[i]);
             }
+            break;
         }
+        case Format.RGBA16F:
+        {
+            const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            const count = data.length / 4;
+            positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; ++i) {
+                const dstPtr = i * 3;
+                const srcPtr = i * 4;
+                positions[dstPtr] = halfToFloat(data[srcPtr]);
+                positions[dstPtr + 1] = halfToFloat(data[srcPtr + 1]);
+                positions[dstPtr + 2] = halfToFloat(data[srcPtr + 2]);
+            }
+            break;
+        }
+        default:
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+        }
+
         const indices = mesh.readIndices(index) || undefined;
         const max = new Vec3();
         const min = new Vec3();
@@ -318,14 +382,14 @@ export class RenderingSubMesh {
         }
         let jointFormat: Format;
         let jointOffset: number;
-        const { device } = cclegacy.director.root;
+        const { device } = cclegacy.director.root as Root;
         for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
             const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
             jointFormat = Format.UNKNOWN;
             for (let j = 0; j < bundle.attributes.length; j++) {
                 const attr = bundle.attributes[j];
-                if (attr.name === AttributeName.ATTR_JOINTS) {
+                if (attr.name === (AttributeName.ATTR_JOINTS as string)) {
                     jointFormat = attr.format;
                     break;
                 }
@@ -335,8 +399,15 @@ export class RenderingSubMesh {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                mapBuffer(dataView, (cur): number => idxMap.indexOf(cur), jointFormat, jointOffset,
-                    bundle.view.length, bundle.view.stride, dataView);
+                mapBuffer(
+                    dataView,
+                    (cur): number => idxMap.indexOf(cur),
+                    jointFormat,
+                    jointOffset,
+                    bundle.view.length,
+                    bundle.view.stride,
+                    dataView,
+                );
                 const buffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.DEVICE,

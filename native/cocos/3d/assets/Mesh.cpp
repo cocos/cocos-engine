@@ -26,6 +26,7 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/Skeleton.h"
 #include "3d/misc/BufferBlob.h"
+#include "3d/misc/CreateMesh.h"
 #include "base/std/hash/hash.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
@@ -307,10 +308,11 @@ void Mesh::initialize() {
 
     if (_struct.compressed) {
         // decompress
-        //auto &[_struct, _data] = inflateMesh({_struct, _data});
+        MeshUtils::inflateMesh(_struct, _data);
     }
     if (_struct.encoded) {
         // decode
+        MeshUtils::decodeMesh(_struct, _data);
     }
 
     if (_struct.dynamic.has_value()) {

@@ -514,7 +514,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizeVertexCacheCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, true, 'vertexCache');
+            panel.$.meshOptimizeVertexCacheCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, false, 'vertexCache');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizeVertexCacheCheckbox, 'meshOptimize.vertexCache');
             updateElementReadonly.call(panel, panel.$.meshOptimizeVertexCacheCheckbox);
@@ -532,7 +532,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizeVertexFetchCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, true, 'vertexFetch');
+            panel.$.meshOptimizeVertexFetchCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, false, 'vertexFetch');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizeVertexFetchCheckbox, 'meshOptimize.vertexFetch');
             updateElementReadonly.call(panel, panel.$.meshOptimizeVertexFetchCheckbox);
@@ -550,7 +550,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizeOverdrawCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, true, 'overdraw');
+            panel.$.meshOptimizeOverdrawCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimize, false, 'overdraw');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizeOverdrawCheckbox, 'meshOptimize.overdraw');
             updateElementReadonly.call(panel, panel.$.meshOptimizeOverdrawCheckbox);
@@ -604,7 +604,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshSimplifyAutoErrorRateCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshSimplify, true, 'autoErrorRate');
+            panel.$.meshSimplifyAutoErrorRateCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshSimplify, false, 'autoErrorRate');
 
             updateElementInvalid.call(panel, panel.$.meshSimplifyAutoErrorRateCheckbox, 'meshSimplify.autoErrorRate');
             updateElementReadonly.call(panel, panel.$.meshSimplifyAutoErrorRateCheckbox);
@@ -638,7 +638,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshSimplifyLockBoundaryCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshSimplify, true, 'lockBoundary');
+            panel.$.meshSimplifyLockBoundaryCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshSimplify, false, 'lockBoundary');
 
             updateElementInvalid.call(panel, panel.$.meshSimplifyLockBoundaryCheckbox, 'meshSimplify.lockBoundary');
             updateElementReadonly.call(panel, panel.$.meshSimplifyLockBoundaryCheckbox);
@@ -712,7 +712,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshCompressEncodeCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, true, 'encode');
+            panel.$.meshCompressEncodeCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, false, 'encode');
 
             updateElementInvalid.call(panel, panel.$.meshCompressEncodeCheckbox, 'meshCompress.encode');
             updateElementReadonly.call(panel, panel.$.meshCompressEncodeCheckbox);
@@ -730,7 +730,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshCompressCompressCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, true, 'compress');
+            panel.$.meshCompressCompressCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, false, 'compress');
 
             updateElementInvalid.call(panel, panel.$.meshCompressCompressCheckbox, 'meshCompress.compress');
             updateElementReadonly.call(panel, panel.$.meshCompressCompressCheckbox);
@@ -748,7 +748,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshCompressQuantizeCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, true, 'quantize');
+            panel.$.meshCompressQuantizeCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshCompress, false, 'quantize');
 
             updateElementInvalid.call(panel, panel.$.meshCompressQuantizeCheckbox, 'meshCompress.quantize');
             updateElementReadonly.call(panel, panel.$.meshCompressQuantizeCheckbox);
@@ -984,18 +984,18 @@ function getLodItemHTML(lodOptions, LODTriangleCounts, hasBuiltinLOD = false) {
             <div class="left">
                 <span>LOD ${index}</span>
             </div>
-            <div class="middle" ${ index == 0 || lodOptions[0].faceCount == 0 ? 'hidden' : '' }>
+            <div class="middle" ${index == 0 || lodOptions[0].faceCount == 0 ? 'hidden' : ''}>
                 <span class="face-count">Face count(%)</span>
                 <ui-num-input path="faceCount" min="0" max="100" key="${index}"
                     value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}"
-                    ${ hasBuiltinLOD ? 'disabled' : '' }>
+                    ${hasBuiltinLOD ? 'disabled' : ''}>
                 </ui-num-input>
             </div>
             <div class="right">
                 <div class="triangles">
                     <span> ${LODTriangleCounts[index] || 0} Triangles</span>
                 </div>
-                <div class="operator" ${ hasBuiltinLOD ? 'hidden' : '' }>
+                <div class="operator" ${hasBuiltinLOD ? 'hidden' : ''}>
                     <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
                     <ui-icon value="reduce" key="${index}" path="deleteLod" tooltip="delete this LOD"></ui-icon>
                 </div>

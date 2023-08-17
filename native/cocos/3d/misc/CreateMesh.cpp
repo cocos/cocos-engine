@@ -30,8 +30,8 @@
 #include "core/ArrayBuffer.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
-#include "renderer/gfx-base/GFXDef-common.h"
 #include "meshopt/meshoptimizer.h"
+#include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace {
@@ -406,35 +406,35 @@ Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geome
     return createInfo;
 }
 
-Mesh::ICreateInfo MeshUtils::inflateMesh(const Mesh::ICreateInfo &meshInfo) {
+void MeshUtils::inflateMesh(const Mesh::IStruct &structInfo, Uint8Array &data) {
     uLongf uncompressedSize = 0U;
-    for (const auto &prim : meshInfo.structInfo.primitives) {
+    for (const auto &prim : structInfo.primitives) {
         uncompressedSize += prim.indexView->length;
     }
-    for (const auto &vb : meshInfo.structInfo.vertexBundles) {
+    for (const auto &vb : structInfo.vertexBundles) {
         uncompressedSize += vb.view.length;
     }
     auto uncompressedData = Uint8Array(uncompressedSize);
-    auto res = uncompress(uncompressedData.buffer()->getData(), &uncompressedSize, meshInfo.data.buffer()->getData(), meshInfo.data.byteLength());
-    auto createInfo = Mesh::ICreateInfo{
-        meshInfo.structInfo,
-        uncompressedData,
-    };
-    return createInfo;
+    auto res = uncompress(uncompressedData.buffer()->getData(), &uncompressedSize, data.buffer()->getData(), data.byteLength());
+    data = uncompressedData;
 }
 
-Mesh::ICreateInfo MeshUtils::decodeMesh(const Mesh::ICreateInfo &mesh) {
-    auto structInfo = mesh.structInfo;
-
+void MeshUtils::decodeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
     BufferBlob bufferBlob;
 
     for (auto &bundle : structInfo.vertexBundles) {
         auto &view = bundle.view;
         auto bound = view.count * view.stride;
         auto *buffer = ccnew ArrayBuffer(bound);
-        auto vertex = DataView(mesh.data.buffer(), view.offset, view.length);
-        int res = meshopt_decodeVertexBuffer(buffer->getData(), view.count, view.stride, vertex.buffer()->getData(), view.length);
+        auto vertex = Uint8Array(data.buffer(), view.offset, view.length);
+        int res = meshopt_decodeVertexBuffer(buffer->getData(), view.count, view.stride, vertex.buffer()->getData() + vertex.byteOffset(), view.length);
         if (res < 0) {
+            auto dataView = Uint8Array(vertex.buffer(), view.offset, view.length);
+            CC_LOG_INFO("data view [0] %d", dataView[0]);
+            CC_LOG_INFO("data view [1] %d", dataView[1]);
+            CC_LOG_INFO("data view [2] %d", dataView[2]);
+            CC_LOG_INFO("data view [3] %d", dataView[3]);
+            CC_LOG_INFO("data view [4] %d", dataView[4]);
             assert(false && "failed to decode vertex buffer");
         }
 
@@ -458,8 +458,8 @@ Mesh::ICreateInfo MeshUtils::decodeMesh(const Mesh::ICreateInfo &mesh) {
         auto view = *primitive.indexView;
         auto bound = view.count * view.stride;
         auto *buffer = ccnew ArrayBuffer(bound);
-        auto index = DataView(mesh.data.buffer(), view.offset, view.length);
-        int res = meshopt_decodeIndexBuffer(buffer->getData(), view.count, view.stride, index.buffer()->getData(), view.length);
+        auto index = DataView(data.buffer(), view.offset, view.length);
+        int res = meshopt_decodeIndexBuffer(buffer->getData(), view.count, view.stride, index.buffer()->getData() + index.byteOffset(), view.length);
         if (res < 0) {
             assert(false && "failed to decode index buffer");
         }
@@ -475,18 +475,7 @@ Mesh::ICreateInfo MeshUtils::decodeMesh(const Mesh::ICreateInfo &mesh) {
         primitive.indexView = buffferView;
     }
 
-    return {
-        structInfo,
-        Uint8Array(bufferBlob.getCombined()),
-    };
-}
-
-Mesh::ICreateInfo mergeMeshes (const std::vector<Mesh::ICreateInfo> &meshes) {
-    if (meshes.empty()) {
-        return {};
-    }
-
-    return {};
+    data = Uint8Array(bufferBlob.getCombined());
 }
 
 } // namespace cc
