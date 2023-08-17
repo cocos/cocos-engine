@@ -760,7 +760,7 @@ export class Skeleton extends UIRenderer {
      * @en Sets slots visible range.
      * @zh 设置骨骼插槽可视范围。
      */
-    public setSlotsRange (startSlotIndex, endSlotIndex) {
+    public setSlotsRange (startSlotIndex, endSlotIndex): void {
         if (this.isAnimationCached()) {
             warn('Slots visible range can not be modified in cached mode.');
         } else {
