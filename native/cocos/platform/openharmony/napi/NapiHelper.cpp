@@ -24,10 +24,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "platform/openharmony/napi/NapiHelper.h"
+#include "napi.h"
 #include "platform/openharmony/napi/napi_macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
+#include "bindings/jswrapper/SeApi.h"
 
 #if CC_USE_EDITBOX
     #include "ui/edit-box/EditBox-openharmony.h"
@@ -73,12 +75,13 @@ static void js_set_PostMessage2UIThreadCallback(const Napi::CallbackInfo &info) 
 
 /* static */
 void NapiHelper::postMessageToUIThread(const std::string& type, Napi::Value param) {
+    CC_LOG_INFO("cjh postMessageToUIThread 1, %s", type.c_str());
     if (gPostMessageToUIThreadFunc == nullptr) {
         CC_LOG_ERROR("callback was not set %s, type: %s", __FUNCTION__, type.c_str());
         return;
     }
-
-    gPostMessageToUIThreadFunc->Call({param});
+    CC_LOG_INFO("cjh postMessageToUIThread 2, %s", type.c_str());
+    gPostMessageToUIThreadFunc->Call({Napi::String::New(getWorkerEnv(), type), param});
 }
 
 /* static */
@@ -114,34 +117,40 @@ static void napiOnCreate(const Napi::CallbackInfo &info) {
     // uv_loop_t* loop = nullptr;
     // NAPI_CALL(env, napi_get_uv_event_loop(env, &loop));
     // OpenHarmonyPlatform::getInstance()->onCreateNative(env, loop);
+    CC_LOG_INFO("cjh napiOnCreate");
 }
 
 static void napiOnShow(const Napi::CallbackInfo &info) {
+    CC_LOG_INFO("cjh napiOnShow");
     cc::WorkerMessageData data{cc::MessageType::WM_APP_SHOW, nullptr, nullptr};
     OpenHarmonyPlatform::getInstance()->enqueue(data);
 }
 
 static void napiOnHide(const Napi::CallbackInfo &info) {
+    CC_LOG_INFO("cjh napiOnHide");
     cc::WorkerMessageData data{cc::MessageType::WM_APP_HIDE, nullptr, nullptr};
     OpenHarmonyPlatform::getInstance()->enqueue(data);
 }
 
 static void napiOnDestroy(const Napi::CallbackInfo &info) {
+    CC_LOG_INFO("cjh napiOnDestroy");
     cc::WorkerMessageData data{cc::MessageType::WM_APP_DESTROY, nullptr, nullptr};
     OpenHarmonyPlatform::getInstance()->enqueue(data);
 }
 
 // JS Page : Lifecycle
 static void napiOnPageShow(const Napi::CallbackInfo &info) {
-
+    CC_LOG_INFO("cjh napiOnPageShow");
 }
 
 static void napiOnPageHide(const Napi::CallbackInfo &info) {
-
+    CC_LOG_INFO("cjh napiOnPageHide");
 }
 
 static void napiNativeEngineInit(const Napi::CallbackInfo &info) {
-//cjh    se::ScriptEngine::setEnv(env);
+    #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+        se::ScriptEngine::setEnv(info.Env());
+    #endif
     CC_LOG_INFO("cjh napiNativeEngineInit ...");
     OpenHarmonyPlatform::getInstance()->run(0, nullptr);
 }
@@ -208,9 +217,9 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
     switch (value) {
         case APP_LIFECYCLE: {
             exports["onCreate"] = Napi::Function::New(env, napiOnCreate);
+            exports["onDestroy"] = Napi::Function::New(env, napiOnDestroy);
             exports["onShow"] = Napi::Function::New(env, napiOnShow);
-            exports["onCreate"] = Napi::Function::New(env, napiOnHide);
-            exports["onCreate"] = Napi::Function::New(env, napiOnDestroy);
+            exports["onHide"] = Napi::Function::New(env, napiOnHide);
         } break;
         case JS_PAGE_LIFECYCLE: {
             exports["onPageShow"] = Napi::Function::New(env, napiOnPageShow);
@@ -224,7 +233,9 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
             exports["nativeEngineStart"] = Napi::Function::New(env, napiNativeEngineStart);
         } break;
         case WORKER_INIT: {
-//cjh            se::ScriptEngine::setEnv(env);
+            #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+                se::ScriptEngine::setEnv(env);
+            #endif
             CC_LOG_INFO("cjh getContext WORKER_INIT ...");
             gWorkerEnv = env;
             exports["workerInit"] = Napi::Function::New(env, napiWorkerInit);
