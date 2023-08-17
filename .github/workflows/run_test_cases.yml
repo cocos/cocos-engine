@@ -144,7 +144,6 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            fs.writeFileSync('prwin.txt', process.env.PR_NUMBER);
             fs.writeFileSync('commentwin.txt', `@${process.env.PR_AUTHOR}, Please check the result of \`run test cases\`:
             - Test Platform: PR-Test
             - Editor Version: ${process.env.EDITOR_VERSION}
@@ -153,12 +152,6 @@ jobs:
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
             ## Task Details
             ${process.env.TASK_REPORT}`);
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: prwin.txt
-          path: |
-            prwin.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
