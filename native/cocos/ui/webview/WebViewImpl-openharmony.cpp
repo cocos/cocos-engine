@@ -120,6 +120,7 @@ void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType,
 }
 
 void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["contents"] = Napi::String::New(env, string);
@@ -129,6 +130,7 @@ void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::strin
 }
 
 void WebViewImpl::loadURL(const ccstd::string &url) {
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["url"] = Napi::String::New(env, url);
@@ -139,6 +141,7 @@ void WebViewImpl::loadURL(const ccstd::string &url) {
 void WebViewImpl::loadFile(const ccstd::string &fileName) {
     auto fullPath = getUrlStringByFileName(fileName);
 
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["url"] = Napi::String::New(env, fullPath);
@@ -177,6 +180,7 @@ void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
 }
 
 void WebViewImpl::evaluateJS(const ccstd::string &js) {
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["jsContents"] = Napi::String::New(env, js);
@@ -231,6 +235,7 @@ void WebViewImpl::onJsCallback(int viewTag, const ccstd::string &message) {
 }
 
 void WebViewImpl::setVisible(bool visible) {
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["visible"] = Napi::Boolean::New(env, visible);
@@ -239,6 +244,7 @@ void WebViewImpl::setVisible(bool visible) {
 }
 
 void WebViewImpl::setFrame(float x, float y, float width, float height) {
+    auto env = NapiHelper::getWorkerEnv();
     auto args = Napi::Object::New(env);
     args["tag"] = Napi::Number::New(env, static_cast<double>(_viewTag));
     args["x"] = Napi::Number::New(env, x);
