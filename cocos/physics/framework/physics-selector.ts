@@ -57,6 +57,9 @@ interface IPhysicsWrapperObject {
     PlaneShape?: Constructor<IPlaneShape>,
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
@@ -232,6 +235,9 @@ enum ECheckType {
     // JOINT //
     PointToPointConstraint,
     HingeConstraint,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
