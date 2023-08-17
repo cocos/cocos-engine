@@ -308,9 +308,6 @@ export class RenderData extends BaseRenderData {
     protected _accessor: StaticVBAccessor = null!;
     get accessor (): StaticVBAccessor { return this._accessor; }
 
-    public vertexRow = 1;
-    public vertexCol = 1;
-
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
         if (!accessor) {
