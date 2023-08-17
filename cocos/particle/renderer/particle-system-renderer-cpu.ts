@@ -163,7 +163,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec3;
-    private _attrs: PVData;
+    private _particleVertexData: PVData;
     private _particles: RecyclePool<Particle> | null = null;
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
@@ -187,7 +187,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec3();
-        this._attrs = new PVData();
+        this._particleVertexData = new PVData();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -535,28 +535,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillMeshData (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        Vec3.copy(this._attrs.position, p.position);
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
-        Vec3.copy(this._attrs.size, p.size);
-        Vec3.copy(this._attrs.rotation, p.rotation);
-        this._attrs.color = p.color._val;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                Vec3.copy(this._attrs.position, p.position);
+                Vec3.copy(this._particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                Vec3.copy(this._attrs.texcoord, _tempAttribUV);
-                Vec3.copy(this._attrs.size, p.size);
-                Vec3.copy(this._attrs.rotation, p.rotation);
-                this._attrs.color = p.color._val;
-                this._attrs.velocity = p.ultimateVelocity;
-                this._model!.addParticleVertexData(idx++, this._attrs);
+                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(this._particleVertexData.size, p.size);
+                Vec3.copy(this._particleVertexData.rotation, p.rotation);
+                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.velocity = p.ultimateVelocity;
+                this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
             this._fillStrecthedDataIns(p, idx, fi);
@@ -565,28 +565,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillStrecthedDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        Vec3.copy(this._attrs.position, p.position);
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
-        Vec3.copy(this._attrs.size, p.size);
-        Vec3.copy(this._attrs.rotation, p.rotation);
-        this._attrs.color = p.color._val;
-        this._attrs.velocity = p.ultimateVelocity;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.velocity = p.ultimateVelocity;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
     private _fillNormalData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                Vec3.copy(this._attrs.position, p.position);
+                Vec3.copy(this._particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                Vec3.copy(this._attrs.texcoord, _tempAttribUV);
-                Vec3.copy(this._attrs.size, p.size);
-                Vec3.copy(this._attrs.rotation, p.rotation);
-                this._attrs.color = p.color._val;
-                this._model!.addParticleVertexData(idx++, this._attrs);
+                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(this._particleVertexData.size, p.size);
+                Vec3.copy(this._particleVertexData.rotation, p.rotation);
+                this._particleVertexData.color = p.color._val;
+                this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
             this._fillNormalDataIns(p, idx, fi);
@@ -595,13 +595,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillNormalDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        Vec3.copy(this._attrs.position, p.position);
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        Vec3.copy(this._attrs.texcoord, _tempAttribUV);
-        Vec3.copy(this._attrs.size, p.size);
-        Vec3.copy(this._attrs.rotation, p.rotation);
-        this._attrs.color = p.color._val;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
     public updateVertexAttrib (): void {
