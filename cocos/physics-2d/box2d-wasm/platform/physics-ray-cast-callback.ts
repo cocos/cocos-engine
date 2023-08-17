@@ -46,15 +46,15 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
         PhysicsRayCastCallback._fractions.length = 0;
     }
 
-    static ReportFixture (fixture: B2.Fixture, point, normal, fraction): any {
+    static ReportFixture (fixture: B2.Fixture, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
         if ((fixture.GetFilterData().categoryBits & PhysicsRayCastCallback._mask) === 0) {
             return 0;
         }
 
         if (PhysicsRayCastCallback._type === ERaycast2DType.Closest) {
             PhysicsRayCastCallback._fixtures[0] = fixture;
-            PhysicsRayCastCallback._points[0] = point;
-            PhysicsRayCastCallback._normals[0] = normal;
+            PhysicsRayCastCallback._points[0] = point as Vec2;
+            PhysicsRayCastCallback._normals[0] = normal as Vec2;
             PhysicsRayCastCallback._fractions[0] = fraction;
             return fraction;
         }
@@ -90,9 +90,9 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
     }
 
     static callback = {
-        ReportFixture (fixture: number, point, normal, fraction): any {
+        ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
             const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsRayCastCallback.ReportFixture(f, point, normal, fraction);
         },
-    }
+    };
 }

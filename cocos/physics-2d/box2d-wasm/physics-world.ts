@@ -58,12 +58,12 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     protected _rotationAxis: Vec3 = new Vec3();
     protected _physicsGroundBody: B2.Body;
 
-    protected _contactListener: any;//B2.ContactListener;
-    protected _aabbQueryCallback: B2.QueryCallback;//PhysicsAABBQueryCallback;
-    protected _raycastQueryCallback: B2.RayCastCallback;//PhysicsRayCastCallback;
+    protected _contactListener: B2.ContactListener;
+    protected _aabbQueryCallback: B2.QueryCallback;
+    protected _raycastQueryCallback: B2.RayCastCallback;
 
-    private _temoBodyDef: B2.BodyDef;//new B2.BodyDef();
-    private _tempB2AABB: B2.AABB;//new B2.AABB();
+    private _temoBodyDef: B2.BodyDef;
+    private _tempB2AABB: B2.AABB;
 
     get impl (): B2.World {
         return this._world;
@@ -75,8 +75,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
 
     constructor () {
         this._world = new B2.World({ x: 0, y: -10 });
-        const tempBodyDef = new B2.BodyDef();
-        this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
+        this._physicsGroundBody = this._world.CreateBody(new B2.BodyDef());
         PhysicsContactListener._BeginContact = this._onBeginContact;
         PhysicsContactListener._EndContact = this._onEndContact;
         PhysicsContactListener._PreSolve = this._onPreSolve;
@@ -240,7 +239,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             }
 
             const node = bodyComp.node;
-            const b2body = body.impl!;
+            const b2body = body.impl;
 
             // position
             const pos = b2body.GetPosition();

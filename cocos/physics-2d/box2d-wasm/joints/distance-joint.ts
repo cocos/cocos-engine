@@ -40,7 +40,6 @@ export class B2DistanceJoint extends B2Joint implements IDistanceJoint {
         const def = new B2.RopeJointDef();
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
-        def.referenceAngle = 0;
         def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;
         return def;
     }

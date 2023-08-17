@@ -35,7 +35,7 @@ const tempFilter = { categoryBits: 0, maskBits: 0, groupIndex: 0 };// new B2.Fil
 const lowerBound = { x: 0, y: 0 };
 const upperBound = { x: 0, y: 0 };
 
-function getFilter (shape: B2Shape2D): any {
+function getFilter (shape: B2Shape2D): B2.Filter {
     const comp = shape.collider;
     if (comp.body) {
         tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body.group : comp.group;
@@ -70,6 +70,7 @@ export class B2Shape2D implements IBaseShape {
     }
 
     onLoad (): void {
+        //empty
     }
 
     onEnable (): void {
@@ -81,7 +82,7 @@ export class B2Shape2D implements IBaseShape {
     }
 
     start (): void {
-
+        //empty
     }
 
     onGroupChanged (): void {
@@ -148,7 +149,7 @@ export class B2Shape2D implements IBaseShape {
     }
 
     //relativePositionX/Y : relative Position from shape to rigid body
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): b2.Shape[] {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.Shape[] {
         return [];
     }
 

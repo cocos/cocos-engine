@@ -109,7 +109,7 @@ export class B2Joint implements IJoint2D {
     _destroy (): void {
         if (!this._inited) return;
 
-        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
+        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint);
 
         this._b2joint = null;
         this._inited = false;

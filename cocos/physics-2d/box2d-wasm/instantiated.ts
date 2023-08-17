@@ -100,12 +100,14 @@ export function b2Mul (T: any, v: any): any {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmUrl): Promise<void> {
+function initWasm (wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[box2d]: box2d wasm lib load failed: ${err}`;
         wasmFactory({
-            instantiateWasm (importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
                 instantiateWasm(wasmUrl, importObject).then((result: any) => {
                     receiveInstance(result.instance, result.module);

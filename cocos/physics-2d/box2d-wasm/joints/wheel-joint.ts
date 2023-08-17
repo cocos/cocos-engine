@@ -38,8 +38,11 @@ export class B2WheelJoint extends B2Joint implements IWheelJoint {
     }
     UpdateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
-                (this._jointComp as WheelJoint2D).frequency, (this._jointComp as WheelJoint2D).dampingRatio);
+            B2.SetLinearFrequencyAndDampingRatio(
+                this._b2joint,
+                (this._jointComp as WheelJoint2D).frequency,
+                (this._jointComp as WheelJoint2D).dampingRatio,
+            );
         }
     }
 

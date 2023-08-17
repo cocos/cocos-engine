@@ -37,8 +37,11 @@ export class B2FixedJoint extends B2Joint implements IFixedJoint {
     }
     UpdateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
-                (this._jointComp as FixedJoint2D).frequency, (this._jointComp as FixedJoint2D).dampingRatio);
+            B2.SetLinearFrequencyAndDampingRatio(
+                this._b2joint,
+                (this._jointComp as FixedJoint2D).frequency,
+                (this._jointComp as FixedJoint2D).dampingRatio,
+            );
         }
     }
 

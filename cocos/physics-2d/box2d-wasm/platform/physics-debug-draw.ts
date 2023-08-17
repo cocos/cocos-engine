@@ -56,7 +56,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         DrawPoint (center: B2.Vec2, size: number, color: B2.Color): void {
             PhysicsDebugDraw.DrawPoint(center, size, color);
         },
-    }
+    };
 
     static _drawer: Graphics | null = null;
 
@@ -96,8 +96,11 @@ export class PhysicsDebugDraw {// extends B2.Draw {
 
     static _DrawCircle (center: B2.Vec2, radius: number): void {
         const p = PhysicsDebugDraw._xf.p;
-        PhysicsDebugDraw._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO,
-            (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
+        PhysicsDebugDraw._drawer!.circle(
+            (center.x + p.x) * PHYSICS_2D_PTM_RATIO,
+            (center.y + p.y) * PHYSICS_2D_PTM_RATIO,
+            radius * PHYSICS_2D_PTM_RATIO,
+        );
     }
 
     static DrawCircle (center: B2.Vec2, radius: number, color: B2.Color): void {
@@ -112,7 +115,7 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         PhysicsDebugDraw._drawer!.fill();
     }
 
-    static DrawSegment (p1: B2.Vec2, p2: B2.Vec2, color): void {
+    static DrawSegment (p1: B2.Vec2, p2: B2.Vec2, color: B2.Color): void {
         const drawer = PhysicsDebugDraw._drawer!;
 
         if (p1.x === p2.x && p1.y === p2.y) {
@@ -158,9 +161,11 @@ export class PhysicsDebugDraw {// extends B2.Draw {
     }
 
     static DrawPoint (center, size, color): void {
+        // TODO
     }
 
     static DrawParticles (): void {
+        // TODO
     }
 
     static _applyStrokeColor (color: B2.Color): void {

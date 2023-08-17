@@ -69,5 +69,5 @@ export class PhysicsAABBQueryCallback {
             const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsAABBQueryCallback.ReportFixture(f);
         },
-    }
+    };
 }

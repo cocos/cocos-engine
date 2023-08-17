@@ -37,8 +37,11 @@ export class B2SpringJoint extends B2Joint implements ISpringJoint {
     }
     UpdateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(this._b2joint,
-                (this._jointComp as SpringJoint2D).frequency, (this._jointComp as SpringJoint2D).dampingRatio);
+            B2.SetLinearFrequencyAndDampingRatio(
+                this._b2joint,
+                (this._jointComp as SpringJoint2D).frequency,
+                (this._jointComp as SpringJoint2D).dampingRatio,
+            );
         }
     }
     setDistance (v: number): void {

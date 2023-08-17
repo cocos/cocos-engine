@@ -68,7 +68,7 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
         def.target = { x: this._touchPoint.x / PHYSICS_2D_PTM_RATIO, y: this._touchPoint.y / PHYSICS_2D_PTM_RATIO };
         def.maxForce = comp.maxForce;
         def.dampingRatio = comp.dampingRatio;
-        def.frequency = comp.frequency;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 
@@ -85,9 +85,11 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
     }
 
     onEnable (): void {
+        //empty
     }
 
     start (): void {
+        //empty
     }
 
     onTouchBegan (event: Touch): void {

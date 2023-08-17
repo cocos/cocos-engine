@@ -165,9 +165,9 @@ export class PhysicsContact implements IPhysics2DContact {
 
         for (let i = 0; i < count; i++) {
             const p = manifoldPointCache[i];
-            const b2p = B2.ManifoldGetPoint(b2Manifold, i);//B2.ManifoldPoint
-            p.localPoint.x = B2.ManifoldPointGetLocalPointX(b2p, i) * PHYSICS_2D_PTM_RATIO;
-            p.localPoint.y = B2.ManifoldPointGetLocalPointY(b2p, i) * PHYSICS_2D_PTM_RATIO;
+            const b2p = B2.ManifoldGetManifoldPointPtr(b2Manifold, i);//B2.ManifoldPoint
+            p.localPoint.x = B2.ManifoldPointGetLocalPointX(b2p) * PHYSICS_2D_PTM_RATIO;
+            p.localPoint.y = B2.ManifoldPointGetLocalPointY(b2p) * PHYSICS_2D_PTM_RATIO;
             p.normalImpulse = B2.ManifoldPointGetNormalImpulse(b2p) * PHYSICS_2D_PTM_RATIO;
             p.tangentImpulse = B2.ManifoldPointGetTangentImpulse(b2p); //* PHYSICS_2D_PTM_RATIO;?
             points[i] = p;
@@ -195,8 +195,8 @@ export class PhysicsContact implements IPhysics2DContact {
         const tangentImpulses = impulse.tangentImpulses;
         const count = B2.ContactImpulseGetCount(b2impulse);
         for (let i = 0; i < count; i++) {
-            normalImpulses[i] = B2.ContactImpulseGetNormalImpulsesValue(b2impulse, i) * PHYSICS_2D_PTM_RATIO;
-            tangentImpulses[i] = B2.ContactImpulseGetTangentImpulsesValue(b2impulse, i);
+            normalImpulses[i] = B2.ContactImpulseGetNormalImpulse(b2impulse, i) * PHYSICS_2D_PTM_RATIO;
+            tangentImpulses[i] = B2.ContactImpulseGetTangentImpulse(b2impulse, i);
         }
 
         tangentImpulses.length = normalImpulses.length = count;
@@ -247,7 +247,7 @@ export class PhysicsContact implements IPhysics2DContact {
         }
     }
 
-    setEnabled (value): void {
+    setEnabled (value: boolean): void {
         B2.ContactSetEnabled(this._implPtr, value);
     }
 
@@ -255,7 +255,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return B2.ContactIsTouching(this._implPtr);
     }
 
-    setTangentSpeed (value): void {
+    setTangentSpeed (value: number): void {
         B2.ContactSetTangentSpeed(this._implPtr, value);
     }
 
@@ -263,7 +263,7 @@ export class PhysicsContact implements IPhysics2DContact {
         return B2.ContactGetTangentSpeed(this._implPtr);
     }
 
-    setFriction (value): void {
+    setFriction (value: number): void {
         B2.ContactSetFriction(this._implPtr, value);
     }
 
@@ -275,7 +275,7 @@ export class PhysicsContact implements IPhysics2DContact {
         B2.ContactResetFriction(this._implPtr);
     }
 
-    setRestitution (value): void {
+    setRestitution (value: number): void {
         B2.ContactSetRestitution(this._implPtr, value);
     }
 

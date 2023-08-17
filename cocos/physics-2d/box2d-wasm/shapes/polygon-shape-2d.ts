@@ -28,7 +28,7 @@ import * as PolygonPartition from '../../framework/utils/polygon-partition';
 import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
-import { Vec2, IVec2Like } from '../../../core';
+import { Vec2, IVec2Like, warn } from '../../../core';
 
 export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
     _worldPoints: Vec2[] = [];
@@ -48,7 +48,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
         return this._worldPoints;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): any[] {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.PolygonShape[] {
         const shapes: B2.PolygonShape[] = [];
 
         const comp = this.collider as PolygonCollider2D;
@@ -61,7 +61,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
 
         const polys = PolygonPartition.ConvexPartition(points);
         if (!polys) {
-            console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
+            warn('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
             return shapes;
         }
 
@@ -89,8 +89,8 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
                 }
 
                 if (vertices.size() === B2.maxPolygonVertices) {
-                    shape!.Set(vertices, vertices.size());
-                    shapes.push(shape!);
+                    shape.Set(vertices, vertices.size());
+                    shapes.push(shape);
 
                     shape = null;
 

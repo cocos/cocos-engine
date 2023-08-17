@@ -68,5 +68,5 @@ export class PhysicsContactListener {
         PostSolve (contact: number, impulse: number): void {
             PhysicsContactListener.PostSolve(contact, impulse);
         },
-    }
+    };
 }
