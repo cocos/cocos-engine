@@ -110,7 +110,7 @@ function initWasm (wasmUrl: string): Promise<void> {
             ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
                 instantiateWasm(wasmUrl, importObject).then((result: any) => {
-                    receiveInstance(result.instance, result.module);
+                    receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((Instance: any) => {
@@ -135,13 +135,13 @@ function initAsm (): Promise<void> {
 
 export function waitForBox2dWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+    if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.MAYBE_SUPPORT) {
         if (sys.hasFeature(sys.Feature.WASM)) {
             return initWasm(box2dWasmUrl).catch(errorReport);
         } else {
             return initAsm().catch(errorReport);
         }
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+    } else if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.SUPPORT) {
         return initWasm(box2dWasmUrl).catch(errorReport);
     } else {
         return initAsm().catch(errorReport);

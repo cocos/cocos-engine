@@ -75,7 +75,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
 
     constructor () {
         this._world = new B2.World({ x: 0, y: -10 });
-        this._physicsGroundBody = this._world.CreateBody(new B2.BodyDef());
+        this._physicsGroundBody = this._world.CreateBody(new B2.BodyDef() as B2.BodyDef);
         PhysicsContactListener._BeginContact = this._onBeginContact;
         PhysicsContactListener._EndContact = this._onEndContact;
         PhysicsContactListener._PreSolve = this._onPreSolve;
@@ -138,7 +138,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             const debugDraw = B2.Draw.implement(PhysicsDebugDraw.callback);//new PhysicsDebugDraw();
 
             this._b2DebugDrawer = debugDraw;
-            this._world.SetDebugDraw(debugDraw);
+            this._world.SetDebugDraw(debugDraw as B2.Draw);
         }
 
         const parent = this._debugGraphics.node.parent!;
@@ -239,7 +239,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             }
 
             const node = bodyComp.node;
-            const b2body = body.impl;
+            const b2body = body.impl!;
 
             // position
             const pos = b2body.GetPosition();
@@ -316,7 +316,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const linearVelocity = compPrivate._linearVelocity;
         bodyDef.linearVelocity = { x: linearVelocity.x, y: linearVelocity.y };
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity);
+        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
         addImplPtrReference(body, getImplPtr(b2Body));

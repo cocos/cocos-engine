@@ -36,7 +36,7 @@ export class B2CircleShape extends B2Shape2D implements ICircleShape {
 
     _worldPosition = new Vec2();
     get worldPosition (): Vec2 {
-        const p = (this._shapes[0]).m_p;
+        const p = (this._shapes[0] as B2.CircleShape).m_p;
         return this._worldPosition.set(p.x * PHYSICS_2D_PTM_RATIO, p.y * PHYSICS_2D_PTM_RATIO);
     }
 
@@ -54,6 +54,6 @@ export class B2CircleShape extends B2Shape2D implements ICircleShape {
         shape.m_p.x = offsetX;
         shape.m_p.y = offsetY;
 
-        return [shape];
+        return [shape as unknown as B2.CircleShape];
     }
 }

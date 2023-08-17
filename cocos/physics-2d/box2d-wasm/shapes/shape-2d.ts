@@ -185,7 +185,7 @@ export class B2Shape2D implements IBaseShape {
             fixDef.restitution = comp.restitution;
             fixDef.SetShape(shape);
             fixDef.filter = filter;
-            const fixture = this._body.CreateFixture(fixDef);
+            const fixture = this._body.CreateFixture(fixDef as B2.FixtureDef);
             //fixture.m_userData = this;
             addImplPtrReference(this, getImplPtr(fixture));
             addImplPtrReferenceWASM(fixture, getImplPtr(fixture));

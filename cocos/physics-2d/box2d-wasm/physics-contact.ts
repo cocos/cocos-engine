@@ -97,8 +97,8 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     init (b2contact: number): void {
-        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact))).collider;
-        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact))).collider;
+        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact) as number)).collider;
+        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact) as number)).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulsePtr = 0;
@@ -252,7 +252,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     isTouching (): boolean {
-        return B2.ContactIsTouching(this._implPtr);
+        return B2.ContactIsTouching(this._implPtr) as boolean;
     }
 
     setTangentSpeed (value: number): void {
@@ -260,7 +260,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     getTangentSpeed (): number {
-        return B2.ContactGetTangentSpeed(this._implPtr);
+        return B2.ContactGetTangentSpeed(this._implPtr) as number;
     }
 
     setFriction (value: number): void {
@@ -268,7 +268,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     getFriction (): number {
-        return B2.ContactGetFriction(this._implPtr);
+        return B2.ContactGetFriction(this._implPtr) as number;
     }
 
     resetFriction (): void {
@@ -280,7 +280,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     getRestitution (): number {
-        return B2.ContactGetRestitution(this._implPtr);
+        return B2.ContactGetRestitution(this._implPtr) as number;
     }
 
     resetRestitution (): void {

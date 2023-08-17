@@ -89,8 +89,8 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
                 }
 
                 if (vertices.size() === B2.maxPolygonVertices) {
-                    shape.Set(vertices, vertices.size());
-                    shapes.push(shape);
+                    shape!.Set(vertices, vertices.size() as number);
+                    shapes.push(shape!);
 
                     shape = null;
 
@@ -104,7 +104,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
             }
 
             if (shape) {
-                shape.Set(vertices, vertices.size());
+                shape.Set(vertices, vertices.size() as number);
                 shapes.push(shape);
             }
             vertices.delete();

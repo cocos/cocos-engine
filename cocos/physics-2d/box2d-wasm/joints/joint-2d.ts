@@ -81,7 +81,7 @@ export class B2Joint implements IJoint2D {
             return;
         }
 
-        def.SetBodyA(this._body.impl!.impl);
+        def.SetBodyA(this._body.impl!.impl as B2.Body);
         const connectedBody = comp.connectedBody;
         //if connected body is set but not active, return
         if (connectedBody && !connectedBody.enabledInHierarchy) {
@@ -92,7 +92,7 @@ export class B2Joint implements IJoint2D {
         if (!connectedBody) {
             def.SetBodyB((PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).groundBodyImpl);
         } else {
-            def.SetBodyB(connectedBody.impl!.impl);
+            def.SetBodyB(connectedBody.impl!.impl  as B2.Body);
         }
 
         def.collideConnected = comp.collideConnected;
@@ -109,7 +109,7 @@ export class B2Joint implements IJoint2D {
     _destroy (): void {
         if (!this._inited) return;
 
-        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint);
+        (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
 
         this._b2joint = null;
         this._inited = false;
