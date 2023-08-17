@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-// import b2, { MotorJointDef, Vec2 } from '@cocos/box2d';
 import { B2 } from '../instantiated';
 import { IRelativeJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';

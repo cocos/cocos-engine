@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-//import b2, { Vec2 } from '@cocos/box2d';
 import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, removeImplPtrReference,
     removeImplPtrReferenceWASM } from '../instantiated';
 import { IBaseShape } from '../../spec/i-physics-shape';
