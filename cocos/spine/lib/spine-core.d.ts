@@ -393,10 +393,6 @@ declare namespace spine {
         getWorldRotationY(): number;
         getWorldScaleX(): number;
         getWorldScaleY(): number;
-        /**
-         * @deprecated Since v3.8.0, unsupported private function.
-         */
-        updateAppliedTransform(): void;
         worldToLocal(world: Vector2): Vector2;
         localToWorld(local: Vector2): Vector2;
         worldToLocalRotation(worldRotation: number): number;
