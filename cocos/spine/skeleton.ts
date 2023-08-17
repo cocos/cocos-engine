@@ -1034,7 +1034,7 @@ export class Skeleton extends UIRenderer {
         let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
+        this.setSharedMaterial(mat, 0);
         this._cleanMaterialCache();
     }
 

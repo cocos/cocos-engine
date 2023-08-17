@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { Component } from '../scene-graph';
 import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
-import { warnID, _decorator } from '../core';
+import { warnID, _decorator, errorID } from '../core';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -78,12 +78,12 @@ export class Renderer extends Component {
     set sharedMaterials (val) {
         for (let i = 0; i < val.length; i++) {
             if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
+                this.setSharedMaterial(val[i], i);
             }
         }
         if (val.length < this._materials.length) {
             for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(null, i);
+                this.setSharedMaterial(null, i);
             }
             this._materials.splice(val.length);
         }
@@ -146,6 +146,13 @@ export class Renderer extends Component {
     }
 
     /**
+     * @deprecated Since v3.8.1, please use [[setSharedMaterial]] instead.
+     */
+    public setMaterial (material: Material | null, index: number): void {
+        this.setSharedMaterial(material, index);
+    }
+
+    /**
      * @en Get the shared material asset of the specified sub-model.
      * @zh 获取指定子模型的共享材质资源。
      */
@@ -161,9 +168,9 @@ export class Renderer extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setMaterial (material: Material | null, index: number): void {
+    public setSharedMaterial (material: Material | null, index: number): void {
         if (material && material instanceof MaterialInstance) {
-            console.error('Can\'t set a material instance to a sharedMaterial slot');
+            errorID(12012);
         }
         this._materials[index] = material;
         const inst = this._materialInstances[index];
@@ -223,7 +230,7 @@ export class Renderer extends Component {
         // Skip identity check if it's a Material property
         // Or if there is a MaterialInstance already
         if (matInst !== this._materials[index] || curInst) {
-            this.setMaterial(matInst as Material, index);
+            this.setSharedMaterial(matInst as Material, index);
         }
     }
 
