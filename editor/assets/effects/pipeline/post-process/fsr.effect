@@ -72,18 +72,18 @@ CCProgram fs-easu %{
   void main () {
     vec3 c;
     vec4 con0, con1, con2, con3;
-    
+
     // "rendersize" refers to size of source image before upscaling.
     vec2 rendersize = texSize.xy;
     FsrEasuCon(
-      con0, con1, con2, con3, 
+      con0, con1, con2, con3,
       rendersize, rendersize, texSize.zw
     );
     FsrEasuF(c, gl_FragCoord.xy, con0, con1, con2, con3);
     float alpha = texture(outputResultMap, v_uv).a;
     fragColor = vec4(c.xyz, alpha);
   }
-  
+
 }%
 
 
