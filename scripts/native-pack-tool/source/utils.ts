@@ -557,7 +557,7 @@ export class Paths {
         this.buildDir = params.buildDir;
         this.buildAssetsDir = params.buildAssetsDir;
         if (params.platform === 'windows') {
-            this.platformTemplateDirName = params.platformParams.targetPlatform === "win32" ? "win32" : "win64";
+            this.platformTemplateDirName = (params.platformParams as any).targetPlatform === "win32" ? "win32" : "win64";
         } else {
             this.platformTemplateDirName = params.platformName ? params.platformName : this.platform;
         }
