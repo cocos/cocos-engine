@@ -519,6 +519,42 @@ static bool js_spine_Skin_getAttachments(se::State& s) {
 }
 SE_BIND_FUNC(js_spine_Skin_getAttachments)
 
+static bool js_spine_Slot_setAttachment(se::State& s) {
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    spine::Slot *slot = (spine::Slot *) NULL ;
+
+    slot = SE_THIS_OBJECT<spine::Slot>(s);
+    if (nullptr == slot) return true;
+
+    spine::Attachment* attachment = nullptr;
+
+    ok = sevalue_to_native(args[0], &attachment, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    slot->setAttachment(attachment);
+
+    return true;
+}
+SE_BIND_FUNC(js_spine_Slot_setAttachment)
+
+static bool js_spine_Slot_getAttachment(se::State& s) {
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    spine::Slot *slot = (spine::Slot *) NULL ;
+
+    slot = SE_THIS_OBJECT<spine::Slot>(s);
+    if (nullptr == slot) return true;
+
+    spine::Attachment *attachment = slot->getAttachment();
+    if (attachment) {
+        nativevalue_to_se(attachment, s.rval(), s.thisObject());
+        return true;
+    }
+    return false;
+}
+SE_BIND_FUNC(js_spine_Slot_getAttachment)
+
 bool register_all_spine_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
@@ -545,6 +581,8 @@ bool register_all_spine_manual(se::Object *obj) {
     __jsb_spine_SwirlVertexEffect_proto->defineFunction("transform", _SE(js_SwirlVertexEffect_transform));
     __jsb_spine_JitterVertexEffect_proto->defineFunction("transform", _SE(js_JitterVertexEffect_transform));
     __jsb_spine_Skin_proto->defineFunction("getAttachments", _SE(js_spine_Skin_getAttachments));
+    __jsb_spine_Slot_proto->defineFunction("setAttachment", _SE(js_spine_Slot_setAttachment));
+    __jsb_spine_Slot_proto->defineFunction("getAttachment", _SE(js_spine_Slot_getAttachment));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         if (!se::NativePtrToObjectMap::isValid()) {

@@ -58,13 +58,11 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #endif
 }
 
-#if CC_SURFACES_LIGHTING_USE_FRESNEL
 vec3 CCSurfaceLightingCalculateExtraFresnel(in LightingIntermediateData lightingData)
 {
     float fresnel = CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVAbsSat); //NoVSat for single side, and NoVAbsSat for two sided
     return vec3(fresnel);
 }
-#endif
 
 void CCSurfaceLightingCalculateDirectFresnel(out vec3 directGF, in LightingIntermediateData lightingData, vec3 specularColor, in vec3 environmentGF)
 {
@@ -255,6 +253,7 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
 
 #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND
   // todo: layer result in LightingResult separate to single structure like LightingResultPerLayer
+  // todo: after structuring, add TRT/Sheen to eachLayer's direct/environmentSpecular before blending
   void CCSurfacesLightingCalculateDirectMultiLayerBlending(inout LightingResult lightingResult
       , in LightingIntermediateData lightingData2ndLayer
     #if CC_SURFACES_LIGHTING_USE_MULTIPLE_LAYER_BLEND > 1

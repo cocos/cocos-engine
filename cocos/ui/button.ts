@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin,
+    rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
@@ -122,7 +123,8 @@ export enum EventType {
  *   - cc.Node.EventType.MOUSE_LEAVE
  *   - cc.Node.EventType.MOUSE_UP
  *
- * The developer can get the current clicked node with `event.target` from event object which is passed as parameter in the callback function of click event.
+ * The developer can get the current clicked node with `event.target` from event object which is passed as parameter
+ * in the callback function of click event.
  *
  * @zh
  * 按钮组件。可以被按下，或者点击。<br>
@@ -398,7 +400,8 @@ export class Button extends Component {
      * @en
      * When user press the button, the button will zoom to a scale.
      * The final scale of the button equals (button original scale * zoomScale)
-     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.
+     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event
+     * if the touch point is out of touch area after scaling.
      * if you need to do so, you should set target as another background node instead of the button node.
      *
      * @zh
@@ -581,11 +584,6 @@ export class Button extends Component {
     public __preload (): void {
         if (!this.target) {
             this.target = this.node;
-        }
-
-        const sprite = this.node.getComponent(Sprite);
-        if (sprite) {
-            this._normalSprite = sprite.spriteFrame;
         }
 
         this._applyTarget();
@@ -859,7 +857,7 @@ export class Button extends Component {
                 this.target.setScale(this._originalScale);
             }
         } else {
-            let state;
+            let state: string;
             if (hit) {
                 state = State.PRESSED;
             } else {
@@ -940,7 +938,7 @@ export class Button extends Component {
             return;
         }
 
-        if (EDITOR || state === State.DISABLED) {
+        if (EDITOR || state === State.DISABLED.toString()) {
             renderComp.color = color;
         } else {
             this._fromColor = renderComp.color.clone();
@@ -962,7 +960,7 @@ export class Button extends Component {
             return;
         }
 
-        if (state === State.PRESSED) {
+        if (state === State.PRESSED.toString()) {
             this._zoomUp();
         } else {
             this._zoomBack();

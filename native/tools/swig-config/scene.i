@@ -80,7 +80,7 @@ using namespace cc;
             }
         },
         result);
-    
+
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 %}
 
@@ -337,6 +337,7 @@ using namespace cc;
 %attribute(cc::scene::Light, ccstd::string&, name, getName, setName);
 %attribute(cc::scene::Light, cc::scene::RenderScene*, scene, getScene);
 %attribute(cc::scene::Light, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::Light, cc::Vec3&, colorTemperatureRGB, getColorTemperatureRGB, setColorTemperatureRGB);
 
 %attribute(cc::scene::LODData, float, screenUsagePercentage, getScreenUsagePercentage, setScreenUsagePercentage);
 %attribute(cc::scene::LODData, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);

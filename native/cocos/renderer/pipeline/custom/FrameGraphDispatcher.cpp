@@ -189,6 +189,9 @@ ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string& originNa
                                               const ResourceGraph &resg,
                                               uint32_t basePlane,
                                               boost::container::pmr::memory_resource *scratch) {
+    if (basePlane == 0xFFFFFFFF) {
+        return findVertex(originName, resg);
+    }
     const auto &resName = getSubresNameByPlane(originName, basePlane, resg, scratch);
     return findVertex(resName, resg);
 }
@@ -909,7 +912,7 @@ void extractNames(const ccstd::pmr::string &resName,
     // cube
 
     // array
-    
+
     if (names.empty()) {
         names.emplace_back(resName, 0);
     }
@@ -1002,7 +1005,7 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
             tryAddEdge(lastVertId, ragVertID, relationGraph);
             dependent = lastVertId != EXPECT_START_ID;
-            
+
             if (out_degree(resID, resourceGraph) && (computeView.plane != 0xFFFFFFFF)) {
                 const auto& subresFullName = getSubresNameByPlane(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
                 resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
@@ -1530,7 +1533,7 @@ gfx::SamplerInfo makePointSamplerInfo() {
     return gfx::SamplerInfo{gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::POINT};
 }
 
-SubresourceView makeSubresourceView(const ResourceDesc& desc, const gfx::ResourceRange& range) {
+SubresourceView makeSubresourceView(const ResourceDesc& srcDesc, const ResourceDesc &targetDesc, const gfx::ResourceRange& range) {
     SubresourceView view{};
     view.firstArraySlice = range.firstSlice;
     view.numArraySlices = range.numSlices;
@@ -1538,7 +1541,8 @@ SubresourceView makeSubresourceView(const ResourceDesc& desc, const gfx::Resourc
     view.numMipLevels = range.levelCount;
     view.firstPlane = range.basePlane;
     view.numPlanes = range.planeCount;
-    view.format = desc.format;
+    view.format = targetDesc.format;
+    view.viewType = srcDesc.viewType;
     view.textureView = nullptr;
     return view;
 }
@@ -1652,7 +1656,10 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
             }
         } else {
             for (const auto &[rangeStr, subres] : subreses) {
+                auto descResViewID = findVertex(subres, resg);
                 auto targetResID = rag.resourceIndex.at(resName);
+
+                const auto &srcDesc = get(ResourceGraph::DescTag{}, resg, descResViewID);
                 const auto &targetName = get(ResourceGraph::NameTag{}, resg, targetResID);
                 const auto &targetDesc = get(ResourceGraph::DescTag{}, resg, targetResID);
                 const auto &srcResourceRange = rag.movedSourceStatus.at(subres).range;
@@ -1660,7 +1667,7 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
                 const auto &indexName = concatResName(targetName, subres, rag.resource());
                 auto subresID = findVertex(indexName, resg);
                 if (subresID == ResourceGraph::null_vertex()) {
-                    const auto &subView = makeSubresourceView(targetDesc, srcResourceRange);
+                    const auto &subView = makeSubresourceView(srcDesc, targetDesc, srcResourceRange);
                     // register to resourcegraph
                     subresID = addVertex(
                         SubresourceViewTag{},
