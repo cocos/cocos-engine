@@ -28,7 +28,7 @@ import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc } from '../../core';
+import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, errorID } from '../../core';
 import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
@@ -36,7 +36,8 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
-import { MeshUtils } from '../misc/create-mesh';
+import { MeshoptDecoder } from '../misc/mesh-codec';
+import zlib  from '../../../external/compression/zlib.min';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -403,10 +404,10 @@ export class Mesh extends Asset {
 
         let info = { struct: this.struct, data: this.data };
         if (info.struct.compressed) { // decompress mesh data
-            info = MeshUtils.inflateMesh(info);
+            info = inflateMesh(info);
         }
         if (this.struct.encoded) { // decode mesh data
-            info = MeshUtils.decodeMesh(info);
+            info = decodeMesh(info);
         }
 
         this._struct = info.struct;
@@ -1498,6 +1499,86 @@ function getWriter (dataView: DataView, format: Format): ((offset: number, value
     }
 
     return null;
+}
+
+export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    if (!mesh.struct.encoded) {
+        // the mesh is not encoded, so no need to decode
+        return mesh;
+    }
+
+    // decode the mesh
+    if (!MeshoptDecoder.supported) {
+        return mesh;
+    }
+
+    const res_checker = (res: number): void => {
+        if (res < 0) {
+            errorID(14204, res);
+        }
+    };
+
+    const struct = JSON.parse(JSON.stringify(mesh.struct)) as Mesh.IStruct;
+
+    const bufferBlob = new BufferBlob();
+    bufferBlob.setNextAlignment(0);
+
+    for (const bundle of struct.vertexBundles) {
+        const view = bundle.view;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const vertex = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeVertexBuffer(buffer, view.count, view.stride, vertex) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        bundle.view = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    for (const primitive of struct.primitives) {
+        if (primitive.indexView === undefined) {
+            continue;
+        }
+
+        const view = primitive.indexView;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const index = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeIndexBuffer(buffer, view.count, view.stride, index) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        primitive.indexView = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    const data = new Uint8Array(bufferBlob.getCombined());
+
+    return {
+        struct,
+        data,
+    };
+}
+
+export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    const inflator = new zlib.Inflate(mesh.data);
+    const decompressed = inflator.decompress();
+    mesh.data = decompressed;
+    mesh.struct.compressed = false;
+    return mesh;
 }
 
 // function get

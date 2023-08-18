@@ -57,8 +57,8 @@ uint16_t floatToHalf(float fval) {
     } u = {fval};
     unsigned int ui = u.ui;
 
-    int s = (ui >> 16) & 0x8000;
-    int em = ui & 0x7fffffff;
+    int s = (ui >> 16) & 0x8000; // NOLINT
+    int em = ui & 0x7fffffff;    // NOLINT
 
     /* bias exponent and round to nearest; 112 is relative exponent bias (127-15) */
     int h = (em - (112 << 23) + (1 << 12)) >> 13;
@@ -103,7 +103,7 @@ float halfToFloat(uint16_t hval) {
         }
     }
 
-    u.ui = ((uint16_t)(s << 31)) | em | m;
+    u.ui = ((uint16_t)(s << 31)) | em | m; // NOLINT
     return u.f;
 }
 

@@ -22,67 +22,12 @@
  THE SOFTWARE.
 */
 
-import meshopt_asm_factory from 'external:emscripten/meshopt/meshopt_decoder.asm.js';
-import meshopt_wasm_factory from 'external:emscripten/meshopt/meshopt_decoder.wasm.js';
-
-import { WASM_SUPPORT_MODE } from 'internal:constants';
-import  zlib  from '../../../external/compression/zlib.min';
-import { Mesh } from '../assets/mesh';
+import { Mesh, decodeMesh, inflateMesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../gfx';
-import { Vec3, sys, logID, errorID } from '../../core';
+import { Vec3 } from '../../core';
 import { IGeometry, IDynamicGeometry, ICreateMeshOptions, ICreateDynamicMeshOptions } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
-import { game } from '../../game';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
-
-export const MeshoptDecoder = {} as any;
-
-function initDecoderASM (): Promise<void> {
-    const Module = meshopt_asm_factory;
-    return Promise.all([Module.ready]).then(() => {
-        MeshoptDecoder.supported = true;
-        MeshoptDecoder.ready = Promise.resolve();
-        MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
-        MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
-        MeshoptDecoder.decodeIndexSequence = Module.decodeIndexSequence;
-        MeshoptDecoder.decodeGltfBuffer = Module.decodeGltfBuffer;
-        MeshoptDecoder.useWorkers = Module.useWorkers;
-        MeshoptDecoder.decodeGltfBufferAsync = Module.decodeGltfBufferAsync;
-        logID(14202);
-    });
-}
-
-function initDecoderWASM (): Promise<void> {
-    const Module = meshopt_wasm_factory;
-    return Promise.all([Module.ready]).then(() => {
-        MeshoptDecoder.supported = true;
-        MeshoptDecoder.ready = Promise.resolve();
-        MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
-        MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
-        MeshoptDecoder.decodeIndexSequence = Module.decodeIndexSequence;
-        MeshoptDecoder.decodeGltfBuffer = Module.decodeGltfBuffer;
-        MeshoptDecoder.useWorkers = Module.useWorkers;
-        MeshoptDecoder.decodeGltfBufferAsync = Module.decodeGltfBufferAsync;
-        logID(14203);
-    });
-}
-
-export function InitDecoder (): Promise<void> {
-    if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            return initDecoderWASM();
-        } else {
-            return initDecoderASM();
-        }
-    } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.SUPPORT as number)) {
-        return initDecoderWASM();
-    } else {
-        return initDecoderASM();
-    }
-}
-
-game.onPostInfrastructureInitDelegate.add(InitDecoder);
 
 const _defAttrs: Attribute[] = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
@@ -458,86 +403,6 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
     out.updateSubMesh(primitiveIndex, geometry);
 
     return out;
-}
-
-export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
-    if (!mesh.struct.encoded) {
-        // the mesh is not encoded, so no need to decode
-        return mesh;
-    }
-
-    // decode the mesh
-    if (!MeshoptDecoder.supported) {
-        return mesh;
-    }
-
-    const res_checker = (res: number): void => {
-        if (res < 0) {
-            errorID(14204, res);
-        }
-    };
-
-    const struct = JSON.parse(JSON.stringify(mesh.struct)) as Mesh.IStruct;
-
-    const bufferBlob = new BufferBlob();
-    bufferBlob.setNextAlignment(0);
-
-    for (const bundle of struct.vertexBundles) {
-        const view = bundle.view;
-        const bound = view.count * view.stride;
-        const buffer = new Uint8Array(bound);
-        const vertex = new Uint8Array(mesh.data.buffer, view.offset, view.length);
-        const res = MeshoptDecoder.decodeVertexBuffer(buffer, view.count, view.stride, vertex) as number;
-        res_checker(res);
-
-        bufferBlob.setNextAlignment(view.stride);
-        const newView: Mesh.IBufferView = {
-            offset: bufferBlob.getLength(),
-            length: buffer.byteLength,
-            count: view.count,
-            stride: view.stride,
-        };
-        bundle.view = newView;
-        bufferBlob.addBuffer(buffer);
-    }
-
-    for (const primitive of struct.primitives) {
-        if (primitive.indexView === undefined) {
-            continue;
-        }
-
-        const view = primitive.indexView;
-        const bound = view.count * view.stride;
-        const buffer = new Uint8Array(bound);
-        const index = new Uint8Array(mesh.data.buffer, view.offset, view.length);
-        const res = MeshoptDecoder.decodeIndexBuffer(buffer, view.count, view.stride, index) as number;
-        res_checker(res);
-
-        bufferBlob.setNextAlignment(view.stride);
-        const newView: Mesh.IBufferView = {
-            offset: bufferBlob.getLength(),
-            length: buffer.byteLength,
-            count: view.count,
-            stride: view.stride,
-        };
-        primitive.indexView = newView;
-        bufferBlob.addBuffer(buffer);
-    }
-
-    const data = new Uint8Array(bufferBlob.getCombined());
-
-    return {
-        struct,
-        data,
-    };
-}
-
-export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
-    const inflator = new zlib.Inflate(mesh.data);
-    const decompressed = inflator.decompress();
-    mesh.data = decompressed;
-    mesh.struct.compressed = false;
-    return mesh;
 }
 
 /**
