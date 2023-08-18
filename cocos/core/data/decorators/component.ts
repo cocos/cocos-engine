@@ -22,9 +22,17 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
-import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
+import { EDITOR, TEST } from 'internal:constants';
+import { makeSmartClassDecorator, emptySmartClassDecorator } from './utils';
+import { value } from '../../utils/js';
+
+export function assignEditorMetadata (constructor: Function, attrName: string, attrValue: any, inheritable: boolean): void {
+    if (inheritable) {
+        constructor[attrName] = attrValue;
+    } else {
+        value(constructor, attrName, attrValue, true);
+    }
+}
 
 /**
  * @en Declare that the current component relies on another type of component.
@@ -43,7 +51,14 @@ import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartCl
  * }
  * ```
  */
-export const requireComponent: (requiredComponent: Function | Function[]) => ClassDecorator = makeEditorClassDecoratorFn('requireComponent');
+export function requireComponent (requiredComponent: Function | Function[]): ClassDecorator {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        if (Array.isArray(requiredComponent)) {
+            requiredComponent = requiredComponent.filter(Boolean);
+        }
+        assignEditorMetadata(constructor, '_requireComponent', requiredComponent, true);
+    };
+}
 
 /**
  * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority gets invoked before larger priority.
@@ -62,7 +77,13 @@ export const requireComponent: (requiredComponent: Function | Function[]) => Cla
  * }
  * ```
  */
-export const executionOrder: (priority: number) => ClassDecorator = makeEditorClassDecoratorFn('executionOrder');
+export function executionOrder (priority: number): ClassDecorator {
+    return <TFunction extends AnyFunction>(constructor: TFunction): void => {
+        if (priority && typeof priority === 'number') {
+            assignEditorMetadata(constructor, '_executionOrder', priority, true);
+        }
+    };
+}
 
 /**
  * @en Forbid adds multiple instances of the component to the same node.
@@ -79,4 +100,6 @@ export const executionOrder: (priority: number) => ClassDecorator = makeEditorCl
  * }
  * ```
  */
-export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true) : emptySmartClassDecorator;
+export const disallowMultiple: ClassDecorator & (() => ClassDecorator) = (EDITOR || TEST) ? makeSmartClassDecorator((constructor): void => {
+    assignEditorMetadata(constructor, '_disallowMultiple', constructor, true);
+}) : emptySmartClassDecorator;

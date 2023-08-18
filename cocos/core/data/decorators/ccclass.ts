@@ -23,10 +23,12 @@
 */
 
 import { DEV } from 'internal:constants';
-import { getSuper, mixin, getClassName } from '../../utils/js-typed';
+import { getSuper, getClassName, isChildClassOf } from '../../utils/js-typed';
 import { CCClass } from '../class';
-import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
+import { validateOverrideMethods_DEV } from '../utils/preprocess-class';
 import { getClassDecoratorStash, makeSmartClassDecorator, deleteClassDecoratorStash } from './utils';
+import { legacyCC } from '../../global-exports';
+import { warnID } from '../../platform';
 
 /**
  * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/en/scripting/ccclass.html)
@@ -56,36 +58,20 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
         base = null;
     }
 
-    const proto = {
-        name,
-        extends: base,
-        ctor: constructor,
-    };
     const cache = getClassDecoratorStash(constructor);
+    const res = CCClass(constructor, base, name, cache?.properties);
+
     if (cache) {
-        const decoratedProto = cache.proto;
-        if (decoratedProto) {
-            // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
-            mixin(proto, decoratedProto);
-        }
         deleteClassDecoratorStash(constructor);
     }
 
-    const res = CCClass(proto);
-
-    // validate methods
     if (DEV) {
-        const propNames = Object.getOwnPropertyNames(constructor.prototype);
-        for (let i = 0; i < propNames.length; ++i) {
-            const prop = propNames[i];
-            if (prop !== 'constructor') {
-                const desc = Object.getOwnPropertyDescriptor(constructor.prototype, prop);
-                const func = desc && desc.value;
-                if (typeof func === 'function') {
-                    doValidateMethodWithProps_DEV(func, prop, getClassName(constructor), constructor, base);
-                }
+        if (isChildClassOf(base, legacyCC.Component)) {
+            if ((constructor as any)._playOnFocus && !(constructor as any)._executeInEditMode) {
+                warnID(3601, name!);
             }
         }
+        validateOverrideMethods_DEV(constructor, base, getClassName(constructor));
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

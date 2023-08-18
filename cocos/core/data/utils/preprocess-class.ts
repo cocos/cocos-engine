@@ -31,55 +31,6 @@ import { legacyCC } from '../../global-exports';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
-const SerializableAttrs = {
-    default: {},
-    serializable: {},
-    editorOnly: {},
-    formerlySerializedAs: {},
-};
-
-/**
- * 预处理 notify 等扩展属性
- */
-function parseNotify (val, propName, notify, properties): void {
-    if (val.get || val.set) {
-        if (DEV) {
-            warnID(5500);
-        }
-        return;
-    }
-    if (val.hasOwnProperty('default')) {
-        // 添加新的内部属性，将原来的属性修改为 getter/setter 形式
-        // （以 _ 开头将自动设置property 为 visible: false）
-        const newKey = `_N$${propName}`;
-
-        val.get = function (): any {
-            return this[newKey];
-        };
-        val.set = function (value): void {
-            const oldValue = this[newKey];
-            this[newKey] = value;
-            notify.call(this, oldValue);
-        };
-
-        const newValue = {};
-        properties[newKey] = newValue;
-        // 将不能用于get方法中的属性移动到newValue中
-
-        for (const attr in SerializableAttrs) {
-            const v = SerializableAttrs[attr];
-            if (val.hasOwnProperty(attr)) {
-                newValue[attr] = val[attr];
-                if (!v.canUsedInGet) {
-                    delete val[attr];
-                }
-            }
-        }
-    } else if (DEV) {
-        warnID(5501);
-    }
-}
-
 function parseType (val, type, className, propName): void {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
@@ -113,6 +64,11 @@ function parseType (val, type, className, propName): void {
                 warnID(3610, `"${className}.${propName}"`);
             }
         }
+        if (EDITOR) {
+            if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
+                warnID(5512, className, propName, className, propName);
+            }
+        }
     } else if (STATIC_CHECK) {
         switch (type) {
         case 'Number':
@@ -135,12 +91,6 @@ function parseType (val, type, className, propName): void {
             break;
         default:
             break;
-        }
-    }
-
-    if (EDITOR && typeof type === 'function') {
-        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
-            warnID(5512, className, propName, className, propName);
         }
     }
 }
@@ -204,32 +154,11 @@ export function preprocessAttrs (properties, className, cls): void {
             val = properties[propName] = fullForm;
         }
         if (val) {
-            if (EDITOR) {
-                if ('default' in val) {
-                    if (val.get) {
-                        errorID(5513, className, propName);
-                    } else if (val.set) {
-                        errorID(5514, className, propName);
-                    } else if (legacyCC.Class._isCCClass(val.default)) {
-                        val.default = null;
-                        errorID(5515, className, propName);
-                    }
-                }
-            }
             if (DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 warnID(5517, className, propName, baseClass, propName);
             }
-            const notify = val.notify;
-            if (notify) {
-                if (DEV) {
-                    error('not yet support notify attributes.');
-                } else {
-                    parseNotify(val, propName, notify, properties);
-                }
-            }
-
             if ('type' in val) {
                 parseType(val, val.type, className, propName);
             }
@@ -238,17 +167,13 @@ export function preprocessAttrs (properties, className, cls): void {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base): false | undefined {
-    if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
-        // find class that defines this method as a property
-        const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
-        errorID(3648, className, funcName, baseClassName);
-        return false;
-    }
-    if (funcName === 'destroy'
-        && js.isChildClassOf(base, legacyCC.Component)
-        && !CALL_SUPER_DESTROY_REG_DEV.test(func)
-    ) {
-        error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
+export function validateOverrideMethods_DEV (cls: Function, base: Function | undefined, className: string): void {
+    const proto = cls.prototype;
+    const destroy = proto.destroy;
+    if (destroy && proto.hasOwnProperty?.('destroy')) {
+        if (js.isChildClassOf(base, legacyCC.Component)
+            && !CALL_SUPER_DESTROY_REG_DEV.test(destroy)) {
+            error(`Overwriting '${'destroy'}' function in '${className}' class without calling super is not allowed. Call the super function in '${'destroy'}' please.`);
+        }
     }
 }

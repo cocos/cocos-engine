@@ -22,10 +22,6 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
-import { error } from '../../platform/debug';
-import { getClassName } from '../../utils/js-typed';
 import type { ClassStash } from '../class-stash';
 
 export type Initializer = () => unknown;
@@ -105,54 +101,9 @@ export function makeSmartClassDecorator<TArg> (
     }
 }
 
-function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue): void {
-    const cache = getOrCreateClassDecoratorStash(constructor, propertyName);
-    if (cache) {
-        const proto = getSubDict(cache, 'proto');
-        getSubDict(proto, 'editor')[propertyName] = value;
-    }
-}
-
-/**
- * @en
- * Make a function that accepts an argument value and returns a class decorator.
- * The decorator sets the editor property `propertyName`, on the decorated class, into that argument value.
- * @zh
- * 创建一个函数，该函数接受一个参数值并返回一个类装饰器。
- * 该装饰器将被装饰类的编辑器属性 `propertyName` 设置为该参数的值。
- * @param propertyName The editor property.
- */
-export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => <TFunction extends AnyFunction>(constructor: TFunction): void => {
-        writeEditorClassProperty(constructor, propertyName, value);
-    };
-}
-
-/**
- * Make a smart class decorator.
- * The smart decorator sets the editor property `propertyName`, on the decorated class, into:
- * - `defaultValue` if the decorator is called with `@x` form, or
- * - the argument if the decorator is called with an argument, eg, the `@x(arg0)` form.
- * @zh
- * 创建一个智能类装饰器。
- * 该智能类装饰器将根据以下情况来设置被装饰类的编辑器属性 `propertyName`：
- * - 如果该装饰器是以 `@x` 形式调用的，该属性将被设置为 `defaultValue`。
- * - 如果该装饰器是以一个参数的形式，即 `@x(arg0)` 的形式调用的，该属性将被设置为传入的参数值。
- * @param propertyName The editor property.
- */
-export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue): ClassDecorator & ((arg?: TValue | undefined) => ClassDecorator) {
-    return makeSmartClassDecorator<TValue>((constructor, decoratedValue?: TValue): void => {
-        writeEditorClassProperty(constructor, propertyName, (defaultValue !== undefined) ? defaultValue : decoratedValue);
-    });
-}
-
 const classDecoratorStashMap = new WeakMap<AnyFunction, ClassStash>();
 
 export function getOrCreateClassDecoratorStash (cls: AnyFunction, decoratorName?: string): ClassStash {
-    if (DEV && CCClass._isCCClass(cls)) {
-        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(cls));
-        return {};
-    }
     let stash = classDecoratorStashMap.get(cls);
     if (!stash) {
         stash = {};

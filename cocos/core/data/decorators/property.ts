@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
+import { DEV } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
-import { warnID, errorID } from '../../platform/debug';
+import { warnID } from '../../platform/debug';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 import { getClassName, mixin } from '../../utils/js-typed';
@@ -75,27 +75,36 @@ export function property (
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
         descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ): void {
-        const classStash = getOrCreateClassDecoratorStash(target as AnyFunction);
-        const propertyStash = getOrCreateEmptyPropertyStash(
-            target,
-            propertyKey,
-        );
         const classConstructor = target.constructor;
-        mergePropertyOptions(
+        const classStash = getOrCreateClassDecoratorStash(classConstructor);
+        const properties = getSubDict(classStash, 'properties');
+        let propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
+        const isGetset = !!(descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
+                            && (descriptorOrInitializer.get || descriptorOrInitializer.set));
+
+        // merge property options
+        let fullOptions;
+        if (options) {
+            fullOptions = getFullFormOfProperty(options, isGetset);
+        }
+        mixin(propertyStash, fullOptions || options || {});
+
+        initPropertyStash(
             classStash,
             propertyStash,
-            classConstructor,
+            classConstructor as new () => unknown,
             propertyKey,
-            options,
             descriptorOrInitializer,
+            isGetset,
         );
     }
 
     if (target === undefined) {
         // @property() => LegacyPropertyDecorator
-        return property({
+        options = {
             type: undefined,
-        });
+        };
+        return normalized;
     } else if (typeof propertyKey === 'undefined') {
         // @property(options) => LegacyPropertyDescriptor
         // @property(type) => LegacyPropertyDescriptor
@@ -122,33 +131,22 @@ function getDefaultFromInitializer (initializer: Initializer): unknown {
     } else {
         // The default attribute will not be used in the ES6 constructor actually,
         // so we don't need to simplify into `{}` or `[]` or vec2 completely.
+        // TODO: support {} / [] / ValueType...
+        // see https://github.com/cocos/cocos-engine/pull/1572/files#diff-94c9ffb3c1e67c58591d8465bc7798f80d3990e06a9ddf5e4a9f4ae54ddf48daR126
         return initializer;
     }
 }
 
 function extractActualDefaultValues (classConstructor: new () => unknown): unknown {
-    let dummyObj: unknown;
     try {
         // eslint-disable-next-line new-cap
-        dummyObj = new classConstructor();
+        return new classConstructor();
     } catch (e) {
         if (DEV) {
             warnID(3652, getClassName(classConstructor), e);
         }
         return {};
     }
-    return dummyObj;
-}
-
-function getOrCreateEmptyPropertyStash (
-    target: Parameters<LegacyPropertyDecorator>[0],
-    propertyKey: Parameters<LegacyPropertyDecorator>[1],
-): PropertyStash {
-    const classStash = getOrCreateClassDecoratorStash(target.constructor);
-    const ccclassProto = getSubDict(classStash, 'proto');
-    const properties = getSubDict(ccclassProto, 'properties');
-    const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
-    return propertyStash;
 }
 
 export function getOrCreatePropertyStash (
@@ -157,111 +155,61 @@ export function getOrCreatePropertyStash (
     descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): PropertyStash {
     const classStash = getOrCreateClassDecoratorStash(target.constructor);
-    const ccclassProto = getSubDict(classStash, 'proto');
-    const properties = getSubDict(ccclassProto, 'properties');
+    const properties = getSubDict(classStash, 'properties');
     const propertyStash = properties[(propertyKey as string)] ??= {} as PropertyStash;
     propertyStash.__internalFlags |= PropertyStashInternalFlag.STANDALONE;
-    if (descriptorOrInitializer && typeof descriptorOrInitializer !== 'function' && (descriptorOrInitializer.get || descriptorOrInitializer.set)) {
-        if (descriptorOrInitializer.get) {
-            propertyStash.get = descriptorOrInitializer.get;
-        }
-        if (descriptorOrInitializer.set) {
-            propertyStash.set = descriptorOrInitializer.set;
-        }
-    } else {
-        setDefaultValue(
-            classStash,
-            propertyStash,
-            target.constructor as new () => unknown,
-            propertyKey,
-            descriptorOrInitializer,
-        );
-    }
+    const isGetset = !!(descriptorOrInitializer && typeof descriptorOrInitializer !== 'function' && (descriptorOrInitializer.get || descriptorOrInitializer.set));
+    initPropertyStash(
+        classStash,
+        propertyStash,
+        target.constructor as new () => unknown,
+        propertyKey,
+        descriptorOrInitializer,
+        isGetset,
+    );
     return propertyStash;
 }
 
-function mergePropertyOptions (
-    cache: ClassStash,
-    propertyStash: PropertyStash,
-    ctor,
-    propertyKey: Parameters<LegacyPropertyDecorator>[1],
-    options,
-    descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined,
-): void {
-    let fullOptions;
-    const isGetset = descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
-        && (descriptorOrInitializer.get || descriptorOrInitializer.set);
-    if (options) {
-        fullOptions = getFullFormOfProperty(options, isGetset);
-    }
-    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {}) as PropertyStash;
-
-    if (isGetset) {
-        // typescript or babel
-        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
-            const errorProps = getSubDict(cache, 'errorProps');
-            if (!errorProps[(propertyKey as string)]) {
-                errorProps[(propertyKey as string)] = true;
-                warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
-            }
-        }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
-            propertyRecord.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
-        }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set) {
-            propertyRecord.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
-        }
-    } else { // Target property is non-accessor
-        if (DEV && (propertyRecord.get || propertyRecord.set)) {
-            // Specify "accessor options" for non-accessor property is forbidden.
-            errorID(3655, propertyKey as string, getClassName(ctor), propertyKey  as string, propertyKey  as string);
-            return;
-        }
-
-        setDefaultValue(
-            cache,
-            propertyRecord,
-            ctor,
-            propertyKey,
-            descriptorOrInitializer,
-        );
-
-        if ((EDITOR && !window.Build) || TEST) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (!fullOptions && options && options.hasOwnProperty('default')) {
-                warnID(3653, propertyKey as string, getClassName(ctor));
-            }
-        }
-    }
-}
-
-function setDefaultValue<T> (
+// TODO, we have around 4.5K decorators used in the engine
+function initPropertyStash<T> (
     classStash: ClassStash,
     propertyStash: PropertyStash,
     classConstructor: new () => T,
     propertyKey: PropertyKey,
     descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null,
+    isGetset: boolean,
 ): void {
-    if (descriptorOrInitializer !== undefined) {
-        if (typeof descriptorOrInitializer === 'function') {
-            propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
-        } else if (descriptorOrInitializer === null) {
-            // For some decorated properties we haven't specified the default value, then the initializer should be null.
-            // We fall back to the behavior of v3.6.3, where we don't specify the default value automatically.
-            // propertyStash.default = undefined;
-        } else if (descriptorOrInitializer.initializer) {
-            // In the case of Babel, if an initializer is given for a class field.
-            // That initializer is passed to `descriptor.initializer`.
-            propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer.initializer);
+    if (isGetset) {
+        // typescript or babel
+        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
+            propertyStash.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
+        }
+        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set) {
+            propertyStash.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
         }
     } else {
-        // In the case of TypeScript, we can not directly capture the initializer.
-        // We have to be hacking to extract the value.
-        // We should fall back to the TypeScript case only when `descriptorOrInitializer` is undefined.
-        const actualDefaultValues = classStash.default || (classStash.default = extractActualDefaultValues(classConstructor));
-        // eslint-disable-next-line no-prototype-builtins
-        if ((actualDefaultValues as any).hasOwnProperty(propertyKey)) {
-            propertyStash.default = (actualDefaultValues as any)[propertyKey];
+        // Target property is non-accessor
+        if (descriptorOrInitializer !== undefined) {
+            if (typeof descriptorOrInitializer === 'function') {
+                propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
+            } else if (descriptorOrInitializer === null) {
+                // For some decorated properties we haven't specified the default value, then the initializer should be null.
+                // We fall back to the behavior of v3.6.3, where we don't specify the default value automatically.
+                // propertyStash.default = undefined;
+            } else if (descriptorOrInitializer.initializer) {
+                // In the case of Babel, if an initializer is given for a class field.
+                // That initializer is passed to `descriptor.initializer`.
+                propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer.initializer);
+            }
+        } else {
+            // In the case of TypeScript, we can not directly capture the initializer.
+            // We have to be hacking to extract the value.
+            // We should fall back to the TypeScript case only when `descriptorOrInitializer` is undefined.
+            const actualDefaultValues = classStash.default || (classStash.default = extractActualDefaultValues(classConstructor));
+            // eslint-disable-next-line no-prototype-builtins
+            if ((actualDefaultValues as any).hasOwnProperty(propertyKey)) {
+                propertyStash.default = (actualDefaultValues as any)[propertyKey];
+            }
         }
     }
 }

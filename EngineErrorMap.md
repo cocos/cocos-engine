@@ -1293,6 +1293,7 @@ The editor property 'playOnFocus' should be used with 'executeInEditMode' in cla
 
 ### 3602
 
+<!-- DEPRECATED -->
 Unknown editor property '%s' in class '%s'.
 
 ### 3603
@@ -1301,6 +1302,7 @@ Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please.
 
 ### 3604
 
+<!-- DEPRECATED -->
 Can only indicate one type attribute for %s.
 
 ### 3605
@@ -1333,7 +1335,7 @@ Can not indicate the '%s' attribute for %s, which its default value is type of %
 
 ### 3612
 
-%s Just set the default value to 'new %s()' and it will be handled properly.
+%s Simply assign 'new %s()' as the default value, and it will be managed correctly.
 
 ### 3613
 
@@ -1382,6 +1384,7 @@ Unknown type of %s.%s, property should be defined in 'properties' or 'ctor'
 
 ### 3623
 
+<!-- DEPRECATED -->
 Can not use 'editor' attribute, '%s' not inherits from Components.
 
 ### 3624
@@ -1445,6 +1448,7 @@ Do not set default value to non-empty object, unless the object defines its own 
 
 ### 3637
 
+<!-- DEPRECATED -->
 Can not declare %s.%s, it is already defined in the prototype of %s
 
 ### 3638
@@ -1488,6 +1492,7 @@ Unknown 'type' parameter of %s.%s：%s
 
 ### 3647
 
+<!-- DEPRECATED -->
 The length of range array must be equal or greater than 2
 
 ### 3648
@@ -1517,6 +1522,7 @@ Please ensure the constructor can be called during the script's initialization.
 
 ### 3653
 
+<!-- DEPRECATED -->
 Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.
 Default value must be initialized at their declaration:
 
@@ -1549,6 +1555,7 @@ myProp = 0;
 
 ### 3655
 
+<!-- DEPRECATED -->
 Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.
 Please use:
 
@@ -2219,10 +2226,12 @@ Class should be extended before assigning any prototype members.
 
 ### 5500
 
+<!-- DEPRECATED -->
 'notify' can not be used in 'get/set' !
 
 ### 5501
 
+<!-- DEPRECATED -->
 'notify' must be used with 'default' !
 
 ### 5502
@@ -2277,14 +2286,17 @@ Can not serialize '%s.%s' because the specified type is anonymous, please provid
 
 ### 5513
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' should not be used with a 'get' function.
 
 ### 5514
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' should not be used with a 'set' function.
 
 ### 5515
 
+<!-- DEPRECATED -->
 The 'default' value of '%s.%s' can not be an constructor. Set default to null please.
 
 ### 5516

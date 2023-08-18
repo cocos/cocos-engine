@@ -24,9 +24,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { log, warnID } from '../../platform/debug';
-import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
-import { isPlainEmptyObj_DEV } from '../../utils/misc';
+import { warnID } from '../../platform/debug';
+import { get, value } from '../../utils/js';
 import { legacyCC } from '../../global-exports';
 
 export const DELIMETER = '$_$';
@@ -202,75 +201,3 @@ legacyCC.CCBoolean = CCBoolean;
 export const CCString = new PrimitiveType('String', '');
 legacyCC.String = CCString;
 legacyCC.CCString = CCString;
-
-// Ensures the type matches its default value
-export function getTypeChecker_ET (type: string, attributeName: string) {
-    return function (constructor: Function, mainPropertyName: string): void {
-        const propInfo = `"${getClassName(constructor)}.${mainPropertyName}"`;
-        const mainPropAttrs = attr(constructor, mainPropertyName);
-        let mainPropAttrsType = mainPropAttrs.type;
-        if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
-            mainPropAttrsType = 'Number';
-        } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
-            mainPropAttrsType = `${mainPropAttrsType}`;
-        }
-        if (mainPropAttrsType !== type) {
-            warnID(3604, propInfo);
-            return;
-        }
-
-        if (!mainPropAttrs.hasOwnProperty('default')) {
-            return;
-        }
-        const defaultVal = mainPropAttrs.default;
-        if (typeof defaultVal === 'undefined') {
-            return;
-        }
-        const isContainer = Array.isArray(defaultVal) || isPlainEmptyObj_DEV(defaultVal);
-        if (isContainer) {
-            return;
-        }
-        const defaultType = typeof defaultVal;
-        const type_lowerCase = type.toLowerCase();
-        if (defaultType === type_lowerCase) {
-            if (type_lowerCase === 'object') {
-                if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                    warnID(3605, propInfo, getClassName(mainPropAttrs.ctor));
-                } else {
-                    return;
-                }
-            } else if (type !== 'Number') {
-                warnID(3606, attributeName, propInfo, type);
-            }
-        } else if (defaultType !== 'function') {
-            if (type === CCString.default && defaultVal == null) {
-                warnID(3607, propInfo);
-            } else {
-                warnID(3611, attributeName, propInfo, defaultType);
-            }
-        } else {
-            return;
-        }
-        delete mainPropAttrs.type;
-    };
-}
-
-// Ensures the type matches its default value
-export function getObjTypeChecker_ET (typeCtor) {
-    return function (classCtor, mainPropName): void {
-        getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
-        // check ValueType
-        const defaultDef = getClassAttrs(classCtor)[`${mainPropName + DELIMETER}default`];
-        const defaultVal = legacyCC.Class.getDefault(defaultDef);
-        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyCC.ValueType)) {
-            const typename = getClassName(typeCtor);
-            const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-                getClassName(classCtor), mainPropName, typename);
-            if (defaultDef) {
-                log(info);
-            } else {
-                warnID(3612, info, typename, getClassName(classCtor), mainPropName, typename);
-            }
-        }
-    };
-}
