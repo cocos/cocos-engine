@@ -1,5 +1,5 @@
 import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
-import { CCFloat, CCInteger } from '../../../core/data/utils/attribute';
+import { CCBoolean, CCFloat, CCInteger } from '../../../core/data/utils/attribute';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.Bloom')
@@ -9,11 +9,22 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class Bloom extends PostProcessSetting {
     @serializable
+    protected _enableAlphaMask = false;
+    @serializable
     protected _threshold = 0.8;
     @serializable
     protected _iterations = 3;
     @serializable
     protected _intensity = 2.3;
+
+    @tooltip('i18n:bloom.enableAlphaMask')
+    @type(CCBoolean)
+    set enableAlphaMask (value: boolean) {
+        this._enableAlphaMask = value;
+    }
+    get enableAlphaMask (): boolean {
+        return this._enableAlphaMask;
+    }
 
     @tooltip('i18n:bloom.threshold')
     @rangeMin(0)

@@ -44,6 +44,8 @@ export class BloomPass extends SettingPass {
         const output = `BLOOM_PREFILTER_COLOR${cameraID}`;
         // prefilter pass
         let shadingScale = 1 / 2;
+        const enableAlphaMask = setting.enableAlphaMask as unknown as number;
+        passContext.material.setProperty('enableAlphaMask', enableAlphaMask, 0);
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
         passContext
             .updatePassViewPort(shadingScale)

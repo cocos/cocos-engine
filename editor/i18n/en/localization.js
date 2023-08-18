@@ -1292,6 +1292,7 @@ module.exports = link(mixin({
         needBlur: 'Turn on for a softer effect with less noise, but it consumes some performance.',
     },
     bloom: {
+        enableAlphaMask: 'The transparent channel flag bit, If the transparent channel flag bit feature is turned on, transparent channel values less than 1 will not be bloomed.',
         threshold: 'The brightness threshold, brighter area will produce bloom, this value unit is the LDR brightness seen by the human eye, independent of exposure.',
         iterations: 'The number of blur iterations, the higher the value that results in a larger and softer flare range, but with reduced performance.',
         intensity: 'Flood intensity, the higher the value, the brighter the halo, please adjust it moderately.',

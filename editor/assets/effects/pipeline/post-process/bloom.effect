@@ -116,6 +116,7 @@ CCProgram prefilter-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
+    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate outputResultMap pass
@@ -130,11 +131,10 @@ CCProgram prefilter-fs %{
   void main() {
     vec3 color = texture(outputResultMap, v_uv).xyz;
 
-    if (luminance(SRGBToLinear(color)) > texSize.z) {
-      fragColor = vec4(color, 1.0);
-    } else {
-      fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    float contribute = step(texSize.z, luminance(SRGBToLinear(color));
+    contribute *= mix(1.0, step(0.995, color.a), enableAlphaMask);
+
+    fragColor = vec4(color * contribute, 1.0);
   }
 }%
 
