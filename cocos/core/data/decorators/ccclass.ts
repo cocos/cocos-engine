@@ -25,8 +25,9 @@
 import { DEV } from 'internal:constants';
 import { getSuper, getClassName, isChildClassOf } from '../../utils/js-typed';
 import { CCClass } from '../class';
+import { getClassDecoratorStash, deleteClassDecoratorStash } from '../class-stash';
 import { validateOverrideMethods_DEV } from '../utils/preprocess-class';
-import { getClassDecoratorStash, makeSmartClassDecorator, deleteClassDecoratorStash } from './utils';
+import { makeSmartClassDecorator } from './utils';
 import { legacyCC } from '../../global-exports';
 import { warnID } from '../../platform';
 

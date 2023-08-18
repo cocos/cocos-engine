@@ -25,10 +25,10 @@
 import { DEV } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
-import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
+import { LegacyPropertyDecorator, BabelPropertyDecoratorDescriptor, Initializer } from './utils';
 import { warnID } from '../../platform/debug';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
-import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
+import { ClassStash, PropertyStash, PropertyStashInternalFlag, getOrCreateClassDecoratorStash, getSubDict } from '../class-stash';
 import { getClassName, mixin } from '../../utils/js-typed';
 
 // eslint-disable-next-line @typescript-eslint/ban-types

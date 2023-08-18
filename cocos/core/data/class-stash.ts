@@ -94,3 +94,26 @@ export enum PropertyStashInternalFlag {
      */
     IMPLICIT_SERIALIZABLE = 1 << 2,
 }
+
+const classDecoratorStashMap = new WeakMap<AnyFunction, ClassStash>();
+
+export function getOrCreateClassDecoratorStash (cls: AnyFunction): ClassStash {
+    let stash = classDecoratorStashMap.get(cls);
+    if (!stash) {
+        stash = {};
+        classDecoratorStashMap.set(cls, stash);
+    }
+    return stash;
+}
+
+export function getClassDecoratorStash (cls: AnyFunction): ClassStash | undefined {
+    return classDecoratorStashMap.get(cls);
+}
+
+export function deleteClassDecoratorStash (cls: AnyFunction): void {
+    classDecoratorStashMap.delete(cls);
+}
+
+export function getSubDict<T, TKey extends keyof T> (obj: T, key: TKey): NonNullable<T[TKey]> {
+    return obj[key] as NonNullable<T[TKey]> || ((obj[key]) = {} as NonNullable<T[TKey]>);
+}
