@@ -51,7 +51,7 @@ const CUSTOM_SLOT_TEXTURE_BEGIN = 10000;
 let _slotTextureID = CUSTOM_SLOT_TEXTURE_BEGIN;
 
 type TrackListener = (x: spine.TrackEntry) => void;
-type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
+type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 /**
  * @en
  * Animation playback rate.
@@ -870,28 +870,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
         return trackEntry;
     }
-
-    public findIkConstraint (constraintName: string): spine.IkConstraint | null {
-        if (this._skeleton) {
-            return this._skeleton.findIkConstraint(constraintName);
-        }
-        return null;
-    }
-
-    public findTransformConstraint (constraintName: string): spine.TransformConstraint | null {
-        if (this._skeleton) {
-            return this._skeleton.findTransformConstraint(constraintName);
-        }
-        return null;
-    }
-
-    public findPathConstraint (constraintName: string): spine.PathConstraint | null {
-        if (this._skeletonData) {
-            return this._skeleton.findPathConstraint(constraintName);
-        }
-        return null;
-    }
-
     /**
      * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
@@ -1745,15 +1723,18 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the complete event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
-     * @param entry
+     * @param entry @en AnimationState track. @zn 动画轨道属性。
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
-        // TODO
-        // TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
-        //     const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-        //     listener(trackEntry, loopCount);
-        // };
+        let self = this;
+        TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
+            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            const listenerID = TrackEntryListeners.addListener(listener);
+            listener(trackEntry, loopCount);
+            self._instance.setListener(listenerID, spine.EventType.event);
+            self._listener!.event = listener;
+        };
     }
 
     /**
