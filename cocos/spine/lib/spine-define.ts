@@ -1247,6 +1247,18 @@ function overrideProperty_Skin (): void {
             }
         },
     });
+    const originFindNamesForSlot = prototype.findNamesForSlot;
+    Object.defineProperty(prototype, 'findNamesForSlot', {
+        value (slotIndex: number, names: Array<string>) {
+            const vectors = originFindNamesForSlot.call(this, slotIndex);
+            console.log(vectors);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const objPtr = vectors.get(i);
+                names.push(objPtr);
+            }
+        },
+    }); 
 }
 
 function overrideProperty_SkinEntry (): void {
