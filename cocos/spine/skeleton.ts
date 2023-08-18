@@ -95,7 +95,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal 
+ * @engineInternal
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -125,7 +125,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal 
+ * @engineInternal
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -1163,7 +1163,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @engineInternal
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
