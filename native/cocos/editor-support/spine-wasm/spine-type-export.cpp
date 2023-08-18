@@ -200,7 +200,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .class_property("degRad", &MathUtil::Deg_Rad)
         .class_property("degreesToRadians", &MathUtil::Deg_Rad)
         .class_function("abs", &MathUtil::abs)
-        .class_function("sign", &MathUtil::sign)
+        .class_function("signum", &MathUtil::sign)
         .class_function("clamp", &MathUtil::clamp)
         .class_function("fmod", &MathUtil::fmod)
         .class_function("atan2", &MathUtil::atan2)
@@ -748,6 +748,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getShearY", &BoneData::getShearY)
         .function("setShearY", &BoneData::setShearY)
         .function("getTransformMode", &BoneData::getTransformMode)
+        .function("setTransformMode", &BoneData::setTransformMode)
         .function("getSkinRequired", &BoneData::isSkinRequired)
         .function("setShinRequired", &BoneData::setSkinRequired);
 

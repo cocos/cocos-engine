@@ -151,60 +151,65 @@ function overrideProperty_BoneData (): void {
             proto: prototype,
             property: 'length',
             getter: prototype.getLength,
+            setter: prototype.setLength,
         },
         {
             proto: prototype,
             property: 'x',
             getter: prototype.getX,
+            setter: prototype.setX
         },
         {
             proto: prototype,
             property: 'y',
             getter: prototype.getY,
+            setter: prototype.setY
         },
         {
             proto: prototype,
             property: 'rotation',
             getter: prototype.getRotation,
+            setter: prototype.setRotation,
         },
         {
             proto: prototype,
             property: 'scaleX',
             getter: prototype.getScaleX,
+            setter: prototype.setScaleX
         },
         {
             proto: prototype,
             property: 'scaleY',
             getter: prototype.getScaleY,
+            setter: prototype.setScaleY,
         },
         {
             proto: prototype,
             property: 'shearX',
             getter: prototype.getShearX,
+            setter: prototype.setShearX,
         },
         {
             proto: prototype,
             property: 'shearY',
             getter: prototype.getShearY,
+            setter: prototype.setShearY,
         },
         {
             proto: prototype,
             property: 'transformMode',
             getter: prototype.getTransformMode,
+            setter: prototype.setTransformMode,
         },
         {
             proto: prototype,
             property: 'skinRequired',
             getter: prototype.getSkinRequired,
+            setter: prototype.setSkinRequired,
         },
-        // {
-        //     proto: spine.BoneData.prototype,
-        //     property: 'color',
-        //     getter: spine.BoneData.prototype.getProp_color,
-        // },
     ];
     propertyPolyfills.forEach((prop): void => {
-        js.getset(prop.proto, prop.property, prop.getter);
+        js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
 }
 
