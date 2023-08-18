@@ -1465,7 +1465,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T> *ret, se::Object * /
             return false;
         }
 
-        T nativeObj = static_cast<T>(tmp.toNumber());
+        T nativeObj = static_cast<T>(tmp.toDouble());
         ret->add(nativeObj);
     }
 
