@@ -1460,13 +1460,13 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T> *ret, se::Object * /
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
         ok = obj->getArrayElement(i, &tmp);
-        if (!ok || !tmp.isObject()) {
+        if (!ok || !tmp.isNumber()) {
             ret->clear();
             return false;
         }
 
-        T *nativeObj = static_cast<T *>(tmp.toObject()->getPrivateData());
-        ret->add(*nativeObj);
+        T nativeObj = static_cast<T>(tmp.toNumber());
+        ret->add(nativeObj);
     }
 
     return true;
