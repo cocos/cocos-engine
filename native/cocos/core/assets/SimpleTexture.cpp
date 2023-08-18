@@ -140,7 +140,7 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     }
 
     auto textureCreateInfo = getGfxTextureCreateInfo(
-        gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
+        gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST | gfx::TextureUsageBit::COLOR_ATTACHMENT,
         getGFXFormat(),
         _mipmapLevel,
         flags);

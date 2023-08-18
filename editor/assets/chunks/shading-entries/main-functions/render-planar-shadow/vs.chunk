@@ -22,7 +22,7 @@ void main()
   In.worldPos = shadowPos.xyz;
 
   // Clip Space
-  In.clipPos = cc_matProj * cc_matView * vec4(In.worldPos, 1.0);
+  In.clipPos = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar);
   In.clipPos = SurfacesVertexModifyClipPos(In);
 
   // Other Surfaces Function
@@ -30,7 +30,7 @@ void main()
   SurfacesVertexModifySharedData(In);
 
   // Other Data
-  CCSurfacesVertexTransformUV(In);  
+  CCSurfacesVertexTransformUV(In);
 
   CCSurfacesVertexOutput(In);
 

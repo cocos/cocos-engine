@@ -58,5 +58,10 @@ void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthSte
     }
 }
 
+void DrawBatch2D::setInputAssembler(gfx::InputAssembler *ia) {
+    _inputAssembler = ia;
+    _drawInfo = _inputAssembler->getDrawInfo();
+}
+
 } // namespace scene
 } // namespace cc

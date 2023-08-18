@@ -11,6 +11,7 @@ CCEffect %{
         positionScaling:     { value: 1.0, target: params.w, editor: { tooltip: 'Set a smaller value (such as less than 1.0) to remove the effects of fog' } }
         blendEnvironmentMap: { value: grey, editor: { parent: BLEND_ENV_MAP } }
         blendWeight:         { value: 0.0, target: params.x, editor: { parent: BLEND_ENV_MAP } }
+        brightMultiplier:    { value: 1.0, target: params.y }
       priority : max - 10
       rasterizerState : &r1
         cullMode : none
@@ -69,7 +70,7 @@ CCProgram surface-fragment %{
         c = mix(c, sampleEnvMap(blendEnvironmentMap, rotationDir), params.x);
       #endif
     #endif
-    return vec4(c * cc_ambientSky.w, 1.0);
+    return vec4(c * cc_ambientSky.w * params.y, 1.0);
   }
 }%
 

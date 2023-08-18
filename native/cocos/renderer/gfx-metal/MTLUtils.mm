@@ -35,6 +35,7 @@
 #include "spirv_cross/spirv_msl.hpp"
 #include "TargetConditionals.h"
 #include "base/Log.h"
+#include <regex>
 
 namespace cc {
 namespace gfx {
@@ -918,8 +919,8 @@ bool mu::isFramebufferFetchSupported() {
 ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                             ShaderStageFlagBit shaderType,
                             CCMTLGPUShader *gpuShader,
-                            const ccstd::vector<uint32_t> &drawBuffer,
-                            const ccstd::vector<uint32_t> &readBuffer) {
+                            RenderPass* renderPass,
+                            uint32_t subpassIndex) {
     CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
@@ -1057,18 +1058,24 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
 
     if (executionModel == spv::ExecutionModelFragment) {
+        auto* ccRenderPass = static_cast<CCMTLRenderPass*>(renderPass);
+        const auto& readBuffer = ccRenderPass ? ccRenderPass->getReadBuffer(subpassIndex) : ccstd::vector<uint32_t>{};
         if (!resources.subpass_inputs.empty()) {
-            gpuShader->inputs.resize(resources.subpass_inputs.size());
+//            gpuShader->inputs.resize(resources.subpass_inputs.size());
             for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
                 const auto &attachment = resources.subpass_inputs[i];
-                gpuShader->inputs[i].name = attachment.name;
-                auto id = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                auto loc = id >= readBuffer.size() ? id : readBuffer[id];
+                auto inputIndex = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                auto loc = inputIndex >= readBuffer.size() ? inputIndex : readBuffer[inputIndex];
+                // depth stencil input not support in metal
+                CC_ASSERT(loc != renderPass->getColorAttachments().size());
+                auto& input = gpuShader->inputs.emplace_back();
+                input.name = attachment.name;
                 msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
             }
         }
 
         gpuShader->outputs.resize(resources.stage_outputs.size());
+        const auto& drawBuffer = renderPass ? ccRenderPass->getDrawBuffer(subpassIndex) : ccstd::vector<uint32_t>{};
         for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
             const auto &stageOutput = resources.stage_outputs[i];
             auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
@@ -1096,6 +1103,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", output.c_str());
     }
+
     return output;
 }
 

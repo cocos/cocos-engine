@@ -43,7 +43,7 @@ struct ToonSurface {
       vec3 SH = normalize(SL + V);
       float SNL = 0.5 * dot(N, SL) + 0.5;
       float SNH = 0.5 * dot(N, SH) + 0.5;
-      
+
       vec3 diffuse = mix(s.shade1, s.shade2,
         clamp(1.0 + (s.shadeStep - s.shadeFeather - SNL) / s.shadeFeather, 0.0, 1.0));
       diffuse = mix(s.baseColor.rgb, diffuse,
@@ -87,7 +87,7 @@ struct ToonSurface {
   vec4 CCToonShading (ToonSurface s) {
     vec3 position;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
-    
+
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
 

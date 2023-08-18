@@ -49,6 +49,7 @@ const _uvs_ins = [
 
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
+    private _bufferSize: number;
     private _vertAttrs: Attribute[] | null;
     private _vertAttribSize: number;
     private _vBuffer: ArrayBuffer | null;
@@ -80,6 +81,7 @@ export default class ParticleBatchModel extends scene.Model {
 
         this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;
+        this._bufferSize = 16;
         this._vertAttrs = null;
 
         this._vertAttribSize = 0;
@@ -105,6 +107,7 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number): void {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
+        this._bufferSize = Math.max(this._capacity, 16);
         if (this._subMeshData && capChanged) {
             this.rebuild();
         }
@@ -165,19 +168,25 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity * this._vertCount,
+            this._vertAttribSize * this._bufferSize * this._vertCount,
             this._vertAttribSize,
         ));
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize * this._vertCount);
         if (this._mesh && this._capacity > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -191,7 +200,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
         vertexBuffer.update(vBuffer);
 
-        const indices: Uint16Array = new Uint16Array(this._capacity * this._indexCount);
+        const indices: Uint16Array = new Uint16Array(this._bufferSize * this._indexCount);
         if (this._mesh && this._capacity > 0) {
             this._mesh.copyIndices(0, indices);
             for (let i = 1; i < this._capacity; i++) {
@@ -215,7 +224,7 @@ export default class ParticleBatchModel extends scene.Model {
         const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            this._bufferSize * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
 
@@ -236,11 +245,11 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity,
+            this._vertAttribSize * this._bufferSize,
             this._vertAttribSize,
         ));
 
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize);
         vertexBuffer.update(vBuffer);
 
         this._insBuffers.push(vertexBuffer);
@@ -265,15 +274,21 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
             vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -412,7 +427,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number): void {
+    public addGPUParticleVertexData (p: Particle, num: number, time: number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -451,7 +466,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number): void {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time: number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;

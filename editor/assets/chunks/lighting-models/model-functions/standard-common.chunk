@@ -62,6 +62,7 @@ vec3 CalculateDirectSpecular(in LightingIntermediateData lightingData, in vec4 l
   }
 #endif
 
+// for skybox IBL
 vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount)
 {
     vec3 envSpec = vec3(0.0);
@@ -84,6 +85,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
+// for reflection probe
 vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
 {
     vec3 envSpec = vec3(0.0);
@@ -203,14 +205,14 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
           vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
           vec4 fixedR = CalculateBoxProjectedDirection(R, worldPos, centerPos, boxHalfSize);
           envSpec = mix(skyBoxEnv, envSpec, fixedR.w);
-        #endif 
+        #endif
       }else{
         vec3 centerPosBlend, boxHalfSizeBlend;
         float mipCountBlend;
         GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, FSInput_reflectionProbeBlendId);
         vec3 probeBlend = SampleEnvironmentSpecular(cc_reflectionProbeBlendCubemap, lightingData, mipCountBlend, worldPos, centerPosBlend, boxHalfSizeBlend, isBlendReflectProbeUsingRGBE(FSInput_reflectionProbeBlendId));
         envSpec = mix(envSpec, probeBlend, blendFactor);
-      }     
+      }
     }
   #endif
 #elif CC_USE_IBL

@@ -24,7 +24,6 @@
 
 import './deprecated';
 import * as pipeline from './define';
-import { ForwardPipeline } from './forward/forward-pipeline';
 
 export { pipeline };
 

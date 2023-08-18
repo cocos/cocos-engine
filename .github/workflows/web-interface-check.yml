@@ -1,14 +1,12 @@
 name: <Web> Interface check
 
 #on: push
-on: [pull_request]
+on: [pull_request_target]
 
 # github.head_ref is only defined on pull_request events
 concurrency:
   group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
-permissions: read-all
 
 jobs:
   interface_check:
@@ -81,9 +79,6 @@ jobs:
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
 
-      - name: Upload interface-diff.txt artifact
-        uses: actions/upload-artifact@v2
+      - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          name: interface-diff.txt
           path: ./engine/interface-diff.txt
-          

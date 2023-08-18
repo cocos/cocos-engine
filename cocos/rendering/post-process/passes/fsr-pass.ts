@@ -8,7 +8,6 @@ import { passContext } from '../utils/pass-context';
 
 import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
-import { game } from '../../../game';
 
 const tempVec4 = new Vec4();
 

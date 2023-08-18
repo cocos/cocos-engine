@@ -42,7 +42,6 @@ export class PoseNodeStateMachine extends PoseNode {
             this.stateMachine,
             '',
             context,
-            null,
         );
     }
 

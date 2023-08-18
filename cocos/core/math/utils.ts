@@ -31,6 +31,8 @@ const _d2r = Math.PI / 180.0;
 
 const _r2d = 180.0 / Math.PI;
 
+let _random = Math.random;
+
 export const HALF_PI = Math.PI * 0.5;
 export const TWO_PI = Math.PI * 2.0;
 
@@ -121,7 +123,18 @@ export function toDegree (a: number): number {
 /**
  * @method random
  */
-export const random = Math.random;
+export function random (): number {
+    return _random();
+}
+
+/**
+ * @en Set a custom random number generator, default to Math.random
+ * @zh 设置自定义随机数生成器，默认为 Math.random
+ * @param func custom random number generator
+ */
+export function setRandGenerator<TFunction extends (...any) => number> (func: TFunction): void {
+    _random = func;
+}
 
 /**
  * @en Returns a floating-point random number between min (inclusive) and max (exclusive).<br/>
@@ -129,10 +142,10 @@ export const random = Math.random;
  * @method randomRange
  * @param min
  * @param max
- * @return The random number.
+ * @return {Number} The random number.
  */
 export function randomRange (min: number, max: number): number {
-    return Math.random() * (max - min) + min;
+    return random() * (max - min) + min;
 }
 
 /**

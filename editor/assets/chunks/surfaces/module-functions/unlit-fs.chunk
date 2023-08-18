@@ -4,7 +4,7 @@
 void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 {
   HIGHP_VALUE_TO_STRUCT_DEFINED(FSInput_worldPos, surfaceData.worldPos);
-  
+
   surfaceData.baseColor = SurfacesFragmentModifyBaseColorAndTransparency();
   SurfacesFragmentModifySharedData(surfaceData);
 

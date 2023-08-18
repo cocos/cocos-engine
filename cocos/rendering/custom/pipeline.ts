@@ -32,14 +32,17 @@ import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
+import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, TextureType, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { PointLight } from '../../render-scene/scene/point-light';
+import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
 import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Light, Model } from '../../render-scene/scene';
+import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
@@ -377,6 +380,11 @@ export interface Setter extends RenderNode {
     setSampler (name: string, sampler: Sampler): void;
     setBuiltinCameraConstants (camera: Camera): void;
     setBuiltinShadowMapConstants (light: DirectionalLight): void;
+    setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
+    setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
+    setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
+    setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
+    setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
     setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
     setBuiltinSpotLightViewConstants (light: SpotLight): void;
 }
@@ -402,7 +410,10 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
-    addScene (camera: Camera, sceneFlags: SceneFlags): void;
+    addScene (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light?: Light | null): void;
     addSceneCulledByDirectionalLight (
         camera: Camera,
         sceneFlags: SceneFlags,
@@ -673,6 +684,37 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
+    addBuffer (
+        name: string,
+        size: number,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateBuffer (
+        name: string,
+        size: number): void;
+    addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number;
+    updateExternalTexture (name: string, texture: Texture): void;
+    addTexture (
+        name: string,
+        textureType: TextureType,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateTexture (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
     addResource (
         name: string,
         dimension: ResourceDimension,

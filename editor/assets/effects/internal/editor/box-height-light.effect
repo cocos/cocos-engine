@@ -54,13 +54,13 @@ CCProgram line-fs %{
   uniform Constant {
     vec4 mainColor;
     vec4 selectedColor;
-    vec4 selectedFaceForward;    
+    vec4 selectedFaceForward;
   };
 
   vec4 front() {
     vec4 outputColor = mainColor;
 
-    // dot 
+    // dot
     vec3 d = normal.xyz * selectedFaceForward.xyz;
     float m = max(max(d.x, d.y), d.z);
     float selected = step(0.9999,m);

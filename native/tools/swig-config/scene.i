@@ -80,7 +80,7 @@ using namespace cc;
             }
         },
         result);
-    
+
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 %}
 
@@ -104,6 +104,8 @@ using namespace cc;
 
 %ignore cc::Root::getEventProcessor;
 %ignore cc::Node::getEventProcessor;
+
+%ignore cc::scene::IMacroPatch::IMacroPatch(const std::pair<const std::string, cc::MacroValue>&);
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
@@ -335,6 +337,7 @@ using namespace cc;
 %attribute(cc::scene::Light, ccstd::string&, name, getName, setName);
 %attribute(cc::scene::Light, cc::scene::RenderScene*, scene, getScene);
 %attribute(cc::scene::Light, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::Light, cc::Vec3&, colorTemperatureRGB, getColorTemperatureRGB, setColorTemperatureRGB);
 
 %attribute(cc::scene::LODData, float, screenUsagePercentage, getScreenUsagePercentage, setScreenUsagePercentage);
 %attribute(cc::scene::LODData, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
@@ -443,6 +446,8 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::pipeline::GeometryRenderer *, geometryRenderer, getGeometryRenderer);
 %attribute(cc::scene::Camera, uint32_t, systemWindowId, getSystemWindowId);
 %attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
+%attribute(cc::scene::Camera, cc::scene::TrackingType, trackingType, getTrackingType, setTrackingType);
+%attribute(cc::scene::Camera, cc::scene::CameraType, cameraType, getCameraType, setCameraType);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
@@ -598,6 +603,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
+%attribute(cc::scene::ReflectionProbe, cc::scene::Camera*, camera, getCamera);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 %attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);
