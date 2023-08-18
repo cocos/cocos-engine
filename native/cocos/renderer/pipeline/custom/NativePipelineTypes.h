@@ -1201,12 +1201,13 @@ struct CullingKey {
     const scene::Camera* camera{nullptr};
     const scene::Light* light{nullptr};
     bool castShadow{false};
+    bool gpuDriven{false};
     uint32_t lightLevel{0xFFFFFFFF};
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.lightLevel) ==
-           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.lightLevel);
+    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.gpuDriven, lhs.lightLevel) ==
+           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.gpuDriven, rhs.lightLevel);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -1519,6 +1520,7 @@ inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::Culling
     hash_combine(seed, val.camera);
     hash_combine(seed, val.light);
     hash_combine(seed, val.castShadow);
+    hash_combine(seed, val.gpuDriven);
     hash_combine(seed, val.lightLevel);
     return seed;
 }
