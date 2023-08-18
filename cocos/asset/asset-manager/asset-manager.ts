@@ -201,7 +201,7 @@ export class AssetManager {
      * 是否优先使用 image bitmap 来加载图片，启用之后，图片加载速度会更快, 但内存占用会变高。
      *
      */
-    public allowImageBitmap = !EDITOR && !sys.isMobile;
+    public allowImageBitmap = false;
 
     /**
      * @en
