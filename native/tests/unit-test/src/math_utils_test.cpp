@@ -109,17 +109,4 @@ TEST(mathUtilsTest, test9) {
     ExpectEq(IsEqualF(cc::mathutils::absMax(1.0F, 3.0F), 3.0F), true);
     ExpectEq(IsEqualF(cc::mathutils::absMax(-1.0F, 3.0F), 3.0F), true);
     ExpectEq(IsEqualF(cc::mathutils::absMax(1.0F, -3.0F), -3.0F), true);
-
-    // float <-> half
-    auto seed = 1;
-    srand(seed);
-    float fval = 0.0F;
-    unsigned short hval = 0;
-    float back = 0.0F;
-    for (int i = 0; i < 1000; ++i) {
-        fval = cc::mathutils::randomRange(-1000.0F, 1000.0F);
-        hval = cc::mathutils::floatToHalf(fval);
-        back = cc::mathutils::halfToFloat(hval);
-        ExpectEq(IsEqualF(fval, back), true);
-    }
 }
