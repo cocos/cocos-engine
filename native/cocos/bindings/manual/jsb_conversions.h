@@ -1442,7 +1442,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object *
     return true;
 }
 
-template <typename T>
+template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
 bool sevalue_to_native(const se::Value &v, spine::Vector<T> *ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
