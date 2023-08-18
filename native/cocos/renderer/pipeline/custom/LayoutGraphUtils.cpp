@@ -477,6 +477,35 @@ void printLayoutGraphData(
     }
 }
 
+gfx::TextureType getTextureType(ResourceDimension dimension, uint32_t arraySize) {
+    switch (dimension) {
+        case ResourceDimension::TEXTURE1D:
+            return arraySize > 1 ? gfx::TextureType::TEX1D_ARRAY : gfx::TextureType::TEX1D;
+        case ResourceDimension::TEXTURE2D:
+            return arraySize > 1 ? gfx::TextureType::TEX2D_ARRAY : gfx::TextureType::TEX2D;
+        case ResourceDimension::TEXTURE3D:
+            return gfx::TextureType::TEX3D;
+        case ResourceDimension::BUFFER:
+        default:
+            return gfx::TextureType::TEX2D;
+    }
+}
+
+ResourceDimension getResourceDimension(gfx::TextureType type) {
+    switch (type) {
+        case gfx::TextureType::TEX1D:
+        case gfx::TextureType::TEX1D_ARRAY:
+            return ResourceDimension::TEXTURE1D;
+        case gfx::TextureType::TEX3D:
+            return ResourceDimension::TEXTURE3D;
+        case gfx::TextureType::TEX2D:
+        case gfx::TextureType::TEX2D_ARRAY:
+        case gfx::TextureType::CUBE:
+        default:
+            return ResourceDimension::TEXTURE2D;
+    }
+}
+
 } // namespace render
 
 } // namespace cc

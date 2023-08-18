@@ -436,7 +436,7 @@ export class Skeleton extends UIRenderer {
             error(`${this.name} animation enums are invalid`);
             return;
         }
-        const animName = animsEnum[value];
+        const animName = String(animsEnum[value]);
         if (animName !== undefined) {
             this.animation = animName;
             if (EDITOR_NOT_IN_PREVIEW) {
@@ -642,6 +642,7 @@ export class Skeleton extends UIRenderer {
         this.updateMaterial();
         this.markForUpdateRenderData();
     }
+
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
@@ -709,7 +710,7 @@ export class Skeleton extends UIRenderer {
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
         this._refreshInspector();
-        if (this.defaultAnimation) this.animation = this.defaultAnimation;
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();

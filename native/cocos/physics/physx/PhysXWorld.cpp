@@ -240,9 +240,6 @@ void PhysXWorld::syncPhysicsToScene() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncPhysicsToScene();
     }
-    for (auto const &cct : _mCCTs) {
-        cct->syncPhysicsToScene();
-    }
 }
 
 void PhysXWorld::syncSceneWithCheck() {

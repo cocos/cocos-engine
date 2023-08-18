@@ -170,8 +170,10 @@ export class UIMeshRenderer extends Component {
                 this._UIModelNativeProxy.clearModels();
                 this._renderEntity.clearDynamicRenderDrawInfos();
                 for (let i = 0; i < models.length; i++) {
-                    this._uploadRenderData(i);
-                    this._UIModelNativeProxy.updateModels(models[i]);
+                    if (models[i].enabled) {
+                        this._uploadRenderData(i);
+                        this._UIModelNativeProxy.updateModels(models[i]);
+                    }
                 }
                 this._UIModelNativeProxy.attachDrawInfo();
             }
@@ -189,6 +191,7 @@ export class UIMeshRenderer extends Component {
             // please fix the type @holycanvas
             // issue: https://github.com/cocos/cocos-engine/issues/14637
             this._renderData = renderData as unknown as RenderData;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
@@ -201,6 +204,7 @@ export class UIMeshRenderer extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public postUpdateAssembler (render: IBatcher): void {
         // No behavior for this component
     }
@@ -253,6 +257,7 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setNodeDirty (): void {
         // No behavior for this component
     }
@@ -260,6 +265,7 @@ export class UIMeshRenderer extends Component {
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setTextureDirty (): void {
         // No behavior for this component
     }
