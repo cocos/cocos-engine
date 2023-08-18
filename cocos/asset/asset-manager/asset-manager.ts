@@ -429,7 +429,7 @@ export class AssetManager {
         this._projectBundles = settings.querySettings(Settings.Category.ASSETS, 'projectBundles') || [];
         const assetsOverride = settings.querySettings(Settings.Category.ASSETS, 'assetsOverrides') || {};
         for (const key in assetsOverride) {
-            this.assetsOverrideMap.set(key, assetsOverride[key]);
+            this.assetsOverrideMap.set(key, assetsOverride[key] as string);
         }
     }
 
@@ -632,9 +632,9 @@ export class AssetManager {
         this.loadAny({ url }, opts, null, (err, data): void => {
             if (err) {
                 error(err.message, err.stack);
-                if (onComp) { onComp(err, data); }
+                if (onComp) { onComp(err, data as T); }
             } else {
-                factory.create(url, data, opts.ext || path.extname(url), opts, (p1, p2): void => {
+                factory.create(url, data, (opts.ext as string) || path.extname(url), opts, (p1, p2): void => {
                     if (onComp) { onComp(p1, p2 as T); }
                 });
             }
@@ -693,7 +693,7 @@ export class AssetManager {
         this.loadAny({ url: nameOrUrl }, opts, null, (err, data): void => {
             if (err) {
                 error(err.message, err.stack);
-                if (onComp) { onComp(err, data); }
+                if (onComp) { onComp(err, data as Bundle); }
             } else {
                 factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2): void => {
                     if (onComp) { onComp(p1, p2 as Bundle); }
@@ -791,7 +791,7 @@ export class AssetManager {
             input: [item],
             onProgress: onProg,
             options: opts,
-            onComplete: asyncify((err, data: T): void => {
+            onComplete: asyncify((err: Error | null, data: T): void => {
                 if (!err) {
                     if (!opts.assetId) {
                         data._uuid = '';
