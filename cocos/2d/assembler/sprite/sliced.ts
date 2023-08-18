@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, Vec3 } from '../../../core';
+import { Color, Mat4 } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -51,7 +51,7 @@ export const sliced: IAssembler = {
         renderData.vertexCol = 4;
         this.QUAD_INDICES = new Uint16Array(54);
         this.createQuadIndices(4, 4);
-        renderData.chunk.setIndexBuffer(this.QUAD_INDICES);
+        renderData.chunk.setIndexBuffer(this.QUAD_INDICES as Uint16Array);
         return renderData;
     },
 
@@ -156,9 +156,10 @@ export const sliced: IAssembler = {
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = sprite.node.flagChangedVersion;
         }
 
         const bid = chunk.bufferId;

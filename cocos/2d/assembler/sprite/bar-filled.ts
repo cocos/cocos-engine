@@ -236,9 +236,10 @@ export const barFilled: IAssembler = {
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = sprite.node.flagChangedVersion;
         }
 
         const bid = chunk.bufferId;
