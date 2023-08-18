@@ -49,6 +49,19 @@ module.exports = link(mixin({
                     },
                 },
             },
+            CurveRange: {
+                properties: {
+                    spline: {
+                        displayName: 'Spline',
+                    },
+                    splineMin: {
+                        displayName: 'Spline Min',
+                    },
+                    splineMax: {
+                        displayName: 'Spline Max',
+                    },
+                },
+            },
         },
     },
 
