@@ -108,4 +108,38 @@ test('sprite.updateWorldMatrix', () => {
     expect(sprite3.node._pos).toStrictEqual(new Vec3(300, 300, 0));
     expect(sprite4.node._pos).toStrictEqual(new Vec3(300, 300, 0));
     expect(sprite5.node._pos).toStrictEqual(new Vec3(300, 300, 0));
+
+    // disabled & after node change part
+    node.active = false;
+    node.setPosition(200, 200, 0);
+    game.step();
+    sprite1.node.worldMatrix;
+    sprite2.node.worldMatrix;
+    sprite3.node.worldMatrix;
+    sprite4.node.worldMatrix;
+    sprite5.node.worldMatrix;
+    node.active = true;
+    game.step();
+    expect(sprite1.renderData!.chunk.vb[0]).toStrictEqual(200 - 0.5);
+    expect(sprite2.renderData!.chunk.vb[0]).toStrictEqual(200 - 0.5);
+    expect(sprite3.renderData!.chunk.vb[0]).toStrictEqual(200 - 0.5);
+    expect(sprite4.renderData!.chunk.vb[0]).toStrictEqual(200 - 0.5);
+    expect(sprite5.renderData!.chunk.vb[0]).toStrictEqual(200 - 0.5);
+
+    // opacity & after node change part
+    opacity.opacity = 0;
+    node.setPosition(300, 300, 0);
+    game.step();
+    sprite1.node.worldMatrix;
+    sprite2.node.worldMatrix;
+    sprite3.node.worldMatrix;
+    sprite4.node.worldMatrix;
+    sprite5.node.worldMatrix;
+    opacity.opacity = 255;
+    game.step();
+    expect(sprite1.renderData!.chunk.vb[0]).toStrictEqual(300 - 0.5);
+    expect(sprite2.renderData!.chunk.vb[0]).toStrictEqual(300 - 0.5);
+    expect(sprite3.renderData!.chunk.vb[0]).toStrictEqual(300 - 0.5);
+    expect(sprite4.renderData!.chunk.vb[0]).toStrictEqual(300 - 0.5);
+    expect(sprite5.renderData!.chunk.vb[0]).toStrictEqual(300 - 0.5);
 });

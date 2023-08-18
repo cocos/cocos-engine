@@ -433,9 +433,13 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    protected _render (render: IBatcher): void { }
+    protected _render (render: IBatcher): void {
+        // Implemented by subclasses
+    }
 
-    protected _postRender (render: IBatcher): void { }
+    protected _postRender (render: IBatcher): void {
+        // Implemented by subclasses
+    }
 
     protected _canRender (): boolean {
         if (DEBUG) {
@@ -446,7 +450,9 @@ export class UIRenderer extends Renderer {
             && this._color.a > 0;
     }
 
-    protected _postCanRender (): void { }
+    protected _postCanRender (): void {
+        // Implemented by subclasses
+    }
 
     /**
      * @engineInternal
