@@ -158,7 +158,7 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
     }
 }
 
-function emitCCTShapeEvent (t, cct, collider, b) {
+function emitCCTCollisionEvent (t, cct, collider, b) {
     CCTShapeEventObject.type = t;
 
     const contactCount = b.length / 10;
@@ -231,8 +231,16 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepBox(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepBox(
+                                raycastOptions,
+                                halfExtent.x,
+                                halfExtent.y,
+                                halfExtent.z,
+                                orientation.w,
+                                orientation.x,
+                                orientation.y,
+                                orientation.z,
+                                );
         if (isHit) {
             const hits = this._impl.sweepResult();
             for (let i = 0; i < hits.length; i++) {
@@ -251,8 +259,16 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepBoxClosest(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepBoxClosest(
+                                    raycastOptions,
+                                    halfExtent.x,
+                                    halfExtent.y,
+                                    halfExtent.z,
+                                    orientation.w,
+                                    orientation.x,
+                                    orientation.y,
+                                    orientation.z,
+                                    );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -318,8 +334,15 @@ class PhysicsWorld {
         raycastOptions.mask = options.mask >>> 0;
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
-        const isHit = this._impl.sweepCapsuleClosest(raycastOptions, radius, height,
-            orientation.w, orientation.x, orientation.y, orientation.z);
+        const isHit = this._impl.sweepCapsuleClosest(
+                                    raycastOptions,
+                                    radius,
+                                    height,
+                                    orientation.w,
+                                    orientation.x,
+                                    orientation.y,
+                                    orientation.z,
+                                    );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -330,7 +353,7 @@ class PhysicsWorld {
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
-        this.emitCCTShapeEvent();
+        this.emitCCTCollisionEvent();
         this.emitCCTTriggerEvent();
         this._impl.emitEvents();
     }
@@ -387,7 +410,7 @@ class PhysicsWorld {
         }
     }
 
-    emitCCTShapeEvent () {
+    emitCCTCollisionEvent () {
         const events = this._impl.getCCTShapeEventPairs();
         const len2 = events.length / 3;
         for (let i = 0; i < len2; i++) {
@@ -396,7 +419,7 @@ class PhysicsWorld {
             if (!cct || !shape) continue;
             const c0 = cct.characterController; const c1 = shape.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
-            emitCCTShapeEvent('onControllerColliderHit', c0, c1, events[t + 2]);
+            emitCCTCollisionEvent('onControllerColliderHit', c0, c1, events[t + 2]);
         }
     }
 
