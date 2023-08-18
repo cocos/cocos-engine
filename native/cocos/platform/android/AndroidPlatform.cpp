@@ -843,9 +843,7 @@ int32_t AndroidPlatform::loop() {
         if (xr && !xr->platformLoopStart()) continue;
         _inputProxy->handleInput();
         if (_inputProxy->isAnimating() && (xr ? xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool() : true)) {
-            if (xr) xr->beginRenderFrame();
             runTask();
-            if (xr) xr->endRenderFrame();
             if (_inputProxy->isActive()) {
                 flushTasksOnGameThreadAtForegroundJNI();
             }
