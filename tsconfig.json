@@ -36,6 +36,7 @@
       "./native/external/emscripten/physx/physx",
       "./native/external/emscripten/webgpu/webgpu",
       "./native/external/emscripten/spine/spine",
+      "./native/external/emscripten/box2d/box2d",
 
       // pal
       "./@types/pal/system-info",

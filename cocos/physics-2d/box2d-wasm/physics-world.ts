@@ -22,22 +22,22 @@
  THE SOFTWARE.
 */
 
-import b2 from '@cocos/box2d';
-import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
-
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, getTSObjectFromWASMObject,
+    getTSObjectFromWASMObjectPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from './instantiated';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-// import { Canvas } from '../../2d/framework';
-// import { Graphics } from '../../2d/components';
+import { Canvas } from '../../2d/framework';
+import { Graphics } from '../../2d/components';
 
-import { b2RigidBody2D } from './rigid-body';
+import { B2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
 import { PhysicsAABBQueryCallback } from './platform/physics-aabb-query-callback';
 import { PhysicsRayCastCallback } from './platform/physics-ray-cast-callback';
-import { PhysicsContact, b2ContactExtends } from './physics-contact';
+import { PhysicsContact } from './physics-contact';
 import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
-import { b2Shape2D } from './shapes/shape-2d';
+import { B2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { Node, find, Layers } from '../../scene-graph';
 import { director } from '../../game';
@@ -45,51 +45,53 @@ import { director } from '../../game';
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
 const tempVec2_2 = new Vec2();
+const tempB2Vec2_1 = { x: 0, y: 0 };
 
-const temoBodyDef = new b2.BodyDef();
-const tempB2AABB = new b2.AABB();
+// const tempB2AABB = null;//new B2.AABB();
 
 const testResults: Collider2D[] = [];
 
-export class b2PhysicsWorld implements IPhysicsWorld {
-    protected _world: b2.World;
-    protected _bodies: b2RigidBody2D[] = [];
-    protected _animatedBodies: b2RigidBody2D[] = [];
+export class B2PhysicsWorld implements IPhysicsWorld {
+    protected _world: B2.World;
+    protected _bodies: B2RigidBody2D[] = [];
+    protected _animatedBodies: B2RigidBody2D[] = [];
     protected _rotationAxis: Vec3 = new Vec3();
-    protected _physicsGroundBody: b2.Body;
+    protected _physicsGroundBody: B2.Body;
 
-    protected _contactListener: PhysicsContactListener;
-    protected _aabbQueryCallback: PhysicsAABBQueryCallback;
-    protected _raycastQueryCallback: PhysicsRayCastCallback;
+    protected _contactListener: B2.ContactListener;
+    protected _aabbQueryCallback: B2.QueryCallback;
+    protected _raycastQueryCallback: B2.RayCastCallback;
 
-    get impl (): b2.World {
+    private _temoBodyDef: B2.BodyDef;
+    private _tempB2AABB: B2.AABB;
+
+    get impl (): B2.World {
         return this._world;
     }
 
-    get groundBodyImpl (): b2.Body {
+    get groundBodyImpl (): B2.Body {
         return this._physicsGroundBody;
     }
 
     constructor () {
-        this._world = new b2.World(new b2.Vec2(0, -10));
-        const tempBodyDef = new b2.BodyDef();
-        //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
-        this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
-        const listener = new PhysicsContactListener();
-        listener.setBeginContact(this._onBeginContact);
-        listener.setEndContact(this._onEndContact);
-        listener.setPreSolve(this._onPreSolve);
-        listener.setPostSolve(this._onPostSolve);
-        this._world.SetContactListener(listener);
+        this._world = new B2.World({ x: 0, y: -10 });
+        this._physicsGroundBody = this._world.CreateBody(new B2.BodyDef() as B2.BodyDef);
+        PhysicsContactListener._BeginContact = this._onBeginContact;
+        PhysicsContactListener._EndContact = this._onEndContact;
+        PhysicsContactListener._PreSolve = this._onPreSolve;
+        PhysicsContactListener._PostSolve = this._onPostSolve;
+        this._contactListener = B2.ContactListener.implement(PhysicsContactListener.callback);
+        this._world.SetContactListener(this._contactListener);
 
-        this._contactListener = listener;
+        this._aabbQueryCallback = B2.QueryCallback.implement(PhysicsAABBQueryCallback.callback);
+        this._raycastQueryCallback = B2.RayCastCallback.implement(PhysicsRayCastCallback.callback);
 
-        this._aabbQueryCallback = new PhysicsAABBQueryCallback();
-        this._raycastQueryCallback = new PhysicsRayCastCallback();
+        this._temoBodyDef = new B2.BodyDef();
+        this._tempB2AABB = new B2.AABB();
     }
 
-    _debugGraphics: any = null;
-    _b2DebugDrawer: b2.Draw | null = null;
+    _debugGraphics: Graphics | null = null;
+    _b2DebugDrawer: B2.Draw | null = null;
 
     _debugDrawFlags = 0;
     get debugDrawFlags (): number {
@@ -118,7 +120,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 }
 
                 canvas = new Node('Canvas');
-                canvas.addComponent('cc.Canvas');
+                canvas.addComponent(Canvas);
                 canvas.parent = scene;
             }
 
@@ -129,13 +131,14 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent('cc.Graphics');
+            this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 3;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
+            PhysicsDebugDraw._drawer = this._debugGraphics;
+            const debugDraw = B2.Draw.implement(PhysicsDebugDraw.callback);//new PhysicsDebugDraw();
+
             this._b2DebugDrawer = debugDraw;
-            this._world.SetDebugDraw(debugDraw);
+            this._world.SetDebugDraw(debugDraw as B2.Draw);
         }
 
         const parent = this._debugGraphics.node.parent!;
@@ -147,7 +150,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     setGravity (v: IVec2Like): void {
-        this._world.SetGravity(v as b2.Vec2);
+        this._world.SetGravity(v as B2.Vec2);
     }
 
     setAllowSleep (v: boolean): void {
@@ -174,20 +177,19 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         tempVec2_2.x = p2.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_2.y = p2.y / PHYSICS_2D_PTM_RATIO;
 
-        const callback = this._raycastQueryCallback;
-        callback.init(type, mask);
-        this._world.RayCast(callback, tempVec2_1, tempVec2_2);
+        PhysicsRayCastCallback.init(type, mask);
+        this._world.RayCast(this._raycastQueryCallback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures() as b2.Fixture[];
+        const fixtures = PhysicsRayCastCallback.getFixtures();
         if (fixtures.length > 0) {
-            const points = callback.getPoints();
-            const normals = callback.getNormals();
-            const fractions = callback.getFractions();
+            const points = PhysicsRayCastCallback.getPoints();
+            const normals = PhysicsRayCastCallback.getNormals();
+            const fractions = PhysicsRayCastCallback.getFractions();
 
             const results: RaycastResult2D[] = [];
             for (let i = 0, l = fixtures.length; i < l; i++) {
                 const fixture = fixtures[i];
-                const shape = fixture.m_userData as b2Shape2D;
+                const shape = getTSObjectFromWASMObject<B2Shape2D>(fixture);
                 const collider = shape.collider;
 
                 if (type === ERaycast2DType.AllClosest) {
@@ -237,17 +239,17 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             }
 
             const node = bodyComp.node;
-            const b2body = body.impl;
+            const b2body = body.impl!;
 
             // position
-            const pos = b2body!.GetPosition();
+            const pos = b2body.GetPosition();
             tempVec3.x = pos.x * PHYSICS_2D_PTM_RATIO;
             tempVec3.y = pos.y * PHYSICS_2D_PTM_RATIO;
             tempVec3.z = 0;
             node.worldPosition = tempVec3;
 
             // rotation
-            const angle = toDegree(b2body!.GetAngle());
+            const angle = toDegree(b2body.GetAngle());
             node.setWorldRotationFromEuler(0, 0, angle);
         }
     }
@@ -258,13 +260,13 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    addBody (body: b2RigidBody2D): void {
+    addBody (body: B2RigidBody2D): void {
         const bodies = this._bodies;
         if (bodies.includes(body)) {
             return;
         }
 
-        const bodyDef = temoBodyDef;
+        const bodyDef = this._temoBodyDef;
 
         const comp = body.rigidBody;
 
@@ -278,8 +280,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
         const node = comp.node;
         const pos = node.worldPosition;
-        bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
-
+        bodyDef.position = { x: pos.x / PHYSICS_2D_PTM_RATIO, y: pos.y / PHYSICS_2D_PTM_RATIO };
         tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
         if (this._rotationAxis.z < 0.0) {
             tempVec3.z = Math.PI * 2 - tempVec3.z;
@@ -289,35 +290,49 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         bodyDef.awake = comp.awakeOnLoad;
 
         if (comp.type === ERigidBody2DType.Animated) {
-            bodyDef.type = ERigidBody2DType.Kinematic as number;
-
+            bodyDef.type = B2.BodyType.b2_kinematicBody;
             this._animatedBodies.push(body);
             body._animatedPos.set(bodyDef.position.x, bodyDef.position.y);
             body._animatedAngle = bodyDef.angle;
         } else {
-            bodyDef.type = comp.type as number;
+            switch (comp.type) {
+            case ERigidBody2DType.Dynamic:
+                bodyDef.type = B2.BodyType.b2_dynamicBody;
+                break;
+            case ERigidBody2DType.Static:
+                bodyDef.type = B2.BodyType.b2_staticBody;
+                break;
+            case ERigidBody2DType.Kinematic:
+                bodyDef.type = B2.BodyType.b2_kinematicBody;
+                break;
+            default:
+                bodyDef.type = B2.BodyType.b2_staticBody;
+                break;
+            }
         }
 
         // read private property
         const compPrivate = comp as any;
-        const linearVelocity = compPrivate._linearVelocity as Vec2;
-        bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
+        const linearVelocity = compPrivate._linearVelocity;
+        bodyDef.linearVelocity = { x: linearVelocity.x, y: linearVelocity.y };
 
         bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
-        b2Body.m_userData = body;
+        addImplPtrReference(body, getImplPtr(b2Body));
+        addImplPtrReferenceWASM(b2Body, getImplPtr(b2Body));
         body._imp = b2Body;
 
         this._bodies.push(body);
     }
 
-    removeBody (body: b2RigidBody2D): void {
+    removeBody (body: B2RigidBody2D): void {
         if (!this._bodies.includes(body)) {
             return;
         }
         if (body.impl) {
-            body.impl.m_userData = null;
+            removeImplPtrReference(getImplPtr(body.impl));
+            removeImplPtrReferenceWASM(getImplPtr(body.impl));
             this._world.DestroyBody(body.impl);
             body._imp = null;
         }
@@ -329,11 +344,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    registerContactFixture (fixture: b2.Fixture): void {
-        this._contactListener.registerContactFixture(fixture);
+    registerContactFixture (fixture: B2.Fixture): void {
+        this._contactListener.registerContactFixture(getImplPtr(fixture));
     }
-    unregisterContactFixture (fixture: b2.Fixture): void {
-        this._contactListener.unregisterContactFixture(fixture);
+    unregisterContactFixture (fixture: B2.Fixture): void {
+        this._contactListener.unregisterContactFixture(getImplPtr(fixture));
     }
 
     testPoint (point: Vec2): readonly Collider2D[] {
@@ -341,19 +356,17 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const y = tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;
 
         const d = 0.2 / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.lowerBound.x = x - d;
-        tempB2AABB.lowerBound.y = y - d;
-        tempB2AABB.upperBound.x = x + d;
-        tempB2AABB.upperBound.y = y + d;
+        this._tempB2AABB.lowerBound = { x: x - d, y: y - d };
+        this._tempB2AABB.upperBound = { x: x + d, y: y + d };
 
         const callback = this._aabbQueryCallback;
-        callback.init(tempVec2_1);
-        this._world.QueryAABB(callback, tempB2AABB);
+        PhysicsAABBQueryCallback.init(tempVec2_1);
+        this._world.QueryAABB(callback, this._tempB2AABB);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = (fixtures[i].m_userData as b2Shape2D).collider;
+            const collider = getTSObjectFromWASMObject<B2Shape2D>(fixtures[i]).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }
@@ -362,19 +375,17 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     testAABB (rect: Rect): readonly Collider2D[] {
-        tempB2AABB.lowerBound.x = rect.xMin / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.lowerBound.y = rect.yMin / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.upperBound.x = rect.xMax / PHYSICS_2D_PTM_RATIO;
-        tempB2AABB.upperBound.y = rect.yMax / PHYSICS_2D_PTM_RATIO;
+        this._tempB2AABB.lowerBound = { x: rect.xMin / PHYSICS_2D_PTM_RATIO, y: rect.yMin / PHYSICS_2D_PTM_RATIO };
+        this._tempB2AABB.upperBound = { x: rect.xMax / PHYSICS_2D_PTM_RATIO, y: rect.yMax / PHYSICS_2D_PTM_RATIO };
 
         const callback = this._aabbQueryCallback;
-        callback.init();
-        this._world.QueryAABB(callback, tempB2AABB);
+        PhysicsAABBQueryCallback.init();
+        this._world.QueryAABB(callback, this._tempB2AABB);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = (fixtures[i].m_userData as b2Shape2D).collider;
+            const collider = getTSObjectFromWASMObject<B2Shape2D>(fixtures[i]).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }
@@ -383,23 +394,22 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     drawDebug (): void {
-        if (TEST) return;
         this._checkDebugDrawValid();
 
         if (!this._debugGraphics) {
             return;
         }
         this._debugGraphics.clear();
-        this._world.DrawDebugData();
+        this._world.DebugDraw();
     }
 
-    _onBeginContact (b2contact: b2ContactExtends): void {
+    _onBeginContact (b2contact: number): void {
         const c = PhysicsContact.get(b2contact);
         c.emit(Contact2DType.BEGIN_CONTACT);
     }
 
-    _onEndContact (b2contact: b2ContactExtends): void {
-        const c = b2contact.m_userData as PhysicsContact;
+    _onEndContact (b2contact: number): void {
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
         if (!c) {
             return;
         }
@@ -408,8 +418,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         PhysicsContact.put(b2contact);
     }
 
-    _onPreSolve (b2contact: b2ContactExtends): void {
-        const c = b2contact.m_userData as PhysicsContact;
+    _onPreSolve (b2contact: number): void {
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
         if (!c) {
             return;
         }
@@ -417,8 +427,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         c.emit(Contact2DType.PRE_SOLVE);
     }
 
-    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse): void {
-        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
+    _onPostSolve (b2contact: number, impulse: number): void {
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
         if (!c) {
             return;
         }
@@ -426,6 +436,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         // impulse only survive during post sole callback
         c._setImpulse(impulse);
         c.emit(Contact2DType.POST_SOLVE);
-        c._setImpulse(null);
+        c._setImpulse(0);
     }
 }
