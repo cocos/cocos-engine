@@ -1727,14 +1727,14 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
-        const self = this;
-        TrackEntryListeners.getListeners(entry).complete = function (trackEntry): void {
+        const onComplete = (trackEntry: spine.TrackEntry) => {
             const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
             const listenerID = TrackEntryListeners.addListener(listener);
             listener(trackEntry, loopCount);
-            self._instance.setListener(listenerID, spine.EventType.event);
-            self._listener!.event = listener;
-        };
+            this._instance.setListener(listenerID, spine.EventType.event);
+            this._listener!.event = listener;
+        }
+        TrackEntryListeners.getListeners(entry).complete = onComplete;
     }
 
     /**
