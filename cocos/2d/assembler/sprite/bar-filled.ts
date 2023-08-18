@@ -196,8 +196,6 @@ export const barFilled: IAssembler = {
         // 0-4 for local vertex
         renderData.dataLength = 4;
         renderData.resize(4, 6);
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
         // not need
