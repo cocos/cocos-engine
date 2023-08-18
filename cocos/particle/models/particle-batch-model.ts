@@ -170,21 +170,15 @@ export default class ParticleBatchModel extends scene.Model {
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
         if (this._mesh && this._capacity > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3);
+            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string)] as any).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh uv to ATTR_TEX_COORD
+            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3 as string);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
