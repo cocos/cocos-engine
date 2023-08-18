@@ -121,7 +121,7 @@ void SystemWindow::closeWindow() {
 #ifndef CC_SERVER_MODE
     SDL_Event et;
     et.type = SDL_QUIT;
-    auto posted = SDL_PushEvent(&et);
+    SDL_PushEvent(&et);
 #endif
 }
 

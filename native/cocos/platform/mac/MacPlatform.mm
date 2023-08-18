@@ -32,9 +32,7 @@
 #include "modules/Network.h"
 #include "modules/System.h"
 #include "modules/Vibrator.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_main.h"
-#include "SDL2/SDL_syswm.h"
+#include "platform/SDLHelper.h"
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
@@ -145,8 +143,7 @@ void MacPlatform::onClose() {
 }
 
 cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
-    auto* window = ccnew SystemWindow(windowId, externalHandle);
-    return window;
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 void MacPlatform::pollEvent() {

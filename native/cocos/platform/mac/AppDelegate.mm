@@ -29,11 +29,9 @@
 #import "ViewController.h"
 #include "engine/EngineEvents.h"
 #include "platform/mac/MacPlatform.h"
-#include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
+
 @interface AppDelegate () {
     NSWindow* _window;
-    //    Game*     _game;
     cc::MacPlatform* _platform;
 }
 @end
