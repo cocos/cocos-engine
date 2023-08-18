@@ -515,7 +515,6 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   const giSamplesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'giSamples');
   const bouncesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'bounces');
   const reduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'reduceRinging');
-  const showProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showProbe');
   const showWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showWireframe');
   const showConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showConvex');
   const lightProbeSphereVolumeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'lightProbeSphereVolume');
@@ -538,8 +537,6 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.slide(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'slide', 'reduceRinging');
   apply(() => { $.range([0.0, 0.05, 0.001])(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'range', 'reduceRinging');
   apply(() => { $.editable(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'editable', 'reduceRinging');
-  apply(() => { $.tooltip('i18n:light_probe.showProbe')(LightProbeInfo.prototype, 'showProbe',  showProbeDescriptor); }, 'tooltip', 'showProbe');
-  apply(() => { $.editable(LightProbeInfo.prototype, 'showProbe',  showProbeDescriptor); }, 'editable', 'showProbe');
   apply(() => { $.tooltip('i18n:light_probe.showWireframe')(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'tooltip', 'showWireframe');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'editable', 'showWireframe');
   apply(() => { $.tooltip('i18n:light_probe.showConvex')(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'tooltip', 'showConvex');
