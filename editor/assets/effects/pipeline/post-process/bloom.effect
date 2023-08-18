@@ -145,6 +145,7 @@ CCProgram downsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
+    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate bloomTexture pass
@@ -188,6 +189,7 @@ CCProgram upsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
+    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate bloomTexture pass
@@ -231,6 +233,7 @@ CCProgram combine-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
+    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate outputResultMap pass

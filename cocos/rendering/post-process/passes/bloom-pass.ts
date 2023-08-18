@@ -60,6 +60,7 @@ export class BloomPass extends SettingPass {
             const texSize = new Vec4(passViewport.width, passViewport.height, 0, 0);
             const bloomPassDownSampleRTName = `dsBloomPassDownSampleColor${cameraName}${i}`;
             const downSamplerInput = i === 0 ? output : `dsBloomPassDownSampleColor${cameraName}${i - 1}`;
+            passContext.material.setProperty('enableAlphaMask', enableAlphaMask, BLOOM_DOWNSAMPLEPASS_INDEX + i);
             passContext.material.setProperty('texSize', texSize, BLOOM_DOWNSAMPLEPASS_INDEX + i);
             shadingScale /= 2;
             passContext
@@ -77,6 +78,7 @@ export class BloomPass extends SettingPass {
             const bloomPassUpSampleRTName = `dsBloomPassUpSampleColor${cameraName}${setting.iterations - 1 - i}`;
             const upSamplerInput = i === 0 ? `dsBloomPassDownSampleColor${cameraName}${setting.iterations - 1}`
                 : `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
+            passContext.material.setProperty('enableAlphaMask', enableAlphaMask, BLOOM_UPSAMPLEPASS_INDEX + i);
             passContext.material.setProperty('texSize', texSize, BLOOM_UPSAMPLEPASS_INDEX + i);
             shadingScale *= 2;
             passContext
@@ -89,6 +91,7 @@ export class BloomPass extends SettingPass {
         }
 
         // combine Pass
+        passContext.material.setProperty('enableAlphaMask', enableAlphaMask, BLOOM_COMBINEPASS_INDEX);
         passContext.material.setProperty('texSize', new Vec4(0, 0, 0, setting.intensity), BLOOM_COMBINEPASS_INDEX);
         passContext
             .updatePassViewPort()
