@@ -147,7 +147,7 @@ export const ttf: IAssembler = {
     },
 
     updateColor (comp: Label) {
-
+        // no needs to update color
     },
 };
 
