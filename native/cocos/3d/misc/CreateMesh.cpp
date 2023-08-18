@@ -414,7 +414,7 @@ void MeshUtils::inflateMesh(const Mesh::IStruct &structInfo, Uint8Array &data) {
     for (const auto &vb : structInfo.vertexBundles) {
         uncompressedSize += vb.view.length;
     }
-    auto uncompressedData = Uint8Array(uncompressedSize);
+    auto uncompressedData = Uint8Array(static_cast<uint32_t>(uncompressedSize));
     auto res = uncompress(uncompressedData.buffer()->getData(), &uncompressedSize, data.buffer()->getData(), data.byteLength());
     data = uncompressedData;
 }
