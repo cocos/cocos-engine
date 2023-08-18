@@ -25,6 +25,7 @@
 #pragma once
 #include <iostream>
 #include "engine/EngineEvents.h"
+#include "math/Vec2.h"
 
 struct SDL_Window;
 union SDL_Event;
@@ -52,7 +53,7 @@ public:
     static uintptr_t getDisplay(SDL_Window* window);
 #endif
     static void setCursorEnabled(bool value);
-
+    static Vec2 getWindowPosition(SDL_Window *window);
 private:
     static void dispatchSDLEvent(uint32_t windowId, const SDL_Event& sdlEvent);
     static void dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent& wevent);

@@ -371,9 +371,18 @@ uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) {
     return reinterpret_cast<uintptr_t>(wmInfo.info.win.window);
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
+    return reinterpret_cast<uintptr_t>(wmInfo.info.cocoa.window);
 #endif
     CC_ABORT();
     return 0;
+}
+
+Vec2 SDLHelper::getWindowPosition(SDL_Window *window) {
+    int x = 0;
+    int y = 0;
+    SDL_GetWindowPosition(window, &x, &y);
+    return Vec2(x, y);
 }
 
 } // namespace cc
