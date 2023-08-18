@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
 https://www.cocos.com/
 
@@ -334,7 +334,7 @@ if (cc.internal.VideoPlayer) {
         }
 
         syncKeepAspectRatio (enabled) {
-            console.warn('On wechat game videoPlayer is always keep the aspect ratio');
+            console.warn('On bytedance game videoPlayer is always keep the aspect ratio');
         }
 
         syncMatrix () {
