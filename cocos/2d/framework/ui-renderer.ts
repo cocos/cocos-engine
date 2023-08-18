@@ -278,6 +278,10 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _internalId = -1;
+    /**
+     * @engineInternal
+     */
+    public _flagChangedVersion = -1;
 
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.

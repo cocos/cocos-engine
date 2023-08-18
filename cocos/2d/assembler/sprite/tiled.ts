@@ -150,9 +150,10 @@ export const tiled: IAssembler = {
         const node = sprite.node;
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (node.hasChangedFlags || renderData.vertDirty || node.isTransformDirty()) {
+        if (sprite._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = node.flagChangedVersion;
         }
 
         // forColor

@@ -395,9 +395,10 @@ export const radialFilled: IAssembler = {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
         const chunk = renderData.chunk;
-        if (node.hasChangedFlags || renderData.vertDirty || node.isTransformDirty()) {
+        if (comp._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(comp, chunk);
             renderData.vertDirty = false;
+            comp._flagChangedVersion = node.flagChangedVersion;
         }
 
         // forColor
