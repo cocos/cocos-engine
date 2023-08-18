@@ -791,7 +791,7 @@ export class Skeleton extends UIRenderer {
             return this._skeleton.getAttachmentByName(slotName, attachmentName);
         }
         return null;
-    } 
+    }
 
     /**
      * @en
@@ -814,15 +814,14 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * Get Texture Atlas used in attachments.
-     * @zh 
+     * @zh
      * 获取附件图集。
      * @param regionAttachment @en An attachment type of RegionAttachment or BoundingBoxAttachment. @zh RegionAttachment 或 BoundingBoxAttachment 的附件。
      * @return @en TextureRegion contains texture and atlas text information. @zh TextureRegion包含纹理和图集文本信息。
      */
-        public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment): spine.TextureRegion  {
-            return (regionAttachment as spine.RegionAttachment).region;
-        }
-
+    public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment): spine.TextureRegion  {
+        return (regionAttachment as spine.RegionAttachment).region;
+    }
     /**
      * @en Set the current animation. Any queued animations are cleared.<br>
      * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
@@ -1728,8 +1727,8 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
-        let self = this;
-        TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
+        const self = this;
+        TrackEntryListeners.getListeners(entry).complete = function (trackEntry): void {
             const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
             const listenerID = TrackEntryListeners.addListener(listener);
             listener(trackEntry, loopCount);
