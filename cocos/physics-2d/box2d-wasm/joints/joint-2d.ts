@@ -101,7 +101,7 @@ export class B2Joint implements IJoint2D {
         addImplPtrReference(this, getImplPtr(this._b2joint));
         addImplPtrReferenceWASM(this._b2joint, getImplPtr(this._b2joint));
 
-        this.UpdateStiffnessAndDamping();
+        this.updateStiffnessAndDamping();
 
         this._inited = true;
     }
@@ -123,7 +123,7 @@ export class B2Joint implements IJoint2D {
         return this._b2joint && this._body && this._body.impl && this._jointComp;
     }
 
-    UpdateStiffnessAndDamping (): void {
+    updateStiffnessAndDamping (): void {
         // do nothing
     }
 }

@@ -31,12 +31,12 @@ import { toRadian } from '../../../core';
 
 export class B2WheelJoint extends B2Joint implements IWheelJoint {
     setFrequency (v: number): void {
-        this.UpdateStiffnessAndDamping();
+        this.updateStiffnessAndDamping();
     }
     setDampingRatio (v: number): void {
-        this.UpdateStiffnessAndDamping();
+        this.updateStiffnessAndDamping();
     }
-    UpdateStiffnessAndDamping (): void {
+    updateStiffnessAndDamping (): void {
         if (this._b2joint) {
             B2.SetLinearFrequencyAndDampingRatio(
                 this._b2joint,

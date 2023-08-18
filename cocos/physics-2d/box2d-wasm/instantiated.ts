@@ -52,7 +52,6 @@ export function addImplPtrReference (TSObject: any, implPtr: number): void {
 }
 export function removeImplPtrReference (implPtr: number): void {
     if (implPtr) {
-        WASM_OBJECT_PTR_2_TS_OBJECT[implPtr] = null;
         delete WASM_OBJECT_PTR_2_TS_OBJECT[implPtr];
     }
 }
@@ -80,7 +79,6 @@ export function addImplPtrReferenceWASM (WASMObject: any, implPtr: number): void
 
 export function removeImplPtrReferenceWASM (implPtr: number): void {
     if (implPtr) {
-        WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr] = null;
         delete WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
     }
 }
