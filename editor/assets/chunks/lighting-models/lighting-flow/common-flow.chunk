@@ -40,7 +40,7 @@
         vec3 fresnel = vec3(1.0);
       #endif
         lightingResult.fresnel = fresnel;
-        
+
 
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP

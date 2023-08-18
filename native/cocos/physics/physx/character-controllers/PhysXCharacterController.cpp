@@ -259,12 +259,14 @@ void PhysXCharacterController::syncPhysicsToScene() {
 void PhysXCharacterController::insertToCCTMap() {
     if (_impl) {
         getPxCCTMap().insert(std::pair<uintptr_t, uint32_t>(reinterpret_cast<uintptr_t>(_impl), getObjectID()));
+        getPxCCTMap().insert(std::pair<uintptr_t, uint32_t>(reinterpret_cast<uintptr_t>(getShape()), getObjectID()));
     }
 }
 
 void PhysXCharacterController::eraseFromCCTMap() {
     if (_impl) {
         getPxCCTMap().erase(reinterpret_cast<uintptr_t>(_impl));
+        getPxCCTMap().erase(reinterpret_cast<uintptr_t>(getShape()));
     }
 }
 
@@ -272,6 +274,15 @@ cc::Vec3 PhysXCharacterController::scaledCenter() {
     return _mNode->getWorldScale() * _mCenter;
 }
 
-
+physx::PxShape* PhysXCharacterController::getShape() {
+    if (_impl) {
+        //cct's shape
+        physx::PxRigidDynamic* actor = _impl->getActor();
+        physx::PxShape* shape;
+        actor->getShapes(&shape, 1);
+        return shape;
+    }
+    return nullptr;
+}
 } // namespace physics
 } // namespace cc

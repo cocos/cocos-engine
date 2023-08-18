@@ -52,6 +52,13 @@ const CCTShapeEventObject = {
     motionLength: 0,
 };
 
+const CharacterTriggerEventObject = {
+    type: 'onControllerTriggerEnter',
+    characterController: null,
+    collider: null,
+    impl: null,
+};
+
 function emitTriggerEvent (t, c0, c1, impl) {
     TriggerEventObject.type = t;
     TriggerEventObject.impl = impl;
@@ -64,6 +71,19 @@ function emitTriggerEvent (t, c0, c1, impl) {
         TriggerEventObject.selfCollider = c1;
         TriggerEventObject.otherCollider = c0;
         c1.emit(t, TriggerEventObject);
+    }
+}
+
+function emitCCTTriggerEvent (t, cct, collider, impl) {
+    CharacterTriggerEventObject.type = t;
+    CharacterTriggerEventObject.impl = impl;
+    CharacterTriggerEventObject.characterController = cct;
+    CharacterTriggerEventObject.collider = collider;
+    if (collider.needTriggerEvent) {
+        collider.emit(t, CharacterTriggerEventObject);
+    }
+    if (cct.needTriggerEvent) {
+        cct.emit(t, CharacterTriggerEventObject);
     }
 }
 
@@ -138,7 +158,7 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
     }
 }
 
-function emitCCTShapeEvent (t, cct, collider, b) {
+function emitCCTCollisionEvent (t, cct, collider, b) {
     CCTShapeEventObject.type = t;
 
     const contactCount = b.length / 10;
@@ -212,15 +232,15 @@ class PhysicsWorld {
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
         const isHit = this._impl.sweepBox(
-            raycastOptions,
-            halfExtent.x,
-            halfExtent.y,
-            halfExtent.z,
-            orientation.w,
-            orientation.x,
-            orientation.y,
-            orientation.z,
-        );
+                                raycastOptions,
+                                halfExtent.x,
+                                halfExtent.y,
+                                halfExtent.z,
+                                orientation.w,
+                                orientation.x,
+                                orientation.y,
+                                orientation.z,
+                                );
         if (isHit) {
             const hits = this._impl.sweepResult();
             for (let i = 0; i < hits.length; i++) {
@@ -240,15 +260,15 @@ class PhysicsWorld {
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
         const isHit = this._impl.sweepBoxClosest(
-            raycastOptions,
-            halfExtent.x,
-            halfExtent.y,
-            halfExtent.z,
-            orientation.w,
-            orientation.x,
-            orientation.y,
-            orientation.z,
-        );
+                                    raycastOptions,
+                                    halfExtent.x,
+                                    halfExtent.y,
+                                    halfExtent.z,
+                                    orientation.w,
+                                    orientation.x,
+                                    orientation.y,
+                                    orientation.z,
+                                    );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -315,14 +335,14 @@ class PhysicsWorld {
         raycastOptions.distance = options.maxDistance;
         raycastOptions.queryTrigger = !!options.queryTrigger;
         const isHit = this._impl.sweepCapsuleClosest(
-            raycastOptions,
-            radius,
-            height,
-            orientation.w,
-            orientation.x,
-            orientation.y,
-            orientation.z,
-        );
+                                    raycastOptions,
+                                    radius,
+                                    height,
+                                    orientation.w,
+                                    orientation.x,
+                                    orientation.y,
+                                    orientation.z,
+                                    );
         if (isHit) {
             const hit = this._impl.sweepClosestResult();
             result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
@@ -333,7 +353,8 @@ class PhysicsWorld {
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
-        this.emitCCTShapeEvent();
+        this.emitCCTCollisionEvent();
+        this.emitCCTTriggerEvent();
         this._impl.emitEvents();
     }
 
@@ -389,7 +410,7 @@ class PhysicsWorld {
         }
     }
 
-    emitCCTShapeEvent () {
+    emitCCTCollisionEvent () {
         const events = this._impl.getCCTShapeEventPairs();
         const len2 = events.length / 3;
         for (let i = 0; i < len2; i++) {
@@ -398,7 +419,30 @@ class PhysicsWorld {
             if (!cct || !shape) continue;
             const c0 = cct.characterController; const c1 = shape.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
-            emitCCTShapeEvent('onControllerColliderHit', c0, c1, events[t + 2]);
+            emitCCTCollisionEvent('onControllerColliderHit', c0, c1, events[t + 2]);
+        }
+    }
+
+    emitCCTTriggerEvent () {
+        const teps = this._impl.getCCTTriggerEventPairs();
+        const len = teps.length / 3;
+        for (let i = 0; i < len; i++) {
+            const t = i * 3;
+            const sa = ptrToObj[teps[t + 0]];
+            const sb = ptrToObj[teps[t + 1]];
+            if (!sa || !sb) continue;
+            const cct = sa.characterController;
+            const collider = sb.collider;
+            if (!(cct && cct.isValid && collider && collider.isValid)) continue;
+            if (!collider.needTriggerEvent) continue;
+            const state = teps[t + 2];
+            if (state === 1) {
+                emitCCTTriggerEvent('onControllerTriggerStay', cct, collider, teps);
+            } else if (state === 0) {
+                emitCCTTriggerEvent('onControllerTriggerEnter', cct, collider, teps);
+            } else {
+                emitCCTTriggerEvent('onControllerTriggerExit', cct, collider, teps);
+            }
         }
     }
 }

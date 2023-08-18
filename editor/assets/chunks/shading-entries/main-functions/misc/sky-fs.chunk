@@ -28,6 +28,6 @@ void main() {
     CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
     CC_APPLY_FOG_BASE(color, fogFactor);
   #endif
-  
+
   fragColorX = color;
 }
