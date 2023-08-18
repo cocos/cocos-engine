@@ -759,6 +759,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets slots visible range.
      * @zh 设置骨骼插槽可视范围。
+     * @param {Number} startSlotIndex @en start slot index. @zh 开始插槽的索引。
+     * @param {Number} endSlotIndex @en end slot index. @zh 结束插槽的索引。
      */
     public setSlotsRange (startSlotIndex: number, endSlotIndex: number): void {
         if (this.isAnimationCached()) {
@@ -779,8 +781,8 @@ export class Skeleton extends UIRenderer {
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment 对象。
      *
      * @method getAttachment
-     * @param {String} slotName
-     * @param {String} attachmentName
+     * @param {String} slotName @en slot name. @zh 插槽的名字。
+     * @param {String} attachmentName @en attachment name. @en 附件的名称。
      * @return {sp.spine.Attachment}
      */
     public getAttachment (slotName: string, attachmentName: string): spine.Attachment | null {
@@ -798,8 +800,8 @@ export class Skeleton extends UIRenderer {
      * 通过 slot 和 attachment 的名字来设置 attachment。
      * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
      * @method setAttachment
-     * @param {String} slotName
-     * @param {String} attachmentName
+     * @param {String} slotName @en slot name. @zh 插槽的名字。
+     * @param {String} attachmentName @en attachment name. @en 附件的名称。
      */
     public setAttachment (slotName: string, attachmentName: string): void {
         if (this._skeleton) {
@@ -811,9 +813,10 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * Get Texture Atlas used in attachments.
-     * @zh 获取附件图集。
-     * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
-     * @return TextureRegion contains texture and atlas text information.
+     * @zh 
+     * 获取附件图集。
+     * @param regionAttachment @en An attachment type of RegionAttachment or BoundingBoxAttachment. @zh RegionAttachment 或 BoundingBoxAttachment 的附件。
+     * @return @en TextureRegion contains texture and atlas text information. @zh TextureRegion包含纹理和图集文本信息。
      */
         public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment): spine.TextureRegion  {
             return (regionAttachment as spine.RegionAttachment).region;

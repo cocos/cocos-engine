@@ -476,19 +476,17 @@ function overrideProperty_VertexAttachment (): void {
             proto: prototype,
             property: 'bones',
             getter: prototype.getBones,
-            setter: prototype.setBones,
         },
         {
             proto: prototype,
             property: 'vertices',
-            getter: prototype.getBones,
-            setter: prototype.setBones,
+            getter: prototype.getVertices,
         },
         {
             proto: prototype,
             property: 'worldVerticesLength',
-            getter: prototype.getBones,
-            setter: prototype.setBones,
+            getter: prototype.getWorldVerticesLength,
+            setter: prototype.setWorldVerticesLength,
         },
         {
             proto: prototype,
@@ -1801,6 +1799,7 @@ export function overrideSpineDefine (wasm): void {
     overrideProperty_PathAttachment();
     overrideProperty_PointAttachment();
     overrideProperty_RegionAttachment();
+    overrideProperty_VertexAttachment();
     overrideProperty_TextureAtlas();
     overrideProperty_SlotData();
     overrideProperty_IkConstraint();
