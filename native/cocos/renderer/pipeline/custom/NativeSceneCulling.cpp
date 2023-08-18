@@ -41,19 +41,23 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
         sceneData.camera,
         sceneData.light.light,
         bCastShadow,
+        any(sceneData.flags & SceneFlags::GPU_DRIVEN),
         sceneData.light.level,
     };
 
     // find query source
     auto iter = queries.culledResultIndex.find(key);
     if (iter == queries.culledResultIndex.end()) {
-        // create query source
-        // make query source id
-        const auto sourceID = numCullingQueries++;
-        if (numCullingQueries > culledResults.size()) {
-            // space is not enough, create query source
-            CC_EXPECTS(numCullingQueries == culledResults.size() + 1);
-            culledResults.emplace_back();
+        uint32_t sourceID = 0xFFFFFFFF;
+        if (!any(sceneData.flags & SceneFlags::GPU_DRIVEN)) {
+            // create query source
+            // make query source id
+            sourceID = numCullingQueries++;
+            if (numCullingQueries > culledResults.size()) {
+                // space is not enough, create query source
+                CC_EXPECTS(numCullingQueries == culledResults.size() + 1);
+                culledResults.emplace_back();
+            }
         }
         // add query source to query index
         bool added = false;
@@ -236,6 +240,9 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
     for (const auto& [scene, queries] : sceneQueries) {
         CC_ENSURES(scene);
         for (const auto& [key, sourceID] : queries.culledResultIndex) {
+            if (sourceID == 0xFFFFFFFF) {
+                continue;
+            }
             CC_EXPECTS(key.camera);
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto& camera = *key.camera;
@@ -385,9 +392,16 @@ void SceneCulling::fillRenderQueues(
         const auto& sceneData = get(SceneTag{}, sceneID, rg);
 
         // check scene flags
+        const bool bDrawGPUDriven = any(sceneData.flags & SceneFlags::GPU_DRIVEN);
         const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
         const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
         const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
+
+        if (bDrawGPUDriven) {
+            CC_EXPECTS(sourceID == 0xFFFFFFFF);
+            continue;
+        }
+        CC_EXPECTS(sourceID != 0xFFFFFFFF);
 
         if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask) {
             // nothing to draw
@@ -413,7 +427,7 @@ void SceneCulling::fillRenderQueues(
         // skybox
         const auto* camera = sceneData.camera;
         CC_EXPECTS(camera);
-        if (!any(sceneData.flags & SceneFlags::SHADOW_CASTER) &&
+        if (!any(sceneData.flags & (SceneFlags::SHADOW_CASTER | SceneFlags::TRANSPARENT_OBJECT)) &&
             skybox && skybox->isEnabled() &&
             (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
             CC_EXPECTS(skybox->getModel());

@@ -1020,8 +1020,10 @@ void setupGpuDrivenResources(
             ppl.updateStorageBuffer(std::string(name), bufferSize, gfx::Format::UNKNOWN);
         }
     }
+
     if (!hzbName.empty()) {
         name = hzbName;
+        name.append(std::to_string(cullingID));
         const auto width = utils::previousPOT(camera->getWidth());
         const auto height = utils::previousPOT(camera->getHeight());
         const auto mipLevels = getMipLevels(width, height);
@@ -1039,8 +1041,29 @@ void setupGpuDrivenResources(
 
 } // namespace
 
-void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
-                                              const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+bool projectSpherePerspective(Vec3 c, float r, float znear, Mat4 proj) {
+    if (-c.z < r + znear) return false;
+
+    Vec3 cr = c * r;
+    float czr2 = c.z * c.z - r * r;
+
+    float vx = std::sqrtf(c.x * c.x + czr2);
+    float minx = (vx * c.x + cr.z) / -(vx * c.z - cr.x);
+    float maxx = (vx * c.x - cr.z) / -(vx * c.z + cr.x);
+
+    float vy = std::sqrtf(c.y * c.y + czr2);
+    float miny = (vy * c.y + cr.z) / -(vy * c.z - cr.y);
+    float maxy = (vy * c.y - cr.z) / -(vy * c.z + cr.y);
+
+    Vec4 aabb = Vec4(minx * proj.m[0], miny * proj.m[5], maxx * proj.m[0], maxy * proj.m[5]);
+    // ndc space -> uv space
+    aabb = aabb * 0.5f + Vec4(0.5f, 0.5f, 0.5f, 0.5f);
+
+    return true;
+}
+
+void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID, 
+    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
         return;
@@ -1050,6 +1073,8 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     if (!gpuScene) {
         return;
     }
+
+    //bool result = projectSpherePerspective(Vec3(0, 0, -10), 3, 1, camera->getMatProj());
 
     auto &sceneCulling = nativeContext.sceneCulling;
     auto iter = sceneCulling.sceneIDs.find(scene);
@@ -1107,7 +1132,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
             auto *sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
                                                 gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
 
-            gpuCullPass->addTexture(hzbName, "CCDepthMap", sampler, 0);
+            gpuCullPass->addTexture(hzbName + std::to_string(cullingID), "CCDepthMap", sampler, 0);
         }
 
         const auto materialIndex = hzbName.empty() ? 2 : (bMainPass ? 0 : 1);
@@ -1209,8 +1234,8 @@ void NativePipeline::addBuiltinHzbGenerationPass(
     gfx::Sampler *sampler = nullptr;
     if (device->getCapabilities().supportFilterMinMax) {
         sampler = device->getSampler({
-            gfx::Filter::POINT,
-            gfx::Filter::POINT,
+            gfx::Filter::LINEAR,
+            gfx::Filter::LINEAR,
             gfx::Filter::NONE,
             gfx::Address::CLAMP,
             gfx::Address::CLAMP,
