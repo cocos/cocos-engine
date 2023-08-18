@@ -6,7 +6,7 @@ struct SurfacesStandardVertexIntermediate
 #if CC_SURFACES_USE_TANGENT_SPACE
   vec4 tangent;
 #endif
-  
+
   //other data
 #if CC_SURFACES_USE_VERTEX_COLOR
   vec4 color;

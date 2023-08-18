@@ -283,7 +283,7 @@ class TerrainRenderable extends ModelRenderer {
                 this._model.initSubModel(0, this._meshData, this._currentMaterial);
             }
 
-            this.setMaterial(this._currentMaterial, 0);
+            this.setSharedMaterial(this._currentMaterial, 0);
 
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;

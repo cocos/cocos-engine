@@ -125,7 +125,7 @@ struct StandardSurface {
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
- 
+
   vec3 specular = mix(vec3(0.08 * s.specularIntensity), s.albedo.rgb, s.metallic);
 
   vec3 position;
@@ -164,20 +164,20 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
     s.occlusion *= s.lightmap_test;
   #endif
-  
+
   #if !CC_DISABLE_DIRECTIONAL_LIGHT
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
-  
+
     vec3 H = normalize(L + V);
     float NH = max(dot(N, H), 0.0);
     vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
     vec3 diffuseContrib = diffuse / PI;
-  
+
     // Cook-Torrance Microfacet Specular BRDF
     vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
     vec3 dirlightContrib = (diffuseContrib + specularContrib);
-  
+
     dirlightContrib *= shadow;
     finalColor += lightingColor * dirlightContrib;
   #endif
@@ -243,7 +243,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(N, V, s.position, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
         probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount);
-      } 
+      }
       env = unpackRGBE(probe);
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
       if (s.reflectionProbeId < 0.0) {

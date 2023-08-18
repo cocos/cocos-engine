@@ -315,6 +315,7 @@ private:
         gfx::BufferViewInfo &bufferViewInfo,
         ccstd::vector<uint32_t> &startOffsets,
         size_t &count);
+    bool isBlend();
 
 protected:
     void setState(const gfx::BlendState &bs, const gfx::DepthStencilState &dss, const gfx::RasterizerState &rs, gfx::DescriptorSet *ds);

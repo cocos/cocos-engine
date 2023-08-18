@@ -3039,6 +3039,24 @@ GLint cmdFuncGLES2GetMaxSampleCount() {
     return maxSamples;
 }
 
+void cmdFuncGLES2InsertMarker(GLES2Device *device, GLsizei length, const char *marker) {
+    if (device->constantRegistry()->debugMarker) {
+        glInsertEventMarkerEXT(length, marker);
+    }
+}
+
+void cmdFuncGLES2PushGroupMarker(GLES2Device *device, GLsizei length, const char *marker) {
+    if (device->constantRegistry()->debugMarker) {
+        glPushGroupMarkerEXT(length, marker);
+    }
+}
+
+void cmdFuncGLES2PopGroupMarker(GLES2Device *device) {
+    if (device->constantRegistry()->debugMarker) {
+        glPopGroupMarkerEXT();
+    }
+}
+
 void GLES2GPUBlitManager::initialize() {
     _gpuShader.name = "Blit Pass";
     _gpuShader.blocks.push_back({

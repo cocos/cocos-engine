@@ -43,6 +43,7 @@ struct GLES3GPUConstantRegistry {
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel mFBF{FBFSupportLevel::NONE};
+    bool debugMarker = false;
 };
 
 class GLES3GPUStateCache;
@@ -135,7 +136,6 @@ struct GLES3GPUTexture {
     bool isPowerOf2{false};
     bool useRenderBuffer{false};
     bool memoryAllocated{true}; // false if swapchain image or implicit ms render buffer.
-    GLenum glTarget{0};
     GLenum glInternalFmt{0};
     GLenum glFormat{0};
     GLenum glType{0};
@@ -156,8 +156,11 @@ struct GLES3GPUTextureView {
     Format format = Format::UNKNOWN;
     uint32_t baseLevel = 0U;
     uint32_t levelCount = 1U;
+    uint32_t baseLayer = 0U;
+    uint32_t layerCount = 1U;
     uint32_t basePlane = 0U;
     uint32_t planeCount = 0U;
+    GLenum glTarget{0};
 };
 
 using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;
@@ -574,7 +577,8 @@ public:
         }
     }
 
-    GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
+    GLuint getFramebufferFromTexture(const GLES3GPUTextureView *gpuTextureView, const TextureSubresLayers &subres) {
+        const auto *gpuTexture = gpuTextureView->gpuTexture;
         bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
         auto &cacheMap = isTexture ? _textureMap : _renderbufferMap;
@@ -601,9 +605,9 @@ public:
                 attachment = GL_DEPTH_ATTACHMENT;
             }
             if (isTexture) {
-                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, gpuTexture->glTarget, glResource, mipLevel));
+                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, gpuTextureView->glTarget, glResource, mipLevel));
             } else {
-                GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, attachment, gpuTexture->glTarget, glResource));
+                GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, attachment, GL_RENDERBUFFER, glResource));
             }
 
             GLenum status;

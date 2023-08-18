@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
+import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
 import { Vec3, Quat, Mat4 } from '../../core';
+import { CharacterTriggerEventType } from '../framework';
 import { bt } from './instantiated';
 
 export const TriggerEventObject = {
@@ -38,6 +39,13 @@ export const CollisionEventObject = {
     selfCollider: null as unknown as Collider,
     otherCollider: null as unknown as Collider,
     contacts: [] as IContactEquation[],
+    impl: null,
+};
+
+export const CharacterTriggerEventObject = {
+    type: 'onControllerTriggerEnter' as unknown as CharacterTriggerEventType,
+    collider: null as unknown as Collider,
+    characterController: null as unknown as CharacterController,
     impl: null,
 };
 

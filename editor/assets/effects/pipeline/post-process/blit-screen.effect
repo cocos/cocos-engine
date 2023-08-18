@@ -23,7 +23,7 @@ CCEffect %{
 
 CCProgram vs %{
   #include <./chunks/vs>
-}%     
+}%
 
 
 CCProgram fs %{
@@ -32,7 +32,7 @@ CCProgram fs %{
   // #include <builtin/uniforms/cc-global>
 
   in vec2 v_uv;
-  
+
   uniform UBO {
     vec4 inputViewPort;
   };
@@ -44,6 +44,6 @@ CCProgram fs %{
   void main () {
     fragColor = texture(inputTexture, v_uv);
   }
-  
+
 }%
-        
+

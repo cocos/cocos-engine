@@ -73,7 +73,7 @@ export class Line extends ModelRenderer {
     }
 
     set lineMaterial (val) {
-        this.setMaterial(val, 0);
+        this.setSharedMaterial(val, 0);
     }
 
     @override

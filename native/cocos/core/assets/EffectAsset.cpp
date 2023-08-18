@@ -226,9 +226,16 @@ void EffectAsset::precompile() {
             continue;
         }
 
-        ccstd::vector<MacroRecord> defines = EffectAsset::doCombine(ccstd::vector<MacroRecord>(), combination, combination.begin());
-        for (auto &define : defines) {
-            ProgramLib::getInstance()->getGFXShader(root->getDevice(), shader.name, define, root->getPipeline());
+        // Native Program Lib can not precompile shader variant without phaseID.
+        // Shaders are compiled only during the compilation of PSO. A new mechanism may be needed for pre-compilation.
+        auto *programLib = render::getProgramLibrary();
+        if (programLib == nullptr) {
+            ccstd::vector<MacroRecord> defines = EffectAsset::doCombine(
+                ccstd::vector<MacroRecord>(), combination, combination.begin());
+            for (auto &define: defines) {
+                ProgramLib::getInstance()->getGFXShader(root->getDevice(), shader.name, define,
+                                                        root->getPipeline());
+            }
         }
     }
 }

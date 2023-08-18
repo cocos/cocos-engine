@@ -196,8 +196,6 @@ export const barFilled: IAssembler = {
         // 0-4 for local vertex
         renderData.dataLength = 4;
         renderData.resize(4, 6);
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
         // not need
@@ -236,9 +234,10 @@ export const barFilled: IAssembler = {
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = sprite.node.flagChangedVersion;
         }
 
         const bid = chunk.bufferId;

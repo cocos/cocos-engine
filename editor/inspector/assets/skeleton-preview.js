@@ -49,7 +49,7 @@ const Elements = {
             const panel = this;
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await callSkeletonPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callSkeletonPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callSkeletonPreviewFunction('onMouseMove', {
@@ -78,6 +78,15 @@ const Elements = {
 
                 panel.isPreviewDataDirty = true;
             });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                await callSkeletonPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
+                panel.isPreviewDataDirty = true;
+            });
+
 
             const GlPreview = Editor._Module.require('PreviewExtends').default;
             panel.glPreview = new GlPreview('scene:skeleton-preview', 'query-skeleton-preview-data');

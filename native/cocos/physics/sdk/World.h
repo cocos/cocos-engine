@@ -44,6 +44,7 @@ public:
     ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
     ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() override;
     ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override;
+    ccstd::vector<std::shared_ptr<CCTTriggerEventPair>>& getCCTTriggerEventPairs() override;
     bool raycast(RaycastOptions &opt) override;
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;

@@ -146,7 +146,7 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
       In.shadowBiasAndProbeId.xy += cc_localShadowBias.xy;
     #endif
   #endif
-  
+
   #if CC_USE_REFLECTION_PROBE
     #if USE_INSTANCING
       In.shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;

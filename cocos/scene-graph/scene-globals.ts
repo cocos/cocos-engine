@@ -1312,8 +1312,6 @@ export class LightProbeInfo {
      * @en Whether to show light probe
      * @zh 是否显示光照探针
      */
-    @editable
-    @tooltip('i18n:light_probe.showProbe')
     set showProbe (val: boolean) {
         if (this._showProbe === val) return;
         this._showProbe = val;

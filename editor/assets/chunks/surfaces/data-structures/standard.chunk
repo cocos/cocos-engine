@@ -14,7 +14,7 @@ struct SurfacesMaterialData
   // for advanced PBR
   vec3 worldTangent, worldBinormal;
   float ior;
-  
+
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
@@ -22,12 +22,13 @@ struct SurfacesMaterialData
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec3 outScatteringColor, inScatteringColor;
   vec4 transmitScatteringParams;
-#endif  
+#endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec4 transmitDiffuseParams;
 #endif
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
   // for storage only, copied with CCSurfacesGetSurfacesMaterialData2ndSpecular
+  // todo: use SurfacesMaterialDataPerLayer instead
   vec3 baseColor2ndSpecular, color2ndSpecular;
   float intensity2ndSpecular, roughness2ndSpecular, metallic2ndSpecular;
   vec3 worldNormal2ndSpecular, worldTangent2ndSpecular, worldBinormal2ndSpecular;

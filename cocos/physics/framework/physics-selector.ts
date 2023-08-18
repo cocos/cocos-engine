@@ -39,6 +39,7 @@ import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
@@ -524,6 +525,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     addMask: FUNC,
     removeMask: FUNC,
     move: FUNC,
+    syncPhysicsToScene: FUNC,
     updateEventListener: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,

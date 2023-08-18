@@ -735,6 +735,15 @@ export class Model {
         }
     }
 
+    /**
+     * @engineInternal
+     * @en Invalidate local data
+     * @zh 使本地数据失效
+     */
+    public invalidateLocalData (): void {
+        this._localDataUpdated = true;
+    }
+
     public showTetrahedron (): boolean {
         return this.isLightProbeAvailable();
     }

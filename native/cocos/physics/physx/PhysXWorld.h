@@ -88,6 +88,9 @@ public:
     inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
         return _mEventMgr->getCCTShapePairs();
     }
+    inline ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() override {
+        return _mEventMgr->getCCTTriggerPairs();
+    }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
     void destroy() override;

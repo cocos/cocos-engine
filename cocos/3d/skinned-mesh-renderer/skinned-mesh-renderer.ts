@@ -143,8 +143,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    public setMaterial (material: Material | null, index: number): void {
-        super.setMaterial(material, index);
+    public setSharedMaterial (material: Material | null, index: number): void {
+        super.setSharedMaterial(material, index);
         if (this._modelType === SkinningModel) {
             this.getMaterialInstance(index);
         }
@@ -173,7 +173,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
 
         const animation = skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
-        if (animation) {
+        if (animation && animation.enabledInHierarchy) {
             animation.notifySkinnedMeshAdded(this);
         } else {
             this.setUseBakedAnimation(false);

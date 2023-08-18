@@ -95,7 +95,7 @@ interface AnimationItem {
 }
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -103,7 +103,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -111,7 +111,7 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum.
+ * @engineInternal
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -125,7 +125,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal Since v3.7.2, this is an engine private interface.
+ * @engineInternal
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -253,11 +253,11 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
     /**
-     * @internal
+     * @engineInternal
      */
     public _startEntry: spine.TrackEntry;
     /**
-     * @internal
+     * @engineInternal
      */
     public _endEntry: spine.TrackEntry;
     // Paused or playing state
@@ -306,7 +306,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
 
@@ -342,7 +342,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface
+     * @engineInternal
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -368,7 +368,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -393,7 +393,7 @@ export class Skeleton extends UIRenderer {
 
     // value of 0 represents no animation
     /**
-     * @internal
+     * @engineInternal
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -416,7 +416,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @engineInternal
      */
     set _animationIndex (value: number) {
         let animsEnum;
@@ -427,7 +427,7 @@ export class Skeleton extends UIRenderer {
             error(`${this.name} animation enums are invalid`);
             return;
         }
-        const animName = animsEnum[value];
+        const animName = String(animsEnum[value]);
         if (animName !== undefined) {
             this.animation = animName;
             if (EDITOR_NOT_IN_PREVIEW) {
@@ -626,9 +626,16 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    /**
+     * @engineInternal
+     */
     public onRestore (): void {
-
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
+
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
@@ -696,7 +703,7 @@ export class Skeleton extends UIRenderer {
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
         this._refreshInspector();
-        if (this.defaultAnimation) this.animation = this.defaultAnimation;
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
@@ -730,8 +737,10 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData!.uuid, skeletonData);
-            this._skeleton = skeletonInfo.skeleton;
+            if (this.skeletonData) {
+                const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
+                this._skeleton = skeletonInfo.skeleton;
+            }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
             this._state = this._instance.getAnimationState();
@@ -993,15 +1002,7 @@ export class Skeleton extends UIRenderer {
             for (let i = 0; i < this._drawList.length; i++) {
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(
-                        this,
-                        meshBuffer,
-                        origin + dc.indexOffset,
-                        dc.indexCount,
-                        dc.texture,
-                        dc.material!,
-                        this._enableBatch,
-                    );
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset, dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
                 indicesCount += dc.indexCount;
             }
@@ -1039,7 +1040,7 @@ export class Skeleton extends UIRenderer {
         let mat: Material;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
+        this.setSharedMaterial(mat, 0);
         this._cleanMaterialCache();
     }
 
@@ -1057,7 +1058,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1162,7 +1163,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @engineInternal
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
@@ -1189,7 +1190,7 @@ export class Skeleton extends UIRenderer {
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode): void {
-        if (this._preCacheMode !== cacheMode) {
+        if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._updateSkeletonData();
@@ -1407,7 +1408,7 @@ export class Skeleton extends UIRenderer {
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
-            const boneName = getBoneName(bones[i]);
+            const boneName: string = getBoneName(bones[i]);
             this._cachedSockets.set(boneName, bd.index);
         }
     }
@@ -1473,7 +1474,9 @@ export class Skeleton extends UIRenderer {
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
-                if (!JSB) this._instance.setDebugMode(false);
+                if (this._instance) {
+                    this._instance.setDebugMode(false);
+                }
             }
         }
     }
