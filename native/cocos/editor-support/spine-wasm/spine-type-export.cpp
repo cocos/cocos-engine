@@ -447,7 +447,19 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setPath", &RegionAttachment::setPath)
         .function("getRendererObject", &RegionAttachment::getRendererObject, allow_raw_pointers())
         .function("getOffset", &RegionAttachment::getOffset)
-        .function("getUVs", &RegionAttachment::getUVs)
+        .function("setUVs", optional_override([](RegionAttachment &obj, std::vector<float> &data) {
+            auto spdata = VECTOR_STD2SP(data);
+            auto uvs = obj.getUVs();
+            int count = spdata.size();
+            float u = count > 1 ? spdata[0] : uvs[0];
+            float v = count > 2 ? spdata[1] : uvs[1];
+            float u2 = count > 3 ? spdata[2] : uvs[2];
+            float v2 = count > 4 ? spdata[3] : uvs[3];
+            bool rotate = count > 5 ? (spdata[4] != 0) : false;
+            obj.setUVs(u, v, u2, v2, rotate);
+        }), allow_raw_pointers())
+        .function("getUVs", optional_override([](RegionAttachment &obj) {
+            return VECTOR_SP2STD(obj.getUVs());}), allow_raw_pointers())
         .function("updateOffset", &RegionAttachment::updateOffset)
         .function("computeWorldVertices", optional_override([](
             RegionAttachment &obj, Bone &bone, std::vector<float> worldVertices, 

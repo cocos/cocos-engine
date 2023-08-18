@@ -703,12 +703,12 @@ function overrideProperty_RegionAttachment (): void {
             proto: prototype,
             property: 'offset',
             getter: prototype.getOffset,
-
         },
         {
             proto: prototype,
             property: 'uvs',
             getter: prototype.getUVs,
+            setter: prototype.setUVs,
         },
     ];
     propertyPolyfills.forEach((prop): void => {

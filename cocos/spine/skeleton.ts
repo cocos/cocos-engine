@@ -815,7 +815,7 @@ export class Skeleton extends UIRenderer {
      * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
      * @return TextureRegion contains texture and atlas text information.
      */
-        public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment) {
+        public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment): spine.TextureRegion  {
             return (regionAttachment as spine.RegionAttachment).region;
         }
 
