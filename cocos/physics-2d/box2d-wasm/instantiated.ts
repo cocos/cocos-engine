@@ -28,7 +28,7 @@ import { wasmFactory, box2dWasmUrl } from './box2d.wasmjs';
 import { asmFactory } from './box2d.asmjs';
 
 import { game } from '../../game';
-import { getError, error, sys, debug } from '../../core';
+import { getError, error, sys, debug, IVec2Like } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const B2 = {} as any;
@@ -93,10 +93,9 @@ export function getWASMObjectFromWASMObjectPtr<T> (implPtr: number): T {
 /**
 * ts implementation of c++ b2Mul
 */
-export function b2Mul (T: any, v: any): any {
-    const x = (T.q.c * v.x - T.q.s * v.y) + T.p.x;
-    const y = (T.q.s * v.x + T.q.c * v.y) + T.p.y;
-    return { x, y };
+export function b2Mul (T: any, v: IVec2Like, out: IVec2Like): void {
+    out.x = (T.q.c * v.x - T.q.s * v.y) + T.p.x;
+    out.y = (T.q.s * v.x + T.q.c * v.y) + T.p.y;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

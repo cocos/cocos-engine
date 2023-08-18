@@ -27,7 +27,8 @@ import { Color, warn } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
 
-let _tmp_vec2 = { x: 0, y: 0 };
+const _tmp_vec2 = { x: 0, y: 0 };
+const _tmp_vec3 = { x: 0, y: 0 };
 const _tmp_color = new Color();
 
 const GREEN_COLOR = Color.GREEN;
@@ -65,13 +66,14 @@ export class PhysicsDebugDraw {// extends B2.Draw {
 
     static _DrawPolygon (vertices: number, vertexCount: number): void {
         const drawer = PhysicsDebugDraw._drawer!;
+        const rawVertexBuffer = B2.HEAPF32.subarray(vertices / 4, vertices / 4 + vertexCount * 2);
 
         for (let i = 0; i < vertexCount; i++) {
-            _tmp_vec2.x = B2.GetFloat32(vertices, i * 2 + 0);
-            _tmp_vec2.y = B2.GetFloat32(vertices, i * 2 + 1);
-            _tmp_vec2 = b2Mul(PhysicsDebugDraw._xf, _tmp_vec2);
-            const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
-            const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
+            _tmp_vec2.x = rawVertexBuffer[i * 2 + 0];
+            _tmp_vec2.y = rawVertexBuffer[i * 2 + 1];
+            b2Mul(PhysicsDebugDraw._xf, _tmp_vec2, _tmp_vec3);
+            const x = _tmp_vec3.x * PHYSICS_2D_PTM_RATIO;
+            const y = _tmp_vec3.y * PHYSICS_2D_PTM_RATIO;
             if (i === 0) drawer.moveTo(x, y);
             else {
                 drawer.lineTo(x, y);
@@ -126,9 +128,10 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         }
         PhysicsDebugDraw._applyStrokeColor(color);
 
-        _tmp_vec2 = b2Mul(PhysicsDebugDraw._xf, p1);
-        drawer.moveTo(p1.x * PHYSICS_2D_PTM_RATIO, p1.y * PHYSICS_2D_PTM_RATIO);
-        drawer.lineTo(p2.x * PHYSICS_2D_PTM_RATIO, p2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(PhysicsDebugDraw._xf, p1, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(PhysicsDebugDraw._xf, p2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
         drawer.stroke();
     }
 
@@ -138,24 +141,24 @@ export class PhysicsDebugDraw {// extends B2.Draw {
         drawer.strokeColor = RED_COLOR;
 
         _tmp_vec2.x = _tmp_vec2.y = 0;
-        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
-        drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(xf, _tmp_vec2, _tmp_vec3);
+        drawer.moveTo(_tmp_vec3.x * PHYSICS_2D_PTM_RATIO, _tmp_vec3.y * PHYSICS_2D_PTM_RATIO);
 
         _tmp_vec2.x = 1; _tmp_vec2.y = 0;
-        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
-        drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(xf, _tmp_vec2, _tmp_vec3);
+        drawer.lineTo(_tmp_vec3.x * PHYSICS_2D_PTM_RATIO, _tmp_vec3.y * PHYSICS_2D_PTM_RATIO);
 
         drawer.stroke();
 
         drawer.strokeColor = GREEN_COLOR;
 
         _tmp_vec2.x = _tmp_vec2.y = 0;
-        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
-        drawer.moveTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(xf, _tmp_vec2, _tmp_vec3);
+        drawer.moveTo(_tmp_vec3.x * PHYSICS_2D_PTM_RATIO, _tmp_vec3.y * PHYSICS_2D_PTM_RATIO);
 
         _tmp_vec2.x = 0; _tmp_vec2.y = 1;
-        _tmp_vec2 = b2Mul(xf, _tmp_vec2);
-        drawer.lineTo(_tmp_vec2.x * PHYSICS_2D_PTM_RATIO, _tmp_vec2.y * PHYSICS_2D_PTM_RATIO);
+        b2Mul(xf, _tmp_vec2, _tmp_vec3);
+        drawer.lineTo(_tmp_vec3.x * PHYSICS_2D_PTM_RATIO, _tmp_vec3.y * PHYSICS_2D_PTM_RATIO);
 
         drawer.stroke();
     }
