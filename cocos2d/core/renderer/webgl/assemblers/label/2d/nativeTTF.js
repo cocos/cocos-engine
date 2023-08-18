@@ -25,8 +25,8 @@ export default class NativeTTF {
         this._cfg = new DataView(this._layout._cfg);
         this._layoutInfo = new DataView(this._layout._layout);
 
-        this._cfgFields = jsb.LabelRenderer._cfgFields;
-        this._layoutFields = jsb.LabelRenderer._layoutFields;
+        this._cfgFields = "string" == typeof jsb.LabelRenderer._cfgFields ? JSON.parse(jsb.LabelRenderer._cfgFields) : jsb.LabelRenderer._cfgFields;
+        this._layoutFields = "string" == typeof jsb.LabelRenderer._layoutFields ? JSON.parse(jsb.LabelRenderer._layoutFields) : jsb.LabelRenderer._layoutFields;
         this._layout.bindNodeProxy(comp.node._proxy);
         this._bindMaterial(comp);
     }

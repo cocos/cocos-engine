@@ -1059,7 +1059,11 @@ cc.ContainerStrategy = cc.Class({
         var devicePixelRatio = view._devicePixelRatio = 1;
         if(CC_JSB){
             // view.isRetinaEnabled only work on web.
-            devicePixelRatio = view._devicePixelRatio = window.devicePixelRatio;
+            if(globalThis.oh) {
+                devicePixelRatio = view._devicePixelRatio = globalThis.oh.devicePixelRatio;
+            } else {
+                devicePixelRatio = view._devicePixelRatio = window.devicePixelRatio;
+            }
         }else if (view.isRetinaEnabled()) {
             devicePixelRatio = view._devicePixelRatio = Math.min(view._maxPixelRatio, window.devicePixelRatio || 1);
         }
