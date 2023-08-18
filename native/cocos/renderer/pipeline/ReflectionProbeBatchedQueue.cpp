@@ -80,15 +80,14 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
             continue;
         }
         if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
-        uint32_t visibility = probe->getCamera()->getVisibility();
 
+        uint32_t visibility = probe->getCamera()->getVisibility();
         if (((visibility & node->getLayer()) != node->getLayer()) && (!(visibility & static_cast<uint32_t>(model->getVisFlags())))) {
             continue;
         }
         if (((REFLECTION_PROBE_DEFAULT_MASK & node->getLayer()) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
             continue;
         }
-
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
             if (aabbWithAABB(*worldBounds, *probe->getBoundingBox())) {
                 add(model);
