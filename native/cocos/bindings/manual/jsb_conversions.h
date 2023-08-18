@@ -1441,6 +1441,36 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object *
 
     return true;
 }
+
+template <typename T>
+bool sevalue_to_native(const se::Value &v, spine::Vector<T> *ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    CC_ASSERT_NOT_NULL(ret);
+    CC_ASSERT(v.isObject());
+    se::Object *obj = v.toObject();
+    CC_ASSERT(obj->isArray());
+
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i) {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject()) {
+            ret->clear();
+            return false;
+        }
+
+        T *nativeObj = static_cast<T *>(tmp.toObject()->getPrivateData());
+        ret->add(*nativeObj);
+    }
+
+    return true;
+}
 #endif // CC_USE_SPINE
 
 /////////////////// shorter form
