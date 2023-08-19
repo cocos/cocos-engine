@@ -95,7 +95,7 @@ interface AnimationItem {
 }
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -103,7 +103,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -111,7 +111,7 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum.
+ * @engineInternal
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -125,7 +125,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal Since v3.7.2, this is an engine private interface.
+ * @engineInternal
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -253,11 +253,11 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
     /**
-     * @internal
+     * @engineInternal
      */
     public _startEntry: spine.TrackEntry;
     /**
-     * @internal
+     * @engineInternal
      */
     public _endEntry: spine.TrackEntry;
     // Paused or playing state
@@ -306,7 +306,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
 
@@ -342,7 +342,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface
+     * @engineInternal
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -368,7 +368,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -393,7 +393,7 @@ export class Skeleton extends UIRenderer {
 
     // value of 0 represents no animation
     /**
-     * @internal
+     * @engineInternal
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -416,7 +416,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @engineInternal
      */
     set _animationIndex (value: number) {
         let animsEnum;
@@ -427,7 +427,7 @@ export class Skeleton extends UIRenderer {
             error(`${this.name} animation enums are invalid`);
             return;
         }
-        const animName = animsEnum[value];
+        const animName = String(animsEnum[value]);
         if (animName !== undefined) {
             this.animation = animName;
             if (EDITOR_NOT_IN_PREVIEW) {
@@ -626,10 +626,16 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    /**
+     * @engineInternal
+     */
     public onRestore (): void {
-
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
+
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
@@ -697,7 +703,7 @@ export class Skeleton extends UIRenderer {
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
         this._refreshInspector();
-        if (this.defaultAnimation) this.animation = this.defaultAnimation;
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
@@ -1052,7 +1058,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1157,7 +1163,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @engineInternal
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
