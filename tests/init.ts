@@ -96,7 +96,6 @@ jest.mock(
     'external:emscripten/webgpu/webgpu_wasm.js',
     'external:emscripten/webgpu/glslang.js',
     'external:emscripten/physx/physx.release.wasm.js',
-    'external:emscripten/meshopt/meshopt_decoder.wasm.js',
     'external:emscripten/spine/spine.js',
 ].forEach(moduleId => {
     jest.mock(moduleId, 
@@ -107,6 +106,14 @@ jest.mock(
         { virtual: true, },
     );
 });
+
+jest.mock('external:emscripten/meshopt/meshopt_decoder.wasm.js',
+    () => ({
+        __esModule: true,
+        default: function factory () { return Promise.resolve({}); },
+    }),
+    { virtual: true, },
+);
 
 jest.mock(
     'external:emscripten/physx/physx.release.asm.js', 
