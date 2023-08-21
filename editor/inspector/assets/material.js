@@ -181,7 +181,7 @@ exports.methods = {
     async updateEffect() {
         const effectMap = await Editor.Message.request('scene', 'query-all-effects');
         // see: https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator
-        const collator = new Intl.Collator(undefined, {});
+        const collator = new Intl.Collator(undefined, { numeric: true });
 
         this.effects = Object.keys(effectMap)
             .reduce((arr, uuid) => {
