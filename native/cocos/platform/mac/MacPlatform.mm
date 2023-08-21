@@ -100,12 +100,6 @@ int32_t MacPlatform::run(int argc, const char **argv) {
     return 0;
 #else
     NSArray *arguments = [[NSProcessInfo processInfo] arguments];
-    int argc1 = static_cast<int>(arguments.count);
-    std::vector<const char*> argv1;
-    argv1.reserve(argc1);
-    for (id arg in arguments) {
-        argv1.emplace_back([arg UTF8String]);
-    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
     argc = static_cast<int>(arguments.count);
     std::vector<const char*> argVec;
     argVec.reserve(argc);
