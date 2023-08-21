@@ -90,7 +90,7 @@ bool SystemWindow::createWindow(const char *title,
         return false;
     }
     Vec2 pos = SDLHelper::getWindowPosition(_window);
-    InitWindowProperty(_window, title, pos.x, pos.y, w, h);
+    initWindowProperty(_window, title, pos.x, pos.y, w, h);
     return true;
 #endif
 }
@@ -112,7 +112,7 @@ bool SystemWindow::createWindow(const char *title,
     if (!_window) {
         return false;
     }
-    InitWindowProperty(_window, title, x, y, w, h);
+    initWindowProperty(_window, title, x, y, w, h);
     return true;
 #endif
 }
