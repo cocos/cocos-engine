@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 
 import spine from './spine-core.js';
 import { js } from '../../core';
