@@ -174,6 +174,8 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             events::WindowEvent::broadcast(ev);
             break;
         }
+// On the mac platform this is done via setframesize int the view.
+#if !(CC_PLATFORM == CC_PLATFORM_MACOS)
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1;
@@ -188,6 +190,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             events::WindowEvent::broadcast(ev);
             break;
         }
+#endif
         case SDL_WINDOWEVENT_HIDDEN: {
             ev.type = WindowEvent::Type::HIDDEN;
             events::WindowEvent::broadcast(ev);
