@@ -945,7 +945,7 @@ exports.methods = {
         const lockDirection = LockFlags[direction];
         return lockValue & lockDirection;
     },
-    getLayout() {
+    setLayout() {
         const rect = this.$this.getBoundingClientRect();
         if (rect.width) {
             if (rect.width > cssMediaWidth) {
@@ -1223,7 +1223,7 @@ exports.ready = function() {
                 return;
             }
 
-            this.getLayout();
+            this.setLayout();
         });
     });
 
@@ -1241,7 +1241,7 @@ exports.update = function(dump) {
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
 
-    this.getLayout();
+    this.setLayout();
 
     if (!this.vm) {
         this.vm = new Vue({
