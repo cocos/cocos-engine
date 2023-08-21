@@ -142,6 +142,46 @@ export class AndroidPackTool extends NativePackTool {
         return await this.copyToDist();
     }
 
+    /**
+     * Deprecated, only be compatible with historical packaging tools
+     */
+    protected async setOrientation() {
+        const cfg = this.params.platformParams.orientation;
+        const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'app/AndroidManifest.xml');
+        const instantManifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
+        if (fs.existsSync(manifestPath) && fs.existsSync(instantManifestPath)) {
+            const pattern = /android:screenOrientation="[^"]*"/;
+            let replaceString = 'android:screenOrientation="unspecified"';
+
+            if (cfg.landscapeRight && cfg.landscapeLeft && (cfg.portrait || cfg.upsideDown)) {
+                replaceString = 'android:screenOrientation="fullSensor"';
+            } else if ((cfg.landscapeRight || cfg.landscapeLeft) && (cfg.portrait || cfg.upsideDown)) {
+                replaceString = 'android:screenOrientation="unspecified"';
+            } else if (cfg.landscapeRight && !cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="landscape"';
+            } else if (!cfg.landscapeRight && cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="reverseLandscape"';
+            } else if (cfg.landscapeRight && cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="sensorLandscape"';
+            } else if (cfg.portrait && !cfg.upsideDown) {
+                replaceString = 'android:screenOrientation="portrait"';
+            } else if (!cfg.portrait && cfg.upsideDown) {
+                const oriValue = 'reversePortrait';
+                replaceString = `android:screenOrientation="${oriValue}"`;
+            } else if (cfg.portrait && cfg.upsideDown) {
+                const oriValue = 'sensorPortrait';
+                replaceString = `android:screenOrientation="${oriValue}"`;
+            }
+
+            let content = await fs.readFile(manifestPath, 'utf8');
+            content = content.replace(pattern, replaceString);
+            let instantContent = await fs.readFile(instantManifestPath, 'utf8');
+            instantContent = instantContent.replace(pattern, replaceString);
+            await fs.writeFile(manifestPath, content);
+            await fs.writeFile(instantManifestPath, instantContent);
+        }
+    }
+
     private mapOrientationValue() {
         const orientation = this.params.platformParams.orientation;
         let orientationValue = 'unspecified';
@@ -348,6 +388,37 @@ export class AndroidPackTool extends NativePackTool {
         } else {
             console.log(`warning: ${gradlePropertyPath} not found!`);
         }
+    }
+
+    /**
+     * Deprecated, only be compatible with historical packaging tools
+     */
+    protected async configAndroidInstant() {
+        if (!this.params.platformParams.androidInstant) {
+            console.log('android instant not configured');
+            return;
+        }
+        const url = this.params.platformParams.remoteUrl;
+        if (!url) {
+            return;
+        }
+        const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
+        if (!fs.existsSync(manifestPath)) {
+            throw new Error(`${manifestPath} not found`);
+        }
+        const urlInfo = URL.parse(url);
+        if (!urlInfo.host) {
+            throw new Error(`parse url ${url} fail`);
+        }
+        let manifest = fs.readFileSync(manifestPath, 'utf8');
+        manifest = manifest.replace(/<category\s*android:name="android.intent.category.DEFAULT"\s*\/>/, (str) => {
+            let newStr = '<category android:name="android.intent.category.DEFAULT" />';
+            newStr += `\n                <data android:host="${urlInfo.host}" android:pathPattern="${urlInfo.path}" android:scheme="https"/>`
+                + `\n                <data android:scheme="http"/>`;
+            return newStr;
+        });
+
+        fs.writeFileSync(manifestPath, manifest, 'utf8');
     }
 
     private async generateAppNameValues() {
