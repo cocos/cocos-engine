@@ -105,12 +105,18 @@ int32_t MacPlatform::run(int argc, const char **argv) {
     argv1.reserve(argc1);
     for (id arg in arguments) {
         argv1.emplace_back([arg UTF8String]);
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argVec;
+    argVec.reserve(argc);
+    for (id arg in arguments) {
+        argVec.emplace_back([arg UTF8String]);
     }
     
     id delegate = [[AppDelegate alloc] init];
     [NSApp setDelegate:delegate];
     
-    if(cocos_main(argc, argv1.data()) != 0) {
+    if(cocos_main(argc, argVec.data()) != 0) {
         return -1;
     }
    

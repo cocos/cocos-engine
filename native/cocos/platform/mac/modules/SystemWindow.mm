@@ -113,8 +113,8 @@ bool SystemWindow::createWindow(const char *title,
         return false;
     }
     InitWindowProperty(_window, title, x, y, w, h);
-#endif
     return true;
+#endif
 }
 
 void SystemWindow::closeWindow() {
