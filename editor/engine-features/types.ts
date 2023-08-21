@@ -22,6 +22,7 @@ export type EngineFeature =
     | 'physics-2d'
     | 'physics-2d-box2d'
     | 'physics-2d-builtin'
+    | 'physics-2d-box2d-wasm'
     | 'intersection-2d'
     | 'audio'
     | 'video'

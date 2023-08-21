@@ -110,8 +110,6 @@ export class MeshCollider extends Collider {
         }
     }
 
-    /// PRIVATE PROPERTY ///
-
     @serializable
     private _mesh: Mesh | null = null;
 

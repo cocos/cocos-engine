@@ -325,9 +325,9 @@ module.exports = {
                 name: '填充顶点色',
                 title: '如果模型没有顶点颜色属性，添加颜色属性，填充为白色。',
             },
-            meshOptimizer: {
-                name: 'Mesh 优化',
-                title: 'Mesh 优化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
+            meshSimplify: {
+                name: 'Mesh 简化',
+                title: 'Mesh 简化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',

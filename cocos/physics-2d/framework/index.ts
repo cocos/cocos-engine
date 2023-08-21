@@ -60,6 +60,8 @@ export const Physics2DUtils = {
     PolygonPartition,
 };
 
+export { selector };
+
 cclegacy.internal.physics2d = {
     selector,
 };
