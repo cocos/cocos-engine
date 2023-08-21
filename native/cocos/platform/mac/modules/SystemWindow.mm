@@ -54,7 +54,7 @@ SystemWindow::~SystemWindow() {
     _windowId = 0;
 }
 
-void SystemWindow::InitWindowProperty(SDL_Window* window, const char *title, int x, int y, int w, int h) {
+void SystemWindow::initWindowProperty(SDL_Window* window, const char *title, int x, int y, int w, int h) {
     CC_ASSERT(window != nullptr);
     auto* nsWindow = reinterpret_cast<NSWindow*>(SDLHelper::getWindowHandle(window));
     NSRect rect = NSMakeRect(x, y, w, h);

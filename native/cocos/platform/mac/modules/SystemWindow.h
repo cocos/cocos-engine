@@ -60,7 +60,7 @@ public:
     NSWindow* getNSWindow() const;
 private:
     SDL_Window* getSDLWindow() const { return _window; }
-    void InitWindowProperty(SDL_Window* window, const char *title, int x, int y, int w, int h);
+    void initWindowProperty(SDL_Window* window, const char *title, int x, int y, int w, int h);
     uint32_t _width{0};
     uint32_t _height{0};
 
