@@ -1251,7 +1251,6 @@ function overrideProperty_Skin (): void {
     Object.defineProperty(prototype, 'findNamesForSlot', {
         value (slotIndex: number, names: Array<string>) {
             const vectors = originFindNamesForSlot.call(this, slotIndex);
-            console.log(vectors);
             const count = vectors.size();
             for (let i = 0; i < count; i++) {
                 const objPtr = vectors.get(i);
