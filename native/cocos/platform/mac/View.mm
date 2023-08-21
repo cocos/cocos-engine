@@ -38,7 +38,6 @@
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
-    NSRect _contentRect;
 }
 
 - (CALayer *)makeBackingLayer {
@@ -72,8 +71,6 @@
                                                                        owner:self
                                                                     userInfo:nil] autorelease];
         [self addTrackingArea:trackingArea];
-        
-        [self updateContentRect];
     }
     return self;
 }
@@ -89,7 +86,6 @@
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
     cc::events::WindowEvent::broadcast(ev);
-    [self updateContentRect];
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -113,7 +109,6 @@
         cc::events::WindowEvent::broadcast(ev);
     }
 
-    [self updateContentRect];
 }
 
 - (void)viewDidChangeBackingProperties {
@@ -137,7 +132,6 @@
         ev.height = static_cast<int>(height);
         cc::events::WindowEvent::broadcast(ev);
     }
-    [self updateContentRect];
 }
 
 - (void)flagsChanged:(NSEvent *)event {
@@ -184,11 +178,6 @@
 
 - (BOOL)acceptsFirstResponder {
     return YES;
-}
-
-- (void)updateContentRect {
-    NSWindow* window = self.window;
-    _contentRect = [window contentRectForFrameRect:[window frame]];
 }
 
 - (int)getWindowId {
