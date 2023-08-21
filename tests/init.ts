@@ -109,6 +109,14 @@ jest.mock(
     );
 });
 
+jest.mock('external:emscripten/meshopt/meshopt_decoder.wasm.js',
+    () => ({
+        __esModule: true,
+        default: function factory () { return Promise.resolve({}); },
+    }),
+    { virtual: true, },
+);
+
 jest.mock(
     'external:emscripten/physx/physx.release.asm.js', 
     () => jest.requireActual('../native/external/emscripten/physx/physx.release.asm.js'),
@@ -119,6 +127,12 @@ jest.mock(
 jest.mock(
     'external:emscripten/bullet/bullet.asm.js', 
     () => jest.requireActual('../native/external/emscripten/bullet/bullet.asm.js'),
+    { virtual: true },
+);
+
+jest.mock(
+    'external:emscripten/meshopt/meshopt_decoder.asm.js', 
+    () => jest.requireActual('../native/external/emscripten/meshopt/meshopt_decoder.asm.js'),
     { virtual: true },
 );
 

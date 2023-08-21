@@ -675,7 +675,7 @@ class PlaneShape extends Shape {
 
 function getConvexMesh (v) {
     if (!jsbPhy.CACHE.convex[v._uuid]) {
-        const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+        const posArr = cc.physics.utils.shrinkPositions(v.renderingSubMeshes[0].geometricInfo.positions);
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
         jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
@@ -685,9 +685,8 @@ function getConvexMesh (v) {
 
 function getTriangleMesh (v) {
     if (!jsbPhy.CACHE.trimesh[v._uuid]) {
-        const indArr = v.readIndices(0);
-        // const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
-        const posArr = v.readAttribute(0, 'a_position');
+        const posArr = v.renderingSubMeshes[0].geometricInfo.positions;
+        const indArr = v.renderingSubMeshes[0].geometricInfo.indices;
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const trimesh = {
             positions: new Float32Array(posArr),
