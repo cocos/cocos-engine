@@ -180,14 +180,18 @@ exports.methods = {
 
     async updateEffect() {
         const effectMap = await Editor.Message.request('scene', 'query-all-effects');
+        // see: https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator
+        const collator = new Intl.Collator(undefined, {});
 
-        this.effects = Object.keys(effectMap).sort().reduce((arr, name) => {
-            const effect = effectMap[name];
-            if (!effect.hideInEditor) {
-                arr.push(effect);
-            }
-            return arr;
-        }, []);
+        this.effects = Object.keys(effectMap)
+            .reduce((arr, uuid) => {
+                const effect = effectMap[uuid];
+                if (!effect.hideInEditor) {
+                    arr.push(effect);
+                }
+                return arr;
+            }, [])
+            .sort((a, b) => collator.compare(a.name, b.name));
 
         const effectOptionsHTML = renderGroupEffectOptions(this.effects);
 
