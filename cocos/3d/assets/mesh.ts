@@ -117,7 +117,7 @@ export declare namespace Mesh {
         jointMapIndex?: number;
 
         /**
-         * @en The meshlet data of the sub mesh
+         * @en The cluster data of the sub mesh
          */
         cluster?: IMeshCluster;
     }
@@ -231,8 +231,8 @@ export declare namespace Mesh {
         compressed?: boolean;
 
         /**
-         * @en Whether the mesh is constructed as cluster
-         * @zh 此网格是否以 cluster 的形式构建。
+         * @en Whether the mesh contains cluster data
+         * @zh 此网格是否包含 cluster 数据。
          */
         cluster?: boolean;
     }
