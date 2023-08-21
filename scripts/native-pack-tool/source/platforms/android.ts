@@ -143,7 +143,7 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     /**
-     * Deprecated, only compatible with historical packaging tools
+     * Deprecated, only be compatible with historical packaging tools
      */
     protected async setOrientation() {
         const cfg = this.params.platformParams.orientation;
@@ -391,7 +391,7 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     /**
-     * Deprecated, only compatible with historical packaging tools
+     * Deprecated, only be compatible with historical packaging tools
      */
     protected async configAndroidInstant() {
         if (!this.params.platformParams.androidInstant) {
