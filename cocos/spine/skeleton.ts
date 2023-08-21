@@ -1733,7 +1733,7 @@ export class Skeleton extends UIRenderer {
             listener(trackEntry, loopCount);
             this._instance.setListener(listenerID, spine.EventType.event);
             this._listener!.event = listener;
-        };        
+        };
         TrackEntryListeners.getListeners(entry).complete = onComplete;
     }
 

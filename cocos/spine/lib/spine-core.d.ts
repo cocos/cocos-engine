@@ -108,7 +108,7 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class ColorTimeline extends CurveTimeline {
-        static ENTRIES: number; 
+        static ENTRIES: number;
         slotIndex: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
@@ -206,7 +206,7 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class AnimationState {
-        data: AnimationStateData
+        data: AnimationStateData;
         tracks: TrackEntry[];
         timeScale: number;
         constructor(data: AnimationStateData);

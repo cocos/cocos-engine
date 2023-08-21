@@ -25,7 +25,7 @@
 import spine from './spine-core.js';
 import { js } from '../../core';
 
-function overrideDefineArrayProp (prototype: any, getPropVector: Function, name: string): void {
+function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {
         get (): any[] {
             const array: any[] = [];
@@ -41,7 +41,7 @@ function overrideDefineArrayProp (prototype: any, getPropVector: Function, name:
     });
 }
 
-function overrideDefineArrayFunction (prototype: any, getPropVector: Function, name: string): void {
+function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {
         value () {
             const array: any[] = [];
@@ -157,13 +157,13 @@ function overrideProperty_BoneData (): void {
             proto: prototype,
             property: 'x',
             getter: prototype.getX,
-            setter: prototype.setX
+            setter: prototype.setX,
         },
         {
             proto: prototype,
             property: 'y',
             getter: prototype.getY,
-            setter: prototype.setY
+            setter: prototype.setY,
         },
         {
             proto: prototype,
@@ -175,7 +175,7 @@ function overrideProperty_BoneData (): void {
             proto: prototype,
             property: 'scaleX',
             getter: prototype.getScaleX,
-            setter: prototype.setScaleX
+            setter: prototype.setScaleX,
         },
         {
             proto: prototype,
@@ -460,7 +460,7 @@ function overrideProperty_EventData (): void {
             proto: prototype,
             property: 'balance',
             getter: prototype.getBalance,
-            setter: prototype.setBalance
+            setter: prototype.setBalance,
         },
     ];
     propertyPolyfills.forEach((prop): void => {
@@ -512,7 +512,7 @@ function overrideProperty_BoundingBoxAttachment (): void {
             proto: prototype,
             property: 'name',
             getter: prototype.getName,
-        }
+        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter);
@@ -1183,7 +1183,6 @@ function overrideProperty_Bone (): void {
             vec2.y = vectors.get(1);
         },
     });
-
 }
 
 function overrideProperty_Slot (): void {
@@ -1257,7 +1256,7 @@ function overrideProperty_Skin (): void {
                 names.push(objPtr);
             }
         },
-    }); 
+    });
 }
 
 function overrideProperty_SkinEntry (): void {
