@@ -184,9 +184,7 @@ exports.methods = {
         const collator = new Intl.Collator(undefined, { numeric: true });
 
         this.effects = Object.values(effectMap)
-            .filter((effect) => {
-                return effect.hideInEditor !== true;
-            })
+            .filter((effect) => !effect.hideInEditor)
             .sort((a, b) => collator.compare(a.name, b.name));
 
         const effectOptionsHTML = renderGroupEffectOptions(this.effects);
