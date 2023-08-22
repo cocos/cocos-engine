@@ -251,12 +251,14 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
   #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
     LightingIntermediateData lightingDataSheen = lightingData;
     float roughness = lightingData.specularParam;
-    vec3 L = lightingDataSheen.B;
-    lightingDataSheen.V = lightingDataSheen.N = L;
-    lightingDataSheen.specularParam = 0.5;
+
     // sample max distribute normal-vertical-direction reflection with fixed roughness
+    vec3 L = normalize(mix(lightingDataSheen.B, lightingDataSheen.N, 0.3));
+    lightingDataSheen.specularParam = mix(0.5, 0.9, roughness);
+    lightingDataSheen.V = lightingDataSheen.N = L;
     specularLighting = CalculateEnvironmentSpecular(lightingDataSheen, lightIntensity);
     specularLighting *= intensitySpecular;
+
     // range limitation
     environmentGF = vec3(Sheen(lightingData.NoV, roughness));
   #else

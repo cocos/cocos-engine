@@ -146,8 +146,6 @@ float Sheen(float NoHSat, float NoL, float NoV, float roughness)
 // simplify estimation for env lighting convolution
 float Sheen(float NoV, float roughness)
 {
-  if (NoV <= 0.0)
-    return 0.0;
   NoV *= NoV;
   float NoV2 = NoV*NoV;
   roughness += EPSILON_LOWP;
@@ -159,7 +157,8 @@ float Sheen(float NoV, float roughness)
   float Lo = sqrt(1.0 - NoV2 + r2*NoV2) / NoV;
   float G = (1.0 - exp(-Lo)) / Lo;
 
-  return pow(Pi_D * G / NoV, 0.5);
+  float sheen = Pi_D * G / NoV;
+  return pow(max(0.0, sheen), 0.5);
 }
 
 // Diffuse_Lambert

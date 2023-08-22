@@ -29,7 +29,8 @@ CCEffect %{
         sheenRoughness:                   { value: 1.0, target: emissiveScaleParam.x, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         sheenOpacity:                     { value: 1.0, target: emissiveScaleParam.y, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         sheenIntensity:                   { value: 1.0, target: emissiveScaleParam.w, editor: { slide: true, range: [1.0, 3.0], step: 0.001 } }
-        sheenMap:                         { value: white, editor: { parent: USE_SHEEN_MAP, tooltips: 'r: sheen roughness  g: sheen opacity' } }
+        sheenColorMap:                    { value: white, editor: { parent: USE_SHEEN_COLOR_MAP } }
+        sheenDataMap:                     { value: white, editor: { parent: USE_SHEEN_DATA_MAP, tooltips: 'r: sheen roughness  g: sheen opacity' } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -188,8 +189,11 @@ CCProgram surface-fragment %{
   #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
     uniform sampler2D anisotropyMap;
   #endif
-  #if USE_SHEEN_MAP
-    uniform sampler2D sheenMap;
+  #if USE_SHEEN_COLOR_MAP
+    uniform sampler2D sheenColorMap;
+  #endif
+  #if USE_SHEEN_DATA_MAP
+    uniform sampler2D sheenDataMap;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -222,8 +226,8 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifySheenParams()
   {
     vec4 param = emissiveScaleParam;
-    #if USE_SHEEN_MAP
-      param.xy *= texture(sheenMap, FSInput_texcoord).xy;
+    #if USE_SHEEN_DATA_MAP
+      param.xy *= texture(sheenDataMap, FSInput_texcoord).xy;
     #endif
     return param;
   }
@@ -231,7 +235,11 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_SHEEN_COLOR
   vec3 SurfacesFragmentModifySheenColor()
   {
+    #if USE_SHEEN_COLOR_MAP
+      return sheenColor.rgb * texture(sheenColorMap, FSInput_texcoord).rgb;
+    #else
       return sheenColor.rgb;
+    #endif
   }
 
   #include <common-functions>
