@@ -103,7 +103,7 @@ float halfToFloat(uint16_t hval) {
         }
     }
 
-    u.ui = ((uint16_t)(s << 31)) | em | m; // NOLINT
+    u.ui = ((s << 31)) | em | m; // NOLINT
     return u.f;
 }
 
