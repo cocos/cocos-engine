@@ -141,6 +141,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
     if (@available(iOS 13.0, macOS 10.15, *)) {
         _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily:MTLGPUFamilyApple3];
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] |= [mtlDevice supportsFamily:MTLGPUFamilyMac2];
     } else {
 #if CC_PLATFOTM == CC_PLATFORM_IOS
         id<MTLDevice> device = static_cast<id<MTLDevice>>(_mtlDevice);
