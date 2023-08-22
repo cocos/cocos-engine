@@ -30,7 +30,7 @@ std::vector<T> VECTOR_SP2STD(Vector<T> &container) {
     return stdVector;
 }
 
-const std::vector<std::string> VECTOR_SP2STD_STRING(const Vector<String> &container) {
+const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
     int count = container.size();
     std::vector<std::string> stdVector(count);
     for (int i = 0; i < count; i++) {
@@ -1039,7 +1039,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrames", optional_override([](AttachmentTimeline &obj) {
             return VECTOR_SP2STD((Vector<float> &)obj.getFrames()); }), allow_raw_pointers())
         .function("getAttachmentNames",optional_override([](AttachmentTimeline &obj) {
-            const Vector<String>& attachmentNames = obj.getAttachmentNames();
+            Vector<String> attachmentNames = obj.getAttachmentNames();
             return VECTOR_SP2STD_STRING(attachmentNames); }), allow_raw_pointers())
         .function("getPropertyId", &AttachmentTimeline::getPropertyId)
         .function("getFrameCount", &AttachmentTimeline::getFrameCount)
