@@ -50,9 +50,9 @@ function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name:
             const count = vectors.size();
             for (let i = 0; i < count; i++) {
                 const vectorI = vectors.get(i);
-                const countJ = vectorI.size()
+                const countJ = vectorI.size();
                 const arrayJ: any[] = [];
-                for(let j = 0; j < countJ; j++) {
+                for (let j = 0; j < countJ; j++) {
                     arrayJ.push(vectorI.get(j));
                 }
                 array.push(arrayJ);
@@ -76,7 +76,7 @@ function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setP
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return array;
         },
-        set(value: any[]) {
+        set (value: any[]) {
             const vectors = new Type();//spine.wasmUtil.wasm.VectorFloat();
             for (const obj of value) {
                 vectors.push_back(obj);
