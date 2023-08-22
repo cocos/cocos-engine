@@ -847,7 +847,7 @@ const Elements = {
             const panel = this;
 
             const $help = panel.$.sceneSkybox.querySelector('ui-link');
-            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            panel.setHelpUrl($help, { help: 'i18n:cc.Skybox' });
             $help.addEventListener('click', (event) => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -878,15 +878,18 @@ const Elements = {
 
             // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
             panel.dump._globals.ambient.displayName = 'Ambient';
-            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
+            panel.dump._globals.ambient.editor = { help: 'i18n:cc.Ambient' };
+            panel.dump._globals.ambient.help = panel.getHelpUrl(panel.dump._globals.ambient.editor);
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
             panel.dump._globals.fog.displayName = 'Fog';
-            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
+            panel.dump._globals.fog.editor = { help: 'i18n:cc.Fog' };
+            panel.dump._globals.fog.help = panel.getHelpUrl(panel.dump._globals.fog.editor);
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
             panel.dump._globals.shadows.displayName = 'Shadows';
-            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
+            panel.dump._globals.shadows.editor = { help: 'i18n:cc.Shadow' };
+            panel.dump._globals.shadows.help = panel.getHelpUrl(panel.dump._globals.shadows.editor);
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
@@ -952,11 +955,13 @@ const Elements = {
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
-            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
+            panel.dump._globals.octree.editor = { help: 'i18n:cc.OctreeCulling' };
+            panel.dump._globals.octree.help = panel.getHelpUrl(panel.dump._globals.octree.editor);
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             panel.dump._globals.skin.displayName = 'Skin';
-            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.dump._globals.skin.editor = { help: 'i18n:cc.Skin' };
+            panel.dump._globals.skin.help = panel.getHelpUrl(panel.dump._globals.skin.editor);
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             panel.dump._globals.postSettings.displayName = 'PostSettings';
@@ -1119,7 +1124,7 @@ const Elements = {
 
             panel.$skyboxProps = {};
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+            panel.setHelpUrl(panel.$.nodeLink, { help: 'i18n:cc.Node' });
 
             panel.$.nodeMenu.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -1193,13 +1198,8 @@ const Elements = {
                         $active.invalid = false;
                     }
 
-                    const url = panel.getHelpUrl(dump.editor);
                     const $link = $section.querySelector('ui-link');
-                    if (url) {
-                        $link.setAttribute('value', url);
-                    } else {
-                        $link.removeAttribute('value');
-                    }
+                    panel.setHelpUrl($link, dump.editor);
 
                     await Promise.all($section.__panels__.map(($panel) => {
                         return $panel.update(dump);
@@ -1271,13 +1271,10 @@ const Elements = {
                     });
 
                     const $link = $section.querySelector('.link');
-                    const url = panel.getHelpUrl(component.editor);
-                    if (url) {
-                        $link.setAttribute('value', url);
-                        $link.addEventListener('click', (event) => {
-                            event.stopPropagation();
-                        });
-                    }
+                    $link.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                    });
+                    panel.setHelpUrl($link, component.editor);
 
                     const $menu = $section.querySelector('.menu');
                     $menu.addEventListener('click', (event) => {
@@ -1387,25 +1384,8 @@ const Elements = {
         i18nChange() {
             const panel = this;
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
-
-            const sectionBody = panel.$.sectionBody;
-            for (let index = 0; index < sectionBody.__sections__.length; index++) {
-                const $section = sectionBody.__sections__[index];
-                const $link = $section.querySelector('ui-link');
-
-                if (!$link) {
-                    continue;
-                }
-
-                const dump = $section.dump;
-                const url = panel.getHelpUrl(dump.editor);
-                if (url) {
-                    $link.setAttribute('value', url);
-                } else {
-                    $link.removeAttribute('value');
-                }
-            }
+            const $links = panel.$.container.querySelectorAll('ui-link');
+            $links.forEach($link => panel.setHelpUrl($link));
         },
     },
     missingComponent: {
@@ -1671,16 +1651,33 @@ exports.methods = {
         Editor.Message.send(messageProtocol.scene, cmd);
     },
 
+    setHelpUrl($link, data) {
+        if (data) {
+            $link.helpData = data;
+        } else {
+            if (!$link.helpData) {
+                return;
+            }
+            data = $link.helpData;
+        }
+
+        const url = this.getHelpUrl(data);
+        if (url) {
+            $link.setAttribute('value', url);
+        } else {
+            $link.removeAttribute('value');
+        }
+    },
     /**
      * 获取组件帮助菜单的 url
      * @param editor
      */
-    getHelpUrl(editor) {
-        if (!editor || !editor.help) {
+    getHelpUrl(data) {
+        if (!data || !data.help) {
             return '';
         }
 
-        const help = editor.help;
+        const help = data.help;
 
         /**
          * 约定的规则
