@@ -215,6 +215,10 @@ void Vec3::transformMat3(const Vec3 &v, const Mat3 &m) {
     z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
+void Vec3::transformMat3(const Vec3 &v, const Mat3 &m, Vec3 *dst) {
+    dst->transformMat3(v, m);
+}
+
 void Vec3::transformMat4Neon(const Vec3 &v, const Mat4 &m) {
 #if defined(USE_NEON64) || defined(USE_NEON32) || defined(INCLUDE_NEON32)
     alignas(16) float tmpV0[4];
