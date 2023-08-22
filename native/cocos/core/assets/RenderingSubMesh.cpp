@@ -95,7 +95,7 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
     auto iter = std::find_if(_attributes.cbegin(), _attributes.cend(), [](const gfx::Attribute &element) -> bool {
         return element.name == gfx::ATTR_NAME_POSITION;
     });
-    if (iter != _attributes.end()) {
+    if (iter == _attributes.end()) {
         return EMPTY_GEOMETRIC_INFO;
     }
 
