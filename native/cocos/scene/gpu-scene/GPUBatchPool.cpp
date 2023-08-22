@@ -308,7 +308,7 @@ void GPUBatchPool::createBuffers() {
     const auto indirectStride = getIndirectStride();
     const auto indirectSize = indirectStride * _indirectCapacity;
 
-    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::TRANSFER_SRC,
+    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::TRANSFER_SRC | gfx::BufferUsageBit::STORAGE,
                                             gfx::MemoryUsageBit::DEVICE,
                                             indirectSize,
                                             indirectStride});

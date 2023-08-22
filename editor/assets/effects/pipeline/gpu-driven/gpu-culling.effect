@@ -72,6 +72,7 @@ CCProgram culling-main %{
 
   #if CC_USE_OCCLUSION_CULLING
     #pragma rate CCDepthMap pass
+    #pragma glBinding(5)
     uniform sampler2D CCDepthMap;
   #endif
 
@@ -145,7 +146,7 @@ CCProgram culling-main %{
 
     #if CC_GPU_CULLING_MAIN_PASS
       #if CC_USE_OCCLUSION_CULLING
-        cc_visibilities[id] = 1;
+        cc_visibilities[id] = 1U;
       #endif
       uint objectId = cc_instances[id].objectId;
 
@@ -157,12 +158,12 @@ CCProgram culling-main %{
 
       #if CC_USE_OCCLUSION_CULLING
         if (isOcclusionCulled(objectId)) {
-            cc_visibilities[id] = 0;
+            cc_visibilities[id] = 0U;
             return;
         }
       #endif
     #else
-      if (cc_visibilities[id] == 1) {
+      if (cc_visibilities[id] == 1U) {
         return;
       }
 
@@ -173,7 +174,7 @@ CCProgram culling-main %{
     #endif
     
     uint batchId = cc_instances[id].batchId;
-    uint index = atomicAdd(cc_indirectCmds[batchId].instanceCount, 1);
+    uint index = atomicAdd(cc_indirectCmds[batchId].instanceCount, 1U);
     uint instanceId = cc_indirectCmds[batchId].firstInstance + index;
 
     cc_drawInstances[instanceId] = objectId;
