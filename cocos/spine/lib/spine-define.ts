@@ -82,7 +82,7 @@ function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setP
                 vectors.push_back(obj);
             }
             setPropVector.call(this, vectors);
-        }
+        },
     });
 }
 
@@ -1455,7 +1455,6 @@ function overrideProperty_AttachmentTimeline (): void {
     });
     overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
     overrideDefineArrayProp(prototype, prototype.getAttachmentNames, 'attachmentNames');
-
 }
 
 function overrideProperty_DeformTimeline (): void {
