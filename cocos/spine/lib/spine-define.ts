@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 /* eslint @typescript-eslint/no-explicit-any: "off" */
+/* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
 import spine from './spine-core.js';
 import { js } from '../../core';
