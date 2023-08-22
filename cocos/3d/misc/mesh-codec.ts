@@ -36,7 +36,7 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const MeshoptDecoder = {} as any;
 
-function initDecoderASM(): Promise<void> {
+function initDecoderASM (): Promise<void> {
     const Module = meshopt_asm_factory;
     return Promise.all([Module.ready]).then(() => {
         MeshoptDecoder.supported = true;
@@ -51,9 +51,9 @@ function initDecoderASM(): Promise<void> {
     });
 }
 
-function initDecoderWASM(): Promise<void> {
+function initDecoderWASM (): Promise<void> {
     const Module = meshopt_wasm_factory;
-    function instantiate(importObject: WebAssembly.Imports) {
+    function instantiate (importObject: WebAssembly.Imports) {
         return instantiateWasm(meshopt_wasm_url, importObject);
     }
     return Promise.all([Module.ready(instantiate)]).then(() => {
@@ -69,7 +69,7 @@ function initDecoderWASM(): Promise<void> {
     });
 }
 
-export function InitDecoder(): Promise<void> {
+export function InitDecoder (): Promise<void> {
     if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
         if (sys.hasFeature(sys.Feature.WASM)) {
             return initDecoderWASM();
