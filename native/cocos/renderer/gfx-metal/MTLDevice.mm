@@ -139,7 +139,18 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
 
-    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily: MTLGPUFamilyApple3];
+    if (@available(iOS 13.0, macOS 10.15, *)) {
+        // detph resolve requires MTLGPUFamilyApple3 while stencil resolve requires MTLGPUFamilyApple5
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily:MTLGPUFamilyApple5];
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] |= [mtlDevice supportsFamily:MTLGPUFamilyMac2];
+    } else {
+#if CC_PLATFOTM == CC_PLATFORM_IOS
+        id<MTLDevice> device = static_cast<id<MTLDevice>>(_mtlDevice);
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v4];
+#elif CC_PLATFOTM == CC_PLATFORM_MACOS
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = false;
+#endif
+    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
