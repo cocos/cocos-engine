@@ -183,14 +183,10 @@ exports.methods = {
         // see: https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator
         const collator = new Intl.Collator(undefined, { numeric: true });
 
-        this.effects = Object.keys(effectMap)
-            .reduce((arr, uuid) => {
-                const effect = effectMap[uuid];
-                if (!effect.hideInEditor) {
-                    arr.push(effect);
-                }
-                return arr;
-            }, [])
+        this.effects = Object.values(effectMap)
+            .filter((effect) => {
+                return effect.hideInEditor !== true;
+            })
             .sort((a, b) => collator.compare(a.name, b.name));
 
         const effectOptionsHTML = renderGroupEffectOptions(this.effects);
