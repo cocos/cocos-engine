@@ -158,6 +158,12 @@ public:
         return -1;
     }
 
+    inline const T &operator[](size_t inIndex) const {
+        assert(inIndex < _size);
+
+        return _buffer[inIndex];
+    }
+
     inline T &operator[](size_t inIndex) {
         assert(inIndex < _size);
 

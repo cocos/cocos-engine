@@ -42,6 +42,50 @@ function overrideDefineArrayProp (prototype: any, getPropVector: any, name: stri
     });
 }
 
+function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name: string): void {
+    Object.defineProperty(prototype, name, {
+        get (): any[] {
+            const array: any[] = [];
+            const vectors = getPropVector.call(this);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const vectorI = vectors.get(i);
+                const countJ = vectorI.size()
+                const arrayJ: any[] = [];
+                for(let j = 0; j < countJ; j++) {
+                    arrayJ.push(vectorI.get(j));
+                }
+                array.push(arrayJ);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return array;
+        },
+    });
+}
+
+function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setPropVector: any, Type: any, name: string): void {
+    Object.defineProperty(prototype, name, {
+        get (): any[] {
+            const array: any[] = [];
+            const vectors = getPropVector.call(this);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) {
+                const objPtr = vectors.get(i);
+                array.push(objPtr);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return array;
+        },
+        set(value: any[]) {
+            const vectors = new Type();//spine.wasmUtil.wasm.VectorFloat();
+            for (const obj of value) {
+                vectors.push_back(obj);
+            }
+            setPropVector.call(this, vectors);
+        }
+    });
+}
+
 function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {
         value () {
@@ -480,16 +524,6 @@ function overrideProperty_VertexAttachment (): void {
         },
         {
             proto: prototype,
-            property: 'bones',
-            getter: prototype.getBones,
-        },
-        {
-            proto: prototype,
-            property: 'vertices',
-            getter: prototype.getVertices,
-        },
-        {
-            proto: prototype,
             property: 'worldVerticesLength',
             getter: prototype.getWorldVerticesLength,
             setter: prototype.setWorldVerticesLength,
@@ -504,6 +538,8 @@ function overrideProperty_VertexAttachment (): void {
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+    overrideDefineArrayProp(prototype, prototype.getBones, 'bones');
+    overrideDefineArrayProp(prototype, prototype.getVertices, 'vertices');
 }
 
 function overrideProperty_BoundingBoxAttachment (): void {
@@ -546,21 +582,6 @@ function overrideProperty_MeshAttachment (): void {
         },
         {
             proto: prototype,
-            property: 'regionUVs',
-            getter: prototype.getRegionUVs,
-        },
-        {
-            proto: prototype,
-            property: 'uvs',
-            getter: prototype.getUVs,
-        },
-        {
-            proto: prototype,
-            property: 'triangles',
-            getter: prototype.getTriangles,
-        },
-        {
-            proto: prototype,
             property: 'color',
             getter: prototype.getColor,
         },
@@ -582,15 +603,14 @@ function overrideProperty_MeshAttachment (): void {
             getter: prototype.getHullLength,
             setter: prototype.setHullLength,
         },
-        {
-            proto: prototype,
-            property: 'edges',
-            getter: prototype.getEdges,
-        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+    overrideDefineArrayProp(prototype, prototype.getRegionUVs, 'regionUVs');
+    overrideDefineArrayProp(prototype, prototype.getUVs, 'uvs');
+    overrideDefineArrayProp(prototype, prototype.getTriangles, 'triangles');
+    overrideDefineArrayProp(prototype, prototype.getTriangles, 'edges');
 }
 
 function overrideProperty_PathAttachment (): void {
@@ -708,16 +728,11 @@ function overrideProperty_RegionAttachment (): void {
             property: 'offset',
             getter: prototype.getOffset,
         },
-        {
-            proto: prototype,
-            property: 'uvs',
-            getter: prototype.getUVs,
-            setter: prototype.setUVs,
-        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+    overrideDefineArrayPropGetSet(prototype, prototype.getUVs, prototype.setUVs, spine.wasmUtil.wasm.VectorFloat, 'uvs');
 }
 
 function overrideProperty_TextureAtlas (): void {
@@ -754,11 +769,6 @@ function overrideProperty_SlotData (): void {
         },
         {
             proto: prototype,
-            property: 'boneData',
-            getter: prototype.getBoneData,
-        },
-        {
-            proto: prototype,
             property: 'color',
             getter: prototype.getColor,
         },
@@ -777,6 +787,8 @@ function overrideProperty_SlotData (): void {
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+    overrideDefineArrayProp(prototype, prototype.getBoneData, 'boneData');
+    overrideDefineArrayProp(prototype, prototype.getDeform, 'deform');
 }
 
 function overrideProperty_IkConstraint (): void {
@@ -1166,7 +1178,7 @@ function overrideProperty_Bone (): void {
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
-
+    overrideDefineArrayProp(prototype, prototype.getChildren, 'children');
     const worldToLocal = prototype.worldToLocal;
     Object.defineProperty(prototype, 'worldToLocal', {
         value (vec2: spine.Vector2) {
@@ -1175,7 +1187,6 @@ function overrideProperty_Bone (): void {
             vec2.y = vectors.get(1);
         },
     });
-
     const localToWorld = prototype.localToWorld;
     Object.defineProperty(prototype, 'localToWorld', {
         value (vec2: spine.Vector2) {
@@ -1438,16 +1449,13 @@ function overrideProperty_AttachmentTimeline (): void {
             property: 'slotIndex',
             getter: prototype.getSlotIndex,
         },
-        {
-            proto: prototype,
-            property: 'attachmentNames',
-            getter: prototype.getAttachmentNames,
-        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter);
     });
     overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
+    overrideDefineArrayProp(prototype, prototype.getAttachmentNames, 'attachmentNames');
+
 }
 
 function overrideProperty_DeformTimeline (): void {
@@ -1463,16 +1471,12 @@ function overrideProperty_DeformTimeline (): void {
             property: 'attachment',
             getter: prototype.getAttachment,
         },
-        {
-            proto: prototype,
-            property: 'frameVertices',
-            getter: prototype.getFrameVertices,
-        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter);
     });
     overrideDefineArrayProp(prototype, prototype.getFrames, 'frames');
+    overrideDefineArrayArrayProp(prototype, prototype.getFrameVertices, 'frameVertices');
 }
 
 function overrideProperty_EventTimeline (): void {
@@ -1665,11 +1669,6 @@ function overrideProperty_Animation (): void {
             property: 'name',
             getter: prototype.getName,
         },
-        // {
-        //     proto: prototype,
-        //     property: 'timelines',
-        //     getter: prototype.getProp_timelines,
-        // },
         {
             proto: prototype,
             property: 'duration',
@@ -1680,6 +1679,7 @@ function overrideProperty_Animation (): void {
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+    overrideDefineArrayProp(prototype, prototype.getTimelines, 'timelines');
 }
 
 function overrideProperty_Skeleton (): void {
