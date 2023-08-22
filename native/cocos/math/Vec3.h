@@ -226,8 +226,6 @@ public:
      */
     void transformMat3(const Vec3 &v, const Mat3 &m);
 
-    static void transformMat3(const Vec3 &v, const Mat3 &m, Vec3 *dst);
-
     /**
      * Transforms the input vector by the specified Mat4 and stores the result in this vector.
      *
