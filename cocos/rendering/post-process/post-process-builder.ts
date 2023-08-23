@@ -29,6 +29,16 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.init();
     }
 
+    onGlobalPipelineStateChanged (): void {
+        const passes = this.pipelines.get('forward');
+        if (passes !== undefined) {
+            for (let i = 0; i < passes.length; i++) {
+                const pass = passes[i];
+                pass.onGlobalPipelineStateChanged();
+            }
+        }
+    }
+
     init (): void {
         const forward = new ForwardPass();
         const forwardFinal = new ForwardFinalPass();

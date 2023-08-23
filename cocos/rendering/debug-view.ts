@@ -161,6 +161,10 @@ export class DebugView {
         this._updatePipeline();
     }
 
+    get debugViewType (): RenderingDebugViewType {
+        return this._getType();
+    }
+
     protected _singleMode = DebugViewSingleType.NONE;
     protected _compositeModeValue = 0;
     protected _lightingWithAlbedo = true;

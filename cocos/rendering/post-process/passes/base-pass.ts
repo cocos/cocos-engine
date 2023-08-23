@@ -111,6 +111,10 @@ export abstract class BasePass {
         return this.enable;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onGlobalPipelineStateChanged (): void {
+    }
+
     renderProfiler (camera): void {
         if (passContext.isFinalCamera && !EDITOR) {
             passContext.pass!.showStatistics = true;

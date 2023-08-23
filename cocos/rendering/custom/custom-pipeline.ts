@@ -42,6 +42,9 @@ import { CSMLayers } from '../shadow/csm-layers';
 const copyPair = new CopyPair();
 const pairs = [copyPair];
 export class CustomPipelineBuilder implements PipelineBuilder {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onGlobalPipelineStateChanged (): void {}
+
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -127,6 +130,9 @@ export class TestPipelineBuilder implements PipelineBuilder {
     constructor (pipelineSceneData: PipelineSceneData) {
         this._sceneInfo = new SceneInfo(pipelineSceneData);
     }
+    onGlobalPipelineStateChanged (): void {
+        throw new Error('Method not implemented.');
+    }
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
@@ -141,14 +147,21 @@ export class TestPipelineBuilder implements PipelineBuilder {
             ppl.update(camera);
             const info = this.prepareGameCamera(ppl, camera);
             this.prepareSceneInfo(camera.scene, camera.frustum, this._sceneInfo);
-            this.buildForward(ppl, camera,
-                info.id, info.width, info.height);
+            this.buildForward(
+                ppl,
+                camera,
+                info.id,
+                info.width,
+                info.height,
+            );
         }
     }
     // implementation
-    private prepareSceneInfo (scene: Readonly<RenderScene>,
+    private prepareSceneInfo (
+        scene: Readonly<RenderScene>,
         frustum: geometry.Frustum,
-        sceneInfo: SceneInfo): void {
+        sceneInfo: SceneInfo,
+    ): void {
         // clear scene info
         sceneInfo.reset();
         // spot lights
@@ -259,9 +272,14 @@ export class TestPipelineBuilder implements PipelineBuilder {
         ppl.updateDepthStencil(`SpotLightShadowDepth${id}2`, shadowSize.x, shadowSize.y);
         ppl.updateDepthStencil(`SpotLightShadowDepth${id}3`, shadowSize.x, shadowSize.y);
     }
-    private buildForwardTiled (ppl: BasicPipeline,
-        camera: Camera, id: number, width: number, height: number,
-        sceneInfo: SceneInfo): void {
+    private buildForwardTiled (
+        ppl: BasicPipeline,
+        camera: Camera,
+        id: number,
+        width: number,
+        height: number,
+        sceneInfo: SceneInfo,
+    ): void {
         assert(this._tiled);
         assert(camera.scene !== null);
         // init
@@ -288,8 +306,13 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
-    private buildForward (ppl: BasicPipeline,
-        camera: Camera, id: number, width: number, height: number): void {
+    private buildForward (
+        ppl: BasicPipeline,
+        camera: Camera,
+        id: number,
+        width: number,
+        height: number,
+    ): void {
         assert(camera.scene !== null);
         if (camera.scene === null) {
             return;
@@ -325,8 +348,11 @@ export class TestPipelineBuilder implements PipelineBuilder {
             // queue.addSceneCulledByDirectionalLight(camera,
             //     SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
             //     light, 0);
-            queue.addSceneOfCamera(camera, new LightInfo(light, 0),
-                SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER);
+            queue.addSceneOfCamera(
+                camera,
+                new LightInfo(light, 0),
+                SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
+            );
         } else {
             const csmLevel = ppl.pipelineSceneData.csmSupported
                 ? light.csmLevel : 1;
@@ -337,8 +363,11 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 // queue.addSceneCulledByDirectionalLight(camera,
                 //     SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
                 //     light, level);
-                queue.addSceneOfCamera(camera, new LightInfo(light, level),
-                    SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER);
+                queue.addSceneOfCamera(
+                    camera,
+                    new LightInfo(light, level),
+                    SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
+                );
             }
         }
     }
@@ -352,8 +381,13 @@ export class TestPipelineBuilder implements PipelineBuilder {
         vp.width = Math.max(1, vp.width);
         vp.height = Math.max(1, vp.height);
     }
-    private getMainLightViewport (light: DirectionalLight, w: number, h: number, level: number,
-        vp: Viewport): void {
+    private getMainLightViewport (
+        light: DirectionalLight,
+        w: number,
+        h: number,
+        level: number,
+        vp: Viewport,
+    ): void {
         if (light.shadowFixedArea || light.csmLevel === CSMLevel.LEVEL_1) {
             vp.left = 0;
             vp.top = 0;
