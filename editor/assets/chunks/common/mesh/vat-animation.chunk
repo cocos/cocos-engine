@@ -107,7 +107,7 @@ vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, ve
   // bounding box in exported json is unscaled
   vatBoundingBoxMin *= VAT_FBX_TO_COCOS_COORDINATE_SCALE;
   vatBoundingBoxMax *= VAT_FBX_TO_COCOS_COORDINATE_SCALE;
-  
+
   vec3 size = vatBoundingBoxMax - vatBoundingBoxMin;
   vec3 coef = (localPos - vatBoundingBoxMin) / size;
   return coef;
@@ -119,7 +119,7 @@ vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, ve
 
 ////////////////////////////////////////////////////////////////Rigid-body
 void VATGetLocalPositionRigidBody20(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec4 meshVertexColor, vec2 thisFrameUV, float pivMax, float pivMin, float posMax, float posMin, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
-{  
+{
   // pivot
   float pivExpand = pivMax - pivMin;
   float posExpand = posMax - posMin;
@@ -127,7 +127,7 @@ void VATGetLocalPositionRigidBody20(inout vec3 meshLocalPos, inout vec3 meshLoca
   vec3 pivot = meshVertexColor.xyz;
   pivot.xyz *= pivExpand;
   pivot.xyz += vec3(pivMin);
-    
+
   // anim pos
   vec3 posData = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
   vec3 texturePos = posData;
@@ -203,7 +203,7 @@ void VATGetLocalPositionRigidBody30(inout vec3 meshLocalPos, inout vec3 meshLoca
   if(isZUp)
     pivot.xyz = pivot.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
   vec3 originPos = meshLocalPos - pivot;
-  
+
   // rotation offset
   vec4 posData = SampleTextureExrWithAlpha(vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, thisFrameUV);
   vec4 XYZW = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);

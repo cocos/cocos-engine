@@ -267,7 +267,7 @@ void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
     _camera->update(true);
 }
 
-Vec2 ReflectionProbe::getRenderArea() const {
+Vec2 ReflectionProbe::renderArea() const {
     if (_probeType == ProbeType::PLANAR) {
         return Vec2(_realtimePlanarTexture->getWidth(), _realtimePlanarTexture->getHeight());
     }

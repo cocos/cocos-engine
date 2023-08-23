@@ -202,7 +202,7 @@ CCProgram macro-remapping %{
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-  
+
   #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
@@ -320,7 +320,7 @@ CCProgram surface-fragment %{
   {
     return vec3(0.0);
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
@@ -331,7 +331,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
@@ -400,7 +400,7 @@ CCProgram surface-fragment %{
     isRotation = 1.0;
     return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
-  
+
   #include <common-functions>
 
   // definition of SurfacesMaterialData structure with corresponding shading-model

@@ -90,6 +90,17 @@ struct CCTShapeEventPair {
     }
 };
 
+struct CCTTriggerEventPair {
+    uint32_t cct; //wrapper object ID
+    uint32_t shape; //wrapper object ID
+    ETouchState state;
+    static constexpr uint8_t COUNT = 3;
+    CCTTriggerEventPair(const uint32_t cct, const uint32_t shape)
+    : cct(cct),
+      shape(shape),
+      state(ETouchState::ENTER) {}
+};
+
 struct ConvexDesc {
     void *positions;
     uint32_t positionLength;
@@ -138,6 +149,7 @@ public:
     virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() = 0;
     virtual ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() = 0;
     virtual ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() = 0;
+    virtual ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() = 0;
     virtual bool raycast(RaycastOptions &opt) = 0;
     virtual bool raycastClosest(RaycastOptions &opt) = 0;
     virtual ccstd::vector<RaycastResult> &raycastResult() = 0;

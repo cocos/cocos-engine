@@ -299,3 +299,69 @@ export function enumerableProps (prototype: ValueType, attrs: string[]): void {
         Object.defineProperty(prototype, key, { enumerable: true });
     });
 }
+
+/**
+ * convert float to half (short)
+ */
+
+const toHalf = (function () {
+    // https://stackoverflow.com/questions/32633585/how-do-you-convert-to-half-floats-in-javascript
+    const floatView = new Float32Array(1);
+    const int32View = new Int32Array(floatView.buffer);
+
+    return function toHalf (fval: number): number {
+        floatView[0] = fval;
+        const fbits = int32View[0];
+        const s = (fbits >> 16) & 0x8000; // sign
+        const em = fbits & 0x7fffffff; // exp and mantissa
+
+        let h = (em - (112 << 23) + (1 << 12)) >> 13;
+        h = (em < (113 << 23)) ? 0 : h; // denormals-as-zero
+
+        h = (em >= (143 << 23)) ? 0x7c00 : h; // overflow
+
+        h = (em > (255 << 23)) ? 0x7e00 : h; // NaN
+
+        int32View[0] = (s | h); // pack sign and half
+
+        return int32View[0];
+    };
+}());
+
+const fromHalf = (function () {
+    const floatView = new Float32Array(1);
+    const int32View = new Int32Array(floatView.buffer);
+
+    return function fromHalf (hval: number /* uint16 */): number {
+        const s = (hval >> 15) & 0x00000001; // sign
+        const em = hval & 0x00007fff; // exp and mantissa
+
+        let h = (em << 13); // exponent/mantissa bits
+        let fbits = 0;
+
+        if (h !== 0x7c00) { // // NaN/Inf
+            h += (112 << 23); // exp adjust
+
+            if (em === 0) { // // Denormals-as-zero
+                h = (h & 0xfffff) >> 1; // // Mantissa shift
+            } else if (em === 0x7fff) { // // Inf/NaN?
+                h = 0x7fffffff; // // NaN
+            }
+        } else {
+            h = 0x7f800000; // // +/-Inf
+        }
+
+        fbits = (s << 31) | h; // // Sign | Exponent | Mantissa
+        int32View[0] = fbits;
+
+        return floatView[0];
+    };
+}());
+
+export function floatToHalf (val: number) {
+    return toHalf(val);
+}
+
+export function halfToFloat (val: number) {
+    return fromHalf(val);
+}

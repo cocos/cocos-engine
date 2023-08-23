@@ -275,7 +275,7 @@ CCProgram surface-fragment %{
       if (bright > threshold)
         result.environmentSpecular = result.environmentSpecular / bright * threshold;
     #endif
-  }  
+  }
 }%
 
 CCProgram standard-vs %{
