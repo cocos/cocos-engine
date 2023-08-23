@@ -69,7 +69,7 @@ CCProgram tonemap-fs %{
     #if CC_USE_FOG != CC_FOG_NONE
       float fogFactor = 1.0;
       CC_TRANSFER_FOG_BASE(worldPos, fogFactor);
-      // CC_APPLY_FOG_BASE(color, fogFactor);
+      CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
 
     return color;
