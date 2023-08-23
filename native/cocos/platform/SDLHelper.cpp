@@ -29,6 +29,7 @@
 #include "base/Log.h"
 #include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/IScreen.h"
 
 namespace {
@@ -176,7 +177,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
-            CC_ASSERT(screen, "Unable to find window");
+            CC_ASSERT(screen != nullptr);
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1 * screen->getDevicePixelRatio();
             ev.height = wevent.data2 * screen->getDevicePixelRatio();
@@ -185,7 +186,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
         }
         case SDL_WINDOWEVENT_RESIZED: {
             auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
-            CC_ASSERT(screen, "Unable to find window");
+            CC_ASSERT(screen != nullptr);
             ev.type = WindowEvent::Type::RESIZED;
             ev.width = wevent.data1 * screen->getDevicePixelRatio();
             ev.height = wevent.data2 * screen->getDevicePixelRatio();
