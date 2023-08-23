@@ -78,9 +78,11 @@ function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setP
             return array;
         },
         set (value: any[]) {
-            const vectors = new Type();//spine.wasmUtil.wasm.VectorFloat();
-            for (const obj of value) {
-                vectors.push_back(obj);
+            const vectors = new Type();
+            const count = value.length;
+            vectors.resize(count, 0);
+            for (let i = 0; i < count; i++) {
+                vectors.set(i, value[i]);
             }
             setPropVector.call(this, vectors);
         },
@@ -611,7 +613,7 @@ function overrideProperty_MeshAttachment (): void {
     overrideDefineArrayProp(prototype, prototype.getRegionUVs, 'regionUVs');
     overrideDefineArrayProp(prototype, prototype.getUVs, 'uvs');
     overrideDefineArrayProp(prototype, prototype.getTriangles, 'triangles');
-    overrideDefineArrayProp(prototype, prototype.getTriangles, 'edges');
+    overrideDefineArrayProp(prototype, prototype.getEdges, 'edges');
 }
 
 function overrideProperty_PathAttachment (): void {
