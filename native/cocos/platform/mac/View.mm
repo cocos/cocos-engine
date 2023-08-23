@@ -98,7 +98,6 @@
     CGSize nativeSize = [self convertSizeToBacking:newSize];
     [super setFrameSize:newSize];
     layer.drawableSize = nativeSize;
-    [self viewDidChangeBackingProperties];
 }
 
 - (void)viewDidChangeBackingProperties {
