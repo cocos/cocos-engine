@@ -29,7 +29,8 @@
  */
 /* eslint-disable max-len */
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { Light, ReflectionProbe } from '../../render-scene/scene';
+import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
+import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
 import { RecyclePool } from '../../core/memop';
@@ -291,18 +292,18 @@ export function getClearValueTypeName (e: ClearValueType): string {
 export class LightInfo {
     constructor (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null) {
         this.light = light;
+        this.probe = probe;
         this.level = level;
         this.culledByLight = culledByLight;
-        this.probe = probe;
     }
     reset (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null): void {
         this.light = light;
+        this.probe = probe;
         this.level = level;
         this.culledByLight = culledByLight;
-        this.probe = probe;
     }
     /*refcount*/ light: Light | null;
-    probe: ReflectionProbe | null;
+    /*pointer*/ probe: ReflectionProbe | null;
     level: number;
     culledByLight: boolean;
 }
@@ -667,9 +668,10 @@ export class RenderCommonObjectPool {
         light: Light | null = null,
         level = 0,
         culledByLight = false,
+        probe: ReflectionProbe | null = null,
     ): LightInfo {
         const v = this._lightInfo.add();
-        v.reset(light, level, culledByLight);
+        v.reset(light, level, culledByLight, probe);
         return v;
     }
     createDescriptor (
@@ -773,12 +775,14 @@ export class RenderCommonObjectPool {
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
+    // skip, v.probe: ReflectionProbe
     ar.writeNumber(v.level);
     ar.writeBool(v.culledByLight);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
+    // skip, v.probe: ReflectionProbe
     v.level = ar.readNumber();
     v.culledByLight = ar.readBool();
 }

@@ -39,6 +39,16 @@
 
 namespace cc {
 
+namespace scene {
+
+class ReflectionProbe;
+
+} // namespace scene
+
+} // namespace cc
+
+namespace cc {
+
 namespace render {
 
 enum class UpdateFrequency {
@@ -211,8 +221,9 @@ enum class ClearValueType {
 
 struct LightInfo {
     LightInfo() = default;
-    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn) noexcept
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn, scene::ReflectionProbe* probeIn) noexcept
     : light(std::move(lightIn)),
+      probe(probeIn),
       level(levelIn),
       culledByLight(culledByLightIn) {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
@@ -220,6 +231,7 @@ struct LightInfo {
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
+    scene::ReflectionProbe* probe{nullptr};
     uint32_t level{0};
     bool culledByLight{false};
 };
