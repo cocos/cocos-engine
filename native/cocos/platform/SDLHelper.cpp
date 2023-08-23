@@ -28,6 +28,7 @@
 #include "SDL2/SDL_syswm.h"
 #include "base/Log.h"
 #include "engine/EngineEvents.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
 
@@ -259,15 +260,15 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent) {
         case SDL_MOUSEMOTION: {
             const SDL_MouseMotionEvent &event = sdlEvent.motion;
             mouse.type = MouseEvent::Type::MOVE;
-            mouse.button = 0;
+            mouse.button = -1; // BUTTON_MISSING
             // Needs to be consistent with event-mouse.ts definition
+            // Multiple button presses at the same time are not supported.
+            // if we are pressed at the same time, the result is indeterminate.
             if (event.state & SDL_BUTTON_LMASK) {
                 mouse.button |= 0x00; // BUTTON_LEFT
-            }
-            if (event.state & SDL_BUTTON_RMASK) {
+            } else if (event.state & SDL_BUTTON_RMASK) {
                 mouse.button |= 0x02; // BUTTON_RGIHT
-            }
-            if (event.state & SDL_BUTTON_MIDDLE) {
+            } else if (event.state & SDL_BUTTON_MIDDLE) {
                 mouse.button |= 0x01; // BUTTON_MIDDLE
             }
     
