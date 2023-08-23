@@ -188,6 +188,11 @@ function initSys () {
     sys.LANGUAGE_UNKNOWN = "unknown";
 
     /**
+     * @property {String} OS_OPENHARMONY
+     * @readOnly
+     */
+    sys.OS_OPENHARMONY = "OpenHarmony";
+    /**
      * @property {String} OS_IOS
      * @readOnly
      */
@@ -321,6 +326,12 @@ function initSys () {
      * @default 11
      */
     sys.WP8 = 11;
+    /**
+     * @property {Number} OPENHARMONY
+     * @readOnly
+     * @default 12
+     */
+    sys.OPENHARMONY = 12;
     /**
      * @property {Number} MOBILE_BROWSER
      * @readOnly
@@ -728,6 +739,7 @@ function initSys () {
                         platform === sys.TIZEN ||
                         platform === sys.BLACKBERRY ||
                         platform === sys.XIAOMI_GAME ||
+                        platform === sys.OPENHARMONY ||
                         isVivoGame ||
                         isOppoGame ||
                         isHuaweiGame ||
