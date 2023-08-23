@@ -30,6 +30,15 @@ std::vector<T> VECTOR_SP2STD(Vector<T> &container) {
     return stdVector;
 }
 
+const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
+    int count = container.size();
+    std::vector<std::string> stdVector(count);
+    for (int i = 0; i < count; i++) {
+        stdVector[i] = STRING_SP2STD(container[i]);
+    }
+    return stdVector;
+}
+
 template <typename T>
 std::vector<std::vector<T>> VECTOR_2_SP2STD(Vector<Vector<T>> &container) {
     int count = container.size();
@@ -84,6 +93,7 @@ void VECTOR_STD_COPY_SP(std::vector<T> &stdVector, Vector<T> &spVector) {
 
 EMSCRIPTEN_BINDINGS(spine) {
     register_vector<float>("VectorFloat");
+    register_vector<std::vector<float>>("VectorVectorFloat");
     register_vector<unsigned short>("VectorUnsignedShort");
     register_vector<std::string>("VectorString");
     register_vector<BoneData *>("VectorBoneData");
@@ -92,6 +102,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     register_vector<SlotData *>("VectorSlotData");
     register_vector<Slot *>("VectorSlot");
     register_vector<Animation *>("VectorAnimation");
+    register_vector<Timeline *>("VectorTimeline");
     register_vector<Skin *>("VectorSkin");
     register_vector<EventData *>("VectorEventData");
     register_vector<Event *>("VectorEvent");
@@ -907,25 +918,35 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<Animation>("Animation")
         .constructor<const String &, Vector<Timeline *> &, float>()
-        .function("apply", &Animation::apply, allow_raw_pointers())
+        .function("apply", optional_override([](Animation &obj, Skeleton &skeleton,
+        float lastTime, float time, bool loop, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, loop, &pEvents, alpha, blend, direction);
+        }))
         .function("getName", optional_override([](Animation &obj) { return STRING_SP2STD(obj.getName()); }))
-        .function("getTimelines", optional_override([](Animation &obj) { return VECTOR_SP2STD(obj.getTimelines()); }))
+        .function("getTimelines", optional_override([](Animation &obj) {
+            return VECTOR_SP2STD(obj.getTimelines()); }), allow_raw_pointers())
         .function("hasTimeline", &Animation::hasTimeline)
         .function("getDuration", &Animation::getDuration)
         .function("setDuration", &Animation::setDuration);
 
     class_<Timeline>("Timeline")
-        // to fix apply
-        //.function("apply", &Timeline::apply, allow_raw_pointers())
         .function("apply", optional_override([](Timeline &obj, Skeleton &skeleton,
         float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
         MixBlend blend, MixDirection direction) {
             auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
             obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers())
-        .function("getPropertyId", &Timeline::getPropertyId);
+        }), pure_virtual())
+        .function("getPropertyId", &Timeline::getPropertyId, pure_virtual());
 
     class_<CurveTimeline, base<Timeline>>("CurveTimeline")
+        .function("apply", optional_override([](CurveTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), pure_virtual())
         .function("getPropertyId", &CurveTimeline::getPropertyId, pure_virtual())
         .function("getFrameCount", &CurveTimeline::getFrameCount)
         .function("setLinear", &CurveTimeline::setLinear)
@@ -1018,11 +1039,14 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrames", optional_override([](AttachmentTimeline &obj) {
             return VECTOR_SP2STD((Vector<float> &)obj.getFrames()); }), allow_raw_pointers())
         .function("getAttachmentNames",optional_override([](AttachmentTimeline &obj) {
-            auto names = obj.getAttachmentNames();
-            return VECTOR_SP2STD(names); }), allow_raw_pointers())
+            Vector<String> attachmentNames = obj.getAttachmentNames();
+            return VECTOR_SP2STD_STRING(attachmentNames); }), allow_raw_pointers())
         .function("getPropertyId", &AttachmentTimeline::getPropertyId)
         .function("getFrameCount", &AttachmentTimeline::getFrameCount)
-        .function("setFrame", &AttachmentTimeline::setFrame)
+        .function("setFrame", optional_override([](AttachmentTimeline &obj, int frameIndex, float time, const std::string &attachmentName){
+            const String attachmentNameSP = STRING_STD2SP(attachmentName);
+            obj.setFrame(frameIndex, time, attachmentNameSP);
+        }), allow_raw_pointers())
         .function("apply", optional_override([](AttachmentTimeline &obj, Skeleton &skeleton,
         float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
         MixBlend blend, MixDirection direction) {
@@ -1037,9 +1061,14 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getAttachment", &DeformTimeline::getAttachment, allow_raw_pointers())
         .function("setAttachment", &DeformTimeline::setAttachment, allow_raw_pointers())
         .function("getFrames", optional_override([](DeformTimeline &obj) { return VECTOR_SP2STD((Vector<float> &)obj.getFrames()); }))
-        .function("getFrameVertices", &DeformTimeline::getVertices)
+        .function("getFrameVertices", optional_override([](DeformTimeline &obj){
+            return VECTOR_2_SP2STD(obj.getVertices());
+        }), allow_raw_pointers())
         .function("getPropertyId", &DeformTimeline::getPropertyId)
-        .function("setFrame", &DeformTimeline::setFrame)
+        .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, std::vector<float> &vertices){
+            Vector<float> sp_vertices = VECTOR_STD2SP(vertices);
+            obj.setFrame(frameIndex, time, sp_vertices);
+        }), allow_raw_pointers())
         .function("apply", optional_override([](DeformTimeline &obj, Skeleton &skeleton,
         float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
         MixBlend blend, MixDirection direction) {
