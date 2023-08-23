@@ -98,11 +98,20 @@
     CGSize nativeSize = [self convertSizeToBacking:newSize];
     [super setFrameSize:newSize];
     layer.drawableSize = nativeSize;
-    [self viewDidChangeBackingProperties];
 }
 
 - (void)viewDidChangeBackingProperties {
     [super viewDidChangeBackingProperties];
+    CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+    layer.contentsScale = self.window.backingScaleFactor;
+    auto size = [[self.window contentView] frame].size;
+    auto width = size.width * self.window.backingScaleFactor;
+    auto height = size.height * self.window.backingScaleFactor;
+
+    if (width > 0 && height > 0) {
+        [super setFrameSize:size];
+        layer.drawableSize = CGSizeMake(width, height);
+    }
 }
 
 - (void)flagsChanged:(NSEvent *)event {
