@@ -80,6 +80,7 @@ function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setP
         set (value: any[]) {
             const vectors = new Type();
             const count = value.length;
+            // vector.resize(count, 0) default 0, because currently only the number type will use this function.
             vectors.resize(count, 0);
             for (let i = 0; i < count; i++) {
                 vectors.set(i, value[i]);
