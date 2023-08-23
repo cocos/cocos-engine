@@ -37,11 +37,11 @@ CCProgram tonemap-fs %{
   layout(location = 0) out vec4 fragColor;
 
   vec3 HDR2LDR_PostProcess(vec3 color) {
-    vec3 tempColor = color.rgb;
-    #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
-      tempColor.rgb = ACESToneMap(color.rgb);
+    #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == TONE_MAPPING_ACES
+      return ACESToneMap(color.rgb);
+    #else
+      return color.rgb;
     #endif
-    return tempColor.rgb;
   }
 
   vec4 CCFragOutput_PostProcess(vec4 color) {

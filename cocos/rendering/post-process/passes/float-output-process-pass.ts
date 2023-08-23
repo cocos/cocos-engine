@@ -33,9 +33,9 @@ import { SettingPass } from './setting-pass';
 import { Root } from '../../../root';
 
 export class FloatOutputProcessPass extends SettingPass {
-    name = 'FloatOutputProcessesPass';
-    effectName = 'pipeline/float-output-processes';
-    outputNames = ['FloatOutputProcesses'];
+    name = 'FloatOutputProcessPass';
+    effectName = 'pipeline/float-output-process';
+    outputNames = ['FloatOutputProcess'];
 
     enableInAllEditorCamera = true;
     enable = true;
