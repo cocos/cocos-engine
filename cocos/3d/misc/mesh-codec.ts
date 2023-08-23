@@ -53,8 +53,8 @@ function initDecoderASM (): Promise<void> {
 
 function initDecoderWASM (): Promise<void> {
     const Module = meshopt_wasm_factory;
-    function instantiate (importObject: WebAssembly.Imports) {
-        return instantiateWasm(meshopt_wasm_url, importObject);
+    function instantiate (importObject: WebAssembly.Imports): any {
+        return instantiateWasm(meshopt_wasm_url, importObject) as any;
     }
     return Promise.all([Module.ready(instantiate)]).then(() => {
         MeshoptDecoder.supported = true;
