@@ -24,8 +24,10 @@
 
 import meshopt_asm_factory from 'external:emscripten/meshopt/meshopt_decoder.asm.js';
 import meshopt_wasm_factory from 'external:emscripten/meshopt/meshopt_decoder.wasm.js';
+import meshopt_wasm_url from 'external:emscripten/meshopt/meshopt_decoder.wasm.wasm';
 
 import { WASM_SUPPORT_MODE } from 'internal:constants';
+import { instantiateWasm } from 'pal/wasm';
 
 import { sys, logID } from '../../core';
 
@@ -51,7 +53,10 @@ function initDecoderASM (): Promise<void> {
 
 function initDecoderWASM (): Promise<void> {
     const Module = meshopt_wasm_factory;
-    return Promise.all([Module.ready]).then(() => {
+    function instantiate (importObject: WebAssembly.Imports): any {
+        return instantiateWasm(meshopt_wasm_url, importObject) as any;
+    }
+    return Promise.all([Module.ready(instantiate)]).then(() => {
         MeshoptDecoder.supported = true;
         MeshoptDecoder.ready = Promise.resolve();
         MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
