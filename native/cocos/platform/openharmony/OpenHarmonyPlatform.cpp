@@ -93,7 +93,10 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
         ev->type = cc::TouchEvent::Type::CANCELLED;
     }
     for (int i = 0; i < touchEvent.numPoints; ++i) {
-        ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
+        int32_t id = touchEvent.touchPoints[i].id;
+        if (touchEvent.id == id) {
+            ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, id);
+        }
     }
     sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
 }
