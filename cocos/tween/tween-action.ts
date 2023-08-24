@@ -22,10 +22,14 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing } from '../core';
+import { warnID, warn, easing, Color } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '../core/global-exports';
+
+const colorStart: Color = new Color();
+const colorEnd: Color = new Color();
+const colorCur: Color = new Color();
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {
@@ -134,6 +138,7 @@ export class TweenAction extends ActionInterval {
                 value = value();
             }
             if (value == null || typeof value === 'string') continue;
+            const valueType = value.constructor.name;
             // property may have custom easing or progress function
             let customEasing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
@@ -149,6 +154,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
+            prop.valueType = valueType;
             prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
@@ -218,7 +224,17 @@ export class TweenAction extends ActionInterval {
             const start = prop.start;
             const end = prop.end;
             if (typeof start === 'number') {
-                prop.current = interpolation(start, end, prop.current, time);
+                if (prop.valueType !== Color.name) {
+                    prop.current = interpolation(start, end, prop.current, time);
+                } else {
+                    colorStart.set(start);
+                    colorEnd.set(end);
+                    colorCur.r = interpolation(colorStart.r, colorEnd.r, colorCur.r, time);
+                    colorCur.g = interpolation(colorStart.g, colorEnd.g, colorCur.g, time);
+                    colorCur.b = interpolation(colorStart.b, colorEnd.b, colorCur.b, time);
+                    colorCur.a = interpolation(colorStart.a, colorEnd.a, colorCur.a, time);
+                    prop.current = colorCur._val;
+                }
             } else if (typeof start === 'object') {
                 // const value = prop.value;
                 for (const k in start) {
@@ -228,7 +244,17 @@ export class TweenAction extends ActionInterval {
                     // if (value[k].progress) {
                     //     interpolation = value[k].easing(t);
                     // }
-                    prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                    if (prop.valueType !== Color.name) {
+                        prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                    } else {
+                        colorStart.set(start[k]);
+                        colorEnd.set(end[k]);
+                        colorCur.r = interpolation(colorStart.r, colorEnd.r, colorCur.r, time);
+                        colorCur.g = interpolation(colorStart.g, colorEnd.g, colorCur.g, time);
+                        colorCur.b = interpolation(colorStart.b, colorEnd.b, colorCur.b, time);
+                        colorCur.a = interpolation(colorStart.a, colorEnd.a, colorCur.a, time);
+                        prop.current[k] = colorCur._val;
+                    }
                 }
             }
 
