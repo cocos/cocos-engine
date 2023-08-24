@@ -496,11 +496,15 @@ export class SplashScreen {
                     // keep scale to [-1, 1] only use offset
                     this.projection.m00 = preTransforms[swapchain.surfaceTransform][0];
                     this.projection.m05 = preTransforms[swapchain.surfaceTransform][3] * device.capabilities.clipSpaceSignY;
-                    this.bgMat.setProperty('u_projection', this.projection);
-                    this.bgMat.passes[0].update();
-                    this.logoMat.setProperty('u_projection', this.projection);
-                    this.logoMat.passes[0].update();
-                    if (this.watermarkMat) {
+                    if (this.settings.background!.type === 'custom') {
+                        this.bgMat.setProperty('u_projection', this.projection);
+                        this.bgMat.passes[0].update();
+                    }
+                    if (this.settings.logo!.type !== 'none') {
+                        this.logoMat.setProperty('u_projection', this.projection);
+                        this.logoMat.passes[0].update();
+                    }
+                    if (this.settings.logo!.type === 'default' && this.watermarkMat) {
                         this.watermarkMat.setProperty('u_projection', this.projection);
                         this.watermarkMat.passes[0].update();
                     }
