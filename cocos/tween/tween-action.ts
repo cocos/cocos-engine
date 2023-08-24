@@ -140,6 +140,7 @@ export class TweenAction extends ActionInterval {
             if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
                     customEasing = easing[value.easing];
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     if (!customEasing) warnID(1031, value.easing);
                 } else {
                     customEasing = value.easing;
@@ -161,6 +162,7 @@ export class TweenAction extends ActionInterval {
     }
 
     clone (): TweenAction {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
@@ -200,7 +202,7 @@ export class TweenAction extends ActionInterval {
 
                 for (const k in value) {
                     // filtering if it not a number
-                    // eslint-disable-next-line no-restricted-globals
+                    // eslint-disable-next-line no-restricted-globals, @typescript-eslint/no-unsafe-argument
                     if (isNaN(_t[k])) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
@@ -230,8 +232,6 @@ export class TweenAction extends ActionInterval {
 
             const start = prop.start;
             const end = prop.end;
-
-            console.log(prop.start, prop.end, prop.current);
 
             if (typeof start === 'number') {
                 prop.current = interpolation(start, end, prop.current, time);
