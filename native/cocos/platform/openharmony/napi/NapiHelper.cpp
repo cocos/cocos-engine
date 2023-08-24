@@ -179,7 +179,11 @@ static void napiWorkerInit(const Napi::CallbackInfo &info) {
     CC_LOG_INFO("napiWorkerInit ...");
     Napi::Env env = info.Env();
     uv_loop_t* loop = nullptr;
-    NAPI_CALL_RETURN_VOID(napi_env(env), napi_get_uv_event_loop(napi_env(env), &loop));
+    napi_status status = napi_get_uv_event_loop(napi_env(env), &loop);
+    if (status != napi_ok) {
+        CC_LOG_ERROR("napi_get_uv_event_loop failed!");
+        return;
+    }
     OpenHarmonyPlatform::getInstance()->workerInit(loop);
 }
 
