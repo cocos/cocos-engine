@@ -80,7 +80,6 @@ bool Screen::isDisplayStats() {
     const char commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
-    return true;
 }
 
 void Screen::setDisplayStats(bool isShow) {
