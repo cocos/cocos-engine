@@ -111,6 +111,8 @@ export abstract class BasePass {
         return this.enable;
     }
 
+    onGlobalPipelineStateChanged?(): void;
+
     renderProfiler (camera): void {
         if (passContext.isFinalCamera && !EDITOR) {
             passContext.pass!.showStatistics = true;

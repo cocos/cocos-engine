@@ -34,7 +34,9 @@ export class PostProcessBuilder implements PipelineBuilder  {
         if (passes !== undefined) {
             for (let i = 0; i < passes.length; i++) {
                 const pass = passes[i];
-                pass.onGlobalPipelineStateChanged();
+                if (typeof pass.onGlobalPipelineStateChanged === 'function') {
+                    pass.onGlobalPipelineStateChanged();
+                }
             }
         }
     }
