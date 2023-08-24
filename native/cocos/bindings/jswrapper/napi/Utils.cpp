@@ -162,7 +162,6 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
             break;
         case Value::Type::BigInt:
             NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
-            // NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), v.toDouble(), outJsVal));
             ret = (status == napi_ok);
             break;
         default:
