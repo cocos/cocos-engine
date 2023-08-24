@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include <ace/xcomponent/native_interface_xcomponent.h>
+
 #include "platform/openharmony/napi/NapiHelper.h"
 
 static const char kLibname[] = "cocos";
