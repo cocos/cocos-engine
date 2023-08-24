@@ -215,9 +215,12 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             }
             CC_ENSURES(buffer);
         },
-        [&](const IntrusivePtr<gfx::Texture>& texture) {
-            CC_EXPECTS(texture);
-            std::ignore = texture;
+        [&](IntrusivePtr<gfx::Texture>& texture) {
+            if (!texture) {
+                auto info = getTextureInfo(desc);
+                texture = device->createTexture(info);
+            }
+            CC_ENSURES(texture);
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
             CC_EXPECTS(fb);

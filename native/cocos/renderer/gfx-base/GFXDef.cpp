@@ -231,6 +231,25 @@ bool operator==(const GeneralBarrierInfo &lhs, const GeneralBarrierInfo &rhs) {
 }
 
 template <>
+ccstd::hash_t Hasher<ResourceRange>::operator()(const ResourceRange &info) const {
+    ccstd::hash_t seed = sizeof(info);
+    ccstd::hash_combine(seed, info.width);
+    ccstd::hash_combine(seed, info.height);
+    ccstd::hash_combine(seed, info.depthOrArraySize);
+    ccstd::hash_combine(seed, info.firstSlice);
+    ccstd::hash_combine(seed, info.numSlices);
+    ccstd::hash_combine(seed, info.mipLevel);
+    ccstd::hash_combine(seed, info.levelCount);
+    ccstd::hash_combine(seed, info.basePlane);
+    ccstd::hash_combine(seed, info.planeCount);
+    return seed;
+}
+
+bool operator==(const ResourceRange &lhs, const ResourceRange &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(ResourceRange));
+}
+
+template <>
 ccstd::hash_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo &info) const {
     return quickHashTrivialStruct(&info);
 }

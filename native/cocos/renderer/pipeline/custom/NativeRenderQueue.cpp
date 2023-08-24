@@ -205,8 +205,8 @@ void RenderBatchingQueue::recordCommandBuffer(
         0,
         indirectBuffer->getSize()
     };
-    auto *bufferBarrier = gfx::Device::getInstance()->getBufferBarrier(barrierInfo);
-    cmdBuffer->pipelineBarrier(nullptr, {bufferBarrier}, {indirectBuffer}, {}, {});
+    //auto *bufferBarrier = gfx::Device::getInstance()->getBufferBarrier(barrierInfo);
+    //cmdBuffer->pipelineBarrier(nullptr, {bufferBarrier}, {indirectBuffer}, {}, {});
 
     const auto supportFirstInstance = device->getCapabilities().supportFirstInstance;
     auto *batchPool = gpuScene->getBatchPool();
