@@ -867,6 +867,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
         _barrierEvents.insert({obj, event});
     };
 
+    static constexpr bool ENABLE_SPLIT_BARRIER{false};
     if (textureBarrierCount > 0) {
         for (uint32_t i = 0U; i < textureBarrierCount; ++i) {
             const auto *ccBarrier = static_cast<const CCVKTextureBarrier *const>(textureBarriers[i]);
@@ -875,11 +876,13 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             auto *gpuTexture = ccTexture->gpuTexture();
 
             if (ccBarrier->getInfo().type == BarrierType::SPLIT_BEGIN) {
-                signalEvent(ccTexture, gpuBarrier->srcStageMask);
+                if (ENABLE_SPLIT_BARRIER) {
+                    signalEvent(ccTexture, gpuBarrier->srcStageMask);
+                }
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 bool missed = _barrierEvents.find(ccTexture) == _barrierEvents.end();
-                if (!fullBarrier && !missed) {
+                if (!fullBarrier && !missed && ENABLE_SPLIT_BARRIER) {
                     //CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccTexture);
                     scheduledEvents.push_back(event);
@@ -898,7 +901,6 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 } else {
                     gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
                     fullImageBarriers.push_back(gpuBarrier->vkBarrier);
-                    fullImageBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullImageBarriers.back().srcAccessMask;
                     fullImageBarriers.back().subresourceRange.aspectMask = gpuTexture->aspectMask;
                     if (gpuTexture->swapchain) {
                         fullImageBarriers.back().image = gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex];
@@ -920,11 +922,13 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             auto *gpuBuffer = ccBuffer->gpuBuffer();
 
             if (ccBarrier->getInfo().type == BarrierType::SPLIT_BEGIN) {
-                signalEvent(ccBuffer, gpuBarrier->srcStageMask);
+                if (ENABLE_SPLIT_BARRIER) {
+                    signalEvent(ccBuffer, gpuBarrier->srcStageMask);
+                }
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 bool missed = _barrierEvents.find(ccBuffer) != _barrierEvents.end();
-                if (!fullBarrier && !missed) {
+                if (!fullBarrier && !missed && ENABLE_SPLIT_BARRIER) {
                     CC_ASSERT(_barrierEvents.find(ccBuffer) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccBuffer);
                     scheduledEvents.push_back(event);
@@ -937,7 +941,6 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 } else {
                     gpuBuffer->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
                     fullBufferBarriers.push_back(gpuBarrier->vkBarrier);
-                    fullBufferBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullBufferBarriers.back().srcAccessMask;
                     fullBufferBarriers.back().buffer = gpuBuffer->vkBuffer;
                     fullSrcStageMask |= gpuBarrier->srcStageMask;
                     fullDstStageMask |= gpuBarrier->dstStageMask;

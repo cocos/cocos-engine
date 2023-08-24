@@ -541,7 +541,21 @@ gfx::DescriptorSet* initDescriptorSet(
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
-                        newSet->bindTexture(bindID, texture);
+                        gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
+                        if (accessNode != nullptr) {
+                            auto resID = iter->second;
+                            // whole access only now.
+                            auto parentID = parent(resID, resg);
+                            parentID = parentID == ResourceGraph::null_vertex() ? resID : parentID;
+                            const auto& resName = get(ResourceGraph::NameTag{}, resg, parentID);
+
+                            auto iter2 = std::find_if(accessNode->resourceStatus.begin(), accessNode->resourceStatus.end(), [&resName, &resg](const auto& pair) {
+                                return strstr(resName.c_str(), pair.first.c_str()) || strstr(pair.first.c_str(), resName.c_str());
+                            });
+
+                            access = iter2->second.accessFlag;
+                        }
+                        newSet->bindTexture(bindID, texture, 0, access);
                     }
                     bindID += d.count;
                 }
@@ -925,11 +939,12 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
+            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
                 ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node);
+                resourceIndex, set, user, node, &accessNode);
             CC_ENSURES(perPassSet);
             ctx.renderGraphDescriptorSet[vertID] = perPassSet;
         } else if (holds<QueueTag>(vertID, ctx.g)) {
