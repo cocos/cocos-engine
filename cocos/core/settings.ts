@@ -77,7 +77,7 @@ export class Settings {
         if (!path) return Promise.resolve();
 
         if (NATIVE) {
-            if (window.oh && (jsb as any).scriptEngineType === 'napi') {
+            if (window.oh && window.scriptEngineType === 'napi') {
                 return new Promise((resolve, reject) => {
                     // TODO: to support a virtual module of settings.
                     // For now, we use a system module context to dynamically import the relative path of module.

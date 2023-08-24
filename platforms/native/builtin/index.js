@@ -116,7 +116,7 @@ function createTimeoutInfo (prevFuncArgs, isRepeat) {
     return info.id;
 }
 
-if (window.oh && jsb.scriptEngineType === 'napi') {
+if (window.oh && window.scriptEngineType === 'napi') {
     console.log(`Openharmony with napi has alreay implemented setTimeout/setInterval`);
 } else {
     // In openharmony, the setTimeout function will conflict with the timer of the worker thread and cause a crash,

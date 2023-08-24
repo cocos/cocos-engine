@@ -1585,9 +1585,9 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->setProperty("performance", se::Value(performanceObj));
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    se::HandleObject ohObj(se::Object::createPlainObject());
-    global->setProperty("oh", se::Value(ohObj));
     #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+        se::HandleObject ohObj(se::Object::createPlainObject());
+        global->setProperty("oh", se::Value(ohObj));
         ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
         ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
     #endif
