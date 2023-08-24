@@ -138,7 +138,7 @@ export class TweenAction extends ActionInterval {
                 value = value();
             }
             if (value == null || typeof value === 'string') continue;
-            const valueType = value.constructor.name;
+            const isColor = value instanceof Color;
             // property may have custom easing or progress function
             let customEasing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
@@ -154,7 +154,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
-            prop.valueType = valueType;
+            prop.isColor = isColor;
             prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
@@ -224,7 +224,7 @@ export class TweenAction extends ActionInterval {
             const start = prop.start;
             const end = prop.end;
             if (typeof start === 'number') {
-                if (prop.valueType !== Color.name) {
+                if (!prop.isColor) {
                     prop.current = interpolation(start, end, prop.current, time);
                 } else {
                     colorStart.set(start);
@@ -244,7 +244,7 @@ export class TweenAction extends ActionInterval {
                     // if (value[k].progress) {
                     //     interpolation = value[k].easing(t);
                     // }
-                    if (prop.valueType !== Color.name) {
+                    if (!prop.isColor) {
                         prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
                     } else {
                         colorStart.set(start[k]);
