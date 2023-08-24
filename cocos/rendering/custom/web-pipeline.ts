@@ -1829,7 +1829,11 @@ export class WebPipeline implements BasicPipeline {
     }
     public onGlobalPipelineStateChanged (): void {
         const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-        if (builder) builder.onGlobalPipelineStateChanged();
+        if (builder) {
+            if (typeof builder.onGlobalPipelineStateChanged === 'function') {
+                builder.onGlobalPipelineStateChanged();
+            }
+        }
     }
     beginSetup (): void {
         if (!this._renderGraph) this._renderGraph = new RenderGraph();

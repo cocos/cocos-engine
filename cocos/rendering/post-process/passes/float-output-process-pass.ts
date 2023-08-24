@@ -59,34 +59,29 @@ export class FloatOutputProcessPass extends SettingPass {
         const cameraID = getCameraUniqueID(camera);
         passContext.material = this.material;
 
-        // ppl.macros.CC_USE_HDR = ppl.pipelineSceneData.isHDR;
-        // ppl.macros.CC_TONE_MAPPING_TYPE = ppl.pipelineSceneData.postSettings.toneMappingType;
-        // ppl.macros.CC_USE_FOG = ppl.pipelineSceneData.fog.type;
-        // console.warn('Fog type:', ppl.pipelineSceneData.fog.type);
-        // ppl.macros.CC_USE_DEBUG_VIEW = (cclegacy.director.root as Root).debugView.debugViewType;
-
-        const inputDS = passContext.depthSlotName;
-        const copyDS = 'floatOutputProcessCopyDS';
-
-        // ==== Copy input DS ===
-        const copyInputDSPassLayoutName = 'copy-pass';
-        const copyInputDSPass = `floatOutputProcessCopyDS-pass${cameraID}`;
+        let copyDS = '';
         let passIndx = 0;
-        passContext.updatePassViewPort()
-            .addRenderPass(copyInputDSPassLayoutName, copyInputDSPass)
-            .setClearFlag(ClearFlagBit.COLOR)
-            .setClearColor(1.0, 0, 0, 0)
-            .setPassInput(inputDS, 'depthRaw')
-            .addRasterView(copyDS, Format.RGBA8)
-            .blitScreen(passIndx)
-            .version();
+        const inputDS = passContext.depthSlotName;
+        if (ppl.pipelineSceneData.fog.type !== 4) {
+            copyDS = 'floatOutputProcessCopyDS';
+            // ==== Copy input DS ===
+            const copyInputDSPassLayoutName = 'copy-pass';
+            const copyInputDSPass = `floatOutputProcessCopyDS-pass${cameraID}`;
+            passContext.updatePassViewPort()
+                .addRenderPass(copyInputDSPassLayoutName, copyInputDSPass)
+                .setClearFlag(ClearFlagBit.COLOR)
+                .setClearColor(1.0, 0, 0, 0)
+                .setPassInput(inputDS, 'depthRaw')
+                .addRasterView(copyDS, Format.RGBA8)
+                .blitScreen(passIndx)
+                .version();
+        }
 
+        passIndx = 1;
         const input = this.lastPass!.slotName(camera, 0);
         const output = this.slotName(camera, 0);
         const layoutName = 'tone-mapping';
         const passName = `tone-mapping${cameraID}`;
-        passIndx = 1;
-
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
         passContext.updatePassViewPort()

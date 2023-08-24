@@ -1424,7 +1424,7 @@ export interface PipelineBuilder {
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
 
-    onGlobalPipelineStateChanged(): void;
+    onGlobalPipelineStateChanged?(): void;
 }
 
 /**
