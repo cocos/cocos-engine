@@ -299,6 +299,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string>> movedTarget;
     PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
     PmrFlatMap<ccstd::pmr::string, ResourceNode> movedTargetStatus;
+    PmrFlatMap<RenderGraph::vertex_descriptor, std::pair<ccstd::pmr::string, gfx::AccessFlags>> externalAccess;
 };
 
 struct RelationGraph {
@@ -485,6 +486,8 @@ struct FrameGraphDispatcher {
     PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> buildDescriptorIndex(
         const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&computeViews,
         boost::container::pmr::memory_resource* scratch) const;
+
+    void registerResourceAccess(RenderGraph::vertex_descriptor v, const ccstd::pmr::string & name, gfx::AccessFlags access);
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;

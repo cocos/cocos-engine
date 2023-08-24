@@ -230,6 +230,10 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
     return resourceIndex;
 }
 
+void FrameGraphDispatcher::registerResourceAccess(RenderGraph::vertex_descriptor v, const ccstd::pmr::string &name, gfx::AccessFlags access) {
+    resourceAccessGraph.externalAccess[v] = std::make_pair(name, access);
+}
+
 PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
     const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
     const PmrTransparentMap<ccstd::pmr::string, RasterView> &rasterViews,
@@ -922,6 +926,29 @@ void extractNames(const ccstd::pmr::string &resName,
     }
 }
 
+auto checkExternalAccess(const Graphs &graphs,
+                         ResourceAccessGraph::vertex_descriptor ragVertID) {
+    const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
+    if (!resourceAccessGraph.externalAccess.empty()) {
+        auto iter = resourceAccessGraph.externalAccess.begin();
+        auto targetPassID = iter->first;
+        while (parent(targetPassID, renderGraph) != RenderGraph::null_vertex()) {
+            targetPassID = parent(targetPassID, renderGraph);
+        }
+        auto rvID = resourceAccessGraph.passIndex.at(targetPassID);
+        while (iter != resourceAccessGraph.externalAccess.end() && rvID <= ragVertID) {
+            const auto &range = getResourceRange(vertex(iter->second.first, resourceGraph), resourceGraph);
+            ViewStatus view{iter->second.first, AccessType::READ_WRITE /*no use*/, gfx::ShaderStageFlagBit::NONE, iter->second.second, range};
+            const auto&[lastVertId, nearestAccess] = dependencyCheck(resourceAccessGraph, rvID, resourceGraph, view);
+            tryAddEdge(lastVertId, rvID, resourceAccessGraph);
+            tryAddEdge(lastVertId, rvID, relationGraph);
+            //dependent |= (lastVertId != EXPECT_START_ID);
+            iter = resourceAccessGraph.externalAccess.erase(iter);
+            rvID = resourceAccessGraph.passIndex.at(targetPassID);
+        }
+    }
+}
+
 auto checkRasterViews(const Graphs &graphs,
                       ResourceAccessGraph::vertex_descriptor ragVertID,
                       ResourceAccessNode &node,
@@ -1609,6 +1636,24 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
     }
 }
 
+void startScene(const Graphs &graphs, RenderGraph::vertex_descriptor sceneID, const SceneData &sceneData) { // NOLINT(readability-convert-member-functions-to-static)
+    const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
+    const auto *const camera = sceneData.camera;
+    CC_EXPECTS(camera);
+
+    if (any(sceneData.flags & SceneFlags::GPU_DRIVEN)) {
+        //auto prtID = sceneID;
+        //while (parent(prtID, renderGraph) != RenderGraph::null_vertex()) {
+        //    prtID = parent(prtID, renderGraph);
+        //}
+        ccstd::pmr::string name("CCDrawIndirectBuffer", resourceAccessGraph.get_allocator());
+        name.append(std::to_string(sceneData.cullingID));
+        // auto resID = findVertex(name, resourceGraph);
+        // const auto &indirectBuffer = get(ManagedBufferTag{}, resID, resg).buffer.get();
+        resourceAccessGraph.externalAccess[sceneID] = std::make_pair(name, gfx::AccessFlags::INDIRECT_BUFFER);
+    }   
+}
+
 struct DependencyVisitor : boost::dfs_visitor<> {
     void discover_vertex(RenderGraph::vertex_descriptor passID,
                          const AddressableView<RenderGraph> &gv) const {
@@ -1635,9 +1680,14 @@ struct DependencyVisitor : boost::dfs_visitor<> {
             [&](const RaytracePass &pass) {
                 startRaytracePass(graphs, passID, pass);
             },
+            [&](const SceneData &scene) {
+                startScene(graphs, passID, scene);
+            },
             [&](const auto & /*pass*/) {
                 // do nothing
             });
+        const auto curRagVert = graphs.resourceAccessGraph.passIndex.size() - 2;
+        checkExternalAccess(graphs, curRagVert);
     }
 
     void finish_vertex(RenderGraph::vertex_descriptor passID,
@@ -1945,7 +1995,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             }
 
             // subpass layout transition
-            if ((srcRagVertID != 0) && (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph))) {
+            bool dstRenderPass = (srcRagVertID != 0) && (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph));
+            if (dstRenderPass && !isBuffer) {
                 auto ragVertID = srcRagVertID;
                 if (holds<RasterSubpassTag>(srcPassID, renderGraph)) {
                     auto parentID = parent(srcPassID, renderGraph);
