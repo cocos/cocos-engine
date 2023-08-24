@@ -130,9 +130,11 @@ export class TestPipelineBuilder implements PipelineBuilder {
     constructor (pipelineSceneData: PipelineSceneData) {
         this._sceneInfo = new SceneInfo(pipelineSceneData);
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     onGlobalPipelineStateChanged (): void {
-        throw new Error('Method not implemented.');
     }
+
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
