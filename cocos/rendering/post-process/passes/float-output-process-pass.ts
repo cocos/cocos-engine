@@ -24,7 +24,7 @@
 
 import { Vec4, cclegacy } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, FOG_TYPE_NONE } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -55,7 +55,7 @@ export class FloatOutputProcessPass extends SettingPass {
         }
     }
     needDepthInput (ppl: Pipeline): boolean {
-        return ppl.pipelineSceneData.fog.type !== 4;
+        return ppl.pipelineSceneData.fog.type !== FOG_TYPE_NONE;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {

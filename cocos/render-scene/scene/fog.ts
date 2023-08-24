@@ -72,7 +72,7 @@ export const FogType = Enum({
     LAYERED: 3,
 });
 
-const FOG_TYPE_NONE = FogType.LAYERED + 1;
+export const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
 /**
  * @en The fog representation in the render scene.
