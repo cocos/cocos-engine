@@ -224,36 +224,26 @@ export class TweenAction extends ActionInterval {
             const start = prop.start;
             const end = prop.end;
             if (typeof start === 'number') {
-                if (!prop.isColor) {
-                    prop.current = interpolation(start, end, prop.current, time);
-                } else {
-                    colorStart.set(start);
-                    colorEnd.set(end);
+                prop.current = interpolation(start, end, prop.current, time);
+            } else if (typeof start === 'object') {
+                // const value = prop.value;
+                if (prop.isColor) {
+                    colorStart.set(start._val);
+                    colorEnd.set(end._val);
                     colorCur.r = interpolation(colorStart.r, colorEnd.r, colorCur.r, time);
                     colorCur.g = interpolation(colorStart.g, colorEnd.g, colorCur.g, time);
                     colorCur.b = interpolation(colorStart.b, colorEnd.b, colorCur.b, time);
                     colorCur.a = interpolation(colorStart.a, colorEnd.a, colorCur.a, time);
-                    prop.current = colorCur._val;
-                }
-            } else if (typeof start === 'object') {
-                // const value = prop.value;
-                for (const k in start) {
-                    // if (value[k].easing) {
-                    //     time = value[k].easing(t);
-                    // }
-                    // if (value[k].progress) {
-                    //     interpolation = value[k].easing(t);
-                    // }
-                    if (!prop.isColor) {
+                    prop.current._val = colorCur._val;
+                } else {
+                    for (const k in start) {
+                        // if (value[k].easing) {
+                        //     time = value[k].easing(t);
+                        // }
+                        // if (value[k].progress) {
+                        //     interpolation = value[k].easing(t);
+                        // }
                         prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
-                    } else {
-                        colorStart.set(start[k]);
-                        colorEnd.set(end[k]);
-                        colorCur.r = interpolation(colorStart.r, colorEnd.r, colorCur.r, time);
-                        colorCur.g = interpolation(colorStart.g, colorEnd.g, colorCur.g, time);
-                        colorCur.b = interpolation(colorStart.b, colorEnd.b, colorCur.b, time);
-                        colorCur.a = interpolation(colorStart.a, colorEnd.a, colorCur.a, time);
-                        prop.current[k] = colorCur._val;
                     }
                 }
             }
