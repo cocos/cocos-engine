@@ -107,22 +107,6 @@ bool setCanvasCallback(se::Object *global) {
         windowVal.toObject()->setProperty("windowHandle", se::Value(static_cast<uint32_t>(handler)));
     }
 
-    // std::stringstream ss;
-    // {
-    //     ss << "globalThis.jsb = globalThis.jsb || {}; " << std::endl;
-    //     ss << "jsb.window = jsb.window || {}; " << std::endl;
-    //     ss << "jsb.window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";" << std::endl;
-    //     ss << "jsb.window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";" << std::endl;
-    //     ss << "jsb.window.windowHandler = ";
-    //     if (sizeof(handler) == 8) { // use bigint
-    //         ss << static_cast<uint64_t>(handler) << "n;";
-    //     }
-    //     if (sizeof(handler) == 4) {
-    //         ss << static_cast<uint32_t>(handler) << ";";
-    //     }
-    // }
-    // se->evalString(ss.str().c_str());
-
     return true;
 }
 

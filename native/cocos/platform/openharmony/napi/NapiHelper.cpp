@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "platform/openharmony/napi/NapiHelper.h"
-#include "napi.h"
-#include "platform/openharmony/napi/napi_macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"

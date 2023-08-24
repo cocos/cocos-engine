@@ -23,11 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <ace/xcomponent/native_interface_xcomponent.h>
-#include "NapiHelper.h"
-#include "napi.h"
 #include "platform/openharmony/napi/NapiHelper.h"
-#include "napi_macros.h"
-#include <hilog/log.h>
 
 static const char kLibname[] = "cocos";
 /*
