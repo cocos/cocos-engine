@@ -68,11 +68,14 @@ uiPort._messageHandle = function(e) {
         case "onXCLoad":
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
+
+            <% if(!useV8) { %>
             launchEngine().then(() => {
                 console.info('launch CC engine finished');
             }).catch(e => {
                 console.error('launch CC engine failed');
             });
+            <% } %>
            // @ts-ignore
             globalThis.oh.postMessage = nativeContext.postMessage;
            // @ts-ignore
