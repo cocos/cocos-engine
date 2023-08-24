@@ -163,6 +163,14 @@ macro(cc_mac_after_target _target_name)
         ${CC_PROJECT_DIR}/../common/Classes
     )
 
+    foreach(item ${MACOSX_DLLS})
+        get_filename_component(filename ${item} NAME)
+        get_filename_component(abs ${item} ABSOLUTE)
+        add_custom_command(TARGET ${CC_EXECUTABLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${CC_EXECUTABLE_NAME}>/${filename}
+        )
+    endforeach()
+
     if(USE_SERVER_MODE)
         if(EXISTS ${RES_DIR}/data/jsb-adapter)
             set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})

@@ -3110,6 +3110,10 @@ if(MSVC)
         /ignore:4098 # defaultlib 'library' conflicts with use of other libs; use /NODEFAULTLIB:library
         /ignore:4204 # 'filename' is missing debugging information for referencing module; linking object as if no debug info
     )
+elseif()
+  file(GLOB WINDOWS_DLLS
+        ${CWD}/external/mac/libs/*.dylib
+    )
 endif()
 
 if(CC_USE_VULKAN)
