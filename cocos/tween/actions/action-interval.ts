@@ -451,7 +451,7 @@ export class Sequence extends ActionInterval {
  * The created action will run actions sequentially, one after another.
  * @zh 顺序执行动作，创建的动作将按顺序依次运行。
  * @method sequence
- * @param {FiniteTimeAction|FiniteTimeAction[]} actionArray
+ * @param {FiniteTimeAction[]} actionArray
  * @return {ActionInterval}
  * @example
  * import { sequence } from 'cc';
