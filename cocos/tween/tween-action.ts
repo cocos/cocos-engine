@@ -27,10 +27,6 @@ import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '../core/global-exports';
 
-const colorStart: Color = new Color();
-const colorEnd: Color = new Color();
-const colorCur: Color = new Color();
-
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {
     const initialChar = easingName.charAt(0);
@@ -186,6 +182,17 @@ export class TweenAction extends ActionInterval {
                 prop.current = _t;
                 // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 prop.end = relative ? _t + value : value;
+            } else if (_t instanceof Color) {
+                if (prop.start == null) {
+                    prop.start = new Color(); prop.current = new Color(); prop.end = new Color();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    Color.add(prop.end, _t, value);
+                } else {
+                    prop.end.set(value);
+                }
             } else if (typeof _t === 'object') {
                 if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
@@ -223,18 +230,18 @@ export class TweenAction extends ActionInterval {
 
             const start = prop.start;
             const end = prop.end;
+
+            console.log(prop.start, prop.end, prop.current);
+
             if (typeof start === 'number') {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 // const value = prop.value;
                 if (prop.isColor) {
-                    colorStart.set(start._val);
-                    colorEnd.set(end._val);
-                    colorCur.r = interpolation(colorStart.r, colorEnd.r, colorCur.r, time);
-                    colorCur.g = interpolation(colorStart.g, colorEnd.g, colorCur.g, time);
-                    colorCur.b = interpolation(colorStart.b, colorEnd.b, colorCur.b, time);
-                    colorCur.a = interpolation(colorStart.a, colorEnd.a, colorCur.a, time);
-                    prop.current._val = colorCur._val;
+                    prop.current.r = interpolation(start.r, end.r, prop.current.r, time);
+                    prop.current.g = interpolation(start.g, end.g, prop.current.g, time);
+                    prop.current.b = interpolation(start.b, end.b, prop.current.b, time);
+                    prop.current.a = interpolation(start.a, end.a, prop.current.a, time);
                 } else {
                     for (const k in start) {
                         // if (value[k].easing) {
