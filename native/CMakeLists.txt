@@ -114,8 +114,8 @@ if(NOT ANDROID AND NOT IOS AND NOT OHOS AND NOT OPENHARMONY)
 endif()
 
 if(OPENHARMONY)
-    set(USE_SE_V8 ON)
-    set(USE_SE_NAPI OFF)
+    set(USE_SE_V8 OFF)
+    set(USE_SE_NAPI ON)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
