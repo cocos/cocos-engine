@@ -54,6 +54,9 @@ export class FloatOutputProcessPass extends SettingPass {
             pass.endChangeStatesSilently();
         }
     }
+    needDepthInput (ppl: Pipeline): boolean {
+        return ppl.pipelineSceneData.fog.type !== 4;
+    }
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
@@ -62,7 +65,7 @@ export class FloatOutputProcessPass extends SettingPass {
         let copyDS = '';
         let passIndx = 0;
         const inputDS = passContext.depthSlotName;
-        if (ppl.pipelineSceneData.fog.type !== 4) {
+        if (this.needDepthInput(ppl)) {
             copyDS = 'floatOutputProcessCopyDS';
             // ==== Copy input DS ===
             const copyInputDSPassLayoutName = 'copy-pass';

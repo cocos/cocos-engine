@@ -132,8 +132,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onGlobalPipelineStateChanged (): void {
-    }
+    onGlobalPipelineStateChanged (): void {}
 
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
