@@ -26,7 +26,9 @@
 import worker from '@ohos.worker';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
+<% if(!useV8) { %>
 import { launchEngine } from '../cocos/game'
+<% } %>
 import {PortProxy} from '../common/PortProxy'
 
 globalThis.oh = globalThis.oh || {};
