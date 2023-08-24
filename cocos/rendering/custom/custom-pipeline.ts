@@ -42,9 +42,6 @@ import { CSMLayers } from '../shadow/csm-layers';
 const copyPair = new CopyPair();
 const pairs = [copyPair];
 export class CustomPipelineBuilder implements PipelineBuilder {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onGlobalPipelineStateChanged (): void {}
-
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -130,9 +127,6 @@ export class TestPipelineBuilder implements PipelineBuilder {
     constructor (pipelineSceneData: PipelineSceneData) {
         this._sceneInfo = new SceneInfo(pipelineSceneData);
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onGlobalPipelineStateChanged (): void {}
 
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {

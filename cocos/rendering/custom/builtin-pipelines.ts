@@ -54,9 +54,6 @@ import {
 import { Feature } from '../../gfx';
 
 export class ForwardPipelineBuilder implements PipelineBuilder {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onGlobalPipelineStateChanged (): void {}
-
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -82,9 +79,6 @@ export class ForwardPipelineBuilder implements PipelineBuilder {
 }
 
 export class DeferredPipelineBuilder implements PipelineBuilder {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onGlobalPipelineStateChanged (): void {}
-
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; ++i) {
             const camera = cameras[i];
