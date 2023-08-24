@@ -1,4 +1,3 @@
-
 /****************************************************************************
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -52,26 +51,32 @@ enum ContextType {
     EDITBOX_UTILS,
     WEBVIEW_UTILS,
     UV_ASYNC_SEND,
+    VIDEO_UTILS,
 };
 
 static Napi::Env gWorkerEnv(nullptr);
 static Napi::FunctionReference* gPostMessageToUIThreadFunc = nullptr;
+static Napi::FunctionReference* gPostSyncMessageToUIThreadFunc = nullptr;
 
-static void js_set_PostMessage2UIThreadCallback(const Napi::CallbackInfo &info) {
-    Napi::Env env = info.Env();
-    if (info.Length() != 1) {
-        Napi::Error::New(env, "setPostMessageFunction, 1 argument expected").ThrowAsJavaScriptException();
-        return;
-    }
-
-    if (!info[0].IsFunction()) {
-        Napi::TypeError::New(env, "setPostMessageFunction, function expected").ThrowAsJavaScriptException();
-        return;
-    }
-
-    delete gPostMessageToUIThreadFunc;
-    gPostMessageToUIThreadFunc = new Napi::FunctionReference(Napi::Persistent(info[0].As<Napi::Function>()));
+#define DEFINE_FUNCTION_CALLBACK(functionName, cachedFunctionRefPtr) \
+static void functionName(const Napi::CallbackInfo &info) { \
+    Napi::Env env = info.Env(); \
+    if (info.Length() != 1) { \
+        Napi::Error::New(env, "setPostMessageFunction, 1 argument expected").ThrowAsJavaScriptException(); \
+        return; \
+    } \
+    \
+    if (!info[0].IsFunction()) { \
+        Napi::TypeError::New(env, "setPostMessageFunction, function expected").ThrowAsJavaScriptException(); \
+        return; \
+    } \
+    \
+    delete cachedFunctionRefPtr; \
+    cachedFunctionRefPtr = new Napi::FunctionReference(Napi::Persistent(info[0].As<Napi::Function>())); \
 }
+
+DEFINE_FUNCTION_CALLBACK(js_set_PostMessage2UIThreadCallback, gPostMessageToUIThreadFunc)
+DEFINE_FUNCTION_CALLBACK(js_set_PostSyncMessage2UIThreadCallback, gPostSyncMessageToUIThreadFunc)
 
 /* static */
 void NapiHelper::postMessageToUIThread(const std::string& type, Napi::Value param) {
@@ -82,6 +87,18 @@ void NapiHelper::postMessageToUIThread(const std::string& type, Napi::Value para
     }
     CC_LOG_INFO("cjh postMessageToUIThread 2, %s", type.c_str());
     gPostMessageToUIThreadFunc->Call({Napi::String::New(getWorkerEnv(), type), param});
+}
+
+/* static */
+Napi::Value NapiHelper::postSyncMessageToUIThread(const std::string& type, Napi::Value param) {
+    CC_LOG_INFO("cjh postSyncMessageToUIThread 1, %s", type.c_str());
+    if (gPostSyncMessageToUIThreadFunc == nullptr) {
+        CC_LOG_ERROR("callback was not set %s, type: %s", __FUNCTION__, type.c_str());
+        return getWorkerEnv().Undefined();
+    }
+    CC_LOG_INFO("cjh postSyncMessageToUIThread 2, %s", type.c_str());
+    // it return a promise object
+    return gPostSyncMessageToUIThreadFunc->Call({Napi::String::New(getWorkerEnv(), type), param}).As<Napi::Promise>();
 }
 
 /* static */
@@ -153,6 +170,7 @@ static void napiNativeEngineInit(const Napi::CallbackInfo &info) {
     #endif
     CC_LOG_INFO("cjh napiNativeEngineInit ...");
     OpenHarmonyPlatform::getInstance()->run(0, nullptr);
+    CC_LOG_INFO("cjh napiNativeEngineInit after run");
 }
 
 static void napiNativeEngineStart(const Napi::CallbackInfo &info) {
@@ -194,6 +212,53 @@ static void napiASend(const Napi::CallbackInfo &info) {
     OpenHarmonyPlatform::getInstance()->triggerMessageSignal();
 }
 
+static void napiOnVideoEvent(const Napi::CallbackInfo &info) {
+    if (info.Length() != 3) {
+        Napi::Error::New(info.Env(), "napiOnVideoEvent, 3 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    int32_t videoTag = info[0].As<Napi::Number>().Int32Value();
+    int32_t videoEvent = info[1].As<Napi::Number>().Int32Value();
+    bool hasArg = false;
+    double arg = 0.0;
+    if (info[2].IsNumber()) {
+        arg = info[2].As<Napi::Number>().DoubleValue();
+        hasArg = true;
+    }
+
+    se::AutoHandleScope hs;
+
+    auto *global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value ohVal;
+    bool ok = global->getProperty("oh", &ohVal);
+    if (!ok || !ohVal.isObject()) {
+        CC_LOG_ERROR("oh var not found");
+        return;
+    }
+
+    se::Value onVideoEventVal;
+    ok = ohVal.toObject()->getProperty("onVideoEvent", &onVideoEventVal);
+    if (!ok || !onVideoEventVal.isObject() || !onVideoEventVal.toObject()->isFunction()) {
+        CC_LOG_ERROR("onVideoEvent not found");
+        return;
+    }
+
+    // Convert args to se::ValueArray
+    se::ValueArray seArgs;
+    seArgs.reserve(3);
+    seArgs.emplace_back(se::Value(videoTag));
+    seArgs.emplace_back(se::Value(videoEvent));
+    if (hasArg) {
+        seArgs.emplace_back(se::Value(arg));
+    }
+
+    ok = onVideoEventVal.toObject()->call(seArgs, ohVal.toObject());
+    if (!ok) {
+        CC_LOG_ERROR("Call oh.onEventEvent failed!");
+    }
+}
+
 // NAPI Interface
 static Napi::Value getContext(const Napi::CallbackInfo &info) {
     CC_LOG_INFO("cjh getContext ...");
@@ -202,12 +267,12 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
     size_t argc = info.Length();
     if (argc != 1) {
         Napi::Error::New(env, "Wrong argument count, 1 expected!").ThrowAsJavaScriptException();
-        return {};
+        return env.Undefined();
     }
 
     if (!info[0].IsNumber()) {
         Napi::TypeError::New(env, "number expected!").ThrowAsJavaScriptException();
-        return {};
+        return env.Undefined();
     }
 
     auto exports = Napi::Object::New(env);
@@ -240,6 +305,8 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
             gWorkerEnv = env;
             exports["workerInit"] = Napi::Function::New(env, napiWorkerInit);
             exports["setPostMessageFunction"] = Napi::Function::New(env, js_set_PostMessage2UIThreadCallback);
+            exports["setPostSyncMessageFunction"] = Napi::Function::New(env, js_set_PostSyncMessage2UIThreadCallback);
+
         } break;
         case ENGINE_UTILS: {
             exports["resourceManagerInit"] = Napi::Function::New(env, napiResourceManagerInit);
@@ -261,6 +328,9 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
         } break;
         case UV_ASYNC_SEND: {
             exports["send"] = Napi::Function::New(env, napiASend);
+        } break;
+    case VIDEO_UTILS: {
+            exports["onVideoEvent"] = Napi::Function::New(env, napiOnVideoEvent);
         } break;
         default:
             CC_LOG_ERROR("unknown type");

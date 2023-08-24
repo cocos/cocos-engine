@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { HTML5, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
+import { HTML5, NATIVE, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
@@ -76,16 +76,18 @@ export class Settings {
         }
         if (!path) return Promise.resolve();
 
-        if (window.oh) {
-            return new Promise((resolve, reject) => {
-                // TODO: to support a virtual module of settings.
-                // For now, we use a system module context to dynamically import the relative path of module.
-                const settingsModule = '../settings.js';
-                import(settingsModule).then((res) => {
-                    this._settings = res.default;
-                    resolve();
-                }).catch((e) => reject(e));
-            });
+        if (NATIVE) {
+            if (window.oh && (jsb as any).scriptEngineType === 'napi') {
+                return new Promise((resolve, reject) => {
+                    // TODO: to support a virtual module of settings.
+                    // For now, we use a system module context to dynamically import the relative path of module.
+                    const settingsModule = '../settings.js';
+                    import(settingsModule).then((res) => {
+                        this._settings = res.default;
+                        resolve();
+                    }).catch((e) => reject(e));
+                });
+            }
         }
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {

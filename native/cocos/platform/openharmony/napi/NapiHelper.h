@@ -38,6 +38,7 @@ public:
     static Napi::Object init(Napi::Env env, Napi::Object exports);
     static Napi::Value napiCallFunction(const char* functionName);
     static void postMessageToUIThread(const std::string& type, Napi::Value param);
+    static Napi::Value postSyncMessageToUIThread(const std::string& type, Napi::Value param);
 };
 
 }  // namespace cc

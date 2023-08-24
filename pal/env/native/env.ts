@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { PREVIEW } from "internal:constants";
+import { PREVIEW } from 'internal:constants';
 
 declare const require: (path: string) =>  Promise<void>;
 
@@ -37,7 +37,7 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 }
 
 export function loadJsFile (path: string): Promise<void> {
-    if (window.oh) {
+    if (window.oh && (jsb as any).scriptEngineType === 'napi') {
         // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
         window.oh.loadModule(path);
         return Promise.resolve();
