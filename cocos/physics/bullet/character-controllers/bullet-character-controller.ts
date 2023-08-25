@@ -48,6 +48,8 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     protected _dirty = false;
     private _collisionFilterGroup: number = PhysicsGroup.DEFAULT;
     private _collisionFilterMask = -1;
+    private static idCounter = 0;
+    readonly id = BulletCharacterController.idCounter++;
 
     get isEnabled (): boolean { return this._isEnabled; }
     get impl (): number {
@@ -86,6 +88,8 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     setWrapper (): void {
         BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
+        const cctCollisionShapeImpl = bt.CharacterController_getCollisionShape(this.impl);
+        BulletCache.setWrapper(cctCollisionShapeImpl, bt.CCT_CACHE_NAME, this);
     }
 
     onEnable (): void {

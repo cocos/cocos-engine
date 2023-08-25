@@ -70,6 +70,9 @@ const Elements = {
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
+            Elements.panel.i18nChangeBind = Elements.panel.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.panel.i18nChangeBind);
+
             panel.history = new History();
         },
         async update() {
@@ -146,7 +149,7 @@ const Elements = {
                 return JSON.stringify(meta);
             });
 
-            panel.getHelpUrl(Editor.I18n.t(`ENGINE.help.assets.${panel.type}`));
+            panel.setHelpUrl(panel.$.help, { help: panel.type });
         },
         close() {
             const panel = this;
@@ -159,6 +162,12 @@ const Elements = {
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
             delete panel.history;
+        },
+        i18nChange() {
+            const panel = this;
+
+            const $links = panel.$.container.querySelectorAll('ui-link');
+            $links.forEach($link => panel.setHelpUrl($link));
         },
     },
     header: {
@@ -572,15 +581,27 @@ exports.methods = {
 
         panel.$this.update(panel.uuidList, panel.renderMap);
     },
-    getHelpUrl(url) {
-        const panel = this;
+    setHelpUrl($link, data) {
+        if (data) {
+            $link.helpData = data;
+        } else {
+            if (!$link.helpData) {
+                return;
+            }
+            data = $link.helpData;
+        }
+
+        const url = this.getHelpUrl(data);
 
         if (url) {
-            panel.$.help.style.display = 'block';
-            panel.$.help.value = url;
+            $link.style.display = 'block';
+            $link.value = url;
         } else {
-            panel.$.help.style.display = 'none';
+            $link.style.display = 'none';
         }
+    },
+    getHelpUrl(data) {
+        return Editor.I18n.t(`ENGINE.help.assets.${data.help}`);
     },
     replaceContainerWithUISection(params) {
         const panel = this;

@@ -171,7 +171,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.createDeviceTex(value);
     }
     formatView (value: FormatView): void {
-    // do nothing
+        // do nothing
     }
     subresourceView (value: SubresourceView): void {
         // do nothing
@@ -1105,6 +1105,16 @@ class DevicePreSceneTask extends WebSceneTask {
     public start (): void {
         if (this.graphScene.blit) {
             this._currentQueue.createBlitDesc(this.graphScene.blit);
+            return;
+        }
+        if (!this.camera) {
+            return;
+        }
+        const sceneFlag = this._graphScene.scene!.flags;
+        if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
+            this._sceneCulling();
+            validPunctualLightsCulling(context.pipeline, this.camera);
+            context.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
         }
     }
 
@@ -1272,6 +1282,14 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
 
+    private _recordAdditiveLights (): void {
+        context.additiveLight?.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+            context.commandBuffer,
+        );
+    }
+
     public submit (): void {
         const devicePass = this._currentQueue.devicePass;
         const sceneCulling = context.culling;
@@ -1287,6 +1305,14 @@ class DeviceSceneTask extends WebSceneTask {
         const graphSceneData = this.graphScene.scene!;
         renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
+        if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
+            this._recordAdditiveLights();
+            this.visitor.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.pipeline.descriptorSet,
+            );
+        }
+
         renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();

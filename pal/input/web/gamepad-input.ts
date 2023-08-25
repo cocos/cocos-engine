@@ -72,6 +72,8 @@ type WebGamepad = Gamepad;
 const XRLeftHandedness = 'left';
 const XRRightHandedness = 'right';
 
+const devicesTmp: GamepadInputDevice[] = [];
+
 enum Pose {
     HAND_LEFT = 1,
     HAND_RIGHT = 4,
@@ -85,7 +87,7 @@ interface IPoseValue {
 }
 
 interface IPoseInfo {
-    readonly code: number;
+    readonly code: Pose;
     readonly position: DOMPointReadOnly;
     readonly orientation: DOMPointReadOnly;
 }
@@ -184,7 +186,7 @@ export class GamepadInputDevice {
         [Pose.HAND_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
-    }
+    };
 
     constructor (deviceId: number) {
         this._deviceId = deviceId;
@@ -216,7 +218,7 @@ export class GamepadInputDevice {
         js.array.fastRemoveAt(GamepadInputDevice.all, removeIndex);
     }
     private static _getOrCreateInputDevice (id: number, connected: boolean): GamepadInputDevice {
-        let device =  GamepadInputDevice.all.find((device) => device.deviceId === id);
+        let device = GamepadInputDevice.all.find((device) => device.deviceId === id);
         if (!device) {
             device = new GamepadInputDevice(id);
             GamepadInputDevice.all.push(device);
@@ -225,29 +227,36 @@ export class GamepadInputDevice {
         return device;
     }
 
-    private static _ensureDirectorDefined (): Promise<void> {
-        return new Promise<void>((resolve) => {
-            GamepadInputDevice._intervalId = setInterval(() => {
-                if (legacyCC.director && legacyCC.Director) {
-                    clearInterval(GamepadInputDevice._intervalId);
-                    GamepadInputDevice._intervalId = -1;
-                    resolve();
-                }
-            }, 50);
-        });
+    private static _ensureDirectorDefined (callback: () => void): void {
+        GamepadInputDevice._intervalId = setInterval(() => {
+            if (legacyCC.director && legacyCC.Director) {
+                clearInterval(GamepadInputDevice._intervalId);
+                GamepadInputDevice._intervalId = -1;
+                callback();
+            }
+        }, 50);
+    }
+
+    private static _totalGamepadCnt = 0;
+    private static _updateGamepadCnt (): void {
+        GamepadInputDevice._totalGamepadCnt = GamepadInputDevice._cachedWebGamepads.reduce((total, gamepad) => (gamepad ? total + 1 : total), 0);
     }
 
     private static _registerEvent (): void {
-        GamepadInputDevice._ensureDirectorDefined().then(() => {
+        GamepadInputDevice._ensureDirectorDefined(() => {
+            GamepadInputDevice._cachedWebGamepads = GamepadInputDevice._getWebGamePads();
+            GamepadInputDevice._updateGamepadCnt();
             legacyCC.director.on(legacyCC.Director.EVENT_BEGIN_FRAME, GamepadInputDevice._scanGamepads);
-        }).catch((e) => {});
+        });
         window.addEventListener('gamepadconnected', (e) => {
             GamepadInputDevice._cachedWebGamepads[e.gamepad.index] = e.gamepad;
+            GamepadInputDevice._updateGamepadCnt();
             const device = GamepadInputDevice._getOrCreateInputDevice(e.gamepad.index, true);
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE, new EventGamepad(InputEventType.GAMEPAD_CHANGE, device));
         });
         window.addEventListener('gamepaddisconnected', (e) => {
             GamepadInputDevice._cachedWebGamepads[e.gamepad.index] = null;
+            GamepadInputDevice._updateGamepadCnt();
             const device = GamepadInputDevice._getOrCreateInputDevice(e.gamepad.index, false);
             GamepadInputDevice._removeInputDevice(e.gamepad.index);
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE, new EventGamepad(InputEventType.GAMEPAD_CHANGE, device));
@@ -255,12 +264,15 @@ export class GamepadInputDevice {
     }
 
     private static _scanWebGamepads (devices: GamepadInputDevice[]): void {
+        const allDisconnected = GamepadInputDevice._totalGamepadCnt === 0;
+        if (allDisconnected) return;
+
         const webGamepads = GamepadInputDevice._getWebGamePads();
         if (!webGamepads) {
             return;
         }
         for (let i = 0; i < webGamepads.length; ++i) {
-            const webGamepad = webGamepads?.[i];
+            const webGamepad = webGamepads[i];
             if (!webGamepad) {
                 continue;
             }
@@ -302,12 +314,12 @@ export class GamepadInputDevice {
     }
 
     private static _scanGamepads (): void {
-        const devices: GamepadInputDevice[] = [];
-        GamepadInputDevice._scanWebGamepads(devices);
-        GamepadInputDevice._scanWebXRGamepads(devices);
+        devicesTmp.length = 0;
+        GamepadInputDevice._scanWebGamepads(devicesTmp);
+        GamepadInputDevice._scanWebXRGamepads(devicesTmp);
         // emit event
-        for (let i = 0; i < devices.length; ++i) {
-            const device = devices[i];
+        for (let i = 0; i < devicesTmp.length; ++i) {
+            const device = devicesTmp[i];
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_INPUT, new EventGamepad(InputEventType.GAMEPAD_INPUT, device));
         }
         GamepadInputDevice._scanWebXRGamepadsPose();
@@ -320,8 +332,10 @@ export class GamepadInputDevice {
             GamepadInputDevice._cachedWebXRGamepadMap = null;
             if (GamepadInputDevice.xr && GamepadInputDevice.xr._connected) {
                 GamepadInputDevice.xr._connected = false;
-                GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+                GamepadInputDevice._eventTarget.emit(
+                    InputEventType.GAMEPAD_CHANGE,
+                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+                );
                 devices.push(GamepadInputDevice.xr);
             }
             return;
@@ -337,20 +351,28 @@ export class GamepadInputDevice {
         if (!left && !right) {
             if (GamepadInputDevice.xr._connected) {
                 GamepadInputDevice.xr._connected = false;
-                GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+                GamepadInputDevice._eventTarget.emit(
+                    InputEventType.GAMEPAD_CHANGE,
+                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+                );
             }
         } else if (!GamepadInputDevice.xr._connected) {
             GamepadInputDevice.xr._connected = true;
-            GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+            GamepadInputDevice._eventTarget.emit(
+                InputEventType.GAMEPAD_CHANGE,
+                new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+            );
         }
 
-        if (GamepadInputDevice.checkGamepadChanged(left,
-            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRLeftHandedness))) {
+        if (GamepadInputDevice.checkGamepadChanged(
+            left,
+            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRLeftHandedness),
+        )) {
             devices.push(GamepadInputDevice.xr);
-        } else if (GamepadInputDevice.checkGamepadChanged(right,
-            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRRightHandedness))) {
+        } else if (GamepadInputDevice.checkGamepadChanged(
+            right,
+            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRRightHandedness),
+        )) {
             devices.push(GamepadInputDevice.xr);
         }
 
@@ -417,8 +439,10 @@ export class GamepadInputDevice {
             const info = infoList[i];
             GamepadInputDevice.xr._updateWebPoseState(info);
         }
-        GamepadInputDevice._eventTarget.emit(InputEventType.HANDLE_POSE_INPUT,
-            new EventGamepad(InputEventType.HANDLE_POSE_INPUT, GamepadInputDevice.xr));
+        GamepadInputDevice._eventTarget.emit(
+            InputEventType.HANDLE_POSE_INPUT,
+            new EventGamepad(InputEventType.HANDLE_POSE_INPUT, GamepadInputDevice.xr),
+        );
     }
 
     private static _getWebXRGamepadMap (): (Map<string, Gamepad> | undefined) {
@@ -459,7 +483,7 @@ export class GamepadInputDevice {
 
     private _updateWebPoseState (info: IPoseInfo): void {
         if (info.code !== Pose.HAND_LEFT && info.code !== Pose.AIM_LEFT
-             && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
+            && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
             return;
         }
 

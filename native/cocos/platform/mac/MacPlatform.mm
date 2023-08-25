@@ -32,7 +32,7 @@
 #include "modules/Network.h"
 #include "modules/System.h"
 #include "modules/Vibrator.h"
-
+#include "platform/SDLHelper.h"
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
@@ -44,87 +44,26 @@
 #endif
 
 #import <AppKit/AppKit.h>
+
 #include "base/memory/Memory.h"
 
 extern int cocos_main(int argc, const char **argv);
 
-@interface MyTimer : NSObject {
-    cc::MacPlatform *_platform;
-    NSTimer *_timer;
-}
-- (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps;
-- (void)start;
-- (void)changeFPS;
-- (void)pause;
-- (void)resume;
-@end
-
-@implementation MyTimer
-
-- (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps {
-    if (self = [super init]) {
-        _platform = platform;
-    }
-    return self;
-}
-#if CC_EDITOR
-    - (void)start { }
-    - (void)changeFPS { }
-    - (void)pause { }
-    - (void)resume { }
-#else
-- (void)start {
-    int32_t fps = _platform->getFps();
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / fps
-                                              target:self
-                                            selector:@selector(renderScene)
-                                            userInfo:nil
-                                             repeats:YES];
-}
-
-- (void)pause {
-    [_timer invalidate];
-}
-
-- (void)resume {
-    [self start];
-}
-
-- (void)changeFPS {
-    [self pause];
-    [self resume];
-}
-
-- (void)renderScene {
-    _platform->runTask();
-}
-
-- (bool) isValid {
-    return [_timer valid];
-}
-#endif
-@end
-
-namespace {
-MyTimer *_timer;
-}
-
 namespace cc {
 
 MacPlatform::~MacPlatform() {
-    [_timer release];
 }
 
 int32_t MacPlatform::init() {
-    _timer = [[MyTimer alloc] initWithApp:this fps:60];
     registerInterface(std::make_shared<Accelerometer>());
     registerInterface(std::make_shared<Battery>());
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindowManager>());
+    _windowManager = std::make_shared<SystemWindowManager>();
+    registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
-    return 0;
+    return _windowManager->init();
 }
 
 bool MacPlatform::readyToExit() {
@@ -143,16 +82,12 @@ int32_t MacPlatform::loop(void) {
     runTask();
     return 1;
 #else
-    [_timer start];
-    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
-    int argc = static_cast<int>(arguments.count);
-    std::vector<const char*> argv;
-    argv.reserve(argc);
-    for (id arg in arguments) {
-        argv.emplace_back([arg UTF8String]);
+    while(!_readyToExit) {
+        pollEvent();
+        runTask();
     }
-
-    return cocos_main(argc, argv.data());
+    onDestroy();
+    return 0;
 #endif
 }
 
@@ -164,30 +99,38 @@ int32_t MacPlatform::run(int argc, const char **argv) {
     }
     return 0;
 #else
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argVec;
+    argVec.reserve(argc);
+    for (id arg in arguments) {
+        argVec.emplace_back([arg UTF8String]);
+    }
+    
     id delegate = [[AppDelegate alloc] init];
-    NSApplication.sharedApplication.delegate = delegate;
-    return NSApplicationMain(argc, argv);
+    [NSApp setDelegate:delegate];
+    
+    if(cocos_main(argc, argVec.data()) != 0) {
+        return -1;
+    }
+   
+    return loop();
 #endif
 }
 
 void MacPlatform::setFps(int32_t fps) {
     if(fps != getFps()) {
         UniversalPlatform::setFps(fps);
-        [_timer changeFPS];
     }
 }
 
 void MacPlatform::onPause() {
-    [_timer pause];
-
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
     cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onResume() {
-    [_timer resume];
-
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
     cc::events::WindowEvent::broadcast(ev);
@@ -199,8 +142,12 @@ void MacPlatform::onClose() {
     cc::events::WindowEvent::broadcast(ev);
 }
 
-cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) { 
+cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
     return ccnew SystemWindow(windowId, externalHandle);
+}
+
+void MacPlatform::pollEvent() {
+    _windowManager->processEvent();
 }
 
 } // namespace cc

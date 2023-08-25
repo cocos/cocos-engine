@@ -249,12 +249,12 @@ const uiElements = {
                 const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
                 await Promise.all(componentUUIDs.map(uuid => {
                     return new Promise((res) => {
-                        Editor.Message.request('scene', 'execute-component-method', {
+                        Editor.Message.request(propUtils.getMessageProtocolScene(this.$this), 'execute-component-method', {
                             uuid,
                             name: '_calculateBounding',
                             args: [true],
                         }).then(() => {
-                            Editor.Message.request('scene', 'execute-component-method', {
+                            Editor.Message.request(propUtils.getMessageProtocolScene(this.$this), 'execute-component-method', {
                                 uuid,
                                 name: 'gizmo.onNodeChanged',
                                 args: [],
@@ -390,7 +390,7 @@ const uiElements = {
             this.$.showBounds.addEventListener('change', (event) => {
                 const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
                 componentUUIDs.forEach(uuid => {
-                    Editor.Message.send('scene', 'execute-component-method', {
+                    Editor.Message.send(propUtils.getMessageProtocolScene(this.$this), 'execute-component-method', {
                         uuid,
                         name: 'gizmo.showBoundingBox',
                         args: [event.target.value],
@@ -407,7 +407,7 @@ const uiElements = {
             const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
             const values = await Promise.all(
                 componentUUIDs.map(
-                    uuid => Editor.Message.request('scene', 'execute-component-method', {
+                    uuid => Editor.Message.request(propUtils.getMessageProtocolScene(this.$this), 'execute-component-method', {
                         uuid,
                         name: 'gizmo.isShowBoundingBox',
                         args: [],
@@ -609,7 +609,7 @@ const uiElements = {
             if (!this.dump?.value?.uuid?.values && !this.dump?.value?.uuid?.value) { return; }
             let uuid = this.dump.value.uuid.values ? this.dump.value.uuid.values[0] : this.dump.value.uuid.value;
             if (!uuid) { return; }
-            let data = await Editor.Message.request('scene', 'execute-component-method', {
+            let data = await Editor.Message.request(propUtils.getMessageProtocolScene(this.$this), 'execute-component-method', {
                 uuid,
                 name: 'getNoisePreview',
                 args: [100, 100],

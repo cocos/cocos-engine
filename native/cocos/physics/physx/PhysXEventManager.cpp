@@ -34,27 +34,71 @@ namespace physics {
 
 void PhysXEventManager::SimulationEventCallback::onTrigger(physx::PxTriggerPair *pairs, physx::PxU32 count) {
     for (physx::PxU32 i = 0; i < count; i++) {
-        const physx::PxTriggerPair &tp = pairs[i];
-        if (tp.flags & (physx::PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | physx::PxTriggerPairFlag::eREMOVED_SHAPE_OTHER)) {
+        const physx::PxTriggerPair &triggerPair = pairs[i];
+        if (triggerPair.flags & (physx::PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | physx::PxTriggerPairFlag::eREMOVED_SHAPE_OTHER)) {
             continue;
         }
 
-        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(tp.triggerShape));
-        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(tp.otherShape));
-        if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
-            continue;
+        bool processed = false;
+
+        //collider trigger event
+        if (!processed) {
+            const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(triggerPair.triggerShape));
+            const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(triggerPair.otherShape));
+            if (selfIter != getPxShapeMap().end() && otherIter != getPxShapeMap().end()) {
+                processed = true;
+                const auto &self = selfIter->second;
+                const auto &other = otherIter->second;
+                auto &pairs = mManager->getTriggerPairs();
+                const auto &iter = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<TriggerEventPair> &pair) {
+                    return (pair->shapeA == self || pair->shapeA == other) && (pair->shapeB == self || pair->shapeB == other);
+                });
+                if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+                    if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(ccnew TriggerEventPair{self, other}));
+                } else if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
+                    if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
+                }
+            }
         }
 
-        const auto &self = selfIter->second;
-        const auto &other = otherIter->second;
-        auto &pairs = mManager->getTriggerPairs();
-        const auto &iter = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<TriggerEventPair> &pair) {
-            return (pair->shapeA == self || pair->shapeA == other) && (pair->shapeB == self || pair->shapeB == other);
-        });
-        if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-            if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(ccnew TriggerEventPair{self, other}));
-        } else if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
-            if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
+        //cct trigger event
+        if (!processed) {
+            const auto &shapeIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(triggerPair.triggerShape));
+            const auto &cctIter = getPxCCTMap().find(reinterpret_cast<uintptr_t>(triggerPair.otherShape));
+            if (shapeIter != getPxShapeMap().end() && cctIter != getPxCCTMap().end()) {
+                processed = true;
+                const auto &shape = shapeIter->second;
+                const auto &cct = cctIter->second;
+                auto &pairs = mManager->getCCTTriggerPairs();
+                const auto &iter = std::find_if(pairs.begin(), pairs.end(), [shape, cct](std::shared_ptr<CCTTriggerEventPair> &pair) {
+                    return (pair->shape == shape && pair->cct == cct);
+                });
+                if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+                    if (iter == pairs.end()) pairs.push_back(std::shared_ptr<CCTTriggerEventPair>(ccnew CCTTriggerEventPair{cct, shape}));
+                } else if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
+                    if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
+                }
+            }
+        }
+
+        //cct trigger event
+        if (!processed) {
+            const auto &cctIter = getPxCCTMap().find(reinterpret_cast<uintptr_t>(triggerPair.triggerShape));
+            const auto &shapeIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(triggerPair.otherShape));
+            if (shapeIter != getPxShapeMap().end() && cctIter != getPxCCTMap().end()) {
+                processed = true;
+                const auto &shape = shapeIter->second;
+                const auto &cct = cctIter->second;
+                auto &pairs = mManager->getCCTTriggerPairs();
+                const auto &iter = std::find_if(pairs.begin(), pairs.end(), [shape, cct](std::shared_ptr<CCTTriggerEventPair> &pair) {
+                    return (pair->shape == shape && pair->cct == cct);
+                });
+                if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+                    if (iter == pairs.end()) pairs.push_back(std::shared_ptr<CCTTriggerEventPair>(ccnew CCTTriggerEventPair{cct, shape}));
+                } else if (triggerPair.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
+                    if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
+                }
+            }
         }
     }
 }
@@ -116,6 +160,28 @@ void PhysXEventManager::refreshPairs() {
         } else if (iter->get()->state == ETouchState::EXIT) {
             iter = getTriggerPairs().erase(iter);
         } else {
+            iter->get()->state = ETouchState::STAY;
+            iter++;
+        }
+    }
+
+    for (auto iter = getCCTTriggerPairs().begin(); iter != getCCTTriggerPairs().end();) {
+        uintptr_t wrapperPtrCCT = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->cct);
+        uintptr_t wrapperPtrShape = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shape);
+        if (wrapperPtrCCT == 0 || wrapperPtrShape == 0) {
+            iter = getCCTTriggerPairs().erase(iter);
+            continue;
+        }
+
+        const auto& cctIter = getPxCCTMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXCharacterController*>(wrapperPtrCCT)->getCCT())));
+        const auto& shapeIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape*>(wrapperPtrShape)->getShape())));
+        if (cctIter == getPxCCTMap().end() || shapeIter == getPxShapeMap().end()) {
+            iter = getCCTTriggerPairs().erase(iter);
+        }
+        else if (iter->get()->state == ETouchState::EXIT) {
+            iter = getCCTTriggerPairs().erase(iter);
+        }
+        else {
             iter->get()->state = ETouchState::STAY;
             iter++;
         }

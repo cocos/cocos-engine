@@ -7,10 +7,10 @@ bool GetMetallicAlbedoFromDiffuseSpecularMathematic(out float metallic, out vec3
   diffuse += vec3(f0 + 0.01);
   specular += vec3(f0 + 0.01);
 
-  vec3 delta = (diffuse + specular) * (diffuse + specular) - 4.0 * f0 * diffuse;  
+  vec3 delta = (diffuse + specular) * (diffuse + specular) - 4.0 * f0 * diffuse;
   vec3 deltaSqrt = sqrt(max(vec3(0.0), delta));
   // solver
-  vec3 m = (-diffuse - specular + 2.0 * f0 + deltaSqrt) / (2.0 * f0);  
+  vec3 m = (-diffuse - specular + 2.0 * f0 + deltaSqrt) / (2.0 * f0);
   vec3 weight = diffuse + specular;
   weight /= dot(weight, vec3(1.0));
   float solverMetallic = dot(m, weight);
@@ -20,7 +20,7 @@ bool GetMetallicAlbedoFromDiffuseSpecularMathematic(out float metallic, out vec3
   	&& abs(m.x - m.y) < channelFaultTolerant && abs(m.x - m.z) < channelFaultTolerant
   	&& m.x >= 0.0 && m.y >= 0.0 && m.z >= 0.0
   	&& m.x <= 1.0 && m.y <= 1.0 && m.z <= 1.0;
-  
+
   metallic = isValidSolver ? solverMetallic : metallic;
   albedo = isValidSolver ? solverAlbedo : albedo;
   return isValidSolver;

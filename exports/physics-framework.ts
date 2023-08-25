@@ -77,6 +77,7 @@ export type {
     TriggerCallback,
     CharacterCollisionEventType,
     CharacterControllerContact,
+    CharacterTriggerEventType,
 } from '../cocos/physics/framework';
 
 export * from '../cocos/physics/framework/deprecated';

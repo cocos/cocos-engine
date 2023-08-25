@@ -39,12 +39,14 @@ namespace render {
 
 inline void save(OutputArchive& ar, const LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
+    // skip, probe: scene::ReflectionProbe
     save(ar, v.level);
     save(ar, v.culledByLight);
 }
 
 inline void load(InputArchive& ar, LightInfo& v) {
     // skip, light: IntrusivePtr<scene::Light>
+    // skip, probe: scene::ReflectionProbe
     load(ar, v.level);
     load(ar, v.culledByLight);
 }

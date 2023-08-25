@@ -82,6 +82,10 @@ ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& World::getCCTShapeEventPairs(
     return _impl->getCCTShapeEventPairs();
 }
 
+ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &World::getCCTTriggerEventPairs() {
+    return _impl->getCCTTriggerEventPairs();
+}
+
 void World::setCollisionMatrix(uint32_t i, uint32_t m) {
     _impl->setCollisionMatrix(i, m);
 }
