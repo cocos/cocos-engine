@@ -62,6 +62,9 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 - (float)duration;
 - (void)setVisible:(BOOL)visible;
 - (void)setKeepRatioEnabled:(BOOL)enabled;
+- (void)setPlaybackRate:(float)value;
+- (void)setMute:(BOOL)enabled;
+- (void)setLoop:(BOOL)enabled;
 - (void)setFullScreenEnabled:(BOOL)enabled;
 - (void)showPlaybackControls:(BOOL)value;
 - (BOOL)isFullScreenEnabled;
@@ -78,6 +81,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     int _width;
     int _height;
     bool _keepRatioEnabled;
+    bool _keepLoopEnabled;
     bool _fullscreen;
     CGRect _restoreRect;
     PlayerbackState _state;
@@ -87,6 +91,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 - (id)init:(void *)videoPlayer {
     if (self = [super init]) {
         _keepRatioEnabled = FALSE;
+        _keepLoopEnabled = FALSE;
         _left = _top = _width = _height = 0;
 
         [self initPlayerController];
@@ -182,6 +187,23 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
         self.playerController.videoGravity = AVLayerVideoGravityResize;
 }
 
+- (void)setMute:(BOOL)enabled {
+    [self.playerController.player setMuted:enabled];
+}
+
+- (void)setLoop:(BOOL)enabled {
+    _keepLoopEnabled = enabled;
+    if (_keepLoopEnabled) {
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(runLoopTheVideo:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerController.player.currentItem];
+    }
+}
+
+- (void)setPlaybackRate:(float)value {
+    if (self.playerController.player) {
+        [self.playerController.player playImmediatelyAtRate:value];
+    }
+}
+
 - (void)play {
     if (self.playerController.player && ![self isPlaying]) {
         [self.playerController.player play];
@@ -190,6 +212,14 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     }
 }
 
+- (void)runLoopTheVideo:(NSNotification *)notification {
+    if (_keepLoopEnabled) {
+        AVPlayerItem *playerItem = notification.object;
+        [self seekTo:0];
+        [self.playerController.player play];
+    }
+}
+ 
 - (void)pause {
     if ([self isPlaying]) {
         [self.playerController.player pause];
@@ -328,6 +358,33 @@ void VideoPlayer::setKeepAspectRatioEnabled(bool enable) {
     if (_keepAspectRatioEnabled != enable) {
         _keepAspectRatioEnabled = enable;
         [((UIVideoViewWrapperIos *)_videoView) setKeepRatioEnabled:enable];
+    }
+}
+
+void VideoPlayer::setMute(bool enable) {
+    if (!_videoURL.empty()) {
+        if (enable) {
+            [((UIVideoViewWrapperIos *)_videoView) setMute:YES];
+        } else {
+            [((UIVideoViewWrapperIos *)_videoView) setMute:NO];
+        }
+    }
+}
+
+void VideoPlayer::setLoop(bool enable) {
+    if (!_videoURL.empty()) {
+        if (enable) {
+            [((UIVideoViewWrapperIos *)_videoView) setLoop:YES];
+        }
+        else {
+            [((UIVideoViewWrapperIos *)_videoView) setLoop:NO];
+        }
+    }
+}
+
+void VideoPlayer::setPlaybackRate(float value) {
+    if (!_videoURL.empty()) {
+        [((UIVideoViewWrapperIos *)_videoView) setPlaybackRate:value];
     }
 }
 
