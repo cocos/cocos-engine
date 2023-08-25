@@ -226,8 +226,7 @@ struct LightInfo {
     : light(std::move(lightIn)),
       probe(probeIn),
       level(levelIn),
-      culledByLight(culledByLightIn),
-      probe(std::move(probeIn))  
+      culledByLight(culledByLightIn)
     {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
     : light(std::move(lightIn)),

@@ -224,7 +224,7 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, c
   renderQueues(rhs.renderQueues, alloc),
   renderCommands(rhs.renderCommands, alloc) {}
 
-void ProbeHelperQueue::removeMacro()
+void ProbeHelperQueue::removeMacro() const
 {
     for (auto subModel : probeMap) {
         std::vector<cc::scene::IMacroPatch> patches;
@@ -242,7 +242,7 @@ void ProbeHelperQueue::removeMacro()
     }
 }
 
-int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId)
+int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId) const
  {
     const auto& passes = subModel->getPasses();
     for (size_t k = 0; k < passes->size(); ++k) {
@@ -278,9 +278,9 @@ void ProbeHelperQueue::applyMacro(const LayoutGraphData & lg, const cc::scene::M
                 std::vector<cc::scene::IMacroPatch> patches;
                 patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
                 const cc::scene::IMacroPatch useRGBEPatch = {"CC_USE_RGBE_OUTPUT", true};
-                patches.push_back(useRGBEPatch);
+                patches.emplace_back(useRGBEPatch);
                 subModel->onMacroPatchesStateChanged(patches);
-                probeMap.push_back(subModel);
+                probeMap.emplace_back(subModel);
             }
         }
     }

@@ -13,6 +13,7 @@ namespace cc {
 namespace render {
 const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(pipeline::LayerList::UI_2D) & ~static_cast<uint32_t>(pipeline::LayerList::PROFILER) & ~static_cast<uint32_t>(pipeline::LayerList::UI_3D) & ~static_cast<uint32_t>(pipeline::LayerList::GIZMOS) & ~static_cast<uint32_t>(pipeline::LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(pipeline::LayerList::EDITOR);
 void NativeRenderQueue::clear() noexcept {
+    probeQueue.clear();
     opaqueQueue.instances.clear();
     transparentQueue.instances.clear();
     opaqueInstancingQueue.clear();

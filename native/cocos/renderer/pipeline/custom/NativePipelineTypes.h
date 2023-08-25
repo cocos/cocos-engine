@@ -932,15 +932,19 @@ struct DrawInstance {
 };
 
 struct ProbeHelperQueue {
-    std::vector<cc::scene::SubModel*> probeMap;
+    ccstd::pmr::vector<cc::scene::SubModel*> probeMap;
 
-    int getDefaultId(const LayoutGraphData &lg) {
+    inline int getDefaultId(const LayoutGraphData &lg) const {
         return locate(locate(LayoutGraphData::null_vertex(), "default", lg), "default", lg);
     }
 
-    void removeMacro();
+    inline void clear() {
+        probeMap.clear();
+    }
 
-    int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId);
+    void removeMacro() const;
+
+    int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId) const;
 
     void applyMacro(const LayoutGraphData &lg, const cc::scene::Model& model, int probeLayoutId);
 };

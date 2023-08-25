@@ -1392,6 +1392,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.transparentInstancingQueue.recordCommandBuffer(
             ctx.currentPass, ctx.cmdBuff);
+        if(any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
+            queue.probeQueue.removeMacro();
+        }
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
                              ctx.currentPassLayoutID, camera, ctx.cmdBuff);
