@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import { execSync, spawn } from 'child_process';
 import * as os from 'os';
 import { CocosParams } from './base/default';
+import { nativePackToolMg } from './base/manager';
 const iconv = require('iconv-lite');
 
 
@@ -462,6 +463,7 @@ export const toolHelper = {
                 env: newEnv,
                 shell: true,
             });
+            nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if (/warning/i.test(msg)) {
@@ -484,6 +486,11 @@ export const toolHelper = {
                     return;
                 }
                 resolve();
+            });
+            // TODO: 
+            cp.on('exit', (code: number, sig: any) => {
+                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                console.log(`exit cmake with code ${code} and signal ${sig}`);
             });
         });
     },
