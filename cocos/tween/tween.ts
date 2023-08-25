@@ -64,10 +64,9 @@ export class Tween<T> {
     private _timeScale = 1;
 
     /**
-     * !#en set/get time scale for tween
-     * !#zh 设置/读取 tween 的 time scale (时间缩放参数)
+     * @en set/get time scale for tween
+     * @zh 设置/读取 tween 的 time scale (时间缩放参数)
      * @property timeScale
-     * @type {Number}
      * @default 1
      */
     get timeScale (): number {
@@ -160,13 +159,12 @@ export class Tween<T> {
     }
 
     /**
-     * !#en
+     * @en
      * Pause this tween
-     * !#zh
+     * @zh
      * 暂停当前 tween
      * @method pause
      * @return {Tween}
-     * @typescript pause(): Tween<T>
      */
     pause (): Tween<T> {
         if (this._finalAction) {
@@ -176,13 +174,12 @@ export class Tween<T> {
     }
 
     /**
-     * !#en
+     * @en
      * Resume this tween
-     * !#zh
+     * @zh
      * 从暂停状态恢复当前 tween
      * @method resume
      * @return {Tween}
-     * @typescript resume(): Tween<T>
      */
     resume (): Tween<T> {
         if (this._finalAction) {
