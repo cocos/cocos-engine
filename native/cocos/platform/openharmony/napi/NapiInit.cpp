@@ -49,6 +49,6 @@ static napi_module cocos2dModule = {
 /*
  * Module register function
  */
-extern "C" __attribute__((constructor)) void RegisterModule(void) {
+extern "C" __attribute__((visibility ("default"))) __attribute__((constructor)) void RegisterModule(void) {
     napi_module_register(&cocos2dModule);
 }
