@@ -892,6 +892,88 @@ public:
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
+class NativeBuiltinReflectionProbePassBuilder final : public BuiltinReflectionProbePassBuilder, public NativeSetter {
+public:
+    NativeBuiltinReflectionProbePassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
+
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
+
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override;
+};
+
 struct RenderInstancingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -1397,6 +1479,7 @@ public:
     void endFrame() override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
+    BuiltinReflectionProbePassBuilder *addBuiltinReflectionProbePass(uint32_t width, uint32_t height) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;

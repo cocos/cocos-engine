@@ -50,6 +50,7 @@ class Setter;
 class RenderQueueBuilder;
 class BasicRenderPassBuilder;
 class BasicMultisampleRenderPassBuilder;
+class BuiltinReflectionProbePassBuilder;
 class BasicPipeline;
 class RenderSubpassBuilder;
 class MultisampleRenderSubpassBuilder;

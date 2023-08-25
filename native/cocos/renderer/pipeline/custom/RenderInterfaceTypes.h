@@ -676,6 +676,19 @@ public:
     }
 };
 
+class BuiltinReflectionProbePassBuilder : public Setter {
+public:
+    BuiltinReflectionProbePassBuilder() noexcept = default;
+
+    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
+    RenderQueueBuilder *addQueue() {
+        return addQueue(QueueHint::NONE, "default");
+    }
+    RenderQueueBuilder *addQueue(QueueHint hint) {
+        return addQueue(hint, "default");
+    }
+};
+
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -844,6 +857,7 @@ public:
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
+    virtual BuiltinReflectionProbePassBuilder *addBuiltinReflectionProbePass(uint32_t width, uint32_t height) = 0;
     /**
      * @engineInternal
      */
