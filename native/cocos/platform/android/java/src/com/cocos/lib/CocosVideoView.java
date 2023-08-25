@@ -163,7 +163,7 @@ public class CocosVideoView extends SurfaceView {
         fixSize();
     }
 
-    public void setPlaybackRate(float value) {
+    public void playbackRate(float value) {
         if (mMediaPlayer != null) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 PlaybackParams params = new PlaybackParams();

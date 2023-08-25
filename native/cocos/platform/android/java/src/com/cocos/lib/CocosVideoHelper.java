@@ -443,7 +443,7 @@ public class CocosVideoHelper {
     private void _setPlaybackRate(final int index, final float value) {
         CocosVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
-            videoView.setPlaybackRate(value);
+            videoView.playbackRate(value);
         }
     }
     

@@ -193,7 +193,9 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 
 - (void)setLoop:(BOOL)enabled {
     _keepLoopEnabled = enabled;
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(runLoopTheVideo:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerController.player.currentItem];
+    if (_keepLoopEnabled) {
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(runLoopTheVideo:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerController.player.currentItem];
+    }
 }
 
 - (void)setPlaybackRate:(float)value {
