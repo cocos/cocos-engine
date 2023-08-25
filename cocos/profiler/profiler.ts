@@ -131,7 +131,7 @@ export class Profiler extends System {
         }
     }
 
-    init () {
+    init (): void {
         const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
         if (showFPS) {
             this.showStats();
@@ -143,7 +143,7 @@ export class Profiler extends System {
     /**
      * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
-    public get _stats () {
+    public get _stats (): IProfilerState | null {
         warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
         return this._profilerStats;
     }
@@ -152,15 +152,15 @@ export class Profiler extends System {
      * @zh 获取引擎运行性能状态
      * @en Get engine performance status
      */
-    public get stats () {
+    public get stats (): IProfilerState | null {
         return this._profilerStats;
     }
 
-    public isShowingStats () {
+    public isShowingStats (): boolean {
         return this._showFPS;
     }
 
-    public hideStats () {
+    public hideStats (): void {
         if (this._showFPS) {
             if (this._rootNode) {
                 this._rootNode.active = false;
@@ -179,7 +179,7 @@ export class Profiler extends System {
         }
     }
 
-    public showStats () {
+    public showStats (): void {
         if (!this._showFPS) {
             if (!this._device) {
                 const root = cclegacy.director.root as Root;
@@ -211,7 +211,7 @@ export class Profiler extends System {
         }
     }
 
-    public generateCanvas () {
+    public generateCanvas (): void {
         if (this._canvasDone) {
             return;
         }
@@ -243,7 +243,7 @@ export class Profiler extends System {
         this._region.texExtent.height = textureHeight;
     }
 
-    public generateStats () {
+    public generateStats (): void {
         if (this._statsDone || !this._ctx || !this._canvas) {
             return;
         }
@@ -275,7 +275,7 @@ export class Profiler extends System {
         this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
-    public generateNode () {
+    public generateNode (): void {
         if (this._rootNode && this._rootNode.isValid) {
             return;
         }
@@ -352,7 +352,7 @@ export class Profiler extends System {
         this._inited = true;
     }
 
-    public beforeUpdate () {
+    public beforeUpdate (): void {
         if (!this._profilerStats) {
             return;
         }
@@ -362,7 +362,7 @@ export class Profiler extends System {
         (this._profilerStats.logic.counter as PerfCounter).start(now);
     }
 
-    public afterUpdate () {
+    public afterUpdate (): void {
         if (!this._profilerStats) {
             return;
         }
@@ -375,7 +375,7 @@ export class Profiler extends System {
         }
     }
 
-    public beforePhysics () {
+    public beforePhysics (): void {
         if (!this._profilerStats) {
             return;
         }
@@ -384,7 +384,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).start(now);
     }
 
-    public afterPhysics () {
+    public afterPhysics (): void {
         if (!this._profilerStats) {
             return;
         }
@@ -393,7 +393,7 @@ export class Profiler extends System {
         (this._profilerStats.physics.counter as PerfCounter).end(now);
     }
 
-    public beforeDraw () {
+    public beforeDraw (): void {
         if (!this._profilerStats || !this._inited) {
             return;
         }
@@ -424,7 +424,7 @@ export class Profiler extends System {
         (this._profilerStats.render.counter as PerfCounter).start(now);
     }
 
-    public afterRender () {
+    public afterRender (): void {
         if (!this._profilerStats || !this._inited) {
             return;
         }
@@ -433,7 +433,7 @@ export class Profiler extends System {
         (this._profilerStats.present.counter as PerfCounter).start(now);
     }
 
-    public afterPresent () {
+    public afterPresent (): void {
         if (!this._profilerStats || !this._inited) {
             return;
         }

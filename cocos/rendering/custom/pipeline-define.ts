@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '../../core';
-import { ClearFlagBit, Color, Format, LoadOp, ShaderStageFlagBit, StoreOp, Viewport } from '../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../gfx';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, Light, LightType, ProbeType, ReflectionProbe, ShadowType } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
@@ -16,7 +16,7 @@ import {
     updateCameraUBO,
     validPunctualLightsCulling,
 } from './define';
-import { BasicPipeline, Pipeline } from './pipeline';
+import { BasicPipeline, Pipeline, BasicRenderPassBuilder } from './pipeline';
 import {
     AccessType,
     AttachmentType,
@@ -84,7 +84,7 @@ export function prepareResource (ppl: BasicPipeline, camera: Camera,
     return info;
 }
 
-function buildShadowRes (ppl: BasicPipeline, name: string, width, height) {
+function buildShadowRes (ppl: BasicPipeline, name: string, width, height): void {
     const fboW = width;
     const fboH = height;
     const shadowMapName = name;
@@ -154,7 +154,7 @@ let shadowPass;
 function buildShadowPass (passName: Readonly<string>,
     ppl: BasicPipeline,
     camera: Camera, light: Light, level: number,
-    width: Readonly<number>, height: Readonly<number>) {
+    width: Readonly<number>, height: Readonly<number>): void {
     const fboW = width;
     const fboH = height;
     const area = getRenderArea(camera, width, height, light, level);
@@ -174,7 +174,7 @@ function buildShadowPass (passName: Readonly<string>,
         SceneFlags.SHADOW_CASTER);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
-export function setupShadowPass (ppl: BasicPipeline, cameraInfo: CameraInfo) {
+export function setupShadowPass (ppl: BasicPipeline, cameraInfo: CameraInfo): void {
     if (!shadowInfo.shadowEnabled) return;
     const camera = cameraInfo.camera;
     const shadows = ppl.pipelineSceneData.shadows;
@@ -206,7 +206,7 @@ export function setupShadowPass (ppl: BasicPipeline, cameraInfo: CameraInfo) {
     }
 }
 
-export function setupForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false) {
+export function setupForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false): void {
     const camera = cameraInfo.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -221,7 +221,7 @@ export function setupForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isO
     ppl.addDepthStencil(`ForwardDepthStencil${cameraInfo.id}`, Format.DEPTH_STENCIL, width, height);
 }
 
-export function updateForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false) {
+export function updateForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false): void {
     const camera = cameraInfo.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -235,7 +235,7 @@ export function updateForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, is
     ppl.updateDepthStencil(`ForwardDepthStencil${cameraInfo.id}`, width, height);
 }
 
-export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo, inputColor: string) {
+export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo, inputColor: string): void {
     const area = getRenderArea(cameraInfo.camera, cameraInfo.camera.window.width, cameraInfo.camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -263,7 +263,7 @@ export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
 }
 
-export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false, enabledAlpha = true) {
+export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, isOffScreen = false, enabledAlpha = true): { rtName: string; dsName: string; } {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -316,7 +316,7 @@ export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, is
     return { rtName: `ForwardColor${cameraInfo.id}`, dsName: `ForwardDepthStencil${cameraInfo.id}` };
 }
 
-export function buildReflectionProbeRes (ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
+export function buildReflectionProbeRes (ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number): void {
     const area = probe.renderArea();
     const width = area.x;
     const height = area.y;
@@ -332,7 +332,7 @@ export function buildReflectionProbeRes (ppl: BasicPipeline, probe: ReflectionPr
     ppl.updateDepthStencil(probePassDSName, width, height);
 }
 
-export function setupReflectionProbeRes (ppl: BasicPipeline, info: CameraInfo) {
+export function setupReflectionProbeRes (ppl: BasicPipeline, info: CameraInfo): void {
     if (!cclegacy.internal.reflectionProbeManager) return;
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) return;
@@ -354,7 +354,7 @@ export function setupReflectionProbeRes (ppl: BasicPipeline, info: CameraInfo) {
 
 export const updateReflectionProbeRes = setupReflectionProbeRes;
 
-function buildReflectProbePass (ppl: BasicPipeline, info: CameraInfo, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
+function buildReflectProbePass (ppl: BasicPipeline, info: CameraInfo, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number): void {
     const area = probe.renderArea();
     const width = area.x;
     const height = area.y;
@@ -375,7 +375,7 @@ function buildReflectProbePass (ppl: BasicPipeline, info: CameraInfo, probe: Ref
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 
-export function setupReflectionProbePass (ppl: BasicPipeline, info: CameraInfo) {
+export function setupReflectionProbePass (ppl: BasicPipeline, info: CameraInfo): void {
     if (!cclegacy.internal.reflectionProbeManager) return;
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) return;
@@ -395,7 +395,7 @@ export function setupReflectionProbePass (ppl: BasicPipeline, info: CameraInfo) 
     }
 }
 const gBufferInfo = new GBufferInfo();
-export function setupGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
+export function setupGBufferRes (ppl: BasicPipeline, info: CameraInfo): void {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -415,7 +415,7 @@ export function setupGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
     gBufferInfo.ds = gBufferPassDSName;
 }
 
-export function updateGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
+export function updateGBufferRes (ppl: BasicPipeline, info: CameraInfo): void {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -431,7 +431,7 @@ export function updateGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
 }
 
 const emptyColor = new Color(0, 0, 0, 0);
-export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
+export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean): { rtName: string } {
     if (!lightingInfo) {
         lightingInfo = new LightingInfo(useCluster);
     }
@@ -500,7 +500,7 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, 
     return { rtName: deferredLightingPassRTName };
 }
 
-export function setupGBufferPass (ppl: BasicPipeline, info: CameraInfo) {
+export function setupGBufferPass (ppl: BasicPipeline, info: CameraInfo): BasicRenderPassBuilder {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -533,7 +533,7 @@ export function setupGBufferPass (ppl: BasicPipeline, info: CameraInfo) {
     return gBufferPass;
 }
 
-export function setupLightingRes (ppl: BasicPipeline, info: CameraInfo) {
+export function setupLightingRes (ppl: BasicPipeline, info: CameraInfo): void {
     setupShadowRes(ppl, info);
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -544,7 +544,7 @@ export function setupLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
 }
 
-export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
+export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo): void {
     updateShadowRes(ppl, info);
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -555,7 +555,7 @@ export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
 }
 let lightingInfo: LightingInfo;
-export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
+export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean): { rtName: string } {
     setupShadowPass(pipeline, info);
     if (!lightingInfo) {
         lightingInfo = new LightingInfo(useCluster);
@@ -616,7 +616,7 @@ export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, us
     return { rtName: deferredLightingPassRTName };
 }
 
-export function setupPostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
+export function setupPostprocessRes (ppl: BasicPipeline, info: CameraInfo): void {
     const cameraID = info.id;
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -628,7 +628,7 @@ export function setupPostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
 }
 
-export function updatePostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
+export function updatePostprocessRes (ppl: BasicPipeline, info: CameraInfo): void {
     const cameraID = info.id;
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -642,7 +642,7 @@ export function updatePostprocessRes (ppl: BasicPipeline, info: CameraInfo) {
 let postInfo: PostInfo;
 export function setupPostprocessPass (ppl: BasicPipeline,
     info: CameraInfo,
-    inputTex: string) {
+    inputTex: string): { rtName: string; dsName: string; } {
     if (!postInfo) {
         postInfo = new PostInfo();
     }
@@ -681,7 +681,7 @@ export function setupPostprocessPass (ppl: BasicPipeline,
 }
 
 export function setupUIRes (ppl: BasicPipeline,
-    info: CameraInfo) {
+    info: CameraInfo): void {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -694,7 +694,7 @@ export function setupUIRes (ppl: BasicPipeline,
 }
 
 export function updateUIRes (ppl: BasicPipeline,
-    info: CameraInfo) {
+    info: CameraInfo): void {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -707,7 +707,7 @@ export function updateUIRes (ppl: BasicPipeline,
 }
 
 export function setupUIPass (ppl: BasicPipeline,
-    info: CameraInfo) {
+    info: CameraInfo): void {
     const camera = info.camera;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;

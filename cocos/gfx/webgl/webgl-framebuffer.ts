@@ -38,7 +38,7 @@ export class WebGLFramebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
 
-    public initialize (info: Readonly<FramebufferInfo>) {
+    public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -68,14 +68,26 @@ export class WebGLFramebuffer extends Framebuffer {
             gpuDepthStencilTexture,
             glFramebuffer: null,
             isOffscreen: true,
-            get width () {
-                return this.isOffscreen ? width : this.gpuColorTextures[0].width;
+            get width (): number {
+                if (this.isOffscreen) {
+                    return width;
+                } else if (this.gpuColorTextures.length > 0) {
+                    return this.gpuColorTextures[0].width;
+                } else {
+                    return this.gpuDepthStencilTexture!.width;
+                }
             },
             set width (val) {
                 width = val;
             },
-            get height () {
-                return this.isOffscreen ? height : this.gpuColorTextures[0].height;
+            get height (): number {
+                if (this.isOffscreen) {
+                    return height;
+                } else if (this.gpuColorTextures.length > 0) {
+                    return this.gpuColorTextures[0].height;
+                } else {
+                    return this.gpuDepthStencilTexture!.height;
+                }
             },
             set height (val) {
                 height = val;
@@ -86,7 +98,7 @@ export class WebGLFramebuffer extends Framebuffer {
         WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._gpuFramebuffer) {
             WebGLCmdFuncDestroyFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;

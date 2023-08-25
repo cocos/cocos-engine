@@ -78,13 +78,13 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
         return cmd;
     }
 
-    public free (cmd: T) {
+    public free (cmd: T): void {
         if (--cmd.refCount === 0) {
             this._freeCmds.push(cmd);
         }
     }
 
-    public freeCmds (cmds: CachedArray<T>) {
+    public freeCmds (cmds: CachedArray<T>): void {
         // return ;
         for (let i = 0; i < cmds.length; ++i) {
             if (--cmds.array[i].refCount === 0) {
@@ -93,7 +93,7 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
         }
     }
 
-    public release () {
+    public release (): void {
         for (let i = 0; i < this._freeCmds.length; ++i) {
             const cmd = this._freeCmds.array[i];
             cmd.clear();
@@ -120,7 +120,7 @@ export class WebGL2CommandAllocator {
         this.blitTextureCmdPool = new WebGL2CommandPool(WebGL2CmdBlitTexture, 1);
     }
 
-    public clearCmds (cmdPackage: WebGL2CmdPackage) {
+    public clearCmds (cmdPackage: WebGL2CmdPackage): void {
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();
@@ -154,7 +154,7 @@ export class WebGL2CommandAllocator {
         cmdPackage.cmds.clear();
     }
 
-    public releaseCmds () {
+    public releaseCmds (): void {
         this.beginRenderPassCmdPool.release();
         this.bindStatesCmdPool.release();
         this.drawCmdPool.release();

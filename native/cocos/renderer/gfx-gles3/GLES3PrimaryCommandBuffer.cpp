@@ -80,6 +80,18 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
     ++_curSubpassIdx;
 }
 
+void GLES3PrimaryCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    cmdFuncGLES3InsertMarker(GLES3Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES3PrimaryCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    cmdFuncGLES3PushGroupMarker(GLES3Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES3PrimaryCommandBuffer::endMarker() {
+    cmdFuncGLES3PopGroupMarker(GLES3Device::getInstance());
+}
+
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
@@ -138,11 +150,15 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
+void GLES3PrimaryCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    copyTexture(srcTexture, dstTexture, regions, count);
+}
+
 void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
-    GLES3GPUTexture *gpuTextureSrc = nullptr;
-    GLES3GPUTexture *gpuTextureDst = nullptr;
-    if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
-    if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
+    GLES3GPUTextureView *gpuTextureSrc = nullptr;
+    GLES3GPUTextureView *gpuTextureDst = nullptr;
+    if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTextureView();
+    if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTextureView();
 
     ccstd::vector<TextureBlit> blitRegions(count);
     for (uint32_t i = 0; i < count; ++i) {
@@ -162,10 +178,10 @@ void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTex
 }
 
 void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
-    GLES3GPUTexture *gpuTextureSrc = nullptr;
-    GLES3GPUTexture *gpuTextureDst = nullptr;
-    if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
-    if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
+    GLES3GPUTextureView *gpuTextureSrc = nullptr;
+    GLES3GPUTextureView *gpuTextureDst = nullptr;
+    if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTextureView();
+    if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTextureView();
 
     cmdFuncGLES3BlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, regions, count, filter);
 }

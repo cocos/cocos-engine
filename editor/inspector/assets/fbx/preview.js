@@ -13,7 +13,7 @@ exports.template = /* html */`
     <div class= "noModel tips">
         <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
         <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
-    </div>    
+    </div>
     <div class="preview-container">
         <div class="animation-info">
             <div class="flex">
@@ -27,8 +27,8 @@ exports.template = /* html */`
                     <ui-icon value="event" name="add_event"></ui-icon>
                 </div>
                 <div class="time flex toolbar f1">
-                    <ui-label value="Time"></ui-label>
-                    <ui-num-input id="currentTime"></ui-num-input>
+                    <ui-label value="Frame"></ui-label>
+                    <ui-num-input id="currentTime" step="1" preci="0"></ui-num-input>
                     <div class="duration"></div>
                 </div>
             </div>
@@ -168,6 +168,7 @@ ui-icon {
     background: var(--color-normal-fill);
 }
 #event-editor {
+    position: relative;
     line-height: 20px;
     width: 100%;
     height: 70%;
@@ -186,6 +187,9 @@ ui-icon {
     background: var(--color-normal-fill-emphasis);
     padding: 2px 4px;
   }
+  #event-editor > header .title {
+    color: var(--color-focus-fill);
+  }
   #event-editor > .header .name {
     margin: 0 4px;
   }
@@ -194,7 +198,6 @@ ui-icon {
     margin: 0 2px;
   }
   #event-editor > .functions {
-    padding: 4px;
     overflow-y: auto;
     flex: 1;
     height: 100%;
@@ -234,6 +237,7 @@ ui-icon {
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
     flex: 1;
+    margin-left: 4px;
   }
   #event-editor ui-section {
     width: 100%;
@@ -258,6 +262,15 @@ ui-icon {
   #event-editor .empty {
     font-style: italic;
     text-align: center;
+  }
+  #event-editor .toast {
+    position: absolute;
+    top: 54px;
+    right: 4px;
+    z-index: 1;
+    padding: 0 4px;
+    background-color: var(--color-normal-fill-emphasis);
+    color: var(--color-warn-fill);
   }
 `;
 
@@ -297,7 +310,10 @@ const Elements = {
             const panel = this;
 
             function observer() {
-                panel.isPreviewDataDirty = true;
+                window.requestAnimationFrame(() => {
+                    panel.isPreviewDataDirty = true;
+                    panel.updateEventInfo();
+                });
             }
 
             panel.resizeObserver = new window.ResizeObserver(observer);
@@ -339,7 +355,7 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
                 async function mousemove(event) {
                     await callModelPreviewFunction('onMouseMove', {
@@ -365,6 +381,14 @@ const Elements = {
                 document.addEventListener('mousemove', mousemove);
                 document.addEventListener('mouseup', mouseup);
 
+                panel.isPreviewDataDirty = true;
+            });
+
+            panel.$.canvas.addEventListener('wheel', async (event) => {
+                await callModelPreviewFunction('onMouseWheel', {
+                    wheelDeltaY: event.wheelDeltaY,
+                    wheelDeltaX: event.wheelDeltaX,
+                });
                 panel.isPreviewDataDirty = true;
             });
 
@@ -428,8 +452,8 @@ const Elements = {
 
 exports.methods = {
     /**
-     * 
-     * @param {boolean} hasModel 
+     *
+     * @param {boolean} hasModel
      */
     updatePanelHidden(hasModel) {
         this.$.noModel.hidden = hasModel;
@@ -484,7 +508,11 @@ exports.methods = {
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
-            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'block' : 'none';
+            const isAnimationTab = this.activeTab === 'animation';
+            this.$.animationInfo.style.display = isAnimationTab ? 'block' : 'none';
+            if (!isAnimationTab) {
+                this.eventEditorVm.show = false;
+            }
             this.$.modelInfo.style.display = this.activeTab === 'model' ? 'block' : 'none';
             await this.stopAnimation();
         }
@@ -534,19 +562,22 @@ exports.methods = {
     },
 
     addEventToCurTime() {
-        this.events.addNewEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
+        this.events.addEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
     },
 
     updateEventInfo() {
         let eventInfos = [];
-        const events = this.curEditClipInfo.userData.events;
-        if (Array.isArray(events)) {
-            eventInfos = events.map((info) => {
-                return {
-                    ...info,
-                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-                };
-            });
+
+        if (this.curEditClipInfo && this.curEditClipInfo.userData) {
+            const events = this.curEditClipInfo.userData.events;
+            if (Array.isArray(events)) {
+                eventInfos = events.map((info) => {
+                    return {
+                        info,
+                        x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                    };
+                });
+            }
         }
 
         this.events.update.call(this, eventInfos);
@@ -633,22 +664,16 @@ exports.methods = {
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
+        this.curTotalFrames = 0;
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
-            this.$.animationTime.setConfig({
-                max: this.curTotalFrames,
-            });
-            this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
+
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
                 this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
-                this.updateEventInfo();
             }
 
-            if (this.$.animationTimeSlider) {
-                this.$.animationTimeSlider.max = this.curTotalFrames;
-            }
             await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
@@ -665,6 +690,12 @@ exports.methods = {
 
             await this.stopAnimation();
         }
+
+        this.$.animationTime.setConfig({
+            max: this.curTotalFrames,
+        });
+        this.$.duration.innerHTML = `Totals: ${this.curTotalFrames}`;
+        this.updateEventInfo();
     },
     onAnimationPlayStateChanged(state) {
         this.setCurPlayState(state);
@@ -757,7 +788,10 @@ exports.update = async function(assetList, metaList) {
         this.splitClipIndex = 0;
         const clipInfo = animation.methods.getCurClipInfo.call(this);
         await this.onEditClipInfoChanged(clipInfo);
+    } else {
+        await this.setCurEditClipInfo();
     }
+    this.eventEditorVm.show = false;
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
     this.refreshPreview();

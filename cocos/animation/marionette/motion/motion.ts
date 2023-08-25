@@ -58,7 +58,7 @@ export interface MotionEval {
 
     getClipStatuses(baseWeight: number): Iterator<ClipStatus>;
 
-    overrideClips(clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void;
+    overrideClips(context: AnimationGraphBindingContext): void;
 
     createPort(): MotionPort;
 }
@@ -69,7 +69,6 @@ export interface MotionEval {
 export abstract class Motion extends EditorExtendable {
     abstract [createEval] (
         context: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
     ): MotionEval | null;
 
@@ -79,7 +78,9 @@ export abstract class Motion extends EditorExtendable {
      * // TODO: HACK
      * @internal
      */
-    __callOnAfterDeserializeRecursive () { }
+    __callOnAfterDeserializeRecursive (): void {
+        // Can be overrode in subclasses.
+    }
 }
 
 export interface MotionPort {

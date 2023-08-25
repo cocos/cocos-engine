@@ -82,7 +82,7 @@ export class PageViewIndicator extends Component {
      */
     @type(SpriteFrame)
     @tooltip('i18n:pageview_indicator.spriteFrame')
-    get spriteFrame () {
+    get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
 
@@ -104,7 +104,7 @@ export class PageViewIndicator extends Component {
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')
-    get direction () {
+    get direction (): Direction {
         return this._direction;
     }
 
@@ -124,7 +124,7 @@ export class PageViewIndicator extends Component {
      */
     @type(Size)
     @tooltip('i18n:pageview_indicator.cell_size')
-    get cellSize () {
+    get cellSize (): Size {
         return this._cellSize;
     }
 
@@ -162,7 +162,7 @@ export class PageViewIndicator extends Component {
     protected _pageView: PageView | null = null;
     protected _indicators: Node[] = [];
 
-    public onLoad () {
+    public onLoad (): void {
         this._updateLayout();
     }
 
@@ -175,7 +175,7 @@ export class PageViewIndicator extends Component {
      *
      * @param target @en The page view which is attached with this indicator.  @zh 当前标记对象附着到的页面视图对象。
      */
-    public setPageView (target: PageView) {
+    public setPageView (target: PageView): void {
         this._pageView = target;
         this._refresh();
     }
@@ -183,7 +183,7 @@ export class PageViewIndicator extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLayout () {
+    public _updateLayout (): void {
         this._layout = this.getComponent(Layout);
         if (!this._layout) {
             this._layout = this.addComponent(Layout);
@@ -203,7 +203,7 @@ export class PageViewIndicator extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _createIndicator () {
+    public _createIndicator (): Node {
         const node = new Node();
         node.layer = this.node.layer;
         const sprite = node.addComponent(Sprite);
@@ -217,7 +217,7 @@ export class PageViewIndicator extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _changedState () {
+    public _changedState (): void {
         const indicators = this._indicators;
         if (indicators.length === 0 || !this._pageView) { return; }
         const idx = this._pageView.curPageIdx;
@@ -245,7 +245,7 @@ export class PageViewIndicator extends Component {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _refresh () {
+    public _refresh (): void {
         if (!this._pageView) { return; }
         const indicators = this._indicators;
         const pages = this._pageView.getPages();

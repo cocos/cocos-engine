@@ -80,12 +80,6 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   sceneFlags(rhs.sceneFlags),
   subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
-DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
-DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
-: name(alloc) {}
-
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
 
@@ -186,7 +180,8 @@ SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
   renderQueues(std::move(rhs.renderQueues), alloc),
   sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
   numCullingQueries(rhs.numCullingQueries),
-  numRenderQueues(rhs.numRenderQueues) {}
+  numRenderQueues(rhs.numRenderQueues),
+  gpuCullingPassID(rhs.gpuCullingPassID) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),

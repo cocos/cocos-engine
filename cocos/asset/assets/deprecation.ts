@@ -25,6 +25,7 @@
 import { removeProperty, replaceProperty } from '../../core';
 import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
+import type { RenderWindow } from '../../render-scene/core/render-window';
 
 removeProperty(TextureBase.prototype, 'TextureBase.prototype', [
     {
@@ -41,7 +42,7 @@ removeProperty(TextureBase.prototype, 'TextureBase.prototype', [
 replaceProperty(RenderTexture.prototype, 'RenderTexture.prototype', [
     {
         name: 'getGFXWindow',
-        customFunction (this: RenderTexture) {
+        customFunction (this: RenderTexture): RenderWindow | null {
             return this.window;
         },
     },

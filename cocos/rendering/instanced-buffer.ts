@@ -23,8 +23,9 @@
 */
 
 import { Pass } from '../render-scene';
-import { IInstancedAttributeBlock, SubModel } from '../render-scene/scene';
-import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
+import { SubModel } from '../render-scene/scene';
+import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
@@ -59,7 +60,7 @@ export class InstancedBuffer {
         this.pass = pass;
     }
 
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             instance.vb.destroy();
@@ -68,7 +69,7 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null) {
+    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null): void {
         const attrs = subModel.instancedAttributeBlock;
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
@@ -152,7 +153,7 @@ export class InstancedBuffer {
         this.hasPendingModels = true;
     }
 
-    public uploadBuffers (cmdBuff: CommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }
@@ -161,7 +162,7 @@ export class InstancedBuffer {
         }
     }
 
-    public clear () {
+    public clear (): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             instance.count = 0;

@@ -31,13 +31,14 @@ import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
+import type { ParticleSystem } from '../particle-system';
 
 export abstract class ParticleSystemRendererBase {
-    protected _particleSystem: any = null;
+    protected _particleSystem: ParticleSystem | null = null;
     /**
      * @engineInternal
      */
-    public get model () {
+    public get model (): ParticleBatchModel | null {
         return this._model;
     }
     protected _model: ParticleBatchModel | null = null;
@@ -58,15 +59,15 @@ export abstract class ParticleSystemRendererBase {
         return this._useInstance;
     }
 
-    public getInfo () {
+    public getInfo (): ParticleSystemRenderer {
         return this._renderInfo!;
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: ParticleSystem): void {
         this._particleSystem = ps;
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -77,57 +78,57 @@ export abstract class ParticleSystemRendererBase {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.detachFromScene();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         if (this._model) {
             cclegacy.director.root.destroyModel(this._model);
             this._model = null;
         }
     }
 
-    public attachToScene () {
+    public attachToScene (): void {
         if (this._model) {
             if (this._model.scene) {
                 this.detachFromScene();
             }
-            this._particleSystem._getRenderScene().addModel(this._model);
+            this._particleSystem?._getRenderScene().addModel(this._model);
         }
     }
 
-    public detachFromScene () {
+    public detachFromScene (): void {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }
     }
 
-    public setVertexAttributes () {
+    public setVertexAttributes (): void {
         if (this._model) {
             this.updateVertexAttrib();
             this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
     }
 
-    public clear () {
+    public clear (): void {
         if (this._model) this._model.enabled = false;
     }
 
-    public getModel () {
+    public getModel (): ParticleBatchModel | null {
         return this._model;
     }
 
-    protected _initModel () {
-        if (!this._model) {
+    protected _initModel (): void {
+        if (!this._model && this._particleSystem) {
             this._model = cclegacy.director.root.createModel(ParticleBatchModel);
             this._model!.setCapacity(this._particleSystem.capacity);
             this._model!.visFlags = this._particleSystem.visibility;
         }
     }
 
-    public updateTrailMaterial () {}
-    public getDefaultTrailMaterial () { return null; }
+    public updateTrailMaterial (): void {}
+    public getDefaultTrailMaterial (): null { return null; }
     public abstract getParticleCount () : number;
     public abstract getFreeParticle (): Particle | null;
     public abstract onMaterialModified (index: number, material: Material) : void;

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, Vec3 } from '../../core';
+import { cclegacy, geometry, Vec3 } from '../../core';
 import { AABB } from '../../core/geometry';
 import { Light, LightType, nt2lm } from './light';
 
@@ -79,7 +79,7 @@ export class PointLight extends Light {
      * @en The luminance of the light source in HDR mode.
      * @zh HDR 模式下光源的亮度。
      */
-    get luminanceHDR () {
+    get luminanceHDR (): number {
         return this._luminanceHDR;
     }
     set luminanceHDR (value: number) {
@@ -98,7 +98,7 @@ export class PointLight extends Light {
      * @en The AABB bounding box of the lighting area.
      * @zh 受光源影响范围的 AABB 包围盒。
      */
-    get aabb () {
+    get aabb (): geometry.AABB {
         return this._aabb;
     }
 
@@ -116,7 +116,7 @@ export class PointLight extends Light {
         this._type = LightType.POINT;
     }
 
-    public initialize () {
+    public initialize (): void {
         super.initialize();
 
         this.range = 1.0;
@@ -128,7 +128,7 @@ export class PointLight extends Light {
      * @en Update the lighting area.
      * @zh 更新光源影响范围。
      */
-    public update () {
+    public update (): void {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             const range = this._range;

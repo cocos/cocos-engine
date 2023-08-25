@@ -24,6 +24,7 @@
 
 import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
@@ -72,7 +73,7 @@ if (LINKSURE || COCOSPLAY) {
         // update cached system info
         cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
     });
-    minigame.getSystemInfoSync = function () {
+    minigame.getSystemInfoSync = function (): SystemInfo {
         return cachedSystemInfo;
     };
 }
@@ -82,9 +83,9 @@ if (LINKSURE || COCOSPLAY) {
 let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _needHandleAccelerometerCb = false;
-minigame.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb): void {
     if (!_innerAccelerometerCb) {
-        _innerAccelerometerCb = (res) => {
+        _innerAccelerometerCb = (res): void => {
             if (!_needHandleAccelerometerCb) {
                 return;
             }
@@ -108,7 +109,7 @@ minigame.onAccelerometerChange = function (cb) {
     _needHandleAccelerometerCb = true;
     _customAccelerometerCb = cb;
 };
-minigame.offAccelerometerChange = function (cb) {
+minigame.offAccelerometerChange = function (cb): void {
     _needHandleAccelerometerCb = false;
     _customAccelerometerCb = undefined;
 };
@@ -132,7 +133,7 @@ if (COCOSPLAY) {
 }
 
 // #region SafeArea
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     const locSystemInfo = ral.getSystemInfoSync() as SystemInfo;
     if (locSystemInfo.safeArea) {
         return locSystemInfo.safeArea;
@@ -152,3 +153,5 @@ minigame.getSafeArea = function () {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./runtime')>());

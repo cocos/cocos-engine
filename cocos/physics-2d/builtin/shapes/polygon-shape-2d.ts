@@ -35,7 +35,7 @@ export class BuiltinPolygonShape extends BuiltinShape2D {
         return this._worldPoints;
     }
 
-    update () {
+    update (): void {
         const aabb = this._worldAabb;
 
         const collider = this.collider as PolygonCollider2D;
@@ -76,13 +76,13 @@ export class BuiltinPolygonShape extends BuiltinShape2D {
         aabb.height = maxy - miny;
     }
 
-    containsPoint (p: Vec2) {
+    containsPoint (p: Vec2): boolean {
         if (!this.worldAABB.contains(p)) {
             return false;
         }
         return Intersection2D.pointInPolygon(p, this.worldPoints);
     }
-    intersectsRect (rect: Rect) {
+    intersectsRect (rect: Rect): boolean {
         if (!this.worldAABB.intersects(rect)) {
             return false;
         }

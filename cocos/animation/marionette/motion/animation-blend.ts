@@ -27,7 +27,6 @@ import { Motion, MotionEval, MotionPort } from './motion';
 import { createEval } from '../create-eval';
 import { VariableTypeMismatchedError } from '../errors';
 import { ClipStatus } from '../state-machine/state-machine-eval';
-import type { ReadonlyClipOverrideMap } from '../clip-overriding';
 
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from '../graph-debug';
@@ -37,26 +36,18 @@ import { blendPoseInto, Pose } from '../../core/pose';
 
 const { ccclass, serializable } = _decorator;
 
-export interface AnimationBlend extends Motion, EditorExtendable {
-    [createEval] (
-        _context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
-        ignoreEmbeddedPlayers: boolean,
-    ): MotionEval | null;
-}
-
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
 export class AnimationBlendItem {
     @serializable
     public motion: Motion | null = null;
 
-    public clone () {
+    public clone (): AnimationBlendItem {
         const that = new AnimationBlendItem();
         this._copyTo(that);
         return that;
     }
 
-    protected _copyTo (that: AnimationBlendItem) {
+    protected _copyTo (that: AnimationBlendItem): AnimationBlendItem {
         that.motion = this.motion?.clone() ?? null;
         return that;
     }
@@ -67,13 +58,13 @@ export abstract class AnimationBlend extends Motion {
     @serializable
     name = '';
 
-    public copyTo (that: AnimationBlend) {
+    public copyTo (that: AnimationBlend): void {
         that.name = this.name;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }
 }
 
-export class AnimationBlendEval implements MotionEval {
+export abstract class AnimationBlendEval implements MotionEval {
     public declare runtimeId?: number;
 
     private declare _childEvaluators: (MotionEval | null)[];
@@ -82,13 +73,12 @@ export class AnimationBlendEval implements MotionEval {
 
     constructor (
         context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
         base: AnimationBlend,
         children: AnimationBlendItem[],
         inputs: number[],
     ) {
-        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, overrides, ignoreEmbeddedPlayers) ?? null);
+        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, ignoreEmbeddedPlayers) ?? null);
         this._weights = new Array(this._childEvaluators.length).fill(0);
         this._inputs = [...inputs];
         if (RUNTIME_ID_ENABLED) {
@@ -103,7 +93,7 @@ export class AnimationBlendEval implements MotionEval {
         );
     }
 
-    get childCount () {
+    get childCount (): number {
         return this._weights.length;
     }
 
@@ -111,11 +101,11 @@ export class AnimationBlendEval implements MotionEval {
         return this._weights[childIndex];
     }
 
-    public getChildMotionEval (childIndex: number) {
+    public getChildMotionEval (childIndex: number): MotionEval | null {
         return this._childEvaluators[childIndex];
     }
 
-    get duration () {
+    get duration (): number {
         let uniformDuration = 0.0;
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
             uniformDuration += (this._childEvaluators[iChild]?.duration ?? 0.0) * this._weights[iChild];
@@ -129,7 +119,7 @@ export class AnimationBlendEval implements MotionEval {
         let iChild = 0;
         let currentChildIterator: Iterator<ClipStatus> | undefined;
         return {
-            next () {
+            next (): IteratorResult<ClipStatus, any> {
                 // eslint-disable-next-line no-constant-condition
                 while (true) {
                     if (currentChildIterator) {
@@ -180,24 +170,22 @@ export class AnimationBlendEval implements MotionEval {
         return context.pushDefaultedPose();
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
-            this._childEvaluators[iChild]?.overrideClips(overrides, context);
+            this._childEvaluators[iChild]?.overrideClips(context);
         }
     }
 
-    public setInput (value: number, index: number) {
+    public setInput (value: number, index: number): void {
         this._inputs[index] = value;
         this.doEval();
     }
 
-    protected doEval () {
+    protected doEval (): void {
         this.eval(this._weights, this._inputs);
     }
 
-    protected eval (_weights: number[], _inputs: readonly number[]) {
-
-    }
+    protected abstract eval (_weights: number[], _inputs: readonly number[]): void;
 }
 
 class AnimationBlendPort implements MotionPort {
@@ -212,7 +200,7 @@ class AnimationBlendPort implements MotionPort {
         return this._host.__evaluatePort(this, progress, context);
     }
 
-    public reenter () {
+    public reenter (): void {
         const { childPorts } = this;
         const nChildPorts = childPorts.length;
         for (let iChild = 0; iChild < nChildPorts; ++iChild) {

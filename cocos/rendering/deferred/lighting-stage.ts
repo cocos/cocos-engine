@@ -28,7 +28,8 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera, LightType } from '../../render-scene/scene';
+import { Camera } from '../../render-scene/scene/camera';
+import { LightType } from '../../render-scene/scene/light';
 import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
@@ -98,7 +99,7 @@ export class LightingStage extends RenderStage {
         super.initialize(info);
         return true;
     }
-    public gatherLights (camera: Camera) {
+    public gatherLights (camera: Camera): void {
         const pipeline = this._pipeline as DeferredPipeline;
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -266,7 +267,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }
 
-    protected _createStageDescriptor (pass: Pass) {
+    protected _createStageDescriptor (pass: Pass): void {
         const device = this._pipeline.device;
         let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
@@ -293,7 +294,7 @@ export class LightingStage extends RenderStage {
         this._descriptorSet.bindBuffer(UBOLocal.BINDING, _localUBO);
     }
 
-    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow): void {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
 
@@ -307,12 +308,12 @@ export class LightingStage extends RenderStage {
         if (this._deferredMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredLightingMaterial = this._deferredMaterial; }
     }
 
-    public destroy () {
+    public destroy (): void {
         this._deferredLitsBufs?.destroy();
         this._deferredLitsBufs = null!;
         this._descriptorSet = null!;
     }
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
 
@@ -355,8 +356,14 @@ export class LightingStage extends RenderStage {
 
         pipeline.pipelineUBO.updateShadowUBO(camera);
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            framebuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.setScissor(pipeline.generateScissor(camera));
         cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);

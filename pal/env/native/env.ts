@@ -23,6 +23,7 @@
 */
 
 import { NATIVE, PREVIEW } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const require: (path: string) =>  Promise<void>;
 
@@ -49,7 +50,7 @@ export function loadJsFile (path: string): Promise<void> {
             return new Promise((resolve, reject) => {
                 const sourceURL = window.location.href + path;
                 const xhr = new XMLHttpRequest();
-                xhr.onload = () => {
+                xhr.onload = (): void => {
                     if (xhr.status !== 200) {
                         reject(new Error(`load js file failed: ${sourceURL}, error status: ${xhr.status}`));
                         return;
@@ -58,7 +59,7 @@ export function loadJsFile (path: string): Promise<void> {
                     window.eval(`${xhr.response as string}\n//# sourceURL=${sourceURL}`);
                     resolve();
                 };
-                xhr.onerror = () => {
+                xhr.onerror = (): void => {
                     reject(new Error(`load js file failed: ${sourceURL}`));
                 };
                 xhr.open('GET', sourceURL, true);
@@ -69,3 +70,5 @@ export function loadJsFile (path: string): Promise<void> {
         return require(`${path}`);
     }
 }
+
+checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());

@@ -23,13 +23,13 @@
 */
 
 import b2 from '@cocos/box2d';
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, cclegacy } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-import { Canvas } from '../../2d/framework';
-import { Graphics } from '../../2d/components';
+// import { Canvas } from '../../2d/framework';
+// import { Graphics } from '../../2d/components';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -62,11 +62,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
     protected _raycastQueryCallback: PhysicsRayCastCallback;
 
-    get impl () {
+    get impl (): b2.World {
         return this._world;
     }
 
-    get groundBodyImpl () {
+    get groundBodyImpl (): b2.Body {
         return this._physicsGroundBody;
     }
 
@@ -88,11 +88,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: Graphics | null = null;
+    _debugGraphics: any = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
@@ -107,7 +107,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._debugDrawFlags = v;
     }
 
-    _checkDebugDrawValid () {
+    _checkDebugDrawValid (): void {
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
@@ -118,7 +118,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 }
 
                 canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
+                canvas.addComponent('cc.Canvas');
                 canvas.parent = scene;
             }
 
@@ -129,9 +129,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent(Graphics);
+            this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 3;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
             this._b2DebugDrawer = debugDraw;
             this._world.SetDebugDraw(debugDraw);
@@ -145,15 +146,15 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    setGravity (v: IVec2Like) {
+    setGravity (v: IVec2Like): void {
         this._world.SetGravity(v as b2.Vec2);
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         this._world.SetAllowSleeping(true);
     }
 
-    step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+    step (deltaTime: number, velocityIterations = 10, positionIterations = 10): void {
         const animatedBodies = this._animatedBodies;
         for (let i = 0, l = animatedBodies.length; i < l; i++) {
             animatedBodies[i].animate(deltaTime);
@@ -177,7 +178,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         callback.init(type, mask);
         this._world.RayCast(callback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = callback.getFixtures() as b2.Fixture[];
         if (fixtures.length > 0) {
             const points = callback.getPoints();
             const normals = callback.getNormals();
@@ -225,7 +226,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return [];
     }
 
-    syncPhysicsToScene () {
+    syncPhysicsToScene (): void {
         const bodies = this._bodies;
         for (let i = 0, l = bodies.length; i < l; i++) {
             const body = bodies[i];
@@ -250,14 +251,14 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.setWorldRotationFromEuler(0, 0, angle);
         }
     }
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         const bodies = this._bodies;
         for (let i = 0; i < bodies.length; i++) {
             bodies[i].syncSceneToPhysics();
         }
     }
 
-    addBody (body: b2RigidBody2D) {
+    addBody (body: b2RigidBody2D): void {
         const bodies = this._bodies;
         if (bodies.includes(body)) {
             return;
@@ -299,10 +300,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
         // read private property
         const compPrivate = comp as any;
-        const linearVelocity = compPrivate._linearVelocity;
+        const linearVelocity = compPrivate._linearVelocity as Vec2;
         bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity);
+        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
         b2Body.m_userData = body;
@@ -311,7 +312,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._bodies.push(body);
     }
 
-    removeBody (body: b2RigidBody2D) {
+    removeBody (body: b2RigidBody2D): void {
         if (!this._bodies.includes(body)) {
             return;
         }
@@ -328,10 +329,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    registerContactFixture (fixture: b2.Fixture) {
+    registerContactFixture (fixture: b2.Fixture): void {
         this._contactListener.registerContactFixture(fixture);
     }
-    unregisterContactFixture (fixture: b2.Fixture) {
+    unregisterContactFixture (fixture: b2.Fixture): void {
         this._contactListener.unregisterContactFixture(fixture);
     }
 
@@ -381,7 +382,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return testResults;
     }
 
-    drawDebug () {
+    drawDebug (): void {
+        if (TEST) return;
         this._checkDebugDrawValid();
 
         if (!this._debugGraphics) {
@@ -391,12 +393,12 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._world.DrawDebugData();
     }
 
-    _onBeginContact (b2contact: b2ContactExtends) {
+    _onBeginContact (b2contact: b2ContactExtends): void {
         const c = PhysicsContact.get(b2contact);
         c.emit(Contact2DType.BEGIN_CONTACT);
     }
 
-    _onEndContact (b2contact: b2ContactExtends) {
+    _onEndContact (b2contact: b2ContactExtends): void {
         const c = b2contact.m_userData as PhysicsContact;
         if (!c) {
             return;
@@ -406,7 +408,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         PhysicsContact.put(b2contact);
     }
 
-    _onPreSolve (b2contact: b2ContactExtends) {
+    _onPreSolve (b2contact: b2ContactExtends): void {
         const c = b2contact.m_userData as PhysicsContact;
         if (!c) {
             return;
@@ -415,7 +417,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         c.emit(Contact2DType.PRE_SOLVE);
     }
 
-    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse) {
+    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse): void {
         const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
         if (!c) {
             return;

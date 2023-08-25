@@ -5,7 +5,7 @@ using namespace spine;
 
 static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
-AttachmentVertices::AttachmentVertices( int verticesCount, uint16_t *triangles, int trianglesCount, uint32_t textureId) {
+AttachmentVertices::AttachmentVertices(int verticesCount, uint16_t *triangles, int trianglesCount, uint32_t textureId) {
     _triangles = new Triangles();
     _triangles->verts = new V3F_T2F_C4B[verticesCount];
     _triangles->vertCount = verticesCount;
@@ -19,7 +19,7 @@ AttachmentVertices::~AttachmentVertices() {
     delete _triangles;
 }
 
-AttachmentVertices* AttachmentVertices::copy() {
+AttachmentVertices *AttachmentVertices::copy() {
     AttachmentVertices *atv = new AttachmentVertices(_triangles->vertCount, _triangles->indices, _triangles->indexCount, _textureId);
     return atv;
 }
@@ -50,7 +50,7 @@ void AtlasAttachmentLoaderExtension::configureAttachment(Attachment *attachment)
         auto &pages = _atlasCache->getPages();
         auto *region = static_cast<AtlasRegion *>(meshAttachment->getRendererObject());
         auto *attachmentVertices = new AttachmentVertices(
-                static_cast<int32_t>(meshAttachment->getWorldVerticesLength() >> 1), meshAttachment->getTriangles().buffer(), static_cast<int32_t>(meshAttachment->getTriangles().size()), pages.indexOf(region->page));
+            static_cast<int32_t>(meshAttachment->getWorldVerticesLength() >> 1), meshAttachment->getTriangles().buffer(), static_cast<int32_t>(meshAttachment->getTriangles().size()), pages.indexOf(region->page));
         V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
         for (size_t i = 0, ii = 0, nn = meshAttachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
             vertices[i].texCoord.u = meshAttachment->getUVs()[ii];

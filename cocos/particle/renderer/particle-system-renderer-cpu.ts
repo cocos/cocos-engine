@@ -24,7 +24,7 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
-import { Material } from '../../asset/assets';
+import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
@@ -38,7 +38,9 @@ import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { isCurveTwoValues } from '../particle-general-function';
+import type { ParticleSystem } from '../particle-system';
 
+const _tempNodeScale = new Vec4();
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
 const _tempParentInverse = new Mat4();
@@ -136,20 +138,38 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
+export class PVData {
+    public position: Vec3;
+    public texcoord: Vec3;
+    public size: Vec3;
+    public rotation: Vec3;
+    public color: number;
+    public velocity: Vec3 | null;
+
+    constructor () {
+        this.position = new Vec3();
+        this.texcoord = new Vec3();
+        this.size = new Vec3();
+        this.rotation = new Vec3();
+        this.color = 0;
+        this.velocity = null;
+    }
+}
+
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
     private _defines: MacroRecord;
     private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
-    private _node_scale: Vec4;
-    private _attrs: any[];
-    private _particles: RecyclePool | null = null;
+    private _node_scale: Vec3;
+    private _particleVertexData: PVData;
+    private _particles: RecyclePool<Particle> | null = null;
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
-    private _fillDataFunc: any = null;
+    private _fillDataFunc: ((p: Particle, idx: number, fi: number) => void) | null = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
@@ -159,14 +179,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _gravity: Vec4 = new Vec4();
 
     constructor (info: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         super(info);
 
         this._model = null;
 
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
-        this._node_scale = new Vec4();
-        this._attrs = new Array(7);
+        this._node_scale = new Vec3();
+        this._particleVertexData = new PVData();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -180,10 +201,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         };
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: ParticleSystem): void {
         super.onInit(ps);
 
-        this._particles = new RecyclePool(() => new Particle(this), 16);
+        this._particles = new RecyclePool((): Particle => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -194,17 +215,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._inited = true;
     }
 
-    public clear () {
+    public clear (): void {
         super.clear();
         this._particles!.reset();
-        if (this._particleSystem._trailModule) {
+        if (this._particleSystem && this._particleSystem._trailModule) {
             this._particleSystem._trailModule.clear();
         }
         this.updateRenderData();
         this._model!.enabled = false;
     }
 
-    public updateRenderMode () {
+    public updateRenderMode (): void {
         this._setVertexAttrib();
         this._setFillFunc();
         this.updateMaterialParams();
@@ -217,21 +238,25 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public getFreeParticle (): Particle | null {
-        if (this._particles!.length >= this._particleSystem.capacity) {
+        if (this._particleSystem && this._particles!.length >= this._particleSystem.capacity) {
             return null;
         }
-        return this._particles!.add() as Particle;
+        return this._particles!.add();
     }
 
     public getDefaultTrailMaterial (): any {
         return this._defaultTrailMat;
     }
 
-    public setNewParticle (p: Particle) {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    public setNewParticle (p: Particle): void {
     }
 
-    private _initModuleList () {
-        _anim_module.forEach((val) => {
+    private _initModuleList (): void {
+        _anim_module.forEach((val): void => {
+            if (!this._particleSystem) {
+                return;
+            }
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
@@ -249,12 +274,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
             const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
             if (p) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this._runAnimateList.push(p);
             }
         }
     }
 
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule): void {
         if (val) {
             if (pm.needUpdate) {
                 this._updateList[pm.name] = pm;
@@ -270,7 +296,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p: IParticleModule = this._animateList[PARTICLE_MODULE_ORDER[i]];
             if (p) {
                 this._runAnimateList.push(p);
             }
@@ -279,7 +305,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
-    public updateAlignSpace (space) {
+    public updateAlignSpace (space): void {
         this._alignSpace = space;
     }
 
@@ -287,31 +313,31 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
+    public updateRotation (pass: Pass | null): void {
         if (pass) {
             this.doUpdateRotation(pass);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (pass: Pass): void {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
         }
 
         if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
+            this._particleSystem?.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
+            this._particleSystem?.node.getWorldRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            const cameraLst: Camera[] | undefined = this._particleSystem?.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem!.node.layer) === this._particleSystem!.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -324,29 +350,32 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale (pass: Pass | null) {
+    public updateScale (pass: Pass | null): void {
         if (pass) {
             this.doUpdateScale(pass);
         }
     }
 
-    private doUpdateScale (pass) {
-        switch (this._particleSystem.scaleSpace) {
+    private doUpdateScale (pass): void {
+        const nodeScale = this._node_scale;
+        switch (this._particleSystem?.scaleSpace) {
         case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
+            this._particleSystem?.node.getScale(nodeScale);
             break;
         case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
+            this._particleSystem?.node.getWorldScale(nodeScale);
             break;
         default:
             break;
         }
-        pass.setUniform(this._uScaleHandle, this._node_scale);
+        // NOTE: the `_node_scale` should be a Vec3, but we implement `scale` uniform property as a Vec4,
+        // here we pass a temperate Vec4 object to prevent creating Vec4 object every time we set uniform.
+        pass.setUniform(this._uScaleHandle, _tempNodeScale.set(nodeScale.x, nodeScale.y, nodeScale.z));
     }
 
     private noise: ParticleNoise = new ParticleNoise();
 
-    public updateParticles (dt: number) {
+    public updateParticles (dt: number): number {
         const ps = this._particleSystem;
         if (!ps) {
             return this._particles!.length;
@@ -357,14 +386,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps._simulationSpace, _tempWorldTrans);
+        this._updateList.forEach((value: IParticleModule, key: string): void => {
+            value.update(ps.simulationSpace, _tempWorldTrans);
         });
 
         const trailModule = ps._trailModule;
         const trailEnable = trailModule && trailModule.enable;
         if (trailEnable) {
-            trailModule.update();
+            trailModule!.update();
         }
 
         const useGravity = !ps.gravityModifier.isZero();
@@ -389,7 +418,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             if (p.remainingLifetime < 0.0) {
                 if (trailEnable) {
-                    trailModule.removeParticle(p);
+                    trailModule!.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
                 --i;
@@ -423,13 +452,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach((value) => {
+            this._runAnimateList.forEach((value): void => {
                 value.animate(p, dt);
             });
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (trailEnable) {
-                trailModule.animate(p, dt);
+                trailModule!.animate(p, dt);
             }
         }
 
@@ -437,8 +466,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
-        this._runAnimateList.forEach((value) => {
+    public getNoisePreview (out: number[], width: number, height: number): void {
+        this._runAnimateList.forEach((value): void => {
             if (value.name === PARTICLE_MODULE_NAME.NOISE) {
                 const m = value as NoiseModule;
                 m.getNoisePreview(out, this._particleSystem, width, height);
@@ -447,22 +476,22 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     // internal function
-    public updateRenderData () {
+    public updateRenderData (): void {
         // update vertex buffer
         let idx = 0;
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             let fi = 0;
-            const textureModule = this._particleSystem._textureAnimationModule;
+            const textureModule = this._particleSystem!._textureAnimationModule;
             if (textureModule && textureModule.enable) {
                 fi = p.frameIndex;
             }
             idx = i * 4;
-            this._fillDataFunc(p, idx, fi);
+            this._fillDataFunc!(p, idx, fi);
         }
     }
 
-    public beforeRender () {
+    public beforeRender (): void {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }
@@ -471,7 +500,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
-    public onMaterialModified (index: number, material: Material) {
+    public onMaterialModified (index: number, material: Material): void {
         if (!this._inited) {
             return;
         }
@@ -483,17 +512,18 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public onRebuildPSO (index: number, material: Material) {
+    public onRebuildPSO (index: number, material: Material): void {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
-        const trailModule = this._particleSystem._trailModule;
-        if (trailModule && trailModule._trailModel && index === 1) {
-            trailModule._trailModel.setSubModelMaterial(0, material);
+        const trailModule = this._particleSystem!._trailModule;
+        const trailModel = trailModule?.getModel();
+        if (trailModel && index === 1) {
+            trailModel.setSubModelMaterial(0, material);
         }
     }
 
-    private _setFillFunc () {
+    private _setFillFunc (): void {
         if (this._renderInfo!.renderMode === RenderMode.Mesh) {
             this._fillDataFunc = this._fillMeshData;
         } else if (this._renderInfo!.renderMode === RenderMode.StrecthedBillboard) {
@@ -503,81 +533,78 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillMeshData (p: Particle, idx: number, fi: number) {
+    private _fillMeshData (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
-    private _fillStrecthedData (p: Particle, idx: number, fi: number) {
+    private _fillStrecthedData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
+                Vec3.copy(this._particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = p.ultimateVelocity;
-                this._attrs[6] = null;
-                this._model!.addParticleVertexData(idx++, this._attrs);
+                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(this._particleVertexData.size, p.size);
+                Vec3.copy(this._particleVertexData.rotation, p.rotation);
+                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.velocity = p.ultimateVelocity;
+                this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
             this._fillStrecthedDataIns(p, idx, fi);
         }
     }
 
-    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number) {
+    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = p.ultimateVelocity;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.velocity = p.ultimateVelocity;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
-    private _fillNormalData (p: Particle, idx: number, fi: number) {
+    private _fillNormalData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
+                Vec3.copy(this._particleVertexData.position, p.position);
                 _tempAttribUV.x = _uvs[2 * j];
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = null;
-                this._model!.addParticleVertexData(idx++, this._attrs);
+                Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+                Vec3.copy(this._particleVertexData.size, p.size);
+                Vec3.copy(this._particleVertexData.rotation, p.rotation);
+                this._particleVertexData.color = p.color._val;
+                this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
             this._fillNormalDataIns(p, idx, fi);
         }
     }
 
-    private _fillNormalDataIns (p: Particle, idx: number, fi: number) {
+    private _fillNormalDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
-        this._attrs[0] = p.position;
+        Vec3.copy(this._particleVertexData.position, p.position);
         _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = null;
-        this._model!.addParticleVertexData(i, this._attrs);
+        Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
+        Vec3.copy(this._particleVertexData.size, p.size);
+        Vec3.copy(this._particleVertexData.rotation, p.rotation);
+        this._particleVertexData.color = p.color._val;
+        this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
-    public updateVertexAttrib () {
+    public updateVertexAttrib (): void {
         if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
             return;
         }
@@ -599,7 +626,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttrib () {
+    private _setVertexAttrib (): void {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
             case RenderMode.StrecthedBillboard:
@@ -616,7 +643,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttribIns () {
+    private _setVertexAttribIns (): void {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
             this._vertAttrs = _vertex_attrs_stretch_ins.slice();
@@ -629,7 +656,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateMaterialParams () {
+    public updateMaterialParams (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -637,8 +664,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const ps = this._particleSystem;
         const shareMaterial = ps.sharedMaterial;
         if (shareMaterial != null) {
-            const effectName = shareMaterial._effectAsset._name;
-            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0) as Texture2D;
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {
@@ -653,8 +679,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
         }
-        const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
-        if (ps._simulationSpace === Space.World) {
+        const mat: Material = ps.getMaterialInstance(0) || this._defaultMat!;
+        if (ps.simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
@@ -703,7 +729,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateTrailMaterial () {
+    public updateTrailMaterial (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -715,7 +741,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            let mat = ps.getMaterialInstance(1);
+            let mat: Material | null = ps.getMaterialInstance(1);
             if (mat === null && this._defaultTrailMat === null) {
                 _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
                 _matInsInfo.owner = this._particleSystem;
@@ -725,13 +751,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.owner = null!;
                 _matInsInfo.subModelIdx = 0;
             }
-            mat = mat || this._defaultTrailMat;
+            mat = mat || this._defaultTrailMat!;
             mat.recompileShaders(this._trailDefines);
             trailModule.updateMaterial();
         }
     }
 
-    public setUseInstance (value: boolean) {
+    public setUseInstance (value: boolean): void {
         if (this._useInstance === value) {
             return;
         }

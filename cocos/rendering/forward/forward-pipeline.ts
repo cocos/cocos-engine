@@ -39,6 +39,12 @@ import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
 const PIPELINE_TYPE = 0;
 
+export function createDefaultPipeline (): ForwardPipeline {
+    const rppl = new ForwardPipeline();
+    rppl.initialize({ flows: [] });
+    return rppl;
+}
+
 /**
  * @en The forward render pipeline
  * @zh 前向渲染管线。
@@ -94,7 +100,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    protected _ensureEnoughSize (cameras: Camera[]) {
+    protected _ensureEnoughSize (cameras: Camera[]): void {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
@@ -108,7 +114,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         this._destroyUBOs();
         this._destroyQuadInputAssembler();
         const rpIter = this._renderPasses.values();
@@ -123,7 +129,7 @@ export class ForwardPipeline extends RenderPipeline {
         return super.destroy();
     }
 
-    private _activeRenderer (swapchain: Swapchain) {
+    private _activeRenderer (swapchain: Swapchain): boolean {
         const device = this.device;
 
         this._commandBuffers.push(device.commandBuffer);
@@ -138,7 +144,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _destroyUBOs () {
+    private _destroyUBOs (): void {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();

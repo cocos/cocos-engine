@@ -35,15 +35,15 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/modules/SystemWindowManager.h"
 
-#include "platform/openharmony/modules/System.h"
-#include "platform/empty/modules/Screen.h"
 #include "platform/empty/modules/Accelerometer.h"
 #include "platform/empty/modules/Battery.h"
 #include "platform/empty/modules/Network.h"
+#include "platform/empty/modules/Screen.h"
 #include "platform/empty/modules/Vibrator.h"
+#include "platform/openharmony/modules/System.h"
 
-#include <sstream>
 #include <chrono>
+#include <sstream>
 
 namespace {
 void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
@@ -92,8 +92,11 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
     } else if (touchEvent.type == OH_NATIVEXCOMPONENT_CANCEL) {
         ev->type = cc::TouchEvent::Type::CANCELLED;
     }
-    for(int i = 0; i < touchEvent.numPoints; ++i) {
-        ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
+    for (int i = 0; i < touchEvent.numPoints; ++i) {
+        int32_t id = touchEvent.touchPoints[i].id;
+        if (touchEvent.id == id) {
+            ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, id);
+        }
     }
     sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
 }
@@ -119,8 +122,8 @@ OpenHarmonyPlatform::OpenHarmonyPlatform() {
     registerInterface(std::make_shared<Accelerometer>());
     registerInterface(std::make_shared<SystemWindowManager>());
 
-    _callback.OnSurfaceCreated   = onSurfaceCreatedCB;
-    _callback.OnSurfaceChanged   = onSurfaceChangedCB;
+    _callback.OnSurfaceCreated = onSurfaceCreatedCB;
+    _callback.OnSurfaceChanged = onSurfaceChangedCB;
     _callback.OnSurfaceDestroyed = onSurfaceDestroyedCB;
     _callback.DispatchTouchEvent = dispatchTouchEventCB;
 }
@@ -158,7 +161,7 @@ void OpenHarmonyPlatform::enqueue(const WorkerMessageData& msg) {
 }
 
 void OpenHarmonyPlatform::triggerMessageSignal() {
-    if(_workerLoop != nullptr) {
+    if (_workerLoop != nullptr) {
         // It is possible that when the message is sent, the worker thread has not yet started.
         uv_async_send(&_messageSignal);
     }
@@ -170,7 +173,7 @@ bool OpenHarmonyPlatform::dequeue(WorkerMessageData* msg) {
 
 // static
 void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
-    void*             window          = nullptr;
+    void* window = nullptr;
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
     while (true) {
@@ -215,12 +218,11 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
         } else if (msgData.type == MessageType::WM_APP_DESTROY) {
             platform->onDestroyNative();
         }
-        if(msgData.type == MessageType::WM_VSYNC) {
+        if (msgData.type == MessageType::WM_VSYNC) {
             platform->runTask();
         }
         //    CC_ASSERT(false);
         //}
-
     }
 }
 
@@ -259,12 +261,12 @@ void OpenHarmonyPlatform::workerInit(uv_loop_t* loop) {
 void OpenHarmonyPlatform::requestVSync() {
     //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync1");
     //OH_NativeVSync_RequestFrame(OpenHarmonyPlatform::getInstance()->_nativeVSync, OnVSync, nullptr);
-     if (_workerLoop) {
-    //     // Todo: Starting the timer in this way is inaccurate and will be fixed later.
-         uv_timer_init(_workerLoop, &_timerHandle);
-         // The tick function needs to be called as quickly as possible because it is controlling the frame rate inside the engine.
-         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 0, 1);
-     }
+    if (_workerLoop) {
+        //     // Todo: Starting the timer in this way is inaccurate and will be fixed later.
+        uv_timer_init(_workerLoop, &_timerHandle);
+        // The tick function needs to be called as quickly as possible because it is controlling the frame rate inside the engine.
+        uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 0, 1);
+    }
     //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync2");
 }
 
@@ -273,11 +275,10 @@ int32_t OpenHarmonyPlatform::loop() {
 }
 
 void OpenHarmonyPlatform::onSurfaceCreated(OH_NativeXComponent* component, void* window) {
-
 }
 
 void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void* window) {
-    uint64_t width  = 0;
+    uint64_t width = 0;
     uint64_t height = 0;
     int32_t ret = OH_NativeXComponent_GetXComponentSize(_component, window, &width, &height);
     CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
@@ -295,9 +296,9 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
     windowMgr->removeWindow(window);
 }
 
-ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+ISystemWindow* OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void* externalHandle) {
     SystemWindow* window = ccnew SystemWindow(windowId, externalHandle);
-    uint64_t width  = 0;
+    uint64_t width = 0;
     uint64_t height = 0;
     CC_ASSERT_NOT_NULL(_component);
     int32_t ret = OH_NativeXComponent_GetXComponentSize(_component, externalHandle, &width, &height);

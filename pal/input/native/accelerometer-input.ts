@@ -43,7 +43,7 @@ export class AccelerometerInputSource {
         this._didAccelerateFunc = this._didAccelerate.bind(this);
     }
 
-    private _didAccelerate () {
+    private _didAccelerate (): void {
         const deviceMotionValue = jsb.device.getDeviceMotionValue();
         let x = deviceMotionValue[3] * 0.1;
         let y = deviceMotionValue[4] * 0.1;
@@ -74,7 +74,7 @@ export class AccelerometerInputSource {
         this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
     }
 
-    public start () {
+    public start (): void {
         if (this._intervalId) {
             clearInterval(this._intervalId);
         }
@@ -83,7 +83,7 @@ export class AccelerometerInputSource {
         jsb.device.setAccelerometerEnabled(true);
         this._isEnabled = true;
     }
-    public stop () {
+    public stop (): void {
         if (this._intervalId) {
             clearInterval(this._intervalId);
             this._intervalId = undefined;
@@ -91,7 +91,7 @@ export class AccelerometerInputSource {
         jsb.device.setAccelerometerEnabled(false);
         this._isEnabled = false;
     }
-    public setInterval (intervalInMileseconds: number) {
+    public setInterval (intervalInMileseconds: number): void {
         this._intervalInSeconds = intervalInMileseconds / 1000;
         jsb.device.setAccelerometerInterval(this._intervalInSeconds);
         if (this._isEnabled) {
@@ -100,7 +100,7 @@ export class AccelerometerInputSource {
             jsb.device.setAccelerometerEnabled(true);
         }
     }
-    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
+    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

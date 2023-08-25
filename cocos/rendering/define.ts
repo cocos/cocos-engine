@@ -511,11 +511,11 @@ localDescriptorSetLayout.bindings[UBOSkinningAnimation.BINDING] = UBOSkinningAni
 export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
     private static _jointUniformCapacity = 0;
-    public static get JOINT_UNIFORM_CAPACITY () { return UBOSkinning._jointUniformCapacity; }
+    public static get JOINT_UNIFORM_CAPACITY (): number { return UBOSkinning._jointUniformCapacity; }
     private static _count = 0;
-    public static get COUNT () { return UBOSkinning._count; }
+    public static get COUNT (): number { return UBOSkinning._count; }
     private static _size = 0;
-    public static get SIZE () { return UBOSkinning._size; }
+    public static get SIZE (): number { return UBOSkinning._size; }
 
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
@@ -527,7 +527,7 @@ export class UBOSkinning {
     /**
      * @internal This method only used init UBOSkinning configure.
     */
-    public static initLayout (capacity: number) {
+    public static initLayout (capacity: number): void {
         UBOSkinning._jointUniformCapacity = capacity;
         UBOSkinning._count = capacity * 12;
         UBOSkinning._size = UBOSkinning._count * 4;
@@ -538,7 +538,7 @@ export class UBOSkinning {
 /**
  * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
 */
-export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number) {
+export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number): void {
     UBOSkinning.initLayout(maxCount);
     localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
     localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
@@ -651,8 +651,13 @@ localDescriptorSetLayout.bindings[UNIFORM_POSITION_MORPH_TEXTURE_BINDING] = UNIF
 const UNIFORM_NORMAL_MORPH_TEXTURE_NAME = 'cc_NormalDisplacements';
 export const UNIFORM_NORMAL_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_NORMAL;
 const UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
-const UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
-    UNIFORM_NORMAL_MORPH_TEXTURE_NAME, Type.SAMPLER2D, 1);
+const UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
+    UNIFORM_NORMAL_MORPH_TEXTURE_NAME,
+    Type.SAMPLER2D,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_NORMAL_MORPH_TEXTURE_NAME] = UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_NORMAL_MORPH_TEXTURE_BINDING] = UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR;
 
@@ -663,8 +668,13 @@ localDescriptorSetLayout.bindings[UNIFORM_NORMAL_MORPH_TEXTURE_BINDING] = UNIFOR
 const UNIFORM_TANGENT_MORPH_TEXTURE_NAME = 'cc_TangentDisplacements';
 export const UNIFORM_TANGENT_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_TANGENT;
 const UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_TANGENT_MORPH_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
-const UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING,
-    UNIFORM_TANGENT_MORPH_TEXTURE_NAME, Type.SAMPLER2D, 1);
+const UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_TANGENT_MORPH_TEXTURE_BINDING,
+    UNIFORM_TANGENT_MORPH_TEXTURE_NAME,
+    Type.SAMPLER2D,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_TANGENT_MORPH_TEXTURE_NAME] = UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_TANGENT_MORPH_TEXTURE_BINDING] = UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR;
 
@@ -675,8 +685,13 @@ localDescriptorSetLayout.bindings[UNIFORM_TANGENT_MORPH_TEXTURE_BINDING] = UNIFO
 const UNIFORM_LIGHTMAP_TEXTURE_NAME = 'cc_lightingMap';
 export const UNIFORM_LIGHTMAP_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_LIGHTMAP;
 const UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_LIGHTMAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_LIGHTMAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_LIGHTMAP_TEXTURE_BINDING,
-    UNIFORM_LIGHTMAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
+const UNIFORM_LIGHTMAP_TEXTURE_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_LIGHTMAP_TEXTURE_BINDING,
+    UNIFORM_LIGHTMAP_TEXTURE_NAME,
+    Type.SAMPLER2D,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_LIGHTMAP_TEXTURE_NAME] = UNIFORM_LIGHTMAP_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_LIGHTMAP_TEXTURE_BINDING] = UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR;
 
@@ -720,8 +735,13 @@ localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_STORAGE_BINDING] = UNIFORM_
 const UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME = 'cc_reflectionProbeCubemap';
 export const UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_CUBE;
 const UNIFORM_REFLECTION_PROBE_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_REFLECTION_PROBE_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+const UNIFORM_REFLECTION_PROBE_CUBEMAP_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME,
+    Type.SAMPLER_CUBE,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_CUBEMAP_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_CUBEMAP_DESCRIPTOR;
 
@@ -732,8 +752,13 @@ localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING] = UN
 const UNIFORM_REFLECTION_PROBE_TEXTURE_NAME = 'cc_reflectionProbePlanarMap';
 export const UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_PLANAR;
 const UNIFORM_REFLECTION_PROBE_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
-    UNIFORM_REFLECTION_PROBE_TEXTURE_NAME, Type.SAMPLER2D, 1);
+const UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
+    UNIFORM_REFLECTION_PROBE_TEXTURE_NAME,
+    Type.SAMPLER2D,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_TEXTURE_NAME] = UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING] = UNIFORM_REFLECTION_PROBE_TEXTURE_DESCRIPTOR;
 
@@ -744,8 +769,13 @@ localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING] = UN
 const UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME = 'cc_reflectionProbeDataMap';
 export const UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_DATA_MAP;
 const UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME, Type.SAMPLER2D, 1);
+const UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME,
+    Type.SAMPLER2D,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME] = UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR;
 
@@ -756,8 +786,13 @@ localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = U
 const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME = 'cc_reflectionProbeBlendCubemap';
 export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_BLEND_CUBE;
 const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(
+    SetIndex.LOCAL,
+    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME,
+    Type.SAMPLER_CUBE,
+    1,
+);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
 
@@ -772,7 +807,7 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @en Does the device support single-channeled half float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持单通道半浮点贴图？（颜色输出和采样）
  */
-export function supportsR16HalfFloatTexture (device: Device) {
+export function supportsR16HalfFloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
@@ -781,7 +816,7 @@ export function supportsR16HalfFloatTexture (device: Device) {
  * @en Does the device support single-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持单通道浮点贴图？（颜色输出和采样）
  */
-export function supportsR32FloatTexture (device: Device) {
+export function supportsR32FloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
@@ -791,7 +826,7 @@ export function supportsR32FloatTexture (device: Device) {
  * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
-export function supportsRGBA16HalfFloatTexture (device: Device) {
+export function supportsRGBA16HalfFloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
@@ -801,7 +836,7 @@ export function supportsRGBA16HalfFloatTexture (device: Device) {
  * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
-export function supportsRGBA32FloatTexture (device: Device) {
+export function supportsRGBA32FloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded

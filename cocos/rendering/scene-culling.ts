@@ -21,10 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
 import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
+import { Vec3, Pool, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
@@ -37,9 +36,9 @@ const _sphere = geometry.Sphere.create(0, 0, 0, 1);
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
 
-const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const roPool = new Pool<IRenderObject>((): IRenderObject => ({ model: null!, depth: 0 }), 128);
 
-function getRenderObject (model: Model, camera: Camera) {
+function getRenderObject (model: Model, camera: Camera): IRenderObject {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
@@ -51,7 +50,7 @@ function getRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
+export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera): void {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
@@ -105,7 +104,7 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     sceneData.validPunctualLights = validPunctualLights;
 }
 
-export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
+export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
@@ -148,7 +147,7 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     }
 }
 
-export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
+export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
     const sceneData = pipeline.pipelineSceneData;
@@ -185,7 +184,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    function enqueueRenderObject (model: Model) {
+    function enqueueRenderObject (model: Model): void {
         // filter model by view visibility
         if (model.enabled) {
             if (scene.isCulledByLod(camera, model)) {

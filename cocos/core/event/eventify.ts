@@ -153,11 +153,11 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
     class Eventified extends (base as unknown as any) {
         private _callbackTable = createMap(true);
 
-        public once<Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any) {
+        public once<Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any): Callback {
             return this.on(type, callback, target, true) as Callback;
         }
 
-        public targetOff (typeOrTarget: any) {
+        public targetOff (typeOrTarget: any): void {
             this.removeAll(typeOrTarget);
         }
     }

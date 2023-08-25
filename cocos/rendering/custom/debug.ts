@@ -38,13 +38,13 @@ class PrePrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear (value: ClearView[]) {
+    clear (value: ClearView[]): void {
         // do nothing
     }
-    viewport (value: Viewport) {
+    viewport (value: Viewport): void {
         // do nothing
     }
-    rasterPass (value: RasterPass) {
+    rasterPass (value: RasterPass): void {
         oss += `${space}width = ${value.width}\n`;
         oss += `${space}height = ${value.height}\n`;
         for (const rasterView of value.rasterViews) {
@@ -54,14 +54,14 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
     }
-    rasterSubpass(value: RasterSubpass) {}
-    computeSubpass(value: ComputeSubpass) {}
-    compute (value: ComputePass) {
+    rasterSubpass(value: RasterSubpass): void {}
+    computeSubpass(value: ComputeSubpass): void {}
+    compute (value: ComputePass): void {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
     }
-    copy (value: CopyPass) {
+    copy (value: CopyPass): void {
         if (value.copyPairs.length === 1) {
             const pair = value.copyPairs[0];
             oss += `${space}source = "${pair.source}"\n`;
@@ -87,7 +87,7 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += ']\n';
         }
     }
-    move (value: MovePass) {
+    move (value: MovePass): void {
         if (value.movePairs.length === 1) {
             const pair = value.movePairs[0];
             oss += `${space}source = "${pair.source}"\n`;
@@ -113,15 +113,15 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += ']\n';
         }
     }
-    raytrace (value: RaytracePass) {
+    raytrace (value: RaytracePass): void {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
     }
-    queue (value: RenderQueue) {
+    queue (value: RenderQueue): void {
         oss += `${space}hint = ${getQueueHintName(value.hint)}\n`;
     }
-    scene (value: SceneData) {
+    scene (value: SceneData): void {
         oss += `${space}scenes = [`;
         let i = 0;
         for (const scene of value.scenes) {
@@ -132,8 +132,8 @@ class PrePrintVisitor implements RenderGraphVisitor {
         }
         oss += ']\n';
     }
-    blit (value: Blit) {}
-    dispatch (value: Dispatch) {
+    blit (value: Blit): void {}
+    dispatch (value: Dispatch): void {
         oss += `${space}material = "${value.material?.name}"\n`;
         oss += `${space}passID = "${value.passID}"\n`;
         oss += `${space}groupX = ${value.threadGroupCountX}\n`;
@@ -147,29 +147,29 @@ class PostPrintVisitor implements RenderGraphVisitor {
     constructor (g: RenderGraph) {
         this.g = g;
     }
-    clear (value: ClearView[]) {
+    clear (value: ClearView[]): void {
         // do nothing
     }
-    viewport (value: Viewport) {
+    viewport (value: Viewport): void {
         // do nothing
     }
-    rasterPass (value: RasterPass) {
+    rasterPass (value: RasterPass): void {
         // post raster pass
     }
-    rasterSubpass(value: RasterSubpass) {}
-    computeSubpass(value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
-    copy (value: CopyPass) {}
-    move (value: MovePass) {}
-    raytrace (value: RaytracePass) {}
-    queue (value: RenderQueue) {
+    rasterSubpass(value: RasterSubpass): void {}
+    computeSubpass(value: ComputeSubpass): void {}
+    compute (value: ComputePass): void {}
+    copy (value: CopyPass): void {}
+    move (value: MovePass): void {}
+    raytrace (value: RaytracePass): void {}
+    queue (value: RenderQueue): void {
         // collect scene results
     }
-    scene (value: SceneData) {
+    scene (value: SceneData): void {
         // scene command list finished
     }
-    blit (value: Blit) {}
-    dispatch (value: Dispatch) {}
+    blit (value: Blit): void {}
+    dispatch (value: Dispatch): void {}
     g: RenderGraph;
 }
 

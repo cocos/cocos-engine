@@ -28,8 +28,8 @@
 #include "GLES3Commands.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
-#include "GLES3Texture.h"
 #include "GLES3Device.h"
+#include "GLES3Texture.h"
 #include "gfx-gles3/GLES3GPUObjects.h"
 #include "states/GLES3Sampler.h"
 
@@ -83,13 +83,14 @@ void GLES3DescriptorSet::update() {
 
                     // work around for sample depth stencil texture, delete when rdg support set sampler.
                     const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(
-                            _textures[i].ptr->getFormat())];
+                        _textures[i].ptr->getFormat())];
                     if (info.hasDepth || info.hasStencil) {
                         gfx::SamplerInfo samplerInfo = {};
                         samplerInfo.minFilter = gfx::Filter::POINT;
                         samplerInfo.magFilter = gfx::Filter::POINT;
                         descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(Device::getInstance()->getSampler(
-                                samplerInfo))->gpuSampler();
+                                                                                    samplerInfo))
+                                                        ->gpuSampler();
                     }
                 }
             }

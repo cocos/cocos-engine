@@ -43,7 +43,7 @@ export class CircleCollider2D extends Collider2D {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.collider.radius')
-    get radius () {
+    get radius (): number {
         return this._radius;
     }
     set radius (v) {

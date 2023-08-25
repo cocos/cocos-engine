@@ -168,6 +168,8 @@ export enum ResourceFlags {
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
     SHADING_RATE = 0x80,
+    TRANSFER_SRC = 0x100,
+    TRANSFER_DST = 0x200,
 }
 
 export enum TaskType {
@@ -205,6 +207,7 @@ export enum SceneFlags {
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
     REFLECTION_PROBE = 0x2000,
+    GPU_DRIVEN = 0x4000,
     ALL = 0xFFFFFFFF,
 }
 
@@ -285,12 +288,14 @@ export function getClearValueTypeName (e: ClearValueType): string {
 }
 
 export class LightInfo {
-    constructor (light: Light | null = null, level = 0) {
+    constructor (light: Light | null = null, level = 0, culledByLight = false) {
         this.light = light;
         this.level = level;
+        this.culledByLight = culledByLight;
     }
     /*refcount*/ light: Light | null;
     level: number;
+    culledByLight: boolean;
 }
 
 export enum DescriptorTypeOrder {
@@ -502,11 +507,13 @@ export class PipelineStatistics {
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     ar.writeNumber(v.level);
+    ar.writeBool(v.culledByLight);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
     v.level = ar.readNumber();
+    v.culledByLight = ar.readBool();
 }
 
 export function saveDescriptor (ar: OutputArchive, v: Descriptor): void {

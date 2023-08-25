@@ -50,6 +50,10 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 
+#if CC_USE_SPINE
+#include "cocos/editor-support/spine-creator-support/Vector2.h"
+#endif
+
 ///////////////////////// utils /////////////////////////
 
 #define CHECK_ASSIGN_PRVOBJ_RET(jsObj, nativeObj)                            \
@@ -1162,6 +1166,25 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
     return true;
 }
+
+bool sevalue_to_native(const se::Value &from, spine::Vector2 *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
+
+    se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
+    se::Value tmp;
+    set_member_field(obj, to, "x", &spine::Vector2::x, tmp);
+    set_member_field(obj, to, "y", &spine::Vector2::y, tmp);
+    return true;
+}
+
+bool nativevalue_to_se(const spine::Vector2 &from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("x", se::Value(from.x));
+    obj->setProperty("y", se::Value(from.y));
+    to.setObject(obj);
+    return true;
+}
 #endif
 
 #if CC_USE_MIDDLEWARE
@@ -1591,6 +1614,18 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTShape
             nativevalue_to_se(from[i]->contacts, obj, ctx);
             return obj;
         }());
+    }
+    to.setObject(array);
+    return true;
+}
+
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTTriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
+    se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::CCTTriggerEventPair::COUNT));
+    for (size_t i = 0; i < from.size(); i++) {
+        auto t = i * cc::physics::CCTTriggerEventPair::COUNT;
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->cct));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shape));
+        array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
     return true;

@@ -27,12 +27,13 @@ import { EDITOR, DEBUG, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID } from '../../core';
+import { errorID, log } from '../../core';
 import { ECollider2DType, EJoint2DType  } from './physics-types';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
     IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
-export type IPhysicsEngineId = 'builtin' | 'box2d' | string;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+export type IPhysicsEngineId = 'builtin' | 'box2d' | 'box2d-wasm'| string;
 
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,
@@ -109,7 +110,7 @@ export interface IPhysicsSelector {
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
-    if (!EDITOR && !TEST) console.info(`[PHYSICS2D]: register ${id}.`);
+    if (!EDITOR && !TEST) log(`[PHYSICS2D]: register ${id}.`);
     selector.backend[id] = wrapper;
     if (!selector.physicsWorld || selector.id === id) {
         const mutableSelector = selector as Mutable<IPhysicsSelector>;
@@ -118,17 +119,17 @@ function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     }
 }
 
-function switchTo (id: IPhysicsEngineId) {
+function switchTo (id: IPhysicsEngineId): void {
     //if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
         //selector.physicsWorld.destroy();//todo
-        if (!TEST) console.info(`[PHYSICS2D]: switch from ${selector.id} to ${id}.`);
+        if (!TEST) log(`[PHYSICS2D]: switch from ${selector.id} to ${id}.`);
         mutableSelector.id = id;
         mutableSelector.wrapper = selector.backend[id];
         mutableSelector.physicsWorld = createPhysicsWorld();
     } else {
-        if (!EDITOR && !TEST) console.info(`[PHYSICS2D]: using ${mutableSelector.id}.`);
+        if (!EDITOR && !TEST) log(`[PHYSICS2D]: using ${mutableSelector.id}.`);
         mutableSelector.physicsWorld = createPhysicsWorld();
     }
 }
@@ -151,7 +152,7 @@ export const selector: IPhysicsSelector = {
     runInEditor: !EDITOR,
 };
 
-const FUNC = (...v: any) => 0 as any;
+const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
     debugDrawFlags: 0,
@@ -166,7 +167,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     drawDebug: FUNC,
 };
 
-export function checkPhysicsModule (obj: any) {
+export function checkPhysicsModule (obj: any): boolean {
     if (DEBUG && !TEST && !EDITOR_NOT_IN_PREVIEW && obj == null) {
         errorID(9600);
         return true;
@@ -268,7 +269,7 @@ export function createShape (type: ECollider2DType): IBaseShape {
     return CREATE_COLLIDER_PROXY[type]();
 }
 
-function initColliderProxy () {
+function initColliderProxy (): void {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
@@ -323,7 +324,7 @@ export function createJoint (type: EJoint2DType): IJoint2D {
     return CREATE_JOINT_PROXY[type]();
 }
 
-function initJointProxy () {
+function initJointProxy (): void {
     if (CREATE_JOINT_PROXY.INITED) return;
     CREATE_JOINT_PROXY.INITED = true;
 

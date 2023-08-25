@@ -42,7 +42,7 @@ import {
 export class RasterizerState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): RasterizerState {
         return this;
     }
 
@@ -61,7 +61,7 @@ export class RasterizerState {
         public lineWidth: number = 1.0,
     ) {}
 
-    public reset () {
+    public reset (): void {
         this.isDiscard = false;
         this.polygonMode = PolygonMode.FILL;
         this.shadeModel = ShadeModel.GOURAND;
@@ -76,11 +76,11 @@ export class RasterizerState {
         this.lineWidth = 1.0;
     }
 
-    public assign (rs: RasterizerState) {
+    public assign (rs: RasterizerState): void {
         Object.assign(this, rs);
     }
 
-    public destroy () {}
+    public destroy (): void {}
 }
 
 /**
@@ -90,7 +90,7 @@ export class RasterizerState {
 export class DepthStencilState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): DepthStencilState {
         return this;
     }
     constructor (
@@ -115,7 +115,7 @@ export class DepthStencilState {
         public stencilRefBack: number = 1,
     ) {}
 
-    public reset () {
+    public reset (): void {
         this.depthTest = true;
         this.depthWrite = true;
         this.depthFunc = ComparisonFunc.LESS;
@@ -137,11 +137,11 @@ export class DepthStencilState {
         this.stencilRefBack = 1;
     }
 
-    public assign (dss: DepthStencilState) {
+    public assign (dss: DepthStencilState): void {
         Object.assign(this, dss);
     }
 
-    public destroy () {}
+    public destroy (): void {}
 }
 
 /**
@@ -162,7 +162,7 @@ export class BlendTarget {
         public blendColorMask: ColorMask = ColorMask.ALL,
     ) {}
 
-    public reset () {
+    public reset (): void {
         this.blend = false;
         this.blendSrc = BlendFactor.ONE;
         this.blendDst = BlendFactor.ZERO;
@@ -173,11 +173,11 @@ export class BlendTarget {
         this.blendColorMask = ColorMask.ALL;
     }
 
-    public assign (target: BlendTarget) {
+    public assign (target: BlendTarget): void {
         Object.assign(this, target);
     }
 
-    public destroy () {}
+    public destroy (): void {}
 }
 
 /**
@@ -187,7 +187,7 @@ export class BlendTarget {
 export class BlendState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): BlendState {
         return this;
     }
 
@@ -206,7 +206,7 @@ export class BlendState {
      * @param index The index to set target.
      * @param target The target to be set.
      */
-    public setTarget (index: number, target: BlendTarget) {
+    public setTarget (index: number, target: BlendTarget): void {
         let tg = this.targets[index];
         if (!tg) {
             tg = this.targets[index] = new BlendTarget();
@@ -214,7 +214,7 @@ export class BlendState {
         Object.assign(tg, target);
     }
 
-    public reset () {
+    public reset (): void {
         this.isA2C = false;
         this.isIndepend = false;
         this.blendColor.x = 0;
@@ -225,5 +225,5 @@ export class BlendState {
         this.targets[0].reset();
     }
 
-    public destroy () {}
+    public destroy (): void {}
 }

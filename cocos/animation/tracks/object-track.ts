@@ -38,7 +38,7 @@ export class ObjectTrack<T> extends SingleChannelTrack<ObjectCurve<T>> {
     /**
      * @internal
      */
-    protected createCurve () {
+    protected createCurve (): ObjectCurve<T> {
         return new ObjectCurve<T>();
     }
 }

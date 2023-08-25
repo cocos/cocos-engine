@@ -368,6 +368,11 @@ export abstract class NativePackTool {
         return /^[0-9a-zA-Z_-]+$/.test(this.params.projectName) ? this.params.projectName : 'CocosGame';
     }
 
+    protected getExcutableNameOrDefault(): string {
+        const en = this.params.executableName;
+        return en ? en : this.projectNameASCII();
+    }
+
     protected async excuteTemplateTask(tasks: CocosProjectTasks) {
         if (tasks.appendFile) {
             await Promise.all(tasks.appendFile.map((task) => {
@@ -417,7 +422,7 @@ export abstract class NativePackTool {
                 replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
                 replaceFilesDelay[fp].push({
                     reg: name,
-                    content: this.params.platformParams.packageName!,
+                    content: (this.params.platformParams as any).packageName!,
                 });
             });
             delete tasks.projectReplacePackageName;
@@ -449,7 +454,7 @@ export abstract class NativePackTool {
             }
         });
         Object.keys(config).forEach((key: string) => {
-            if(typeof config[key] !== 'string')  {
+            if (typeof config[key] !== 'string') {
                 console.error(`cMakeConfig.${key} is not a string, "${config[key]}"`);
             } else {
                 content += config[key] + '\n';
@@ -463,7 +468,7 @@ export abstract class NativePackTool {
         args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}"`);
         args.push(`-DAPP_NAME="${this.params.projectName}"`);
         args.push(`-DLAUNCH_TYPE="${this.buildType}"`);
-        if (this.params.platformParams?.skipUpdateXcodeProject) {
+        if ((this.params.platformParams as any).skipUpdateXcodeProject) {
             args.push(`-DCMAKE_SUPPRESS_REGENERATION=ON`);
         }
     }
@@ -538,7 +543,7 @@ export abstract class NativePackTool {
 
 // cocos.compile.json 
 export class CocosParams<T> {
-    platformParams!: T | any;
+    platformParams: T;
     public debug: boolean;
     public projectName: string;
     public cmakePath: string;
@@ -597,7 +602,7 @@ export class CocosParams<T> {
         CC_ENABLE_SWAPPY: false,
     }
 
-    constructor(params: CocosParams<Object>) {
+    constructor(params: CocosParams<T>) {
         this.buildAssetsDir = params.buildAssetsDir;
         this.projectName = params.projectName;
         this.debug = params.debug;

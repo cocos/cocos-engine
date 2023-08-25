@@ -35,7 +35,6 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
-import { legacyCC } from '../core/global-exports';
 import { getDescBindingFromName } from './custom/define';
 
 const _matShadowView = new Mat4();
@@ -46,7 +45,7 @@ const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 const _tempVec3 = new Vec3();
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array): void {
         const director = cclegacy.director;
         const root = director.root;
         const fv = bufferView;
@@ -91,8 +90,11 @@ export class PipelineUBO {
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
     }
 
-    public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
-        camera: Camera) {
+    public static updateCameraUBOView (
+        pipeline: PipelineRuntime,
+        bufferView: Float32Array,
+        camera: Camera,
+    ): void {
         const scene = camera.scene ? camera.scene : cclegacy.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -209,7 +211,7 @@ export class PipelineUBO {
         return 0.0;
     }
 
-    public static updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
+    public static updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array): void {
         Vec3.normalize(_tempVec3, shadowInfo.normal);
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 0] = _tempVec3.x;
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 1] = _tempVec3.y;
@@ -217,8 +219,12 @@ export class PipelineUBO {
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = -shadowInfo.distance;
     }
 
-    public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array,
-        csmBufferView: Float32Array, camera: Camera) {
+    public static updateShadowUBOView (
+        pipeline: PipelineRuntime,
+        shadowBufferView: Float32Array,
+        csmBufferView: Float32Array,
+        camera: Camera,
+    ): void {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -316,7 +322,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number) {
+    public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number): void {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
@@ -395,8 +401,17 @@ export class PipelineUBO {
                 Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
                 Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range,
-                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
+                Mat4.perspective(
+                    _matShadowProj,
+                    (light as any).angle,
+                    1.0,
+                    0.001,
+                    (light as any).range,
+                    true,
+                    cap.clipSpaceMinZ,
+                    cap.clipSpaceSignY,
+                    0,
+                );
 
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
@@ -434,16 +449,16 @@ export class PipelineUBO {
      *|      2      |      -1      |       1        |          |
      *|      3      |       1      |       1        |  GL-like |
      */
-    public static getCombineSignY () {
+    public static getCombineSignY (): number {
         return PipelineUBO._combineSignY;
     }
 
-    private _initCombineSignY () {
+    private _initCombineSignY (): void {
         const device = this._device;
         PipelineUBO._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
     }
 
-    public activate (device: Device, pipeline: PipelineRuntime) {
+    public activate (device: Device, pipeline: PipelineRuntime): void {
         this._device = device;
         this._pipeline = pipeline;
         const ds = this._pipeline.descriptorSet;
@@ -489,7 +504,7 @@ export class PipelineUBO {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateGlobalUBO (window: RenderWindow) {
+    public updateGlobalUBO (window: RenderWindow): void {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
@@ -501,7 +516,7 @@ export class PipelineUBO {
         globalDSManager.update();
     }
 
-    public updateCameraUBO (camera: Camera) {
+    public updateCameraUBO (camera: Camera): void {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
@@ -512,7 +527,7 @@ export class PipelineUBO {
         globalDSManager.update();
     }
 
-    public updateShadowUBO (camera: Camera) {
+    public updateShadowUBO (camera: Camera): void {
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         if (!shadowInfo.enabled) return;
@@ -532,7 +547,7 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(csmBinding), this._csmUBO);
     }
 
-    public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {
+    public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0): void {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, level);
         globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
@@ -541,7 +556,7 @@ export class PipelineUBO {
         this._pipeline.commandBuffers[0].updateBuffer(globalDS.getBuffer(binding), this._shadowUBO);
     }
 
-    public updateShadowUBORange (offset: number, data: Mat4 | Color) {
+    public updateShadowUBORange (offset: number, data: Mat4 | Color): void {
         if (data instanceof Mat4) {
             Mat4.toArray(this._shadowUBO, data, offset);
         } else if (data instanceof Color) {
@@ -549,6 +564,6 @@ export class PipelineUBO {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 }

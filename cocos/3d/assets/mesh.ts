@@ -23,11 +23,12 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc } from '../../core';
+import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, errorID } from '../../core';
 import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
@@ -35,8 +36,10 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
+import { MeshoptDecoder } from '../misc/mesh-codec';
+import zlib  from '../../../external/compression/zlib.min';
 
-function getIndexStrideCtor (stride: number) {
+function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
     case 1: return Uint8Array;
     case 2: return Uint16Array;
@@ -76,6 +79,13 @@ export declare namespace Mesh {
         attributes: Attribute[];
     }
 
+    export interface IMeshCluster {
+        clusterView: IBufferView;
+        triangleView: IBufferView;
+        vertexView: IBufferView;
+        coneView?: IBufferView;
+    }
+
     /**
      * @en Sub mesh contains a list of primitives with the same type (Point, Line or Triangle)
      * @zh 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
@@ -105,6 +115,11 @@ export declare namespace Mesh {
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
         jointMapIndex?: number;
+
+        /**
+         * @en The cluster data of the sub mesh
+         */
+        cluster?: IMeshCluster;
     }
 
     /**
@@ -196,6 +211,30 @@ export declare namespace Mesh {
          * @zh 动态网格特有数据
          */
         dynamic?: IDynamicStruct;
+
+        /**
+         * @en Whether the mesh data is quantized to reduce memory usage
+         * @zh 此网格数据是否经过量化以减少内存占用。
+         */
+        quantized?: boolean;
+
+        /**
+         * @en Whether the mesh data is encoded to reduce memory usage
+         * @zh
+         */
+        encoded?: boolean;
+
+        /**
+         * @en Whether the mesh data is compressed to reduce memory usage
+         * @zh 此网格数据是否经过压缩以减少内存占用。
+         */
+        compressed?: boolean;
+
+        /**
+         * @en Whether the mesh contains cluster data
+         * @zh 此网格是否包含 cluster 数据。
+         */
+        cluster?: boolean;
     }
 
     /**
@@ -244,7 +283,7 @@ export class Mesh extends Asset {
      * @zh 此网格的子网格数量。
      * @deprecated Please use [[renderingSubMeshes.length]] instead
      */
-    get subMeshCount () {
+    get subMeshCount (): number {
         const renderingMesh = this.renderingSubMeshes;
         return renderingMesh ? renderingMesh.length : 0;
     }
@@ -271,7 +310,7 @@ export class Mesh extends Asset {
      * @en The struct of the mesh
      * @zh 此网格的结构。
      */
-    get struct () {
+    get struct (): Mesh.IStruct {
         return this._struct;
     }
 
@@ -279,7 +318,7 @@ export class Mesh extends Asset {
      * @en The actual data of the mesh
      * @zh 此网格的数据。
      */
-    get data () {
+    get data (): Uint8Array {
         return this._data;
     }
 
@@ -287,7 +326,7 @@ export class Mesh extends Asset {
      * @en The hash of the mesh
      * @zh 此网格的哈希值。
      */
-    get hash () {
+    get hash (): number {
     // hashes should already be computed offline, but if not, make one
         if (!this._hash) { this._hash = murmurhash2_32_gc(this._data, 666); }
         return this._hash;
@@ -297,7 +336,7 @@ export class Mesh extends Asset {
      * @en The index of the joint buffer of all sub meshes in the joint map buffers
      * @zh 所有子网格的关节索引集合
      */
-    get jointBufferIndices () {
+    get jointBufferIndices (): number[] {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
     }
@@ -306,7 +345,7 @@ export class Mesh extends Asset {
      * @en The sub meshes for rendering. Mesh could be split into different sub meshes for rendering.
      * @zh 此网格创建的渲染网格。
      */
-    public get renderingSubMeshes () {
+    public get renderingSubMeshes (): RenderingSubMesh[] {
         this.initialize();
         return this._renderingSubMeshes!;
     }
@@ -349,7 +388,7 @@ export class Mesh extends Asset {
      * @en complete loading callback
      * @zh 加载完成回调
      */
-    public onLoaded () {
+    public onLoaded (): void {
         this.initialize();
     }
 
@@ -357,12 +396,22 @@ export class Mesh extends Asset {
      * @en mesh init
      * @zh 网格初始化函数
      */
-    public initialize () {
+    public initialize (): void {
         if (this._initialized) {
             return;
         }
-
         this._initialized = true;
+
+        let info = { struct: this.struct, data: this.data };
+        if (info.struct.compressed) { // decompress mesh data
+            info = inflateMesh(info);
+        }
+        if (this.struct.encoded) { // decode mesh data
+            info = decodeMesh(info);
+        }
+
+        this._struct = info.struct;
+        this._data = info.data;
 
         if (this._struct.dynamic) {
             const device: Device = deviceManager.gfxDevice;
@@ -435,7 +484,7 @@ export class Mesh extends Asset {
                 }
 
                 let indexBuffer: Buffer | null = null;
-                let ib: any = null;
+                let ib: Uint8Array | Uint16Array | Uint32Array | undefined;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
 
@@ -493,7 +542,7 @@ export class Mesh extends Asset {
             }
 
             this._isMeshDataUploaded = true;
-            if (!this._allowDataAccess) {
+            if (!this._allowDataAccess && !EDITOR) {
                 this.releaseData();
             }
         }
@@ -505,7 +554,7 @@ export class Mesh extends Asset {
      * @param primitiveIndex @en sub mesh index @zh 子网格索引
      * @param dynamicGeometry @en sub mesh geometry data @zh 子网格几何数据
      */
-    public updateSubMesh (primitiveIndex: number, dynamicGeometry: IDynamicGeometry) {
+    public updateSubMesh (primitiveIndex: number, dynamicGeometry: IDynamicGeometry): void {
         if (!this._struct.dynamic) {
             warnID(14200);
             return;
@@ -622,7 +671,7 @@ export class Mesh extends Asset {
      * @en Destroy the mesh and release all related GPU resources
      * @zh 销毁此网格，并释放它占有的所有 GPU 资源。
      */
-    public destroy () {
+    public destroy (): boolean {
         this.destroyRenderingMesh();
         return super.destroy();
     }
@@ -631,7 +680,7 @@ export class Mesh extends Asset {
      * @en Release all related GPU resources
      * @zh 释放此网格占有的所有 GPU 资源。
      */
-    public destroyRenderingMesh () {
+    public destroyRenderingMesh (): void {
         if (this._renderingSubMeshes) {
             for (let i = 0; i < this._renderingSubMeshes.length; i++) {
                 this._renderingSubMeshes[i].destroy();
@@ -649,7 +698,7 @@ export class Mesh extends Asset {
      * @param data @en The new data @zh 新数据
      * @deprecated Will be removed in v3.0.0, please use [[reset]] instead
      */
-    public assign (struct: Mesh.IStruct, data: Uint8Array) {
+    public assign (struct: Mesh.IStruct, data: Uint8Array): void {
         this.reset({
             struct,
             data,
@@ -661,7 +710,7 @@ export class Mesh extends Asset {
      * @zh 重置此网格。
      * @param info @en Mesh creation information including struct and data @zh 网格创建信息，包含结构及数据
      */
-    public reset (info: Mesh.ICreateInfo) {
+    public reset (info: Mesh.ICreateInfo): void {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
@@ -674,7 +723,7 @@ export class Mesh extends Asset {
      * @param skeleton @en skeleton data @zh 骨骼信息
      * @param skeleton @en skeleton data @zh 骨骼信息
      */
-    public getBoneSpaceBounds (skeleton: Skeleton) {
+    public getBoneSpaceBounds (skeleton: Skeleton): (geometry.AABB | null)[] {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
@@ -751,7 +800,8 @@ export class Mesh extends Asset {
                 for (let i = 0; i < struct.vertexBundles.length; i++) {
                     const vtxBdl = struct.vertexBundles[i];
                     for (let j = 0; j < vtxBdl.attributes.length; j++) {
-                        if (vtxBdl.attributes[j].name === AttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === AttributeName.ATTR_NORMAL) {
+                        if (vtxBdl.attributes[j].name === (AttributeName.ATTR_POSITION as string)
+                            || vtxBdl.attributes[j].name === (AttributeName.ATTR_NORMAL as string)) {
                             const { format } = vtxBdl.attributes[j];
 
                             const inputView = new DataView(
@@ -851,7 +901,8 @@ export class Mesh extends Asset {
                     for (let v = 0; v < dstBundle.view.count; ++v) {
                         dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                         vbView.set(dstAttrView, srcVBOffset);
-                        if ((attr.name === AttributeName.ATTR_POSITION || attr.name === AttributeName.ATTR_NORMAL) && worldMatrix) {
+                        if ((attr.name === (AttributeName.ATTR_POSITION as string)
+                            || attr.name === (AttributeName.ATTR_NORMAL as string)) && worldMatrix) {
                             const f32_temp = new Float32Array(vbView.buffer, srcVBOffset, 3);
                             vec3_temp.set(f32_temp[0], f32_temp[1], f32_temp[2]);
                             switch (attr.name) {
@@ -1034,7 +1085,7 @@ export class Mesh extends Asset {
      *  - 要么都需要索引绘制，要么都不需要索引绘制。
      * @param mesh @en The other mesh to be validated @zh 待验证的网格
      */
-    public validateMergingMesh (mesh: Mesh) {
+    public validateMergingMesh (mesh: Mesh): boolean {
         // dynamic mesh is not allowed to merge.
         if (this._struct.dynamic || mesh._struct.dynamic) {
             return false;
@@ -1141,7 +1192,7 @@ export class Mesh extends Asset {
      * @param offset @en The offset of the first attribute in the target buffer @zh 第一个属性在目标缓冲区的偏移
      * @returns @en false if failed to access attribute, true otherwise @zh 是否成功拷贝
      */
-    public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
+    public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number): boolean {
         let written = false;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
@@ -1191,7 +1242,7 @@ export class Mesh extends Asset {
      * @returns @en Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data,
      * the array type will use the corresponding stride size. @zh 读取失败返回 null，否则返回索引数据
      */
-    public readIndices (primitiveIndex: number) {
+    public readIndices (primitiveIndex: number): Uint8Array | Uint16Array | Uint32Array | null {
         if (primitiveIndex >= this._struct.primitives.length) {
             return null;
         }
@@ -1250,14 +1301,14 @@ export class Mesh extends Asset {
         primitiveIndex: number,
         attributeName: AttributeName,
         accessor: (vertexBundle: Mesh.IVertexBundle, iAttribute: number) => void,
-    ) {
+    ): void {
         if (primitiveIndex >= this._struct.primitives.length) {
             return;
         }
         const primitive = this._struct.primitives[primitiveIndex];
         for (const vertexBundleIndex of primitive.vertexBundelIndices) {
             const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
-            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === (attributeName as string));
             if (iAttribute < 0) {
                 continue;
             }
@@ -1286,7 +1337,7 @@ export class Mesh extends Asset {
      * @zh 默认初始化
      * @param uuid @en asset uuid @zh 资源 uuid
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         this.reset({
             struct: {
@@ -1304,7 +1355,7 @@ export class Mesh extends Asset {
      */
     public set allowDataAccess (allowDataAccess: boolean) {
         this._allowDataAccess = allowDataAccess;
-        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+        if (this._isMeshDataUploaded && !this._allowDataAccess && !EDITOR) {
             this.releaseData();
         }
     }
@@ -1314,17 +1365,17 @@ export class Mesh extends Asset {
      * @zh 获取此网格的数据是否可被存取
      * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
      */
-    public get allowDataAccess () {
+    public get allowDataAccess (): boolean {
         return this._allowDataAccess;
     }
 
-    private releaseData () {
+    private releaseData (): void {
         this._data = globalEmptyMeshBuffer;
     }
 }
 cclegacy.Mesh = Mesh;
 
-function getOffset (attributes: Attribute[], attributeIndex: number) {
+function getOffset (attributes: Attribute[], attributeIndex: number): number {
     let result = 0;
     for (let i = 0; i < attributeIndex; ++i) {
         const attribute = attributes[i];
@@ -1335,54 +1386,59 @@ function getOffset (attributes: Attribute[], attributeIndex: number) {
 
 const { isLittleEndian } = sys;
 
-function getComponentByteLength (format: Format) {
+function getComponentByteLength (format: Format): number {
     const info = FormatInfos[format];
     return info.size / info.count;
 }
 
-function getReader (dataView: DataView, format: Format) {
+function getReader (dataView: DataView, format: Format): ((offset: number) => number) | null {
     const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
     case FormatType.UNORM: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getUint8(offset);
-        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getUint8(offset);
+        case 2: return (offset: number): number => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getUint32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.SNORM: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getInt8(offset);
-        case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getInt8(offset);
+        case 2: return (offset: number): number => dataView.getInt16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getInt32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.INT: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getInt8(offset);
-        case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getInt8(offset);
+        case 2: return (offset: number): number => dataView.getInt16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getInt32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.UINT: {
         switch (stride) {
-        case 1: return (offset: number) => dataView.getUint8(offset);
-        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
-        case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        case 1: return (offset: number): number => dataView.getUint8(offset);
+        case 2: return (offset: number): number => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number): number => dataView.getUint32(offset, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }
@@ -1390,54 +1446,139 @@ function getReader (dataView: DataView, format: Format) {
     return null;
 }
 
-function getWriter (dataView: DataView, format: Format) {
+function getWriter (dataView: DataView, format: Format): ((offset: number, value: number) => void) | null {
     const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
     case FormatType.UNORM: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setUint8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setUint32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.SNORM: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setInt8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setInt16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setInt32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.INT: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setInt8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setInt16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setInt32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.UINT: {
         switch (stride) {
-        case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        case 1: return (offset: number, value: number): void => dataView.setUint8(offset, value);
+        case 2: return (offset: number, value: number): void => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number): void => dataView.setUint32(offset, value, isLittleEndian);
         default:
         }
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }
 
     return null;
+}
+
+export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    if (!mesh.struct.encoded) {
+        // the mesh is not encoded, so no need to decode
+        return mesh;
+    }
+
+    // decode the mesh
+    if (!MeshoptDecoder.supported) {
+        return mesh;
+    }
+
+    const res_checker = (res: number): void => {
+        if (res < 0) {
+            errorID(14204, res);
+        }
+    };
+
+    const struct = JSON.parse(JSON.stringify(mesh.struct)) as Mesh.IStruct;
+
+    const bufferBlob = new BufferBlob();
+    bufferBlob.setNextAlignment(0);
+
+    for (const bundle of struct.vertexBundles) {
+        const view = bundle.view;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const vertex = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeVertexBuffer(buffer, view.count, view.stride, vertex) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        bundle.view = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    for (const primitive of struct.primitives) {
+        if (primitive.indexView === undefined) {
+            continue;
+        }
+
+        const view = primitive.indexView;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const index = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeIndexBuffer(buffer, view.count, view.stride, index) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        primitive.indexView = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    const data = new Uint8Array(bufferBlob.getCombined());
+
+    return {
+        struct,
+        data,
+    };
+}
+
+export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    const inflator = new zlib.Inflate(mesh.data);
+    const decompressed = inflator.decompress();
+    mesh.data = decompressed;
+    mesh.struct.compressed = false;
+    return mesh;
 }
 
 // function get

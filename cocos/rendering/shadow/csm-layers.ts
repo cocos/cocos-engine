@@ -20,7 +20,9 @@
  THE SOFTWARE.
 */
 
-import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene';
+import { Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene/shadows';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { Camera } from '../../render-scene/scene/camera';
 import { Mat4, Vec3, Vec2, Vec4 } from '../../core/math';
 import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
@@ -72,34 +74,34 @@ export class ShadowLayerVolume {
         this._lightViewFrustum.accurate = true;
     }
 
-    get level () { return this._level; }
+    get level (): number { return this._level; }
 
-    get shadowObjects () {
+    get shadowObjects (): IRenderObject[] {
         return this._shadowObjects;
     }
 
-    get shadowCameraFar () {
+    get shadowCameraFar (): number {
         return this._shadowCameraFar;
     }
     set shadowCameraFar (val) {
         this._shadowCameraFar = val;
     }
 
-    get matShadowView () {
+    get matShadowView (): Mat4 {
         return this._matShadowView;
     }
     set matShadowView (val) {
         this._matShadowView = val;
     }
 
-    get matShadowProj () {
+    get matShadowProj (): Mat4 {
         return this._matShadowProj;
     }
     set matShadowProj (val) {
         this._matShadowProj = val;
     }
 
-    get matShadowViewProj () {
+    get matShadowViewProj (): Mat4 {
         return this._matShadowViewProj;
     }
     set matShadowViewProj (val) {
@@ -122,23 +124,23 @@ export class ShadowLayerVolume {
         return this._castLightViewBoundingBox;
     }
 
-    public copyToValidFrustum (validFrustum: Readonly<Frustum>) {
+    public copyToValidFrustum (validFrustum: Readonly<Frustum>): void {
         Frustum.copy(this._validFrustum, validFrustum);
     }
 
-    public calculateValidFrustumOrtho (width: number, height: number, near: number, far: number, transform: Mat4) {
+    public calculateValidFrustumOrtho (width: number, height: number, near: number, far: number, transform: Mat4): void {
         Frustum.createOrtho(this._validFrustum, width, height, near,  far, transform);
     }
 
-    public calculateSplitFrustum (camera: Camera, m: Mat4, start: number, end: number) {
+    public calculateSplitFrustum (camera: Camera, m: Mat4, start: number, end: number): void {
         this._splitFrustum.split(start, end, camera.aspect, camera.fov, m);
     }
 
-    public destroy () {
+    public destroy (): void {
         this._shadowObjects.length = 0;
     }
 
-    public createMatrix (dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean) {
+    public createMatrix (dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean): void {
         const device = cclegacy.director.root.device;
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         Frustum.copy(this._lightViewFrustum, this._splitFrustum);
@@ -186,8 +188,17 @@ export class ShadowLayerVolume {
             // snap to whole texels
             const halfOrthoSizeWidth = orthoSizeWidth * 0.5;
             const halfOrthoSizeHeight = orthoSizeHeight * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSizeWidth, halfOrthoSizeWidth, -halfOrthoSizeHeight, halfOrthoSizeHeight,
-                0.1, this._shadowCameraFar, device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+            Mat4.ortho(
+                _matShadowProj,
+                -halfOrthoSizeWidth,
+                halfOrthoSizeWidth,
+                -halfOrthoSizeHeight,
+                halfOrthoSizeHeight,
+                0.1,
+                this._shadowCameraFar,
+                device.capabilities.clipSpaceMinZ,
+                device.capabilities.clipSpaceSignY,
+            );
 
             Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
             Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
@@ -209,8 +220,14 @@ export class ShadowLayerVolume {
             Mat4.copy(this._matShadowViewProj, _matShadowViewProj);
         }
 
-        Frustum.createOrtho(this._validFrustum, orthoSizeWidth, orthoSizeHeight,
-            0.1,  this._shadowCameraFar, _matShadowTrans);
+        Frustum.createOrtho(
+            this._validFrustum,
+            orthoSizeWidth,
+            orthoSizeHeight,
+            0.1,
+            this._shadowCameraFar,
+            _matShadowTrans,
+        );
     }
 }
 export class CSMShadowLayer extends ShadowLayerVolume {
@@ -224,32 +241,32 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._calculateAtlas(level);
     }
 
-    get splitCameraNear () {
+    get splitCameraNear (): number {
         return this._splitCameraNear;
     }
     set splitCameraNear (val) {
         this._splitCameraNear = val;
     }
 
-    get splitCameraFar () {
+    get splitCameraFar (): number {
         return this._splitCameraFar;
     }
     set splitCameraFar (val) {
         this._splitCameraFar = val;
     }
 
-    get csmAtlas () {
+    get csmAtlas (): Vec4 {
         return this._csmAtlas;
     }
     set csmAtlas (val) {
         this._csmAtlas = val;
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
     }
 
-    private _calculateAtlas (level: number) {
+    private _calculateAtlas (level: number): void {
         const clipSpaceSignY =  cclegacy.director.root.device.capabilities.clipSpaceSignY;
         const x = level % 2 - 0.5;
         const y = (0.5 - Math.floor(level / 2)) * clipSpaceSignY;
@@ -272,19 +289,19 @@ export class CSMLayers {
     protected _specialLayer: ShadowLayerVolume = new ShadowLayerVolume(1);
     protected _shadowDistance = 0;
 
-    get castShadowObjects () {
+    get castShadowObjects (): IRenderObject[] {
         return this._castShadowObjects;
     }
 
-    get layerObjects () {
+    get layerObjects (): CachedArray<IRenderObject> {
         return this._layerObjects;
     }
 
-    get layers () {
+    get layers (): CSMShadowLayer[] {
         return this._layers;
     }
 
-    get specialLayer () {
+    get specialLayer (): ShadowLayerVolume {
         return this._specialLayer;
     }
 
@@ -294,7 +311,7 @@ export class CSMLayers {
         }
     }
 
-    public update (sceneData: PipelineSceneData, camera: Camera) {
+    public update (sceneData: PipelineSceneData, camera: Camera): void {
         const scene = camera.scene!;
         const dirLight = scene.mainLight;
         if (dirLight === null) { return; }
@@ -319,7 +336,7 @@ export class CSMLayers {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this._castShadowObjects.length = 0;
         for (let i = 0; i < this._layers.length; i++) {
             this._layers[i].destroy();
@@ -327,7 +344,7 @@ export class CSMLayers {
         this._layers.length = 0;
     }
 
-    private _updateFixedArea (dirLight: DirectionalLight) {
+    private _updateFixedArea (dirLight: DirectionalLight): void {
         const device = cclegacy.director.root.device;
         const x = dirLight.shadowOrthoSize;
         const y = dirLight.shadowOrthoSize;
@@ -335,8 +352,17 @@ export class CSMLayers {
         const far = dirLight.shadowFar;
         Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
         Mat4.invert(_matShadowView, _matShadowTrans);
-        Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-            device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+        Mat4.ortho(
+            _matShadowProj,
+            -x,
+            x,
+            -y,
+            y,
+            near,
+            far,
+            device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY,
+        );
         Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
         this._specialLayer.matShadowView = _matShadowView;
         this._specialLayer.matShadowProj = _matShadowProj;
@@ -345,7 +371,7 @@ export class CSMLayers {
         this._specialLayer.calculateValidFrustumOrtho(x * 2.0, y * 2.0, near,  far, _matShadowTrans);
     }
 
-    private _splitFrustumLevels (dirLight: DirectionalLight) {
+    private _splitFrustumLevels (dirLight: DirectionalLight): void {
         const nd = 0.1;
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
@@ -356,7 +382,7 @@ export class CSMLayers {
             // i ÷ numbers of level
             const si = i / level;
             // eslint-disable-next-line no-restricted-properties
-            const preNear = lambda * (nd * Math.pow(ratio, si)) + (1 - lambda) * (nd + (fd - nd) * si);
+            const preNear = lambda * (nd * ratio ** si) + (1 - lambda) * (nd + (fd - nd) * si);
             // Slightly increase the overlap to avoid fracture
             const nextFar = preNear * 1.005;
             this._layers[i].splitCameraNear = preNear;
@@ -368,7 +394,7 @@ export class CSMLayers {
         dirLight.csmNeedUpdate = false;
     }
 
-    private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
+    private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows): void {
         const level = cclegacy.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
@@ -395,7 +421,7 @@ export class CSMLayers {
         }
     }
 
-    private _getCameraWorldMatrix (out: Mat4, camera: Camera) {
+    private _getCameraWorldMatrix (out: Mat4, camera: Camera): void {
         if (!camera.node) { return; }
 
         const cameraNode = camera.node;

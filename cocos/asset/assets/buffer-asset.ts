@@ -41,7 +41,7 @@ export class BufferAsset extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
-    get _nativeAsset () {
+    get _nativeAsset (): ArrayBuffer | ArrayBufferView {
         return this._buffer as ArrayBuffer;
     }
     set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
@@ -57,12 +57,12 @@ export class BufferAsset extends Asset {
      * @en Get the ArrayBuffer data of this asset.
      * @returns @en The ArrayBuffer. @zh 缓冲数据。
      */
-    public buffer () {
+    public buffer (): ArrayBuffer {
         assertIsNonNullable(this._buffer);
         return this._buffer;
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this._buffer;
     }
 }

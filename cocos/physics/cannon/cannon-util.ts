@@ -28,14 +28,14 @@ import { IBaseShape } from '../spec/i-physics-shape';
 import { PhysicsRayResult } from '../framework';
 import { IRaycastOptions } from '../spec/i-physics-world';
 
-export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions) {
+export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions): void {
     out.checkCollisionResponse = !options.queryTrigger;
     out.collisionFilterGroup = -1;
     out.collisionFilterMask = options.mask;
     // out.skipBackfaces = true;
 }
 
-export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNON.RaycastResult) {
+export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNON.RaycastResult): void {
     result._assign(
         cannonResult.hitPointWorld,
         cannonResult.distance,
@@ -44,7 +44,7 @@ export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNO
     );
 }
 
-export function commitShapeUpdates (body: CANNON.Body) {
+export function commitShapeUpdates (body: CANNON.Body): void {
     body.aabbNeedsUpdate = true;
     body.updateMassProperties();
     body.updateBoundingRadius();

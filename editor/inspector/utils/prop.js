@@ -184,6 +184,32 @@ exports.setHidden = function(data, element) {
     }
 };
 
+// In order to avoid a large number of operations in a short time, the function of returning the same operation result in a time period is added
+let getMessageProtocolSceneResult = '';
+let getMessageProtocolSceneStartTime = Date.now();
+exports.getMessageProtocolScene = function(element) {
+    if (getMessageProtocolSceneResult && Date.now() - getMessageProtocolSceneStartTime < 1000) {
+        return getMessageProtocolSceneResult;
+    }
+
+    getMessageProtocolSceneResult = '';
+    getMessageProtocolSceneStartTime = Date.now();
+
+    while (element) {
+        element = element.parentElement || element.getRootNode().host;
+        if (element && element.messageProtocol) {
+            getMessageProtocolSceneResult = element.messageProtocol.scene;
+            break;
+        }
+    }
+
+    if (!getMessageProtocolSceneResult) {
+        getMessageProtocolSceneResult = 'scene';
+    }
+
+    return getMessageProtocolSceneResult;
+};
+
 exports.updatePropByDump = function(panel, dump) {
     panel.dump = dump;
 
@@ -546,4 +572,8 @@ ui-prop[ui-section-config] + ui-section.config,
 ui-prop[ui-section-config] + ui-prop[ui-section-config],
 ui-section.config + ui-prop[ui-section-config],
 ui-section.config + ui-section.config { margin-top: 0; }
+
+ui-prop[ui-section-config]:last-child {
+    border-bottom: solid 1px var(--color-normal-fill-emphasis);
+}
 `;

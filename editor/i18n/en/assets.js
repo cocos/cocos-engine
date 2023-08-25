@@ -327,84 +327,65 @@ module.exports = {
                 name: 'Add Vertex Color',
                 title: 'Fill vertex color with white if the model file does not contain vertex color attribute.',
             },
-            meshOptimizer: {
-                name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
-                simplification: {
-                    name: 'Simplification',
-                    title: 'Simplification',
-                    si: {
-                        name: 'Achieve The Ratio R',
-                        title: 'Achieve The Ratio R',
-                    },
-                    sa: {
-                        name: 'Aggressively Simplify',
-                        title: 'Aggressively Simplify',
-                    },
+            meshOptimize: {
+                name: 'Mesh Optimize',
+                title: 'Whether to optimize the mesh data.',
+                vertexCache: {
+                    name: 'Vertex Cache',
+                    title: 'Optimize the vertex buffer to improve vertex cache hit rate. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                scene: {
-                    name: 'Scene',
-                    title: 'Scene',
-                    kn: {
-                        name: 'Keep Nodes Transform',
-                        title: 'Keep Nodes Transform',
-                    },
-                    ke: {
-                        name: 'Keep Extras Data',
-                        title: 'Keep Extras Data',
-                    },
+                vertexFetch: {
+                    name: 'Vertex Fetch',
+                    title: 'Optimize the vertex buffer to improve vertex fetch efficiency. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                miscellaneous: {
-                    name: 'Miscellaneous',
-                    title: 'Miscellaneous',
-                    noq: {
-                        name: 'Disable Quantization',
-                        title: 'Disable Quantization',
-                    },
-                    v: {
-                        name: 'Verbose Output',
-                        title: 'Verbose Output',
-                    },
+                overdraw: {
+                    name: 'Overdraw',
+                    title: 'Optimize the vertex buffer to reduce overdraw. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                algorithm: {
-                    name: 'Algorithm',
-                    simplify: 'simplify',
-                    gltfpack: 'gltfpack (deprecated)',
+            },
+            meshSimplify: {
+                name: 'Mesh Simplify',
+                title: 'Whether to simplify the mesh data.',
+                targetRatio: {
+                    name: 'Target Ratio',
+                    title: 'The target ratio of the simplified mesh data. <br>It is recommended to set this value to 0.5.',
                 },
-                simplify:{
-                    targetRatio: {
-                        name: 'Ratio',
-                        title: 'The target face count ratio after face reduction. <br>0 means reduce to minimum, and 1 means no face reduction at all. ',
-                    },
-                    preserveSurfaceCurvature: {
-                        name: 'Surface Curvature',
-                        title: 'Preserve Surface Curvature',
-                    },
-                    preserveBorderEdges: {
-                        name: 'Border Edges',
-                        title: 'Preserve Border Edges',
-                    },
-                    preserveUVSeamEdges: {
-                        name: 'UV Seam Edges',
-                        title: 'Preserve UV Seam Edges',
-                    },
-                    preserveUVFoldoverEdges: {
-                        name: 'UV Foldover Edges',
-                        title: 'Preserve UV Foldover Edges',
-                    },
-                    agressiveness: {
-                        name: 'Agressiveness',
-                        title: 'Face reduction algorithm aggressiveness. <br>The higher it sets, the more aggressive the face reduction algorithm tries to delete faces. <br>High aggressiveness setting is more likely to cause defects in result.',
-                    },
-                    maxIterationCount: {
-                        name: 'Max Iteration Count',
-                        title: 'The max iteration counts that the algorithm tries to further reduce faces of a model. <br>High iteration count is more likely to reach face reduction target, yet it is more likely to take more time and has higher chance to cause mistakes.',
-                    },
+                autoErrorRate: {
+                    name: 'Auto Error Rate',
+                    title: 'Whether to automatically calculate the error rate of the simplified mesh data.',
                 },
-                gltfpack: {
-                    warn: 'The current asset uses the gltfpack mesh optimization algorithm, which has been deprecated. Please use the new simplify face reduction algorithm.',
+                errorRate: {
+                    name: 'Error Rate',
+                    title: 'The max error rate of the simplified mesh data. <br>This value also alters the result size. <br>It is recommended to tune until you get a good result.',
                 },
-                warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
+                lockBoundary: {
+                    name: 'Lock Boundary',
+                    title: 'Whether to lock the boundary of the simplified mesh data.',
+                },
+            },
+            meshCluster: {
+                name: 'Mesh Cluster',
+                title: 'Whether to cluster the mesh data.',
+                generateBounding: {
+                    name: 'Generate Bounding',
+                    title: 'Whether to generate bounding sphere and normal cone for the clustered mesh data.',
+                },
+            },
+            meshCompress:{
+                name: 'Mesh Compress',
+                title: 'Whether to compress the mesh data.',
+                encode: {
+                    name: 'Encode',
+                    title: 'Encode the mesh data to reduce data size.',
+                },
+                compress: {
+                    name: 'Compress',
+                    title: 'Compress the mesh data to reduce data size.',
+                },
+                quantize: {
+                    name: 'Quantize',
+                    title: 'Quantize the mesh data to reduce data size.',
+                },
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',

@@ -515,7 +515,7 @@ cocos_source_files(
 )
 
 ############ main
-if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX OR MACOSX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
     cocos/platform/SDLHelper.cpp
@@ -1406,7 +1406,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphUtils.h
-                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
+                 cocos/renderer/pipeline/custom/NativeBuiltinUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeBuiltinUtils.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h
@@ -1418,10 +1419,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePools.cpp
                  cocos/renderer/pipeline/custom/NativeProgramLibrary.cpp
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraphUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
                  cocos/renderer/pipeline/custom/NativeSceneCulling.cpp
+                 cocos/renderer/pipeline/custom/NativeSetter.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
                  cocos/renderer/pipeline/custom/NativeUtils.cpp
@@ -1528,6 +1532,8 @@ cocos_source_files(
                  cocos/scene/ReflectionProbeManager.h
                  cocos/scene/Skin.h
                  cocos/scene/Skin.cpp
+                 cocos/scene/PostSettings.h
+                 cocos/scene/PostSettings.cpp
 )
 
 ##### primitive
@@ -2364,7 +2370,10 @@ if(USE_MIDDLEWARE)
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                                      cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
-                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h                                  
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/Vector2.cpp
+                                     cocos/editor-support/spine-creator-support/Vector2.h
 
         )
         cocos_source_files(
@@ -3093,6 +3102,11 @@ if(MSVC)
         /wd4996 # deprecated
         /wd4098 # defaultlib conflicts
         /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
+    )
+    target_link_options(${ENGINE_NAME} PUBLIC
+        /ignore:4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
+        /ignore:4098 # defaultlib 'library' conflicts with use of other libs; use /NODEFAULTLIB:library
+        /ignore:4204 # 'filename' is missing debugging information for referencing module; linking object as if no debug info
     )
 endif()
 

@@ -151,7 +151,7 @@ export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecora
  */
 export const editable: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptorOrInitializer) => {
+    : (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         setImplicitVisible(propertyStash);
     };
@@ -289,11 +289,7 @@ export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV
  * 设置该属性在编辑器中的计量单位。
  * @param name 计量单位的名称。
  */
-export const unit: (name:
-| 'lm'
-| 'lx'
-| 'cd/m²'
-) => LegacyPropertyDecorator = !DEV
+export const unit: (name: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
     : setPropertyStashVar1WithImplicitVisible('unit');
 
@@ -326,7 +322,7 @@ export const multiline: LegacyPropertyDecorator = !DEV
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptorOrInitializer) => {
+    : (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.animatable = false;
     };
@@ -343,7 +339,7 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
     value: NonNullable<PropertyStash[TKey]>,
 ): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptorOrInitializer) => {
+    return (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
@@ -353,21 +349,21 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
 function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
 ) {
-    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
     };
 }
 
-function setImplicitVisible (propertyStash: PropertyStash) {
+function setImplicitVisible (propertyStash: PropertyStash): void {
     propertyStash.__internalFlags |= PropertyStashInternalFlag.IMPLICIT_VISIBLE;
 }
 
 function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
     key: TKey,
 ) {
-    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         const prefix = 'i18n:';
         if (value.startsWith(prefix)) {

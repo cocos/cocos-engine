@@ -48,24 +48,24 @@ const _vp2 = new Vec3(0.0, 0.0, 0.0);
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
-    public get probes () {
+    public get probes (): Vertex[] {
         return this._probes;
     }
 
-    public get tetrahedrons () {
+    public get tetrahedrons (): Tetrahedron[] {
         return this._tetrahedrons;
     }
 
-    public empty () {
+    public empty (): boolean {
         return this._probes.length === 0 || this._tetrahedrons.length === 0;
     }
 
-    public reset () {
+    public reset (): void {
         this._probes.length = 0;
         this._tetrahedrons.length = 0;
     }
 
-    public updateProbes (points: Vec3[]) {
+    public updateProbes (points: Vec3[]): void {
         this._probes.length = 0;
 
         const pointCount = points.length;
@@ -74,12 +74,12 @@ export class LightProbesData {
         }
     }
 
-    public updateTetrahedrons () {
+    public updateTetrahedrons (): void {
         const delaunay = new Delaunay(this._probes);
         this._tetrahedrons = delaunay.build();
     }
 
-    public getInterpolationSHCoefficients (tetIndex: number, weights: Vec4, coefficients: Vec3[]) {
+    public getInterpolationSHCoefficients (tetIndex: number, weights: Vec4, coefficients: Vec3[]): boolean {
         if (!this.hasCoefficients()) {
             return false;
         }
@@ -112,7 +112,7 @@ export class LightProbesData {
         return true;
     }
 
-    public getInterpolationWeights (position: Vec3, tetIndex: number, weights: Vec4) {
+    public getInterpolationWeights (position: Vec3, tetIndex: number, weights: Vec4): number {
         const tetrahedronCount = this._tetrahedrons.length;
         if (tetIndex < 0 || tetIndex >= tetrahedronCount) {
             tetIndex = 0;
@@ -150,11 +150,11 @@ export class LightProbesData {
         return tetIndex;
     }
 
-    public hasCoefficients () {
+    public hasCoefficients (): boolean {
         return !this.empty() && this._probes[0].coefficients.length !== 0;
     }
 
-    private static getTriangleBarycentricCoord (p0: Vec3, p1: Vec3, p2: Vec3, position: Vec3) {
+    private static getTriangleBarycentricCoord (p0: Vec3, p1: Vec3, p2: Vec3, position: Vec3): Vec3 {
         Vec3.subtract(_v1, p1, p0);
         Vec3.subtract(_v2, p2, p0);
         Vec3.cross(_normal, _v1, _v2);
@@ -182,7 +182,7 @@ export class LightProbesData {
         return new Vec3(alpha, beta, 1.0 - alpha - beta);
     }
 
-    private getBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
+    private getBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4): void {
         if (tetrahedron.vertex3 >= 0) {
             this.getTetrahedronBarycentricCoord(position, tetrahedron, weights);
         } else {
@@ -190,7 +190,7 @@ export class LightProbesData {
         }
     }
 
-    private getTetrahedronBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
+    private getTetrahedronBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4): void {
         const result = new Vec3(0.0, 0.0, 0.0);
         Vec3.subtract(result, position, this._probes[tetrahedron.vertex3].position);
         Vec3.transformMat3(result, result, tetrahedron.matrix);
@@ -198,7 +198,7 @@ export class LightProbesData {
         weights.set(result.x, result.y, result.z, 1.0 - result.x - result.y - result.z);
     }
 
-    private getOuterCellBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
+    private getOuterCellBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4): void {
         const p0 = this._probes[tetrahedron.vertex0].position;
         const p1 = this._probes[tetrahedron.vertex1].position;
         const p2 = this._probes[tetrahedron.vertex2].position;
@@ -287,7 +287,7 @@ export class LightProbes {
     set reduceRinging (val: number) {
         this._reduceRinging = val;
     }
-    get reduceRinging () {
+    get reduceRinging (): number {
         return this._reduceRinging;
     }
 
@@ -298,7 +298,7 @@ export class LightProbes {
     set showProbe (val: boolean) {
         this._showProbe = val;
     }
-    get showProbe () {
+    get showProbe (): boolean {
         return this._showProbe;
     }
 
@@ -309,7 +309,7 @@ export class LightProbes {
     set showWireframe (val: boolean) {
         this._showWireframe = val;
     }
-    get showWireframe () {
+    get showWireframe (): boolean {
         return this._showWireframe;
     }
 
@@ -320,7 +320,7 @@ export class LightProbes {
     set showConvex (val: boolean) {
         this._showConvex = val;
     }
-    get showConvex () {
+    get showConvex (): boolean {
         return this._showConvex;
     }
 
@@ -356,7 +356,7 @@ export class LightProbes {
     protected _data: LightProbesData | null = null;
     protected _lightProbeSphereVolume = 1.0;
 
-    public initialize (info: LightProbeInfo) {
+    public initialize (info: LightProbeInfo): void {
         this._giScale = info.giScale;
         this._giSamples = info.giSamples;
         this._bounces = info.bounces;
@@ -368,7 +368,7 @@ export class LightProbes {
         this._lightProbeSphereVolume = info.lightProbeSphereVolume;
     }
 
-    public empty () {
+    public empty (): boolean {
         if (!this._data) {
             return true;
         }

@@ -239,6 +239,7 @@ public:
         _receiveDirLight = value;
         onMacroPatchesStateChanged();
     }
+    inline void invalidateLocalData() { _localDataUpdated = true; }
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
@@ -298,7 +299,7 @@ protected:
 
     Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
 
-    Vec4 _shadowBias;
+    Vec4 _shadowBias{0.F, 0.F, -1.F, -1.F};
     Vec4 _lightmapUVParam;
 
     // For JS

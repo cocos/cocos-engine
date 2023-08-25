@@ -35,7 +35,8 @@ CCProgram fxaa-edge-fs %{
 
   vec4 frag () {
     vec3 color = FxaaPixelShader(v_uv, sceneColorMap, texSize.zw);
-    return vec4(color, 1.0); 
+    float alpha = texture(sceneColorMap, v_uv).a;
+    return vec4(color, alpha);
   }
 }%
 

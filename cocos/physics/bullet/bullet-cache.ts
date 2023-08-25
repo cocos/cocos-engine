@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
+import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
 import { Vec3, Quat, Mat4 } from '../../core';
+import { CharacterTriggerEventType } from '../framework';
 import { bt } from './instantiated';
 
 export const TriggerEventObject = {
@@ -41,21 +42,28 @@ export const CollisionEventObject = {
     impl: null,
 };
 
+export const CharacterTriggerEventObject = {
+    type: 'onControllerTriggerEnter' as unknown as CharacterTriggerEventType,
+    collider: null as unknown as Collider,
+    characterController: null as unknown as CharacterController,
+    impl: null,
+};
+
 export class BulletCache {
     private static _instance: BulletCache;
-    static get instance () {
+    static get instance (): BulletCache {
         if (BulletCache._instance == null) BulletCache._instance = new BulletCache();
         return BulletCache._instance;
     }
 
     static readonly ROOT: { [x: number]: Record<string, unknown> } = {};
 
-    static setWrapper (impl: Bullet.ptr, type: string, wrap: any) {
+    static setWrapper (impl: Bullet.ptr, type: string, wrap: any): void {
         if (!this.ROOT[type]) this.ROOT[type] = {};
         this.ROOT[type][impl] = wrap;
     }
 
-    static delWrapper (impl: Bullet.ptr, type: string) {
+    static delWrapper (impl: Bullet.ptr, type: string): void {
         delete this.ROOT[type][impl];
     }
 
@@ -63,7 +71,7 @@ export class BulletCache {
         return this.ROOT[type][ptr] as T;
     }
 
-    static isNotEmptyShape (ptr: Bullet.ptr) { return ptr !== bt.EmptyShape_static(); }
+    static isNotEmptyShape (ptr: Bullet.ptr): boolean { return ptr !== bt.EmptyShape_static(); }
 
     readonly BT_TRANSFORM_0 = bt.Transform_new();
     readonly BT_TRANSFORM_1 = bt.Transform_new();

@@ -204,7 +204,7 @@ replaceProperty(Scheduler, 'Scheduler', [
     {
         name: 'PRIORITY_SYSTEM',
         newName: 'System.Priority.SCHEDULER',
-        customGetter () {
+        customGetter (): number {
             return System.Priority.SCHEDULER;
         },
     },

@@ -76,6 +76,7 @@ static int processGetTask(HttpClient *client, HttpRequest *request, write_callba
 static int processPostTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processPutTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
 
 // Worker thread
@@ -307,6 +308,13 @@ static int processDeleteTask(HttpClient *client, HttpRequest *request, write_cal
     return ok ? 0 : 1;
 }
 
+//Process PATCH Request
+static int processPatchTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
+    CURLRaii curl;
+    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "PATCH") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
+    return ok ? 0 : 1;
+}
+
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (_httpClient == nullptr) {
@@ -509,6 +517,16 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
                                          writeHeaderData,
                                          response->getResponseHeader(),
                                          responseMessage);
+            break;
+
+        case HttpRequest::Type::PATCH:
+            retValue = processPatchTask(this, request,
+                                      writeData,
+                                      response->getResponseData(),
+                                      &responseCode,
+                                      writeHeaderData,
+                                      response->getResponseHeader(),
+                                      responseMessage);
             break;
 
         default:

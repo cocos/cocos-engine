@@ -39,6 +39,9 @@ public:
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void nextSubpass() override;
+    void insertMarker(const MarkerInfo &marker) override;
+    void beginMarker(const MarkerInfo &marker) override;
+    void endMarker() override;
     void draw(const DrawInfo &info) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
@@ -46,6 +49,7 @@ public:
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
+    void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:

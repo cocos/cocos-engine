@@ -100,7 +100,7 @@ function shouldUseWasmModule (): boolean {
 }
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
-    const errorReport = (msg: any) => { error(msg); };
+    const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => Promise.all([
         import('external:emscripten/spine/spine.asm.js'),
         import('external:emscripten/spine/spine.js.mem'),

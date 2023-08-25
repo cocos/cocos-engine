@@ -88,7 +88,6 @@ class AnimationGraphPartialPreviewer {
 
         const bindingContext = new AnimationGraphBindingContext(
             this._root, this._poseLayoutMaintainer, this._varInstances, this._dummyAnimationController,
-            new EventTarget(),
         );
 
         poseLayoutMaintainer.startBind();
@@ -433,7 +432,7 @@ class MotionEvalRecord {
     }
 
     public rebind(bindContext: AnimationGraphBindingContext) {
-        const motionEval = this._motion[createEval](bindContext, null, true);
+        const motionEval = this._motion[createEval](bindContext, true);
 
         if (!motionEval) {
             return;

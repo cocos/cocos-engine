@@ -27,8 +27,9 @@ import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
     Format, FormatInfos, MemoryUsageBit, PrimitiveMode, DrawInfo,
 } from '../../gfx';
-import { Vec3, cclegacy } from '../../core';
+import { Vec3, approx, cclegacy, floatToHalf, halfToFloat, pseudoRandomRange } from '../../core';
 import { Mesh } from '../../3d/assets/mesh';
+import { Root } from '../../root';
 
 /**
  * @en Array views for index buffer
@@ -123,6 +124,12 @@ export class RenderingSubMesh {
 
     private _drawInfo?: DrawInfo | null = null;
 
+    private static EMPTY_GEOMETRIC_INFO: IGeometricInfo = {
+        positions: new Float32Array(),
+        indices: new Uint8Array(),
+        boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO },
+    };
+
     /**
      * @en
      * sub mesh's constructor.
@@ -135,8 +142,11 @@ export class RenderingSubMesh {
      * @param indirectBuffer @en indirect buffer. @zh 间接缓冲区。
      */
     constructor (
-        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
-        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+        vertexBuffers: Buffer[],
+        attributes: Attribute[],
+        primitiveMode: PrimitiveMode,
+        indexBuffer: Buffer | null = null,
+        indirectBuffer: Buffer | null = null,
         isOwnerOfIndexBuffer = true,
     ) {
         this._attributes = attributes;
@@ -152,31 +162,31 @@ export class RenderingSubMesh {
      * @en All vertex attributes used by the sub mesh.
      * @zh 所有顶点属性。
      */
-    get attributes () { return this._attributes; }
+    get attributes (): Attribute[] { return this._attributes; }
 
     /**
      * @en All vertex buffers used by the sub mesh.
      * @zh 使用的所有顶点缓冲区。
      */
-    get vertexBuffers () { return this._vertexBuffers; }
+    get vertexBuffers (): Buffer[] { return this._vertexBuffers; }
 
     /**
      * @en Index buffer used by the sub mesh.
      * @zh 使用的索引缓冲区，若未使用则无需指定。
      */
-    get indexBuffer () { return this._indexBuffer; }
+    get indexBuffer (): Buffer | null { return this._indexBuffer; }
 
     /**
      * @en Indirect buffer used by the sub mesh.
      * @zh 间接绘制缓冲区。
      */
-    get indirectBuffer () { return this._indirectBuffer; }
+    get indirectBuffer (): Buffer | null { return this._indirectBuffer; }
 
     /**
      * @en Primitive mode used by the sub mesh.
      * @zh 图元类型。
      */
-    get primitiveMode () { return this._primitiveMode; }
+    get primitiveMode (): PrimitiveMode { return this._primitiveMode; }
 
     /**
      * @en The geometric info of the sub mesh, used for raycast.
@@ -187,40 +197,105 @@ export class RenderingSubMesh {
             return this._geometricInfo;
         }
         if (this.mesh === undefined) {
-            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
         }
         if (this.subMeshIdx === undefined) {
-            return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
         }
         const { mesh } = this; const index = this.subMeshIdx;
-        const positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
-        const indices = mesh.readIndices(index) as Uint16Array;
+        const pAttri = this.attributes.find((element) => element.name === (AttributeName.ATTR_POSITION as string));
+
+        if (!pAttri) {
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+        }
+
+        let positions: Float32Array | undefined;
+        switch (pAttri.format) {
+        case Format.RG32F:
+        case Format.RGB32F:
+        {
+            positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
+            if (!positions) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            break;
+        }
+        case Format.RGBA32F:
+        {
+            const data = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            const count = data.length / 4;
+            positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; ++i) {
+                const dstPtr = i * 3;
+                const srcPtr = i * 4;
+                positions[dstPtr] = data[srcPtr];
+                positions[dstPtr + 1] = data[srcPtr + 1];
+                positions[dstPtr + 2] = data[srcPtr + 2];
+            }
+            break;
+        }
+        case Format.RG16F:
+        case Format.RGB16F:
+        {
+            const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            positions = new Float32Array(data.length);
+            for (let i = 0; i < data.length; ++i) {
+                positions[i] = halfToFloat(data[i]);
+            }
+            break;
+        }
+        case Format.RGBA16F:
+        {
+            const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
+            if (!data) {
+                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            }
+            const count = data.length / 4;
+            positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; ++i) {
+                const dstPtr = i * 3;
+                const srcPtr = i * 4;
+                positions[dstPtr] = halfToFloat(data[srcPtr]);
+                positions[dstPtr + 1] = halfToFloat(data[srcPtr + 1]);
+                positions[dstPtr + 2] = halfToFloat(data[srcPtr + 2]);
+            }
+            break;
+        }
+        default:
+            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+        }
+
+        const indices = mesh.readIndices(index) || undefined;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find((element) => element.name === AttributeName.ATTR_POSITION);
-        if (pAttri) {
-            const conut = FormatInfos[pAttri.format].count;
+
+        const conut = FormatInfos[pAttri.format].count;
+        if (conut === 2) {
+            max.set(positions[0], positions[1], 0);
+            min.set(positions[0], positions[1], 0);
+        } else {
+            max.set(positions[0], positions[1], positions[2]);
+            min.set(positions[0], positions[1], positions[2]);
+        }
+        for (let i = 0; i < positions.length; i += conut) {
             if (conut === 2) {
-                max.set(positions[0], positions[1], 0);
-                min.set(positions[0], positions[1], 0);
+                max.x = positions[i] > max.x ? positions[i] : max.x;
+                max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                min.x = positions[i] < min.x ? positions[i] : min.x;
+                min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
             } else {
-                max.set(positions[0], positions[1], positions[2]);
-                min.set(positions[0], positions[1], positions[2]);
-            }
-            for (let i = 0; i < positions.length; i += conut) {
-                if (conut === 2) {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                } else {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                    min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
-                }
+                max.x = positions[i] > max.x ? positions[i] : max.x;
+                max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
+                min.x = positions[i] < min.x ? positions[i] : min.x;
+                min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
             }
         }
         this._geometricInfo = { positions, indices, boundingBox: { max, min } };
@@ -231,7 +306,7 @@ export class RenderingSubMesh {
      * @en Invalidate the geometric info of the sub mesh after geometry changed.
      * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
      */
-    public invalidateGeometricInfo () { this._geometricInfo = undefined; }
+    public invalidateGeometricInfo (): void { this._geometricInfo = undefined; }
 
     /**
      * @en the draw range.
@@ -249,13 +324,13 @@ export class RenderingSubMesh {
      * @en Flatted vertex buffers.
      * @zh 扁平化的顶点缓冲区。
      */
-    get flatBuffers () { return this._flatBuffers; }
+    get flatBuffers (): IFlatBuffer[] { return this._flatBuffers; }
 
     /**
      * @en generate flatted vertex buffers.
      * @zh 生成扁平化的顶点缓冲区。
      */
-    public genFlatBuffers () {
+    public genFlatBuffers (): void {
         if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
 
         const { mesh } = this;
@@ -295,7 +370,7 @@ export class RenderingSubMesh {
      * @en The vertex buffer for joint after mapping.
      * @zh 骨骼索引按映射表处理后的顶点缓冲。
      */
-    get jointMappedBuffers () {
+    get jointMappedBuffers (): Buffer[] {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: Buffer[] = this._jointMappedBuffers = [];
         const indices: number[] = this._jointMappedBufferIndices = [];
@@ -307,14 +382,14 @@ export class RenderingSubMesh {
         }
         let jointFormat: Format;
         let jointOffset: number;
-        const { device } = cclegacy.director.root;
+        const { device } = cclegacy.director.root as Root;
         for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
             const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
             jointFormat = Format.UNKNOWN;
             for (let j = 0; j < bundle.attributes.length; j++) {
                 const attr = bundle.attributes[j];
-                if (attr.name === AttributeName.ATTR_JOINTS) {
+                if (attr.name === (AttributeName.ATTR_JOINTS as string)) {
                     jointFormat = attr.format;
                     break;
                 }
@@ -324,8 +399,15 @@ export class RenderingSubMesh {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
-                    bundle.view.length, bundle.view.stride, dataView);
+                mapBuffer(
+                    dataView,
+                    (cur): number => idxMap.indexOf(cur),
+                    jointFormat,
+                    jointOffset,
+                    bundle.view.length,
+                    bundle.view.stride,
+                    dataView,
+                );
                 const buffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.DEVICE,
@@ -347,13 +429,13 @@ export class RenderingSubMesh {
      * @en The input assembler info.
      * @zh 输入汇集器信息。
      */
-    get iaInfo () { return this._iaInfo; }
+    get iaInfo (): InputAssemblerInfo { return this._iaInfo; }
 
     /**
      * @en Destroys sub mesh.
      * @zh 销毁子网格。
      */
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this.vertexBuffers.length; i++) {
             this.vertexBuffers[i].destroy();
         }
@@ -386,7 +468,7 @@ export class RenderingSubMesh {
      * 一旦你调用此函数， 顶点属性永久被添加， 后续调用无效果。
      * @param device @en Device used to create related rendering resources @zh 用于创建相关渲染资源的设备对象
      */
-    public enableVertexIdChannel (device: Device) {
+    public enableVertexIdChannel (device: Device): void {
         if (this._vertexIdChannel) {
             return;
         }
@@ -407,7 +489,7 @@ export class RenderingSubMesh {
         };
     }
 
-    private _allocVertexIdBuffer (device: Device) {
+    private _allocVertexIdBuffer (device: Device): Buffer {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0)
             ? 0
             // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.

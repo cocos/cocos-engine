@@ -17,7 +17,7 @@ export class PoseStackAllocator {
         this._memoryAllocator = globalPosePageMemoryAllocatorManager.createAllocator(poseBytes);
     }
 
-    public destroy () {
+    public destroy (): void {
         assertIsTrue(this._allocatedCount === 0, `Can not destroy the allocator since it's not empty.`);
 
         for (let iPose = 0; iPose < this._poses.length; ++iPose) {
@@ -29,7 +29,7 @@ export class PoseStackAllocator {
         return this._memoryAllocator.destroy();
     }
 
-    public get allocatedCount () {
+    public get allocatedCount (): number {
         return this._allocatedCount;
     }
 
@@ -51,7 +51,7 @@ export class PoseStackAllocator {
         return pose;
     }
 
-    public pop () {
+    public pop (): void {
         assertIsTrue(this._allocatedCount > 0, `PoseStackAllocator: push/pop does not match.`);
 
         --this._allocatedCount;
@@ -65,7 +65,7 @@ export class PoseStackAllocator {
         // This does not cause big problem since all pose allocators share the same stack memory.
     }
 
-    get top () {
+    get top (): Pose {
         assertIsTrue(this._allocatedCount > 0);
         return this._poses[this._allocatedCount - 1];
     }
@@ -80,7 +80,7 @@ export class PoseStackAllocator {
 
     private _memoryAllocator: SharedStackBasedAllocator;
 
-    private _allocateNewPose () {
+    private _allocateNewPose (): void {
         const slice = this._memoryAllocator.push();
         const transformsByteLength = TransformArray.BYTES_PER_ELEMENT * this._transformCount;
         const baseOffset = slice.byteOffset;
@@ -95,7 +95,7 @@ function calculateRequiredBytes (
     transformCount: number,
     auxiliaryCurveCount: number,
     capacity: number,
-) {
+): number {
     return (TransformArray.BYTES_PER_ELEMENT * transformCount
         + Float64Array.BYTES_PER_ELEMENT * auxiliaryCurveCount) * capacity;
 }

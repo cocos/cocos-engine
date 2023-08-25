@@ -67,7 +67,7 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 bt.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string, importObject: WebAssembly.Imports) {
+function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<void> {
     debug('[Physics][Bullet]: Using wasm Bullet libs.');
     return instantiateWasm(wasmUrl, importObject).then((results) => {
         const btInstance = results.instance.exports as Bullet.instance;
@@ -93,7 +93,7 @@ function initAsmJS (asmFactory): Promise<void> {
 }
 
 function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any) => { debug(msg); };
+    const infoReport = (msg: any): void => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
         cc: importFunc,
@@ -117,7 +117,7 @@ if (!FORCE_BANNING_BULLET_WASM) {
     }
 }
 
-function shouldUseWasmModule () {
+function shouldUseWasmModule (): boolean {
     if (FORCE_BANNING_BULLET_WASM) {
         return false;
     } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
@@ -129,8 +129,8 @@ function shouldUseWasmModule () {
     }
 }
 
-export function waitForAmmoInstantiation () {
-    const errorReport = (msg: any) => { error(msg); };
+export function waitForAmmoInstantiation (): Promise<void> {
+    const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => Promise.all([
         import('external:emscripten/bullet/bullet.wasm'),
         import('external:emscripten/bullet/bullet.asm.js'),

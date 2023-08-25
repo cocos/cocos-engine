@@ -38,7 +38,7 @@ function compileObjectTypeJit (
     accessorToSet: string,
     propNameLiteralToSet: string,
     assumeHavePropIfIsValue: boolean,
-) {
+): void {
     if (defaultValue instanceof cclegacy.ValueType) {
         // fast case
         if (!assumeHavePropIfIsValue) {
@@ -85,12 +85,12 @@ type AttributeFormerlySerializedAs = `${AttributeName}${typeof POSTFIX_FORMERLY_
 type AttributeDefault = `${AttributeName}${typeof POSTFIX_DEFAULT}`;
 type AttributeType = `${AttributeName}${typeof POSTFIX_TYPE}`;
 type AttributeEditorOnly = `${AttributeName}${typeof POSTFIX_EDITOR_ONLY}`;
-type AttrResult = {
+interface AttrResult {
     [K: string]: typeof K extends AttributeFormerlySerializedAs ? string :
         typeof K extends AttributeDefault ? unknown :
         typeof K extends AttributeType ? AnyFunction :
         typeof K extends AttributeEditorOnly ? boolean : never;
-};
+}
 
 function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const attrs: AttrResult = CCClass.Attr.getClassAttrs(klass);
@@ -100,7 +100,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -136,17 +136,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
         const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
         if (fastMode && (defaultValue !== undefined || userType)) {
-            let isPrimitiveType;
-            if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-            } else {
-                const defaultType = typeof defaultValue;
-                isPrimitiveType = defaultType === 'string'
-                                  || defaultType === 'number'
-                                  || defaultType === 'boolean';
-            }
-
-            if (isPrimitiveType) {
+            const isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
+            if (isPrimitiveTypeInFastMode) {
                 sources.push(`o${accessorToSet}=prop;`);
             } else {
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
@@ -181,7 +172,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const fastMode = canBeDeserializedInFastMode(klass);
     const shouldCopyId = js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component);
     let shouldCopyRawData = false;
 
@@ -191,7 +182,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     let advancedPropsToRead = advancedProps;
     const advancedPropsValueType: any = [];
 
-    (() => {
+    ((): void => {
         const props: string[] = klass.__values__;
         shouldCopyRawData = props[props.length - 1] === '_$erialized';
 
@@ -206,18 +197,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
             const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
-            let isPrimitiveType = false;
+            let isPrimitiveTypeInFastMode = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
-                if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
-                } else {
-                    const defaultType = typeof defaultValue;
-                    isPrimitiveType = defaultType === 'string'
-                                      || defaultType === 'number'
-                                      || defaultType === 'boolean';
-                }
+                isPrimitiveTypeInFastMode = isPrimitivePropertyByDefaultOrType(defaultValue, userType);
             }
-            if (fastMode && isPrimitiveType) {
+            if (isPrimitiveTypeInFastMode) {
                 if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
                     simplePropsToRead = simpleProps.slice();
                 }
@@ -238,7 +222,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
         }
     })();
 
-    return (s, o, d, k) => {
+    return (s, o, d, k): void => {
         for (let i = 0; i < simpleProps.length; ++i) {
             const prop = d[simplePropsToRead[i]];
             if (prop !== undefined) {
@@ -281,28 +265,50 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     };
 }
 
+/**
+ * Tells if the class can be deserialized in "fast mode".
+ * In fast mode, deserialization of the class will go into an optimized way:
+ * each class property will be examined whether to be primitive according to their default value
+ * and type. Finally, all primitive properties would be together deserialized using simple assignment,
+ * without performing in-loop check.
+ */
+function canBeDeserializedInFastMode (klass: any): boolean {
+    return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+}
+
+function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
+    if (defaultValue === undefined) {
+        return userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+    } else {
+        const defaultType = typeof defaultValue;
+        return defaultType === 'string'
+                          || defaultType === 'number'
+                          || defaultType === 'boolean';
+    }
+}
+
 type TypedArrayViewConstructorName =
     | 'Uint8Array' | 'Int8Array'
     | 'Uint16Array' | 'Int16Array'
     | 'Uint32Array' | 'Int32Array'
     | 'Float32Array' | 'Float64Array';
 
-type SerializedTypedArray = {
+interface SerializedTypedArray {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArray';
     array: number[];
     ctor: TypedArrayViewConstructorName;
-};
+}
 
-type SerializedTypedArrayRef = {
+interface SerializedTypedArrayRef {
     __id__: never;
     __uuid__: never;
     __type__: 'TypedArrayRef';
     ctor: TypedArrayViewConstructorName;
     offset: number;
     length: number;
-};
+}
 
 type SerializedGeneralTypedObject = {
     __id__: never;
@@ -310,18 +316,18 @@ type SerializedGeneralTypedObject = {
     __type__?: NotKnownTypeTag;
 } & Record<NotTypeTag, SerializedFieldValue>;
 
-type SerializedObjectReference = {
+interface SerializedObjectReference {
     __type__: never;
     __uuid__: never;
     __id__: number;
 }
 
-type SerializedUUIDReference = {
+interface SerializedUUIDReference {
     __type__: never;
     __id__: never;
     __uuid__: string;
     __expectedType__: string;
-};
+}
 
 type SerializedObject = SerializedTypedArray | SerializedTypedArrayRef | SerializedGeneralTypedObject;
 
@@ -362,7 +368,7 @@ class DeserializerPool extends js.Pool<_Deserializer> {
     reportMissingClass: ReportMissingClass,
     customEnv: unknown,
     ignoreEditorOnly: boolean | undefined,
-) {
+): _Deserializer {
     const cache = this._get();
     if (cache) {
         cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
@@ -385,7 +391,7 @@ class _Deserializer {
     /**
      * @engineInternal
      */
-    public get ignoreEditorOnly () { return this._ignoreEditorOnly; }
+    public get ignoreEditorOnly (): unknown { return this._ignoreEditorOnly; }
     private _ignoreEditorOnly: unknown;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
@@ -404,7 +410,7 @@ class _Deserializer {
         }
     }
 
-    public reset (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
+    public reset (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown): void {
         this.result = result;
         this.customEnv = customEnv;
         this._classFinder = classFinder;
@@ -415,7 +421,7 @@ class _Deserializer {
         }
     }
 
-    public clear () {
+    public clear (): void {
         this.result = null!;
         this.customEnv = null;
         this.deserializedList.length = 0;
@@ -425,7 +431,7 @@ class _Deserializer {
         this._onDereferenced = null!;
     }
 
-    public deserialize (serializedData: SerializedData | CCON) {
+    public deserialize (serializedData: SerializedData | CCON): any {
         let fromCCON = false;
         let jsonObj: SerializedData;
         if (serializedData instanceof CCON) {
@@ -471,7 +477,7 @@ class _Deserializer {
         globalIndex: number,
         owner?: Record<PropertyKey, unknown> | unknown[],
         propName?: string,
-    ) {
+    ): Record<string, any> | null {
         switch (serialized.__type__) {
         case 'TypedArray':
             return this._deserializeTypedArrayView(serialized);
@@ -489,11 +495,11 @@ class _Deserializer {
         }
     }
 
-    private _deserializeTypedArrayView (value: SerializedTypedArray) {
+    private _deserializeTypedArrayView (value: SerializedTypedArray): Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array {
         return globalThis[value.ctor].from(value.array);
     }
 
-    private _deserializeTypedArrayViewRef (value: SerializedTypedArrayRef) {
+    private _deserializeTypedArrayViewRef (value: SerializedTypedArrayRef): Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array {
         const { offset, length, ctor: constructorName } = value;
         const obj = new globalThis[constructorName](
             this._mainBinChunk.buffer,
@@ -503,7 +509,7 @@ class _Deserializer {
         return obj;
     }
 
-    private _deserializeArray (value: SerializedValue[]) {
+    private _deserializeArray (value: SerializedValue[]): unknown[] {
         const obj = new Array<unknown>(value.length);
         let prop: unknown;
         for (let i = 0; i < value.length; i++) {
@@ -521,7 +527,7 @@ class _Deserializer {
         return obj;
     }
 
-    private _deserializePlainObject (value: Record<string, unknown>) {
+    private _deserializePlainObject (value: Record<string, unknown>): Record<string, any> {
         const obj = {};
         this._fillPlainObject(obj, value);
         return obj;
@@ -532,7 +538,7 @@ class _Deserializer {
         globalIndex: number,
         owner?: Record<PropertyKey, unknown> | unknown[],
         propName?: string,
-    ) {
+    ): Record<string, unknown> | null {
         const type = value.__type__ as unknown as string;
 
         const klass = this._classFinder(type, value, owner, propName);
@@ -544,7 +550,7 @@ class _Deserializer {
             return null;
         }
 
-        const createObject = (constructor: deserialize.SerializableClassConstructor) => {
+        const createObject = (constructor: deserialize.SerializableClassConstructor): Record<string, unknown> => {
             // eslint-disable-next-line new-cap
             const obj = new constructor() as Record<string, unknown>;
             if (globalIndex >= 0) {
@@ -578,7 +584,7 @@ class _Deserializer {
         object: Record<PropertyKey, unknown>,
         constructor: deserialize.SerializableClassConstructor,
         skipCustomized = false,
-    ) {
+    ): void {
         if (!skipCustomized && (object as Partial<CustomSerializable>)[deserializeTag]) {
             this._runCustomizedDeserialize(
                 value,
@@ -588,12 +594,10 @@ class _Deserializer {
             return;
         }
 
-        // cSpell:words Deserializable
-
-        type ClassicCustomizedDeserializable = { _deserialize: (content: unknown, deserializer: _Deserializer) => void; };
+        interface ClassicCustomizedDeserializable { _deserialize: (content: unknown, deserializer: _Deserializer) => void; }
         if ((object as Partial<ClassicCustomizedDeserializable>)._deserialize) {
             // TODO: content check?
-            (object as ClassicCustomizedDeserializable)._deserialize((value as unknown as { content: unknown }).content, this);
+            (object as Partial<ClassicCustomizedDeserializable>)._deserialize!((value as unknown as { content: unknown }).content, this);
             return;
         }
 
@@ -608,7 +612,7 @@ class _Deserializer {
         value: SerializedGeneralTypedObject,
         object: Record<PropertyKey, unknown> & CustomSerializable,
         constructor: deserialize.SerializableClassConstructor,
-    ) {
+    ): void {
         const serializationInput: SerializationInput = {
             readProperty: (name: string) => {
                 const serializedField = value[name];
@@ -634,7 +638,7 @@ class _Deserializer {
         object[deserializeTag]!(serializationInput, this._context);
     }
 
-    private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor<unknown>) {
+    private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor<unknown>): void {
         let deserialize: CompiledDeserializeFn;
         // eslint-disable-next-line no-prototype-builtins
         if (klass.hasOwnProperty('__deserialize__')) {
@@ -653,10 +657,12 @@ class _Deserializer {
                     }
 
                     const rawDeserialize: CompiledDeserializeFn = deserialize;
-                    deserialize = function (deserializer: _Deserializer,
+                    deserialize = function (
+                        deserializer: _Deserializer,
                         object: Record<string, unknown>,
                         deserialized: Record<string, unknown>,
-                        constructor: AnyFunction) {
+                        constructor: AnyFunction,
+                    ): void {
                         rawDeserialize(deserializer, object, deserialized, constructor);
                         if (!object._$erialized) {
                             error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
@@ -679,7 +685,7 @@ class _Deserializer {
         obj: Record<PropertyKey, unknown> | unknown[],
         serializedField: SerializedFieldObjectValue,
         propName: string,
-    ) {
+    ): boolean {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
         if (typeof id === 'number') {
             const field = this.deserializedList[id];
@@ -709,7 +715,7 @@ class _Deserializer {
         return false;
     }
 
-    private _deserializeObjectField (serializedField: SerializedFieldObjectValue) {
+    private _deserializeObjectField (serializedField: SerializedFieldObjectValue): Record<string, any> | null {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
         if (typeof id === 'number') {
             const field = this.deserializedList[id];
@@ -735,7 +741,7 @@ class _Deserializer {
     /**
      * @engineInternal
      */
-    public _fillPlainObject (instance: Record<string, unknown>, serialized: Record<string, unknown>) {
+    public _fillPlainObject (instance: Record<string, unknown>, serialized: Record<string, unknown>): void {
         for (const propName in serialized) {
             // eslint-disable-next-line no-prototype-builtins
             if (!serialized.hasOwnProperty(propName)) {
@@ -765,20 +771,20 @@ class _Deserializer {
         instance: Record<PropertyKey, unknown>,
         serialized: SerializedGeneralTypedObject,
         klass: SerializableClassConstructor,
-    ) {
+    ): void {
         if (klass === cclegacy.Vec2) {
-            type SerializedVec2 = { x?: number; y?: number; };
+            interface SerializedVec2 { x?: number; y?: number; }
             instance.x = (serialized as SerializedVec2).x || 0;
             instance.y = (serialized as SerializedVec2).y || 0;
             return;
         } else if (klass === cclegacy.Vec3) {
-            type SerializedVec3 = { x?: number; y?: number; z?: number; };
+            interface SerializedVec3 { x?: number; y?: number; z?: number; }
             instance.x = (serialized as SerializedVec3).x || 0;
             instance.y = (serialized as SerializedVec3).y || 0;
             instance.z = (serialized as SerializedVec3).z || 0;
             return;
         } else if (klass === cclegacy.Color) {
-            type SerializedColor = { r?: number; g?: number; b?: number; a?: number; };
+            interface SerializedColor { r?: number; g?: number; b?: number; a?: number; }
             instance.r = (serialized as SerializedColor).r || 0;
             instance.g = (serialized as SerializedColor).g || 0;
             instance.b = (serialized as SerializedColor).b || 0;
@@ -786,7 +792,7 @@ class _Deserializer {
             instance.a = (a === undefined ? 255 : a);
             return;
         } else if (klass === cclegacy.Size) {
-            type SerializedSize = { width?: number; height?: number; };
+            interface SerializedSize { width?: number; height?: number; }
             instance.width = (serialized as SerializedSize).width || 0;
             instance.height = (serialized as SerializedSize).height || 0;
             return;
@@ -824,13 +830,15 @@ class _Deserializer {
     }
 }
 
-export function deserializeDynamic (data: SerializedData | CCON, details: Details, options?: {
+export interface DeserializeDynamicOptions {
     classFinder?: ClassFinder;
     ignoreEditorOnly?: boolean;
     createAssetRefs?: boolean;
     customEnv?: unknown;
     reportMissingClass?: ReportMissingClass;
-}) {
+}
+
+export function deserializeDynamic (data: SerializedData | CCON, details: Details, options?: DeserializeDynamicOptions): any {
     options = options || {};
     const classFinder = options.classFinder || js.getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
@@ -865,9 +873,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     return res;
 }
 
-export function parseUuidDependenciesDynamic (serialized: unknown) {
-    const depends = [];
-    const parseDependRecursively = (data: any, out: string[]) => {
+export function parseUuidDependenciesDynamic (serialized: unknown): string[] {
+    const depends: string[] = [];
+    const parseDependRecursively = (data: any, out: string[]): void => {
         if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
         const uuid = data.__uuid__;
         if (Array.isArray(data)) {

@@ -23,6 +23,7 @@
 */
 
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 declare const jsb: any;
 export class Pacer {
@@ -32,7 +33,7 @@ export class Pacer {
     private _isPlaying = false;
     private _updateCallback: () => void;
     constructor () {
-        this._updateCallback = () => {
+        this._updateCallback = (): void => {
             if (this._isPlaying) {
                 this._rafHandle = requestAnimationFrame(this._updateCallback);
             }
@@ -79,3 +80,5 @@ export class Pacer {
         this._isPlaying = false;
     }
 }
+
+checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-native')>());

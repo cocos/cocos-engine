@@ -163,7 +163,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
         _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
-        fbfLevelStr                += "_DEPTH_STENCIL";
+        fbfLevelStr += "_DEPTH_STENCIL";
     }
 #endif
 
@@ -176,6 +176,11 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         }
     }
 #endif
+    _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = false; // not implement yet.
+
+    if (checkExtension(CC_TOSTR(GL_EXT_debug_marker))) {
+        _gpuConstantRegistry->debugMarker = true;
+    }
 
     ccstd::string compressedFmts;
     if (getFormatFeatures(Format::ETC_RGB8) != FormatFeature::NONE) {
@@ -532,6 +537,13 @@ void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(GLES2DeviceCopyTextureToBuffers);
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
+}
+
+SampleCount GLES2Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    std::ignore = format;
+    std::ignore = usage;
+    std::ignore = flags;
+    return static_cast<SampleCount>(cmdFuncGLES2GetMaxSampleCount());
 }
 
 } // namespace gfx

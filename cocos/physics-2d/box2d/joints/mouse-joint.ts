@@ -39,30 +39,30 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     _touchPoint = new Vec2();
     _isTouched = false;
 
-    setTarget (v: IVec2Like) {
+    setTarget (v: IVec2Like): void {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
             (this._b2joint as b2.MouseJoint).SetTarget(tempB2Vec2);
         }
     }
-    setDampingRatio (v: number) {
+    setDampingRatio (v: number): void {
         if (this._b2joint) {
             (this._b2joint as b2.MouseJoint).SetDampingRatio(v);
         }
     }
-    setFrequency (v: number) {
+    setFrequency (v: number): void {
         if (this._b2joint) {
             (this._b2joint as b2.MouseJoint).SetFrequency(v);
         }
     }
-    setMaxForce (v: number) {
+    setMaxForce (v: number): void {
         if (this._b2joint) {
             (this._b2joint as b2.MouseJoint).SetMaxForce(v);
         }
     }
 
-    _createJointDef () {
+    _createJointDef (): any {
         const def = new b2.MouseJointDef();
         const comp = this._jointComp as MouseJoint2D;
         def.target.Set(this._touchPoint.x / PHYSICS_2D_PTM_RATIO, this._touchPoint.y / PHYSICS_2D_PTM_RATIO);
@@ -72,7 +72,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         return def;
     }
 
-    initialize (comp: Joint2D) {
+    initialize (comp: Joint2D): void {
         super.initialize(comp);
 
         const canvas = find('Canvas');
@@ -84,13 +84,13 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         }
     }
 
-    onEnable () {
+    onEnable (): void {
     }
 
-    start () {
+    start (): void {
     }
 
-    onTouchBegan (event: Touch) {
+    onTouchBegan (event: Touch): void {
         this._isTouched = true;
 
         const target = this._touchPoint.set(event.getUILocation());
@@ -111,16 +111,16 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
         this.setTarget(target);
     }
 
-    onTouchMove (event: Touch) {
+    onTouchMove (event: Touch): void {
         this._touchPoint = event.getUILocation();
     }
 
-    onTouchEnd (event: Touch) {
+    onTouchEnd (event: Touch): void {
         this._destroy();
         this._isTouched = false;
     }
 
-    update () {
+    update (): void {
         if (!this._isTouched || !this.isValid()) {
             return;
         }

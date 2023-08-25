@@ -174,6 +174,8 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             events::WindowEvent::broadcast(ev);
             break;
         }
+// On the mac platform this is done via setframesize int the view.
+#if !(CC_PLATFORM == CC_PLATFORM_MACOS)
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1;
@@ -188,6 +190,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             events::WindowEvent::broadcast(ev);
             break;
         }
+#endif
         case SDL_WINDOWEVENT_HIDDEN: {
             ev.type = WindowEvent::Type::HIDDEN;
             events::WindowEvent::broadcast(ev);
@@ -196,10 +199,6 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
         case SDL_WINDOWEVENT_MINIMIZED: {
             ev.type = WindowEvent::Type::MINIMIZED;
             events::WindowEvent::broadcast(ev);
-            break;
-        }
-        case SDL_WINDOWEVENT_ENTER: {
-            SDL_CaptureMouse(SDL_TRUE);
             break;
         }
         case SDL_WINDOWEVENT_CLOSE: {
@@ -375,9 +374,18 @@ uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) {
     return reinterpret_cast<uintptr_t>(wmInfo.info.win.window);
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
+    return reinterpret_cast<uintptr_t>(wmInfo.info.cocoa.window);
 #endif
     CC_ABORT();
     return 0;
+}
+
+Vec2 SDLHelper::getWindowPosition(SDL_Window *window) {
+    int x = 0;
+    int y = 0;
+    SDL_GetWindowPosition(window, &x, &y);
+    return Vec2(x, y);
 }
 
 } // namespace cc

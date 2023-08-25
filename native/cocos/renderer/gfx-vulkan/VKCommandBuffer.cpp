@@ -168,14 +168,16 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     }
 
     ccstd::vector<VkClearValue> &clearValues = _curGPURenderPass->clearValues;
-    bool depthEnabled = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
-    size_t attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
-
+    size_t attachmentCount = _curGPURenderPass->colorAttachments.size();
     for (size_t i = 0U; i < attachmentCount; ++i) {
         clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
     }
-    if (depthEnabled) {
+
+    if (_curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
         clearValues[attachmentCount].depthStencil = {depth, stencil};
+    }
+    if (_curGPURenderPass->depthStencilResolveAttachment.format != Format::UNKNOWN) {
+        clearValues[attachmentCount + 1].depthStencil = {depth, stencil};
     }
 
     Rect safeArea{
@@ -240,6 +242,53 @@ void CCVKCommandBuffer::endRenderPass() {
             const auto &rearBarrier = _curGPURenderPass->dependencies.back();
             //pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
         }
+    }
+}
+
+void CCVKCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        _utilLabelInfo.pLabelName = marker.name.c_str();
+        _utilLabelInfo.color[0] = marker.color.x;
+        _utilLabelInfo.color[1] = marker.color.y;
+        _utilLabelInfo.color[2] = marker.color.z;
+        _utilLabelInfo.color[3] = marker.color.w;
+        vkCmdInsertDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer, &_utilLabelInfo);
+    } else if (context->debugReport) {
+        _markerInfo.pMarkerName = marker.name.c_str();
+        _markerInfo.color[0] = marker.color.x;
+        _markerInfo.color[1] = marker.color.y;
+        _markerInfo.color[2] = marker.color.z;
+        _markerInfo.color[3] = marker.color.w;
+        vkCmdDebugMarkerInsertEXT(_gpuCommandBuffer->vkCommandBuffer, &_markerInfo);
+    }
+}
+
+void CCVKCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        _utilLabelInfo.pLabelName = marker.name.c_str();
+        _utilLabelInfo.color[0] = marker.color.x;
+        _utilLabelInfo.color[1] = marker.color.y;
+        _utilLabelInfo.color[2] = marker.color.z;
+        _utilLabelInfo.color[3] = marker.color.w;
+        vkCmdBeginDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer, &_utilLabelInfo);
+    } else if (context->debugReport) {
+        _markerInfo.pMarkerName = marker.name.c_str();
+        _markerInfo.color[0] = marker.color.x;
+        _markerInfo.color[1] = marker.color.y;
+        _markerInfo.color[2] = marker.color.z;
+        _markerInfo.color[3] = marker.color.w;
+        vkCmdDebugMarkerBeginEXT(_gpuCommandBuffer->vkCommandBuffer, &_markerInfo);
+    }
+}
+
+void CCVKCommandBuffer::endMarker() {
+    auto *context = CCVKDevice::getInstance()->gpuContext();
+    if (context->debugUtils) {
+        vkCmdEndDebugUtilsLabelEXT(_gpuCommandBuffer->vkCommandBuffer);
+    } else if (context->debugReport) {
+        vkCmdDebugMarkerEndEXT(_gpuCommandBuffer->vkCommandBuffer);
     }
 }
 
@@ -514,6 +563,50 @@ void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint32_t 
 
 void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncCCVKCopyBuffersToTexture(CCVKDevice::getInstance(), buffers, static_cast<CCVKTexture *>(texture)->gpuTexture(), regions, count, _gpuCommandBuffer);
+}
+
+void CCVKCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImage srcImage = VK_NULL_HANDLE;
+    VkImage dstImage = VK_NULL_HANDLE;
+
+    auto getImage = [](Texture * texture) -> auto {
+        CCVKGPUTexture *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
+        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} : std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
+    };
+
+    std::tie(srcAspectMask, srcImage) = getImage(srcTexture);
+    std::tie(dstAspectMask, dstImage) = getImage(dstTexture);
+
+    ccstd::vector<VkImageResolve> resolveRegions(count);
+    for (uint32_t i = 0U; i < count; ++i) {
+        const TextureCopy &region = regions[i];
+        auto &resolveRegion = resolveRegions[i];
+
+        resolveRegion.srcSubresource.aspectMask = srcAspectMask;
+        resolveRegion.srcSubresource.mipLevel = region.srcSubres.mipLevel;
+        resolveRegion.srcSubresource.baseArrayLayer = region.srcSubres.baseArrayLayer;
+        resolveRegion.srcSubresource.layerCount = region.srcSubres.layerCount;
+
+        resolveRegion.dstSubresource.aspectMask = dstAspectMask;
+        resolveRegion.dstSubresource.mipLevel = region.dstSubres.mipLevel;
+        resolveRegion.dstSubresource.baseArrayLayer = region.dstSubres.baseArrayLayer;
+        resolveRegion.dstSubresource.layerCount = region.dstSubres.layerCount;
+
+        resolveRegion.srcOffset.x = region.srcOffset.x;
+        resolveRegion.srcOffset.y = region.srcOffset.y;
+        resolveRegion.srcOffset.z = region.srcOffset.z;
+
+        resolveRegion.dstOffset.x = region.dstOffset.x;
+        resolveRegion.dstOffset.y = region.dstOffset.y;
+        resolveRegion.dstOffset.z = region.dstOffset.z;
+
+        resolveRegion.extent.width = region.extent.width;
+        resolveRegion.extent.height = region.extent.height;
+        resolveRegion.extent.depth = region.extent.depth;
+    }
+    vkCmdResolveImage(_gpuCommandBuffer->vkCommandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, resolveRegions.data());
 }
 
 void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {

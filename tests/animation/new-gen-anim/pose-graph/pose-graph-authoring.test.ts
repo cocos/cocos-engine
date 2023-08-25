@@ -13,6 +13,9 @@ import { poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide,
 import { PoseGraphNodeEditorMetadata, getPoseGraphNodeEditorMetadata } from "../../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
 import { composeInputKeyInternally, createPoseGraph, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedPVNode } from "./utils/misc";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
+import { ccclass } from "../../../../cocos/core/data/class-decorator";
+import { unregisterClass } from "../../../../cocos/core/utils/js-typed";
+import { attr } from "../../../../cocos/core/data/utils/attribute";
 
 describe(`Class PoseGraph`, () => {
     test(`Default`, () => {
@@ -161,6 +164,20 @@ describe(`Input decorator @input`, () => {
             };
             return _Node;
         }
+    });
+
+    test(`@input implies default visibility`, () => {
+        @ccclass('C')
+        class Node extends UnimplementedPoseNode {
+            @input({ type: PoseGraphType.FLOAT })
+            p = 0.0;
+        }
+
+        expect(attr(Node, 'p')).toStrictEqual(expect.objectContaining({
+            visible: true,
+        }));
+
+        unregisterClass(Node);
     });
 });
 

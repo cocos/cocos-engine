@@ -14,9 +14,9 @@ const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
 const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export class BloomPass extends SettingPass {
-    get setting () { return getSetting(Bloom); }
+    get setting (): Bloom { return getSetting(Bloom); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;
@@ -24,9 +24,9 @@ export class BloomPass extends SettingPass {
         return enable;
     }
 
-    name = 'BloomPass'
+    name = 'BloomPass';
     effectName = 'pipeline/post-process/bloom';
-    outputNames = ['BloomColor']
+    outputNames = ['BloomColor'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);

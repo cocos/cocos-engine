@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { Graphics } from '../../2d';
+// import { Graphics } from '../../2d';
 import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, js } from '../../core';
-import { Canvas } from '../../2d/framework';
+// import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
 import { BuiltinCircleShape } from './shapes/circle-shape-2d';
@@ -43,17 +43,17 @@ const testIntersectResults: Collider2D[] = [];
 export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _contacts: BuiltinContact[] = [];
     private _shapes: BuiltinShape2D[] = [];
-    private _debugGraphics: Graphics | null = null;
+    private _debugGraphics: any = null;
     private _debugDrawFlags = 0;
 
-    get debugDrawFlags () {
+    get debugDrawFlags (): number {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
         this._debugDrawFlags = v;
     }
 
-    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D) {
+    shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D): number | boolean {
         const collider1 = c1.collider; const collider2 = c2.collider;
         const collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
         return (collider1 !== collider2)
@@ -62,7 +62,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             && (collisionMatrix[collider2.group] & collider1.group);
     }
 
-    addShape (shape: BuiltinShape2D) {
+    addShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index === -1) {
@@ -80,7 +80,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    removeShape (shape: BuiltinShape2D) {
+    removeShape (shape: BuiltinShape2D): void {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
@@ -106,14 +106,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         shape._contacts.length = 0;
     }
 
-    updateShapeGroup (shape: BuiltinShape2D) {
+    updateShapeGroup (shape: BuiltinShape2D): void {
         this.removeShape(shape);
         if (shape.collider.enabledInHierarchy) {
             this.addShape(shape);
         }
     }
 
-    step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+    step (deltaTime: number, velocityIterations = 10, positionIterations = 10): void {
         // update collider
         const shapes = this._shapes;
         for (let i = 0, l = shapes.length; i < l; i++) {
@@ -140,14 +140,16 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    drawDebug () {
+    drawDebug (): void {
+        if (TEST) return;
+
         if (!this._debugDrawFlags) {
             return;
         }
 
         this._checkDebugDrawValid();
 
-        const debugDrawer = this._debugGraphics!;
+        const debugDrawer = this._debugGraphics;
         if (!debugDrawer) {
             return;
         }
@@ -191,7 +193,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    private _emitCollide (contact: BuiltinContact, collisionType?: string) {
+    private _emitCollide (contact: BuiltinContact, collisionType?: string): void {
         collisionType = collisionType || contact.type;
 
         const c1 = contact.shape1!.collider;
@@ -202,7 +204,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         c2.emit(collisionType, c2, c1);
     }
 
-    private _checkDebugDrawValid () {
+    private _checkDebugDrawValid (): void {
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
@@ -212,7 +214,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     return;
                 }
                 canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
+                canvas.addComponent('cc.Canvas');
                 canvas.parent = scene;
             }
 
@@ -222,7 +224,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
-            this._debugGraphics = node.addComponent(Graphics);
+            this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 2;
         }
 
@@ -257,13 +259,21 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     // empty implements
-    impl () {
+    impl (): any {
         return null;
     }
-    setGravity () { }
-    setAllowSleep () { }
-    syncPhysicsToScene () { }
-    syncSceneToPhysics () { }
+    setGravity (): void {
+        //empty
+    }
+    setAllowSleep (): void {
+        //empty
+    }
+    syncPhysicsToScene (): void {
+        //empty
+    }
+    syncSceneToPhysics (): void {
+        //empty
+    }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
     }

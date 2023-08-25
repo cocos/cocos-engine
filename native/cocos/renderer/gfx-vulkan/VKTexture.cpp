@@ -43,6 +43,7 @@ CCVKTexture::~CCVKTexture() {
 void CCVKTexture::doInit(const TextureInfo & /*info*/) {
     createTexture(_info.width, _info.height, _size);
 
+    _viewInfo.planeCount = _info.format == Format::DEPTH_STENCIL ? 2 : 1;
     createTextureView();
 }
 
@@ -60,7 +61,7 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
 
     if (_swapchain != nullptr) {
         _gpuTexture->swapchain = static_cast<CCVKSwapchain *>(_swapchain)->gpuSwapchain();
-        _gpuTexture->memoryless = true;
+        _gpuTexture->memoryAllocated = false;
     }
 
     _gpuTexture->type = _info.type;
@@ -71,6 +72,7 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
     _gpuTexture->mipLevels = _info.levelCount;
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
+
     bool hasExternalFlag = hasFlag(_gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL);
     if (hasExternalFlag) {
         _gpuTexture->externalVKImage = reinterpret_cast<VkImage>(_info.externalRes);
@@ -90,6 +92,8 @@ void CCVKTexture::createTextureView(bool initGPUTextureView) {
     _gpuTextureView->levelCount = _viewInfo.levelCount;
     _gpuTextureView->baseLayer = _viewInfo.baseLayer;
     _gpuTextureView->layerCount = _viewInfo.layerCount;
+    _gpuTextureView->basePlane = _viewInfo.basePlane;
+    _gpuTextureView->planeCount = _viewInfo.planeCount;
 
     if (initGPUTextureView) {
         _gpuTextureView->init();
@@ -121,14 +125,14 @@ void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
 void CCVKGPUTexture::init() {
     cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), this);
 
-    if (!memoryless) {
+    if (memoryAllocated) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize += size;
         CC_PROFILE_MEMORY_INC(Texture, size);
     }
 }
 
 void CCVKGPUTexture::shutdown() {
-    if (!memoryless) {
+    if (memoryAllocated) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize -= size;
         CC_PROFILE_MEMORY_DEC(Texture, size);
     }

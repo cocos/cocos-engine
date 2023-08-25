@@ -39,7 +39,7 @@ export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
 export const SSSS_BLUR_Y_PASS_INDEX = 2;
 
-function hasSkinObject (ppl: PipelineRuntime) {
+function hasSkinObject (ppl: PipelineRuntime): boolean {
     const sceneData = ppl.pipelineSceneData;
     return sceneData.skin.enabled && sceneData.skinMaterialModel !== null;
 }
@@ -55,7 +55,7 @@ export const EXPONENT = 2.0;
 export const I_SAMPLES_COUNT = 25;
 
 export class SSSSBlurData {
-    get ssssStrength () {
+    get ssssStrength (): Vec3 {
         return this._v3SSSSStrength;
     }
     set ssssStrength (val: Vec3) {
@@ -63,7 +63,7 @@ export class SSSSBlurData {
         this._updateSampleCount();
     }
 
-    get ssssFallOff () {
+    get ssssFallOff (): Vec3 {
         return this._v3SSSSFallOff;
     }
     set ssssFallOff (val: Vec3) {
@@ -71,7 +71,7 @@ export class SSSSBlurData {
         this._updateSampleCount();
     }
 
-    get kernel () {
+    get kernel (): Vec4[] {
         return this._kernel;
     }
 
@@ -84,7 +84,7 @@ export class SSSSBlurData {
      * spreads the shape making it wider, while small falloffs make it
      * narrower.
      */
-    private _gaussian (out: Vec3, variance: number, r: number) {
+    private _gaussian (out: Vec3, variance: number, r: number): void {
         const xx = r / (0.001 + this._v3SSSSFallOff.x);
         out.x = Math.exp((-(xx * xx)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
         const yy = r / (0.001 + this._v3SSSSFallOff.y);
@@ -101,7 +101,7 @@ export class SSSSBlurData {
      * the profile. For example, it allows to create blue SSS gradients, which
      * could be useful in case of rendering blue creatures.
      */
-    private _profile (out: Vec3, val: number) {
+    private _profile (out: Vec3, val: number): void {
         for (let i = 0; i < 5; i++) {
             this._gaussian(_vec3Temp2, _varianceArray[i], val);
             _vec3Temp2.multiplyScalar(_strengthParameterArray[i]);
@@ -109,7 +109,7 @@ export class SSSSBlurData {
         }
     }
 
-    private _updateSampleCount () {
+    private _updateSampleCount (): void {
         const strength = this._v3SSSSStrength;
         const nSamples = I_SAMPLES_COUNT;
         const range = nSamples > 20 ? 3.0 : 2.0;
@@ -120,7 +120,7 @@ export class SSSSBlurData {
             const o = -range + i * step;
             const sign = o < 0.0 ? -1.0 : 1.0;
             // eslint-disable-next-line no-restricted-properties
-            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+            this._kernel[i].w = range * sign * Math.abs(o ** EXPONENT) / range ** EXPONENT;
         }
 
         // Calculate the weights:
@@ -172,7 +172,7 @@ export class SSSSBlurData {
         }
     }
 
-    private _init () {
+    private _init (): void {
         for (let i = 0; i < I_SAMPLES_COUNT; i++) {
             this._kernel[i] = new Vec4();
         }
@@ -185,15 +185,15 @@ export class SSSSBlurData {
 }
 
 export class SkinPass extends SettingPass {
-    name = 'SkinPass'
+    name = 'SkinPass';
     effectName = 'pipeline/ssss-blur';
-    outputNames = ['SSSSBlur', 'SSSSBlurDS']
+    outputNames = ['SSSSBlur', 'SSSSBlurDS'];
     ssssBlurData = new SSSSBlurData();
 
     private _activate = false;
 
     enableInAllEditorCamera = true;
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         const ppl = (cclegacy.director.root as Root).pipeline;
         let enable = hasSkinObject(ppl);
         if (enable) {
@@ -220,10 +220,12 @@ export class SkinPass extends SettingPass {
         this._buildSpecularPass(camera, ppl, inputRT!, inputDS);
     }
 
-    private _buildSSSSBlurPass (camera: Camera,
+    private _buildSSSSBlurPass (
+        camera: Camera,
         ppl: BasicPipeline,
         inputRT: string,
-        inputDS: string) {
+        inputDS: string,
+    ): void {
         const cameraID = getCameraUniqueID(camera);
         const pipelineSceneData = ppl.pipelineSceneData;
 
@@ -259,8 +261,12 @@ export class SkinPass extends SettingPass {
         passIdx = SSSS_BLUR_X_PASS_INDEX;
         const ssssblurXPassLayoutName = 'ssss-blurX';
         const ssssblurXPassPassName = `ssss-blurX${cameraID}`;
-        this.material.setProperty('blurInfo', new Vec4(camera.fov, skin.blurRadius,
-            boundingBox, skin.sssIntensity), passIdx);
+        this.material.setProperty('blurInfo', new Vec4(
+            camera.fov,
+            skin.blurRadius,
+            boundingBox,
+            skin.sssIntensity,
+        ), passIdx);
         this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
         passContext.updatePassViewPort()
             .addRenderPass(ssssblurXPassLayoutName, ssssblurXPassPassName)
@@ -276,8 +282,12 @@ export class SkinPass extends SettingPass {
         passIdx = SSSS_BLUR_Y_PASS_INDEX;
         const ssssblurYPassLayoutName = 'ssss-blurY';
         const ssssblurYPassPassName = `ssss-blurY${cameraID}`;
-        this.material.setProperty('blurInfo', new Vec4(camera.fov, skin.blurRadius,
-            boundingBox, skin.sssIntensity), passIdx);
+        this.material.setProperty('blurInfo', new Vec4(
+            camera.fov,
+            skin.blurRadius,
+            boundingBox,
+            skin.sssIntensity,
+        ), passIdx);
         this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
         passContext.updatePassViewPort()
             .addRenderPass(ssssblurYPassLayoutName, ssssblurYPassPassName)
@@ -290,10 +300,12 @@ export class SkinPass extends SettingPass {
             .version();
     }
 
-    private _buildSpecularPass (camera: Camera,
+    private _buildSpecularPass (
+        camera: Camera,
         ppl: BasicPipeline,
         inputRT: string,
-        inputDS: string) {
+        inputDS: string,
+    ): void {
         const cameraID = getCameraUniqueID(camera);
         const layoutName = 'specular-pass';
         const passName = `specular-pass${cameraID}`;
@@ -323,16 +335,22 @@ export class SkinPass extends SettingPass {
         }
 
         pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
-            .addSceneOfCamera(camera, new LightInfo(),
-                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
+            .addSceneOfCamera(
+                camera,
+                new LightInfo(),
+                SceneFlags.TRANSPARENT_OBJECT
+            | SceneFlags.CUTOUT_OBJECT,
+            );
         pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
-            .addSceneOfCamera(camera, new LightInfo(),
-                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
-            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
+            .addSceneOfCamera(
+                camera,
+                new LightInfo(),
+                SceneFlags.TRANSPARENT_OBJECT
+            | SceneFlags.CUTOUT_OBJECT,
+            );
     }
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         return this.lastPass!.slotName(camera, index);
     }
 }

@@ -36,12 +36,13 @@ import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../input/types';
 import { SystemEvent } from '../input';
 import { NodeUIProperties } from './node-ui-properties';
+import type { NodeEventType } from './node-event';
 
 replaceProperty(Node.prototype, 'Node', [
     {
         name: 'childrenCount',
         newName: 'children.length',
-        customGetter (this: Node) {
+        customGetter (this: Node): number {
             return this.children.length;
         },
     },
@@ -51,47 +52,47 @@ replaceProperty(Node.prototype, 'Node', [
     {
         name: 'width',
         targetName: 'node.getComponent(UITransform)',
-        customGetter (this: Node) {
+        customGetter (this: Node): number {
             return this._uiProps.uiTransformComp!.width;
         },
-        customSetter (this: Node, value: number) {
+        customSetter (this: Node, value: number): void {
             this._uiProps.uiTransformComp!.width = value;
         },
     },
     {
         name: 'height',
         targetName: 'node.getComponent(UITransform)',
-        customGetter (this: Node) {
+        customGetter (this: Node): number {
             return this._uiProps.uiTransformComp!.height;
         },
-        customSetter (this: Node, value: number) {
+        customSetter (this: Node, value: number): void {
             this._uiProps.uiTransformComp!.height = value;
         },
     },
     {
         name: 'anchorX',
         targetName: 'node.getComponent(UITransform)',
-        customGetter (this: Node) {
+        customGetter (this: Node): number {
             return this._uiProps.uiTransformComp!.anchorX;
         },
-        customSetter (this: Node, value: number) {
+        customSetter (this: Node, value: number): void {
             this._uiProps.uiTransformComp!.anchorX = value;
         },
     },
     {
         name: 'anchorY',
         targetName: 'node.getComponent(UITransform)',
-        customGetter (this: Node) {
+        customGetter (this: Node): number {
             return this._uiProps.uiTransformComp!.anchorY;
         },
-        customSetter (this: Node, value: number) {
+        customSetter (this: Node, value: number): void {
             this._uiProps.uiTransformComp!.anchorY = value;
         },
     },
     {
         name: 'getAnchorPoint',
         targetName: 'node.getComponent(UITransform)',
-        customFunction (this: Node, out?: Vec2) {
+        customFunction (this: Node, out?: Vec2): Vec2 {
             if (!out) {
                 out = new Vec2();
             }
@@ -102,7 +103,7 @@ replaceProperty(Node.prototype, 'Node', [
     {
         name: 'setAnchorPoint',
         targetName: 'node.getComponent(UITransform)',
-        customFunction (this: Node, point: Vec2 | number, y?: number) {
+        customFunction (this: Node, point: Vec2 | number, y?: number): void {
             this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
         },
     },
@@ -121,7 +122,7 @@ replaceProperty(Node.prototype, 'Node', [
     {
         name: 'setContentSize',
         targetName: 'node.getComponent(UITransform)',
-        customFunction (this: Node, size: Size | number, height?: number) {
+        customFunction (this: Node, size: Size | number, height?: number): void {
             if (typeof size === 'number') {
                 this._uiProps.uiTransformComp!.setContentSize(size, height!);
             } else {
@@ -316,7 +317,7 @@ export class PrivateNode extends Node {
 
 if (EDITOR) {
     // check components to avoid missing node reference serialied in previous version
-    PrivateNode.prototype._onBatchCreated = function onBatchCreated (this: PrivateNode, dontSyncChildPrefab: boolean) {
+    PrivateNode.prototype._onBatchCreated = function onBatchCreated (this: PrivateNode, dontSyncChildPrefab: boolean): void {
         for (const comp of this._components) {
             comp.node = this;
         }
@@ -339,7 +340,7 @@ replaceProperty(SystemEventType, 'SystemEventType', [
     'NODE_DESTROYED',
     'LAYER_CHANGED',
     'SIBLING_ORDER_CHANGED',
-].map((name: string) => ({
+].map((name: string): { name: string; target: typeof NodeEventType; targetName: string; } => ({
     name,
     target: Node.EventType,
     targetName: 'Node.EventType',

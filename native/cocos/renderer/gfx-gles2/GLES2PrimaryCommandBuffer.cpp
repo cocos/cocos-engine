@@ -80,6 +80,18 @@ void GLES2PrimaryCommandBuffer::nextSubpass() {
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), ++_curSubpassIdx);
 }
 
+void GLES2PrimaryCommandBuffer::insertMarker(const MarkerInfo &marker) {
+    cmdFuncGLES2InsertMarker(GLES2Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES2PrimaryCommandBuffer::beginMarker(const MarkerInfo &marker) {
+    cmdFuncGLES2PushGroupMarker(GLES2Device::getInstance(), marker.name.size(), marker.name.data());
+}
+
+void GLES2PrimaryCommandBuffer::endMarker() {
+    cmdFuncGLES2PopGroupMarker(GLES2Device::getInstance());
+}
+
 void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES2PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
@@ -147,6 +159,10 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     if (gpuTexture) {
         cmdFuncGLES2CopyBuffersToTexture(GLES2Device::getInstance(), buffers, gpuTexture, regions, count);
     }
+}
+
+void GLES2PrimaryCommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    copyTexture(srcTexture, dstTexture, regions, count);
 }
 
 void GLES2PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {

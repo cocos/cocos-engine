@@ -48,20 +48,19 @@ export class ClipMotion extends Motion {
 
     public [createEval] (
         context: AnimationGraphBindingContext,
-        overrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-    ) {
+    ): ClipMotionEval | null {
         if (!this.clip) {
             return null;
         }
-        const clipMotionEval = new ClipMotionEval(context, this.clip, overrides, ignoreEmbeddedPlayers);
+        const clipMotionEval = new ClipMotionEval(context, this.clip, ignoreEmbeddedPlayers);
         if (RUNTIME_ID_ENABLED) {
             clipMotionEval.runtimeId = getMotionRuntimeID(this);
         }
         return clipMotionEval;
     }
 
-    public clone () {
+    public clone (): ClipMotion {
         const that = new ClipMotion();
         that.clip = this.clip;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
@@ -82,16 +81,15 @@ class ClipMotionEval implements MotionEval {
     constructor (
         context: AnimationGraphBindingContext,
         clip: AnimationClip,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
     ) {
         this._originalClip = clip;
         this._ignoreEmbeddedPlayers = ignoreEmbeddedPlayers;
-        const overriding = clipOverrides?.get(clip) ?? clip;
+        const overriding = context.clipOverrides?.get(clip) ?? clip;
         this._setClip(overriding, context);
     }
 
-    get duration () {
+    get duration (): number {
         return this._duration;
     }
 
@@ -99,10 +97,10 @@ class ClipMotionEval implements MotionEval {
         return new ClipMotionPort(this);
     }
 
-    public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
+    public getClipStatuses (baseWeight: number): Iterator<ClipStatus> {
         let got = false;
         return {
-            next: () => {
+            next: (): IteratorResult<ClipStatus, any> => {
                 if (got) {
                     return {
                         done: true,
@@ -112,18 +110,20 @@ class ClipMotionEval implements MotionEval {
                     got = true;
                     return {
                         done: false,
+                        // TODO: `__DEBUG_ID__` does not exist on ClipStatus, please fix it @Leslie Leigh
+                        // tracking issue: https://github.com/cocos/cocos-engine/issues/15307
                         value: {
                             __DEBUG_ID__: this.__DEBUG__ID__,
                             clip: this._clip,
                             weight: baseWeight,
-                        },
+                        } as any,
                     };
                 }
             },
         };
     }
 
-    public [evaluatePortTag] (progress: number, context: AnimationGraphEvaluationContext) {
+    public [evaluatePortTag] (progress: number, context: AnimationGraphEvaluationContext): Pose {
         const {
             _duration: duration,
             _clip: { duration: clipDuration },
@@ -158,15 +158,15 @@ class ClipMotionEval implements MotionEval {
         return pose;
     }
 
-    public overrideClips (clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         const { _originalClip: originalClip } = this;
-        const overriding = clipOverrides.get(originalClip);
+        const overriding = context.clipOverrides?.get(originalClip);
         if (overriding) {
             this._setClip(overriding, context);
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         this._frameEventEval?.reset();
     }
 
@@ -185,7 +185,7 @@ class ClipMotionEval implements MotionEval {
     private _duration = 0.0;
     private _ignoreEmbeddedPlayers: boolean;
 
-    private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext) {
+    private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext): void {
         this._clipEval?.destroy();
         this._frameEventEval = null;
         if (this._clipEmbeddedPlayerEval) {
@@ -214,7 +214,7 @@ class ClipMotionPort implements MotionPort {
         return this._eval[evaluatePortTag](progress, context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._eval.reenter();
     }
 

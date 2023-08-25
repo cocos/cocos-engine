@@ -66,11 +66,11 @@ export class MotionState extends InteractiveState {
      * // TODO: HACK
      * @internal
      */
-    __callOnAfterDeserializeRecursive () {
+    __callOnAfterDeserializeRecursive (): void {
         this.motion?.__callOnAfterDeserializeRecursive();
     }
 
-    public copyTo (that: MotionState) {
+    public copyTo (that: MotionState): MotionState {
         super.copyTo(that);
         that.motion = this.motion?.clone() ?? null;
         that.speed = this.speed;

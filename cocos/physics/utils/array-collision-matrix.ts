@@ -56,7 +56,7 @@ export class ArrayCollisionMatrix {
      * @param {Number} j
      * @param {boolean} value
      */
-    public set (i: number, j: number, value: boolean) {
+    public set (i: number, j: number, value: boolean): void {
         if (j > i) {
             const temp = j;
             j = i;
@@ -69,7 +69,7 @@ export class ArrayCollisionMatrix {
      * Sets all elements to zero
      * @method reset
      */
-    public reset () {
+    public reset (): void {
         this.matrix.length = 0;
     }
 
@@ -77,7 +77,7 @@ export class ArrayCollisionMatrix {
      * Sets the max number of objects
      * @param {Number} n
      */
-    public setNumObjects (n: number) {
+    public setNumObjects (n: number): void {
         this.matrix.length = n * (n - 1) >> 1;
     }
 }

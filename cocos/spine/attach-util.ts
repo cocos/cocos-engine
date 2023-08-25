@@ -47,21 +47,21 @@ export class AttachUtil {
         this._skeletonComp = null;
     }
 
-    init (skeletonComp: Skeleton) {
+    init (skeletonComp: Skeleton): void {
         this._inited = true;
         this._skeleton = skeletonComp._skeleton;
         this._skeletonNode = skeletonComp.node;
         this._skeletonComp = skeletonComp;
     }
 
-    reset () {
+    reset (): void {
         this._inited = false;
         this._skeleton = null;
         this._skeletonNode = null;
         this._skeletonComp = null;
     }
 
-    _syncAttachedNode () {
+    _syncAttachedNode (): void {
         if (!this._inited) return;
 
         const socketNodes = this._skeletonComp!.socketNodes;
@@ -77,7 +77,7 @@ export class AttachUtil {
 
         if (!boneInfos || boneInfos.length < 1) return;
 
-        const matrixHandle = (node: Node, bone: any) => {
+        const matrixHandle = (node: Node, bone: any): void => {
             const tm = tempMat4;
             tm.m00 = bone.a;
             tm.m01 = bone.c;

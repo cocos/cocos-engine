@@ -119,7 +119,6 @@ class TopLevelStateMachineEvaluation {
         stateMachine: StateMachine,
         name: string,
         context: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
     ) {
         this._additive = context.additive;
         this.name = name;
@@ -128,7 +127,6 @@ class TopLevelStateMachineEvaluation {
             stateMachine,
             null,
             context,
-            clipOverrides,
             name,
         );
         this._topLevelEntry = entry;
@@ -141,11 +139,11 @@ class TopLevelStateMachineEvaluation {
     /**
      * Indicates if this layer's top level graph reached its exit.
      */
-    get exited () {
+    get exited (): boolean {
         return this._currentNode === this._topLevelExit;
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         const { _proceduralPoseStates: proceduralPoseStates } = this;
         const nProceduralPoseStates = proceduralPoseStates.length;
         for (let iState = 0; iState < nProceduralPoseStates; ++iState) {
@@ -154,7 +152,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         // Known problem: no callbacks are triggered.
 
         for (const transition of this._activatedTransitions) {
@@ -168,7 +166,7 @@ class TopLevelStateMachineEvaluation {
         this._currentNode = this._topLevelEntry;
     }
 
-    public update (context: AnimationGraphUpdateContext) {
+    public update (context: AnimationGraphUpdateContext): void {
         assertIsTrue(!this.exited);
 
         this._loopMatchTransitions();
@@ -196,7 +194,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    public getCurrentClipStatuses (): Iterable<ClipStatus> {
+    public getCurrentClipStatuses (): Iterable<Readonly<ClipStatus>> {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getClipStatuses(currentNode.absoluteWeight);
@@ -237,7 +235,7 @@ class TopLevelStateMachineEvaluation {
         return null;
     }
 
-    public getNextClipStatuses (): Iterable<ClipStatus> {
+    public getNextClipStatuses (): Iterable<Readonly<ClipStatus>> {
         const { _activatedTransitions: activatedTransitions } = this;
         if (activatedTransitions.length === 0) {
             return emptyClipStatusesIterable;
@@ -252,12 +250,12 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext) {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         const { _motionStates: motionStates } = this;
         const nMotionStates = motionStates.length;
         for (let iMotionState = 0; iMotionState < nMotionStates; ++iMotionState) {
             const node = motionStates[iMotionState];
-            node.overrideClips(overrides, context);
+            node.overrideClips(context);
         }
     }
 
@@ -285,7 +283,6 @@ class TopLevelStateMachineEvaluation {
         graph: StateMachine,
         parentStateMachineInfo: StateMachineInfo | null,
         context: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         __DEBUG_ID__: string,
     ): StateMachineInfo {
         const nodes = Array.from(graph.states());
@@ -296,7 +293,7 @@ class TopLevelStateMachineEvaluation {
 
         const nodeEvaluations = nodes.map((node): NodeEval | VMSMEval | null => {
             if (node instanceof MotionState) {
-                const motionStateEval = new VMSMEval(node, context, clipOverrides);
+                const motionStateEval = new VMSMEval(node, context);
                 this._motionStates.push(motionStateEval);
                 return motionStateEval;
             } else if (node === graph.entryState) {
@@ -342,7 +339,6 @@ class TopLevelStateMachineEvaluation {
                     node.stateMachine,
                     stateMachineInfo,
                     context,
-                    clipOverrides,
                     `${__DEBUG_ID__}/${node.name}`,
                 );
                 subStateMachineInfo.components = new InstantiatedComponents(node);
@@ -453,7 +449,7 @@ class TopLevelStateMachineEvaluation {
      * Loop match transitions util no match,
      * or util `MAX_TRANSITIONS_PER_FRAME` is reached(in case of circular transition formed or too long transition path).
      */
-    private _loopMatchTransitions () {
+    private _loopMatchTransitions (): void {
         const {
             _pendingTransitionPath: pendingTransitionPath,
             _activatedTransitions: activatedTransitions,
@@ -514,7 +510,7 @@ class TopLevelStateMachineEvaluation {
         pendingTransitionPath.length = 0;
     }
 
-    private _resetStateTickFlagsAndWeights () {
+    private _resetStateTickFlagsAndWeights (): void {
         const {
             _currentNode: currentNode,
             _activatedTransitions: activatedTransitions,
@@ -527,7 +523,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _commitStateUpdates (parentContext: AnimationGraphUpdateContext) {
+    private _commitStateUpdates (parentContext: AnimationGraphUpdateContext): void {
         const {
             _currentNode: currentNode,
             _activatedTransitions: activatedTransitions,
@@ -545,7 +541,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _commitStateUpdate (state: NodeEval, parentContext: AnimationGraphUpdateContext) {
+    private _commitStateUpdate (state: NodeEval, parentContext: AnimationGraphUpdateContext): void {
         const {
             _updateContextGenerator: updateContextGenerator,
         } = this;
@@ -625,7 +621,7 @@ class TopLevelStateMachineEvaluation {
         return finalPose;
     }
 
-    private _pushNullishPose (context: AnimationGraphEvaluationContext) {
+    private _pushNullishPose (context: AnimationGraphEvaluationContext): Pose {
         return this._additive
             ? context.pushZeroDeltaPose()
             : context.pushDefaultedPose();
@@ -660,7 +656,7 @@ class TopLevelStateMachineEvaluation {
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
      */
-    private _matchAnyScoped (realNode: VMSMInternalState | ProceduralPoseStateEval) {
+    private _matchAnyScoped (realNode: VMSMInternalState | ProceduralPoseStateEval): TransitionEval | null {
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
@@ -682,9 +678,7 @@ class TopLevelStateMachineEvaluation {
      *
      * @returns The transition matched, or null if there's no matched transition.
      */
-    private _matchTransition (
-        node: NodeEval, realNode: NodeEval,
-    ) {
+    private _matchTransition (node: NodeEval, realNode: NodeEval): TransitionEval | null {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
 
         const { _conditionEvaluationContext: conditionEvaluationContext } = this;
@@ -752,7 +746,7 @@ class TopLevelStateMachineEvaluation {
     private _activateTransition (
         prefix: readonly TransitionEval[],
         lastTransition: TransitionEval,
-    ) {
+    ): void {
         const destinationState = lastTransition.to;
         assertIsTrue(isRealState(destinationState));
 
@@ -803,7 +797,7 @@ class TopLevelStateMachineEvaluation {
      * @param deltaTime Time piece.
      * @returns
      */
-    private _updateActivatedTransitions (deltaTime: number) {
+    private _updateActivatedTransitions (deltaTime: number): void {
         const {
             _activatedTransitions: activatedTransitions,
         } = this;
@@ -852,7 +846,7 @@ class TopLevelStateMachineEvaluation {
      * Drops the transitions from `0` to `lastTransitionIndex` in `this._activatedTransitions`.
      * @note This methods may modifies the length of `this._activatedTransitions`.
      */
-    private _dropActivatedTransitions (lastTransitionIndex: number) {
+    private _dropActivatedTransitions (lastTransitionIndex: number): void {
         const {
             _activatedTransitions: activatedTransition,
             _activatedTransitionPool: activatedTransitionPool,
@@ -916,7 +910,7 @@ class TopLevelStateMachineEvaluation {
         this._currentNode = newCurrentState;
     }
 
-    private _resetTriggersOnTransition (transition: TransitionEval) {
+    private _resetTriggersOnTransition (transition: TransitionEval): void {
         const { triggers } = transition;
         if (triggers) {
             const nTriggers = triggers.length;
@@ -927,12 +921,12 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _resetTrigger (name: string) {
+    private _resetTrigger (name: string): void {
         const { _triggerReset: triggerResetFn } = this;
         triggerResetFn(name);
     }
 
-    private _callEnterMethods (node: NodeEval) {
+    private _callEnterMethods (node: NodeEval): void {
         const { _controller: controller } = this;
         switch (node.kind) {
         default:
@@ -947,7 +941,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _callExitMethods (node: NodeEval) {
+    private _callExitMethods (node: NodeEval): void {
         const { _controller: controller } = this;
         switch (node.kind) {
         default:
@@ -962,7 +956,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _emit (eventBinding: AnimationGraphEventBinding) {
+    private _emit (eventBinding: AnimationGraphEventBinding): void {
         eventBinding.emit(this._controller.node);
     }
 }
@@ -986,20 +980,21 @@ function createStateStatusCache (): MotionStateStatus {
     };
 }
 
-const emptyClipStatusesIterator: Readonly<Iterator<ClipStatus>> = Object.freeze({
-    next (..._args: [] | [undefined]): IteratorResult<ClipStatus> {
+type ReadonlyClipStatus = Readonly<ClipStatus>;
+const emptyClipStatusesIterator: Iterator<ReadonlyClipStatus> = {
+    next (..._args: [] | [undefined]): IteratorResult<ReadonlyClipStatus> {
         return {
             done: true,
             value: undefined,
         };
     },
-});
+};
 
-const emptyClipStatusesIterable: Iterable<ClipStatus> = Object.freeze({
+const emptyClipStatusesIterable: Iterable<ReadonlyClipStatus> = {
     [Symbol.iterator] () {
         return emptyClipStatusesIterator;
     },
-});
+};
 
 enum NodeKind {
     entry, exit, any, animation,
@@ -1026,7 +1021,7 @@ export class StateEval {
     /**
      * The absolute weight of this state.
      */
-    get absoluteWeight () {
+    get absoluteWeight (): number {
         return this._absoluteWeight;
     }
 
@@ -1035,22 +1030,22 @@ export class StateEval {
      * - If the state is activated as current state, the count increased.
      * - If the state is activated as a transition destination, the count increased.
      */
-    get activeReferenceCount () {
+    get activeReferenceCount (): number {
         return this._activeReferenceCount;
     }
 
-    public setPrefix_debug (prefix: string) {
+    public setPrefix_debug (prefix: string): void {
         this.__DEBUG_ID__ = `${prefix}${this.name}`;
     }
 
-    public addTransition (transition: TransitionEval) {
+    public addTransition (transition: TransitionEval): void {
         this.outgoingTransitions.push(transition);
     }
 
     /**
      * Increases an active reference.
      */
-    public increaseActiveReference () {
+    public increaseActiveReference (): void {
         if (this._activeReferenceCount === 0) {
             this._absoluteWeight = 0.0;
             this._tickFlags = 0;
@@ -1061,31 +1056,31 @@ export class StateEval {
     /**
      * Decrease an active reference.
      */
-    public decreaseActiveReference () {
+    public decreaseActiveReference (): void {
         if (DEBUG) {
             this._checkActivated();
         }
         --this._activeReferenceCount;
     }
 
-    public resetTickFlagsAndWeight () {
+    public resetTickFlagsAndWeight (): void {
         this._checkActivated();
         this._absoluteWeight = 0.0;
         this._tickFlags = 0;
     }
 
-    public increaseAbsoluteWeight (weight: number) {
+    public increaseAbsoluteWeight (weight: number): void {
         this._absoluteWeight += weight;
     }
 
-    public testTickFlag (flag: StateTickFlag) {
+    public testTickFlag (flag: StateTickFlag): boolean {
         if (DEBUG) {
             this._checkActivated();
         }
         return !!(this._tickFlags & flag);
     }
 
-    public setTickFlag (flag: StateTickFlag) {
+    public setTickFlag (flag: StateTickFlag): void {
         if (DEBUG) {
             this._checkActivated();
         }
@@ -1097,7 +1092,7 @@ export class StateEval {
     private _tickFlags = 0;
     private _absoluteWeight = 0.0;
 
-    private _checkActivated () {
+    private _checkActivated (): void {
         assertIsTrue(this._activeReferenceCount > 0, `The state has not been activated`);
     }
 }
@@ -1145,23 +1140,23 @@ class InstantiatedComponents {
         this._components = node.instantiateComponents();
     }
 
-    public callMotionStateEnterMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
+    public callMotionStateEnterMethods (controller: AnimationController, status: Readonly<MotionStateStatus>): void {
         this._callMotionStateCallbackIfNonDefault('onMotionStateEnter', controller, status);
     }
 
-    public callMotionStateUpdateMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
+    public callMotionStateUpdateMethods (controller: AnimationController, status: Readonly<MotionStateStatus>): void {
         this._callMotionStateCallbackIfNonDefault('onMotionStateUpdate', controller, status);
     }
 
-    public callMotionStateExitMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
+    public callMotionStateExitMethods (controller: AnimationController, status: Readonly<MotionStateStatus>): void {
         this._callMotionStateCallbackIfNonDefault('onMotionStateExit', controller, status);
     }
 
-    public callStateMachineEnterMethods (controller: AnimationController) {
+    public callStateMachineEnterMethods (controller: AnimationController): void {
         this._callStateMachineCallbackIfNonDefault('onStateMachineEnter', controller);
     }
 
-    public callStateMachineExitMethods (controller: AnimationController) {
+    public callStateMachineExitMethods (controller: AnimationController): void {
         this._callStateMachineCallbackIfNonDefault('onStateMachineExit', controller);
     }
 
@@ -1173,7 +1168,7 @@ class InstantiatedComponents {
         methodName: TMethodName,
         controller: AnimationController,
         status: MotionStateStatus,
-    ) {
+    ): void {
         const { _components: components } = this;
         const nComponents = components.length;
         for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
@@ -1189,7 +1184,7 @@ class InstantiatedComponents {
     > (
         methodName: TMethodName,
         controller: AnimationController,
-    ) {
+    ): void {
         const { _components: components } = this;
         const nComponents = components.length;
         for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
@@ -1213,7 +1208,7 @@ interface StateMachineInfo {
  * Track the evaluation of a virtual motion state-machine.
  */
 class VMSMEval {
-    constructor (state: MotionState, context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null) {
+    constructor (state: MotionState, context: AnimationGraphBindingContext) {
         const name = state.name;
 
         this._baseSpeed = state.speed;
@@ -1230,7 +1225,7 @@ class VMSMEval {
             }
         }
 
-        const sourceEval = state.motion?.[createEval](context, overrides, false) ?? null;
+        const sourceEval = state.motion?.[createEval](context, false) ?? null;
         if (sourceEval) {
             Object.defineProperty(sourceEval, '__DEBUG_ID__', { value: name });
         }
@@ -1245,19 +1240,19 @@ class VMSMEval {
 
     public declare components: InstantiatedComponents;
 
-    get duration () {
+    get duration (): number {
         return this._source?.duration ?? 0.0;
     }
 
-    get speed () {
+    get speed (): number {
         return this._speed;
     }
 
-    get entry () {
+    get entry (): VMSMInternalState {
         return this._publicState;
     }
 
-    get stateMachine () {
+    get stateMachine (): StateMachineInfo {
         return this._stateMachine;
     }
 
@@ -1267,12 +1262,12 @@ class VMSMEval {
         this._privateState.stateMachine = value;
     }
 
-    public setPrefix_debug (prefix: string) {
+    public setPrefix_debug (prefix: string): void {
         this._publicState.setPrefix_debug(prefix);
         this._privateState.setPrefix_debug(prefix);
     }
 
-    public addTransition (transition: Readonly<TransitionEval>) {
+    public addTransition (transition: Readonly<TransitionEval>): void {
         // If the transition is a self transition,
         // copy the transition but modify it so that it point to the private state.
         if (transition.to === this._publicState) {
@@ -1286,19 +1281,19 @@ class VMSMEval {
         this._privateState.addTransition(transition);
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Iterable<Readonly<ClipStatus>> {
         const { _source: source } = this;
         if (!source) {
             return emptyClipStatusesIterable;
         } else {
             return {
-                [Symbol.iterator]: () => source.getClipStatuses(baseWeight),
+                [Symbol.iterator]: (): Iterator<ClipStatus, any, undefined> => source.getClipStatuses(baseWeight),
             };
         }
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext) {
-        this._source?.overrideClips(overrides, context);
+    public overrideClips (context: AnimationGraphBindingContext): void {
+        this._source?.overrideClips(context);
     }
 
     private _source: MotionEval | null = null;
@@ -1309,7 +1304,7 @@ class VMSMEval {
     private declare _stateMachine: StateMachineInfo;
     private declare _debugId: string;
 
-    private _setSpeedMultiplier (value: number) {
+    private _setSpeedMultiplier (value: number): void {
         this._speed = this._baseSpeed * value;
     }
 }
@@ -1327,28 +1322,28 @@ class VMSMInternalState extends EventifiedStateEval {
         this._port = port;
     }
 
-    get duration () {
+    get duration (): number {
         return this._container.duration;
     }
 
-    get components () {
+    get components (): InstantiatedComponents {
         return this._container.components;
     }
 
-    get normalizedTime () {
+    get normalizedTime (): number {
         return this._progress;
     }
 
-    get time () {
+    get time (): number {
         return this._progress * this._container.duration;
     }
 
-    public reenter (initialTimeNormalized: number) {
+    public reenter (initialTimeNormalized: number): void {
         this._progress = initialTimeNormalized;
         this._port?.reenter();
     }
 
-    public getStatus () {
+    public getStatus (): MotionStateStatus {
         const { _statusCache: stateStatus } = this;
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
@@ -1357,11 +1352,11 @@ class VMSMInternalState extends EventifiedStateEval {
         return stateStatus;
     }
 
-    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+    public getClipStatuses (baseWeight: number): Iterable<Readonly<ClipStatus>> {
         return this._container.getClipStatuses(baseWeight);
     }
 
-    public update (deltaTime: number, controller: AnimationController) {
+    public update (deltaTime: number, controller: AnimationController): void {
         this._progress = calcProgressUpdate(
             this._progress,
             this.duration,
@@ -1370,7 +1365,7 @@ class VMSMInternalState extends EventifiedStateEval {
         this._container.components.callMotionStateUpdateMethods(controller, this.getStatus());
     }
 
-    public evaluate (context: AnimationGraphEvaluationContext) {
+    public evaluate (context: AnimationGraphEvaluationContext): Pose | null {
         return this._port?.evaluate(this._progress, context) ?? null;
     }
 
@@ -1380,7 +1375,7 @@ class VMSMInternalState extends EventifiedStateEval {
     private readonly _statusCache: MotionStateStatus = createStateStatusCache();
 }
 
-function calcProgressUpdate (currentProgress: number, duration: number, deltaTime: number) {
+function calcProgressUpdate (currentProgress: number, duration: number, deltaTime: number): number {
     if (duration === 0.0) {
         // TODO?
         return 0.0;
@@ -1389,7 +1384,7 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
     return progress;
 }
 
-function normalizeProgress (progress: number) {
+function normalizeProgress (progress: number): number {
     const signedFrac = progress - Math.trunc(progress);
     return signedFrac >= 0.0 ? signedFrac : (1.0 + signedFrac);
 }
@@ -1429,30 +1424,30 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
         this._statusCache.progress = 0.0;
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         this._instantiatedPoseGraph.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._statusCache.progress = 0.0;
         this._instantiatedPoseGraph.reenter();
     }
 
-    public update (context: AnimationGraphUpdateContext) {
+    public update (context: AnimationGraphUpdateContext): void {
         this._elapsedTime += context.deltaTime;
         this._instantiatedPoseGraph.update(context);
     }
 
-    public evaluate (context: AnimationGraphEvaluationContext) {
+    public evaluate (context: AnimationGraphEvaluationContext): Pose | null {
         return this._instantiatedPoseGraph.evaluate(context) ?? null;
     }
 
-    public getStatus () {
+    public getStatus (): MotionStateStatus {
         this._statusCache.progress = normalizeProgress(this._elapsedTime);
         return this._statusCache;
     }
 
-    public countMotionTime () {
+    public countMotionTime (): number {
         return this._instantiatedPoseGraph.countMotionTime();
     }
 
@@ -1489,7 +1484,7 @@ interface TransitionEval {
 }
 
 class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
-    public set (sourceState: NodeEval) {
+    public set (sourceState: NodeEval): void {
         this._sourceState = sourceState;
         if (isRealState(sourceState)) {
             assertIsTrue(sourceState.activeReferenceCount);
@@ -1500,14 +1495,14 @@ class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
         }
     }
 
-    public unset () {
+    public unset (): void {
         this._sourceState = undefined;
         this.sourceStateWeight = 0.0;
     }
 
     public sourceStateWeight = 0.0;
 
-    public get sourceStateMotionTimeNormalized () {
+    public get sourceStateMotionTimeNormalized (): number {
         const { _sourceState: sourceState } = this;
         assertIsTrue(
             sourceState
@@ -1545,15 +1540,15 @@ class ActivatedTransition {
 
     public declare destination: RealState;
 
-    get done () {
+    get done (): boolean {
         return approx(this.normalizedElapsedTime, 1.0, 1e-6);
     }
 
-    public getAbsoluteDuration (baseDurationState: NodeEval) {
+    public getAbsoluteDuration (baseDurationState: NodeEval): number {
         return this._getAbsoluteDurationUnscaled(baseDurationState) * this._durationMultiplier;
     }
 
-    public update (deltaTime: number, fromState: NodeEval) {
+    public update (deltaTime: number, fromState: NodeEval): void {
         // If the transitions is not starting with a concrete state.
         // We can directly finish the transition.
         if (!isRealState(fromState)) {
@@ -1576,10 +1571,10 @@ class ActivatedTransition {
         }
     }
 
-    public static createPool (initialCapacity: number) {
+    public static createPool (initialCapacity: number): Pool<ActivatedTransition> {
         const destructor = !DEBUG
             ? undefined
-            : (transitionInstance: ActivatedTransition) => {
+            : (transitionInstance: ActivatedTransition): void => {
                 transitionInstance.normalizedElapsedTime = Number.NaN;
             };
 
@@ -1595,7 +1590,7 @@ class ActivatedTransition {
     public reset (
         prefix: readonly TransitionEval[],
         lastTransition: TransitionEval,
-    ) {
+    ): void {
         const destinationState = lastTransition.to;
         assertIsTrue(isRealState(destinationState));
 
@@ -1632,7 +1627,7 @@ class ActivatedTransition {
 
     private _durationMultiplier = 1.0;
 
-    private _getAbsoluteDurationUnscaled (baseDurationState: NodeEval) {
+    private _getAbsoluteDurationUnscaled (baseDurationState: NodeEval): number {
         assertIsTrue(this.path.length !== 0);
         const {
             duration,

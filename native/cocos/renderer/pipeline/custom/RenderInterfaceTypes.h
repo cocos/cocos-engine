@@ -57,7 +57,10 @@ class GeometryRenderer;
 namespace scene {
 
 class DirectionalLight;
+class SphereLight;
 class SpotLight;
+class PointLight;
+class RangedDirectionalLight;
 class Model;
 class RenderScene;
 class RenderWindow;
@@ -290,6 +293,11 @@ enum class SubpassCapabilities : uint32_t {
      * @zh 支持读取当前像素任意颜色值
      */
     INPUT_COLOR_MRT = 1 << 2,
+    /**
+     * @en Each subpass has its own sample count.
+     * @zh 每个Subpass拥有不同的采样数
+     */
+    HETEROGENEOUS_SAMPLE_COUNT = 1 << 3,
 };
 
 constexpr SubpassCapabilities operator|(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
@@ -445,6 +453,18 @@ public:
      * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
      */
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
+    virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
+    virtual void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) = 0;
+    virtual void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
+    virtual void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
+    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightViewConstants(light, 0);
+    }
 };
 
 /**
@@ -468,6 +488,9 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
+    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -504,6 +527,9 @@ public:
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
+    }
+    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+        addScene(camera, sceneFlags, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);
@@ -636,6 +662,20 @@ public:
     }
 };
 
+class BasicMultisampleRenderPassBuilder : public BasicRenderPassBuilder {
+public:
+    BasicMultisampleRenderPassBuilder() noexcept = default;
+
+    virtual void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) = 0;
+    virtual void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) = 0;
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target) {
+        resolveDepthStencil(source, target, gfx::ResolveMode::SAMPLE_ZERO, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode) {
+        resolveDepthStencil(source, target, depthMode, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+};
+
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -731,6 +771,14 @@ public:
      * @param format @en Format of the resource @zh 资源的格式
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
+    virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
+    virtual uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
+    virtual uint32_t addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateBuffer(const ccstd::string &name, uint32_t size) = 0;
+    virtual uint32_t addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) = 0;
+    virtual void updateExternalTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -770,7 +818,7 @@ public:
      * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
      * @returns Multisample basic render pass builder
      */
-    virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
+    virtual BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
      * @deprecated Method will be removed in 3.9.0
      */
@@ -815,7 +863,7 @@ public:
     BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height) {
         return addRenderPass(width, height, "default");
     }
-    BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
+    BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
         return addMultisampleRenderPass(width, height, count, quality, "default");
     }
 };
@@ -1187,6 +1235,14 @@ public:
     }
 };
 
+class MultisampleRenderPassBuilder : public BasicMultisampleRenderPassBuilder {
+public:
+    MultisampleRenderPassBuilder() noexcept = default;
+
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+};
+
 /**
  * @en Compute pass
  * @zh 计算通道
@@ -1272,61 +1328,6 @@ public:
 };
 
 /**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneVisitor {
-public:
-    SceneVisitor() noexcept = default;
-    SceneVisitor(SceneVisitor&& rhs) = delete;
-    SceneVisitor(SceneVisitor const& rhs) = delete;
-    SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
-    SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
-    virtual ~SceneVisitor() noexcept = default;
-
-    virtual const pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
-    virtual void setViewport(const gfx::Viewport &vp) = 0;
-    virtual void setScissor(const gfx::Rect &rect) = 0;
-    virtual void bindPipelineState(gfx::PipelineState *pso) = 0;
-    virtual void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
-    virtual void bindInputAssembler(gfx::InputAssembler *ia) = 0;
-    virtual void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) = 0;
-    virtual void draw(const gfx::DrawInfo &info) = 0;
-};
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneTask {
-public:
-    SceneTask() noexcept = default;
-    SceneTask(SceneTask&& rhs) = delete;
-    SceneTask(SceneTask const& rhs) = delete;
-    SceneTask& operator=(SceneTask&& rhs) = delete;
-    SceneTask& operator=(SceneTask const& rhs) = delete;
-    virtual ~SceneTask() noexcept = default;
-
-    virtual TaskType getTaskType() const noexcept = 0;
-    virtual void start() = 0;
-    virtual void join() = 0;
-    virtual void submit() = 0;
-};
-
-/**
- * @deprecated @en Not used @zh 未使用
- */
-class SceneTransversal {
-public:
-    SceneTransversal() noexcept = default;
-    SceneTransversal(SceneTransversal&& rhs) = delete;
-    SceneTransversal(SceneTransversal const& rhs) = delete;
-    SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
-    SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
-    virtual ~SceneTransversal() noexcept = default;
-
-    virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
-};
-
-/**
  * @en Render pipeline.
  * @zh 渲染管线
  */
@@ -1389,6 +1390,7 @@ public:
      */
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) override = 0 /* covariant */;
+    MultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override = 0 /* covariant */;
     /**
      * @en Add compute pass
      * @zh 添加计算通道
@@ -1438,6 +1440,8 @@ public:
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
+    virtual void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) = 0;
+    virtual void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) = 0;
     /**
      * @experimental
      */
@@ -1460,6 +1464,12 @@ public:
     }
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
+    }
+    void addBuiltinGpuCullingPass(const scene::Camera *camera) {
+        addBuiltinGpuCullingPass(camera, "", nullptr);
+    }
+    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName) {
+        addBuiltinGpuCullingPass(camera, hzbName, nullptr);
     }
 };
 

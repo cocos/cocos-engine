@@ -47,7 +47,7 @@
  * log(array.slice(nFirstGroupElements)); // [7, 1, 3]
  * ```
  */
-export function partition<T> (array: T[], predicate: (element: T, index: number, array: T[]) => boolean) {
+export function partition<T> (array: T[], predicate: (element: T, index: number, array: T[]) => boolean): number {
     const nElements = array.length;
 
     // Finds the first element to be placed into second group(predicate to false).

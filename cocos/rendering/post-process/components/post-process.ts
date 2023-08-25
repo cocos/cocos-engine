@@ -10,19 +10,19 @@ import { PostProcessSetting } from './post-process-setting';
 @disallowMultiple
 @executeInEditMode
 export class PostProcess extends Component {
-    static all: PostProcess[] = []
+    static all: PostProcess[] = [];
 
     @tooltip('i18n:postprocess.global')
     @property
     global = true;
 
     @property
-    _shadingScale = 1
+    protected _shadingScale = 1;
     @tooltip('i18n:postprocess.shadingScale')
     @slide
-    @range([0.01, 1, 0.01])
+    @range([0.01, 4, 0.01])
     @property
-    get shadingScale () {
+    get shadingScale (): number {
         return this._shadingScale;
     }
     set shadingScale (v) {
@@ -38,23 +38,23 @@ export class PostProcess extends Component {
     @property
     enableShadingScaleInEditor = false;
 
-    settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map()
+    settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map();
 
-    addSetting (setting: PostProcessSetting) {
+    addSetting (setting: PostProcessSetting): void {
         this.settings.set(setting.constructor as typeof PostProcessSetting, setting);
     }
-    removeSetting (setting: PostProcessSetting) {
+    removeSetting (setting: PostProcessSetting): void {
         this.settings.delete(setting.constructor as typeof PostProcessSetting);
     }
 
-    getSetting (ctor: typeof PostProcessSetting) {
+    getSetting (ctor: typeof PostProcessSetting): PostProcessSetting | undefined {
         return this.settings.get(ctor);
     }
 
-    onEnable () {
+    onEnable (): void {
         PostProcess.all.push(this);
     }
-    onDisable () {
+    onDisable (): void {
         const idx = PostProcess.all.indexOf(this);
         if (idx !== -1) {
             PostProcess.all.splice(idx, 1);

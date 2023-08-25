@@ -133,8 +133,8 @@ public:
 
 class GLES3CmdBlitTexture final : public GLESCmd {
 public:
-    GLES3GPUTexture *gpuTextureSrc = nullptr;
-    GLES3GPUTexture *gpuTextureDst = nullptr;
+    GLES3GPUTextureView *gpuTextureSrcView = nullptr;
+    GLES3GPUTextureView *gpuTextureDstView = nullptr;
     const TextureBlit *regions = nullptr;
     uint32_t count = 0U;
     Filter filter = Filter::POINT;
@@ -142,8 +142,8 @@ public:
     GLES3CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
 
     void clear() override {
-        gpuTextureSrc = nullptr;
-        gpuTextureDst = nullptr;
+        gpuTextureSrcView = nullptr;
+        gpuTextureDstView = nullptr;
         regions = nullptr;
         count = 0U;
     }
@@ -246,6 +246,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
+void cmdFuncGLES3CreateTextureView(GLES3Device *device, GLES3GPUTextureView *gpuTextureView);
 void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout);
 void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader);
 void cmdFuncGLES3CreateRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
@@ -294,14 +295,14 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device,
                                       const BufferTextureCopy *regions,
                                       uint32_t count);
 void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device,
-                                      GLES3GPUTexture *gpuTexture,
+                                      GLES3GPUTextureView *gpuTextureView,
                                       uint8_t *const *buffers,
                                       const BufferTextureCopy *regions,
                                       uint32_t count);
 
 void cmdFuncGLES3BlitTexture(GLES3Device *device,
-                             GLES3GPUTexture *gpuTextureSrc,
-                             GLES3GPUTexture *gpuTextureDst,
+                             GLES3GPUTextureView *gpuTextureSrcView,
+                             GLES3GPUTextureView *gpuTextureDstView,
                              const TextureBlit *regions,
                              uint32_t count,
                              Filter filter);
@@ -311,6 +312,12 @@ void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
 
 void cmdFuncGLES3MemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
+
+void cmdFuncGLES3InsertMarker(GLES3Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES3PushGroupMarker(GLES3Device *device, GLsizei length, const char *marker);
+void cmdFuncGLES3PopGroupMarker(GLES3Device *device);
+
+GLint cmdFuncGLES3GetMaxSampleCount(const GLES3Device *device, Format format, TextureUsage usage, TextureFlags flags);
 
 } // namespace gfx
 } // namespace cc

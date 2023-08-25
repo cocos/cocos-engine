@@ -82,7 +82,7 @@ export class HtmlTextParser {
         this._specialSymbolArray.push([/&apos;/g, '\'']);
     }
 
-    public parse (htmlString: string) {
+    public parse (htmlString: string): IHtmlTextParserResultObj[] {
         this._resultObjectArray.length = 0;
         this._stack.length = 0;
 
@@ -124,7 +124,7 @@ export class HtmlTextParser {
         return this._resultObjectArray;
     }
 
-    private _attributeToObject (attribute: string) {
+    private _attributeToObject (attribute: string): IHtmlTextParserStack {
         attribute = attribute.trim();
 
         const obj: IHtmlTextParserStack = {};
@@ -322,7 +322,7 @@ export class HtmlTextParser {
     }
 
     // find the right part of the first pair of following quotations.
-    private getRightQuotationIndex (remainingArgument: string) {
+    private getRightQuotationIndex (remainingArgument: string): number {
         let leftQuot = -1;
         let rightQuot = -1;
         // Skip a pair of quotations for avoiding spaces in image name are detected.
@@ -342,7 +342,7 @@ export class HtmlTextParser {
         return rightQuot;
     }
 
-    private _processEventHandler (eventString: string) {
+    private _processEventHandler (eventString: string): Record<string, any> {
         const obj = {};
         let index = 0;
         let isValidTag = false;
@@ -389,7 +389,7 @@ export class HtmlTextParser {
         return obj;
     }
 
-    private _addToStack (attribute: string) {
+    private _addToStack (attribute: string): void {
         const obj = this._attributeToObject(attribute);
 
         if (this._stack.length === 0) {
@@ -409,7 +409,7 @@ export class HtmlTextParser {
         }
     }
 
-    private _processResult (value: string) {
+    private _processResult (value: string): void {
         if (value.length === 0) {
             return;
         }
@@ -422,7 +422,7 @@ export class HtmlTextParser {
         }
     }
 
-    private _escapeSpecialSymbol (str: string) {
+    private _escapeSpecialSymbol (str: string): string {
         for (const symbolArr of this._specialSymbolArray) {
             const key = symbolArr[0];
             const value = symbolArr[1];

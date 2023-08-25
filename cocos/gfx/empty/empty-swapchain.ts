@@ -27,7 +27,7 @@ import { Swapchain } from '../base/swapchain';
 import { EmptyTexture } from './empty-texture';
 
 export class EmptySwapchain extends Swapchain {
-    public initialize (info: Readonly<SwapchainInfo>) {
+    public initialize (info: Readonly<SwapchainInfo>): void {
         this._colorTexture = new EmptyTexture();
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
@@ -45,5 +45,5 @@ export class EmptySwapchain extends Swapchain {
         });
     }
     public destroy (): void {}
-    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {}
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {}
 }

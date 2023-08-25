@@ -40,44 +40,22 @@ TEST(barrierTest, test10) {
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, resource, resource);
     fgDispatcher.run();
 
-    const auto& barrierMap = fgDispatcher.getBarriers();
+    const auto& barrierMap = fgDispatcher.resourceAccessGraph.barrier;
     const auto& rag = fgDispatcher.resourceAccessGraph;
-    ExpectEq(rag._vertices.size() == 4, true);
+    ExpectEq(rag._vertices.size() == 6, true);
 
     // head
     const auto& head = barrierMap.at(0);
-    ExpectEq(head.blockBarrier.frontBarriers.empty(), true);
-    ExpectEq(head.blockBarrier.rearBarriers.empty(), true);
-
-    // 1st node
-    const auto& node1 = barrierMap.at(1);
-    //ExpectEq(node1.blockBarrier.frontBarriers.size() == 4, true);
-    //ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
-
-    // undefined external
-    ExpectEq(node1.subpassBarriers[0].frontBarriers.size() == 3, true);
-    ExpectEq(node1.subpassBarriers[0].rearBarriers.size() == 3, true);
-
-    // undefined external
-    ExpectEq(node1.subpassBarriers[1].frontBarriers.size() == 1, true);
-    ExpectEq(node1.subpassBarriers[1].rearBarriers.size() == 1, true);
-
-    //const auto& barrier = node1.blockBarrier.rearBarriers[0];
-    //ExpectEq(barrier.type == BarrierType::FULL, true);
-    //ExpectEq(barrier.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ////resID 3
-    //ExpectEq(barrier.beginStatus.visibility == std::get<2>(layoutInfo[0][3]), true);
+    ExpectEq(head.frontBarriers.empty(), true);
+    ExpectEq(head.rearBarriers.empty(), true);
 
     //// 2nd node
-    const auto& node2 = barrierMap.at(2);
-    ExpectEq(node2.blockBarrier.frontBarriers.size(), 0);
-    ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
+    const auto& node4 = barrierMap.at(4);
+    ExpectEq(node4.frontBarriers.size(), 0);
+    ExpectEq(node4.rearBarriers.size() == 1, true);
 
-    const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
-    ExpectEq(node2RearBarrier0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::FRAGMENT, true);
-    ExpectEq(node2RearBarrier0.endStatus.accessFlag == AccessFlagBit::PRESENT, true);
-    //endstatus: whatever it was, it's COLOR_ATTACHMENT_OPTIMAL
+    const auto& node4RearBarrier0 = node4.rearBarriers.back();
+    ExpectEq(node4RearBarrier0.endStatus.accessFlag == AccessFlagBit::PRESENT, true);
 
     //runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }

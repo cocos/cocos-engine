@@ -31,6 +31,7 @@ import { Color } from '../../core';
 import { scene } from '../../render-scene';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../asset/assets';
+import type { PVData } from '../renderer/particle-system-renderer-cpu';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -48,6 +49,7 @@ const _uvs_ins = [
 
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
+    private _bufferSize: number;
     private _vertAttrs: Attribute[] | null;
     private _vertAttribSize: number;
     private _vBuffer: ArrayBuffer | null;
@@ -79,6 +81,7 @@ export default class ParticleBatchModel extends scene.Model {
 
         this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;
+        this._bufferSize = 16;
         this._vertAttrs = null;
 
         this._vertAttribSize = 0;
@@ -101,15 +104,16 @@ export default class ParticleBatchModel extends scene.Model {
         this._mesh = null;
     }
 
-    public setCapacity (capacity: number) {
+    public setCapacity (capacity: number): void {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
+        this._bufferSize = Math.max(this._capacity, 16);
         if (this._subMeshData && capChanged) {
             this.rebuild();
         }
     }
 
-    public setVertexAttributes (mesh: Mesh | null, attrs: Attribute[]) {
+    public setVertexAttributes (mesh: Mesh | null, attrs: Attribute[]): void {
         if (!this._useInstance) {
             if (this._mesh === mesh && this._vertAttrs === attrs) {
                 return;
@@ -129,7 +133,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private setVertexAttributesIns (mesh: Mesh | null, attrs: Attribute[]) {
+    private setVertexAttributesIns (mesh: Mesh | null, attrs: Attribute[]): void {
         if (this._mesh === mesh && this._vertAttrs === attrs) {
             return;
         }
@@ -164,20 +168,20 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity * this._vertCount,
+            this._vertAttribSize * this._bufferSize * this._vertCount,
             this._vertAttribSize,
         ));
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity * this._vertCount);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize * this._vertCount);
         if (this._mesh && this._capacity > 0) {
-            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3);
+            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string)] as any).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh uv to ATTR_TEX_COORD
+            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3 as string);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
@@ -190,7 +194,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
         vertexBuffer.update(vBuffer);
 
-        const indices: Uint16Array = new Uint16Array(this._capacity * this._indexCount);
+        const indices: Uint16Array = new Uint16Array(this._bufferSize * this._indexCount);
         if (this._mesh && this._capacity > 0) {
             this._mesh.copyIndices(0, indices);
             for (let i = 1; i < this._capacity; i++) {
@@ -214,7 +218,7 @@ export default class ParticleBatchModel extends scene.Model {
         const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            this._bufferSize * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
 
@@ -235,11 +239,11 @@ export default class ParticleBatchModel extends scene.Model {
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity,
+            this._vertAttribSize * this._bufferSize,
             this._vertAttribSize,
         ));
 
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize);
         vertexBuffer.update(vBuffer);
 
         this._insBuffers.push(vertexBuffer);
@@ -247,7 +251,7 @@ export default class ParticleBatchModel extends scene.Model {
         return vBuffer;
     }
 
-    private createSubMeshDataInsStatic () {
+    private createSubMeshDataInsStatic (): void {
         this._vertCount = 4;
         this._indexCount = 6;
         if (this._mesh) {
@@ -264,16 +268,16 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
+            let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh uv to ATTR_TEX_COORD
+            vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3 as string); // find ATTR_TEX_COORD3 index
             vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
-            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertStaticAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
@@ -315,55 +319,55 @@ export default class ParticleBatchModel extends scene.Model {
         this._insBuffers.push(vertexBuffer);
     }
 
-    private createInsSubmesh () {
+    private createInsSubmesh (): void {
         this._subMeshData = new RenderingSubMesh(this._insBuffers, this._vertAttrs!, PrimitiveMode.TRIANGLE_LIST, this._insIndices);
         this.initSubModel(0, this._subMeshData, this._material!);
     }
 
-    public updateMaterial (mat: Material) {
+    public updateMaterial (mat: Material): void {
         this._material = mat;
         this.setSubModelMaterial(0, mat);
     }
 
-    public addParticleVertexData (index: number, pvdata: any[]) {
+    public addParticleVertexData (index: number, pvdata: PVData): void {
         if (!this._useInstance) {
             if (!this._mesh) {
                 let offset: number = index * this._vertAttrsFloatCount;
-                this._vdataF32![offset++] = pvdata[0].x; // position
-                this._vdataF32![offset++] = pvdata[0].y;
-                this._vdataF32![offset++] = pvdata[0].z;
-                this._vdataF32![offset++] = pvdata[1].x; // uv
-                this._vdataF32![offset++] = pvdata[1].y;
-                this._vdataF32![offset++] = pvdata[1].z; // frame idx
-                this._vdataF32![offset++] = pvdata[2].x; // size
-                this._vdataF32![offset++] = pvdata[2].y;
-                this._vdataF32![offset++] = pvdata[2].z;
-                this._vdataF32![offset++] = pvdata[3].x; // rotation
-                this._vdataF32![offset++] = pvdata[3].y;
-                this._vdataF32![offset++] = pvdata[3].z;
-                this._vdataUint32![offset++] = pvdata[4]; // color
-                if (pvdata[5]) {
-                    this._vdataF32![offset++] = pvdata[5].x; // velocity
-                    this._vdataF32![offset++] = pvdata[5].y;
-                    this._vdataF32![offset++] = pvdata[5].z;
+                this._vdataF32![offset++] = pvdata.position.x; // position
+                this._vdataF32![offset++] = pvdata.position.y;
+                this._vdataF32![offset++] = pvdata.position.z;
+                this._vdataF32![offset++] = pvdata.texcoord.x; // uv
+                this._vdataF32![offset++] = pvdata.texcoord.y;
+                this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
+                this._vdataF32![offset++] = pvdata.size.x; // size
+                this._vdataF32![offset++] = pvdata.size.y;
+                this._vdataF32![offset++] = pvdata.size.z;
+                this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+                this._vdataF32![offset++] = pvdata.rotation.y;
+                this._vdataF32![offset++] = pvdata.rotation.z;
+                this._vdataUint32![offset++] = pvdata.color; // color
+                if (pvdata.velocity) {
+                    this._vdataF32![offset++] = pvdata.velocity.x; // velocity
+                    this._vdataF32![offset++] = pvdata.velocity.y;
+                    this._vdataF32![offset++] = pvdata.velocity.z;
                 }
             } else {
                 for (let i = 0; i < this._vertCount; i++) {
                     let offset: number = (index * this._vertCount + i) * this._vertAttrsFloatCount;
-                    this._vdataF32![offset++] = pvdata[0].x; // position
-                    this._vdataF32![offset++] = pvdata[0].y;
-                    this._vdataF32![offset++] = pvdata[0].z;
+                    this._vdataF32![offset++] = pvdata.position.x; // position
+                    this._vdataF32![offset++] = pvdata.position.y;
+                    this._vdataF32![offset++] = pvdata.position.z;
                     offset += 2;
                     // this._vdataF32![offset++] = index;
-                    // this._vdataF32![offset++] = pvdata[1].y;
-                    this._vdataF32![offset++] = pvdata[1].z; // frame idx
-                    this._vdataF32![offset++] = pvdata[2].x; // size
-                    this._vdataF32![offset++] = pvdata[2].y;
-                    this._vdataF32![offset++] = pvdata[2].z;
-                    this._vdataF32![offset++] = pvdata[3].x; // rotation
-                    this._vdataF32![offset++] = pvdata[3].y;
-                    this._vdataF32![offset++] = pvdata[3].z;
-                    this._vdataUint32![offset++] = pvdata[4]; // color
+                    // this._vdataF32![offset++] = pvdata.texcoord.y;
+                    this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
+                    this._vdataF32![offset++] = pvdata.size.x; // size
+                    this._vdataF32![offset++] = pvdata.size.y;
+                    this._vdataF32![offset++] = pvdata.size.z;
+                    this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+                    this._vdataF32![offset++] = pvdata.rotation.y;
+                    this._vdataF32![offset++] = pvdata.rotation.z;
+                    this._vdataUint32![offset++] = pvdata.color; // color
                 }
             }
         } else {
@@ -371,47 +375,47 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addParticleVertexDataIns (index: number, pvdata: any[]) {
+    private addParticleVertexDataIns (index: number, pvdata: PVData): void {
         let offset: number = index * this._vertAttrsFloatCount;
         if (!this._mesh) {
-            this._vdataF32![offset++] = pvdata[0].x; // position
-            this._vdataF32![offset++] = pvdata[0].y;
-            this._vdataF32![offset++] = pvdata[0].z;
-            this._vdataF32![offset++] = pvdata[1].z; // frame idx
+            this._vdataF32![offset++] = pvdata.position.x; // position
+            this._vdataF32![offset++] = pvdata.position.y;
+            this._vdataF32![offset++] = pvdata.position.z;
+            this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
 
-            this._vdataF32![offset++] = pvdata[2].x; // size
-            this._vdataF32![offset++] = pvdata[2].y;
-            this._vdataF32![offset++] = pvdata[2].z;
+            this._vdataF32![offset++] = pvdata.size.x; // size
+            this._vdataF32![offset++] = pvdata.size.y;
+            this._vdataF32![offset++] = pvdata.size.z;
 
-            this._vdataF32![offset++] = pvdata[3].x; // rotation
-            this._vdataF32![offset++] = pvdata[3].y;
-            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+            this._vdataF32![offset++] = pvdata.rotation.y;
+            this._vdataF32![offset++] = pvdata.rotation.z;
 
-            this._vdataUint32![offset++] = pvdata[4]; // color
-            if (pvdata[5]) {
-                this._vdataF32![offset++] = pvdata[5].x; // velocity
-                this._vdataF32![offset++] = pvdata[5].y;
-                this._vdataF32![offset++] = pvdata[5].z;
+            this._vdataUint32![offset++] = pvdata.color; // color
+            if (pvdata.velocity) {
+                this._vdataF32![offset++] = pvdata.velocity.x; // velocity
+                this._vdataF32![offset++] = pvdata.velocity.y;
+                this._vdataF32![offset++] = pvdata.velocity.z;
             }
         } else {
-            this._vdataF32![offset++] = pvdata[0].x; // position
-            this._vdataF32![offset++] = pvdata[0].y;
-            this._vdataF32![offset++] = pvdata[0].z;
-            this._vdataF32![offset++] = pvdata[1].z; // frame idx
+            this._vdataF32![offset++] = pvdata.position.x; // position
+            this._vdataF32![offset++] = pvdata.position.y;
+            this._vdataF32![offset++] = pvdata.position.z;
+            this._vdataF32![offset++] = pvdata.texcoord.z; // frame idx
 
-            this._vdataF32![offset++] = pvdata[2].x; // size
-            this._vdataF32![offset++] = pvdata[2].y;
-            this._vdataF32![offset++] = pvdata[2].z;
+            this._vdataF32![offset++] = pvdata.size.x; // size
+            this._vdataF32![offset++] = pvdata.size.y;
+            this._vdataF32![offset++] = pvdata.size.z;
 
-            this._vdataF32![offset++] = pvdata[3].x; // rotation
-            this._vdataF32![offset++] = pvdata[3].y;
-            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata.rotation.x; // rotation
+            this._vdataF32![offset++] = pvdata.rotation.y;
+            this._vdataF32![offset++] = pvdata.rotation.z;
 
-            this._vdataUint32![offset++] = pvdata[4]; // color
+            this._vdataUint32![offset++] = pvdata.color; // color
         }
     }
 
-    public addGPUParticleVertexData (p: Particle, num: number, time:number) {
+    public addGPUParticleVertexData (p: Particle, num: number, time: number): void {
         if (!this._useInstance) {
             let offset = num * this._vertAttrsFloatCount * this._vertCount;
             for (let i = 0; i < this._vertCount; i++) {
@@ -450,7 +454,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number) {
+    private addGPUParticleVertexDataIns (p: Particle, num: number, time: number): void {
         let offset = num * this._vertAttrsFloatCount;
         let idx = offset;
         this._vdataF32![idx++] = p.position.x;
@@ -482,7 +486,7 @@ export default class ParticleBatchModel extends scene.Model {
         offset += this._vertAttrsFloatCount;
     }
 
-    public updateGPUParticles (num: number, time: number, dt: number) {
+    public updateGPUParticles (num: number, time: number, dt: number): number {
         if (!this._useInstance) {
             const pSize = this._vertAttrsFloatCount * this._vertCount;
             let pBaseIndex = 0;
@@ -508,7 +512,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private updateGPUParticlesIns (num: number, time: number, dt: number) {
+    private updateGPUParticlesIns (num: number, time: number, dt: number): number {
         const pSize = this._vertAttrsFloatCount;
         let pBaseIndex = 0;
         let startTime = 0;
@@ -530,19 +534,19 @@ export default class ParticleBatchModel extends scene.Model {
         return num;
     }
 
-    public constructAttributeIndex () {
+    public constructAttributeIndex (): void {
         if (!this._vertAttrs) {
             return;
         }
-        let vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_position_starttime');
+        let vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_position_starttime');
         let vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._startTimeOffset = vOffset / 4 + 3;
-        vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_dir_life');
+        vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_dir_life');
         vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
-    public updateIA (count: number) {
+    public updateIA (count: number): void {
         if (!this._useInstance) {
             if (count <= 0) {
                 return;
@@ -557,7 +561,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private updateIAIns (count: number) {
+    private updateIAIns (count: number): void {
         if (count <= 0) {
             return;
         }
@@ -570,7 +574,7 @@ export default class ParticleBatchModel extends scene.Model {
         ia.vertexCount = this._iaVertCount;
     }
 
-    public clear () {
+    public clear (): void {
         if (!this._useInstance) {
             this._subModels[0].inputAssembler.indexCount = 0;
         } else {
@@ -578,16 +582,16 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private clearIns () {
+    private clearIns (): void {
         this._subModels[0].inputAssembler.instanceCount = 0;
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
         this.doDestroy();
     }
 
-    public doDestroy () {
+    public doDestroy (): void {
         this._vBuffer = null;
         this._vdataF32 = null;
         this._vdataUint32 = null;
@@ -601,7 +605,7 @@ export default class ParticleBatchModel extends scene.Model {
         this.destroySubMeshData();
     }
 
-    private rebuild () {
+    private rebuild (): void {
         if (!this._useInstance) {
             this._vBuffer = this.createSubMeshData();
             this._vdataF32 = new Float32Array(this._vBuffer);
@@ -611,7 +615,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    private rebuildIns () {
+    private rebuildIns (): void {
         this._vBuffer = this.createSubMeshDataInsDynamic();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
@@ -621,7 +625,7 @@ export default class ParticleBatchModel extends scene.Model {
         this.createInsSubmesh();
     }
 
-    private destroySubMeshData () {
+    private destroySubMeshData (): void {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;

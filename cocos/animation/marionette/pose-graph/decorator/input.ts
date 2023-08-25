@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import { error, js } from '../../../../core';
+import { PropertyStashInternalFlag } from '../../../../core/data/class-stash';
+import { getOrCreatePropertyStash } from '../../../../core/data/decorators/property';
 import { PoseGraphNodeInputMappingOptions, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseNode } from '../pose-node';
@@ -37,11 +39,7 @@ export type { PoseGraphNodeInputMappingOptions };
  * Otherwise, each element of the property will be mapped as an input.
  */
 export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
-    return (target, propertyKey) => {
-        if (typeof propertyKey !== 'string') {
-            error(`@input can be only applied to string-named fields.`);
-            return;
-        }
+    return (target, propertyKey): void => {
         const targetConstructor = target.constructor;
         if (options.type === PoseGraphType.POSE) {
             if (!js.isChildClassOf(targetConstructor, PoseNode)) {
@@ -55,6 +53,25 @@ export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecor
             error(`@input can be only applied to fields of subclasses of PoseNode or PureValueNode.`);
             return;
         }
+        inputUnchecked(options)(target, propertyKey);
+    };
+}
+
+/**
+ * Unchecked version of `@input()`.
+ * @internal
+ */
+export function inputUnchecked (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
+    return (target, propertyKey) => {
+        if (typeof propertyKey !== 'string') {
+            error(`@input can be only applied to string-named fields.`);
+            return;
+        }
+
+        const targetConstructor = target.constructor;
         globalPoseGraphNodeInputManager.setPropertyNodeInputRecord(targetConstructor, propertyKey, options);
+
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey);
+        propertyStash.__internalFlags |= (PropertyStashInternalFlag.STANDALONE | PropertyStashInternalFlag.IMPLICIT_VISIBLE);
     };
 }

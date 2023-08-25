@@ -75,23 +75,23 @@ export class Action {
     }
 
     // called before the action start. It will also set the target.
-    startWithTarget (target: any) {
+    startWithTarget (target: any): void {
         this.originalTarget = target;
         this.target = target;
     }
 
     // called after the action has finished. It will set the 'target' to nil.
-    stop () {
+    stop (): void {
         this.target = null;
     }
 
     // called every frame with it's delta time. <br />
-    step (dt: number) {
+    step (dt: number): void {
         logID(1006);
     }
 
     // Called once per frame. Time is the number of seconds of a frame interval.
-    update (dt: number) {
+    update (dt: number): void {
         logID(1007);
     }
 
@@ -111,7 +111,7 @@ export class Action {
      * @method setTarget
      * @param {object} target
      */
-    setTarget (target: Node) {
+    setTarget (target: Node): void {
         this.target = target;
     }
 
@@ -128,7 +128,7 @@ export class Action {
     // Set the original target, since target can be nil.
     // Is the target that were used to run the action.
     // Unless you are doing something complex, like `ActionManager`, you should NOT call this method.
-    setOriginalTarget (originalTarget: any) {
+    setOriginalTarget (originalTarget: any): void {
         this.originalTarget = originalTarget;
     }
 
@@ -148,7 +148,7 @@ export class Action {
      * @method setTag
      * @param {Number} tag
      */
-    setTag (tag: number) {
+    setTag (tag: number): void {
         this.tag = tag;
     }
 
@@ -171,12 +171,12 @@ export class Action {
     // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
     // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
     // This is a hack, and should be removed once JSB fixes the retain/release bug.
-    retain () { }
+    retain (): void { }
 
     // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
     // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
     // This is a hack, and should be removed once JSB fixes the retain/release bug.
-    release () { }
+    release (): void { }
 }
 
 /**
@@ -211,7 +211,7 @@ export class FiniteTimeAction extends Action {
      * @method setDuration
      * @param {Number} duration
      */
-    setDuration (duration: number) {
+    setDuration (duration: number): void {
         this._duration = duration;
     }
 
@@ -252,7 +252,7 @@ export class Speed extends Action {
      * @method getSpeed
      * @return {Number}
      */
-    getSpeed () {
+    getSpeed (): number {
         return this._speed;
     }
 
@@ -261,7 +261,7 @@ export class Speed extends Action {
      * @method setSpeed
      * @param {Number} speed
      */
-    setSpeed (speed: number) {
+    setSpeed (speed: number): void {
         this._speed = speed;
     }
 
@@ -272,7 +272,7 @@ export class Speed extends Action {
      * @param {Number} speed
      * @return {Boolean}
      */
-    initWithAction (action: Action, speed: number) {
+    initWithAction (action: Action, speed: number): boolean {
         if (!action) {
             errorID(1021);
             return false;
@@ -283,31 +283,31 @@ export class Speed extends Action {
         return true;
     }
 
-    clone () {
+    clone (): Speed {
         const action = new Speed();
         action.initWithAction(this._innerAction!.clone(), this._speed);
         return action;
     }
 
-    startWithTarget (target: any) {
+    startWithTarget (target: any): void {
         Action.prototype.startWithTarget.call(this, target);
         this._innerAction!.startWithTarget(target);
     }
 
-    stop () {
+    stop (): void {
         this._innerAction!.stop();
         Action.prototype.stop.call(this);
     }
 
-    step (dt: number) {
+    step (dt: number): void {
         this._innerAction!.step(dt * this._speed);
     }
 
-    isDone () {
+    isDone (): boolean {
         return this._innerAction!.isDone();
     }
 
-    reverse () {
+    reverse (): Speed {
         return new Speed(this._innerAction!.reverse()!, this._speed);
     }
 
@@ -316,7 +316,7 @@ export class Speed extends Action {
      * @method setInnerAction
      * @param {ActionInterval} action
      */
-    setInnerAction (action: any) {
+    setInnerAction (action: any): void {
         if (this._innerAction !== action) {
             this._innerAction = action;
         }
@@ -327,7 +327,7 @@ export class Speed extends Action {
      * @method getInnerAction
      * @return {ActionInterval}
      */
-    getInnerAction () {
+    getInnerAction (): Action | null {
         return this._innerAction;
     }
 }

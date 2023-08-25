@@ -139,6 +139,15 @@ void GLES3CommandBuffer::nextSubpass() {
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
+void GLES3CommandBuffer::insertMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES3CommandBuffer::beginMarker(const MarkerInfo &marker) {
+    std::ignore = marker;
+}
+void GLES3CommandBuffer::endMarker() {
+}
+
 void GLES3CommandBuffer::bindPipelineState(PipelineState *pso) {
     GLES3GPUPipelineState *gpuPipelineState = static_cast<GLES3PipelineState *>(pso)->gpuPipelineState();
     if (_curGPUPipelineState != gpuPipelineState) {
@@ -303,10 +312,14 @@ void GLES3CommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, c
     // should not copy texture in a secondary command buffer
 }
 
+void GLES3CommandBuffer::resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    // should not resolve texture in a secondary command buffer
+}
+
 void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
-    if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
-    if (dstTexture) cmd->gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
+    if (srcTexture) cmd->gpuTextureSrcView = static_cast<GLES3Texture *>(srcTexture)->gpuTextureView();
+    if (dstTexture) cmd->gpuTextureDstView = static_cast<GLES3Texture *>(dstTexture)->gpuTextureView();
     cmd->regions = regions;
     cmd->count = count;
     cmd->filter = filter;

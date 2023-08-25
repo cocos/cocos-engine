@@ -30,6 +30,7 @@ import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { scene } from '../../render-scene';
 import { NodeEventType } from '../../scene-graph/node-event';
+import type { LODData } from '../../render-scene/scene';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.01];
@@ -136,7 +137,7 @@ export class LOD {
       * @engineInternal
       * @en Get internal LOD object.
       */
-    get lodData () { return this._LODData; }
+    get lodData (): LODData { return this._LODData; }
 
     /**
       * @engineInternal
@@ -202,7 +203,7 @@ export class LOD {
      * @zh 更新指定索引处的 [[MeshRenderer]]
      * @param index @en Value range from 0 to _renderers's length @zh 取值范围是 [0, _renderers数组长度]
      */
-    public setRenderer (index: number, renderer: MeshRenderer) {
+    public setRenderer (index: number, renderer: MeshRenderer): void {
         if (index < 0 || index >= this.rendererCount) {
             console.error('setRenderer to LOD error, index out of range');
             return;
@@ -240,6 +241,8 @@ export class LODGroup extends Component {
     protected _lodGroup = new scene.LODGroup();
 
     private _eventRegistered = false;
+
+    private _forceUsedLevels: number[] = [];
 
     constructor () {
         super();
@@ -279,7 +282,7 @@ export class LODGroup extends Component {
      * @en Get current AABB's size.
      * @zh 获取当前包围盒的大小
      */
-    get objectSize () { return this._objectSize; }
+    get objectSize (): number { return this._objectSize; }
 
     /**
      * @en Get LOD array config.
@@ -314,9 +317,9 @@ export class LODGroup extends Component {
     /**
      * @engineInternal
      */
-    get lodGroup () { return this._lodGroup; }
+    get lodGroup (): scene.LODGroup { return this._lodGroup; }
 
-    private onLodModelAddedCallback () {
+    private onLodModelAddedCallback (): void {
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
@@ -412,7 +415,7 @@ export class LODGroup extends Component {
      * @param index, update lod at specified index.
      * @param lod, the updated lod.
      */
-    public setLOD (index: number, lod: LOD) {
+    public setLOD (index: number, lod: LOD): void {
         if (index < 0 || index >= this.lodCount) {
             console.warn('setLOD error, index out of range');
             return;
@@ -427,7 +430,7 @@ export class LODGroup extends Component {
      * @en Recalculate the bounding box, and the interface will recalculate the localBoundaryCenter and objectSize
      * @zh 重新计算包围盒，该接口会更新 localBoundaryCenter 和 objectSize
      */
-    public recalculateBounds () {
+    public recalculateBounds (): void {
         function getTransformedBoundary (c: /* center */Vec3, e: /*extents*/Vec3, transform: Mat4): [Vec3, Vec3] {
             let minPos: Vec3;
             let maxPos: Vec3;
@@ -515,7 +518,7 @@ export class LODGroup extends Component {
      * @en reset current objectSize to 1, and recalculate screenUsagePercentage.
      * @zh 重置 objectSize 的大小为1，该接口会重新计算 screenUsagePercentage
      */
-    public resetObjectSize () {
+    public resetObjectSize (): void {
         if (this.objectSize === 1.0) return;
 
         if (this.objectSize === 0) {
@@ -541,11 +544,24 @@ export class LODGroup extends Component {
      * @en Force LOD level to use.
      * lodLevel @en The LOD level to use. Passing lodLevel < 0 will return to standard LOD processing. @zh 要使用的LOD层级，为负数时使用标准的处理流程
      */
-    public forceLOD (lodLevel: number) {
-        this.lodGroup.lockLODLevels(lodLevel < 0 ? [] : [lodLevel]);
+    public forceLOD (lodLevel: number): void {
+        this._forceUsedLevels = lodLevel < 0 ? [] : [lodLevel];
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
     }
 
-    onLoad () {
+    /**
+     * @en Force multi LOD level to use, This function is only called in editor.<br/>
+     * @zh 强制使用某几级的LOD,该接口只会在编辑器下调用。
+     * lodIndexArray @en The LOD level array. Passing [] will return to standard LOD processing. @zh 要使用的LOD层级数组，传[]时将使用标准的处理流程。
+     */
+    public forceLODs (lodIndexArray: number[]): void {
+        if (EDITOR) {
+            this._forceUsedLevels = lodIndexArray.slice();
+            this.lodGroup.lockLODLevels(this._forceUsedLevels);
+        }
+    }
+
+    onLoad (): void {
         this._lodGroup.node = this.node;
         // objectSize maybe initialized from deserialize
         this._lodGroup.objectSize = this._objectSize;
@@ -557,13 +573,13 @@ export class LODGroup extends Component {
         this._constructLOD();
     }
 
-    _onRemove (comp: Component) {
+    _onRemove (comp: Component): void {
         if (comp === this) {
             this.onDisable();
         }
     }
 
-    private _constructLOD () {
+    private _constructLOD (): void {
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
             const size = DEFAULT_SCREEN_OCCUPATION.length;
@@ -574,18 +590,19 @@ export class LODGroup extends Component {
     }
 
     // Redo, Undo, Prefab restore, etc.
-    onRestore () {
+    onRestore (): void {
         this._constructLOD();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
     }
 
-    onEnable () {
+    onEnable (): void {
         this._attachToScene();
         if (this.objectSize === 0) {
             this.recalculateBounds();
         }
+        this.lodGroup.lockLODLevels(this._forceUsedLevels);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -606,11 +623,12 @@ export class LODGroup extends Component {
         }
     }
 
-    onDisable () {
+    onDisable (): void {
         this._detachFromScene();
+        this.lodGroup.lockLODLevels([]);
     }
 
-    private _attachToScene () {
+    private _attachToScene (): void {
         if (this.node && this.node.scene) {
             const renderScene = this._getRenderScene();
             if (this._lodGroup.scene) {
@@ -620,20 +638,17 @@ export class LODGroup extends Component {
         }
     }
 
-    private _detachFromScene () {
+    private _detachFromScene (): void {
         if (this._lodGroup.scene) { this._lodGroup.scene.removeLODGroup(this._lodGroup); }
     }
 
-    /**
-     * @engineInternal
-     */
-    private _emitChangeNode (node: Node) {
+    private _emitChangeNode (node: Node): void {
         if (EDITOR) {
             EditorExtends.Node.emit('change', node.uuid, node);
         }
     }
 
-    private _updateDataToScene () {
+    private _updateDataToScene (): void {
         this._detachFromScene();
         this._attachToScene();
     }

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Mesh } from '../assets/mesh';
+import { Mesh, decodeMesh, inflateMesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../gfx';
 import { Vec3 } from '../../core';
 import { IGeometry, IDynamicGeometry, ICreateMeshOptions, ICreateDynamicMeshOptions } from '../../primitive/define';
@@ -41,7 +41,7 @@ const v3_1 = new Vec3();
 /**
  * @deprecated
  */
-export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions): Mesh {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: Attribute[] = [];
@@ -56,7 +56,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_POSITION) {
+                if (att.name === (AttributeName.ATTR_POSITION as string)) {
                     attr = att;
                     break;
                 }
@@ -78,7 +78,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_NORMAL) {
+                if (att.name === (AttributeName.ATTR_NORMAL as string)) {
                     attr = att;
                     break;
                 }
@@ -100,7 +100,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_TEX_COORD) {
+                if (att.name === (AttributeName.ATTR_TEX_COORD as string)) {
                     attr = att;
                     break;
                 }
@@ -122,7 +122,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_TANGENT) {
+                if (att.name === (AttributeName.ATTR_TANGENT as string)) {
                     attr = att;
                     break;
                 }
@@ -144,7 +144,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_COLOR) {
+                if (att.name === (AttributeName.ATTR_COLOR as string)) {
                     attr = att;
                     break;
                 }
@@ -276,7 +276,7 @@ function getPadding (length: number, align: number): number {
     return 0;
 }
 
-function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
     options = options || { maxSubMeshes: 1, maxSubMeshVertices: 1024, maxSubMeshIndices: 1024 };
 
     const attributes: Attribute[] = [];
@@ -418,7 +418,7 @@ export class MeshUtils {
      * @param options @en options of creating @zh 创建选项
      * @return @en The created static mesh, which is same as out @zh 新创建的静态网格，同 out 参数
      */
-    static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+    static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions): Mesh {
         return createMesh(geometry, out, options);
     }
 
@@ -431,8 +431,26 @@ export class MeshUtils {
      * @param options @en options of creating @zh 创建选项
      * @return @en The created dynamic mesh, which is same as out @zh 新创建的动态网格，同 out 参数
      */
-    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
         return createDynamicMesh(primitiveIndex, geometry, out, options);
+    }
+
+    /**
+     * @en decode a mesh.
+     *
+     * @engineInternal
+     */
+    static decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+        return decodeMesh(mesh);
+    }
+
+    /**
+     * @en inflate a mesh.
+     *
+     * @engineInternal
+     */
+    static inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+        return inflateMesh(mesh);
     }
 }
 

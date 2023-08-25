@@ -1,5 +1,5 @@
-import { ccclass, serializable } from '../../../../core/data/decorators';
-import { applyDeltaPose } from '../../../core/pose';
+import { ccclass, range, serializable } from '../../../../core/data/decorators';
+import { Pose, applyDeltaPose } from '../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE_BLEND } from './menu-common';
@@ -29,9 +29,10 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
+    @range([0.0, 1.0, 0.01])
     public ratio = 1.0;
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         this.basePose?.bind(context);
         context._pushAdditiveFlag(true);
         this.additivePose?.bind(context);
@@ -43,7 +44,7 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
         this.additivePose?.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this.basePose?.reenter();
         this.additivePose?.reenter();
     }
@@ -53,7 +54,7 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
         this.additivePose?.update(context);
     }
 
-    public doEvaluate (context: AnimationGraphEvaluationContext) {
+    public doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const basePose = this.basePose?.evaluate(context, PoseTransformSpaceRequirement.LOCAL) ?? context.pushDefaultedPose();
         if (!this.additivePose) {
             return basePose;

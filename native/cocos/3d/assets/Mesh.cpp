@@ -26,6 +26,7 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/Skeleton.h"
 #include "3d/misc/BufferBlob.h"
+#include "3d/misc/CreateMesh.h"
 #include "base/std/hash/hash.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
@@ -102,7 +103,13 @@ DataReaderCallback getReader(const DataView &dataView, gfx::Format format) {
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getFloat32(offset); };
+            switch (stride) {
+                case 2: return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getUint16(offset); };
+                case 4: return [&](uint32_t offset) -> TypedArrayElementType { return dataView.getFloat32(offset); };
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;
@@ -159,7 +166,13 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, ccstd::get<float>(value)); };
+            switch (stride) {
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, ccstd::get<uint16_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, ccstd::get<float>(value)); };
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;
@@ -292,6 +305,15 @@ void Mesh::initialize() {
     }
 
     _initialized = true;
+
+    if (_struct.compressed) {
+        // decompress
+        MeshUtils::inflateMesh(_struct, _data);
+    }
+    if (_struct.encoded) {
+        // decode
+        MeshUtils::decodeMesh(_struct, _data);
+    }
 
     if (_struct.dynamic.has_value()) {
         auto *device = gfx::Device::getInstance();
@@ -439,9 +461,11 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
+#if !CC_EDITOR
         if (!_allowDataAccess) {
             releaseData();
         }
+#endif
     }
 }
 
@@ -1260,9 +1284,11 @@ void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 
 void Mesh::setAllowDataAccess(bool allowDataAccess) {
     _allowDataAccess = allowDataAccess;
+#if !CC_EDITOR
     if (_isMeshDataUploaded && !_allowDataAccess) {
         releaseData();
     }
+#endif
 }
 
 void Mesh::releaseData() {
@@ -1297,7 +1323,13 @@ TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t coun
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return Float32Array(count);
+            switch (stride) {
+                case 2: return Uint16Array(count);
+                case 4: return Float32Array(count);
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;

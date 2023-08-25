@@ -4,7 +4,6 @@ import { AnimationGraph, Layer } from '../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
     AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../animation-graph-context';
 import { AnimationMask } from '../animation-mask';
-import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { TopLevelStateMachineEvaluation } from '../state-machine/state-machine-eval';
 import { PoseNode } from './pose-node';
 import { RuntimeMotionSyncManager } from './motion-sync/runtime-motion-sync';
@@ -14,7 +13,6 @@ export class DefaultTopLevelPoseNode extends PoseNode {
     constructor (
         graph: AnimationGraph,
         bindingContext: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         poseStashAllocator: PoseStashAllocator,
     ) {
         super();
@@ -23,7 +21,6 @@ export class DefaultTopLevelPoseNode extends PoseNode {
             const record = new LayerEvaluationRecord(
                 layer,
                 bindingContext,
-                clipOverrides,
                 poseStashAllocator,
             );
 
@@ -33,7 +30,7 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         this._layerRecords = layerEvaluationRecords;
     }
 
-    get layerCount () {
+    get layerCount (): number {
         return this._layerRecords.length;
     }
 
@@ -55,27 +52,27 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         }
     }
 
-    public getLayerWeight (layerIndex: number) {
+    public getLayerWeight (layerIndex: number): number {
         assertIsTrue(layerIndex >= 0 && layerIndex < this._layerRecords.length, `Invalid layer index`);
         return this._layerRecords[layerIndex].weight;
     }
 
-    public setLayerWeight (layerIndex: number, weight: number) {
+    public setLayerWeight (layerIndex: number, weight: number): void {
         assertIsTrue(layerIndex >= 0 && layerIndex < this._layerRecords.length, `Invalid layer index`);
         this._layerRecords[layerIndex].weight = weight;
     }
 
-    public getLayerTopLevelStateMachineEvaluation (layerIndex: number) {
+    public getLayerTopLevelStateMachineEvaluation (layerIndex: number): TopLevelStateMachineEvaluation {
         return this._layerRecords[layerIndex].stateMachineEvaluation;
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext) {
+    public overrideClips (context: AnimationGraphBindingContext): void {
         const { _layerRecords: layerRecords } = this;
         const nLayers = layerRecords.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerRecord = layerRecords[iLayer];
             context._pushAdditiveFlag(layerRecord.additive);
-            layerRecord.stateMachineEvaluation.overrideClips(overrides, context);
+            layerRecord.stateMachineEvaluation.overrideClips(context);
             context._popAdditiveFlag();
         }
     }
@@ -116,7 +113,6 @@ class LayerEvaluationRecord {
     constructor (
         layer: Layer,
         bindingContext: AnimationGraphBindingContext,
-        clipOverrides: ReadonlyClipOverrideMap | null,
         poseStashAllocator: PoseStashAllocator,
     ) {
         const stashManager = new RuntimeStashManager(poseStashAllocator);
@@ -145,18 +141,17 @@ class LayerEvaluationRecord {
             layer.stateMachine,
             layer.name,
             bindingContext,
-            clipOverrides,
         );
         bindingContext._popAdditiveFlag();
 
         bindingContext._unsetLayerWideContextProperties();
     }
 
-    get stateMachineEvaluation () {
+    get stateMachineEvaluation (): TopLevelStateMachineEvaluation {
         return this._topLevelStateMachineEval;
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         if (this._mask) {
             this.transformFilter = context.createTransformFilter(this._mask);
         }
@@ -168,13 +163,13 @@ class LayerEvaluationRecord {
         this._topLevelStateMachineEval.settle(context);
     }
 
-    public update (context: AnimationGraphUpdateContext) {
+    public update (context: AnimationGraphUpdateContext): void {
         this.stateMachineEvaluation.update(context);
 
         this._motionSyncManager.sync();
     }
 
-    public postEvaluate () {
+    public postEvaluate (): void {
         // Reset stash resources.
         this._stashManager.reset();
     }

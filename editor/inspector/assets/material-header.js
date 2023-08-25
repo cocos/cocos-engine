@@ -95,6 +95,7 @@ exports.methods = {
 exports.ready = async function() {
     const panel = this;
 
+    callMaterialPreviewFunction('resetCamera');
     callMaterialPreviewFunction('setLightEnable', true);
     panel.$.light.addEventListener('confirm', async () => {
         await callMaterialPreviewFunction('setLightEnable', this.$.light.checked);
@@ -108,7 +109,7 @@ exports.ready = async function() {
     });
 
     panel.$.canvas.addEventListener('mousedown', async (event) => {
-        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y });
+        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
         async function mousemove(event) {
             await callMaterialPreviewFunction('onMouseMove', {
@@ -136,6 +137,14 @@ exports.ready = async function() {
         panel.isPreviewDataDirty = true;
     });
 
+    panel.$.canvas.addEventListener('wheel', async (event) => {
+        await callMaterialPreviewFunction('onMouseWheel', {
+            wheelDeltaY: event.wheelDeltaY,
+            wheelDeltaX: event.wheelDeltaX
+        });
+        panel.isPreviewDataDirty = true;
+    });
+
     const GlPreview = Editor._Module.require('PreviewExtends').default;
     panel.glPreview = new GlPreview('scene:material-preview', 'query-material-preview-data');
 
@@ -153,6 +162,7 @@ exports.ready = async function() {
 
 exports.update = async function(assetList, metaList) {
     const panel = this;
+    callMaterialPreviewFunction('resetCamera');
 
     panel.assetList = assetList;
     panel.metaList = metaList;

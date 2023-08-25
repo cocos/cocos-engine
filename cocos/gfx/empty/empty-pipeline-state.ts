@@ -25,7 +25,7 @@
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 
 export class EmptyPipelineState extends PipelineState {
-    public initialize (info: Readonly<PipelineStateInfo>) {
+    public initialize (info: Readonly<PipelineStateInfo>): void {
         this._primitive = info.primitive;
         this._shader = info.shader;
         this._pipelineLayout = info.pipelineLayout;
@@ -34,7 +34,7 @@ export class EmptyPipelineState extends PipelineState {
             const bsInfo = info.blendState;
             const { targets } = bsInfo;
             if (targets) {
-                targets.forEach((t, i) => {
+                targets.forEach((t, i): void => {
                     bs.setTarget(i, t);
                 });
             }
@@ -49,5 +49,5 @@ export class EmptyPipelineState extends PipelineState {
         this._renderPass = info.renderPass;
         this._dynamicStates = info.dynamicStates;
     }
-    public destroy () {}
+    public destroy (): void {}
 }

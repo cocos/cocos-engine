@@ -72,6 +72,8 @@ type WebGamepad = Gamepad;
 const XRLeftHandedness = 'left';
 const XRRightHandedness = 'right';
 
+const devicesTmp: GamepadInputDevice[] = [];
+
 enum Pose {
     HAND_LEFT = 1,
     HAND_RIGHT = 4,
@@ -85,7 +87,7 @@ interface IPoseValue {
 }
 
 interface IPoseInfo {
-    readonly code: number;
+    readonly code: Pose;
     readonly position: DOMPointReadOnly;
     readonly orientation: DOMPointReadOnly;
 }
@@ -106,39 +108,39 @@ export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
     public static xr: (GamepadInputDevice | null) = null;
 
-    public get buttonNorth () { return this._buttonNorth; }
-    public get buttonEast () { return this._buttonEast; }
-    public get buttonWest () { return this._buttonWest; }
-    public get buttonSouth () { return this._buttonSouth; }
-    public get buttonL1 () { return this._buttonL1; }
-    public get buttonL2 () { return this._buttonL2; }
-    public get buttonL3 () { return this._buttonL3; }
-    public get buttonR1 () { return this._buttonR1; }
-    public get buttonR2 () { return this._buttonR2; }
-    public get buttonR3 () { return this._buttonR3; }
+    public get buttonNorth (): InputSourceButton { return this._buttonNorth; }
+    public get buttonEast (): InputSourceButton { return this._buttonEast; }
+    public get buttonWest (): InputSourceButton { return this._buttonWest; }
+    public get buttonSouth (): InputSourceButton { return this._buttonSouth; }
+    public get buttonL1 (): InputSourceButton { return this._buttonL1; }
+    public get buttonL2 (): InputSourceButton { return this._buttonL2; }
+    public get buttonL3 (): InputSourceButton { return this._buttonL3; }
+    public get buttonR1 (): InputSourceButton { return this._buttonR1; }
+    public get buttonR2 (): InputSourceButton { return this._buttonR2; }
+    public get buttonR3 (): InputSourceButton { return this._buttonR3; }
     // public get buttonTouchPad () { return this._buttonTouchPad; }
     // public get buttonHome () { return this._buttonHome; }
-    public get buttonShare () { return this._buttonShare; }
-    public get buttonOptions () { return this._buttonOptions; }
-    public get dpad () { return this._dpad; }
-    public get leftStick () { return this._leftStick; }
-    public get rightStick () { return this._rightStick; }
-    public get buttonStart () { return this._buttonStart; }
-    public get gripLeft () { return this._gripLeft; }
-    public get gripRight () { return this._gripRight; }
-    public get handLeftPosition () { return this._handLeftPosition; }
-    public get handLeftOrientation () { return this._handLeftOrientation; }
-    public get handRightPosition () { return this._handRightPosition; }
-    public get handRightOrientation () { return this._handRightOrientation; }
-    public get aimLeftPosition () { return this._aimLeftPosition; }
-    public get aimLeftOrientation () { return this._aimLeftOrientation; }
-    public get aimRightPosition () { return this._aimRightPosition; }
-    public get aimRightOrientation () { return this._aimRightOrientation; }
+    public get buttonShare (): InputSourceButton { return this._buttonShare; }
+    public get buttonOptions (): InputSourceButton { return this._buttonOptions; }
+    public get dpad (): InputSourceDpad { return this._dpad; }
+    public get leftStick (): InputSourceStick { return this._leftStick; }
+    public get rightStick (): InputSourceStick { return this._rightStick; }
+    public get buttonStart (): InputSourceButton { return this._buttonStart; }
+    public get gripLeft (): InputSourceButton { return this._gripLeft; }
+    public get gripRight (): InputSourceButton { return this._gripRight; }
+    public get handLeftPosition (): InputSourcePosition { return this._handLeftPosition; }
+    public get handLeftOrientation (): InputSourceOrientation { return this._handLeftOrientation; }
+    public get handRightPosition (): InputSourcePosition { return this._handRightPosition; }
+    public get handRightOrientation (): InputSourceOrientation { return this._handRightOrientation; }
+    public get aimLeftPosition (): InputSourcePosition { return this._aimLeftPosition; }
+    public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
+    public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
+    public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
 
-    public get deviceId () {
+    public get deviceId (): number {
         return this._deviceId;
     }
-    public get connected () {
+    public get connected (): boolean {
         return this._connected;
     }
 
@@ -184,7 +186,7 @@ export class GamepadInputDevice {
         [Pose.HAND_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
-    }
+    };
 
     constructor (deviceId: number) {
         this._deviceId = deviceId;
@@ -194,7 +196,7 @@ export class GamepadInputDevice {
     /**
      * @engineInternal
      */
-    public static _init () {
+    public static _init (): void {
         if (!systemInfo.hasFeature(Feature.EVENT_GAMEPAD)) {
             return;
         }
@@ -204,11 +206,11 @@ export class GamepadInputDevice {
     /**
      * @engineInternal
      */
-    public static _on (eventType: InputEventType, cb: GamepadCallback, target?: any) {
+    public static _on (eventType: InputEventType, cb: GamepadCallback, target?: any): void {
         GamepadInputDevice._eventTarget.on(eventType, cb, target);
     }
 
-    private static _removeInputDevice (id: number) {
+    private static _removeInputDevice (id: number): void {
         const removeIndex = GamepadInputDevice.all.findIndex((device) => device.deviceId === id);
         if (removeIndex === -1) {
             return;
@@ -216,7 +218,7 @@ export class GamepadInputDevice {
         js.array.fastRemoveAt(GamepadInputDevice.all, removeIndex);
     }
     private static _getOrCreateInputDevice (id: number, connected: boolean): GamepadInputDevice {
-        let device =  GamepadInputDevice.all.find((device) => device.deviceId === id);
+        let device = GamepadInputDevice.all.find((device) => device.deviceId === id);
         if (!device) {
             device = new GamepadInputDevice(id);
             GamepadInputDevice.all.push(device);
@@ -225,42 +227,52 @@ export class GamepadInputDevice {
         return device;
     }
 
-    private static _ensureDirectorDefined () {
-        return new Promise<void>((resolve) => {
-            GamepadInputDevice._intervalId = setInterval(() => {
-                if (legacyCC.director && legacyCC.Director) {
-                    clearInterval(GamepadInputDevice._intervalId);
-                    GamepadInputDevice._intervalId = -1;
-                    resolve();
-                }
-            }, 50);
-        });
+    private static _ensureDirectorDefined (callback: () => void): void {
+        GamepadInputDevice._intervalId = setInterval(() => {
+            if (legacyCC.director && legacyCC.Director) {
+                clearInterval(GamepadInputDevice._intervalId);
+                GamepadInputDevice._intervalId = -1;
+                callback();
+            }
+        }, 50);
     }
 
-    private static _registerEvent () {
-        GamepadInputDevice._ensureDirectorDefined().then(() => {
+    private static _totalGamepadCnt = 0;
+    private static _updateGamepadCnt (): void {
+        GamepadInputDevice._totalGamepadCnt = GamepadInputDevice._cachedWebGamepads.reduce((total, gamepad) => (gamepad ? total + 1 : total), 0);
+    }
+
+    private static _registerEvent (): void {
+        GamepadInputDevice._ensureDirectorDefined(() => {
+            GamepadInputDevice._cachedWebGamepads = GamepadInputDevice._getWebGamePads();
+            GamepadInputDevice._updateGamepadCnt();
             legacyCC.director.on(legacyCC.Director.EVENT_BEGIN_FRAME, GamepadInputDevice._scanGamepads);
-        }).catch((e) => {});
+        });
         window.addEventListener('gamepadconnected', (e) => {
             GamepadInputDevice._cachedWebGamepads[e.gamepad.index] = e.gamepad;
+            GamepadInputDevice._updateGamepadCnt();
             const device = GamepadInputDevice._getOrCreateInputDevice(e.gamepad.index, true);
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE, new EventGamepad(InputEventType.GAMEPAD_CHANGE, device));
         });
         window.addEventListener('gamepaddisconnected', (e) => {
             GamepadInputDevice._cachedWebGamepads[e.gamepad.index] = null;
+            GamepadInputDevice._updateGamepadCnt();
             const device = GamepadInputDevice._getOrCreateInputDevice(e.gamepad.index, false);
             GamepadInputDevice._removeInputDevice(e.gamepad.index);
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE, new EventGamepad(InputEventType.GAMEPAD_CHANGE, device));
         });
     }
 
-    private static _scanWebGamepads (devices: GamepadInputDevice[]) {
+    private static _scanWebGamepads (devices: GamepadInputDevice[]): void {
+        const allDisconnected = GamepadInputDevice._totalGamepadCnt === 0;
+        if (allDisconnected) return;
+
         const webGamepads = GamepadInputDevice._getWebGamePads();
         if (!webGamepads) {
             return;
         }
         for (let i = 0; i < webGamepads.length; ++i) {
-            const webGamepad = webGamepads?.[i];
+            const webGamepad = webGamepads[i];
             if (!webGamepad) {
                 continue;
             }
@@ -301,27 +313,29 @@ export class GamepadInputDevice {
         GamepadInputDevice._cachedWebGamepads = webGamepads;
     }
 
-    private static _scanGamepads () {
-        const devices: GamepadInputDevice[] = [];
-        GamepadInputDevice._scanWebGamepads(devices);
-        GamepadInputDevice._scanWebXRGamepads(devices);
+    private static _scanGamepads (): void {
+        devicesTmp.length = 0;
+        GamepadInputDevice._scanWebGamepads(devicesTmp);
+        GamepadInputDevice._scanWebXRGamepads(devicesTmp);
         // emit event
-        for (let i = 0; i < devices.length; ++i) {
-            const device = devices[i];
+        for (let i = 0; i < devicesTmp.length; ++i) {
+            const device = devicesTmp[i];
             GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_INPUT, new EventGamepad(InputEventType.GAMEPAD_INPUT, device));
         }
         GamepadInputDevice._scanWebXRGamepadsPose();
     }
 
-    private static _scanWebXRGamepads (devices: GamepadInputDevice[]) {
+    private static _scanWebXRGamepads (devices: GamepadInputDevice[]): void {
         const webxrGamepadMap = GamepadInputDevice._getWebXRGamepadMap();
         if (!webxrGamepadMap) {
             // update cache
             GamepadInputDevice._cachedWebXRGamepadMap = null;
             if (GamepadInputDevice.xr && GamepadInputDevice.xr._connected) {
                 GamepadInputDevice.xr._connected = false;
-                GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+                GamepadInputDevice._eventTarget.emit(
+                    InputEventType.GAMEPAD_CHANGE,
+                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+                );
                 devices.push(GamepadInputDevice.xr);
             }
             return;
@@ -337,20 +351,28 @@ export class GamepadInputDevice {
         if (!left && !right) {
             if (GamepadInputDevice.xr._connected) {
                 GamepadInputDevice.xr._connected = false;
-                GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+                GamepadInputDevice._eventTarget.emit(
+                    InputEventType.GAMEPAD_CHANGE,
+                    new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+                );
             }
         } else if (!GamepadInputDevice.xr._connected) {
             GamepadInputDevice.xr._connected = true;
-            GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
-                new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
+            GamepadInputDevice._eventTarget.emit(
+                InputEventType.GAMEPAD_CHANGE,
+                new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr),
+            );
         }
 
-        if (GamepadInputDevice.checkGamepadChanged(left,
-            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRLeftHandedness))) {
+        if (GamepadInputDevice.checkGamepadChanged(
+            left,
+            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRLeftHandedness),
+        )) {
             devices.push(GamepadInputDevice.xr);
-        } else if (GamepadInputDevice.checkGamepadChanged(right,
-            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRRightHandedness))) {
+        } else if (GamepadInputDevice.checkGamepadChanged(
+            right,
+            GamepadInputDevice._cachedWebXRGamepadMap?.get(XRRightHandedness),
+        )) {
             devices.push(GamepadInputDevice.xr);
         }
 
@@ -363,7 +385,7 @@ export class GamepadInputDevice {
         GamepadInputDevice._cachedWebXRGamepadMap.set(XRRightHandedness, GamepadInputDevice._copyCacheGamepadValue(right));
     }
 
-    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (IGamepadCacheInfo | undefined)) {
+    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (IGamepadCacheInfo | undefined)): boolean {
         if (!currGamepad && !cachedGamepad) {
             return false;
         } else if (!currGamepad || !cachedGamepad) {
@@ -391,7 +413,7 @@ export class GamepadInputDevice {
         return false;
     }
 
-    private static _copyCacheGamepadValue (gamepad: Gamepad | undefined) {
+    private static _copyCacheGamepadValue (gamepad: Gamepad | undefined): IGamepadCacheInfo | undefined {
         if (!gamepad) {
             return undefined;
         }
@@ -407,7 +429,7 @@ export class GamepadInputDevice {
         return cacheGamepad;
     }
 
-    private static _scanWebXRGamepadsPose () {
+    private static _scanWebXRGamepadsPose (): void {
         const infoList = globalThis.__globalXR?.webxrHandlePoseInfos as IPoseInfo[];
         if (!infoList || !GamepadInputDevice.xr) {
             return;
@@ -417,8 +439,10 @@ export class GamepadInputDevice {
             const info = infoList[i];
             GamepadInputDevice.xr._updateWebPoseState(info);
         }
-        GamepadInputDevice._eventTarget.emit(InputEventType.HANDLE_POSE_INPUT,
-            new EventGamepad(InputEventType.HANDLE_POSE_INPUT, GamepadInputDevice.xr));
+        GamepadInputDevice._eventTarget.emit(
+            InputEventType.HANDLE_POSE_INPUT,
+            new EventGamepad(InputEventType.HANDLE_POSE_INPUT, GamepadInputDevice.xr),
+        );
     }
 
     private static _getWebXRGamepadMap (): (Map<string, Gamepad> | undefined) {
@@ -457,9 +481,9 @@ export class GamepadInputDevice {
         }
     }
 
-    private _updateWebPoseState (info: IPoseInfo) {
+    private _updateWebPoseState (info: IPoseInfo): void {
         if (info.code !== Pose.HAND_LEFT && info.code !== Pose.AIM_LEFT
-             && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
+            && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
             return;
         }
 
@@ -469,9 +493,9 @@ export class GamepadInputDevice {
         };
     }
 
-    private _initInputSource () {
+    private _initInputSource (): void {
         this._buttonNorth = new InputSourceButton();
-        this._buttonNorth.getValue = () => {
+        this._buttonNorth.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_BUTTON_2) {
@@ -484,7 +508,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonEast = new InputSourceButton();
-        this._buttonEast.getValue = () => {
+        this._buttonEast.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_BUTTON_2) {
@@ -497,7 +521,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonWest = new InputSourceButton();
-        this._buttonWest.getValue = () => {
+        this._buttonWest.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_BUTTON_1) {
@@ -510,7 +534,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonSouth = new InputSourceButton();
-        this._buttonSouth.getValue = () => {
+        this._buttonSouth.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_BUTTON_1) {
@@ -524,13 +548,13 @@ export class GamepadInputDevice {
         };
 
         this._buttonL1 = new InputSourceButton();
-        this._buttonL1.getValue = () => {
+        this._buttonL1.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_L1].value; }
             return 0;
         };
         this._buttonL2 = new InputSourceButton();
-        this._buttonL2.getValue = () => {
+        this._buttonL2.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_TRIGGER) {
@@ -543,7 +567,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonL3 = new InputSourceButton();
-        this._buttonL3.getValue = () => {
+        this._buttonL3.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad) {
@@ -560,13 +584,13 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonR1 = new InputSourceButton();
-        this._buttonR1.getValue = () => {
+        this._buttonR1.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_R1].value; }
             return 0;
         };
         this._buttonR2 = new InputSourceButton();
-        this._buttonR2.getValue = () => {
+        this._buttonR2.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_TRIGGER) {
@@ -579,7 +603,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._buttonR3 = new InputSourceButton();
-        this._buttonR3.getValue = () => {
+        this._buttonR3.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad) {
@@ -609,38 +633,38 @@ export class GamepadInputDevice {
         //     return 0;
         // };
         this._buttonShare = new InputSourceButton();
-        this._buttonShare.getValue = () => {
+        this._buttonShare.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_SHARE].value; }
             return 0;
         };
         this._buttonOptions = new InputSourceButton();
-        this._buttonOptions.getValue = () => {
+        this._buttonOptions.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_OPTIONS].value; }
             return 0;
         };
 
         const dpadUp = new InputSourceButton();
-        dpadUp.getValue = () => {
+        dpadUp.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_DPAD_UP].value; }
             return 0;
         };
         const dpadDown = new InputSourceButton();
-        dpadDown.getValue = () => {
+        dpadDown.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_DPAD_DOWN].value; }
             return 0;
         };
         const dpadLeft = new InputSourceButton();
-        dpadLeft.getValue = () => {
+        dpadLeft.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_DPAD_LEFT].value; }
             return 0;
         };
         const dpadRight = new InputSourceButton();
-        dpadRight.getValue = () => {
+        dpadRight.getValue = (): number => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) { return webGamepad.buttons[BUTTON_DPAD_RIGHT].value; }
             return 0;
@@ -648,7 +672,7 @@ export class GamepadInputDevice {
         this._dpad = new InputSourceDpad({ up: dpadUp, down: dpadDown, left: dpadLeft, right: dpadRight });
 
         const leftStickUp = new InputSourceButton();
-        leftStickUp.getValue = () => {
+        leftStickUp.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad) {
@@ -667,7 +691,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const leftStickDown = new InputSourceButton();
-        leftStickDown.getValue = () => {
+        leftStickDown.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad) {
@@ -686,7 +710,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const leftStickLeft = new InputSourceButton();
-        leftStickLeft.getValue = () => {
+        leftStickLeft.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad) {
@@ -705,7 +729,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const leftStickRight = new InputSourceButton();
-        leftStickRight.getValue = () => {
+        leftStickRight.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad) {
@@ -726,7 +750,7 @@ export class GamepadInputDevice {
         this._leftStick = new InputSourceStick({ up: leftStickUp, down: leftStickDown, left: leftStickLeft, right: leftStickRight });
 
         const rightStickUp = new InputSourceButton();
-        rightStickUp.getValue = () => {
+        rightStickUp.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad) {
@@ -745,7 +769,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const rightStickDown = new InputSourceButton();
-        rightStickDown.getValue = () => {
+        rightStickDown.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad) {
@@ -764,7 +788,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const rightStickLeft = new InputSourceButton();
-        rightStickLeft.getValue = () => {
+        rightStickLeft.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad) {
@@ -783,7 +807,7 @@ export class GamepadInputDevice {
             return 0;
         };
         const rightStickRight = new InputSourceButton();
-        rightStickRight.getValue = () => {
+        rightStickRight.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad) {
@@ -804,10 +828,10 @@ export class GamepadInputDevice {
         this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
 
         this._buttonStart = new InputSourceButton();
-        this._buttonStart.getValue = () => 0;
+        this._buttonStart.getValue = (): number => 0;
 
         this._gripLeft = new InputSourceButton();
-        this._gripLeft.getValue = () => {
+        this._gripLeft.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRLeftHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_GRIP) {
@@ -817,7 +841,7 @@ export class GamepadInputDevice {
             return 0;
         };
         this._gripRight = new InputSourceButton();
-        this._gripRight.getValue = () => {
+        this._gripRight.getValue = (): number => {
             if (this.deviceId === -1) {
                 const webxrGamepad = GamepadInputDevice._getWebXRGamepadMap()?.get(XRRightHandedness);
                 if (webxrGamepad && webxrGamepad.buttons.length > XR_GRIP) {
@@ -828,23 +852,23 @@ export class GamepadInputDevice {
         };
 
         this._handLeftPosition = new InputSourcePosition();
-        this._handLeftPosition.getValue = () => this._webPoseState[Pose.HAND_LEFT].position;
+        this._handLeftPosition.getValue = (): Vec3 => this._webPoseState[Pose.HAND_LEFT].position;
         this._handLeftOrientation = new InputSourceOrientation();
-        this._handLeftOrientation.getValue = () => this._webPoseState[Pose.HAND_LEFT].orientation;
+        this._handLeftOrientation.getValue = (): Quat => this._webPoseState[Pose.HAND_LEFT].orientation;
 
         this._handRightPosition = new InputSourcePosition();
-        this._handRightPosition.getValue = () => this._webPoseState[Pose.HAND_RIGHT].position;
+        this._handRightPosition.getValue = (): Vec3 => this._webPoseState[Pose.HAND_RIGHT].position;
         this._handRightOrientation = new InputSourceOrientation();
-        this._handRightOrientation.getValue = () => this._webPoseState[Pose.HAND_RIGHT].orientation;
+        this._handRightOrientation.getValue = (): Quat => this._webPoseState[Pose.HAND_RIGHT].orientation;
 
         this._aimLeftPosition = new InputSourcePosition();
-        this._aimLeftPosition.getValue = () => this._webPoseState[Pose.AIM_LEFT].position;
+        this._aimLeftPosition.getValue = (): Vec3 => this._webPoseState[Pose.AIM_LEFT].position;
         this._aimLeftOrientation = new InputSourceOrientation();
-        this._aimLeftOrientation.getValue = () => this._webPoseState[Pose.AIM_LEFT].orientation;
+        this._aimLeftOrientation.getValue = (): Quat => this._webPoseState[Pose.AIM_LEFT].orientation;
 
         this._aimRightPosition = new InputSourcePosition();
-        this._aimRightPosition.getValue = () => this._webPoseState[Pose.AIM_RIGHT].position;
+        this._aimRightPosition.getValue = (): Vec3 => this._webPoseState[Pose.AIM_RIGHT].position;
         this._aimRightOrientation = new InputSourceOrientation();
-        this._aimRightOrientation.getValue = () => this._webPoseState[Pose.AIM_RIGHT].orientation;
+        this._aimRightOrientation.getValue = (): Quat => this._webPoseState[Pose.AIM_RIGHT].orientation;
     }
 }

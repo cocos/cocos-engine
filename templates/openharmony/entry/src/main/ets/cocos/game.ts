@@ -80,7 +80,7 @@ export function launchEngine (): Promise<void> {
         return systemReady().then(() => {
             // @ts-ignore
             window.oh.loadModule = loadModule;
-            import('./jsb-adapter/web-adapter.js').then(() => {
+            return import('./jsb-adapter/web-adapter.js').then(() => {
                 return import('./src/<%= systemBundleUrl%>').then(() => {
                     System.warmup({
                         importMap,

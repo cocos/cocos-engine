@@ -26,7 +26,7 @@ CCEffect %{
         anisotropyMap:                    { value: black }
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
         offsetTRT:                        { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [-0.5, 0.5], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
-        IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 5.0], step: 0.01 } }
+        IntensityTRT:                     { value: 2.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 10.0], step: 0.01 } }
         baseColorTRT:                     { value: [0.5, 0.33, 0.18, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color, tooltip: 'The color of internal reflection lighting' } }
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01, tooltip: 'The saturation of internal transmit lighting color' } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
@@ -202,7 +202,7 @@ CCProgram macro-remapping %{
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-  
+
   #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
@@ -320,7 +320,7 @@ CCProgram surface-fragment %{
   {
     return vec3(0.0);
   }
-  
+
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
@@ -331,7 +331,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
@@ -400,7 +400,7 @@ CCProgram surface-fragment %{
     isRotation = 1.0;
     return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
-  
+
   #include <common-functions>
 
   // definition of SurfacesMaterialData structure with corresponding shading-model

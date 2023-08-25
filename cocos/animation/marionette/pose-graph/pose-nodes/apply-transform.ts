@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { ccclass, editable, serializable, type, visible } from '../../../../core/data/decorators';
+import { ccclass, editable, range, serializable, type, visible } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
 import {
@@ -47,7 +47,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.VEC3 })
-    @visible(function visible(this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible (this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public position = new Vec3();
 
     @serializable
@@ -58,11 +58,12 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.QUAT })
-    @visible(function visible(this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible (this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public rotation = new Quat();
 
     @serializable
     @editable
+    @range([0.0, 1.0, 0.01])
     public intensity = new IntensitySpecification();
 
     @serializable
@@ -71,7 +72,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     public transformSpace: TransformSpace = TransformSpace.WORLD;
 
     @input({ type: PoseGraphType.FLOAT })
-    public get intensityValue () {
+    public get intensityValue (): number {
         return this.intensity.value;
     }
 
@@ -79,7 +80,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
         this.intensity.value = value;
     }
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         const {
             node: nodeName,
         } = this;
@@ -101,11 +102,11 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
         this.intensity.bind(context);
     }
 
-    protected getPoseTransformSpaceRequirement () {
+    protected getPoseTransformSpaceRequirement (): PoseTransformSpaceRequirement {
         return PoseTransformSpaceRequirement.NO;
     }
 
-    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose, modificationQueue: TransformModificationQueue) {
+    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose, modificationQueue: TransformModificationQueue): Pose {
         const {
             _transformHandle: transformHandle,
         } = this;
@@ -190,7 +191,10 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
 const {
     replace: replacePosition,
     add: addPosition,
-} = (() => {
+} = ((): {
+    replace: (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean) => void,
+    add: (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean) => void,
+} => {
     const cacheInput = new Vec3();
     const cacheResult = new Vec3();
 
@@ -199,7 +203,7 @@ const {
         add,
     };
 
-    function replace (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean) {
+    function replace (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean): void {
         if (fullIntensity) {
             transform.position = value;
         } else {
@@ -209,7 +213,7 @@ const {
         }
     }
 
-    function add (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean) {
+    function add (transform: Transform, value: Readonly<Vec3>, intensity: number, fullIntensity: boolean): void {
         const result = cacheResult;
         if (fullIntensity) {
             Vec3.copy(result, value);
@@ -224,7 +228,10 @@ const {
 const {
     replace: replaceRotation,
     add: addRotation,
-} = (() => {
+} = ((): {
+    replace: (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean) => void,
+    add: (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean) => void,
+} => {
     const cacheInput = new Quat();
     const cacheResult = new Quat();
 
@@ -233,7 +240,7 @@ const {
         add,
     };
 
-    function replace (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean) {
+    function replace (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean): void {
         if (fullIntensity) {
             transform.rotation = value;
         } else {
@@ -243,7 +250,7 @@ const {
         }
     }
 
-    function add (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean) {
+    function add (transform: Transform, value: Readonly<Quat>, intensity: number, fullIntensity: boolean): void {
         const inputRotation = Quat.copy(cacheInput, transform.rotation);
         const resultRotation = cacheResult;
         if (fullIntensity) {
@@ -257,7 +264,7 @@ const {
 })();
 
 if (EDITOR) {
-    PoseNodeApplyTransform.prototype.getTitle = function getTitle (this: PoseNodeApplyTransform) {
+    PoseNodeApplyTransform.prototype.getTitle = function getTitle (this: PoseNodeApplyTransform): string | [string, Record<string, string>] | undefined {
         if (this.node) {
             return [`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeApplyTransform.title`, { nodeName: this.node }];
         }

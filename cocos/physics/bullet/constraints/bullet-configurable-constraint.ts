@@ -184,7 +184,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         }
     }
 
-    _updateMotorTargetAndVelocity (index: number) {
+    _updateMotorTargetAndVelocity (index: number): void {
         let mode = EDriverMode.DISABLED;
         let axis = 0;
         let target = 0;
@@ -305,7 +305,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         return this._com as ConfigurableConstraint;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const cb = this.constraint.connectedBody;
         const bodyA = (this._rigidBody.body as BulletRigidBody).impl;
         const bodyB = (cb && (cb.body as BulletRigidBody).impl) || bt.TypedConstraint_getFixedBody();
@@ -362,7 +362,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         this.updateFrames();
     }
 
-    updateFrames () {
+    updateFrames (): void {
         const cs = this.constraint;
         const node = cs.node;
         const v3_0 = CC_V3_0;

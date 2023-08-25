@@ -95,7 +95,7 @@ public:
 
     // check the specified format is texture-exclusive (no renderbuffers allowed)
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
-
+    SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const override;
 protected:
     static GLES2Device *instance;
 

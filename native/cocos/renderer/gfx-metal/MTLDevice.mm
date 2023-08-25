@@ -73,7 +73,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    
+
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -87,7 +87,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     _version = std::to_string(_mtlFeatureSet);
-    
+
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -135,9 +135,22 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     _features[toNumber(Feature::COMPUTE_SHADER)] = true;
     _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
-    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
     _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
+
+    if (@available(iOS 13.0, macOS 10.15, *)) {
+        // detph resolve requires MTLGPUFamilyApple3 while stencil resolve requires MTLGPUFamilyApple5
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [mtlDevice supportsFamily:MTLGPUFamilyApple5];
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] |= [mtlDevice supportsFamily:MTLGPUFamilyMac2];
+    } else {
+#if CC_PLATFOTM == CC_PLATFORM_IOS
+        id<MTLDevice> device = static_cast<id<MTLDevice>>(_mtlDevice);
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = [device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v4];
+#elif CC_PLATFOTM == CC_PLATFORM_MACOS
+        _features[toNumber(Feature::MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL)] = false;
+#endif
+    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
@@ -145,7 +158,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
-    
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
@@ -525,6 +538,23 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
     _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::VERTEX_ATTRIBUTE;
+}
+
+SampleCount CCMTLDevice::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
+    const SampleCount sampleCounts[] = {
+        SampleCount::X64,
+        SampleCount::X32,
+        SampleCount::X16,
+        SampleCount::X8,
+        SampleCount::X4,
+        SampleCount::X2,
+    };
+    for (auto sampleCount : sampleCounts) {
+        if  ([_mtlDevice supportsTextureSampleCount: static_cast<uint32_t>(sampleCount)]) {
+            return sampleCount;
+        }
+    }
+    return SampleCount::X1;
 }
 
 } // namespace gfx

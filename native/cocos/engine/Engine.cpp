@@ -217,6 +217,7 @@ void Engine::destroy() {
 
 int32_t Engine::run() {
     BasePlatform *platform = BasePlatform::getPlatform();
+    _xr = CC_GET_XR_INTERFACE();
     platform->runInPlatformThread([&]() {
         tick();
     });
@@ -285,7 +286,7 @@ void Engine::tick() {
 
         // iOS/macOS use its own fps limitation algorithm.
         // Windows for Editor should not sleep,because Editor call tick function synchronously
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY || CC_PLATFORM == CC_PLATFORM_MACOS) 
         if (dtNS < static_cast<double>(_preferredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
@@ -295,7 +296,7 @@ void Engine::tick() {
 #endif
 
         prevTime = std::chrono::steady_clock::now();
-
+        if (_xr) _xr->beginRenderFrame();
         _scheduler->update(dt);
 
         se::ScriptEngine::getInstance()->handlePromiseExceptions();
@@ -303,7 +304,7 @@ void Engine::tick() {
         se::ScriptEngine::getInstance()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
-
+        if (_xr) _xr->endRenderFrame();
         now = std::chrono::steady_clock::now();
         dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
         dt = static_cast<float>(dtNS) / NANOSECONDS_PER_SECOND;
@@ -334,10 +335,12 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
+        // Because the ts layer calls the getviewsize interface in response to resize.
+		// So we need to set the view size when sending the message.
+        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

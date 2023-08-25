@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
-import { lerp, pseudoRandom, repeat, Enum } from '../../core';
+import { lerp, pseudoRandom, repeat, Enum, random, error } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -89,7 +89,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    get enable () {
+    get enable (): boolean {
         return this._enable;
     }
 
@@ -111,13 +111,13 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @type(Mode)
     @displayOrder(1)
     @tooltip('i18n:textureAnimationModule.mode')
-    get mode () {
+    get mode (): number {
         return this._mode;
     }
 
     set mode (val) {
         if (val !== Mode.Grid) {
-            console.error('particle texture animation\'s sprites is not supported!');
+            error('particle texture animation\'s sprites is not supported!');
         }
     }
 
@@ -127,7 +127,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @displayOrder(2)
     @tooltip('i18n:textureAnimationModule.numTilesX')
-    get numTilesX () {
+    get numTilesX (): number {
         return this._numTilesX;
     }
 
@@ -144,7 +144,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @displayOrder(3)
     @tooltip('i18n:textureAnimationModule.numTilesY')
-    get numTilesY () {
+    get numTilesY (): number {
         return this._numTilesY;
     }
 
@@ -202,34 +202,34 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @ignore
      */
-    get flipU () {
+    get flipU (): number {
         return this._flipU;
     }
 
     set flipU (val) {
-        console.error('particle texture animation\'s flipU is not supported!');
+        error('particle texture animation\'s flipU is not supported!');
     }
 
     @serializable
     private _flipV = 0;
 
-    get flipV () {
+    get flipV (): number {
         return this._flipV;
     }
 
     set flipV (val) {
-        console.error('particle texture animation\'s flipV is not supported!');
+        error('particle texture animation\'s flipV is not supported!');
     }
 
     @serializable
     private _uvChannelMask = -1;
 
-    get uvChannelMask () {
+    get uvChannelMask (): number {
         return this._uvChannelMask;
     }
 
     set uvChannelMask (val) {
-        console.error('particle texture animation\'s uvChannelMask is not supported!');
+        error('particle texture animation\'s uvChannelMask is not supported!');
     }
 
     /**
@@ -262,8 +262,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @param p @en Particle to set start row. @zh 设置初始行属性的粒子。
      * @internal
      */
-    public init (p: Particle) {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
+    public init (p: Particle): void {
+        p.startRow = Math.floor(random() * this.numTilesY);
     }
 
     /**
@@ -273,7 +273,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
-    public animate (p: Particle, dt: number) {
+    public animate (p: Particle, dt: number): void {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randStart = isCurveTwoValues(this.startFrame) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
         const randFrame = isCurveTwoValues(this.frameOverTime) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;

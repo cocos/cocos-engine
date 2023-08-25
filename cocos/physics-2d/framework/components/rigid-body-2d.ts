@@ -283,7 +283,7 @@ export class RigidBody2D extends Component {
      * @zh
      * 获取刚体是否正在休眠。
      */
-    isAwake () {
+    isAwake (): boolean {
         if (this._body) {
             return this._body.isAwake;
         }
@@ -297,7 +297,7 @@ export class RigidBody2D extends Component {
      * @zh
      * 唤醒刚体。
      */
-    wakeUp () {
+    wakeUp (): void {
         if (this._body) {
             this._body.wakeUp();
         }
@@ -309,7 +309,7 @@ export class RigidBody2D extends Component {
      * @zh
      * 休眠刚体。
      */
-    sleep () {
+    sleep (): void {
         if (this._body) {
             this._body.sleep();
         }
@@ -339,7 +339,7 @@ export class RigidBody2D extends Component {
      * @param point @en the world position. @zh 世界坐标系下的力的作用点。
      * @param wake @en also wake up the body. @zh 唤醒刚体。
      */
-    applyForce (force: Vec2, point: Vec2, wake: boolean) {
+    applyForce (force: Vec2, point: Vec2, wake: boolean): void {
         if (this._body) {
             this._body.applyForce(force, point, wake);
         }
@@ -353,7 +353,7 @@ export class RigidBody2D extends Component {
      * @param force @en the world force vector. @zh 世界坐标系下的力。
      * @param wake @en also wake up the body. @zh 唤醒刚体。
      */
-    applyForceToCenter (force: Vec2, wake: boolean) {
+    applyForceToCenter (force: Vec2, wake: boolean): void {
         if (this._body) {
             this._body.applyForceToCenter(force, wake);
         }
@@ -367,7 +367,7 @@ export class RigidBody2D extends Component {
      * @param torque @en about the z-axis (out of the screen), usually in N-m. @zh 扭矩 N-m。
      * @param wake @en also wake up the body @zh 唤醒刚体。
      */
-    applyTorque (torque: number, wake: boolean) {
+    applyTorque (torque: number, wake: boolean): void {
         if (this._body) {
             this._body.applyTorque(torque, wake);
         }
@@ -385,7 +385,7 @@ export class RigidBody2D extends Component {
      * @param point @en the world position. @zh 世界坐标系下的作用点。
      * @param wake @en also wake up the body. @zh 唤醒刚体。
      */
-    applyLinearImpulse (impulse: Vec2, point: Vec2, wake: boolean) {
+    applyLinearImpulse (impulse: Vec2, point: Vec2, wake: boolean): void {
         if (this._body) {
             this._body.applyLinearImpulse(impulse, point, wake);
         }
@@ -399,7 +399,7 @@ export class RigidBody2D extends Component {
      * @param impulse @en the world impulse vector, usually in N-seconds or kg-m/s. @zh 冲量 N-seconds 或者 kg-m/s。
      * @param wake @en also wake up the body @zh 唤醒刚体。
      */
-    applyLinearImpulseToCenter (impulse: Vec2, wake: boolean) {
+    applyLinearImpulseToCenter (impulse: Vec2, wake: boolean): void {
         if (this._body) {
             this._body.applyLinearImpulseToCenter(impulse, wake);
         }
@@ -413,7 +413,7 @@ export class RigidBody2D extends Component {
      * @param impulse @en the angular impulse in units of kg*m*m/s. @zh 角冲量 kg*m*m/s。
      * @param wake @en also wake up the body. @zh 唤醒刚体。
      */
-    applyAngularImpulse (impulse: number, wake: boolean) {
+    applyAngularImpulse (impulse: number, wake: boolean): void {
         if (this._body) {
             this._body.applyAngularImpulse(impulse, wake);
         }
@@ -531,7 +531,7 @@ export class RigidBody2D extends Component {
      * @zh
      * 获取刚体本地坐标系下原点的旋转惯性。
      */
-    getInertia () {
+    getInertia (): number {
         if (this._body) {
             this._body.getInertia();
         }
@@ -539,33 +539,33 @@ export class RigidBody2D extends Component {
     }
 
     /// COMPONENT LIFECYCLE ///
-    protected onLoad () {
+    protected onLoad (): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
             this._body = createRigidBody();
             this._body.initialize(this);
         }
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._body) {
             this._body.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._body) {
             this._body.onDisable!();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._body) {
             this._body.onDestroy!();
         }
     }
 
     private _body: IRigidBody2D | null = null;
-    get impl () {
+    get impl (): IRigidBody2D | null {
         return this._body;
     }
 

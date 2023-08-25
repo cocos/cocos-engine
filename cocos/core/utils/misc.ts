@@ -31,6 +31,7 @@ import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
 import { setTimeoutRAF } from '../../../pal/utils';
+import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -51,8 +52,8 @@ export const BASE64_VALUES = values;
  * have different names. So a property getter and setter occupy two positions in `diffNameGetSets`.
  * @engineInternal
  */
-export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
-    function define (np, propName, getter, setter) {
+export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
+    function define (np, propName, getter, setter): void {
         const pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
             if (pd.get) { np[getter] = pd.get; }
@@ -90,7 +91,7 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
  * @param pushFront @en Whether to put new value in front of the vector if key exists.
  * @zh 如果关键字已经存在，是否把新插入的值放到数组第一个位置。
  */
-export function pushToMap (map, key, value, pushFront) {
+export function pushToMap (map, key, value, pushFront): void {
     const exists = map[key];
     if (exists) {
         if (Array.isArray(exists)) {
@@ -117,7 +118,7 @@ export function pushToMap (map, key, value, pushFront) {
  * @returns @en True if otherNode is contained in refNode, false if not.
  * @zh 如果 refNode 包含 otherNode，返回 true；否则返回 false。
  */
-export function contains (refNode, otherNode) {
+export function contains (refNode, otherNode): boolean {
     if (typeof refNode.contains === 'function') {
         return refNode.contains(otherNode) as boolean;
     } else if (typeof refNode.compareDocumentPosition === 'function') {
@@ -143,7 +144,7 @@ export function contains (refNode, otherNode) {
  * @returns @en True if node is a DOM node, false else.
  * @zh 如果 DOM 节点，返回 true；否则返回 false。
  */
-export function isDomNode (node) {
+export function isDomNode (node): boolean {
     if (typeof window === 'object' && typeof Node === 'function') {
         // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
         // it should because window.Node was overwritten.
@@ -162,9 +163,9 @@ export function isDomNode (node) {
  * @param p1 @en The first parameter passed to `callback`. @zh 传给回调函数的第一个参数。
  * @param p2 @en The seconde parameter passed to `callback`. @zh 传给回调函数的第二个参数。
  */
-export function callInNextTick (callback, p1?: any, p2?: any) {
+export function callInNextTick (callback, p1?: any, p2?: any): void {
     if (callback) {
-        setTimeoutRAF(() => {
+        setTimeoutRAF((): void => {
             callback(p1, p2);
         }, 0);
     }
@@ -179,7 +180,7 @@ export function callInNextTick (callback, p1?: any, p2?: any) {
  * @returns @en A new function that will invoke `functionName` with try catch.
  * @zh 使用 try catch 机制调用 `functionName` 的新函数.
  */
-export function tryCatchFunctor_EDITOR (funcName) {
+export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return Function('target',
         `${'try {\n'
@@ -187,7 +188,7 @@ export function tryCatchFunctor_EDITOR (funcName) {
         + `}\n`
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
-        + `}`);
+        + `}`) as (comp: Component) => void;
 }
 
 /**
@@ -197,7 +198,7 @@ export function tryCatchFunctor_EDITOR (funcName) {
  * @returns @en True if it is an empty object. False if it is not an empty object, not Object type, null or undefined.
  * @ 如果是空对象，返回 true。如果不是空对象，不是Object类型，空或未定义，则为假。
  */
-export function isPlainEmptyObj_DEV (obj) {
+export function isPlainEmptyObj_DEV (obj): boolean {
     if (!obj || obj.constructor !== Object) {
         return false;
     }
@@ -222,7 +223,7 @@ export function isPlainEmptyObj_DEV (obj) {
  * var v2 = clampf(-1, 0, 20); //  0;
  * var v3 = clampf(10, 0, 20); // 10;
  */
-export function clampf (value: number, min_inclusive: number, max_inclusive: number) {
+export function clampf (value: number, min_inclusive: number, max_inclusive: number): number {
     if (min_inclusive > max_inclusive) {
         const temp = min_inclusive;
         min_inclusive = max_inclusive;
@@ -237,7 +238,7 @@ export function clampf (value: number, min_inclusive: number, max_inclusive: num
  * @param angle @en The degree to convert. @zh 角度。
  * @returns @en The radian. @zh 弧度。
  */
-export function degreesToRadians (angle: number) {
+export function degreesToRadians (angle: number): number {
     return angle * macro.RAD;
 }
 
@@ -247,7 +248,7 @@ export function degreesToRadians (angle: number) {
  * @param angle @en The radian to convert. @zh 弧度。
  * @returns @en The degree. @zh 角度。
  */
-export function radiansToDegrees (angle) {
+export function radiansToDegrees (angle): number {
     return angle * macro.DEG;
 }
 

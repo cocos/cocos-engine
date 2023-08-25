@@ -23,6 +23,7 @@
 */
 
 import { COCOSPLAY, HUAWEI, OPPO, VIVO } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const require: (path: string) =>  Promise<void>;
 declare const ral: any;
@@ -52,3 +53,5 @@ export function loadJsFile (path: string): Promise<void> {
     // eslint-disable-next-line import/no-dynamic-require
     return require(`${path}`);
 }
+
+checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());

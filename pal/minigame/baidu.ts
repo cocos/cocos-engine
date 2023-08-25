@@ -23,6 +23,7 @@
 */
 
 import { IMiniGame } from 'pal/minigame';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
@@ -55,11 +56,11 @@ Object.defineProperty(minigame, 'orientation', {
 // #region Accelerometer
 let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
     // swan.offAccelerometerChange() is not supported.
     // so we can only register AccelerometerChange callback, but can't unregister.
     if (!_innerAccelerometerCb) {
-        _innerAccelerometerCb = (res: any) => {
+        _innerAccelerometerCb = (res: any): void => {
             let x = res.x;
             let y = res.y;
             if (minigame.isLandscape) {
@@ -82,7 +83,7 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
     }
     _customAccelerometerCb = cb;
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
     // swan.offAccelerometerChange() is not supported.
     _customAccelerometerCb = undefined;
 };
@@ -96,7 +97,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(swan, {
 });
 
 // #region SafeArea
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     console.warn('getSafeArea is not supported on this platform');
     const systemInfo =  minigame.getSystemInfoSync();
     return {
@@ -111,3 +112,5 @@ minigame.getSafeArea = function () {
 // #endregion SafeArea
 
 export { minigame };
+
+checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./baidu')>());

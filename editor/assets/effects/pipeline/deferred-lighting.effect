@@ -62,7 +62,7 @@ CCProgram lighting-fs-tiled %{
       2.0 * coord.z - 1.0);
       #endif
 
-    
+
     CC_HANDLE_SAMPLE_NDC_FLIP_STATIC(ndc.y);
     return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
   }

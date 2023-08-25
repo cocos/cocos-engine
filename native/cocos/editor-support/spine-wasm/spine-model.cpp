@@ -1,18 +1,16 @@
 #include "spine-model.h"
 
 SpineModel::SpineModel() {
-
 }
 
 SpineModel::~SpineModel() {
-
 }
 
-void SpineModel::addSlotMesh(SlotMesh &mesh, bool needMerge) {
+void SpineModel::addSlotMesh(SlotMesh& mesh, bool needMerge) {
     bool canMerge = false;
     auto count = meshArray.size();
     if (needMerge && count >= 1) {
-        auto *lastMesh = &meshArray[count - 1];
+        auto* lastMesh = &meshArray[count - 1];
         if (lastMesh->blendMode == mesh.blendMode && lastMesh->textureID == mesh.textureID) {
             canMerge = true;
             lastMesh->vCount += mesh.vCount;
@@ -29,8 +27,8 @@ void SpineModel::addSlotMesh(SlotMesh &mesh, bool needMerge) {
     float* floatPtr = (float*)mesh.vBuf;
     int floatStride = this->byteStride / 4;
     for (int i = 0; i < mesh.vCount; i++) {
-        floatPtr[ floatStride * i + 2] = 0;
-    } 
+        floatPtr[floatStride * i + 2] = 0;
+    }
     vCount += mesh.vCount;
     iCount += mesh.iCount;
 }

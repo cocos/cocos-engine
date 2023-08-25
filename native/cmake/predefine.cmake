@@ -301,7 +301,6 @@ function(cc_gen_swig_files cfg_directory output_dir)
 
         set(dep_files)
         get_filename_component(mod_name ${cfg} NAME_WE)
-        file(MAKE_DIRECTORY ${output_dir}/temp)
         set(output_file_tmp ${output_dir}/temp/jsb_${mod_name}_auto.cpp)
         set(output_file ${output_dir}/jsb_${mod_name}_auto.cpp)
 
@@ -315,6 +314,7 @@ function(cc_gen_swig_files cfg_directory output_dir)
                 ${output_hfile}
                 ${output_file}
             COMMAND ${CMAKE_COMMAND} -E echo "Running swig with config file ${cfg} ..."
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${output_dir}/temp
             COMMAND ${SWIG_EXEC} ${SWIG_ARGS}
                 ${output_file_tmp}
                 ${cfg}

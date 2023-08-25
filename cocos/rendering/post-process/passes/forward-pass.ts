@@ -11,12 +11,12 @@ import { ShadowPass } from './shadow-pass';
 
 export class ForwardPass extends BasePass {
     name = 'ForwardPass';
-    outputNames = ['ForwardColor', 'ForwardDS']
+    outputNames = ['ForwardColor', 'ForwardDS'];
 
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
 
-    calcDepthSlot (camera: Camera) {
+    calcDepthSlot (camera: Camera): void {
         let canUsePrevDepth = !!passContext.depthSlotName;
         canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
         canUsePrevDepth = canUsePrevDepth && passContext.shadingScale === this.depthBufferShadingScale;
@@ -28,7 +28,7 @@ export class ForwardPass extends BasePass {
         passContext.depthSlotName = super.slotName(camera, 1);
     }
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         if (index === 1) {
             return passContext.depthSlotName;
         }
@@ -36,7 +36,7 @@ export class ForwardPass extends BasePass {
         return super.slotName(camera, index);
     }
 
-    public render (camera: Camera, ppl: Pipeline) {
+    public render (camera: Camera, ppl: Pipeline): void {
         passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
         Vec4.set(passContext.clearColor, 0, 0, 0, 0);
         Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
@@ -70,11 +70,21 @@ export class ForwardPass extends BasePass {
             }
         }
         pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(camera,
+            .addSceneOfCamera(
+                camera,
                 new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
-
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
+                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
+            );
+        if (camera.scene?.mainLight) {
+            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
+                .addSceneOfCamera(
+                    camera,
+                    new LightInfo(camera.scene?.mainLight),
+                    SceneFlags.TRANSPARENT_OBJECT | SceneFlags.SHADOW_CASTER
+                    | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
+                );
+        }
         passContext.forwardPass = this;
     }
 }

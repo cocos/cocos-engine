@@ -1,11 +1,11 @@
 #ifndef __UTIL_FUNCTION_H__
 #define __UTIL_FUNCTION_H__
-#include <string>
 #include <stdint.h>
+#include <string>
 class LogUtil {
 public:
     static void Initialize();
-    static void PrintToJs(std::string &message);
+    static void PrintToJs(std::string& message);
     static void PrintToJs(const char* message);
     static void PrintToJs(char* str, int length);
     static void PrintIntValue(int value, const char* message);
@@ -18,6 +18,5 @@ public:
 //     static void     freeStoreMemory();
 //     static uint32_t storeMemorySize();
 // };
-
 
 #endif

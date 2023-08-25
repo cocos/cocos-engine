@@ -36,7 +36,7 @@ export class NodeUIProperties {
      * @en The UI transform component
      * @zh UI 变换组件
      */
-    get uiTransformComp () {
+    get uiTransformComp (): UITransform | null {
         if (!this._uiTransformComp) {
             this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
@@ -51,7 +51,7 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    get uiComp () {
+    get uiComp (): UIMeshRenderer | UIRenderer | null {
         return this._uiComp;
     }
     set uiComp (comp: UIMeshRenderer | UIRenderer | null) {
@@ -73,15 +73,15 @@ export class NodeUIProperties {
      * NOTE: engineInternal tag cannot only mark opacity setter as internal.
      * @engineInternal
      */
-    public setOpacity (v: number) { this._opacity = v; }
-    public get opacity () { return this._opacity; }
+    public setOpacity (v: number): void { this._opacity = v; }
+    public get opacity (): number { return this._opacity; }
 
     /**
      * @en The opacity of the UI node itself
      * @zh 本节点的 UI 透明度
      */
     private _localOpacity = 1;
-    get localOpacity () { return this._localOpacity; }
+    get localOpacity (): number { return this._localOpacity; }
     set localOpacity (val) {
         this._localOpacity = val;
         this.colorDirty = true;
@@ -98,7 +98,7 @@ export class NodeUIProperties {
     /**
      * @deprecated since v3.4
      */
-    public applyOpacity (effectOpacity) {
+    public applyOpacity (effectOpacity): void {
         this._opacity = this._localOpacity * effectOpacity;
     }
 
@@ -107,5 +107,5 @@ export class NodeUIProperties {
      * @zh 为结点树的透明度状态设置脏标签，不再有效果
      * @deprecated since v3.4
      */
-    public static markOpacityTree (node, isDirty = true) {}
+    public static markOpacityTree (node, isDirty = true): void {}
 }

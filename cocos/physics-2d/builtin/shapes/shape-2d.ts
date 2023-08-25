@@ -35,58 +35,58 @@ export class BuiltinShape2D implements IBaseShape {
     //contacts contain this Shape
     public _contacts: BuiltinContact[] = [];
 
-    get impl () {
+    get impl (): null {
         return null;
     }
 
-    get collider () {
+    get collider (): Collider2D {
         return this._collider!;
     }
 
-    apply () {
+    apply (): void {
 
     }
 
-    initialize (comp: Collider2D) {
+    initialize (comp: Collider2D): void {
         this._collider = comp;
     }
 
-    onLoad () {
+    onLoad (): void {
     }
 
-    onEnable () {
+    onEnable (): void {
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).addShape(this);
     }
 
-    onDisable () {
+    onDisable (): void {
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).removeShape(this);
     }
 
-    start () {
+    start (): void {
     }
 
-    update () {
+    update (): void {
     }
 
     get worldAABB (): Readonly<Rect> {
         return this._worldAabb;
     }
 
-    containsPoint (p: Vec2) {
+    containsPoint (p: Vec2): boolean {
         if (!this.worldAABB.contains(p)) {
             return false;
         }
         return true;
     }
 
-    intersectsRect (rect: Rect) {
+    intersectsRect (rect: Rect): boolean {
         if (!this.worldAABB.intersects(rect)) {
             return false;
         }
         return true;
     }
 
-    onGroupChanged () {
+    onGroupChanged (): void {
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).updateShapeGroup(this);
     }
 }

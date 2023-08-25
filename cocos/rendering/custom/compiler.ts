@@ -32,68 +32,50 @@ import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, Forma
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
     RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
+import { hashCombineNum, hashCombineStr } from './define';
 
-let hashCode = 0;
-
-function hashCombine (hash) {
-    hashCode ^= (hash >>> 0) + 0x9e3779b9 + (hashCode << 6) + (hashCode >> 2);
-}
-
-function hashCombineNum (val: number) {
-    const hash = 5381;
-    hashCombine((hash * 33) ^ val);
-}
-
-function hashCombineStr (str: string) {
-    // DJB2 HASH
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash * 33) ^ str.charCodeAt(i);
-    }
-    hashCombine(hash);
-}
-function genHashValue (pass: RasterPass) {
-    hashCode = 0;
+function genHashValue (pass: RasterPass): void {
+    let hashCode = 0;
     for (const [name, raster] of pass.rasterViews) {
-        hashCombineStr('raster');
-        hashCombineStr(name);
-        hashCombineStr(raster.slotName);
-        hashCombineNum(raster.accessType);
-        hashCombineNum(raster.attachmentType);
-        hashCombineNum(raster.loadOp);
-        hashCombineNum(raster.storeOp);
-        hashCombineNum(raster.clearFlags);
-        hashCombineNum(raster.clearColor.x);
-        hashCombineNum(raster.clearColor.y);
-        hashCombineNum(raster.clearColor.z);
-        hashCombineNum(raster.clearColor.w);
-        hashCombineNum(raster.slotID);
-        hashCombineNum(raster.shaderStageFlags);
+        hashCode = hashCombineStr('raster', hashCode);
+        hashCode = hashCombineStr(name, hashCode);
+        hashCode = hashCombineStr(raster.slotName, hashCode);
+        hashCode = hashCombineNum(raster.accessType, hashCode);
+        hashCode = hashCombineNum(raster.attachmentType, hashCode);
+        hashCode = hashCombineNum(raster.loadOp, hashCode);
+        hashCode = hashCombineNum(raster.storeOp, hashCode);
+        hashCode = hashCombineNum(raster.clearFlags, hashCode);
+        hashCode = hashCombineNum(raster.clearColor.x, hashCode);
+        hashCode = hashCombineNum(raster.clearColor.y, hashCode);
+        hashCode = hashCombineNum(raster.clearColor.z, hashCode);
+        hashCode = hashCombineNum(raster.clearColor.w, hashCode);
+        hashCode = hashCombineNum(raster.slotID, hashCode);
+        hashCode = hashCombineNum(raster.shaderStageFlags, hashCode);
     }
     for (const [name, computes] of pass.computeViews) {
-        hashCombineStr(name);
+        hashCode = hashCombineStr(name, hashCode);
         for (const compute of computes) {
-            hashCombineStr('compute');
-            hashCombineStr(compute.name);
-            hashCombineNum(compute.accessType);
-            hashCombineNum(compute.clearFlags);
-            hashCombineNum(compute.clearValueType);
-            hashCombineNum(compute.clearValue.x);
-            hashCombineNum(compute.clearValue.y);
-            hashCombineNum(compute.clearValue.z);
-            hashCombineNum(compute.clearValue.w);
-            hashCombineNum(compute.shaderStageFlags);
+            hashCode = hashCombineStr('compute', hashCode);
+            hashCode = hashCombineStr(compute.name, hashCode);
+            hashCode = hashCombineNum(compute.accessType, hashCode);
+            hashCode = hashCombineNum(compute.clearFlags, hashCode);
+            hashCode = hashCombineNum(compute.clearValueType, hashCode);
+            hashCode = hashCombineNum(compute.clearValue.x, hashCode);
+            hashCode = hashCombineNum(compute.clearValue.y, hashCode);
+            hashCode = hashCombineNum(compute.clearValue.z, hashCode);
+            hashCode = hashCombineNum(compute.clearValue.w, hashCode);
+            hashCode = hashCombineNum(compute.shaderStageFlags, hashCode);
         }
     }
-    hashCombineNum(pass.width);
-    hashCombineNum(pass.height);
-    hashCombineNum(pass.viewport.left);
-    hashCombineNum(pass.viewport.top);
-    hashCombineNum(pass.viewport.width);
-    hashCombineNum(pass.viewport.height);
-    hashCombineNum(pass.viewport.minDepth);
-    hashCombineNum(pass.viewport.maxDepth);
-    hashCombineNum(pass.showStatistics ? 1 : 0);
+    hashCode = hashCombineNum(pass.width, hashCode);
+    hashCode = hashCombineNum(pass.height, hashCode);
+    hashCode = hashCombineNum(pass.viewport.left, hashCode);
+    hashCode = hashCombineNum(pass.viewport.top, hashCode);
+    hashCode = hashCombineNum(pass.viewport.width, hashCode);
+    hashCode = hashCombineNum(pass.viewport.height, hashCode);
+    hashCode = hashCombineNum(pass.viewport.minDepth, hashCode);
+    hashCode = hashCombineNum(pass.viewport.maxDepth, hashCode);
+    hashCode = hashCombineNum(pass.showStatistics ? 1 : 0, hashCode);
     pass.hashValue = hashCode;
 }
 
@@ -136,7 +118,7 @@ class PassVisitor implements RenderGraphVisitor {
         return !!this.context.renderGraph.tryGetBlit(u);
     }
 
-    private _useResourceInfo (input: string, raster: RasterView) {
+    private _useResourceInfo (input: string, raster: RasterView): void {
         if (!DEBUG) {
             return;
         }
@@ -157,8 +139,10 @@ class PassVisitor implements RenderGraphVisitor {
                     isPreRaster = true;
                     // TODO: Shadow map is rather special, as it will be merged into one pass later, and then this determination can be removed.
                     if (!this._isShadowMap(this.sceneID)) {
-                        assert(currRaster.loadOp === LoadOp.LOAD,
-                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+                        assert(
+                            currRaster.loadOp === LoadOp.LOAD,
+                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`,
+                        );
                     }
                 }
             }
@@ -187,7 +171,7 @@ class PassVisitor implements RenderGraphVisitor {
         }
     }
 
-    private _fetchValidPass () {
+    private _fetchValidPass (): void {
         const rg = this.context.renderGraph;
         const resContext = this.context.resourceContext;
         if (!DEBUG && rg.getValid(this.passID)) {
@@ -266,7 +250,7 @@ class PassVisitor implements RenderGraphVisitor {
             this.sceneID = id;
         }
     }
-    rasterPass (pass: RasterPass) {
+    rasterPass (pass: RasterPass): void {
         // const rg = this.context.renderGraph;
         // Since the pass is valid, there is no need to continue traversing.
         // if (rg.getValid(this.passID)) {
@@ -274,11 +258,11 @@ class PassVisitor implements RenderGraphVisitor {
         // }
         this._currPass = pass;
     }
-    rasterSubpass (value: RasterSubpass) {}
-    computeSubpass (value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
-    resolve (value: ResolvePass) {}
-    copy (value: CopyPass) {
+    rasterSubpass (value: RasterSubpass): void {}
+    computeSubpass (value: ComputeSubpass): void {}
+    compute (value: ComputePass): void {}
+    resolve (value: ResolvePass): void {}
+    copy (value: CopyPass): void {
         const rg = context.renderGraph;
         if (rg.getValid(this.passID)) {
             return;
@@ -287,7 +271,7 @@ class PassVisitor implements RenderGraphVisitor {
         this._currPass = value;
         const outputId = this.resID;
         const outputName = resourceGraph.vertexName(outputId);
-        let vertID;
+        let vertID: number;
         for (const pair of value.copyPairs) {
             if (pair.target === outputName) {
                 rg.setValid(this.passID, true);
@@ -299,18 +283,18 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
     }
-    move (value: MovePass) {}
-    raytrace (value: RaytracePass) {}
-    queue (value: RenderQueue) {}
-    scene (value: SceneData) {
+    move (value: MovePass): void {}
+    raytrace (value: RaytracePass): void {}
+    queue (value: RenderQueue): void {}
+    scene (value: SceneData): void {
         this._fetchValidPass();
     }
-    blit (value: Blit) {
+    blit (value: Blit): void {
         this._fetchValidPass();
     }
-    dispatch (value: Dispatch) {}
-    clear (value: ClearView[]) {}
-    viewport (value: Viewport) {}
+    dispatch (value: Dispatch): void {}
+    clear (value: ClearView[]): void {}
+    viewport (value: Viewport): void {}
 }
 
 class PassManagerVisitor extends DefaultVisitor {
@@ -323,7 +307,7 @@ class PassManagerVisitor extends DefaultVisitor {
         this._resId = value;
         this._colorMap.colors.length = context.renderGraph.numVertices();
     }
-    get resId () {
+    get resId (): number {
         return this._resId;
     }
     constructor (context: CompilerContext, resId: number) {
@@ -333,9 +317,9 @@ class PassManagerVisitor extends DefaultVisitor {
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
         this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
     }
-    get graphView () { return this._graphView; }
-    get colorMap () { return this._colorMap; }
-    discoverVertex (u: number, gv: ReferenceGraphView<RenderGraph>) {
+    get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }
+    get colorMap (): VectorGraphColorMap { return this._colorMap; }
+    discoverVertex (u: number, gv: ReferenceGraphView<RenderGraph>): void {
         const g = gv.g;
         this._passVisitor.applyID(u, this.resId);
         g.visitVertex(this._passVisitor, u);
@@ -345,23 +329,23 @@ class PassManagerVisitor extends DefaultVisitor {
 class ResourceVisitor implements ResourceGraphVisitor {
     private readonly _context: CompilerContext;
     public resID = 0xFFFFFFFF;
-    private _passManagerVis;
+    private _passManagerVis!: PassManagerVisitor;
     constructor (context: CompilerContext) {
         this._context = context;
     }
-    managedBuffer (value: ManagedBuffer) {
+    managedBuffer (value: ManagedBuffer): void {
         // noop
     }
-    managedTexture (value: ManagedTexture) {
+    managedTexture (value: ManagedTexture): void {
         // noop
     }
-    managed (value: ManagedResource) {
+    managed (value: ManagedResource): void {
         this.dependency();
     }
-    persistentBuffer (value: Buffer) {
+    persistentBuffer (value: Buffer): void {
     }
 
-    dependency () {
+    dependency (): void {
         if (!this._passManagerVis) {
             this._passManagerVis  = new PassManagerVisitor(this._context, this.resID);
         } else {
@@ -370,18 +354,18 @@ class ResourceVisitor implements ResourceGraphVisitor {
         depthFirstSearch(this._passManagerVis.graphView, this._passManagerVis, this._passManagerVis.colorMap);
     }
 
-    persistentTexture (value: Texture) {
+    persistentTexture (value: Texture): void {
         this.dependency();
     }
-    framebuffer (value: Framebuffer) {
+    framebuffer (value: Framebuffer): void {
         this.dependency();
     }
-    swapchain (value: RenderSwapchain) {
+    swapchain (value: RenderSwapchain): void {
         this.dependency();
     }
-    formatView (value: FormatView) {
+    formatView (value: FormatView): void {
     }
-    subresourceView (value: SubresourceView) {
+    subresourceView (value: SubresourceView): void {
     }
 }
 
@@ -392,10 +376,12 @@ class ResourceUseContext {
     computes: Map<number, [ComputeView[]]> = new Map<number, [ComputeView[]]>();
 }
 class CompilerContext {
-    set (pipeline: BasicPipeline,
+    set (
+        pipeline: BasicPipeline,
         resGraph: ResourceGraph,
         renderGraph: RenderGraph,
-        layoutGraph: LayoutGraphData) {
+        layoutGraph: LayoutGraphData,
+    ): void {
         this.pipeline = pipeline;
         this.resourceGraph = resGraph;
         this.renderGraph = renderGraph;
@@ -417,17 +403,19 @@ export class Compiler {
     private _pipeline: BasicPipeline;
     private _layoutGraph: LayoutGraphData;
     private _visitor: ResourceManagerVisitor;
-    constructor (pipeline: BasicPipeline,
+    constructor (
+        pipeline: BasicPipeline,
         renderGraph: RenderGraph,
         resGraph: ResourceGraph,
-        layoutGraph: LayoutGraphData) {
+        layoutGraph: LayoutGraphData,
+    ) {
         this._pipeline = pipeline;
         this._resourceGraph = resGraph;
         this._layoutGraph = layoutGraph;
         context.set(this._pipeline, this._resourceGraph, renderGraph, this._layoutGraph);
         this._visitor = new ResourceManagerVisitor(context);
     }
-    compile (rg: RenderGraph) {
+    compile (rg: RenderGraph): void {
         context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
         context.pipeline.resourceUses.length = 0;
         this._visitor.colorMap.colors.length = context.resourceGraph.numVertices();
@@ -443,12 +431,14 @@ export class Compiler {
                     continue;
                 }
 
-                const min = rasterArr.reduce((prev, current) => (prev < current ? prev : current));
+                const min = rasterArr.reduce((prev, current): number => (prev < current ? prev : current));
                 const firstRaster = use.rasters.get(min)!;
                 switch (trait.residency) {
                 case ResourceResidency.PERSISTENT:
-                    assert(firstRaster.loadOp !== LoadOp.DISCARD,
-                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`);
+                    assert(
+                        firstRaster.loadOp !== LoadOp.DISCARD,
+                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`,
+                    );
                     break;
                 case ResourceResidency.MANAGED:
                     assert(firstRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
@@ -457,10 +447,10 @@ export class Compiler {
                     break;
                 }
                 const computeArr: number[] = Array.from(use.computes.keys());
-                const max = rasterArr.reduce((prev, current) => (prev > current ? prev : current));
+                const max = rasterArr.reduce((prev, current): number => (prev > current ? prev : current));
                 let maxCompute = -1;
                 if (computeArr.length) {
-                    maxCompute = computeArr.reduce((prev, current) => (prev > current ? prev : current));
+                    maxCompute = computeArr.reduce((prev, current): number => (prev > current ? prev : current));
                 }
                 if (max > maxCompute) {
                     const lastRaster = use.rasters.get(max)!;
@@ -488,8 +478,8 @@ export class ResourceManagerVisitor extends DefaultVisitor {
         this._resourceGraph = context.resourceGraph;
         this._resVisitor = new ResourceVisitor(context);
     }
-    get colorMap () { return this._colorMap; }
-    discoverVertex (u: number, gv: ResourceGraph) {
+    get colorMap (): VectorGraphColorMap { return this._colorMap; }
+    discoverVertex (u: number, gv: ResourceGraph): void {
         const traits = this._resourceGraph.getTraits(u);
         if (traits.residency === ResourceResidency.MANAGED
                 || traits.residency === ResourceResidency.MEMORYLESS) {

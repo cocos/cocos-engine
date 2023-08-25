@@ -8,7 +8,6 @@ uint16_t* SpineMeshData::iBuf = nullptr;
 uint16_t* SpineMeshData::iPtr = nullptr;
 uint16_t* SpineMeshData::iEnd = nullptr;
 
-
 void SpineMeshData::initMeshMemory() {
     if (vBuf) return;
     const auto vCount = 65535;

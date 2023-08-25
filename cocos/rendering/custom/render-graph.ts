@@ -31,7 +31,7 @@
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport, TextureType } from '../../gfx';
 import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
@@ -114,9 +114,10 @@ export class ResourceDesc {
     depthOrArraySize = 0;
     mipLevels = 0;
     format: Format = Format.UNKNOWN;
-    sampleCount: SampleCount = SampleCount.ONE;
+    sampleCount: SampleCount = SampleCount.X1;
     textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
+    viewType: TextureType = TextureType.TEX2D;
 }
 
 export class ResourceTraits {
@@ -164,6 +165,7 @@ export class ManagedResource {
 export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly resolvePairs: ResolvePair[] = [];
 }
 
 //=================================================================
@@ -171,8 +173,6 @@ export class Subpass {
 //=================================================================
 // Graph Concept
 export class SubpassGraphVertex {
-    constructor () {
-    }
     readonly _outEdges: OutE[] = [];
     readonly _inEdges: OutE[] = [];
 }
@@ -1656,6 +1656,7 @@ export class RenderGraph implements BidirectionalGraph
     clear (): void {
         // Members
         this.index.clear();
+        this.sortedVertices.length = 0;
         // ComponentGraph
         this._names.length = 0;
         this._layoutNodes.length = 0;
@@ -2267,4 +2268,5 @@ export class RenderGraph implements BidirectionalGraph
     readonly _data: RenderData[] = [];
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
+    readonly sortedVertices: number[] = [];
 }

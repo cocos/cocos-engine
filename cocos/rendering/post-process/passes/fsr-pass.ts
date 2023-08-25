@@ -8,16 +8,17 @@ import { passContext } from '../utils/pass-context';
 
 import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
-import { game } from '../../../game';
+
+const tempVec4 = new Vec4();
 
 export class FSRPass extends SettingPass {
-    get setting () { return getSetting(FSR); }
+    get setting (): FSR { return getSetting(FSR); }
 
-    name = 'FSRPass'
+    name = 'FSRPass';
     effectName = 'pipeline/post-process/fsr';
-    outputNames = ['FSRColor']
+    outputNames = ['FSRColor'];
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;
@@ -31,20 +32,16 @@ export class FSRPass extends SettingPass {
         passContext.material = this.material;
         passContext.clearBlack();
 
-        passContext.updatePassViewPort(1 / passContext.shadingScale);
+        passContext.updatePassViewPort(1 / passContext.shadingScale, 0);
 
-        const inputWidth = Math.floor(game.canvas!.width * passContext.shadingScale);
-        const inputHeight = Math.floor(game.canvas!.height * passContext.shadingScale);
-        const outWidth = Math.floor(game.canvas!.width);
-        const outHeight = Math.floor(game.canvas!.height);
+        const inputWidth = Math.floor(passContext.passViewport.width * passContext.shadingScale);
+        const inputHeight = Math.floor(passContext.passViewport.height * passContext.shadingScale);
+        const outWidth = Math.floor(passContext.passViewport.width);
+        const outHeight = Math.floor(passContext.passViewport.height);
 
         const setting = this.setting;
-        this.material.setProperty('fsrParams', new Vec4(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
-        this.material.setProperty('texSize',
-            new Vec4(
-                inputWidth, inputHeight,
-                outWidth, outHeight,
-            ));
+        this.material.setProperty('fsrParams', tempVec4.set(clamp(1.0 - setting.sharpness, 0.02, 0.98), 0, 0, 0));
+        this.material.setProperty('texSize', tempVec4.set(inputWidth, inputHeight, outWidth, outHeight));
 
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = `FSR_EASU${cameraID}`;

@@ -38,12 +38,12 @@ export class PoseNodeSampleMotion extends PoseNode {
     @editable
     public useNormalizedTime = false;
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         const { motion } = this;
         if (!motion) {
             return;
         }
-        const motionEval = motion[createEval](context, context.clipOverrides ?? null, true);
+        const motionEval = motion[createEval](context, true);
         if (!motionEval) {
             return;
         }
@@ -51,11 +51,16 @@ export class PoseNodeSampleMotion extends PoseNode {
         this._workspace = workspace;
     }
 
-    public settle (context: AnimationGraphSettleContext): void { }
+    public settle (context: AnimationGraphSettleContext): void {
+        // Do nothing.
+    }
 
-    public reenter (): void { }
+    public reenter (): void {
+        // Do nothing.
+    }
 
     protected doUpdate (context: AnimationGraphUpdateContext): void {
+        // Do nothing.
     }
 
     protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
@@ -84,7 +89,7 @@ class SampleMotionWorkspace {
 }
 
 if (EDITOR) {
-    PoseNodeSampleMotion.prototype.getTitle = function getTitle (this: PoseNodeSampleMotion) {
+    PoseNodeSampleMotion.prototype.getTitle = function getTitle (this: PoseNodeSampleMotion): string | [string, Record<string, string>] | undefined {
         return getTileBase(`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeSampleMotion.title`, this.motion);
     };
 

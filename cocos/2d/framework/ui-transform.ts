@@ -88,7 +88,7 @@ export class UITransform extends Component {
      * @zh
      * 组件宽度。
      */
-    get width () {
+    get width (): number {
         return this._contentSize.width;
     }
 
@@ -114,7 +114,7 @@ export class UITransform extends Component {
      * @zh
      * 组件高度。
      */
-    get height () {
+    get height (): number {
         return this._contentSize.height;
     }
 
@@ -165,7 +165,7 @@ export class UITransform extends Component {
      * @zh
      * 锚点位置的 X 坐标。
      */
-    get anchorX () {
+    get anchorX (): number {
         return this._anchorPoint.x;
     }
 
@@ -186,7 +186,7 @@ export class UITransform extends Component {
      * @zh
      * 锚点位置的 Y 坐标。
      */
-    get anchorY () {
+    get anchorY (): number {
         return this._anchorPoint.y;
     }
 
@@ -209,7 +209,7 @@ export class UITransform extends Component {
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      * @deprecated Since v3.1
      */
-    get priority () {
+    get priority (): number {
         return this._priority;
     }
 
@@ -236,7 +236,7 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的可见性掩码。
      * @deprecated since v3.0
      */
-    get visibility () {
+    get visibility (): number {
         const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.visibility : 0;
     }
@@ -245,7 +245,7 @@ export class UITransform extends Component {
      * @en Get the priority of the rendering camera
      * @zh 查找被渲染相机的渲染优先级。
      */
-    get cameraPriority () {
+    get cameraPriority (): number {
         const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.priority : 0;
     }
@@ -257,26 +257,26 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
-    public __preload () {
+    public __preload (): void {
         this.node._uiProps.uiTransformComp = this;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         if (this.node.parent) {
             UITransform.insertChangeMap(this.node.parent);
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
         this._markRenderDataDirty();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.node.off(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this.node._uiProps.uiTransformComp = null;
     }
 
@@ -313,7 +313,7 @@ export class UITransform extends Component {
      */
     public setContentSize(width: number, height: number): void;
 
-    public setContentSize (size: Size | number, height?: number) {
+    public setContentSize (size: Size | number, height?: number): void {
         const locContentSize = this._contentSize;
         let locWidth: number;
         let locHeight: number;
@@ -375,7 +375,7 @@ export class UITransform extends Component {
      * node.setAnchorPoint(1, 1);
      * ```
      */
-    public setAnchorPoint (point: Vec2 | Readonly<Vec2> | number, y?: number) {
+    public setAnchorPoint (point: Vec2 | Readonly<Vec2> | number, y?: number): void {
         const locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
             point = point as Vec2;
@@ -406,7 +406,7 @@ export class UITransform extends Component {
      * @param uiPoint point in UI Space.
      * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
      */
-    public isHit (uiPoint: Vec2) {
+    public isHit (uiPoint: Vec2): boolean {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v2WorldPt = _vec2a;
@@ -453,7 +453,7 @@ export class UITransform extends Component {
      *
      * @param screenPoint @en point in Screen Space. @zh 屏幕坐标中的点。
      */
-    public hitTest (screenPoint: Vec2, windowId = 0) {
+    public hitTest (screenPoint: Vec2, windowId = 0): boolean {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;
@@ -493,7 +493,7 @@ export class UITransform extends Component {
         return false;
     }
 
-    private _maskTest (pointInWorldSpace: Vec2) {
+    private _maskTest (pointInWorldSpace: Vec2): boolean {
         const maskList = this.node?.eventProcessor?.maskList as IMask[] | undefined;
         if (maskList) {
             let parent: Node | null = this.node;
@@ -543,7 +543,7 @@ export class UITransform extends Component {
      * const newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
      * ```
      */
-    public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
+    public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3): Vec3 {
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
         if (!out) {
@@ -571,7 +571,7 @@ export class UITransform extends Component {
      * const newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
      * ```
      */
-    public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3) {
+    public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3): Vec3 {
         this.node.getWorldMatrix(_worldMatrix);
         if (!out) {
             out = new Vec3();
@@ -597,7 +597,7 @@ export class UITransform extends Component {
      * const boundingBox = uiTransform.getBoundingBox();
      * ```
      */
-    public getBoundingBox () {
+    public getBoundingBox (): Rect {
         const rect = new Rect();
         this._selfBoundingBox(rect);
         Mat4.fromSRT(_matrix, this.node.rotation, this.node.position, this.node.scale);
@@ -618,7 +618,7 @@ export class UITransform extends Component {
      * const newRect = uiTransform.getBoundingBoxToWorld();
      * ```
      */
-    public getBoundingBoxToWorld () {
+    public getBoundingBoxToWorld (): Rect {
         const rect = new Rect();
         const locChildren = this.node.children;
         for (let i = 0; i < locChildren.length; ++i) {
@@ -665,7 +665,7 @@ export class UITransform extends Component {
      * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
      *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
      */
-    public getBoundingBoxTo (targetMat: Mat4) {
+    public getBoundingBoxTo (targetMat: Mat4): Rect {
         const rect = new Rect();
         const locChildren = this.node.children;
         Mat4.invert(_mat4_temp, targetMat);
@@ -711,7 +711,7 @@ export class UITransform extends Component {
      * @param out @en The out object of aabb bounding box of the node in world space.  @zh 输出节点在世界空间下的 aabb 包围盒。
      * @returns @en The aabb bounding box of the node in world space. @zh 节点在世界空间下的 aabb 包围盒。
      */
-    public getComputeAABB (out?: geometry.AABB) {
+    public getComputeAABB (out?: geometry.AABB): geometry.AABB {
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         _rect.set(
@@ -735,7 +735,7 @@ export class UITransform extends Component {
         }
     }
 
-    protected _selfBoundingBox (out: Rect) {
+    protected _selfBoundingBox (out: Rect): Rect {
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         out.set(
@@ -747,7 +747,7 @@ export class UITransform extends Component {
         return out;
     }
 
-    protected _parentChanged (node: Node) {
+    protected _parentChanged (node: Node): void {
         if (this.node.getComponent('cc.RenderRoot2D')) {
             return;
         }
@@ -757,7 +757,7 @@ export class UITransform extends Component {
         }
     }
 
-    private _markRenderDataDirty () {
+    private _markRenderDataDirty (): void {
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
@@ -766,17 +766,17 @@ export class UITransform extends Component {
 
     private static priorityChangeNodeMap = new Map<string, Node>();
 
-    private static insertChangeMap (node: Node) {
+    private static insertChangeMap (node: Node): void {
         const key = node.uuid;
         if (!UITransform.priorityChangeNodeMap.has(key)) {
             UITransform.priorityChangeNodeMap.set(key, node);
         }
     }
 
-    private static _sortChildrenSibling (node) {
+    private static _sortChildrenSibling (node): void {
         const siblings = node.children;
         if (siblings) {
-            siblings.sort((a: Node, b: Node) => {
+            siblings.sort((a: Node, b: Node): number => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp._priority : 0;
@@ -792,8 +792,8 @@ export class UITransform extends Component {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
      */
-    public static _sortSiblings () {
-        UITransform.priorityChangeNodeMap.forEach((node, ID) => {
+    public static _sortSiblings (): void {
+        UITransform.priorityChangeNodeMap.forEach((node, ID): void => {
             UITransform._sortChildrenSibling(node);
             node._updateSiblingIndex();
             node.emit('childrenSiblingOrderChanged');
@@ -805,7 +805,7 @@ export class UITransform extends Component {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @engineInternal
      */
-    public static _cleanChangeMap () {
+    public static _cleanChangeMap (): void {
         UITransform.priorityChangeNodeMap.clear();
     }
 }

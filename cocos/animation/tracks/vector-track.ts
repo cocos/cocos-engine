@@ -52,7 +52,7 @@ export class VectorTrack extends Track {
      * @en Gets or sets the count of components(dimension) available while evaluating of this track.
      * @zh 获取或设置此轨道在求值时有效的分量数（维度）。
      */
-    get componentsCount () {
+    get componentsCount (): number {
         return this._nComponents;
     }
 
@@ -66,14 +66,14 @@ export class VectorTrack extends Track {
      * @returns An readonly four length array in which
      * the element at n denotes the channel of n-th vector component.
      */
-    public channels () {
+    public channels (): [RealChannel, RealChannel, RealChannel, RealChannel] {
         return this._channels;
     }
 
     /**
      * @internal
      */
-    public [createEvalSymbol] () {
+    public [createEvalSymbol] (): Vec2TrackEval | Vec3TrackEval | Vec4TrackEval {
         switch (this._nComponents) {
         default:
         case 2:
@@ -101,7 +101,7 @@ export class VectorTrack extends Track {
     private _channels: [RealChannel, RealChannel, RealChannel, RealChannel];
 
     @serializable
-    private _nComponents: 2 | 3 | 4 = 4;
+    private _nComponents: number = 4;
 }
 
 export class Vec2TrackEval implements TrackEval<Vec2> {
@@ -109,11 +109,11 @@ export class Vec2TrackEval implements TrackEval<Vec2> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec2>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec2>): Vec2 {
         if (defaultValue) {
             Vec2.copy(this._result, defaultValue);
         }
@@ -136,26 +136,25 @@ export class Vec3TrackEval implements TrackEval<Vec3> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y || !this._z;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec3>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec3>): Vec3 {
+        const { _x, _y, _z, _result } = this;
         if (defaultValue) {
-            Vec3.copy(this._result, defaultValue);
+            Vec3.copy(_result, defaultValue);
         }
-
-        if (this._x) {
-            this._result.x = this._x.evaluate(time);
+        if (_x) {
+            _result.x = _x.evaluate(time);
         }
-        if (this._y) {
-            this._result.y = this._y.evaluate(time);
+        if (_y) {
+            _result.y = _y.evaluate(time);
         }
-        if (this._z) {
-            this._result.z = this._z.evaluate(time);
+        if (_z) {
+            _result.z = _z.evaluate(time);
         }
-
-        return this._result;
+        return _result;
     }
 
     private _result: Vec3 = new Vec3();
@@ -171,11 +170,11 @@ export class Vec4TrackEval implements TrackEval<Vec4> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y || !this._z || !this._w;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec4>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec4>): Vec4 {
         if (defaultValue) {
             Vec4.copy(this._result, defaultValue);
         }

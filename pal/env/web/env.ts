@@ -22,6 +22,8 @@
  THE SOFTWARE.
 */
 
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
+
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const frame = document.querySelector('#GameDiv') as HTMLDivElement;
     const container = document.querySelector('#Cocos3dGameContainer') as HTMLDivElement;
@@ -33,7 +35,7 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 export function loadJsFile (path: string): Promise<void> {
     return new Promise((resolve, reject) => {
         let err;
-        function windowErrorListener (evt) {
+        function windowErrorListener (evt): void {
             if (evt.filename === path) {
                 err = evt.error;
             }
@@ -62,3 +64,5 @@ export function loadJsFile (path: string): Promise<void> {
         document.head.appendChild(script);
     });
 }
+
+checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());

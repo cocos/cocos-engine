@@ -74,7 +74,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     }
 
     for (auto &instance : _instances) {
-        if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.count >= MAX_CAPACITY) {
+        if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.drawInfo.instanceCount >= MAX_CAPACITY) {
             continue;
         }
 
@@ -99,7 +99,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
         if (instance.stride != stride) {
             continue;
         }
-        if (instance.count >= instance.capacity) { // resize buffers
+        if (instance.drawInfo.instanceCount >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
             const auto newSize = instance.stride * instance.capacity;
             instance.data = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
@@ -111,7 +111,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
         if (instance.descriptorSet != descriptorSet) {
             instance.descriptorSet = descriptorSet;
         }
-        memcpy(instance.data + instance.stride * instance.count++, attrs.buffer.buffer()->getData(), stride);
+        memcpy(instance.data + instance.stride * instance.drawInfo.instanceCount++, attrs.buffer.buffer()->getData(), stride);
         _hasPendingModels = true;
         return;
     }
@@ -144,24 +144,26 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     vertexBuffers.emplace_back(vb);
     const gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
     auto *ia = _device->createInputAssembler(iaInfo);
-    InstancedItem item = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet,
-                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType, reflectionProbeBlendCubemap};
+    InstancedItem item = {INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet,
+                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType, reflectionProbeBlendCubemap,
+                          ia->getDrawInfo()};
+    item.drawInfo.instanceCount = 1;
     _instances.emplace_back(item);
     _hasPendingModels = true;
 }
 
 void InstancedBuffer::uploadBuffers(gfx::CommandBuffer *cmdBuff) const {
     for (const auto &instance : _instances) {
-        if (!instance.count) continue;
+        if (!instance.drawInfo.instanceCount) continue;
 
         cmdBuff->updateBuffer(instance.vb, instance.data, instance.vb->getSize());
-        instance.ia->setInstanceCount(instance.count);
+        instance.ia->setInstanceCount(instance.drawInfo.instanceCount);
     }
 }
 
 void InstancedBuffer::clear() {
     for (auto &instance : _instances) {
-        instance.count = 0;
+        instance.drawInfo.instanceCount = 0;
     }
     _hasPendingModels = false;
 }

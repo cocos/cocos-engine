@@ -24,6 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 const FRAME_RESET_TIME = 2000;
 
@@ -84,8 +85,9 @@ export class Pacer {
 
     start (): void {
         if (this._isPlaying) return;
-
-        const updateCallback = () => {
+        const recordStartTime = EDITOR || this._rAF === undefined || globalThis.__globalXR?.isWebXR;
+        const updateCallback = (): void => {
+            if (recordStartTime) this._startTime = performance.now();
             if (this._isPlaying) {
                 this._stHandle = this._stTime(updateCallback);
             }
@@ -108,7 +110,7 @@ export class Pacer {
         this._frameCount = 0;
     }
 
-    _handleRAF = () => {
+    _handleRAF = (): void => {
         const elapseTime = performance.now() - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
         if (elapseFrame < this._frameCount) {
@@ -125,7 +127,7 @@ export class Pacer {
         }
     };
 
-    private _stTime (callback: () => void) {
+    private _stTime (callback: () => void): number {
         if (EDITOR || this._rAF === undefined || globalThis.__globalXR?.isWebXR) {
             const currTime = performance.now();
             const elapseTime = Math.max(0, currTime - this._startTime);
@@ -136,7 +138,7 @@ export class Pacer {
         return this._rAF.call(window, this._handleRAF);
     }
 
-    private _ctTime (id: number | undefined) {
+    private _ctTime (id: number | undefined): void {
         if (EDITOR || this._cAF === undefined || globalThis.__globalXR?.isWebXR) {
             clearTimeout(id);
         } else if (id) {
@@ -144,3 +146,5 @@ export class Pacer {
         }
     }
 }
+
+checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-web')>());

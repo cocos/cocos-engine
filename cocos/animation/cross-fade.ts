@@ -55,7 +55,7 @@ export class CrossFade extends Playable {
         this._scheduler = scheduler ?? getGlobalAnimationManager();
     }
 
-    public update (deltaTime: number) {
+    public update (deltaTime: number): void {
         if (this.isMotionless) {
             return;
         }
@@ -82,7 +82,7 @@ export class CrossFade extends Playable {
      * @param state 指定的动画状态。
      * @param duration 切换时间。
      */
-    public crossFade (state: AnimationState | null, duration: number) {
+    public crossFade (state: AnimationState | null, duration: number): void {
         if (this._managedStates.length === 0) {
             // If we are cross fade from a "initial" pose,
             // we do not use the duration.
@@ -116,7 +116,7 @@ export class CrossFade extends Playable {
         }
     }
 
-    public clear () {
+    public clear (): void {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -127,7 +127,7 @@ export class CrossFade extends Playable {
         this._fadings.length = 0;
     }
 
-    protected onPlay () {
+    protected onPlay (): void {
         super.onPlay();
         this._scheduleThis();
     }
@@ -135,7 +135,7 @@ export class CrossFade extends Playable {
     /**
      * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
      */
-    protected onPause () {
+    protected onPause (): void {
         super.onPause();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
@@ -149,7 +149,7 @@ export class CrossFade extends Playable {
     /**
      * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
      */
-    protected onResume () {
+    protected onResume (): void {
         super.onResume();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
@@ -163,12 +163,12 @@ export class CrossFade extends Playable {
     /**
      * 停止所有淡入淡出的动画状态。
      */
-    protected onStop () {
+    protected onStop (): void {
         super.onStop();
         this.clear();
     }
 
-    private _calculateWeights (deltaTime: number) {
+    private _calculateWeights (deltaTime: number): void {
         const managedStates = this._managedStates;
         const fadings = this._fadings;
 
@@ -217,14 +217,14 @@ export class CrossFade extends Playable {
         }
     }
 
-    private _scheduleThis () {
+    private _scheduleThis (): void {
         if (!this._scheduled) {
             this._scheduler.addCrossFade(this);
             this._scheduled = true;
         }
     }
 
-    private _unscheduleThis () {
+    private _unscheduleThis (): void {
         if (this._scheduled) {
             this._scheduler.removeCrossFade(this);
             this._scheduled = false;

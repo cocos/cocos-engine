@@ -31,7 +31,9 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { ShadowFlow } from './shadow-flow';
-import { Camera, CSMLevel, DirectionalLight } from '../../render-scene/scene';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { CSMLevel } from '../../render-scene/scene/shadows';
+import { Camera } from '../../render-scene/scene/camera';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -58,7 +60,7 @@ export class ShadowStage extends RenderStage {
      * @param shadowFrameBuffer
      * @param level 层级
      */
-    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0) {
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0): void {
         this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
@@ -73,7 +75,7 @@ export class ShadowStage extends RenderStage {
     private _level = 0;
     private _isShadowMapCleared = false;
 
-    public destroy () {
+    public destroy (): void {
         this._shadowFrameBuffer = null;
         this._globalDS = null;
         this._light = null;
@@ -81,7 +83,7 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue?.clear();
     }
 
-    public clearFramebuffer (camera: Camera) {
+    public clearFramebuffer (camera: Camera): void {
         if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
 
         colors[0].w = camera.clearColor.w;
@@ -98,13 +100,19 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.endRenderPass();
         this._isShadowMapCleared = true;
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
@@ -151,8 +159,14 @@ export class ShadowStage extends RenderStage {
 
         const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            this._shadowFrameBuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -161,7 +175,7 @@ export class ShadowStage extends RenderStage {
         this._isShadowMapCleared = false;
     }
 
-    public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
+    public activate (pipeline: ForwardPipeline, flow: ShadowFlow): void {
         super.activate(pipeline, flow);
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
         this._isShadowMapCleared = false;

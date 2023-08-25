@@ -26,6 +26,7 @@ import { EventTarget } from '../../cocos/core';
 
 type OperationMethod = (...args: any[]) => Promise<void>;
 export interface OperationInfo {
+    op: string;
     id: number;
     func: OperationMethod;
     args: any[],
@@ -37,18 +38,48 @@ export interface OperationQueueable {
     _eventTarget: EventTarget;
 }
 
+function removeUnneededCalls (instance: OperationQueueable): void {
+    const size = instance._operationQueue.length;
+    const tmpQueue = instance._operationQueue.slice();
+    const reserveOps: OperationInfo[] = [];
+    let seekSearched = false;
+    for (let i = size - 1; i >= 0; i--) {
+        const opInfo = tmpQueue[i];
+        if (opInfo.op === 'stop') {
+            reserveOps.push(opInfo);
+            break;
+        } else if (opInfo.op === 'seek') {
+            if (!seekSearched) {
+                reserveOps.push(opInfo);
+                seekSearched = true;
+            }
+        } else if (seekSearched) {
+            reserveOps.push(opInfo);
+            break;
+        } else if (reserveOps.length === 0) {
+            reserveOps.push(opInfo);
+        }
+    }
+    instance._operationQueue = reserveOps.reverse();
+}
+
 let operationId = 0;
-function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo: OperationInfo) {
+function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo: OperationInfo): void {
     if (opInfo.invoking) {
         return;
     }
     opInfo.invoking = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     opInfo.func.call(target, ...opInfo.args).then(() => {
         opInfo.invoking = false;
         target._operationQueue.shift();
         target._eventTarget.emit(opInfo.id.toString());
+        removeUnneededCalls(target);
         const nextOpInfo: OperationInfo = target._operationQueue[0];
-        nextOpInfo && _tryCallingRecursively(target, nextOpInfo);
+        if (nextOpInfo) {
+            _tryCallingRecursively(target, nextOpInfo);
+        }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     }).catch((e) => {});
 }
 
@@ -64,14 +95,17 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
  * It means that, for example, you can't call stop in the implementation of play operation,
  * because that would cause the operation deadlock.
  */
+// eslint-disable-next-line max-len
 export function enqueueOperation<T extends OperationQueueable> (target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
     const originalOperation = descriptor.value!;
+    // eslint-disable-next-line func-names
     descriptor.value = function (...args: any[]): Promise<void> {
         return new Promise((resolve) => {
             const id = operationId++;
             const instance = this as OperationQueueable;
             // enqueue operation
             instance._operationQueue.push({
+                op: propertyKey,
                 id,
                 func: originalOperation,
                 args,

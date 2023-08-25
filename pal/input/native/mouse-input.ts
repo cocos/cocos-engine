@@ -53,10 +53,10 @@ export class MouseInputSource {
         this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
 
-    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._handleMouseDown(nativeMouseEvent); }
-    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
-    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
-    public dispatchScrollEvent (nativeMouseEvent: any) { this._boundedHandleMouseWheel(nativeMouseEvent); }
+    public dispatchMouseDownEvent (nativeMouseEvent: any): void { this._handleMouseDown(nativeMouseEvent); }
+    public dispatchMouseMoveEvent (nativeMouseEvent: any): void { this._handleMouseMove(nativeMouseEvent); }
+    public dispatchMouseUpEvent (nativeMouseEvent: any): void { this._handleMouseUp(nativeMouseEvent); }
+    public dispatchScrollEvent (nativeMouseEvent: any): void { this._boundedHandleMouseWheel(nativeMouseEvent); }
 
     private _getLocation (event: jsb.MouseEvent): Vec2 {
         const window = this._windowManager.getWindow(event.windowId);
@@ -67,18 +67,18 @@ export class MouseInputSource {
         return new Vec2(x, y);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         jsb.onMouseDown = this._handleMouseDown;
         jsb.onMouseMove = this._handleMouseMove;
         jsb.onMouseUp =  this._handleMouseUp;
         jsb.onMouseWheel = this._boundedHandleMouseWheel;
-        jsb.onPointerlockChange = (value: boolean) => {
+        jsb.onPointerlockChange = (value: boolean): void => {
             this._pointLocked = value;
         };
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (mouseEvent: jsb.MouseEvent) => {
+        return (mouseEvent: jsb.MouseEvent): void => {
             const location = this._getLocation(mouseEvent);
             let button = mouseEvent.button;
             switch (eventType) {
@@ -109,7 +109,7 @@ export class MouseInputSource {
         };
     }
 
-    private _handleMouseWheel (mouseEvent: jsb.MouseWheelEvent) {
+    private _handleMouseWheel (mouseEvent: jsb.MouseWheelEvent): void {
         const eventType = InputEventType.MOUSE_WHEEL;
         const location = this._getLocation(mouseEvent);
         const button = mouseEvent.button;
@@ -127,7 +127,7 @@ export class MouseInputSource {
         this._eventTarget.emit(eventType, eventMouse);
     }
 
-    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
+    public on (eventType: InputEventType, callback: MouseCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

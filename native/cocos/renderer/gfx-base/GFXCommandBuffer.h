@@ -46,6 +46,9 @@ public:
     virtual void end() = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
     virtual void endRenderPass() = 0;
+    virtual void insertMarker(const MarkerInfo &marker) = 0;
+    virtual void beginMarker(const MarkerInfo &marker) = 0;
+    virtual void endMarker() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
     virtual void bindInputAssembler(InputAssembler *ia) = 0;
@@ -63,6 +66,7 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) = 0;
     virtual void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
+    virtual void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id) = 0;

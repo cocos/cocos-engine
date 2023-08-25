@@ -26,6 +26,7 @@ import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO,
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here
@@ -86,7 +87,7 @@ class SystemInfo extends EventTarget {
         this.isBrowser = false;
 
         // init isLittleEndian
-        this.isLittleEndian = (() => {
+        this.isLittleEndian = ((): boolean => {
             const buffer = new ArrayBuffer(2);
             new DataView(buffer).setInt16(0, 256, true);
             // Int16Array uses the platform's endianness.
@@ -176,15 +177,15 @@ class SystemInfo extends EventTarget {
             }
             try {
                 const img = document.createElement('img');
-                const timer = setTimeout(() => {
+                const timer = setTimeout((): void => {
                     resolve(false);
                 }, 500);
-                img.onload = function onload () {
+                img.onload = function onload (): void {
                     clearTimeout(timer);
                     const result = (img.width > 0) && (img.height > 0);
                     resolve(result);
                 };
-                img.onerror = function onerror (err) {
+                img.onerror = function onerror (err): void {
                     clearTimeout(timer);
                     if (DEBUG) {
                         console.warn('Create Webp image failed, message: '.concat(err.toString()));
@@ -198,16 +199,16 @@ class SystemInfo extends EventTarget {
         });
     }
 
-    private _registerEvent () {
-        minigame.onHide(() => {
+    private _registerEvent (): void {
+        minigame.onHide((): void => {
             this.emit('hide');
         });
-        minigame.onShow(() => {
+        minigame.onShow((): void => {
             this.emit('show');
         });
     }
 
-    private _setFeature (feature: Feature, value: boolean) {
+    private _setFeature (feature: Feature, value: boolean): boolean {
         return this._featureMap[feature] = value;
     }
 
@@ -243,9 +244,18 @@ class SystemInfo extends EventTarget {
         }
     }
 
-    public close () {
+    public exit (): void {
         minigame.exitMiniProgram?.();
+    }
+
+    public close (): void {
+        // TODO(qgh):The minigame platform does not have an exit interface,
+        // so there is no need to send a close message to the engine to release resources.
+        // this.emit('close');
+        this.exit();
     }
 }
 
 export const systemInfo = new SystemInfo();
+
+checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());

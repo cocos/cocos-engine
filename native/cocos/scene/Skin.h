@@ -117,6 +117,5 @@ private:
     float _sssIntensity{3.F};
 };
 
-
-}// namespace scene
+} // namespace scene
 } // namespace cc

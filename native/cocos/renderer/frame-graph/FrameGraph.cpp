@@ -426,7 +426,7 @@ void FrameGraph::computeStoreActionAndMemoryless() {
         const gfx::TextureInfo &textureDesc = static_cast<ResourceEntry<Texture> *>(renderTarget)->get().getDesc();
 
         renderTarget->_memoryless = renderTarget->_neverLoaded && renderTarget->_neverStored;
-        renderTarget->_memorylessMSAA = textureDesc.samples != gfx::SampleCount::ONE && renderTarget->_writerCount < 2;
+        renderTarget->_memorylessMSAA = textureDesc.samples != gfx::SampleCount::X1 && renderTarget->_writerCount < 2;
     }
 }
 

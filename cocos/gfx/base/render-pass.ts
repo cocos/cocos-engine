@@ -45,7 +45,7 @@ export abstract class RenderPass extends GFXObject {
     get colorAttachments () : Readonly<ColorAttachment[]> { return this._colorInfos; }
     get depthStencilAttachment () : Readonly<DepthStencilAttachment> | null { return this._depthStencilInfo; }
     get subPasses () : Readonly<SubpassInfo[]> { return this._subpasses; }
-    get hash () { return this._hash; }
+    get hash (): number { return this._hash; }
 
     constructor () {
         super(ObjectType.RENDER_PASS);

@@ -114,6 +114,7 @@ protected:
     IntrusivePtr<RenderingSubMesh> _subMesh;
 
     InstancedAttributeBlock _instancedAttributeBlock{};
+    MacroRecord _globalPatches;
 
     ccstd::vector<IMacroPatch> _patches;
     ccstd::vector<IntrusivePtr<gfx::Shader>> _shaders;

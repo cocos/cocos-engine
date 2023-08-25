@@ -86,7 +86,7 @@ export class TiledTile extends Component {
      * @default 0
      */
     @type(CCInteger)
-    get y () {
+    get y (): number {
         return this._y;
     }
     set y (value: number) {
@@ -118,7 +118,7 @@ export class TiledTile extends Component {
         }
     }
 
-    onEnable () {
+    onEnable (): void {
         const parent = this.node.parent!;
         this._layer = parent.getComponent('cc.TiledLayer') as TiledLayer;
         this.node.on(NodeEventType.TRANSFORM_CHANGED, this._updatePosition, this);
@@ -127,19 +127,19 @@ export class TiledTile extends Component {
         this.updateInfo();
     }
 
-    onDisable () {
+    onDisable (): void {
         this._resetTile();
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this._updatePosition, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._updatePosition, this);
     }
 
-    private _resetTile () {
+    private _resetTile (): void {
         if (this._layer && this._layer.getTiledTileAt(this._x, this._y) === this) {
             this._layer.setTiledTileAt(this._x, this._y, null);
         }
     }
 
-    public updateInfo () {
+    public updateInfo (): void {
         if (!this._layer) return;
 
         const x = this._x;
@@ -154,7 +154,7 @@ export class TiledTile extends Component {
         this._layer.markForUpdateRenderData();
     }
 
-    private _updatePosition () {
+    private _updatePosition (): void {
         this._layer!.markForUpdateRenderData();
     }
 }

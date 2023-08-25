@@ -61,10 +61,10 @@ replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
     {
         name: 'luminousPower',
         newName: 'luminousFlux',
-        customGetter (this: SpotLight) {
+        customGetter (this: SpotLight): number {
             return this.luminousFlux;
         },
-        customSetter (this: SpotLight, value: number) {
+        customSetter (this: SpotLight, value: number): void {
             this.luminousFlux = value;
         },
     },
@@ -74,10 +74,10 @@ replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
     {
         name: 'luminousPower',
         newName: 'luminousFlux',
-        customGetter (this: SpotLight) {
+        customGetter (this: SpotLight): number {
             return this.luminousFlux;
         },
-        customSetter (this: SpotLight, value: number) {
+        customSetter (this: SpotLight, value: number): void {
             this.luminousFlux = value;
         },
     },

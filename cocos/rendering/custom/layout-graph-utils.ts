@@ -219,7 +219,7 @@ function getVisibilityName (stage: ShaderStageFlagBit): string {
 
 // print LayoutGraphData
 export class PrintVisitor extends DefaultVisitor {
-    discoverVertex (u: number, g: LayoutGraphData) {
+    discoverVertex (u: number, g: LayoutGraphData): void {
         const ppl: PipelineLayoutData = g.getLayout(u);
         const name: string = g._names[u];
         const freq: UpdateFrequency = g._updateFrequencies[u];
@@ -232,11 +232,11 @@ export class PrintVisitor extends DefaultVisitor {
         this.space = indent(this.space);
 
         // eslint-disable-next-line no-loop-func
-        ppl.descriptorSets.forEach((value, key) => {
+        ppl.descriptorSets.forEach((value, key): void => {
             this.oss += `${this.space}DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
             this.space = indent(this.space);
             const uniformBlocks = value.descriptorSetLayoutData.uniformBlocks;
-            uniformBlocks.forEach((uniformBlock, attrNameID) => {
+            uniformBlocks.forEach((uniformBlock, attrNameID): void => {
                 const name = g.valueNames[attrNameID];
                 this.oss += `${this.space}UniformBlock "${name}" {\n`;
                 for (const u of uniformBlock.members) {
@@ -281,7 +281,7 @@ export class PrintVisitor extends DefaultVisitor {
             this.oss += `${this.space}}\n`;
         });
     }
-    finishVertex (v: number, g: LayoutGraphData) {
+    finishVertex (v: number, g: LayoutGraphData): void {
         this.space = unindent(this.space);
         this.oss += `${this.space}}\n`;
     }
@@ -305,11 +305,11 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
 
     // sort descriptors by name
     const descriptors = Array.from(block.descriptors).sort(
-        (a, b) => String(a[0]).localeCompare(b[0]),
+        (a, b): number => String(a[0]).localeCompare(b[0]),
     );
 
     // flatten descriptors
-    descriptors.forEach((v: [string, Descriptor]) => {
+    descriptors.forEach((v: [string, Descriptor]): void => {
         const name: string = v[0];
         const d = v[1];
         flattened.descriptorNames.push(name);
@@ -318,11 +318,11 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
 
     // sort uniforms by name
     const uniformBlocks = Array.from(block.uniformBlocks).sort(
-        (a, b) => String(a[0]).localeCompare(b[0]),
+        (a, b): number => String(a[0]).localeCompare(b[0]),
     );
 
     // flatten uniforms
-    uniformBlocks.forEach((v: [string, UniformBlock]) => {
+    uniformBlocks.forEach((v: [string, UniformBlock]): void => {
         const name = v[0];
         const uniformBlock = v[1];
         flattened.uniformBlockNames.push(name);
@@ -337,7 +337,7 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
 
 // cache of descriptor blocks
 class DescriptorCounter {
-    public addDescriptor (key: string, name: string, count: number) {
+    public addDescriptor (key: string, name: string, count: number): void {
         // key is DescriptorBlockIndex
         // name is Descriptor name
         // count is Descriptor count
@@ -357,7 +357,7 @@ class DescriptorCounter {
 
 // print LayoutGraph (not LayoutGraphData)
 class LayoutGraphPrintVisitor extends DefaultVisitor {
-    discoverVertex (v: number, g: LayoutGraph) {
+    discoverVertex (v: number, g: LayoutGraph): void {
         const info: DescriptorDB = g.getDescriptors(v);
         const name = g.getName(v);
 
@@ -376,10 +376,10 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
         this.space = indent(this.space);
 
         const sortedMap: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>(
-            Array.from(info.blocks).sort((a, b) => String(a[0]).localeCompare(b[0])),
+            Array.from(info.blocks).sort((a, b): number => String(a[0]).localeCompare(b[0])),
         );
 
-        sortedMap.forEach((block: DescriptorBlock, key: string) => {
+        sortedMap.forEach((block: DescriptorBlock, key: string): void => {
             const index: DescriptorBlockIndex = JSON.parse(key);
             const flat = convertDescriptorBlock(block);
             this.oss += `${this.space}DescriptorBlock {\n`;
@@ -402,7 +402,7 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
             this.oss += `${this.space}}\n`;
         });
     }
-    finishVertex (v: number, g: LayoutGraphData) {
+    finishVertex (v: number, g: LayoutGraphData): void {
         this.space = unindent(this.space);
         this.oss += `${this.space}}\n`;
     }
@@ -447,7 +447,7 @@ export class VisibilityIndex {
 
 // descriptors of same visibility
 export class VisibilityBlock {
-    public mergeVisibility (name: string, vis: ShaderStageFlagBit) {
+    public mergeVisibility (name: string, vis: ShaderStageFlagBit): void {
         // for each descriptor, merge visibility
         // rate must >= PER_PHASE
         const v0 = this.descriptors.get(name);
@@ -517,7 +517,7 @@ export class VisibilityGraph {
         EffectAsset.ISamplerTextureInfo[] |
         EffectAsset.ITextureInfo[],
         db: VisibilityDB,
-    ) {
+    ): void {
         const blockIndex = new VisibilityIndex(
             rate,
             ParameterType.TABLE,
@@ -528,7 +528,7 @@ export class VisibilityGraph {
             block.mergeVisibility(info.name, info.stageFlags);
         }
     }
-    public mergeEffect (asset: EffectAsset) {
+    public mergeEffect (asset: EffectAsset): void {
         for (const tech of asset.techniques) {
             for (const pass of tech.passes) {
                 const programName = pass.program;
@@ -666,7 +666,7 @@ export class LayoutGraphInfo {
         }
         return uniformBlock;
     }
-    private addDescriptor (block: DescriptorBlock, name: string, type = Type.UNKNOWN) {
+    private addDescriptor (block: DescriptorBlock, name: string, type = Type.UNKNOWN): void {
         const value = block.descriptors.get(name);
         if (value === undefined) {
             block.descriptors.set(name, new Descriptor(type));
@@ -689,7 +689,7 @@ export class LayoutGraphInfo {
             console.warn(`Uniform block ${name} is inconsistent in the same block`);
         }
     }
-    private buildBlocks (visDB: VisibilityDB, rate: UpdateFrequency, blocks: EffectAsset.IBlockInfo[], db: DescriptorDB, counter: DescriptorCounter) {
+    private buildBlocks (visDB: VisibilityDB, rate: UpdateFrequency, blocks: EffectAsset.IBlockInfo[], db: DescriptorDB, counter: DescriptorCounter): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
             parameterType: ParameterType.TABLE,
@@ -717,7 +717,7 @@ export class LayoutGraphInfo {
         rate: UpdateFrequency,
         infoArray: EffectAsset.IBufferInfo[],
         type: Type, db: DescriptorDB, counter: DescriptorCounter,
-    ) {
+    ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
             parameterType: ParameterType.TABLE,
@@ -745,7 +745,7 @@ export class LayoutGraphInfo {
         order: DescriptorTypeOrder,
         infoArray: EffectAsset.ISamplerInfo[] | EffectAsset.IInputAttachmentInfo[],
         type: Type, db: DescriptorDB, counter: DescriptorCounter,
-    ) {
+    ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
             parameterType: ParameterType.TABLE,
@@ -773,7 +773,7 @@ export class LayoutGraphInfo {
         order: DescriptorTypeOrder,
         infoArray: EffectAsset.IImageInfo[] | EffectAsset.ISamplerTextureInfo[] | EffectAsset.ITextureInfo[],
         db: DescriptorDB, counter: DescriptorCounter,
-    ) {
+    ): void {
         const visBlock = visDB.getBlock({
             updateFrequency: rate,
             parameterType: ParameterType.TABLE,
@@ -840,7 +840,7 @@ export class LayoutGraphInfo {
                 }
 
                 // update max capacity and debug info
-                counter.counter.forEach((v: number, key: string) => {
+                counter.counter.forEach((v: number, key: string): void => {
                     const block = this.getDescriptorBlock(key, db);
                     if (v > block.capacity) {
                         block.capacity = Math.max(block.capacity, v);
@@ -1027,7 +1027,7 @@ function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
 }
 
 // build LayoutGraphData
-function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2) {
+function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2): void {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
@@ -1083,7 +1083,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
 
         const flattenedBlocks = Array.from(db.blocks).sort(sortDescriptorBlocks);
 
-        flattenedBlocks.forEach((value: [string, DescriptorBlock]) => {
+        flattenedBlocks.forEach((value: [string, DescriptorBlock]): void => {
             const key = value[0];
             const block = value[1];
             const index: DescriptorBlockIndex = JSON.parse(key);
@@ -1263,13 +1263,13 @@ class LayoutGraphBuilder2 {
     readonly lg: LayoutGraphData;
 }
 
-export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData) {
+export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData): void {
     const builder = new LayoutGraphBuilder2(lgData);
     buildLayoutGraphDataImpl(lg, builder);
     builder.compile();
 }
 
-function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
+function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo): void {
     for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
         const block = layoutData.descriptorBlocks[i];
         let slot = block.offset;
@@ -1287,7 +1287,7 @@ function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: Descri
     }
 }
 
-function createDescriptorSetLayout (device: Device | null, layoutData: DescriptorSetLayoutData) {
+function createDescriptorSetLayout (device: Device | null, layoutData: DescriptorSetLayoutData): DescriptorSetLayout | null {
     const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     createDescriptorInfo(layoutData, info);
 
@@ -1298,10 +1298,10 @@ function createDescriptorSetLayout (device: Device | null, layoutData: Descripto
     }
 }
 
-export function createGfxDescriptorSetsAndPipelines (device: Device | null, g: LayoutGraphData) {
+export function createGfxDescriptorSetsAndPipelines (device: Device | null, g: LayoutGraphData): void {
     for (let i = 0; i < g._layouts.length; ++i) {
         const ppl: PipelineLayoutData = g.getLayout(i);
-        ppl.descriptorSets.forEach((value, key) => {
+        ppl.descriptorSets.forEach((value, key): void => {
             const level = value;
             const layoutData = level.descriptorSetLayoutData;
             if (device) {
@@ -1489,7 +1489,7 @@ let _emptyDescriptorSetLayout: DescriptorSetLayout;
 let _emptyPipelineLayout: PipelineLayout;
 
 function populatePipelineLayoutInfo (layout: PipelineLayoutData,
-    rate: UpdateFrequency, info: PipelineLayoutInfo) {
+    rate: UpdateFrequency, info: PipelineLayoutInfo): void {
     const set = layout.descriptorSets.get(rate);
     if (set && set.descriptorSetLayout) {
         info.setLayouts.push(set.descriptorSetLayout);
@@ -1499,7 +1499,7 @@ function populatePipelineLayoutInfo (layout: PipelineLayoutData,
 }
 
 // initialize layout graph module
-export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
+export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData): void {
     // create descriptor sets
     _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
     _emptyPipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo());
@@ -1534,7 +1534,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
 }
 
 // terminate layout graph module
-export function terminateLayoutGraphData (lg: LayoutGraphData) {
+export function terminateLayoutGraphData (lg: LayoutGraphData): void {
     for (const v of lg.vertices()) {
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
@@ -1706,7 +1706,7 @@ export function getPerInstanceDescriptorSetLayoutData (lg: LayoutGraphData,
     return set.descriptorSetLayoutData;
 }
 
-export function getBinding (layout: DescriptorSetLayoutData, nameID: number) {
+export function getBinding (layout: DescriptorSetLayoutData, nameID: number): number {
     const binding = layout.bindingMap.get(nameID);
     if (binding === undefined) {
         return 0xFFFFFFFF;

@@ -39,6 +39,7 @@ import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
@@ -57,6 +58,9 @@ interface IPhysicsWrapperObject {
     PlaneShape?: Constructor<IPlaneShape>,
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
@@ -64,7 +68,7 @@ interface IPhysicsWrapperObject {
 
 interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
-interface IPhysicsSelector {
+export interface IPhysicsSelector {
     /**
      * @en
      * The id of the physics engine being used by the physics system.
@@ -118,7 +122,7 @@ interface IPhysicsSelector {
     [x: string]: any,
 }
 
-function updateLegacyMacro (id: string) {
+function updateLegacyMacro (id: string): void {
     cclegacy._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     cclegacy._global.CC_PHYSICS_CANNON = id === 'cannon.js';
     cclegacy._global.CC_PHYSICS_AMMO = id === 'bullet';
@@ -142,7 +146,7 @@ export interface IWorldInitData {
 }
 let worldInitData: IWorldInitData | null;
 
-function switchTo (id: IPhysicsEngineId) {
+function switchTo (id: IPhysicsEngineId): void {
     if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
@@ -181,7 +185,7 @@ export const selector: IPhysicsSelector = {
     runInEditor: !EDITOR,
 };
 
-export function constructDefaultWorld (data: IWorldInitData) {
+export function constructDefaultWorld (data: IWorldInitData): void {
     if (!worldInitData) worldInitData = data;
     if (!selector.runInEditor) return;
     if (!selector.physicsWorld) {
@@ -195,7 +199,7 @@ export function constructDefaultWorld (data: IWorldInitData) {
 
 /// Utility Function For Create Wrapper Entity ///
 
-const FUNC = (...v: any) => 0 as any;
+const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
     setGravity: FUNC,
@@ -232,6 +236,9 @@ enum ECheckType {
     // JOINT //
     PointToPointConstraint,
     HingeConstraint,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
@@ -240,7 +247,7 @@ enum ECheckType {
     CapsuleCharacterController,
 }
 
-function check (obj: any, type: ECheckType) {
+function check (obj: any, type: ECheckType): boolean {
     if (obj == null) {
         if (selector.id) {
             warn(`${selector.id} physics does not support ${ECheckType[type]}`);
@@ -361,7 +368,7 @@ export function createShape (type: EColliderType): IBaseShape {
     return CREATE_COLLIDER_PROXY[type]();
 }
 
-function initColliderProxy () {
+function initColliderProxy (): void {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
@@ -467,7 +474,7 @@ export function createConstraint (type: EConstraintType): IBaseConstraint {
     return CREATE_CONSTRAINT_PROXY[type]();
 }
 
-function initConstraintProxy () {
+function initConstraintProxy (): void {
     if (CREATE_CONSTRAINT_PROXY.INITED) return;
     CREATE_CONSTRAINT_PROXY.INITED = true;
 
@@ -524,6 +531,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     addMask: FUNC,
     removeMask: FUNC,
     move: FUNC,
+    syncPhysicsToScene: FUNC,
     updateEventListener: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,
@@ -539,7 +547,7 @@ export function createCharacterController (type: ECharacterControllerType): IEnt
     return CREATE_CHARACTER_CONTROLLER_PROXY[type]();
 }
 
-function initCharacterControllerProxy () {
+function initCharacterControllerProxy (): void {
     if (CREATE_CHARACTER_CONTROLLER_PROXY.INITED) return;
     CREATE_CHARACTER_CONTROLLER_PROXY.INITED = true;
 

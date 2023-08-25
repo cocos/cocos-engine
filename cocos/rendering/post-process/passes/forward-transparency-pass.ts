@@ -37,11 +37,11 @@ export class ForwardTransparencyPass extends BasePass {
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         return this.lastPass!.slotName(camera, index);
     }
 
-    public render (camera: Camera, ppl: Pipeline) {
+    public render (camera: Camera, ppl: Pipeline): void {
         passContext.clearFlag = ClearFlagBit.NONE;
 
         const output = this.lastPass!.slotName(camera, 0);
@@ -72,8 +72,10 @@ export class ForwardTransparencyPass extends BasePass {
         }
 
         pass.addQueue(QueueHint.RENDER_TRANSPARENT)
-            .addSceneOfCamera(camera,
+            .addSceneOfCamera(
+                camera,
                 new LightInfo(),
-                SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+                SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY,
+            );
     }
 }

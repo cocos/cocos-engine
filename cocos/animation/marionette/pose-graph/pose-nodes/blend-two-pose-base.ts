@@ -1,4 +1,4 @@
-import { ccclass, editable, serializable, type } from '../../../../core/data/decorators';
+import { ccclass, editable, range, serializable, type } from '../../../../core/data/decorators';
 import { Pose } from '../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
@@ -22,9 +22,10 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
+    @range([0.0, 1.0, 0.01])
     ratio = 1.0;
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         this.pose0?.bind(context);
         this.pose1?.bind(context);
     }
@@ -34,7 +35,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
         this.pose1?.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this.pose0?.reenter();
         this.pose1?.reenter();
     }
@@ -62,7 +63,7 @@ export abstract class PoseNodeBlendTwoPoseBase extends PoseNode {
         }
     }
 
-    public doEvaluate (context: AnimationGraphEvaluationContext) {
+    public doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const spaceRequirement = PoseTransformSpaceRequirement.LOCAL;
         if (!this.pose0 || !this.pose1) {
             return PoseNodeBlendTwoPoseBase.evaluateDefaultPose(context, spaceRequirement);

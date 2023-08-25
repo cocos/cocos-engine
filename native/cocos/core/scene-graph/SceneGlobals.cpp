@@ -33,6 +33,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skin.h"
 #include "scene/Skybox.h"
+#include "scene/PostSettings.h"
 
 namespace cc {
 
@@ -46,6 +47,7 @@ SceneGlobals::SceneGlobals() {
     _bakedWithStationaryMainLight = false;
     _bakedWithHighpLightmap = false;
     _skinInfo = ccnew scene::SkinInfo();
+    _postSettingsInfo = ccnew scene::PostSettingsInfo();
 }
 
 void SceneGlobals::activate(Scene *scene) {
@@ -76,6 +78,10 @@ void SceneGlobals::activate(Scene *scene) {
 
     if (_skinInfo != nullptr && sceneData->getSkin()) {
         _skinInfo->activate(sceneData->getSkin());
+    }
+
+    if (_postSettingsInfo != nullptr && sceneData->getPostSettings()) {
+        _postSettingsInfo->activate(sceneData->getPostSettings());
     }
 
     Root::getInstance()->onGlobalPipelineStateChanged();
@@ -113,8 +119,12 @@ void SceneGlobals::setBakedWithHighpLightmap(bool value) {
     _bakedWithHighpLightmap = value;
 }
 
-void SceneGlobals::setSkinInfo(scene::SkinInfo* info) {
+void SceneGlobals::setSkinInfo(scene::SkinInfo *info) {
     _skinInfo = info;
+}
+
+void SceneGlobals::setPostSettingsInfo(scene::PostSettingsInfo *info) {
+    _postSettingsInfo = info;
 }
 
 } // namespace cc

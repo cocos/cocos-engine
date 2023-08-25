@@ -19,7 +19,8 @@ import { PostProcess } from './components/post-process';
 import { director } from '../../game';
 
 import { Camera as CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { BloomPass, ColorGradingPass, FloatOutputProcessPass, ForwardTransparencyPass,
+    ForwardTransparencySimplePass, FxaaPass, SkinPass } from './passes';
 import { PipelineEventType } from '../pipeline-event';
 
 export class PostProcessBuilder implements PipelineBuilder  {
@@ -28,7 +29,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.init();
     }
 
-    init () {
+    init (): void {
         const forward = new ForwardPass();
         const forwardFinal = new ForwardFinalPass();
         const shadowPass = new ShadowPass();
@@ -43,15 +44,19 @@ export class PostProcessBuilder implements PipelineBuilder  {
         // rendering dependent data generation
         this.addPass(shadowPass);
 
-        // forward pipeline
+        // opaque objects forward lighting
         this.addPass(forward);
-
         this.addPass(new SkinPass());
-        this.addPass(new ForwardTransparencyPass());
 
-        // pipeline related
+        // depth-based shading
         this.addPass(new HBAOPass());
-        this.addPass(new ToneMappingPass());
+
+        // float output related deferred processing: hdr + fog
+        this.addPass(new FloatOutputProcessPass());
+
+        // transparency should after hdr and depth-based shading
+        // temporary ignore CC_USE_FLOAT_OUTPUT
+        this.addPass(new ForwardTransparencyPass());
 
         // user post-processing
         this.addPass(new TAAPass());
@@ -65,46 +70,46 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(forwardFinal);
     }
 
-    getPass (passClass: typeof BasePass, pipelineName = 'forward') {
+    getPass (passClass: typeof BasePass, pipelineName = 'forward'): BasePass | undefined {
         const pp = this.pipelines.get(pipelineName);
-        return pp && pp.find((p) => p instanceof passClass);
+        return pp && pp.find((p): boolean => p instanceof passClass);
     }
-    addPass (pass: BasePass, pipelineName = 'forward') {
+    addPass (pass: BasePass, pipelineName = 'forward'): void {
         let pp = this.pipelines.get(pipelineName);
         if (!pp) {
             pp = [];
             this.pipelines.set(pipelineName, pp);
         }
 
-        const oldIdx = pp.findIndex((p) => p.name === pass.name);
+        const oldIdx = pp.findIndex((p): boolean => p.name === pass.name);
         if (oldIdx !== -1) {
             pp.splice(oldIdx, 1);
         }
         pp.push(pass);
     }
-    insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
+    insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward'): void {
         const pp = this.pipelines.get(pipelineName);
         if (pp) {
-            const oldIdx = pp.findIndex((p) => p.name === pass.name);
+            const oldIdx = pp.findIndex((p): boolean => p.name === pass.name);
             if (oldIdx !== -1) {
                 pp.splice(oldIdx, 1);
             }
 
-            const idx = pp.findIndex((p) => p instanceof passClass);
+            const idx = pp.findIndex((p): boolean => p instanceof passClass);
             if (idx !== -1) {
                 pp.splice(idx + 1, 0, pass);
             }
         }
     }
 
-    private initEditor () {
-        director.root!.cameraList.forEach((cam) => {
+    private initEditor (): void {
+        director.root!.cameraList.forEach((cam): void => {
             if (cam.name === 'Editor Camera') {
                 cam.usePostProcess = cam.projectionType === CameraProjection.PERSPECTIVE;
             }
         });
     }
-    private applyPreviewCamera (camera: Camera) {
+    private applyPreviewCamera (camera: Camera): void {
         if (!camera.node.parent) return;
         const camComp = camera.node.parent.getComponent(CameraComponent);
         const oriCamera = camComp && camComp.camera;
@@ -114,7 +119,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
-    private resortEditorCameras (cameras: Camera[]) {
+    private resortEditorCameras (cameras: Camera[]): Camera[] {
         const newCameras: Camera[] = [];
         for (let i = 0; i < cameras.length; i++) {
             const c = cameras[i];
@@ -133,7 +138,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         return newCameras;
     }
 
-    setup (cameras: Camera[], ppl: Pipeline) {
+    setup (cameras: Camera[], ppl: Pipeline): void {
         if (EDITOR) {
             this.initEditor();
             cameras = this.resortEditorCameras(cameras);
@@ -178,7 +183,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
-    getCameraPipelineName (camera: Camera) {
+    getCameraPipelineName (camera: Camera): string {
         let pipelineName = camera.pipeline;
         if (!pipelineName && camera.usePostProcess) {
             pipelineName = 'forward';
@@ -188,19 +193,19 @@ export class PostProcessBuilder implements PipelineBuilder  {
         return pipelineName;
     }
 
-    getCameraPasses (camera: Camera) {
+    getCameraPasses (camera: Camera): BasePass[] {
         const pipelineName = this.getCameraPipelineName(camera);
         return this.pipelines.get(pipelineName) || [];
     }
 
-    renderCamera (camera: Camera, ppl: Pipeline) {
+    renderCamera (camera: Camera, ppl: Pipeline): void {
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
         passContext.camera = camera;
         passContext.updateViewPort();
 
         const passes = this.getCameraPasses(camera);
 
-        const taaPass = passes.find((p) => p instanceof TAAPass) as TAAPass;
+        const taaPass = passes.find((p): boolean => p instanceof TAAPass) as TAAPass;
         if (taaPass && taaPass.checkEnable(camera)) {
             taaPass.applyCameraJitter(camera);
             taaPass.updateSample();

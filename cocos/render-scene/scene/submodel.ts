@@ -32,6 +32,7 @@ import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, Text
 import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
+import { MacroRecord } from '../core/pass-utils';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -54,6 +55,7 @@ export class SubModel {
     protected _shaders: Shader[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
+    protected _globalPatches: MacroRecord | null = null;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
@@ -167,7 +169,7 @@ export class SubModel {
      * @en The instance attribute block, access by sub model
      * @zh 硬件实例化属性，通过子模型访问
      */
-    get instancedAttributeBlock () {
+    get instancedAttributeBlock (): IInstancedAttributeBlock {
         return this._instancedAttributeBlock;
     }
 
@@ -178,7 +180,7 @@ export class SubModel {
     set instancedWorldMatrixIndex (val: number) {
         this._instancedWorldMatrixIndex = val;
     }
-    get instancedWorldMatrixIndex () {
+    get instancedWorldMatrixIndex (): number {
         return this._instancedWorldMatrixIndex;
     }
 
@@ -189,7 +191,7 @@ export class SubModel {
     set instancedSHIndex (val: number) {
         this._instancedSHIndex = val;
     }
-    get instancedSHIndex () {
+    get instancedSHIndex (): number {
         return this._instancedSHIndex;
     }
 
@@ -200,7 +202,7 @@ export class SubModel {
     set useReflectionProbeType (val) {
         this._useReflectionProbeType = val;
     }
-    get useReflectionProbeType () {
+    get useReflectionProbeType (): number {
         return this._useReflectionProbeType;
     }
 
@@ -294,6 +296,7 @@ export class SubModel {
         this.priority = RenderPriority.DEFAULT;
 
         this._patches = null;
+        this._globalPatches = null;
         this._subMesh = null;
 
         this._passes = null;
@@ -324,6 +327,20 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
+        const root = cclegacy.director.root as Root;
+        const pipeline = root.pipeline;
+        const pipelinePatches = Object.entries(pipeline.macros);
+        if (!this._globalPatches && pipelinePatches.length === 0) {
+            return;
+        } else if (pipelinePatches.length) {
+            if (this._globalPatches && pipelinePatches.length === this._globalPatches.length) {
+                const globalPatches = Object.entries(this._globalPatches);
+                const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
+                if (patchesStateUnchanged) return;
+            }
+        }
+        this._globalPatches = pipeline.macros;
+
         const passes = this._passes;
         if (!passes) { return; }
 
@@ -383,7 +400,7 @@ export class SubModel {
         // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
             const dirtyDrawInfo = this._inputAssembler.drawInfo;
-            Object.keys(drawInfo).forEach((key) => {
+            Object.keys(drawInfo).forEach((key): void => {
                 dirtyDrawInfo[key] = drawInfo[key];
             });
             this._inputAssembler.drawInfo = dirtyDrawInfo;
@@ -399,7 +416,7 @@ export class SubModel {
     /**
      * @internal
      */
-    public getInstancedAttributeIndex (name: string) {
+    public getInstancedAttributeIndex (name: string): number {
         const { attributes } = this.instancedAttributeBlock;
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name === name) { return i; }
@@ -416,7 +433,7 @@ export class SubModel {
     /**
      * @internal
      */
-    public updateInstancedWorldMatrix (mat: Mat4, idx: number) {
+    public updateInstancedWorldMatrix (mat: Mat4, idx: number): void {
         const attrs = this.instancedAttributeBlock.views;
         const v1 = attrs[idx];
         const v2 = attrs[idx + 1];
@@ -435,7 +452,7 @@ export class SubModel {
     /**
      * @internal
      */
-    public updateInstancedSH (data: Float32Array, idx: number) {
+    public updateInstancedSH (data: Float32Array, idx: number): void {
         const attrs = this.instancedAttributeBlock.views;
         const count = (UBOSH.SH_QUADRATIC_R_OFFSET - UBOSH.SH_LINEAR_CONST_R_OFFSET) / 4;
         let offset = 0;
@@ -456,7 +473,7 @@ export class SubModel {
     /**
      * @internal
      */
-    public UpdateInstancedAttributes (attributes: Attribute[]) {
+    public UpdateInstancedAttributes (attributes: Attribute[]): void {
         // initialize subModelWorldMatrixIndex
         this.instancedWorldMatrixIndex = -1;
         this.instancedSHIndex = -1;

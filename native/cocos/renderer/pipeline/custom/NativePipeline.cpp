@@ -22,44 +22,18 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <boost/utility/string_view_fwd.hpp>
-#include <sstream>
-#include "LayoutGraphFwd.h"
-#include "LayoutGraphGraphs.h"
-#include "LayoutGraphNames.h"
-#include "LayoutGraphTypes.h"
-#include "LayoutGraphUtils.h"
-#include "NativePipelineFwd.h"
-#include "NativePipelineTypes.h"
-#include "NativeUtils.h"
-#include "RenderCommonTypes.h"
-#include "RenderGraphGraphs.h"
-#include "RenderGraphTypes.h"
-#include "RenderInterfaceFwd.h"
-#include "RenderInterfaceTypes.h"
-#include "RenderingModule.h"
-#include "cocos/base/Macros.h"
-#include "cocos/base/Ptr.h"
-#include "cocos/base/StringUtil.h"
-#include "cocos/base/std/container/string.h"
-#include "cocos/math/Mat4.h"
-#include "cocos/renderer/gfx-base/GFXBuffer.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
-#include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "cocos/renderer/gfx-base/GFXInputAssembler.h"
-#include "cocos/renderer/gfx-base/GFXSwapchain.h"
-#include "cocos/renderer/gfx-base/states/GFXSampler.h"
-#include "cocos/renderer/pipeline/Enum.h"
-#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
-#include "cocos/renderer/pipeline/RenderPipeline.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "details/DebugUtils.h"
-#include "details/GslUtils.h"
-
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -68,9 +42,48 @@ namespace cc {
 
 namespace render {
 
-SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
-    std::ignore = visitor;
-    return nullptr;
+template<gfx::Format>
+void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg);
+
+template <>
+void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
+    SubresourceView view{
+        nullptr,
+        gfx::Format::DEPTH_STENCIL,
+        0, 1, 0, 1, 0, 1};
+
+    auto desc = get(ResourceGraph::DescTag{}, resg, v);
+    auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+
+    ccstd::string depthName{name};
+    depthName += "/";
+    depthName += DEPTH_PLANE_NAME;
+    auto depthID = addVertex(
+        SubresourceViewTag{},
+        std::forward_as_tuple(depthName.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(traits.residency),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
+        std::forward_as_tuple(view),
+        resg,
+        v);
+
+    view.firstPlane = 1;
+    ccstd::string stencilName{name};
+    stencilName += "/";
+    stencilName += STENCIL_PLANE_NAME;
+    auto stencilID = addVertex(
+        SubresourceViewTag{},
+        std::forward_as_tuple(stencilName.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(traits.residency),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
+        std::forward_as_tuple(view),
+        resg,
+        v);
 }
 
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
@@ -109,6 +122,47 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
     return contains(name.c_str(), resourceGraph);
 }
 
+uint32_t NativePipeline::addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) {
+    const auto &texInfo = texture->getInfo();
+    ResourceDesc desc{};
+    desc.dimension = getResourceDimension(texInfo.type);
+    desc.width = texInfo.width;
+    desc.height = texInfo.height;
+    desc.depthOrArraySize = desc.dimension == ResourceDimension::TEXTURE3D ? texInfo.depth : texInfo.layerCount;
+    desc.mipLevels = texInfo.levelCount;
+    desc.format = texture->getFormat();
+    desc.sampleCount = gfx::SampleCount::X1;
+    desc.textureFlags = texture->getInfo().flags;
+    desc.flags = flags;
+    desc.viewType = texInfo.type;
+
+    return addVertex(
+        PersistentTextureTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(texture),
+        resourceGraph);
+}
+
+void NativePipeline::updateExternalTexture(const ccstd::string &name, gfx::Texture *texture) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+    visitObject(
+        resID, resourceGraph,
+        [&](IntrusivePtr<gfx::Texture> &tex) {
+            desc.width = texture->getWidth();
+            desc.height = texture->getHeight();
+            tex = texture;
+        },
+        [](const auto & /*res*/) {});
+}
+
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     ResourceDesc desc{};
@@ -118,15 +172,17 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(renderWindow);
 
     if (!renderWindow->getSwapchain()) {
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         return addVertex(
             FramebufferTag{},
             std::forward_as_tuple(name.c_str()),
@@ -163,9 +219,9 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::STORAGE;
+    desc.flags = ResourceFlags::STORAGE | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     return addVertex(
         ManagedBufferTag{},
@@ -187,9 +243,10 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     return addVertex(
         ManagedTextureTag{},
@@ -211,9 +268,10 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
+                 ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -221,7 +279,8 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.magFilter = gfx::Filter::POINT;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
-    return addVertex(
+
+    auto resID = addVertex(
         ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
@@ -230,6 +289,104 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
+
+    addSubresourceNode<gfx::Format::DEPTH_STENCIL>(resID, name, resourceGraph);
+    return resID;
+}
+
+uint32_t NativePipeline::addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
+    const auto dimension = getResourceDimension(type);
+    ResourceDesc desc{
+        dimension,
+        0,
+        width,
+        height,
+        static_cast<uint16_t>(dimension == ResourceDimension::TEXTURE3D ? depth : arraySize),
+        static_cast<uint16_t>(mipLevels),
+        format,
+        sampleCount,
+        residency == ResourceResidency::MEMORYLESS ? gfx::TextureFlagBit::LAZILY_ALLOCATED : gfx::TextureFlagBit::NONE,
+        flags,
+        type
+    };
+    return addVertex(
+        ManagedTextureTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{residency}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        resourceGraph);
+}
+
+void NativePipeline::updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) {
+    updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+}
+
+uint32_t NativePipeline::addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) {
+    ResourceDesc desc = {};
+    desc.dimension = ResourceDimension::BUFFER;
+    desc.width = size;
+    desc.flags = flags;
+    return addVertex(
+        ManagedBufferTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{residency}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        resourceGraph);
+}
+
+void NativePipeline::updateBuffer(const ccstd::string &name, uint32_t size) {
+    updateResource(name, gfx::Format::UNKNOWN, size, 0, 0, 0, 0, gfx::SampleCount::X1);
+}
+
+uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimension dimension,
+    gfx::Format format,
+    uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
+    gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
+    return dimension == ResourceDimension::BUFFER ? addBuffer(name, width, flags, residency) :
+        addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
+}
+
+void NativePipeline::updateResource(const ccstd::string& name, gfx::Format format,
+    uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, // NOLINT(bugprone-easily-swappable-parameters)
+    gfx::SampleCount sampleCount) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+
+    // update format
+    if (format == gfx::Format::UNKNOWN) {
+        format = desc.format;
+    }
+    visitObject(
+        resID, resourceGraph,
+        [&](ManagedTexture &tex) {
+            uint32_t depthOrArraySize = static_cast<uint16_t>(
+                desc.dimension == ResourceDimension::TEXTURE3D ? depth : arraySize);
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.depthOrArraySize, desc.mipLevels, desc.format, desc.sampleCount) !=
+                std::forward_as_tuple(width, height, depthOrArraySize, mipLevels, format, sampleCount);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
+                desc.depthOrArraySize = depthOrArraySize;
+                desc.mipLevels = mipLevels;
+                desc.format = format;
+                desc.sampleCount = sampleCount;
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
+            }
+        },
+        [&](ManagedBuffer &/*buffer*/) {
+            desc.width = width;
+        },
+        [](const auto & /*res*/) {});
 }
 
 // NOLINTNEXTLINE
@@ -241,9 +398,9 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -270,9 +427,9 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = gfx::Format::R8UI;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
+    desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -306,7 +463,7 @@ uint32_t NativePipeline::addCustomBuffer(
     desc.depthOrArraySize = 1;
     desc.mipLevels = 1;
     desc.format = gfx::Format::UNKNOWN;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::NONE;
 
@@ -338,7 +495,7 @@ uint32_t NativePipeline::addCustomTexture(
     desc.depthOrArraySize = info.layerCount;
     desc.mipLevels = info.levelCount;
     desc.format = info.format;
-    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = info.flags;
     desc.flags = ResourceFlags::NONE;
 
@@ -504,6 +661,7 @@ void NativePipeline::updateShadingRateTexture(
 }
 
 void NativePipeline::beginFrame() {
+    // noop
 }
 
 void NativePipeline::update(const scene::Camera *camera) {
@@ -516,59 +674,52 @@ void NativePipeline::update(const scene::Camera *camera) {
 }
 
 void NativePipeline::endFrame() {
+    // noop
 }
 
-namespace {
-
-RenderPassBuilder *addRenderPassImpl(
-    const PipelineRuntime *ppl,
-    RenderGraph &renderGraph, const NativeProgramLibrary &lib,
-    uint32_t width, uint32_t height,  // NOLINT(bugprone-easily-swappable-parameters)
-    uint32_t count, uint32_t quality, // NOLINT(bugprone-easily-swappable-parameters)
+RenderPassBuilder *NativePipeline::addRenderPass(
+    uint32_t width, uint32_t height,
     const ccstd::string &passName) {
-    RasterPass pass(renderGraph.get_allocator());
-    pass.width = width;
-    pass.height = height;
-    pass.viewport.width = width;
-    pass.viewport.height = height;
-    pass.count = count;
-    pass.quality = quality;
+    const auto &layoutGraph = programLibrary->layoutGraph;
 
-    auto passID = addVertex(
-        RasterPassTag{},
-        std::forward_as_tuple(passName),
-        std::forward_as_tuple(passName),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(pass)),
-        renderGraph);
-
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), passName, lib.layoutGraph);
-    CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
+    auto [passID, passLayoutID] = addRenderPassVertex(
+        renderGraph, layoutGraph,
+        width, height, 1, 0, passName);
 
     auto *builder = ccnew NativeRenderPassBuilder(
-        ppl, &renderGraph, passID, &lib.layoutGraph, passLayoutID);
+        this, &renderGraph, passID, &layoutGraph, passLayoutID);
+
     updateRasterPassConstants(width, height, *builder);
 
     return builder;
 }
 
-} // namespace
-
-RenderPassBuilder *NativePipeline::addRenderPass(
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
-    const ccstd::string &passName) {
-    return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, 1, 0, passName);
-}
-
-BasicRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+MultisampleRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
+    uint32_t width, uint32_t height,
     uint32_t count, uint32_t quality,
     const ccstd::string &passName) {
     CC_EXPECTS(count > 1);
-    return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, count, quality, passName);
+    const auto &layoutGraph = programLibrary->layoutGraph;
+
+    auto [passID, passLayoutID] = addRenderPassVertex(
+        renderGraph, layoutGraph,
+        width, height, count, quality, passName);
+
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
+
+    auto [subpassID, subpassLayoutID] = addRenderSubpassVertex(
+        pass, renderGraph, passID,
+        layoutGraph, passLayoutID,
+        "", // subpassName is empty
+        count, quality);
+
+    auto *builder = ccnew NativeMultisampleRenderPassBuilder(
+        this, &renderGraph, passID, &layoutGraph, passLayoutID,
+        subpassID, subpassLayoutID);
+
+    updateRasterPassConstants(pass.width, pass.height, *builder);
+
+    return builder;
 }
 
 void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) {
@@ -578,7 +729,7 @@ void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePai
         pass.resolvePairs.emplace_back(pair);
     }
     std::string_view name("Resolve");
-    addVertex(
+    addVertex2(
         ResolveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -590,7 +741,7 @@ void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePai
 
 // NOLINTNEXTLINE
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &passName) {
-    auto passID = addVertex(
+    auto passID = addVertex2(
         ComputeTag{},
         std::forward_as_tuple(passName),
         std::forward_as_tuple(passName),
@@ -611,7 +762,7 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
         pass.movePairs.emplace_back(pair);
     }
     std::string_view name("Move");
-    addVertex(
+    addVertex2(
         MoveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -621,6 +772,180 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
         renderGraph);
 }
 
+namespace {
+
+void setupGpuDrivenResources(
+    NativePipeline& ppl, uint32_t cullingID, ResourceGraph& resg, const std::string &hzbName) {
+    ccstd::pmr::string name(resg.get_allocator());
+    { // init resource
+        name = "_GpuInit";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = addVertex(
+                PersistentBufferTag{},
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(/*xxx*/),
+                resg);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            // get(PersistentBufferTag{}, resID, resg) = xxx;
+        }
+    }
+    {
+        name = "CCObjectBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCInstanceBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCDrawIndirectBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCDrawInstanceBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    {
+        name = "CCVisibilityBuffer";
+        name.append(std::to_string(cullingID));
+        auto resID = findVertex(name, resg);
+        if (resID == ResourceGraph::null_vertex()) {
+            resID = ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, 0, ResourceResidency::MANAGED);
+        } else {
+            CC_EXPECTS(holds<PersistentBufferTag>(resID, resg));
+            ppl.updateStorageBuffer(std::string(name), 0, gfx::Format::UNKNOWN);
+        }
+    }
+    if (!hzbName.empty()) {
+
+    }
+}
+
+} // namespace
+
+void NativePipeline::addBuiltinGpuCullingPass(
+    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
+    std::ignore = camera;
+    const uint32_t cullingID = ++nativeContext.sceneCulling.gpuCullingPassID;
+    setupGpuDrivenResources(*this, cullingID, resourceGraph, hzbName);
+
+    if (light) {
+        // build light culling pass
+        return;
+    }
+
+    const std::string objectBuffer = "CCObjectBuffer" + std::to_string(cullingID);
+    const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(cullingID);
+    const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
+    const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
+    const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
+
+    // init indirected buffers
+    {
+        CopyPass copyPass{renderGraph.get_allocator()};
+        {
+            CopyPair copyPair{renderGraph.get_allocator()};
+            copyPair.source = "xxx";
+            copyPair.target = drawIndirectBuffer;
+            copyPair.mipLevels = 1;
+            copyPair.numSlices = 1;
+            copyPass.copyPairs.emplace_back(std::move(copyPair));
+        }
+
+        auto copyID = addVertex2(CopyTag{},
+            std::forward_as_tuple("CopyInitialIndirectBuffer"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(std::move(copyPass)),
+            renderGraph);
+        CC_ENSURES(copyID != RenderGraph::null_vertex());
+    }
+    // run compute cullling pass
+    {
+        ComputePass computePass{renderGraph.get_allocator()};
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(drawIndirectBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCDrawIndirectBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(drawInstanceBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCDrawInstanceBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+        {
+            auto res = computePass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(visibilityBuffer),
+                std::forward_as_tuple());
+            auto& view = res.first->second.emplace_back();
+            view.name = "CCVisibilityBuffer";
+            view.accessType = AccessType::WRITE;
+            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+        }
+
+        auto computePassID = addVertex2(ComputeTag{},
+            std::forward_as_tuple("Scene"),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(std::move(computePass)),
+            renderGraph);
+        CC_ENSURES(computePassID != RenderGraph::null_vertex());
+    }
+}
+
+void NativePipeline::addBuiltinHzbGenerationPass(
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    const std::string &sourceDepthStencilName, const std::string &targetHzbName) {
+}
+
 void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
     CopyPass pass(renderGraph.get_allocator());
     pass.copyPairs.reserve(copyPairs.size());
@@ -628,7 +953,7 @@ void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
         pass.copyPairs.emplace_back(pair);
     }
     std::string_view name("Copy");
-    addVertex(
+    addVertex2(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -646,7 +971,7 @@ void NativePipeline::addUploadPass(ccstd::vector<UploadPair> &uploadPairs) {
     }
     uploadPairs.clear();
     std::string_view name("Upload");
-    addVertex(
+    addVertex2(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
@@ -743,7 +1068,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
 #if ENABLE_FLOAT_OUTPUT
     setValue("CC_USE_FLOAT_OUTPUT", true);
-# else
+#else
     setValue("CC_USE_FLOAT_OUTPUT", false);
 #endif
 

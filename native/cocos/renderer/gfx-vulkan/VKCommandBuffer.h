@@ -41,6 +41,9 @@ public:
     void end() override;
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
+    void insertMarker(const MarkerInfo &marker) override;
+    void beginMarker(const MarkerInfo &marker) override;
+    void endMarker() override;
     void bindPipelineState(PipelineState *pso) override;
     void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
     void bindInputAssembler(InputAssembler *ia) override;
@@ -58,6 +61,7 @@ public:
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
+    void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
@@ -104,6 +108,8 @@ protected:
     ccstd::unordered_map<const GFXObject *, VkEvent> _barrierEvents;
 
     ccstd::queue<VkCommandBuffer> _pendingQueue;
+    VkDebugMarkerMarkerInfoEXT _markerInfo = {VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT, nullptr};
+    VkDebugUtilsLabelEXT _utilLabelInfo = {VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT, nullptr};
 };
 
 } // namespace gfx

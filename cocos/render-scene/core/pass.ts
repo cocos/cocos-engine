@@ -28,13 +28,15 @@ import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { murmurhash2_32_gc, errorID, assertID, cclegacy, warnID } from '../../core';
-import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
+import {
+    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, UniformBlock,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
-import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
+import {
+    MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
@@ -129,7 +131,7 @@ export class Pass {
             const bsInfo = info.blendState;
             const { targets } = bsInfo;
             if (targets) {
-                targets.forEach((t, i) => {
+                targets.forEach((t, i): void => {
                     bs.setTarget(i, t as BlendTarget);
                 });
             }
@@ -182,7 +184,7 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
-    protected _shader: Shader | null = null
+    protected _shader: Shader | null = null;
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
@@ -190,6 +192,7 @@ export class Pass {
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
+    protected _subpassID = 0xFFFFFFFF;
     protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
@@ -269,7 +272,7 @@ export class Pass {
         const block = this._getBlockView(type, binding);
         if (DEBUG) {
             const validator = type2validator[type];
-            assertID(validator && validator(value), 12011, binding, Type[type]);
+            assertID(Boolean(validator && validator(value)), 12011, binding, Type[type]);
         }
         type2writer[type](block, value, ofs);
         this._rootBufferDirty = true;
@@ -367,7 +370,7 @@ export class Pass {
         this._descriptorSet.update();
     }
 
-    public getInstancedBuffer (extraKey = 0) {
+    public getInstancedBuffer (extraKey = 0): InstancedBuffer {
         return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
     }
 
@@ -488,7 +491,10 @@ export class Pass {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const programLib = cclegacy.rendering.programLib as ProgramLibrary;
             const program = programLib.getProgramVariant(
-                this._device, this._phaseID, this._programName, this._defines,
+                this._device,
+                this._phaseID,
+                this._programName,
+                this._defines,
             );
             if (!program) {
                 warnID(12103, this._programName);
@@ -540,6 +546,10 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
+        if (this._isBlend) {
+            this._defines.CC_IS_TRANSPARENCY_PASS = 1;
+        }
+
         let shader: Shader | null = null;
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const program = (cclegacy.rendering.programLib as ProgramLibrary)
@@ -558,15 +568,27 @@ export class Pass {
         return shader;
     }
 
+    protected get _isBlend (): boolean {
+        let bBlend = false;
+        for (const target of this.blendState.targets) {
+            if (target.blend) {
+                bBlend = true;
+            }
+        }
+        return bBlend;
+    }
+
     // internal use
     /**
      * @private
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public beginChangeStatesSilently (): void {}
 
     /**
      * @private
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public endChangeStatesSilently (): void {}
 
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
@@ -576,11 +598,17 @@ export class Pass {
             const r = cclegacy.rendering;
             if (typeof info.phase === 'number') {
                 this._passID = (info as Pass)._passID;
+                this._subpassID = (info as Pass)._subpassID;
                 this._phaseID = (info as Pass)._phaseID;
             } else {
                 this._passID = r.getPassID(info.pass);
                 if (this._passID !== r.INVALID_ID) {
-                    this._phaseID = r.getPhaseID(this._passID, info.phase);
+                    if (info.subpass) {
+                        this._subpassID = r.getSubpassID(this._passID, info.subpass);
+                        this._phaseID = r.getPhaseID(this._subpassID, info.phase);
+                    } else {
+                        this._phaseID = r.getPhaseID(this._passID, info.phase);
+                    }
                 }
             }
             if (this._passID === r.INVALID_ID) {
@@ -655,7 +683,7 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
-    private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]) {
+    private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]): void {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -683,14 +711,17 @@ export class Pass {
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
-                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocks[binding] = new Float32Array(
+                this._rootBlock!,
+                _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT,
+            );
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
     }
 
-    private _buildMaterialUniformBlocks (device: Device, blocks: UniformBlock[], blockSizes: number[]) {
+    private _buildMaterialUniformBlocks (device: Device, blocks: UniformBlock[], blockSizes: number[]): void {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -728,8 +759,11 @@ export class Pass {
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
-                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocks[binding] = new Float32Array(
+                this._rootBlock!,
+                _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT,
+            );
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
@@ -748,7 +782,7 @@ export class Pass {
         }
     }
 
-    private _getBlockView (type: Type, binding: number) {
+    private _getBlockView (type: Type, binding: number): Int32Array | Float32Array {
         return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
@@ -756,7 +790,7 @@ export class Pass {
      * @engineInternal
      * Only for UI
      */
-    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
+    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number): void {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
@@ -778,7 +812,7 @@ export class Pass {
 
         this._blocks = target._blocks;
         this._blocksInt = target._blocksInt;
-        this._dynamics =  target._dynamics;
+        this._dynamics = target._dynamics;
 
         this._shader = target._shader;
 
@@ -795,7 +829,7 @@ export class Pass {
     /**
      * @engineInternal
      */
-    public _updatePassHash () {
+    public _updatePassHash (): void {
         this._hash = Pass.getPassHash(this);
     }
 
@@ -825,14 +859,14 @@ export class Pass {
      * @engineInternal
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
-    setRootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
+    setRootBufferDirty (val: boolean): void { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
     /**
      * @engineInternal
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
-    setPriority (val: RenderPriority) { this._priority = val; }
+    setPriority (val: RenderPriority): void { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

@@ -10,9 +10,9 @@ import { ColorGrading } from '../components';
 import { disablePostProcessForDebugView } from './base-pass';
 
 export class ColorGradingPass extends SettingPass {
-    get setting () { return getSetting(ColorGrading); }
+    get setting (): ColorGrading { return getSetting(ColorGrading); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;
@@ -20,9 +20,9 @@ export class ColorGradingPass extends SettingPass {
         return enable;
     }
 
-    name = 'ColorGradingPass'
+    name = 'ColorGradingPass';
     effectName = 'pipeline/post-process/color-grading';
-    outputNames = ['ColorGrading']
+    outputNames = ['ColorGrading'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);

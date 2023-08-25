@@ -565,6 +565,12 @@ exports.methods = {
 
         this.$refs.summitProp.dispatch('change-dump');
     },
+    snapshot() {
+        // next tick snapshot
+        setTimeout(() => {
+            this.$refs.summitProp.dispatch('confirm-dump');
+        });
+    },
 
     getUnit(type) {
         const data = this.dump.value;
@@ -661,6 +667,7 @@ exports.methods = {
         const { dump } = update(this.dump, true);
         this.$refs.summitProp.dump = dump;
         this.$refs.summitProp.dispatch('change-dump');
+        this.snapshot();
     },
 
     select(event) {
@@ -892,7 +899,7 @@ exports.methods = {
             this.dimensionVertical = this.getDimensionVertical();
         }
 
-        this.$refs.summitProp.dispatch('confirm-dump');
+        this.snapshot();
     },
 
     toggleLock(direction) {
@@ -931,11 +938,22 @@ exports.methods = {
         }
 
         this.$refs.summitProp.dispatch('change-dump');
+        this.snapshot();
     },
     isLock(direction) {
         const lockValue = this.dump.value._lockFlags.value;
         const lockDirection = LockFlags[direction];
         return lockValue & lockDirection;
+    },
+    setLayout() {
+        const rect = this.$this.getBoundingClientRect();
+        if (rect.width) {
+            if (rect.width > cssMediaWidth) {
+                this.layout = 'horizontal';
+            } else {
+                this.layout = 'vertical';
+            }
+        }
     },
 };
 const uiElements = {
@@ -1046,7 +1064,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorLeft')" :invalid="isInvalid('editorLeft')"
                         :disabled="!dump.value.isAlignLeft.value" :value="dump.value.editorLeft.value"
-                        @change="change('editorLeft', $event.target.value)" @unit-click="changeUnit('editorLeft')"
+                        @change="change('editorLeft', $event.target.value)" 
+                        @confirm="snapshot()" 
+                        @unit-click="changeUnit('editorLeft')"
                         v-show="dump.value.isAlignLeft.value">
                     </ui-num-input>
                 </ui-prop>
@@ -1065,6 +1085,7 @@ const template = /* html*/`
                         :disabled="!dump.value.isAlignHorizontalCenter.value"
                         :value="dump.value.editorHorizontalCenter.value"
                         @change="change('editorHorizontalCenter', $event.target.value)"
+                        @confirm="snapshot()" 
                         @unit-click="changeUnit('editorHorizontalCenter')"></ui-num-input>
                 </ui-prop>
 
@@ -1078,7 +1099,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorRight')" :invalid="isInvalid('editorRight')"
                         :disabled="!dump.value.isAlignRight.value" :value="dump.value.editorRight.value"
-                        @change="change('editorRight', $event.target.value)" v-show="dump.value.isAlignRight.value"
+                        v-show="dump.value.isAlignRight.value"
+                        @change="change('editorRight', $event.target.value)" 
+                        @confirm="snapshot()" 
                         @unit-click="changeUnit('editorRight')">
                     </ui-num-input>
                 </ui-prop>
@@ -1121,7 +1144,9 @@ const template = /* html*/`
                         </div>
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorTop')" :invalid="isInvalid('editorTop')"
-                        @change="change('editorTop', $event.target.value)" :disabled="!dump.value.isAlignTop.value"
+                        :disabled="!dump.value.isAlignTop.value"
+                        @change="change('editorTop', $event.target.value)" 
+                        @confirm="snapshot()" 
                         :value="dump.value.editorTop.value" @unit-click="changeUnit('editorTop')"
                         v-show="dump.value.isAlignTop.value">
                     </ui-num-input>
@@ -1139,6 +1164,7 @@ const template = /* html*/`
                     <ui-num-input tabindex="0" :unit="getUnit('editorVerticalCenter')"
                         :invalid="isInvalid('editorVerticalCenter')" :disabled="!dump.value.isAlignVerticalCenter.value"
                         @change="change('editorVerticalCenter', $event.target.value)"
+                        @confirm="snapshot()" 
                         :value="dump.value.editorVerticalCenter.value" @unit-click="changeUnit('editorVerticalCenter')"
                         v-show="dump.value.isAlignVerticalCenter.value"></ui-num-input>
                 </ui-prop>
@@ -1153,7 +1179,9 @@ const template = /* html*/`
                     </div>
                     <ui-num-input tabindex="0" :unit="getUnit('editorBottom')" :invalid="isInvalid('editorBottom')"
                         :disabled="!dump.value.isAlignBottom.value" :value="dump.value.editorBottom.value"
-                        @change="change('editorBottom', $event.target.value)" @unit-click="changeUnit('editorBottom')"
+                        @change="change('editorBottom', $event.target.value)" 
+                        @confirm="snapshot()" 
+                        @unit-click="changeUnit('editorBottom')"
                         v-show="dump.value.isAlignBottom.value">
                     </ui-num-input>
                 </ui-prop>
@@ -1195,12 +1223,7 @@ exports.ready = function() {
                 return;
             }
 
-            const rect = this.$this.getBoundingClientRect();
-            if (rect.width > cssMediaWidth) {
-                this.layout = 'horizontal';
-            } else {
-                this.layout = 'vertical';
-            }
+            this.setLayout();
         });
     });
 
@@ -1217,12 +1240,9 @@ exports.update = function(dump) {
     this.dump = dump;
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
-    const rect = this.$this.getBoundingClientRect();
-    if (rect.width > cssMediaWidth) {
-        this.layout = 'horizontal';
-    } else {
-        this.layout = 'vertical';
-    }
+
+    this.setLayout();
+
     if (!this.vm) {
         this.vm = new Vue({
             el: this.$.app,
