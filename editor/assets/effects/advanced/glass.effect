@@ -276,6 +276,14 @@ CCProgram surface-fragment %{
         result.environmentSpecular = result.environmentSpecular / bright * threshold;
     #endif
   }
+
+  #define CC_SURFACES_LIGHTING_MODIFY_FOG
+  vec3 CCSurfacesLightingModifyFog(float fogFactor, vec3 color, in SurfacesMaterialData surfaceData, in LightingResult lightingResult)
+  {
+    // according to blend mode is one + src_alpha, fogColor should apply inv_src_alpha while glass is fully fogged, otherwise glass will be much more brighter.
+    vec3 fogColor = cc_fogColor.rgb * (1.0 - surfaceData.baseColor.a);
+    return mix(fogColor.rgb, color.rgb, fogFactor);
+  } 
 }%
 
 CCProgram standard-vs %{
