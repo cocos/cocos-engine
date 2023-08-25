@@ -175,10 +175,11 @@ if(APPLE)
         )
         get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
         get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)
+        get_property(sdl_loc TARGET SDL2 PROPERTY IMPORTED_LOCATION)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
             COMMAND ${CMAKE_COMMAND} -E copy ${gles2_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
-            COMMAND ${CMAKE_COMMAND} -E copy ${egl_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
+            COMMAND ${CMAKE_COMMAND} -E copy ${sdl_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
         )
     endif()
 
