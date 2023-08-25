@@ -408,6 +408,13 @@ module.exports = link(mixin({
         font_underline: 'Font underlined',
         spacing_x: 'The spacing between text characters, only available in BMFont',
         underline_height: 'The height of underline',
+        outline_used: 'Whether outline is enabled',
+        outline_width: 'The width of outline',
+        outline_color: 'The color of outline',
+        shadow_used: 'Whether shadow is enabled',
+        shadow_color: 'The color of shadow',
+        shadow_offset: 'Offset between font and shadow',
+        shadow_blur: 'A non-negative float specifying the level of shadow blur',
     },
     labelOutline: {
         color: 'Outline color',

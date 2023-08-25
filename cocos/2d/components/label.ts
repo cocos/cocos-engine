@@ -28,7 +28,7 @@ import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../asset/assets';
-import { ccenum, cclegacy, Color } from '../../core';
+import { ccenum, cclegacy, Color, Vec2 } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
@@ -594,12 +594,147 @@ export class Label extends UIRenderer {
     @editable
     @displayOrder(18)
     @tooltip('i18n:label.underline_height')
-    public get underlineHeight (): number {
+    get underlineHeight (): number {
         return this._underlineHeight;
     }
-    public set underlineHeight (value) {
+    set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     ** @en
+     ** Outline effect used to change the display, only for system fonts or TTF fonts.
+     **
+     ** @zh
+     ** 描边效果组件,用于字体描边,只能用于系统字体。
+     **/
+    @editable
+    @displayOrder(19)
+    @tooltip('i18n:label.outline_used')
+    get outlineUsed (): boolean {
+        return this._isOutline;
+    }
+    set outlineUsed (value) {
+        if (this._isOutline === value) return;
+        this._isOutline = value;
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * Outline color.
+     *
+     * @zh
+     * 改变描边的颜色。
+     */
+    @editable
+    @visible(function (this: Label) { return this._isOutline; })
+    @displayOrder(20)
+    @tooltip('i18n:label.outline_color')
+    get outlineColor (): Color {
+        return this._outlineColor;
+    }
+    set outlineColor (value) {
+        if (this._outlineColor === value) return;
+        this._outlineColor.set(value);
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * Change the outline width.
+     *
+     * @zh
+     * 改变描边的宽度。
+     */
+    @editable
+    @visible(function (this: Label) { return this._isOutline; })
+    @displayOrder(21)
+    @tooltip('i18n:label.outline_width')
+    get outlineWidth (): number {
+        return this._outlineWidth;
+    }
+    set outlineWidth (value) {
+        if (this._outlineWidth === value) return;
+        this._outlineWidth = value;
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en Shadow effect for Label component, only for system fonts or TTF fonts.
+     * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。
+     */
+    @editable
+    @displayOrder(22)
+    @tooltip('i18n:label.shadow_used')
+    get shadowUsed (): boolean {
+        return this._isShadow;
+    }
+    set shadowUsed (value) {
+        if (this._isShadow === value) return;
+        this._isShadow = value;
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * Shadow color.
+     *
+     * @zh
+     * 阴影的颜色。
+     */
+    @editable
+    @visible(function (this: Label) { return this._isShadow; })
+    @displayOrder(23)
+    @tooltip('i18n:label.shadow_color')
+    get shadowColor (): Color {
+        return this._shadowColor;
+    }
+    set shadowColor (value) {
+        if (this._shadowColor === value) return;
+        this._shadowColor.set(value);
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * Offset between font and shadow.
+     *
+     * @zh
+     * 字体与阴影的偏移。
+     */
+    @editable
+    @visible(function (this: Label) { return this._isShadow; })
+    @displayOrder(24)
+    @tooltip('i18n:label.shadow_offset')
+    get shadowOffset (): Vec2 {
+        return this._shadowOffset;
+    }
+    set shadowOffset (value) {
+        if (this._shadowOffset === value) return;
+        this._shadowOffset.set(value);
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * A non-negative float specifying the level of shadow blur.
+     *
+     * @zh
+     * 阴影的模糊程度。
+     */
+    @editable
+    @visible(function (this: Label) { return this._isShadow; })
+    @displayOrder(25)
+    @tooltip('i18n:label.shadow_blur')
+    get shadowBlur (): number {
+        return this._shadowBlur;
+    }
+    set shadowBlur (value) {
+        if (this._shadowBlur === value) return;
+        this._shadowBlur = value;
         this.markForUpdateRenderData();
     }
 
@@ -705,6 +840,20 @@ export class Label extends UIRenderer {
     protected _underlineHeight = 2;
     @serializable
     protected _cacheMode = CacheMode.NONE;
+    @serializable
+    protected _isOutline = false;
+    @serializable
+    protected _outlineColor = new Color(0, 0, 0, 255);
+    @serializable
+    protected _outlineWidth = 2;
+    @serializable
+    protected _isShadow = false;
+    @serializable
+    protected _shadowColor = new Color(0, 0, 0, 255);
+    @serializable
+    protected _shadowOffset = new Vec2(2, 2);
+    @serializable
+    protected _shadowBlur = 2;
 
     // don't need serialize
     // 这个保存了旧项目的 file 数据

@@ -35,15 +35,7 @@ import { Label } from './label';
  * @zh
  * 描边效果组件,用于字体描边,只能用于系统字体。
  *
- * @example
- * ```ts
- * import { Node, Label, LabelOutline } from 'cc';
- * // Create a new node and add label components.
- * const node = new Node("New Label");
- * const label = node.addComponent(Label);
- * const outline = node.addComponent(LabelOutline);
- * node.parent = this.node;
- * ```
+ * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
  */
 @ccclass('cc.LabelOutline')
 @help('i18n:cc.LabelOutline')
@@ -64,11 +56,7 @@ export class LabelOutline extends Component {
      * @zh
      * 改变描边的颜色。
      *
-     * @example
-     * ```ts
-     * import { Color } from 'cc';
-     * outline.color = new Color(0.5, 0.3, 0.7, 1.0);
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.outlineColor]] instead.
      */
     @tooltip('i18n:labelOutline.color')
     // @constget
@@ -82,7 +70,10 @@ export class LabelOutline extends Component {
         }
 
         this._color.set(value);
-        this._updateRenderData();
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.outlineColor = this._color;
+        }
     }
 
     /**
@@ -92,10 +83,7 @@ export class LabelOutline extends Component {
      * @zh
      * 改变描边的宽度。
      *
-     * @example
-     * ```ts
-     * outline.width = 3;
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.outlineWidth]] instead.
      */
     @tooltip('i18n:labelOutline.width')
     get width (): number {
@@ -108,21 +96,29 @@ export class LabelOutline extends Component {
         }
 
         this._width = value;
-        this._updateRenderData();
-    }
-
-    public onEnable (): void {
-        this._updateRenderData();
-    }
-
-    public onDisable (): void {
-        this._updateRenderData();
-    }
-
-    protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
         if (label) {
-            label.updateRenderData(true);
+            label.outlineWidth = this._width;
+        }
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     */
+    public onEnable (): void {
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.outlineUsed = true;
+        }
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     */
+    public onDisable (): void {
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.outlineUsed = false;
         }
     }
 }

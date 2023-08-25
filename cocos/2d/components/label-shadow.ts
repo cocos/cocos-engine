@@ -31,13 +31,8 @@ import { Label } from './label';
 /**
  * @en Shadow effect for Label component, only for system fonts or TTF fonts.
  * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。
- * @example
- * import { Node, Label, LabelShadow } from 'cc';
- * // Create a new node and add label components.
- * const node = new Node("New Label");
- * const label = node.addComponent(Label);
- * const shadow = node.addComponent(LabelShadow);
- * node.parent = this.node;
+ *
+ * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
  */
 @ccclass('cc.LabelShadow')
 @help('i18n:cc.LabelShadow')
@@ -60,11 +55,7 @@ export class LabelShadow extends Component {
      * @zh
      * 阴影的颜色。
      *
-     * @example
-     * ```ts
-     * import { Color } from 'cc';
-     * labelShadow.color = new Color(0.5, 0.3, 0.7, 1.0);
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.shadowColor]] instead.
      */
     @tooltip('i18n:labelShadow.color')
     get color (): Readonly<Color> {
@@ -77,7 +68,10 @@ export class LabelShadow extends Component {
         }
 
         this._color.set(value);
-        this._updateRenderData();
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.shadowColor = this._color;
+        }
     }
 
     /**
@@ -87,11 +81,7 @@ export class LabelShadow extends Component {
      * @zh
      * 字体与阴影的偏移。
      *
-     * @example
-     * ```ts
-     * import { Vec2 } from 'cc';
-     * labelShadow.offset = new Vec2(2, 2);
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.shadowOffset]] instead.
      */
     @tooltip('i18n:labelShadow.offset')
     get offset (): Vec2 {
@@ -100,7 +90,10 @@ export class LabelShadow extends Component {
 
     set offset (value) {
         this._offset = value;
-        this._updateRenderData();
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.shadowOffset = this._offset;
+        }
     }
 
     /**
@@ -110,10 +103,7 @@ export class LabelShadow extends Component {
      * @zh
      * 阴影的模糊程度。
      *
-     * @example
-     * ```ts
-     * labelShadow.blur = 2;
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.shadowBlur]] instead.
      */
     @tooltip('i18n:labelShadow.blur')
     get blur (): number {
@@ -122,21 +112,29 @@ export class LabelShadow extends Component {
 
     set blur (value) {
         this._blur = value;
-        this._updateRenderData();
-    }
-
-    public onEnable (): void {
-        this._updateRenderData();
-    }
-
-    public onDisable (): void {
-        this._updateRenderData();
-    }
-
-    protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
         if (label) {
-            label.updateRenderData(true);
+            label.shadowBlur = this._blur;
+        }
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
+     */
+    public onEnable (): void {
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.shadowUsed = true;
+        }
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
+     */
+    public onDisable (): void {
+        const label = this.node.getComponent(Label);
+        if (label) {
+            label.shadowUsed = false;
         }
     }
 }
