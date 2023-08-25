@@ -4,6 +4,11 @@ CCEffect %{
   techniques:
   - passes:
     - vert: tonemap-vs
+      frag: copy-fs
+      pass: copy-pass
+      depthTest: false
+      depthWrite: false
+    - vert: tonemap-vs
       frag: tonemap-fs
       pass: tone-mapping
       depthStencilState:
@@ -17,6 +22,24 @@ CCProgram tonemap-vs %{
   #include <./post-process/chunks/vs>
 }%
 
+CCProgram copy-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/data/packing>
+
+  #pragma rate depthRaw pass
+  uniform sampler2D depthRaw;
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    float depth = texture(depthRaw, v_uv).r;
+    fragColor = packDepthToRGBA(depth);
+  }
+}%
+
 CCProgram tonemap-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
@@ -26,6 +49,7 @@ CCProgram tonemap-fs %{
   #include <common/debug/debug-view-define>
   #include <common/math/coordinates>
   #include <builtin/functionalities/fog>
+  #include <common/data/packing>
 
   in vec2 v_uv;
 
@@ -49,7 +73,7 @@ CCProgram tonemap-fs %{
     // fog related
     vec4 worldPos = vec4(0.0);
     #if CC_USE_FOG != CC_FOG_NONE
-      float depth = texture(DepthTex, v_uv).r;
+      float depth = unpackRGBAToDepth(texture(DepthTex, v_uv));
       vec3 posHS = vec3(v_uv, depth) * 2.0 - vec3(1.0);
       CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
       worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);

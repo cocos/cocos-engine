@@ -1423,6 +1423,8 @@ export interface PipelineBuilder {
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
+
+    onGlobalPipelineStateChanged?(): void;
 }
 
 /**
