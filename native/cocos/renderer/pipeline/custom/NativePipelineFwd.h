@@ -49,7 +49,6 @@ class NativeRenderPassBuilder;
 class NativeMultisampleRenderPassBuilder;
 class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
-class NativeBuiltinReflectionProbePassBuilder;
 struct RenderInstancingQueue;
 struct DrawInstance;
 struct RenderDrawQueue;

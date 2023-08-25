@@ -677,16 +677,10 @@ void NativePipeline::endFrame() {
     // noop
 }
 
-BuiltinReflectionProbePassBuilder *NativePipeline::addBuiltinReflectionProbePass(
+void NativePipeline::addBuiltinReflectionProbePass(
     uint32_t width, uint32_t height) {
     std::ignore = width;
     std::ignore = height;
-    const auto &layoutGraph = programLibrary->layoutGraph;
-
-    auto *builder = ccnew NativeBuiltinReflectionProbePassBuilder(
-        this, &renderGraph, RenderGraph::null_vertex(), &layoutGraph, LayoutGraph::null_vertex());
-
-    return builder;
 }
 
 RenderPassBuilder *NativePipeline::addRenderPass(
