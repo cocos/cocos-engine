@@ -36,6 +36,7 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Light.h"
+#include "cocos/scene/ReflectionProbe.h"
 
 namespace cc {
 
@@ -211,15 +212,18 @@ enum class ClearValueType {
 
 struct LightInfo {
     LightInfo() = default;
-    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn) noexcept
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn, IntrusivePtr<scene::ReflectionProbe> probeIn) noexcept
     : light(std::move(lightIn)),
       level(levelIn),
-      culledByLight(culledByLightIn) {}
+      culledByLight(culledByLightIn),
+      probe(std::move(probeIn))  
+    {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
     : light(std::move(lightIn)),
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
+    IntrusivePtr<scene::ReflectionProbe> probe;
     uint32_t level{0};
     bool culledByLight{false};
 };

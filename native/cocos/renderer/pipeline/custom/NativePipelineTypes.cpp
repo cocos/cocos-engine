@@ -224,6 +224,67 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, c
   renderQueues(rhs.renderQueues, alloc),
   renderCommands(rhs.renderCommands, alloc) {}
 
+void ProbeHelperQueue::removeMacro()
+{
+    for (auto subModel : probeMap) {
+        std::vector<cc::scene::IMacroPatch> patches;
+        patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
+
+        for (size_t j = 0; j < patches.size(); ++j) {
+            const cc::scene::IMacroPatch& patch = patches[j];
+            if (patch.name == "CC_USE_RGBE_OUTPUT") {
+                patches.erase(patches.begin() + j);
+                break;
+            }
+        }
+
+        subModel->onMacroPatchesStateChanged(patches);
+    }
+}
+
+int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId)
+ {
+    const auto& passes = subModel->getPasses();
+    for (size_t k = 0; k < passes->size(); ++k) {
+        if (passes->at(k)->getPhaseID() == phaseLayoutId) {
+            return static_cast<int>(k);
+        }
+    }
+    return -1;
+}
+
+void ProbeHelperQueue::applyMacro(const LayoutGraphData & lg, const cc::scene::Model & model, int probeLayoutId)
+{
+        const std::vector<cc::IntrusivePtr<cc::scene::SubModel>>& subModels = model.getSubModels();
+        for (size_t j = 0; j < subModels.size(); ++j) {
+            const cc::IntrusivePtr<cc::scene::SubModel>& subModel = subModels[j];
+
+            const bool isTransparent = subModel->getPasses()->at(0)->getBlendState()->targets[0].blend;
+            if (isTransparent) {
+                continue;
+            }
+
+            int passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+            bool bUseReflectPass = true;
+            if (passIdx < 0) {
+                probeLayoutId = getDefaultId(lg);
+                passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+                bUseReflectPass = false;
+            }
+            if (passIdx < 0) {
+                continue;
+            }
+            if (!bUseReflectPass) {
+                std::vector<cc::scene::IMacroPatch> patches;
+                patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
+                const cc::scene::IMacroPatch useRGBEPatch = {"CC_USE_RGBE_OUTPUT", true};
+                patches.push_back(useRGBEPatch);
+                subModel->onMacroPatchesStateChanged(patches);
+                probeMap.push_back(subModel);
+            }
+        }
+    }
+
 } // namespace render
 
 } // namespace cc
