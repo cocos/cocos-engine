@@ -179,6 +179,7 @@ if(APPLE)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
             COMMAND ${CMAKE_COMMAND} -E copy ${gles2_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
+            COMMAND ${CMAKE_COMMAND} -E copy ${egl_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
             COMMAND ${CMAKE_COMMAND} -E copy ${sdl_loc} $<TARGET_FILE_DIR:${LIB_NAME}>/../Frameworks
         )
     endif()
