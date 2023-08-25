@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing, Color } from '../core';
+import { warnID, warn, easing, Color, log, Vec2, Vec3, Vec4, Size, Quat, Rect } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '../core/global-exports';
@@ -134,7 +134,6 @@ export class TweenAction extends ActionInterval {
                 value = value();
             }
             if (value == null || typeof value === 'string') continue;
-            const isColor = value instanceof Color;
             // property may have custom easing or progress function
             let customEasing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
@@ -151,7 +150,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
-            prop.isColor = isColor;
+            prop.type = new Map<string, boolean>();
             prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
@@ -195,8 +194,52 @@ export class TweenAction extends ActionInterval {
                 } else {
                     prop.end.set(value);
                 }
-            } else if (typeof _t === 'object') {
+                prop.type.set('color', true);
+            } else if (_t instanceof Rect) {
                 if (prop.start == null) {
+                    prop.start = new Rect(); prop.current = new Rect(); prop.end = new Rect();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    prop.end.xMin = _t.xMin + value.xMin;
+                    prop.end.yMin = _t.yMin + value.yMin;
+                    prop.end.z = _t.z + value.z;
+                    prop.end.w = _t.w + value.w;
+                } else {
+                    prop.end.xMin = value.xMin;
+                    prop.end.yMin = value.yMin;
+                    prop.end.z = value.z;
+                    prop.end.w = value.w;
+                }
+                prop.type.set('rect', true);
+            } else if (typeof _t === 'object') {
+                if (_t instanceof Vec2) {
+                    if (prop.start == null) {
+                        prop.start = new Vec2(); prop.current = new Vec2(); prop.end = new Vec2();
+                    }
+                    prop.type.set('vec2', true);
+                } else if (_t instanceof Vec3) {
+                    if (prop.start == null) {
+                        prop.start = new Vec3(); prop.current = new Vec3(); prop.end = new Vec3();
+                    }
+                    prop.type.set('vec3', true);
+                } else if (_t instanceof Vec4) {
+                    if (prop.start == null) {
+                        prop.start = new Vec4(); prop.current = new Vec4(); prop.end = new Vec4();
+                    }
+                    prop.type.set('vec4', true);
+                } else if (_t instanceof Size) {
+                    if (prop.start == null) {
+                        prop.start = new Size(); prop.current = new Size(); prop.end = new Size();
+                    }
+                    prop.type.set('size', true);
+                } else if (_t instanceof Quat) {
+                    if (prop.start == null) {
+                        prop.start = new Quat(); prop.current = new Quat(); prop.end = new Quat();
+                    }
+                    prop.type.set('quat', true);
+                } else if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
@@ -237,11 +280,36 @@ export class TweenAction extends ActionInterval {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 // const value = prop.value;
-                if (prop.isColor) {
+                if (prop.type && prop.type.get('color')) {
                     prop.current.r = interpolation(start.r, end.r, prop.current.r, time);
                     prop.current.g = interpolation(start.g, end.g, prop.current.g, time);
                     prop.current.b = interpolation(start.b, end.b, prop.current.b, time);
                     prop.current.a = interpolation(start.a, end.a, prop.current.a, time);
+                } else if (prop.type && prop.type.get('rect')) {
+                    prop.current.xMin = interpolation(start.xMin, end.xMin, prop.current.xMin, time);
+                    prop.current.yMin = interpolation(start.yMin, end.yMin, prop.current.yMin, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
+                } else if (prop.type && prop.type.get('vec2')) {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                } else if (prop.type && prop.type.get('vec3')) {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                } else if (prop.type && prop.type.get('vec4')) {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
+                } else if (prop.type && prop.type.get('size')) {
+                    prop.current.width = interpolation(start.width, end.width, prop.current.width, time);
+                    prop.current.height = interpolation(start.height, end.height, prop.current.height, time);
+                } else if (prop.type && prop.type.get('quat')) {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
                 } else {
                     for (const k in start) {
                         // if (value[k].easing) {
