@@ -29,15 +29,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci --ignore-scripts
     - run: npx gulp build-debug-infos
-    - run: |
-        "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
-      shell: pwsh
-    - uses: actions/checkout@v3
-      name: Download external
-      with:
-        repository: cocos/cocos-engine-external
-        path: './engine/native/external'
-        ref: "${{ env.EXT_VERSION }}"
-        fetch-depth: 1
+    - name: Download external
+      run: |
+        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
     - run: node ./scripts/compile-native-ts.js 
     #- run: echo "::remove-matcher owner=circular-reference-check::"
