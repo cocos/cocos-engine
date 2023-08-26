@@ -431,15 +431,22 @@ export const toolHelper = {
     async runCommand(cmd: string, args: string[], cb?: (code: number, stdout: string, stderr: string) => void): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const cp = spawn(cmd, args);
+            nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
             const stdErr: Buffer[] = [];
             const stdOut: Buffer[] = [];
             cp.stderr.on('data', (d) => stdErr.push(d));
             cp.stdout.on('data', (d) => stdOut.push(d));
             cp.on('close', (code, signal) => {
+                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
                 if (cb) {
                     cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
                 }
                 resolve(code === 0);
+            });
+            cp.on('exit', (code: number, sig: any) => {
+                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                console.log(`exit command with code ${code} and signal ${sig}`);
+                resolve(true);
             });
         });
     },
@@ -481,16 +488,17 @@ export const toolHelper = {
                 }
             });
             cp.on('close', (code: number, sig: any) => {
+                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
                 if (code !== 0) {
                     reject(new Error(`run cmake failed "cmake ${args.join(' ')}", code: ${code}, signal: ${sig}`));
                     return;
                 }
                 resolve();
             });
-            // TODO: 
             cp.on('exit', (code: number, sig: any) => {
                 nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
                 console.log(`exit cmake with code ${code} and signal ${sig}`);
+                resolve();
             });
         });
     },
@@ -514,6 +522,7 @@ export const toolHelper = {
                     env: newEnv,
                     shell: true,
                 });
+                nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
                 cp.stdout.on('data', (data: any) => {
                     console.log(`[xcodebuild] ${iconv.decode(data, 'gbk').toString()}`);
                 });
@@ -521,10 +530,16 @@ export const toolHelper = {
                     console.error(`[xcodebuild] ${iconv.decode(data, 'gbk').toString()}`);
                 });
                 cp.on('close', (code: number, sig: any) => {
+                    nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
                     if (code !== 0) {
                         reject(new Error(`run xcodebuild failed "xcodebuild ${args.join(' ')}", code: ${code}, signal: ${sig}`));
                         return;
                     }
+                    resolve();
+                });
+                cp.on('exit', (code: number, sig: any) => {
+                    nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                    console.log(`exit xcodebuild with code ${code} and signal ${sig}`);
                     resolve();
                 });
             }

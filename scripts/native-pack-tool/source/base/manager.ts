@@ -58,7 +58,6 @@ export class NativePackToolManager {
             return false;
         }
         await tool.make();
-        // TODO: 是否需要监听中断，才能结束这个 await
         return true;
     }
 
