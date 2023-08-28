@@ -57,7 +57,7 @@ TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::str
         _skeleton->setToSetupPose();
         return nullptr;
     }
-    auto *trackEntry = _animState->setAnimation(0, animation, loop);
+    auto *trackEntry = _animState->setAnimation(trackIndex, animation, loop);
     _animState->apply(*_skeleton);
     _skeleton->updateWorldTransform();
     return trackEntry;

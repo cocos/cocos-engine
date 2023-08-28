@@ -1,7 +1,7 @@
 import { Vec4 } from '../../../core';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, ShadowType } from '../../../render-scene/scene';
 import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
@@ -76,7 +76,8 @@ export class ForwardPass extends BasePass {
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
                 | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
             );
-        if (camera.scene?.mainLight) {
+        const shadowInfo = ppl.pipelineSceneData.shadows;
+        if (camera.scene?.mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.Planar) {
             pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
                 .addSceneOfCamera(
                     camera,

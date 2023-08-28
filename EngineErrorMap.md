@@ -3343,6 +3343,18 @@ Can not update a static mesh.
 
 The primitiveIndex is out of range.
 
+### 14202
+
+meshopt asm decoder initialized
+
+### 14203
+
+meshopt wasm decoder initialized
+
+### 14204
+
+meshopt decoder error: %d
+
 ### 14300
 
 Can not keep world transform due to the zero scaling of parent node
