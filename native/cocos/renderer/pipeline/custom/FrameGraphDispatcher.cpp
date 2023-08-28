@@ -736,7 +736,11 @@ auto getTextureStatus(std::string_view name, AccessType access, gfx::ShaderStage
     }
 
     if (access != AccessType::READ) {
-        texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
+        if (rasterized) {
+            texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
+        } else {
+            texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::STORAGE));
+        }
     }
     accesFlag = gfx::getAccessFlags(texUsage, toGfxAccess(access), vis);
 
@@ -1593,19 +1597,15 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
             resourceAccessGraph.movedSourceStatus.emplace(pair.source, AccessStatus{lastStatusIter->second.accessFlag, srcResourceRange});
             resourceAccessGraph.movedTarget[pair.target].emplace(pair.source, getSubresourceNameByRange(srcResourceRange, resourceAccessGraph.resource()));
 
-            auto &srcAccess = resourceAccessGraph.resourceAccess.at(pair.source);
-            auto &targetAccess = resourceAccessGraph.resourceAccess[pair.target];
-
-            if (!targetAccess.empty()) {
-                // second move
-                srcAccess.emplace(targetAccess.rbegin()->first, AccessStatus{targetAccess.rbegin()->second.accessFlag, srcResourceRange});
-            }
-
-            if (resourceAccessGraph.movedTarget.find(pair.target) != resourceAccessGraph.movedTarget.end()) {
-                srcAccess.erase(0);
-            }
-
             auto targetResID = findVertex(pair.target, resourceGraph);
+            auto &srcAccess = resourceAccessGraph.resourceAccess.at(pair.source);
+            auto targetAccessIter = resourceAccessGraph.resourceAccess.find(pair.target);
+
+            if (targetAccessIter != resourceAccessGraph.resourceAccess.end() && !targetAccessIter->second.empty()) {
+                auto lastAccessIter = targetAccessIter->second.rbegin();
+                srcAccess.emplace(lastAccessIter->first, AccessStatus{lastAccessIter->second.accessFlag, srcResourceRange});
+            }
+
             resourceAccessGraph.resourceIndex[pair.target] = targetResID;
 
             auto &rag = resourceAccessGraph;
