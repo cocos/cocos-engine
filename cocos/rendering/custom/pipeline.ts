@@ -569,10 +569,6 @@ export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilde
         stencilMode?: ResolveMode): void;
 }
 
-export interface BuiltinReflectionProbePassBuilder extends Setter {
-    addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
-}
-
 /**
  * @en BasicPipeline
  * Basic pipeline provides basic rendering features which are supported on all platforms.
@@ -814,7 +810,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
-    addBuiltinReflectionProbePass (width: number, height: number): BuiltinReflectionProbePassBuilder;
+    addBuiltinReflectionProbePass (width: number, height: number): void;
     /**
      * @engineInternal
      */

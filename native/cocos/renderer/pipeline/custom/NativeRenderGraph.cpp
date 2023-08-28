@@ -1312,13 +1312,6 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &pha
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
-RenderQueueBuilder* NativeBuiltinReflectionProbePassBuilder::addQueue(
-    QueueHint hint, const ccstd::string &phaseName) {
-    std::ignore = hint;
-    std::ignore = phaseName;
-    return nullptr;
-}
-
 } // namespace render
 
 } // namespace cc
