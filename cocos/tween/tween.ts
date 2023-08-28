@@ -74,6 +74,10 @@ export class Tween<T> {
     }
 
     set timeScale (value: number) {
+        if (value < 0) {
+            warn('The `timeScale` cannot be less than 0.');
+            value = 1;
+        }
         this._timeScale = value;
         if (this._finalAction) {
             (this._finalAction as ActionInterval).timeScale = value;
