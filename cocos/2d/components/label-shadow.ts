@@ -137,4 +137,14 @@ export class LabelShadow extends Component {
             label.shadowUsed = false;
         }
     }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     */
+    public onLoad (): void {
+        const label = this.node.getComponent(Label);
+        if (label && this.enabledInHierarchy) {
+            label.shadowUsed = true;
+        }
+    }
 }
