@@ -297,15 +297,28 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
 
-    auto resID = addVertex(
-        ManagedTextureTag{},
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(desc),
-        std::forward_as_tuple(ResourceTraits{residency}),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(samplerInfo),
-        std::forward_as_tuple(),
-        resourceGraph);
+    ResourceGraph::vertex_descriptor resID = ResourceGraph::null_vertex();
+    if (residency == ResourceResidency::PERSISTENT) {
+        resID = addVertex(
+            PersistentTextureTag{},
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple(desc),
+            std::forward_as_tuple(ResourceTraits{residency}),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(samplerInfo),
+            std::forward_as_tuple(),
+            resourceGraph);
+    } else {
+        resID = addVertex(
+            ManagedTextureTag{},
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple(desc),
+            std::forward_as_tuple(ResourceTraits{residency}),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(samplerInfo),
+            std::forward_as_tuple(),
+            resourceGraph);
+    }
 
     addSubresourceNode<gfx::Format::DEPTH_STENCIL>(resID, name, resourceGraph);
     return resID;
@@ -886,7 +899,7 @@ constexpr uint32_t getMipLevels(uint32_t width, uint32_t height) noexcept {
     return result;
 }
 
-void setupGpuDrivenResources(
+bool setupGpuDrivenResources(
     NativePipeline &ppl, const scene::Camera *camera, scene::GPUScene *gpuScene,
     uint32_t sceneID, uint32_t cullingID, ResourceGraph &resg, const std::string &hzbName) {
     ccstd::pmr::string name(resg.get_allocator());
@@ -1021,6 +1034,7 @@ void setupGpuDrivenResources(
         }
     }
 
+    bool firstMeet = false;
     if (!hzbName.empty()) {
         name = hzbName;
         name.append(std::to_string(cullingID));
@@ -1031,12 +1045,14 @@ void setupGpuDrivenResources(
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
             ppl.addResource(std::string(name), ResourceDimension::TEXTURE2D, gfx::Format::R32F, width, height, 1, 1,
-                            mipLevels, gfx::SampleCount::X1, ResourceFlags::SAMPLED | ResourceFlags::STORAGE, ResourceResidency::PERSISTENT);
+                            mipLevels, gfx::SampleCount::X1, ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::SAMPLED | ResourceFlags::STORAGE, ResourceResidency::PERSISTENT);
+            firstMeet = true;
         } else {
             CC_EXPECTS(holds<PersistentTextureTag>(resID, resg));
             ppl.updateResource(std::string(name), gfx::Format::R32F, width, height, 1, 1, mipLevels, gfx::SampleCount::X1);
         }
     }
+    return firstMeet;
 }
 
 } // namespace
@@ -1062,7 +1078,7 @@ bool projectSpherePerspective(Vec3 c, float r, float znear, Mat4 proj) {
     return true;
 }
 
-void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID, 
+void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
@@ -1083,7 +1099,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     }
 
     const uint32_t sceneID = iter->second;
-    setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
+    bool firstPass = setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
 
     if (light) {
         // build light culling pass
@@ -1096,6 +1112,18 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
     const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
     const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
+
+    // first pass hzb clear
+    {
+        if (firstPass) {
+            const auto width = utils::previousPOT(camera->getWidth());
+            const auto height = utils::previousPOT(camera->getHeight());
+            std::unique_ptr<RenderPassBuilder> clearPass(addRenderPass(width, height, "default"));
+            clearPass->addRenderTarget(hzbName + std::to_string(cullingID), gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, gfx::Color{1.0, 0.0, 0.0, 0.0});
+            std::unique_ptr<RenderQueueBuilder> clearQueue(clearPass->addQueue());
+            clearQueue->addScene(camera, SceneFlags::OPAQUE);
+        }
+    }
 
     // init indirect buffers
     {
