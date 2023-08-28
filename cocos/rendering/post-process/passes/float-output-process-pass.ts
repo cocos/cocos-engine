@@ -24,7 +24,7 @@
 
 import { Vec4, cclegacy } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, FOG_TYPE_NONE } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -33,9 +33,9 @@ import { SettingPass } from './setting-pass';
 import { Root } from '../../../root';
 
 export class FloatOutputProcessPass extends SettingPass {
-    name = 'FloatOutputProcessesPass';
-    effectName = 'pipeline/float-output-processes';
-    outputNames = ['FloatOutputProcesses'];
+    name = 'FloatOutputProcessPass';
+    effectName = 'pipeline/float-output-process';
+    outputNames = ['FloatOutputProcess'];
 
     enableInAllEditorCamera = true;
     enable = true;
@@ -44,23 +44,53 @@ export class FloatOutputProcessPass extends SettingPass {
         return ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     }
 
+    onGlobalPipelineStateChanged (): void {
+        passContext.material = this.material;
+        const passes = passContext.material.passes;
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
+    }
+    needDepthInput (ppl: Pipeline): boolean {
+        return ppl.pipelineSceneData.fog.type !== FOG_TYPE_NONE;
+    }
+
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
         passContext.material = this.material;
 
-        const input = this.lastPass!.slotName(camera, 0);
+        let copyDS = '';
+        let passIndx = 0;
         const inputDS = passContext.depthSlotName;
+        if (this.needDepthInput(ppl)) {
+            copyDS = 'floatOutputProcessCopyDS';
+            // ==== Copy input DS ===
+            const copyInputDSPassLayoutName = 'copy-pass';
+            const copyInputDSPass = `floatOutputProcessCopyDS-pass${cameraID}`;
+            passContext.updatePassViewPort()
+                .addRenderPass(copyInputDSPassLayoutName, copyInputDSPass)
+                .setClearFlag(ClearFlagBit.COLOR)
+                .setClearColor(1.0, 0, 0, 0)
+                .setPassInput(inputDS, 'depthRaw')
+                .addRasterView(copyDS, Format.RGBA8)
+                .blitScreen(passIndx)
+                .version();
+        }
+
+        passIndx = 1;
+        const input = this.lastPass!.slotName(camera, 0);
         const output = this.slotName(camera, 0);
         const layoutName = 'tone-mapping';
         const passName = `tone-mapping${cameraID}`;
-        const passIndx = 0;
-
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
         passContext.updatePassViewPort()
             .addRenderPass(layoutName, passName)
             .setPassInput(input, 'u_texSampler')
-            .setPassInput(inputDS, 'DepthTex')
+            .setPassInput(copyDS, 'DepthTex')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(passIndx)
             .version();

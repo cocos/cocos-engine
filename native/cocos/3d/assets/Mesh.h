@@ -196,6 +196,12 @@ public:
          * @zh 动态网格特有数据
          */
         ccstd::optional<IDynamicStruct> dynamic;
+
+        ccstd::optional<bool> encoded;
+
+        ccstd::optional<bool> compressed;
+
+        ccstd::optional<bool> quantized;
     };
 
     struct ICreateInfo {

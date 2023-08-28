@@ -105,7 +105,7 @@ interface ISpriteFrameOriginal {
  * @en Information object interface for initialize a [[SpriteFrame]] asset.
  * @zh 用于初始化 [[SpriteFrame]] 资源的对象接口描述。
  */
-interface ISpriteFrameInitInfo {
+export interface ISpriteFrameInitInfo {
     /**
      * @en The texture of the sprite frame, could be `TextureBase`.
      * @zh 贴图对象资源，可以是 `TextureBase` 类型。

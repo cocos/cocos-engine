@@ -275,6 +275,7 @@ export enum EConstraintType {
      * Cone twist constraint.
      * @zh
      * 锥形扭转约束。
+     * @deprecated coneTwist is deprecated, please use configurable instead
      */
     CONE_TWIST,
     /**

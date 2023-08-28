@@ -143,9 +143,12 @@ void main()  {
   // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
   #if CC_USE_FOG != CC_FOG_NONE && (!CC_USE_FLOAT_OUTPUT || CC_IS_TRANSPARENCY_PASS)
     #if !CC_FORWARD_ADD
-      CC_APPLY_FOG_BASE(color, fogFactor);
+      #ifdef CC_SURFACES_LIGHTING_MODIFY_FOG
+        color.rgb = CCSurfacesLightingModifyFog(fogFactor, color.rgb, surfaceData, lightingResult);
+      #else
+        CC_APPLY_FOG_BASE(color, fogFactor);
+      #endif
     #endif
   #endif
-
   fragColorX = color;
 }
