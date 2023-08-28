@@ -116,7 +116,6 @@ CCProgram prefilter-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate outputResultMap pass
@@ -129,12 +128,12 @@ CCProgram prefilter-fs %{
   }
 
   void main() {
-    vec3 color = texture(outputResultMap, v_uv).xyz;
+    vec4 color = texture(outputResultMap, v_uv);
 
-    float contribute = step(texSize.z, luminance(SRGBToLinear(color));
-    contribute *= mix(1.0, step(0.995, color.a), enableAlphaMask);
+    float contribute = step(texSize.z, luminance(SRGBToLinear(color.xyz)));
+    contribute *= mix(1.0, step(0.995, color.a), texSize.w);
 
-    fragColor = vec4(color * contribute, 1.0);
+    fragColor = vec4(color.xyz * contribute, 1.0);
   }
 }%
 
@@ -145,7 +144,6 @@ CCProgram downsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate bloomTexture pass
@@ -189,7 +187,6 @@ CCProgram upsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate bloomTexture pass
@@ -233,7 +230,6 @@ CCProgram combine-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump float enableAlphaMask;
     mediump vec4 texSize;
   };
   #pragma rate outputResultMap pass
