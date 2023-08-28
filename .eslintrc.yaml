@@ -50,7 +50,6 @@ rules:
     camelcase: off # underscores may come in handy in some cases
     eqeqeq: warn # important check missing from recommended
     keyword-spacing: warn # we require this explicitly
-    no-multi-spaces: off # useful for manually align some expression across lines
     prefer-rest-params: off # we need ES5 to be fast too
     prefer-spread: off # we need ES5 to be fast too
     space-before-function-paren: [warn, always] # we require this explicitly
@@ -82,8 +81,7 @@ rules:
 
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
-    max-len: [warn, 150] # more lenient on max length per line
-    no-console: error # prefer the uniform logging methods
+
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
@@ -112,7 +110,6 @@ rules:
         'ts-nocheck': true,
         'ts-check': false,
     }]
-    '@typescript-eslint/no-unused-expressions': warn
 
     # TODO: this is just too much work
     '@typescript-eslint/explicit-module-boundary-types': off
@@ -127,15 +124,6 @@ rules:
 
     '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
     '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
-
-    '@typescript-eslint/no-empty-function': [error, {
-      allow: [
-        private-constructors,
-        protected-constructors,
-        decoratedFunctions,
-        overrideMethods,
-      ]
-    }]
 
     '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
     '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
@@ -163,3 +151,34 @@ rules:
     '@typescript-eslint/explicit-function-return-type': [error, {
       allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
     }]
+
+    max-len: [warn, 250] # more lenient on max length per line
+    no-console: warn # prefer the uniform logging methods
+    '@typescript-eslint/no-unused-expressions': off
+    '@typescript-eslint/no-empty-function': off
+    no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
+
+    comma-dangle: ['error', {
+        "arrays": "only-multiline",
+        "objects": "only-multiline",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+    }]
+    function-paren-newline: off
+    space-infix-ops: warn
+    key-spacing: [warn, {
+        'singleLine':{
+            'beforeColon': false,
+            'afterColon': true
+        },
+        'multiLine' :{
+            'beforeColon': true,
+            'afterColon': true,
+            'align': 'colon'
+        }
+    }]
+    no-multiple-empty-lines: [warn, {'max': 2, 'maxEOF': 1}]
+    '@typescript-eslint/no-unsafe-argument': off
+    '@typescript-eslint/no-unsafe-enum-comparison': off
+    '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
