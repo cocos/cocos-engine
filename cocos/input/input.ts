@@ -25,10 +25,10 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandheldInputDevice } from 'pal/input';
+import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice, HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { sys, EventTarget, error } from '../core';
-import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { EventTarget, error, sys } from '../core';
+import { Event, EventAcceleration, EventGamepad, EventHMD, EventHandheld, EventHandle, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
 export enum EventDispatcherPriority {
@@ -63,9 +63,9 @@ class InputEventDispatcher implements IEventDispatcher {
 }
 
 const pointerEventTypeMap: Record<string, string> = {
-    [InputEventType.MOUSE_DOWN]: InputEventType.TOUCH_START,
-    [InputEventType.MOUSE_MOVE]: InputEventType.TOUCH_MOVE,
-    [InputEventType.MOUSE_UP]: InputEventType.TOUCH_END,
+    [InputEventType.MOUSE_DOWN] : InputEventType.TOUCH_START,
+    [InputEventType.MOUSE_MOVE] : InputEventType.TOUCH_MOVE,
+    [InputEventType.MOUSE_UP]   : InputEventType.TOUCH_END,
 };
 
 export declare namespace Input {
@@ -229,6 +229,41 @@ export class Input {
         }
         this._eventTarget.off(eventType, callback, target);
     }
+
+    /**
+     * @en
+     * Get touch object by touch ID.
+     * @zh
+     * 通过 touch ID 获取 touch对象
+     * @param touchID
+     * @returns
+     */
+    public getTouch (touchID: number, x: number, y: number): Touch | undefined {
+        return touchManager.getTouch(touchID, x, y);
+    }
+
+    /**
+     * @en
+     * Get all the current touches objects.
+     * @zh
+     * 获取当前所有的 touch对象.
+     * @returns
+     */
+    public getAllTouches (): Touch[] {
+        return touchManager.getAllTouches();
+    }
+
+    /**
+     * @en
+     * Get the number of touches.
+     * @zh
+     * 获取当前touch对象的数量.
+     * @returns
+     */
+    public getTouchCount (): number {
+        return touchManager.getTouchCount();
+    }
+
     /**
      * @en
      * Sets whether to enable the accelerometer event listener or not.
