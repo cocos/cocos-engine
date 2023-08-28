@@ -221,7 +221,6 @@ export class ReflectionProbe extends Component {
      */
     @type(Layers.BitMask)
     @tooltip('i18n:camera.visibility')
-    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     get visibility (): number {
         return this._visibility;
     }

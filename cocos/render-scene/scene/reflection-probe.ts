@@ -412,7 +412,6 @@ export class ReflectionProbe {
         this.camera.nearClip = camera.nearClip;
         this.camera.farClip = camera.farClip;
         this.camera.fov = camera.fov;
-        this.camera.visibility = camera.visibility;
         this.camera.clearFlag = camera.clearFlag;
         this.camera.clearColor = camera.clearColor;
         this.camera.priority = camera.priority - 1;

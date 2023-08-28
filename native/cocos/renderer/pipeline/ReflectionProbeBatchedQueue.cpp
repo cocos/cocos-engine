@@ -41,7 +41,6 @@
 #include "scene/Skybox.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = static_cast<uint32_t>(LayerList::UI_2D) & static_cast<uint32_t>(LayerList::PROFILER) & static_cast<uint32_t>(LayerList::GIZMOS) & static_cast<uint32_t>(LayerList::SCENE_GIZMO) & static_cast<uint32_t>(LayerList::EDITOR);
 const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
 const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
@@ -81,11 +80,8 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
         }
         if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
 
-        uint32_t visibility = probe->getCamera()->getVisibility();
+        uint32_t visibility = probe->getVisibility();
         if (((visibility & node->getLayer()) != node->getLayer()) && (!(visibility & static_cast<uint32_t>(model->getVisFlags())))) {
-            continue;
-        }
-        if (((REFLECTION_PROBE_DEFAULT_MASK & node->getLayer()) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
             continue;
         }
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {

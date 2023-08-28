@@ -34,11 +34,6 @@ import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { PipelineRuntime } from './custom/pipeline';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { cclegacy, geometry } from '../core';
-import { Layers } from '../scene-graph/layers';
-
-// eslint-disable-next-line max-len
-const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskInclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 let _phaseID = getPhaseID('default');
@@ -96,7 +91,7 @@ export class RenderReflectionProbeQueue {
         }
 
         const models = scene.models;
-        const visibility = probe.camera.visibility;
+        const visibility = probe.visibility;
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -104,9 +99,6 @@ export class RenderReflectionProbeQueue {
                 continue;
             }
             if (((visibility & model.node.layer) !== model.node.layer) && (!(visibility & model.visFlags))) {
-                continue;
-            }
-            if (((REFLECTION_PROBE_DEFAULT_MASK & model.node.layer) === model.node.layer) || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
                 continue;
             }
             if (model.enabled && model.worldBounds && model.bakeToReflectionProbe) {

@@ -101,7 +101,6 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setNearClip(camera->getNearClip());
     _camera->setFarClip(camera->getFarClip());
     _camera->setFov(camera->getFov());
-    _camera->setVisibility(camera->getVisibility());
     _camera->setClearFlag(camera->getClearFlag());
     _camera->setClearColor(camera->getClearColor());
     _camera->setPriority(camera->getPriority() - 1);
