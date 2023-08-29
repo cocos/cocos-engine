@@ -1,0 +1,162 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+
+  techniques:
+  - passes:
+    - vert: dof-vs
+      frag: dof-coc-fs
+      pass: dof-coc
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-prefilter-fs
+      pass: dof-prefilter
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-blur-fs
+      pass: dof-blur
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-combine-fs
+      pass: dof-combine
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram ubo %{
+    #include <common/common-define>
+    uniform ColorGradingUBO {
+        vec4 cocParams;
+        vec4 texSize;
+    };
+
+    #pragma rate colorTex pass
+    uniform sampler2D colorTex;
+
+    #pragma rate depthTex pass
+    uniform sampler2D depthTex;
+
+    #pragma rate cocTex pass
+    uniform sampler2D cocTex;
+
+    #pragma rate prefilterTex pass
+    uniform sampler2D prefilterTex;
+
+    #pragma rate blurTex pass
+    uniform sampler2D blurTex;
+
+    
+    
+    #define farStart        cocParams.x
+    #define farEnd          cocParams.y
+    #define maxRadius       cocParams.z
+
+    const float _Spread = 1.0;
+    const int _GridSize = 3;
+
+    float gaussian(int x)
+    {
+      float sigmaSqu = _Spread * _Spread;
+      return (1.0 / sqrt(PI2 * sigmaSqu)) * pow(EXP_VALUE, float(-(x * x) / (2 * int(sigmaSqu))));
+    }
+}%
+
+
+CCProgram dof-vs %{
+  #include <./chunks/vs>
+}%
+
+CCProgram dof-coc-fs %{
+  precision highp float;
+  #include <ubo>
+  #include <common/data/packing>
+  #include <common/common-define>
+
+
+
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float depth = unpackRGBAToDepth(texture(depthTex, v_uv)) * 2.0 - 1.0;
+    float coc = (depth - farStart) / (farEnd - farStart);
+    fragColor = vec4(saturate(coc));
+  }
+
+}%
+
+CCProgram dof-prefilter-fs %{
+  precision highp float;
+  #include <ubo>
+  #include <common/common-define>
+ 
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float farCoC = texture(cocTex, v_uv).r;
+
+    vec4 color = texture(colorTex, v_uv);
+    fragColor = color * farCoC;
+  }
+
+}%
+
+CCProgram dof-blur-fs %{
+  precision highp float;
+  #include <ubo>
+ 
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+
+    
+    // GAUSSIAN BLUR SETTINGS {{{
+    const float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
+    const float Quality = 3.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
+    float Size = 8.0; // BLUR SIZE (Radius)
+    // GAUSSIAN BLUR SETTINGS }}}
+   
+    vec2 Radius = Size/texSize.xy;
+    
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = v_uv;
+    // Pixel colour
+    vec4 Color = texture(colorTex, uv);
+    
+    // Blur calculations
+    for( float d = 0.0; d < PI2; d += PI2 / Directions)
+    {
+        for(float i = 1.0 / Quality; i <= 1.0; i += 1.0 / Quality)
+        {
+          Color += texture(colorTex, uv + vec2(cos(d), sin(d)) * Radius * i);		
+        }
+    }
+    
+    // Output to screen
+    Color /= Quality * Directions - 15.0;
+    fragColor =  Color;
+  }
+
+}%
+
+CCProgram dof-combine-fs %{
+  precision highp float;
+  #include <ubo>
+  #include <common/data/packing>
+  #include <common/common-define>
+
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    fragColor = texture(blurTex, v_uv);
+  }
+}%
