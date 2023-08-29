@@ -236,7 +236,7 @@ export class Input {
      * @zh
      * 通过 touch ID 获取 touch对象。
      * @param touchID
-     * @param toucclonehID
+     * @param clone - Whether to clone touch object
      * @returns
      */
     public getTouch (touchID: number, clone?: boolean): Touch | undefined {
@@ -249,6 +249,7 @@ export class Input {
      * Get all the current touches objects as array.
      * @zh
      * 获取当前 所有touch对象 的数组。
+     * @param clone - Whether to clone touch object
      */
     public getAllTouches (clone?: boolean): Touch[] {
         return touchManager.getAllTouches(clone);
