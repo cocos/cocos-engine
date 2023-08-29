@@ -1397,7 +1397,7 @@ public:
     void endFrame() override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
-    void addBuiltinReflectionProbePass(uint32_t width, uint32_t height) override;
+    void addBuiltinReflectionProbePass(uint32_t width, uint32_t height, const scene::Camera *camera) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
