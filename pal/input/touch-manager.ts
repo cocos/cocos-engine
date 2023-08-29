@@ -33,7 +33,7 @@ class TouchManager {
     /**
      * A map from touch ID to touch object.
      */
-    private _touchMap: Map<number, Touch>;
+    public _touchMap: Map<number, Touch>;
     private readonly _maxTouches = 8;
 
     constructor () {
@@ -123,13 +123,6 @@ class TouchManager {
             }
         });
         return touches;
-    }
-
-    /**
-     * Get the number of touches.
-     */
-    public getTouchCount (): number {
-        return this._touchMap.size;
     }
 
     /**
