@@ -80,7 +80,7 @@ class TouchManager {
         const touch = new Touch(x, y, touchID);
         this._touchMap.set(touchID, touch);
         this._updateTouch(touch, x, y);
-        return this._cloneTouch(touch);
+        return touch;
     }
 
     /**
