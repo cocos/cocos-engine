@@ -133,7 +133,8 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._state = AudioState.INTERRUPTED;
                 this._readyToHandleOnShow = true;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('_onInterruptedBegin error', e); });
         }
     }
     private _onInterruptedEnd (): void {
@@ -145,7 +146,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('_onInterruptedEnd error', e); });
         }
         this._readyToHandleOnShow = false;
     }
@@ -153,7 +155,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 resolve(new AudioPlayerWeb(audioBuffer, url));
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('load error', url, e); });
         });
     }
     static loadNative (url: string): Promise<AudioBuffer> {
@@ -175,7 +178,8 @@ export class AudioPlayerWeb implements OperationQueueable {
                 audioContext!.decodeAudioData(arrayBuffer).then((decodedAudioBuffer) => {
                     audioBufferManager.addCache(url, decodedAudioBuffer);
                     resolve(decodedAudioBuffer);
-                }).catch((e) => {});
+                // eslint-disable-next-line no-console
+                }).catch((e) => { console.warn('loadNative error', url, e); });
             });
         });
     }
@@ -185,6 +189,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
                 const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(oneShotAudio);
             }).catch(reject);
         });
@@ -238,7 +243,8 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
-                this._doPlay().then(resolve).catch((e) => {});
+                // eslint-disable-next-line no-console
+                this._doPlay().then(resolve).catch((e) => { console.warn('seek error', e); });
             } else {
                 resolve();
             }

@@ -76,9 +76,11 @@ export class AudioContextAgent {
                 resolve(audioBuffer);
             }, (err) => {
                 // TODO: need to reject the error.
+                // eslint-disable-next-line no-console
                 console.error('failed to load Web Audio', err);
             });
-            promise?.catch((e) => {});  // Safari doesn't support the promise based decodeAudioData
+            // eslint-disable-next-line no-console
+            promise?.catch((e) => { console.warn('decodeAudioData error', e); });  // Safari doesn't support the promise based decodeAudioData
         });
     }
 
@@ -93,7 +95,8 @@ export class AudioContextAgent {
                 resolve();
                 return;
             }
-            context.resume().catch((e) => {});
+            // eslint-disable-next-line no-console
+            context.resume().catch((e) => { console.warn('runContext error', e); });
             if (context.state === 'running') {
                 resolve();
                 return;
@@ -106,7 +109,8 @@ export class AudioContextAgent {
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
                     canvas?.removeEventListener('mouseup', onGesture, { capture: true });
                     resolve();
-                }).catch((e) => {});
+                // eslint-disable-next-line no-console
+                }).catch((e) => { console.warn('onGesture resume error', e); });
             };
             canvas?.addEventListener('touchend', onGesture, { capture: true });
             canvas?.addEventListener('mouseup', onGesture, { capture: true });
@@ -199,7 +203,8 @@ export class OneShotAudioWeb {
                 audioBufferManager.tryReleasingCache(this._url);
                 this.onEnd?.();
             }, this._duration * 1000);
-        }).catch((e) => {});
+        // eslint-disable-next-line no-console
+        }).catch((e) => { console.warn('play error', e); });
     }
 
     public stop (): void {
@@ -257,7 +262,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 resolve(new AudioPlayerWeb(audioBuffer, url));
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('load error', url, e); });
         });
     }
     static loadNative (url: string): Promise<AudioBuffer> {
@@ -275,10 +281,12 @@ export class AudioPlayerWeb implements OperationQueueable {
 
             xhr.onload = (): void => {
                 if (xhr.status === 200 || xhr.status === 0) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     audioContextAgent!.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
                         audioBufferManager.addCache(url, decodedAudioBuffer);
                         resolve(decodedAudioBuffer);
-                    }).catch((e) => {});
+                    // eslint-disable-next-line no-console
+                    }).catch((e) => { console.warn('loadNative error', url, e); });
                 } else {
                     reject(new Error(`${errInfo}${xhr.status}(no response)`));
                 }
@@ -295,6 +303,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
                 const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(oneShotAudio);
             }).catch(reject);
         });
@@ -313,14 +322,16 @@ export class AudioPlayerWeb implements OperationQueueable {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('_onInterruptedBegin error', e); });
         }
     }
     private _onInterruptedEnd (): void {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-            }).catch((e) => {});
+            // eslint-disable-next-line no-console
+            }).catch((e) => { console.warn('_onInterruptedEnd error', e); });
         }
     }
 
@@ -371,7 +382,8 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
-                this._doPlay().then(resolve).catch((e) => {});
+                // eslint-disable-next-line no-console
+                this._doPlay().then(resolve).catch((e) => { console.warn('seek error', e); });
             } else {
                 resolve();
             }
@@ -405,7 +417,8 @@ export class AudioPlayerWeb implements OperationQueueable {
                 // - system automatically resume audio context when enter foreground from background.
                 audioContextAgent!.onceRunning(this._runningCallback);
                 // Ensure resume context.
-                audioContextAgent!.runContext().catch((e) => {});
+                // eslint-disable-next-line no-console
+                audioContextAgent!.runContext().catch((e) => { console.warn('doPlay error', e); });
             }
         });
     }
