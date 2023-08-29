@@ -63,9 +63,9 @@ class InputEventDispatcher implements IEventDispatcher {
 }
 
 const pointerEventTypeMap: Record<string, string> = {
-    [InputEventType.MOUSE_DOWN]: InputEventType.TOUCH_START,
-    [InputEventType.MOUSE_MOVE]: InputEventType.TOUCH_MOVE,
-    [InputEventType.MOUSE_UP]: InputEventType.TOUCH_END,
+    [InputEventType.MOUSE_DOWN] : InputEventType.TOUCH_START,
+    [InputEventType.MOUSE_MOVE] : InputEventType.TOUCH_MOVE,
+    [InputEventType.MOUSE_UP]   : InputEventType.TOUCH_END,
 };
 
 export declare namespace Input {
@@ -244,12 +244,12 @@ export class Input {
 
     /**
      * @en
-     * Get all the current touches objects.
+     * Get all the current touches objects as array.
      * @zh
-     * 获取当前所有的 touch 对象。
+     * 获取当前所有的 touch对象 的数组。
      */
     public getAllTouches (): Touch[] {
-        return touchManager.getAllTouches();
+        return touchManager.getAllTouches(false);
     }
 
     /**
