@@ -934,7 +934,7 @@ struct DrawInstance {
 struct ProbeHelperQueue {
     ccstd::pmr::vector<cc::scene::SubModel*> probeMap;
 
-    inline int getDefaultId(const LayoutGraphData &lg) const {
+    inline static int getDefaultId(const LayoutGraphData &lg) {
         return locate(locate(LayoutGraphData::null_vertex(), "default", lg), "default", lg);
     }
 

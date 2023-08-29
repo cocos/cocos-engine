@@ -747,7 +747,7 @@ namespace {
         auto* queueBuilder = passBuilder->addQueue(QueueHint::RENDER_OPAQUE, "reflect-map");
         LightInfo lightInfo{};
         lightInfo.probe = const_cast<scene::ReflectionProbe*>(probe);
-        queueBuilder->addSceneOfCamera(const_cast<scene::Camera*>(probeCamera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
+        queueBuilder->addSceneOfCamera(const_cast<scene::Camera *>(camera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
         updateCameraUBO(*queueBuilder, probeCamera, *pipeline);
     }
 
