@@ -1,5 +1,8 @@
-import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
+import { cclegacy } from '../../../core';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin,
+    serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { CCBoolean, CCFloat, CCInteger } from '../../../core/data/utils/attribute';
+import { Root } from '../../../root';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.Bloom')
@@ -10,6 +13,8 @@ import { PostProcessSetting } from './post-process-setting';
 export class Bloom extends PostProcessSetting {
     @serializable
     protected _enableAlphaMask = false;
+    @serializable
+    protected _useHdrIlluminance: boolean = false;
     @serializable
     protected _threshold = 0.8;
     @serializable
@@ -24,6 +29,16 @@ export class Bloom extends PostProcessSetting {
     }
     get enableAlphaMask (): boolean {
         return this._enableAlphaMask;
+    }
+
+    @tooltip('i18n:bloom.useHdrIlluminance')
+    @visible(() => (cclegacy.director.root as Root).pipeline.getMacroBool('CC_USE_FLOAT_OUTPUT'))
+    @type(CCBoolean)
+    set useHdrIlluminance (value: boolean) {
+        this._useHdrIlluminance = value;
+    }
+    get useHdrIlluminance (): boolean {
+        return this._useHdrIlluminance;
     }
 
     @tooltip('i18n:bloom.threshold')

@@ -79,8 +79,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         // final output
         this.addPass(new FSRPass()); // fsr should be final
-        this.addPass(forwardFinal);
-        // this.addPass(new PostFinalPass());
+        this.addPass(new PostFinalPass());
     }
 
     getPass (passClass: typeof BasePass, pipelineName = 'forward'): BasePass | undefined {
@@ -224,6 +223,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
             taaPass.updateSample();
         }
 
+        const floatOutputPass = passes.find((p): boolean => p instanceof FloatOutputProcessPass) as FloatOutputProcessPass;
+
         let lastPass: BasePass | undefined;
         for (let i = 0; i < passes.length; i++) {
             const pass = passes[i];
@@ -233,6 +234,10 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
             if (i === (passes.length - 1)) {
                 passContext.isFinalPass = true;
+            }
+
+            if (pass.name === 'BloomPass') {
+                (pass as BloomPass).hdrInputName = floatOutputPass.getHDRInputName();
             }
 
             pass.lastPass = lastPass;
