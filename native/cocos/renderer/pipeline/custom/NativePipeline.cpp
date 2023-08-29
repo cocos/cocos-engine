@@ -677,7 +677,9 @@ void NativePipeline::update(const scene::Camera *camera) {
 void NativePipeline::endFrame() {
     // noop
 }
+
 namespace {
+
     gfx::LoadOp getLoadOpOfClearFlag(gfx::ClearFlagBit clearFlag, AttachmentType attachment) {
         gfx::LoadOp loadOp = gfx::LoadOp::CLEAR;
         if (!(clearFlag & gfx::ClearFlagBit::COLOR) && attachment == AttachmentType::RENDER_TARGET) {
@@ -699,7 +701,7 @@ namespace {
     }
     void updateCameraUBO(Setter &setter, const scene::Camera *camera, NativePipeline &ppl) {
         auto sceneData = ppl.pipelineSceneData;
-        auto skybox = sceneData->getSkybox();
+        auto* skybox = sceneData->getSkybox();
         setter.setBuiltinCameraConstants(camera);
 
     }
@@ -709,7 +711,7 @@ namespace {
                                   scene::RenderWindow *renderWindow,
                                   int faceIdx) {
         const std::string cameraName = "Camera" + std::to_string(faceIdx);
-        auto &area = probe->renderArea();
+        const auto &area = probe->renderArea();
         int width = area.x;
         int height = area.y;
         const auto *probeCamera = probe->getCamera();
@@ -748,15 +750,15 @@ namespace {
         queueBuilder->addSceneOfCamera(const_cast<scene::Camera*>(probeCamera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
         updateCameraUBO(*queueBuilder, probeCamera, *pipeline);
     }
-}
+
+} // namespace
 
 void NativePipeline::addBuiltinReflectionProbePass(
     uint32_t width, uint32_t height, const scene::Camera *camera) {
     const auto* reflectProbeManager = scene::ReflectionProbeManager::getInstance();
     if (!reflectProbeManager) return;
     const auto &probes = reflectProbeManager->getAllProbes();
-    for (int i = 0; i < probes.size(); i++) {
-        auto* probe = probes[i];
+    for (auto* probe : probes) {
         if (probe->needRender()) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
                 buildReflectionProbePass(camera, this, probe, probe->getRealtimePlanarTexture()->getWindow(), 0);

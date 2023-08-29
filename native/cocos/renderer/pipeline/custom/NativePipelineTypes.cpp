@@ -226,7 +226,7 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, c
 
 void ProbeHelperQueue::removeMacro() const
 {
-    for (auto subModel : probeMap) {
+    for (auto* subModel : probeMap) {
         std::vector<cc::scene::IMacroPatch> patches;
         patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
 
@@ -242,7 +242,7 @@ void ProbeHelperQueue::removeMacro() const
     }
 }
 
-int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId) const
+int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId)
  {
     const auto& passes = subModel->getPasses();
     for (size_t k = 0; k < passes->size(); ++k) {
@@ -256,9 +256,7 @@ int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::S
 void ProbeHelperQueue::applyMacro(const LayoutGraphData & lg, const cc::scene::Model & model, int probeLayoutId)
 {
         const std::vector<cc::IntrusivePtr<cc::scene::SubModel>>& subModels = model.getSubModels();
-        for (size_t j = 0; j < subModels.size(); ++j) {
-            const cc::IntrusivePtr<cc::scene::SubModel>& subModel = subModels[j];
-
+        for (const auto& subModel : subModels) {
             const bool isTransparent = subModel->getPasses()->at(0)->getBlendState()->targets[0].blend;
             if (isTransparent) {
                 continue;

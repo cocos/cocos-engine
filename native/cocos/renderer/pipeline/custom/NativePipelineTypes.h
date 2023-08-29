@@ -944,7 +944,7 @@ struct ProbeHelperQueue {
 
     void removeMacro() const;
 
-    int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId) const;
+    static int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId);
 
     void applyMacro(const LayoutGraphData &lg, const cc::scene::Model& model, int probeLayoutId);
 };
