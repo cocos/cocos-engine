@@ -415,6 +415,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._stopSourceNode();
         this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
         this._sourceNode.connect(this._gainNode);
+        this._sourceNode.loop = this._loop;
         this._sourceNode.start(0, this._audioTimer.currentTime);
         this._state = AudioState.PLAYING;
         this._audioTimer.start();
@@ -465,6 +466,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     stop (): Promise<void> {
         this.offRunning();
         if (!this._sourceNode) {
+            this._audioTimer.stop();
+            this._state = AudioState.STOPPED;
             return Promise.resolve();
         }
         this._audioTimer.stop();

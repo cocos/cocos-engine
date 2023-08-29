@@ -302,6 +302,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     @enqueueOperation
     stop (): Promise<void> {
         if (!this._sourceNode) {
+            this._audioTimer.stop();
+            this._state = AudioState.STOPPED;
             return Promise.resolve();
         }
         this._audioTimer.stop();
