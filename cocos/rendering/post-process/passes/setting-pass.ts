@@ -5,7 +5,7 @@ import { BasePass } from './base-pass';
 
 export function getSetting<T extends PostProcessSetting> (settingClass: new () => T): T {
     const cls: typeof PostProcessSetting = settingClass as any;
-    let setting = passContext.postProcess && passContext.postProcess.getSetting(cls) as T;
+    const setting = passContext.postProcess && passContext.postProcess.getSetting(cls) as T;
     return setting!;
 }
 
