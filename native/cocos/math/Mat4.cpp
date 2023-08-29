@@ -24,7 +24,6 @@
 
 #include <cmath>
 #include <cstring>
-#include "base/Log.h"
 #include "base/std/container/array.h"
 #include "math/Math.h"
 #include "math/MathUtil.h"
