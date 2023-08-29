@@ -234,12 +234,14 @@ export class Input {
      * @en
      * Get touch object by touch ID.
      * @zh
-     * 通过 touch ID 获取 touch对象
+     * 通过 touch ID 获取 touch对象。
      * @param touchID
+     * @param toucclonehID
      * @returns
      */
-    public getTouch (touchID: number): Touch | undefined {
-        return touchManager._touchMap.get(touchID);
+    public getTouch (touchID: number, clone?: boolean): Touch | undefined {
+        const touch = touchManager._touchMap.get(touchID);
+        return touch ? (clone === false ? touch : touchManager._cloneTouch(touch)) : undefined;
     }
 
     /**
@@ -248,8 +250,8 @@ export class Input {
      * @zh
      * 获取当前 所有touch对象 的数组。
      */
-    public getAllTouches (): Touch[] {
-        return touchManager.getAllTouches(false);
+    public getAllTouches (clone?: boolean): Touch[] {
+        return touchManager.getAllTouches(clone);
     }
 
     /**
