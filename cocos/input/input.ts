@@ -247,7 +247,6 @@ export class Input {
      * Get all the current touches objects.
      * @zh
      * 获取当前所有的 touch对象.
-     * @returns
      */
     public getAllTouches (): Touch[] {
         return touchManager.getAllTouches();
