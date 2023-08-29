@@ -25,6 +25,7 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { clamp01 } from '../../../cocos/core';
+import * as debug from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
@@ -133,8 +134,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._state = AudioState.INTERRUPTED;
                 this._readyToHandleOnShow = true;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('_onInterruptedBegin error', e); });
+            }).catch((e) => { debug.warn('_onInterruptedBegin error', e); });
         }
     }
     private _onInterruptedEnd (): void {
@@ -146,8 +146,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('_onInterruptedEnd error', e); });
+            }).catch((e) => { debug.warn('_onInterruptedEnd error', e); });
         }
         this._readyToHandleOnShow = false;
     }
@@ -155,8 +154,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 resolve(new AudioPlayerWeb(audioBuffer, url));
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('load error', url, e); });
+            }).catch((e) => { debug.warn('load error', url, e); });
         });
     }
     static loadNative (url: string): Promise<AudioBuffer> {
@@ -178,8 +176,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 audioContext!.decodeAudioData(arrayBuffer).then((decodedAudioBuffer) => {
                     audioBufferManager.addCache(url, decodedAudioBuffer);
                     resolve(decodedAudioBuffer);
-                // eslint-disable-next-line no-console
-                }).catch((e) => { console.warn('loadNative error', url, e); });
+                }).catch((e) => { debug.warn('loadNative error', url, e); });
             });
         });
     }
@@ -243,8 +240,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
-                // eslint-disable-next-line no-console
-                this._doPlay().then(resolve).catch((e) => { console.warn('seek error', e); });
+                this._doPlay().then(resolve).catch((e) => { debug.warn('seek error', e); });
             } else {
                 resolve();
             }

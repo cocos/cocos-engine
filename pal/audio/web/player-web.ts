@@ -26,6 +26,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
+import * as debug from '../../../cocos/core/platform/debug';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
@@ -79,8 +80,7 @@ export class AudioContextAgent {
                 // eslint-disable-next-line no-console
                 console.error('failed to load Web Audio', err);
             });
-            // eslint-disable-next-line no-console
-            promise?.catch((e) => { console.warn('decodeAudioData error', e); });  // Safari doesn't support the promise based decodeAudioData
+            promise?.catch((e) => { debug.warn('decodeAudioData error', e); });  // Safari doesn't support the promise based decodeAudioData
         });
     }
 
@@ -95,8 +95,7 @@ export class AudioContextAgent {
                 resolve();
                 return;
             }
-            // eslint-disable-next-line no-console
-            context.resume().catch((e) => { console.warn('runContext error', e); });
+            context.resume().catch((e) => { debug.warn('runContext error', e); });
             if (context.state === 'running') {
                 resolve();
                 return;
@@ -109,8 +108,7 @@ export class AudioContextAgent {
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
                     canvas?.removeEventListener('mouseup', onGesture, { capture: true });
                     resolve();
-                // eslint-disable-next-line no-console
-                }).catch((e) => { console.warn('onGesture resume error', e); });
+                }).catch((e) => { debug.warn('onGesture resume error', e); });
             };
             canvas?.addEventListener('touchend', onGesture, { capture: true });
             canvas?.addEventListener('mouseup', onGesture, { capture: true });
@@ -203,8 +201,7 @@ export class OneShotAudioWeb {
                 audioBufferManager.tryReleasingCache(this._url);
                 this.onEnd?.();
             }, this._duration * 1000);
-        // eslint-disable-next-line no-console
-        }).catch((e) => { console.warn('play error', e); });
+        }).catch((e) => { debug.warn('play error', e); });
     }
 
     public stop (): void {
@@ -262,8 +259,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 resolve(new AudioPlayerWeb(audioBuffer, url));
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('load error', url, e); });
+            }).catch((e) => { debug.warn('load error', url, e); });
         });
     }
     static loadNative (url: string): Promise<AudioBuffer> {
@@ -285,8 +281,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                     audioContextAgent!.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
                         audioBufferManager.addCache(url, decodedAudioBuffer);
                         resolve(decodedAudioBuffer);
-                    // eslint-disable-next-line no-console
-                    }).catch((e) => { console.warn('loadNative error', url, e); });
+                    }).catch((e) => { debug.warn('loadNative error', url, e); });
                 } else {
                     reject(new Error(`${errInfo}${xhr.status}(no response)`));
                 }
@@ -322,16 +317,14 @@ export class AudioPlayerWeb implements OperationQueueable {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('_onInterruptedBegin error', e); });
+            }).catch((e) => { debug.warn('_onInterruptedBegin error', e); });
         }
     }
     private _onInterruptedEnd (): void {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-            // eslint-disable-next-line no-console
-            }).catch((e) => { console.warn('_onInterruptedEnd error', e); });
+            }).catch((e) => { debug.warn('_onInterruptedEnd error', e); });
         }
     }
 
@@ -382,8 +375,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
-                // eslint-disable-next-line no-console
-                this._doPlay().then(resolve).catch((e) => { console.warn('seek error', e); });
+                this._doPlay().then(resolve).catch((e) => { debug.warn('seek error', e); });
             } else {
                 resolve();
             }
@@ -417,8 +409,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 // - system automatically resume audio context when enter foreground from background.
                 audioContextAgent!.onceRunning(this._runningCallback);
                 // Ensure resume context.
-                // eslint-disable-next-line no-console
-                audioContextAgent!.runContext().catch((e) => { console.warn('doPlay error', e); });
+                audioContextAgent!.runContext().catch((e) => { debug.warn('doPlay error', e); });
             }
         });
     }
