@@ -194,6 +194,17 @@ export class HBAOPass extends SettingPass {
         return enable;
     }
 
+    onGlobalPipelineStateChanged (): void {
+        passContext.material = this.material;
+        const passes = passContext.material.passes;
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
+    }
+
     public getSceneScale (camera: Camera): number {
         let sceneScale = camera.nearClip;
         if (!this.averageObjectSize.has(camera.node.scene)) {

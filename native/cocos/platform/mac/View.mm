@@ -98,17 +98,6 @@
     CGSize nativeSize = [self convertSizeToBacking:newSize];
     [super setFrameSize:newSize];
     layer.drawableSize = nativeSize;
-    [self viewDidChangeBackingProperties];
-
-    if (cc::EventDispatcher::initialized()) {
-        cc::WindowEvent ev;
-        ev.windowId = [self getWindowId];
-        ev.type = cc::WindowEvent::Type::RESIZED;
-        ev.width = static_cast<int>(nativeSize.width);
-        ev.height = static_cast<int>(nativeSize.height);
-        cc::events::WindowEvent::broadcast(ev);
-    }
-
 }
 
 - (void)viewDidChangeBackingProperties {
@@ -122,15 +111,6 @@
     if (width > 0 && height > 0) {
         [super setFrameSize:size];
         layer.drawableSize = CGSizeMake(width, height);
-    }
-
-    if (cc::EventDispatcher::initialized()) {
-        cc::WindowEvent ev;
-        ev.windowId = [self getWindowId];
-        ev.type = cc::WindowEvent::Type::RESIZED;
-        ev.width = static_cast<int>(width);
-        ev.height = static_cast<int>(height);
-        cc::events::WindowEvent::broadcast(ev);
     }
 }
 

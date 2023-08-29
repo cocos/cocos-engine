@@ -239,7 +239,11 @@ export class GamepadInputDevice {
 
     private static _totalGamepadCnt = 0;
     private static _updateGamepadCnt (): void {
-        GamepadInputDevice._totalGamepadCnt = GamepadInputDevice._cachedWebGamepads.reduce((total, gamepad) => (gamepad ? total + 1 : total), 0);
+        let cnt = 0;
+        for (let i = 0, l = GamepadInputDevice._cachedWebGamepads.length; i < l; i++) {
+            if (GamepadInputDevice._cachedWebGamepads[i]) cnt++;
+        }
+        GamepadInputDevice._totalGamepadCnt = cnt;
     }
 
     private static _registerEvent (): void {
