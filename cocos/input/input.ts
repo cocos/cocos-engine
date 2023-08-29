@@ -257,7 +257,6 @@ export class Input {
      * Get the number of touches.
      * @zh
      * 获取当前touch对象的数量.
-     * @returns
      */
     public getTouchCount (): number {
         return touchManager.getTouchCount();
