@@ -23,23 +23,23 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, executionOrder, help, menu, range, requireComponent, serializable, tooltip, type } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
-import { errorID, logID } from '../core/platform/debug';
+import { legacyCC } from '../core/global-exports';
 import { Size, Vec2, Vec3 } from '../core/math';
+import { errorID, logID } from '../core/platform/debug';
+import { Director, director } from '../game/director';
+import { Input, input } from '../input/input';
+import { Event, EventGamepad, EventHandle, EventMouse, EventTouch, SystemEventType, Touch } from '../input/types';
+import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
+import { Node } from '../scene-graph/node';
+import { TransformBit } from '../scene-graph/node-enum';
+import { NodeEventType } from '../scene-graph/node-event';
+import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
-import { Node } from '../scene-graph/node';
-import { director, Director } from '../game/director';
-import { TransformBit } from '../scene-graph/node-enum';
-import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../scene-graph/node-event';
-import { Input, input } from '../input/input';
-import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -451,6 +451,7 @@ export class ScrollView extends ViewGroup {
     protected _isBouncing = false;
     protected _contentPos = new Vec3();
     protected _deltaPos = new Vec3();
+    protected _deltaAmount = new Vec3();
 
     protected _hoverIn: XrhoverType = XrhoverType.NONE;
 
@@ -995,8 +996,15 @@ export class ScrollView extends ViewGroup {
     }
 
     public update (dt: number): void {
+        const deltaAmount = this._deltaAmount;
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
+            deltaAmount.x = 0;
+            deltaAmount.y = 0;
+        } else if (deltaAmount.x !== 0 || deltaAmount.y !== 0) {
+            this._processDeltaMove(deltaAmount);
+            deltaAmount.x = 0;
+            deltaAmount.y = 0;
         }
     }
 
@@ -1012,6 +1020,7 @@ export class ScrollView extends ViewGroup {
                 }
             }
         }
+        this._deltaAmount.set(0, 0);
         this._hideScrollBar();
         this.stopAutoScroll();
     }
@@ -1063,7 +1072,8 @@ export class ScrollView extends ViewGroup {
         }
 
         this._mouseWheelEventElapsedTime = 0;
-        this._processDeltaMove(deltaMove);
+        this._deltaAmount.add(deltaMove);
+        // this._processDeltaMove(deltaMove);
 
         if (!this._stopMouseWheel) {
             this._handlePressLogic();
@@ -1283,7 +1293,8 @@ export class ScrollView extends ViewGroup {
             }, totalMovement);
 
             out.set(totalMovement.x * (1 - this.brake) / totalTime,
-                totalMovement.y * (1 - this.brake) / totalTime, totalMovement.z);
+                totalMovement.y * (1 - this.brake) / totalTime,
+                totalMovement.z);
         }
         return out;
     }
@@ -1352,7 +1363,7 @@ export class ScrollView extends ViewGroup {
 
         const outOfBoundaryAmount = new Vec3();
         const tempLeftBoundary: number = this._getContentLeftBoundary();
-        const tempRightBoundary: number  = this._getContentRightBoundary();
+        const tempRightBoundary: number = this._getContentRightBoundary();
         if (tempLeftBoundary + addition.x > this._leftBoundary) {
             outOfBoundaryAmount.x = this._leftBoundary - (tempLeftBoundary + addition.x);
         } else if (tempRightBoundary + addition.x < this._rightBoundary) {
@@ -1487,7 +1498,8 @@ export class ScrollView extends ViewGroup {
 
     protected _handleMoveLogic (touch: Touch): void {
         this._getLocalAxisAlignDelta(this._deltaPos, touch);
-        this._processDeltaMove(this._deltaPos);
+        this._deltaAmount.add(this._deltaPos);
+        // this._processDeltaMove(this._deltaPos);
     }
 
     protected _handleReleaseLogic (touch: Touch): void {
@@ -1897,7 +1909,8 @@ export class ScrollView extends ViewGroup {
         }
 
         this._mouseWheelEventElapsedTime = 0;
-        this._processDeltaMove(deltaMove);
+        this._deltaAmount.add(deltaMove);
+        // this._processDeltaMove(deltaMove);
 
         if (!this._stopMouseWheel) {
             this._handlePressLogic();
