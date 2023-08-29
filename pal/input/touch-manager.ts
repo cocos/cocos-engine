@@ -118,8 +118,7 @@ class TouchManager {
         const touches: Touch[] = [];
         this._touchMap.forEach((touch) => {
             if (touch) {
-                const _touch = clone === false ? touch : this._cloneTouch(touch);
-                touches.push(_touch);
+                touches.push(clone === false ? touch : this._cloneTouch(touch));
             }
         });
         return touches;
