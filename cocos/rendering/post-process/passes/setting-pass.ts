@@ -6,10 +6,7 @@ import { BasePass } from './base-pass';
 export function getSetting<T extends PostProcessSetting> (settingClass: new () => T): T {
     const cls: typeof PostProcessSetting = settingClass as any;
     let setting = passContext.postProcess && passContext.postProcess.getSetting(cls) as T;
-    if (!setting) {
-        setting = cls.default as T;
-    }
-    return setting;
+    return setting!;
 }
 
 export abstract class SettingPass extends BasePass {
