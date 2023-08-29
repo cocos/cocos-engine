@@ -238,8 +238,8 @@ export class Input {
      * @param touchID
      * @returns
      */
-    public getTouch (touchID: number, x: number, y: number): Touch | undefined {
-        return touchManager.getTouch(touchID, x, y);
+    public getTouch (touchID: number): Touch | undefined {
+        return touchManager._touchMap.get(touchID);
     }
 
     /**
@@ -259,7 +259,7 @@ export class Input {
      * 获取当前 touch 对象的数量。
      */
     public getTouchCount (): number {
-        return touchManager.getTouchCount();
+        return touchManager._touchMap.size;
     }
 
     /**
