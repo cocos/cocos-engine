@@ -30,6 +30,7 @@ import { Sphere } from './sphere';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
+import { assert } from '../platform/debug';
 
 /**
  * cache jsb attributes in js, reduce cross language invokations.
@@ -88,8 +89,7 @@ const defineAttrFloat = (kls: Constructor, attr: string): void => {
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
 
-    // eslint-disable-next-line no-console
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
 
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
@@ -121,8 +121,7 @@ const defineAttrInt = (kls: Constructor, attr: string): void => {
     }
     const cacheKey = `_$_${attr}`;
 
-    // eslint-disable-next-line no-console
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
 
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
