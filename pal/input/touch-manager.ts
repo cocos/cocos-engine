@@ -127,7 +127,6 @@ class TouchManager {
 
     /**
      * Get the number of touches.
-     * @returns
      */
     public getTouchCount (): number {
         return this._touchMap.size;
