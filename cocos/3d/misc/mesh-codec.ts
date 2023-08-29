@@ -21,13 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import meshopt_asm_factory from 'external:emscripten/meshopt/meshopt_decoder.asm.js';
-import meshopt_wasm_factory from 'external:emscripten/meshopt/meshopt_decoder.wasm.js';
-import meshopt_wasm_url from 'external:emscripten/meshopt/meshopt_decoder.wasm.wasm';
-
 import { WASM_SUPPORT_MODE } from 'internal:constants';
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 
 import { sys, logID } from '../../core';
 
@@ -36,10 +31,10 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const MeshoptDecoder = {} as any;
 
-function initDecoderASM (): Promise<void> {
+function initDecoderASM (meshopt_asm_factory: any): Promise<void> {
     const Module = meshopt_asm_factory;
     return Promise.all([Module.ready]).then(() => {
-        MeshoptDecoder.supported = true;
+        MeshoptDecoder.supported = Module.supported;
         MeshoptDecoder.ready = Promise.resolve();
         MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
         MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
@@ -51,13 +46,13 @@ function initDecoderASM (): Promise<void> {
     });
 }
 
-function initDecoderWASM (): Promise<void> {
+function initDecoderWASM (meshopt_wasm_factory: any, meshopt_wasm_url: string): Promise<void> {
     const Module = meshopt_wasm_factory;
     function instantiate (importObject: WebAssembly.Imports): any {
         return instantiateWasm(meshopt_wasm_url, importObject) as any;
     }
     return Promise.all([Module.ready(instantiate)]).then(() => {
-        MeshoptDecoder.supported = true;
+        MeshoptDecoder.supported = Module.supported;
         MeshoptDecoder.ready = Promise.resolve();
         MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
         MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
@@ -69,18 +64,32 @@ function initDecoderWASM (): Promise<void> {
     });
 }
 
-export function InitDecoder (): Promise<void> {
+function shouldUseWasmModule (): boolean {
     if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            return initDecoderWASM();
-        } else {
-            return initDecoderASM();
-        }
+        return sys.hasFeature(sys.Feature.WASM);
     } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.SUPPORT as number)) {
-        return initDecoderWASM();
+        return true;
     } else {
-        return initDecoderASM();
+        return false;
     }
+}
+
+export function InitDecoder (): Promise<void> {
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/meshopt/meshopt_decoder.asm.js'),
+        import('external:emscripten/meshopt/meshopt_decoder.wasm.js'),
+        import('external:emscripten/meshopt/meshopt_decoder.wasm.wasm'),
+    ]).then(([
+        { default: meshopt_asm_factory },
+        { default: meshopt_wasm_factory },
+        { default: meshopt_wasm_url },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initDecoderWASM(meshopt_wasm_factory, meshopt_wasm_url);
+        } else {
+            return initDecoderASM(meshopt_asm_factory);
+        }
+    }));
 }
 
 game.onPostInfrastructureInitDelegate.add(InitDecoder);
