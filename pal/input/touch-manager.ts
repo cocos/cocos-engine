@@ -45,7 +45,7 @@ class TouchManager {
      * @param touch
      * @returns
      */
-    private _cloneTouch (touch: Touch): Touch {
+    public _cloneTouch (touch: Touch): Touch {
         const touchID = touch.getID();
         touch.getStartLocation(tempVec2);
         const clonedTouch = new Touch(tempVec2.x, tempVec2.y, touchID);
