@@ -326,6 +326,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     CC_EXPECTS(fb->getColorTextures().at(0));
                     // render window attaches a depthStencil by default, which may differs from renderpassInfo here.
                     // data.framebuffer = fb;
+                    fbInfo.colorTextures.emplace_back(fb->getColorTextures().at(0));
                 },
                 [&](const RenderSwapchain &sc) {
                     fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
@@ -338,6 +339,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                 [&](const SubresourceView &view) {
                     fbInfo.colorTextures.emplace_back(view.textureView);
                 });
+            CC_EXPECTS(!fbInfo.colorTextures.empty());
         } else {
             // ds or ds resolve
             if (!info.isResolveView) {
