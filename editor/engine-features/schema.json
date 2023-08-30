@@ -33,6 +33,9 @@
                 },
                 "wechatPlugin": {
                     "type": "boolean"
+                },
+                "taobaoMinigamePlugin": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
@@ -194,6 +197,9 @@
                     "type": "boolean"
                 },
                 "wechatPlugin": {
+                    "type": "boolean"
+                },
+                "taobaoMinigamePlugin": {
                     "type": "boolean"
                 }
             },
