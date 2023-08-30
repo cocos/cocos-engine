@@ -2017,7 +2017,7 @@ export class WebPipeline implements BasicPipeline {
         this.execute();
         this.endFrame();
     }
-    addBuiltinReflectionProbePass (width: number, height: number, camera: Camera): void {
+    addBuiltinReflectionProbePass (camera: Camera): void {
         const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
         if (!reflectionProbeManager) return;
         const probes = reflectionProbeManager.getProbes();
