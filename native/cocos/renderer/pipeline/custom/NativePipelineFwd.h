@@ -51,6 +51,7 @@ class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
 struct RenderInstancingQueue;
 struct DrawInstance;
+struct ProbeHelperQueue;
 struct RenderDrawQueue;
 struct NativeRenderQueue;
 struct ResourceGroup;

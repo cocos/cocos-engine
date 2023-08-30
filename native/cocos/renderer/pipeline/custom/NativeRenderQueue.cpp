@@ -27,11 +27,80 @@
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
 namespace render {
+
+LayoutGraphData::vertex_descriptor ProbeHelperQueue::getDefaultId(const LayoutGraphData &lg) {
+    const auto passID = locate(LayoutGraphData::null_vertex(), "default", lg);
+    CC_ENSURES(passID != LayoutGraphData::null_vertex());
+    auto phaseID = locate(passID, "default", lg);
+    CC_ENSURES(phaseID != LayoutGraphData::null_vertex());
+    return phaseID;
+}
+
+void ProbeHelperQueue::removeMacro() const {
+    for (auto *subModel : probeMap) {
+        std::vector<cc::scene::IMacroPatch> patches;
+        patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
+
+        for (int j = 0; j != patches.size(); ++j) {
+            const cc::scene::IMacroPatch &patch = patches[j];
+            if (patch.name == "CC_USE_RGBE_OUTPUT") {
+                patches.erase(patches.begin() + j);
+                break;
+            }
+        }
+
+        subModel->onMacroPatchesStateChanged(patches);
+    }
+}
+
+uint32_t ProbeHelperQueue::getPassIndexFromLayout(
+    const cc::IntrusivePtr<cc::scene::SubModel> &subModel,
+    LayoutGraphData::vertex_descriptor phaseLayoutId) {
+    const auto &passes = subModel->getPasses();
+    for (uint32_t k = 0; k != passes->size(); ++k) {
+        if (passes->at(k)->getPhaseID() == phaseLayoutId) {
+            return static_cast<int>(k);
+        }
+    }
+    return 0xFFFFFFFF;
+}
+
+void ProbeHelperQueue::applyMacro(
+    const LayoutGraphData &lg, const cc::scene::Model &model,
+    LayoutGraphData::vertex_descriptor probeLayoutId) {
+    const std::vector<cc::IntrusivePtr<cc::scene::SubModel>> &subModels = model.getSubModels();
+    for (const auto &subModel : subModels) {
+        const bool isTransparent = subModel->getPasses()->at(0)->getBlendState()->targets[0].blend;
+        if (isTransparent) {
+            continue;
+        }
+
+        auto passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+        bool bUseReflectPass = true;
+        if (passIdx < 0) {
+            probeLayoutId = getDefaultId(lg);
+            passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+            bUseReflectPass = false;
+        }
+        if (passIdx < 0) {
+            continue;
+        }
+        if (!bUseReflectPass) {
+            std::vector<cc::scene::IMacroPatch> patches;
+            patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
+            const cc::scene::IMacroPatch useRGBEPatch = {"CC_USE_RGBE_OUTPUT", true};
+            patches.emplace_back(useRGBEPatch);
+            subModel->onMacroPatchesStateChanged(patches);
+            probeMap.emplace_back(subModel);
+        }
+    }
+}
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void RenderDrawQueue::add(const scene::Model &model, float depth, uint32_t subModelIdx, uint32_t passIdx) {

@@ -49,6 +49,15 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
   passInstances(rhs.passInstances, alloc),
   instanceBuffers(rhs.instanceBuffers, alloc) {}
 
+ProbeHelperQueue::ProbeHelperQueue(const allocator_type& alloc) noexcept
+: probeMap(alloc) {}
+
+ProbeHelperQueue::ProbeHelperQueue(ProbeHelperQueue&& rhs, const allocator_type& alloc)
+: probeMap(std::move(rhs.probeMap), alloc) {}
+
+ProbeHelperQueue::ProbeHelperQueue(ProbeHelperQueue const& rhs, const allocator_type& alloc)
+: probeMap(rhs.probeMap, alloc) {}
+
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
 
@@ -61,12 +70,14 @@ RenderDrawQueue::RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_typ
 NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
+  probeQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
+  probeQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
   sceneFlags(sceneFlagsIn),
@@ -75,6 +86,7 @@ NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOr
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
   transparentQueue(std::move(rhs.transparentQueue), alloc),
+  probeQueue(std::move(rhs.probeQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
@@ -223,65 +235,6 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, c
   computePasses(rhs.computePasses, alloc),
   renderQueues(rhs.renderQueues, alloc),
   renderCommands(rhs.renderCommands, alloc) {}
-
-void ProbeHelperQueue::removeMacro() const
-{
-    for (auto* subModel : probeMap) {
-        std::vector<cc::scene::IMacroPatch> patches;
-        patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
-
-        for (size_t j = 0; j < patches.size(); ++j) {
-            const cc::scene::IMacroPatch& patch = patches[j];
-            if (patch.name == "CC_USE_RGBE_OUTPUT") {
-                patches.erase(patches.begin() + j);
-                break;
-            }
-        }
-
-        subModel->onMacroPatchesStateChanged(patches);
-    }
-}
-
-int ProbeHelperQueue::getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId)
- {
-    const auto& passes = subModel->getPasses();
-    for (size_t k = 0; k < passes->size(); ++k) {
-        if (passes->at(k)->getPhaseID() == phaseLayoutId) {
-            return static_cast<int>(k);
-        }
-    }
-    return -1;
-}
-
-void ProbeHelperQueue::applyMacro(const LayoutGraphData & lg, const cc::scene::Model & model, int probeLayoutId)
-{
-        const std::vector<cc::IntrusivePtr<cc::scene::SubModel>>& subModels = model.getSubModels();
-        for (const auto& subModel : subModels) {
-            const bool isTransparent = subModel->getPasses()->at(0)->getBlendState()->targets[0].blend;
-            if (isTransparent) {
-                continue;
-            }
-
-            int passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
-            bool bUseReflectPass = true;
-            if (passIdx < 0) {
-                probeLayoutId = getDefaultId(lg);
-                passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
-                bUseReflectPass = false;
-            }
-            if (passIdx < 0) {
-                continue;
-            }
-            if (!bUseReflectPass) {
-                std::vector<cc::scene::IMacroPatch> patches;
-                patches.insert(patches.end(), subModel->getPatches().begin(), subModel->getPatches().end());
-                const cc::scene::IMacroPatch useRGBEPatch = {"CC_USE_RGBE_OUTPUT", true};
-                patches.emplace_back(useRGBEPatch);
-                subModel->onMacroPatchesStateChanged(patches);
-                probeMap.emplace_back(subModel);
-            }
-        }
-    }
 
 } // namespace render
 

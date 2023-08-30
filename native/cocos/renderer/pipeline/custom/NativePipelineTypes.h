@@ -41,7 +41,6 @@
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
-#include "LayoutGraphGraphs.h"
 
 #ifdef _MSC_VER
     #pragma warning(push)
@@ -932,21 +931,33 @@ struct DrawInstance {
 };
 
 struct ProbeHelperQueue {
-    ccstd::pmr::vector<cc::scene::SubModel*> probeMap;
-
-    inline static int getDefaultId(const LayoutGraphData &lg) {
-        return locate(locate(LayoutGraphData::null_vertex(), "default", lg), "default", lg);
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {probeMap.get_allocator().resource()};
     }
 
-    inline void clear() {
+    ProbeHelperQueue(const allocator_type& alloc) noexcept; // NOLINT
+    ProbeHelperQueue(ProbeHelperQueue&& rhs, const allocator_type& alloc);
+    ProbeHelperQueue(ProbeHelperQueue const& rhs, const allocator_type& alloc);
+
+    ProbeHelperQueue(ProbeHelperQueue&& rhs) noexcept = default;
+    ProbeHelperQueue(ProbeHelperQueue const& rhs) = delete;
+    ProbeHelperQueue& operator=(ProbeHelperQueue&& rhs) = default;
+    ProbeHelperQueue& operator=(ProbeHelperQueue const& rhs) = default;
+
+    static LayoutGraphData::vertex_descriptor getDefaultId(const LayoutGraphData &lg);
+
+    inline void clear() noexcept {
         probeMap.clear();
     }
 
     void removeMacro() const;
 
-    static int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId);
+    static uint32_t getPassIndexFromLayout(const IntrusivePtr<scene::SubModel>& subModel, LayoutGraphData::vertex_descriptor phaseLayoutId);
 
-    void applyMacro(const LayoutGraphData &lg, const cc::scene::Model& model, int probeLayoutId);
+    void applyMacro(const LayoutGraphData &lg, const scene::Model& model, LayoutGraphData::vertex_descriptor probeLayoutId);
+
+    ccstd::pmr::vector<scene::SubModel*> probeMap;
 };
 
 struct RenderDrawQueue {
@@ -1175,8 +1186,8 @@ struct CullingKey {
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.lightLevel) ==
-           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.lightLevel);
+    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.probe, lhs.castShadow, lhs.lightLevel) ==
+           std::forward_as_tuple(rhs.camera, rhs.light, rhs.probe, rhs.castShadow, rhs.lightLevel);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -1489,6 +1500,7 @@ inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::Culling
     hash_t seed = 0;
     hash_combine(seed, val.camera);
     hash_combine(seed, val.light);
+    hash_combine(seed, val.probe);
     hash_combine(seed, val.castShadow);
     hash_combine(seed, val.lightLevel);
     return seed;

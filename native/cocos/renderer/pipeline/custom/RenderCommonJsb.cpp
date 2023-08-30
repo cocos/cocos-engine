@@ -50,9 +50,6 @@ bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Obj
     nativevalue_to_se(from.culledByLight, tmp, ctx);
     obj->setProperty("culledByLight", tmp);
 
-    nativevalue_to_se(from.probe, tmp, ctx);
-    obj->setProperty("light", tmp);
-
     to.setObject(obj);
     return true;
 }
