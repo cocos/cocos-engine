@@ -66,7 +66,7 @@ const eventMap = {
     'scroll-to-bottom': 1,
     'scroll-to-left': 2,
     'scroll-to-right': 3,
-    scrolling: 4,
+    'scrolling': 4,
     'bounce-bottom': 6,
     'bounce-left': 7,
     'bounce-right': 8,
@@ -1094,8 +1094,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _onTouchBegan (event: EventTouch, captureListeners?: Node[]): void {
-        if (!this.enabledInHierarchy || !this._content) { return; }
-        if (this._hasNestedViewGroup(event, captureListeners)) { return; }
+        if (!this.enabledInHierarchy || !this._content) {
+            return;
+        }
+        if (this._hasNestedViewGroup(event, captureListeners)) {
+            return;
+        }
 
         this._handlePressLogic();
 
@@ -1104,8 +1108,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _onTouchMoved (event: EventTouch, captureListeners?: Node[]): void {
-        if (!this.enabledInHierarchy || !this._content) { return; }
-        if (this._hasNestedViewGroup(event, captureListeners)) { return; }
+        if (!this.enabledInHierarchy || !this._content) {
+            return;
+        }
+        if (this._hasNestedViewGroup(event, captureListeners)) {
+            return;
+        }
 
         const touch = event.touch!;
         this._handleMoveLogic(touch);
@@ -1132,8 +1140,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _onTouchEnded (event: EventTouch, captureListeners?: Node[]): void {
-        if (!this.enabledInHierarchy || !this._content || !event) { return; }
-        if (this._hasNestedViewGroup(event, captureListeners)) { return; }
+        if (!this.enabledInHierarchy || !this._content || !event) {
+            return;
+        }
+        if (this._hasNestedViewGroup(event, captureListeners)) {
+            return;
+        }
 
         this._dispatchEvent(EventType.TOUCH_UP);
 
@@ -1148,8 +1160,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _onTouchCancelled (event: EventTouch, captureListeners?: Node[]): void {
-        if (!this.enabledInHierarchy || !this._content) { return; }
-        if (this._hasNestedViewGroup(event, captureListeners)) { return; }
+        if (!this.enabledInHierarchy || !this._content) {
+            return;
+        }
+        if (this._hasNestedViewGroup(event, captureListeners)) {
+            return;
+        }
 
         // Filter touch cancel event send from self
         if (event && !event.simulate) {
@@ -1674,10 +1690,18 @@ export class ScrollView extends ViewGroup {
         this._startAutoScroll(bounceBackAmount, bounceBackTime, true);
 
         if (!this._isBouncing) {
-            if (bounceBackAmount.y > 0) { this._dispatchEvent(EventType.BOUNCE_TOP); }
-            if (bounceBackAmount.y < 0) { this._dispatchEvent(EventType.BOUNCE_BOTTOM); }
-            if (bounceBackAmount.x > 0) { this._dispatchEvent(EventType.BOUNCE_RIGHT); }
-            if (bounceBackAmount.x < 0) { this._dispatchEvent(EventType.BOUNCE_LEFT); }
+            if (bounceBackAmount.y > 0) {
+                this._dispatchEvent(EventType.BOUNCE_TOP);
+            }
+            if (bounceBackAmount.y < 0) {
+                this._dispatchEvent(EventType.BOUNCE_BOTTOM);
+            }
+            if (bounceBackAmount.x > 0) {
+                this._dispatchEvent(EventType.BOUNCE_RIGHT);
+            }
+            if (bounceBackAmount.x < 0) {
+                this._dispatchEvent(EventType.BOUNCE_LEFT);
+            }
             this._isBouncing = true;
         }
 
@@ -1888,7 +1912,7 @@ export class ScrollView extends ViewGroup {
         } else if (event instanceof EventHandle) {
             handleInputDevice = event.handleInputDevice;
         }
-        let value;
+        let value: Vec2;
         if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
