@@ -21,6 +21,7 @@ CCProgram culling-main %{
 
   struct InstanceData {
     uint objectId;
+    uint phaseId;
     uint batchId;
   };
 
@@ -47,7 +48,7 @@ CCProgram culling-main %{
     uint cc_isPerspective;
     uint cc_orientation;
     uint cc_instanceCount;
-    uint cc_sceneFlags;
+    uint cc_phaseId;
   };
 
   #pragma rate CCObjectBuffer pass
@@ -94,8 +95,7 @@ CCProgram culling-main %{
   #if CC_USE_OCCLUSION_CULLING
     // 2D Polyhedral Bounds of a Clipped, Perspective-Projected 3D Sphere. Michael Mara, Morgan McGuire. 2013
     // Consider: minClipZ & projectionSignY & orientation in projection, so we can not use p00 & p11 directly.
-    bool projectSpherePerspective(vec3 c, float r, float znear, mat4 proj, uint orientation, out vec4 aabb)
-    {
+    bool projectSpherePerspective(vec3 c, float r, float znear, mat4 proj, uint orientation, out vec4 aabb, out float nearest) {
         if (-c.z < r + znear) return false;
 
         vec3 cr = c * r;
@@ -109,28 +109,81 @@ CCProgram culling-main %{
         float miny = (vy * c.y + cr.z) / -(vy * c.z - cr.y);
         float maxy = (vy * c.y - cr.z) / -(vy * c.z + cr.y);
 
-        aabb = vec4(minx * proj[0][0], miny * proj[1][1], maxx * proj[0][0], maxy * proj[1][1]);
+        // project to ndc space
+        if (orientation == 0) {
+          aabb = vec4(minx * proj[0][0], miny * proj[1][1], maxx * proj[0][0], maxy * proj[1][1]);
+        }
+        else if (orientation == 1) {
+          aabb = vec4(maxy * proj[1][0], minx * proj[0][1], miny * proj[1][0], maxx * proj[0][1]);
+        }
+        else if (orientation == 2) {
+          aabb = vec4(maxx * proj[0][0], maxy * proj[1][1], minx * proj[0][0], miny * proj[1][1]);
+        }
+        else {
+          aabb = vec4(miny * proj[1][0], maxx * proj[0][1], maxy * proj[1][0], minx * proj[0][1]);
+        }
+
+        // ndc space -> uv space
+        aabb = aabb * vec4(0.5f) + vec4(0.5f);
+
+        nearest = -(proj[2][2] + proj[3][2] / (c.z + r));
+
+        return true;
+    }
+
+    bool projectSphereOrtho(vec3 c, float r, float znear, mat4 proj, uint orientation, out vec4 aabb, out float nearest) {
+        if (-c.z < r + znear) return false;
+
+        float minx = c.x - r;
+        float maxx = c.x + r;
+
+        float miny = c.y - r;
+        float maxy = c.y + r;
+
+        // project to ndc space
+        if (orientation == 0) {
+          aabb = vec4(minx * proj[0][0], miny * proj[1][1], maxx * proj[0][0], maxy * proj[1][1]);
+        }
+        else if (orientation == 1) {
+          aabb = vec4(maxy * proj[1][0], minx * proj[0][1], miny * proj[1][0], maxx * proj[0][1]);
+        }
+        else if (orientation == 2) {
+          aabb = vec4(maxx * proj[0][0], maxy * proj[1][1], minx * proj[0][0], miny * proj[1][1]);
+        }
+        else {
+          aabb = vec4(miny * proj[1][0], maxx * proj[0][1], maxy * proj[1][0], minx * proj[0][1]);
+        }
+        aabb = aabb + vec4(proj[3][0], proj[3][1], proj[3][0], proj[3][1]);
+
         // ndc space -> uv space
         aabb = aabb * vec4(0.5) + vec4(0.5);
+
+        nearest = (proj[2][2] * (c.z + r) + proj[3][2]);
 
         return true;
     }
 
     bool isOcclusionCulled(uint objectId) {
       vec4 aabb;
+      float nearest = 0;
       vec4 sphere = cc_objects[objectId].sphere;
       vec3 center = (cc_view * vec4(sphere.xyz, 1.0)).xyz;
       float radius = sphere.w;
       
-      if (!projectSpherePerspective(center, radius, cc_znear, cc_proj, cc_orientation, aabb)) {
-        return false;
+      if (cc_isPerspective != 0) {
+        if (!projectSpherePerspective(center, radius, cc_znear, cc_proj, cc_orientation, aabb, nearest)) {
+          return false;
+        }
+      } else {
+        if (!projectSphereOrtho(center, radius, cc_znear, cc_proj, cc_orientation, aabb, nearest)) {
+          return false;
+        }
       }
       
       float width = abs(aabb.z - aabb.x) * cc_depthWidth;
       float height = abs(aabb.w - aabb.y) * cc_depthHeight;
-      float level = floor(log2(max(width, height)));
+      float level = max(0.0, floor(log2(max(width, height))));
       float depth = textureLod(CCDepthMap, (aabb.xy + aabb.zw) * vec2(0.5), level).x;
-      float nearest = -(cc_proj[2][2] + cc_proj[3][2] / (center.z + radius));
       return nearest > depth;
     }
   #endif
@@ -141,6 +194,10 @@ CCProgram culling-main %{
   {
     uint id = gl_GlobalInvocationID.x;
     if (id >= cc_instanceCount) {
+      return;
+    }
+
+    if (cc_phaseId != cc_instances[id].phaseId) {
       return;
     }
 

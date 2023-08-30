@@ -950,23 +950,23 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<IntrusivePtr<pipeline::InstancedBuffer>> instanceBuffers;
 };
 
-struct RenderBatchingQueue {
+struct GPUDrivenQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {batches.get_allocator().resource()};
     }
 
-    RenderBatchingQueue(const allocator_type& alloc) noexcept; // NOLINT
-    RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc);
-    RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc);
+    GPUDrivenQueue(const allocator_type& alloc) noexcept; // NOLINT
+    GPUDrivenQueue(GPUDrivenQueue&& rhs, const allocator_type& alloc);
+    GPUDrivenQueue(GPUDrivenQueue const& rhs, const allocator_type& alloc);
 
-    RenderBatchingQueue(RenderBatchingQueue&& rhs) noexcept = default;
-    RenderBatchingQueue(RenderBatchingQueue const& rhs) = delete;
-    RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
-    RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
+    GPUDrivenQueue(GPUDrivenQueue&& rhs) noexcept = default;
+    GPUDrivenQueue(GPUDrivenQueue const& rhs) = delete;
+    GPUDrivenQueue& operator=(GPUDrivenQueue&& rhs) = default;
+    GPUDrivenQueue& operator=(GPUDrivenQueue const& rhs) = default;
 
     void recordCommandBuffer(const ResourceGraph& resg, gfx::Device *device, const scene::Camera *camera,
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const;
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, uint32_t phaseLayoutID, SceneFlags sceneFlags, uint32_t cullingID) const;
 
     ccstd::pmr::vector<uint32_t> batches;
 };
@@ -1028,7 +1028,7 @@ struct NativeRenderQueue {
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
-    RenderBatchingQueue opaqueBatchingQueue;
+    GPUDrivenQueue gpuDrivenQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
 };
@@ -1441,7 +1441,7 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) override;
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, bool bMainPass) override;
     void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;

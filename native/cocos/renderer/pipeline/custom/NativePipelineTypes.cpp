@@ -49,13 +49,13 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
   passInstances(rhs.passInstances, alloc),
   instanceBuffers(rhs.instanceBuffers, alloc) {}
 
-RenderBatchingQueue::RenderBatchingQueue(const allocator_type& alloc) noexcept
+GPUDrivenQueue::GPUDrivenQueue(const allocator_type& alloc) noexcept
 : batches(alloc) {}
 
-RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc)
+GPUDrivenQueue::GPUDrivenQueue(GPUDrivenQueue&& rhs, const allocator_type& alloc)
 : batches(std::move(rhs.batches), alloc) {}
 
-RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc)
+GPUDrivenQueue::GPUDrivenQueue(GPUDrivenQueue const& rhs, const allocator_type& alloc)
 : batches(rhs.batches, alloc) {}
 
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
@@ -72,14 +72,14 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
-  opaqueBatchingQueue(alloc) {}
+  gpuDrivenQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
-  opaqueBatchingQueue(alloc),
+  gpuDrivenQueue(alloc),
   sceneFlags(sceneFlagsIn),
   subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
 
@@ -88,7 +88,7 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   transparentQueue(std::move(rhs.transparentQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
-  opaqueBatchingQueue(std::move(rhs.opaqueBatchingQueue), alloc),
+  gpuDrivenQueue(std::move(rhs.gpuDrivenQueue), alloc),
   sceneFlags(rhs.sceneFlags),
   subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 

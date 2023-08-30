@@ -1404,6 +1404,7 @@ export interface Pipeline extends BasicPipeline {
     addBuiltinGpuCullingPass (
         cullingID: number,
         camera: Camera,
+        layoutPath?: string,
         hzbName?: string,
         light?: Light | null,
         bMainPass?: boolean): void;
