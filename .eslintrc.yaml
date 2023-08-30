@@ -196,7 +196,7 @@ rules:
     eqeqeq: ['error', 'smart']
     no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
     '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
-    arrow-body-style: [off, as-needed]
+    arrow-body-style: [error, as-needed]
     arrow-parens: [ error, as-needed ]
     brace-style: [ error, 1tbs ]
     id-denylist: [ error, any, unknown, Number, number, String, string, Boolean, boolean, Undefined, undefined ]
@@ -205,4 +205,13 @@ rules:
     no-constant-condition: off
     # padded-blocks: ['error', { 'classes': 'always' }]
     "@typescript-eslint/space-infix-ops": ["error"]
-    '@typescript-eslint/type-annotation-spacing': [error, { "before": false, "after": true }]
+    '@typescript-eslint/type-annotation-spacing': [error, {
+        before: false,
+        after: true,
+        overrides : {
+            arrow: {
+                before: true,
+                after: true,
+            }
+        }
+     }]
