@@ -24,14 +24,14 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { DEBUG } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, UniformBlock, ResolveMode, SampleCount, Color } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy, IVec4Like, IMat4Like, IVec2Like, Color as CoreColor } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight } from '../../render-scene/scene';
+import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight, ProbeType } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -51,12 +51,13 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
-import { initGlobalDescBinding } from './define';
+import { buildReflectionProbePass, initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
 import { Root } from '../../root';
 import { CSMLayers, CSMShadowLayer } from '../shadow/csm-layers';
 import { Scene } from '../../scene-graph';
 import { Director } from '../../game';
+import { ReflectionProbeManager } from '../../3d';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -2011,8 +2012,26 @@ export class WebPipeline implements BasicPipeline {
         this.execute();
         this.endFrame();
     }
-    addBuiltinReflectionProbePass (width: number, height: number): void {
-        // TODO
+    addBuiltinReflectionProbePass (width: number, height: number, camera: Camera): void {
+        const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+        if (!reflectionProbeManager) return;
+        const probes = reflectionProbeManager.getProbes();
+        if (probes.length === 0) return;
+        for (let i = 0; i < probes.length; i++) {
+            const probe = probes[i];
+            if (probe.needRender) {
+                if (probes[i].probeType === ProbeType.PLANAR) {
+                    buildReflectionProbePass(camera, this, probe, probe.realtimePlanarTexture!.window!, 0);
+                } else if (EDITOR) {
+                    for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                        probe.updateCameraDir(faceIdx);
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        buildReflectionProbePass(camera, this, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+                    }
+                    probe.needRender = false;
+                }
+            }
+        }
     }
     addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicMultisampleRenderPassBuilder {
         if (DEBUG) {

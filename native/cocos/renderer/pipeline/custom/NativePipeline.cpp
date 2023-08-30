@@ -34,6 +34,7 @@
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/scene/ReflectionProbeManager.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -677,10 +678,93 @@ void NativePipeline::endFrame() {
     // noop
 }
 
+namespace {
+
+    gfx::LoadOp getLoadOpOfClearFlag(gfx::ClearFlagBit clearFlag, AttachmentType attachment) {
+        gfx::LoadOp loadOp = gfx::LoadOp::CLEAR;
+        if (!(clearFlag & gfx::ClearFlagBit::COLOR) && attachment == AttachmentType::RENDER_TARGET) {
+            if (static_cast<uint32_t>(clearFlag) & cc::scene::Camera::SKYBOX_FLAG) {
+                loadOp = gfx::LoadOp::CLEAR;
+            } else {
+                loadOp = gfx::LoadOp::LOAD;
+            }
+        }
+        if ((clearFlag & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && attachment == AttachmentType::DEPTH_STENCIL) {
+            if (!(clearFlag & gfx::ClearFlagBit::DEPTH)) {
+                loadOp = gfx::LoadOp::LOAD;
+            }
+            if (!(clearFlag & gfx::ClearFlagBit::STENCIL)) {
+                loadOp = gfx::LoadOp::LOAD;
+            }
+        }
+        return loadOp;
+    }
+    void updateCameraUBO(Setter &setter, const scene::Camera *camera, NativePipeline &ppl) {
+        auto sceneData = ppl.pipelineSceneData;
+        auto* skybox = sceneData->getSkybox();
+        setter.setBuiltinCameraConstants(camera);
+
+    }
+    void buildReflectionProbePass(const scene::Camera *camera,
+                                  render::NativePipeline *pipeline,
+                                  const scene::ReflectionProbe *probe,
+                                  scene::RenderWindow *renderWindow,
+                                  int faceIdx) {
+        const std::string cameraName = "Camera" + std::to_string(faceIdx);
+        const auto &area = probe->renderArea();
+        int width = area.x;
+        int height = area.y;
+        const auto *probeCamera = probe->getCamera();
+        const std::string probePassRTName = "reflectionProbePassColor" + cameraName;
+        const std::string probePassDSName = "reflectionProbePassDS" + cameraName;
+        if (!pipeline->containsResource(probePassRTName)) {
+            pipeline->addRenderWindow(probePassRTName, gfx::Format::RGBA8, width, height, renderWindow);
+            pipeline->addDepthStencil(probePassDSName, gfx::Format::DEPTH_STENCIL, width, height, ResourceResidency::EXTERNAL);
+        }
+        pipeline->updateRenderWindow(probePassRTName, renderWindow);
+        pipeline->updateDepthStencil(probePassDSName, width, height, gfx::Format::DEPTH_STENCIL);
+        auto *passBuilder = pipeline->addRenderPass(width, height, "default");
+        passBuilder->setName("ReflectionProbePass"+faceIdx);
+        gfx::Viewport currViewport{};
+        currViewport.width = width;
+        currViewport.height = height;
+        passBuilder->setViewport(currViewport);
+        gfx::Color clearColor{};
+        clearColor.x = probeCamera->getClearColor().x;
+        clearColor.y = probeCamera->getClearColor().y;
+        clearColor.z = probeCamera->getClearColor().z;
+        clearColor.w = probeCamera->getClearColor().w;
+        passBuilder->addRenderTarget(probePassRTName,
+          getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::RENDER_TARGET),
+          gfx::StoreOp::STORE,
+          clearColor);
+        passBuilder->addDepthStencil(probePassDSName,
+            getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::DEPTH_STENCIL),
+            gfx::StoreOp::STORE,
+            probeCamera->getClearDepth(),
+            probeCamera->getClearStencil(),
+            probeCamera->getClearFlag());
+        auto* queueBuilder = passBuilder->addQueue(QueueHint::RENDER_OPAQUE, "reflect-map");
+        LightInfo lightInfo{};
+        lightInfo.probe = const_cast<scene::ReflectionProbe*>(probe);
+        queueBuilder->addSceneOfCamera(const_cast<scene::Camera *>(camera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
+        updateCameraUBO(*queueBuilder, probeCamera, *pipeline);
+    }
+
+} // namespace
+
 void NativePipeline::addBuiltinReflectionProbePass(
-    uint32_t width, uint32_t height) {
-    std::ignore = width;
-    std::ignore = height;
+    uint32_t width, uint32_t height, const scene::Camera *camera) {
+    const auto* reflectProbeManager = scene::ReflectionProbeManager::getInstance();
+    if (!reflectProbeManager) return;
+    const auto &probes = reflectProbeManager->getAllProbes();
+    for (auto* probe : probes) {
+        if (probe->needRender()) {
+            if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+                buildReflectionProbePass(camera, this, probe, probe->getRealtimePlanarTexture()->getWindow(), 0);
+            }
+        }
+    }
 }
 
 RenderPassBuilder *NativePipeline::addRenderPass(

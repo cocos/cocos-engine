@@ -133,6 +133,7 @@ import {
     getRenderArea,
     mergeSrcToTargetDesc,
     updateGlobalDescBinding,
+    validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { SceneCulling } from './scene-culling';

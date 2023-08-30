@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
+#include "LayoutGraphGraphs.h"
 
 #ifdef _MSC_VER
     #pragma warning(push)
@@ -930,6 +931,24 @@ struct DrawInstance {
     uint32_t passIndex{0};
 };
 
+struct ProbeHelperQueue {
+    ccstd::pmr::vector<cc::scene::SubModel*> probeMap;
+
+    inline static int getDefaultId(const LayoutGraphData &lg) {
+        return locate(locate(LayoutGraphData::null_vertex(), "default", lg), "default", lg);
+    }
+
+    inline void clear() {
+        probeMap.clear();
+    }
+
+    void removeMacro() const;
+
+    static int getPassIndexFromLayout(const cc::IntrusivePtr<cc::scene::SubModel>& subModel, int phaseLayoutId);
+
+    void applyMacro(const LayoutGraphData &lg, const cc::scene::Model& model, int probeLayoutId);
+};
+
 struct RenderDrawQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -976,6 +995,7 @@ struct NativeRenderQueue {
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
+    ProbeHelperQueue probeQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
@@ -1149,6 +1169,7 @@ struct SceneResource {
 struct CullingKey {
     const scene::Camera* camera{nullptr};
     const scene::Light* light{nullptr};
+    const scene::ReflectionProbe* probe{nullptr};
     bool castShadow{false};
     uint32_t lightLevel{0xFFFFFFFF};
 };
@@ -1376,7 +1397,7 @@ public:
     void endFrame() override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
-    void addBuiltinReflectionProbePass(uint32_t width, uint32_t height) override;
+    void addBuiltinReflectionProbePass(uint32_t width, uint32_t height, const scene::Camera *camera) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;

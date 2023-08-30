@@ -36,6 +36,7 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Light.h"
+#include "cocos/scene/ReflectionProbe.h"
 
 namespace cc {
 
@@ -225,7 +226,8 @@ struct LightInfo {
     : light(std::move(lightIn)),
       probe(probeIn),
       level(levelIn),
-      culledByLight(culledByLightIn) {}
+      culledByLight(culledByLightIn)
+    {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
     : light(std::move(lightIn)),
       level(levelIn) {}
