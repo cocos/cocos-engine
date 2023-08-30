@@ -1,12 +1,13 @@
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
+#include "cocos/scene/ReflectionProbe.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
-#include "cocos/renderer/pipeline/Define.h"
 
 namespace cc {
 
@@ -203,8 +204,8 @@ void bruteForceCulling(
             // filter model by view visibility
             if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
                 // frustum culling
-                if ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow))
-                    || (probe && isIntersectAABB(*model.getWorldBounds(), *probe->getBoundingBox()))) {
+                if ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) ||
+                    (probe && isIntersectAABB(*model.getWorldBounds(), *probe->getBoundingBox()))) {
                     continue;
                 }
 
@@ -362,7 +363,7 @@ void addRenderObject(
         const auto passCount = passes.size();
         auto probeIt = std::find(queue.probeQueue.probeMap.begin(), queue.probeQueue.probeMap.end(), subModel.get());
         if (probeIt != queue.probeQueue.probeMap.end()) {
-            phaseLayoutID = queue.probeQueue.getDefaultId(*layoutGraph);
+            phaseLayoutID = ProbeHelperQueue::getDefaultId(*layoutGraph);
         }
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
