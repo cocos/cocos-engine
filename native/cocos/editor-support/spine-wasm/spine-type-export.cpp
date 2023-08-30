@@ -316,7 +316,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<Event>("Event")
         .constructor<float, const EventData &>()
         .function("getData", optional_override([](Event &obj) {
-            return obj.getData(); }), allow_raw_pointers())
+            return const_cast<EventData*>(&obj.getData()); }), allow_raw_pointers())
         .function("getIntValue", &Event::getIntValue)
         .function("setIntValue", &Event::setIntValue)
         .function("getFloatValue", &Event::getFloatValue)

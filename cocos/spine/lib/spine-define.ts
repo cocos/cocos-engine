@@ -768,6 +768,11 @@ function overrideProperty_SlotData (): void {
         },
         {
             proto: prototype,
+            property: 'boneData',
+            getter: prototype.getBoneData,
+        },
+        {
+            proto: prototype,
             property: 'name',
             getter: prototype.getName,
         },
@@ -791,8 +796,6 @@ function overrideProperty_SlotData (): void {
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
-    overrideDefineArrayProp(prototype, prototype.getBoneData, 'boneData');
-    overrideDefineArrayProp(prototype, prototype.getDeform, 'deform');
 }
 
 function overrideProperty_IkConstraint (): void {
@@ -1226,13 +1229,14 @@ function overrideProperty_Slot (): void {
         },
         {
             proto: prototype,
-            property: 'deform',
-            getter: prototype.getDeform,
+            property: 'skeleton',
+            getter: prototype.getSkeleton,
         },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter);
     });
+    overrideDefineArrayProp(prototype, prototype.getDeform, 'deform');
 }
 
 function overrideProperty_Skin (): void {
