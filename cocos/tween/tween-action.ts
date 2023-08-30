@@ -150,7 +150,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
-            prop.type = new Map<string, boolean>();
+            prop.type = '';
             prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
@@ -194,7 +194,7 @@ export class TweenAction extends ActionInterval {
                 } else {
                     prop.end.set(value);
                 }
-                prop.type.set('color', true);
+                prop.type = 'color';
             } else if (_t instanceof Rect) {
                 if (prop.start == null) {
                     prop.start = new Rect(); prop.current = new Rect(); prop.end = new Rect();
@@ -212,33 +212,33 @@ export class TweenAction extends ActionInterval {
                     prop.end.z = value.z;
                     prop.end.w = value.w;
                 }
-                prop.type.set('rect', true);
+                prop.type = 'rect';
             } else if (typeof _t === 'object') {
                 if (_t instanceof Vec2) {
                     if (prop.start == null) {
                         prop.start = new Vec2(); prop.current = new Vec2(); prop.end = new Vec2();
                     }
-                    prop.type.set('vec2', true);
+                    prop.type = 'vec2';
                 } else if (_t instanceof Vec3) {
                     if (prop.start == null) {
                         prop.start = new Vec3(); prop.current = new Vec3(); prop.end = new Vec3();
                     }
-                    prop.type.set('vec3', true);
+                    prop.type = 'vec3';
                 } else if (_t instanceof Vec4) {
                     if (prop.start == null) {
                         prop.start = new Vec4(); prop.current = new Vec4(); prop.end = new Vec4();
                     }
-                    prop.type.set('vec4', true);
+                    prop.type = 'vec4';
                 } else if (_t instanceof Size) {
                     if (prop.start == null) {
                         prop.start = new Size(); prop.current = new Size(); prop.end = new Size();
                     }
-                    prop.type.set('size', true);
+                    prop.type = 'size';
                 } else if (_t instanceof Quat) {
                     if (prop.start == null) {
                         prop.start = new Quat(); prop.current = new Quat(); prop.end = new Quat();
                     }
-                    prop.type.set('quat', true);
+                    prop.type = 'quat';
                 } else if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
@@ -280,36 +280,33 @@ export class TweenAction extends ActionInterval {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 // const value = prop.value;
-                if (prop.type && prop.type.get('color')) {
+                if (prop.type && prop.type === 'color') {
                     prop.current.r = interpolation(start.r, end.r, prop.current.r, time);
                     prop.current.g = interpolation(start.g, end.g, prop.current.g, time);
                     prop.current.b = interpolation(start.b, end.b, prop.current.b, time);
                     prop.current.a = interpolation(start.a, end.a, prop.current.a, time);
-                } else if (prop.type && prop.type.get('rect')) {
+                } else if (prop.type && prop.type === 'rect') {
                     prop.current.xMin = interpolation(start.xMin, end.xMin, prop.current.xMin, time);
                     prop.current.yMin = interpolation(start.yMin, end.yMin, prop.current.yMin, time);
                     prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
                     prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
-                } else if (prop.type && prop.type.get('vec2')) {
+                } else if (prop.type && prop.type === 'vec2') {
                     prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
                     prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
-                } else if (prop.type && prop.type.get('vec3')) {
+                } else if (prop.type && prop.type === 'vec3') {
                     prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
                     prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
                     prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
-                } else if (prop.type && prop.type.get('vec4')) {
+                } else if (prop.type && prop.type === 'vec4') {
                     prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
                     prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
                     prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
                     prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
-                } else if (prop.type && prop.type.get('size')) {
+                } else if (prop.type && prop.type === 'size') {
                     prop.current.width = interpolation(start.width, end.width, prop.current.width, time);
                     prop.current.height = interpolation(start.height, end.height, prop.current.height, time);
-                } else if (prop.type && prop.type.get('quat')) {
-                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
-                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
-                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
-                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
+                } else if (prop.type && prop.type === 'quat') {
+                    Quat.slerp(prop.current, start, end, time as number);
                 } else {
                     for (const k in start) {
                         // if (value[k].easing) {
