@@ -810,10 +810,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
-    addBuiltinReflectionProbePass (
-        width: number,
-        height: number,
-        camera: Camera): void;
+    addBuiltinReflectionProbePass (camera: Camera): void;
     /**
      * @engineInternal
      */

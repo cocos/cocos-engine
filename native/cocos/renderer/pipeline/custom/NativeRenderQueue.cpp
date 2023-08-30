@@ -37,7 +37,7 @@ namespace render {
 LayoutGraphData::vertex_descriptor ProbeHelperQueue::getDefaultId(const LayoutGraphData &lg) {
     const auto passID = locate(LayoutGraphData::null_vertex(), "default", lg);
     CC_ENSURES(passID != LayoutGraphData::null_vertex());
-    auto phaseID = locate(passID, "default", lg);
+    const auto phaseID = locate(passID, "default", lg);
     CC_ENSURES(phaseID != LayoutGraphData::null_vertex());
     return phaseID;
 }

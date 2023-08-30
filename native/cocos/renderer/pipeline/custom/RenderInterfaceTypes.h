@@ -844,7 +844,7 @@ public:
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
-    virtual void addBuiltinReflectionProbePass(uint32_t width, uint32_t height, const scene::Camera *camera) = 0;
+    virtual void addBuiltinReflectionProbePass(const scene::Camera *camera) = 0;
     /**
      * @engineInternal
      */

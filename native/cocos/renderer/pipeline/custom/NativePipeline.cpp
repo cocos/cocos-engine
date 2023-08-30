@@ -32,9 +32,12 @@
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/scene/ReflectionProbe.h"
+#include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "cocos/scene/ReflectionProbeManager.h"
+#include "pipeline/custom/RenderInterfaceTypes.h"
+
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -43,14 +46,14 @@ namespace cc {
 
 namespace render {
 
-template<gfx::Format>
+template <gfx::Format>
 void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg);
 
 template <>
 void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
-    const auto& desc = get(ResourceGraph::DescTag{}, resg, v);
-    const auto& traits = get(ResourceGraph::TraitsTag{}, resg, v);
-    const auto& samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+    const auto &desc = get(ResourceGraph::DescTag{}, resg, v);
+    const auto &traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    const auto &samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
 
     SubresourceView view{
         nullptr,
@@ -61,7 +64,6 @@ void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descri
         1, // numArraySlices
         0, // firstPlane
         1, // numPlanes
-        desc.viewType,
     };
 
     ccstd::string depthName{name};
@@ -315,7 +317,7 @@ uint32_t NativePipeline::addTexture(const ccstd::string &name, gfx::TextureType 
         sampleCount,
         residency == ResourceResidency::MEMORYLESS ? gfx::TextureFlagBit::LAZILY_ALLOCATED : gfx::TextureFlagBit::NONE,
         flags,
-        type
+        type,
     };
     return addVertex(
         ManagedTextureTag{},
@@ -352,15 +354,16 @@ void NativePipeline::updateBuffer(const ccstd::string &name, uint32_t size) {
     updateResource(name, gfx::Format::UNKNOWN, size, 0, 0, 0, 0, gfx::SampleCount::X1);
 }
 
-uint32_t NativePipeline::addResource(const ccstd::string& name, ResourceDimension dimension,
+uint32_t NativePipeline::addResource(
+    const ccstd::string &name, ResourceDimension dimension,
     gfx::Format format,
     uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
     gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
-    return dimension == ResourceDimension::BUFFER ? addBuffer(name, width, flags, residency) :
-        addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
+    return dimension == ResourceDimension::BUFFER ? addBuffer(name, width, flags, residency) : addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
 }
 
-void NativePipeline::updateResource(const ccstd::string& name, gfx::Format format,
+void NativePipeline::updateResource(
+    const ccstd::string &name, gfx::Format format,
     uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, // NOLINT(bugprone-easily-swappable-parameters)
     gfx::SampleCount sampleCount) {
     auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
@@ -391,7 +394,7 @@ void NativePipeline::updateResource(const ccstd::string& name, gfx::Format forma
                 resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
             }
         },
-        [&](ManagedBuffer &/*buffer*/) {
+        [&](ManagedBuffer & /*buffer*/) {
             desc.width = width;
         },
         [](const auto & /*res*/) {});
@@ -408,7 +411,7 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
     desc.textureFlags = gfx::TextureFlagBit::NONE;
-    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;;
+    desc.flags = ResourceFlags::STORAGE | ResourceFlags::SAMPLED | ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
@@ -687,85 +690,89 @@ void NativePipeline::endFrame() {
 
 namespace {
 
-    gfx::LoadOp getLoadOpOfClearFlag(gfx::ClearFlagBit clearFlag, AttachmentType attachment) {
-        gfx::LoadOp loadOp = gfx::LoadOp::CLEAR;
-        if (!(clearFlag & gfx::ClearFlagBit::COLOR) && attachment == AttachmentType::RENDER_TARGET) {
-            if (static_cast<uint32_t>(clearFlag) & cc::scene::Camera::SKYBOX_FLAG) {
-                loadOp = gfx::LoadOp::CLEAR;
-            } else {
-                loadOp = gfx::LoadOp::LOAD;
-            }
+gfx::LoadOp getLoadOpOfClearFlag(gfx::ClearFlagBit clearFlag, AttachmentType attachment) {
+    gfx::LoadOp loadOp = gfx::LoadOp::CLEAR;
+    if (!(clearFlag & gfx::ClearFlagBit::COLOR) && attachment == AttachmentType::RENDER_TARGET) {
+        if (static_cast<uint32_t>(clearFlag) & cc::scene::Camera::SKYBOX_FLAG) {
+            loadOp = gfx::LoadOp::CLEAR;
+        } else {
+            loadOp = gfx::LoadOp::LOAD;
         }
-        if ((clearFlag & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && attachment == AttachmentType::DEPTH_STENCIL) {
-            if (!(clearFlag & gfx::ClearFlagBit::DEPTH)) {
-                loadOp = gfx::LoadOp::LOAD;
-            }
-            if (!(clearFlag & gfx::ClearFlagBit::STENCIL)) {
-                loadOp = gfx::LoadOp::LOAD;
-            }
-        }
-        return loadOp;
     }
-    void updateCameraUBO(Setter &setter, const scene::Camera *camera, NativePipeline &ppl) {
-        auto sceneData = ppl.pipelineSceneData;
-        auto* skybox = sceneData->getSkybox();
-        setter.setBuiltinCameraConstants(camera);
+    if ((clearFlag & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && attachment == AttachmentType::DEPTH_STENCIL) {
+        if (!(clearFlag & gfx::ClearFlagBit::DEPTH)) {
+            loadOp = gfx::LoadOp::LOAD;
+        }
+        if (!(clearFlag & gfx::ClearFlagBit::STENCIL)) {
+            loadOp = gfx::LoadOp::LOAD;
+        }
+    }
+    return loadOp;
+}
 
+void updateCameraUBO(Setter &setter, const scene::Camera *camera, NativePipeline &ppl) {
+    auto sceneData = ppl.pipelineSceneData;
+    auto *skybox = sceneData->getSkybox();
+    setter.setBuiltinCameraConstants(camera);
+}
+
+void buildReflectionProbePass(
+    const scene::Camera *camera,
+    render::NativePipeline *pipeline,
+    const scene::ReflectionProbe *probe,
+    scene::RenderWindow *renderWindow,
+    int faceIdx) {
+    const std::string cameraName = "Camera" + std::to_string(faceIdx);
+    const auto &area = probe->renderArea();
+    const auto width = static_cast<uint32_t>(area.x);
+    const auto height = static_cast<uint32_t>(area.y);
+    const auto *probeCamera = probe->getCamera();
+    const std::string probePassRTName = "reflectionProbePassColor" + cameraName;
+    const std::string probePassDSName = "reflectionProbePassDS" + cameraName;
+    if (!pipeline->containsResource(probePassRTName)) {
+        pipeline->addRenderWindow(probePassRTName, gfx::Format::RGBA8, width, height, renderWindow);
+        pipeline->addDepthStencil(probePassDSName, gfx::Format::DEPTH_STENCIL, width, height, ResourceResidency::EXTERNAL);
     }
-    void buildReflectionProbePass(const scene::Camera *camera,
-                                  render::NativePipeline *pipeline,
-                                  const scene::ReflectionProbe *probe,
-                                  scene::RenderWindow *renderWindow,
-                                  int faceIdx) {
-        const std::string cameraName = "Camera" + std::to_string(faceIdx);
-        const auto &area = probe->renderArea();
-        int width = area.x;
-        int height = area.y;
-        const auto *probeCamera = probe->getCamera();
-        const std::string probePassRTName = "reflectionProbePassColor" + cameraName;
-        const std::string probePassDSName = "reflectionProbePassDS" + cameraName;
-        if (!pipeline->containsResource(probePassRTName)) {
-            pipeline->addRenderWindow(probePassRTName, gfx::Format::RGBA8, width, height, renderWindow);
-            pipeline->addDepthStencil(probePassDSName, gfx::Format::DEPTH_STENCIL, width, height, ResourceResidency::EXTERNAL);
-        }
-        pipeline->updateRenderWindow(probePassRTName, renderWindow);
-        pipeline->updateDepthStencil(probePassDSName, width, height, gfx::Format::DEPTH_STENCIL);
-        auto *passBuilder = pipeline->addRenderPass(width, height, "default");
-        passBuilder->setName("ReflectionProbePass"+faceIdx);
-        gfx::Viewport currViewport{};
-        currViewport.width = width;
-        currViewport.height = height;
-        passBuilder->setViewport(currViewport);
-        gfx::Color clearColor{};
-        clearColor.x = probeCamera->getClearColor().x;
-        clearColor.y = probeCamera->getClearColor().y;
-        clearColor.z = probeCamera->getClearColor().z;
-        clearColor.w = probeCamera->getClearColor().w;
-        passBuilder->addRenderTarget(probePassRTName,
-          getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::RENDER_TARGET),
-          gfx::StoreOp::STORE,
-          clearColor);
-        passBuilder->addDepthStencil(probePassDSName,
-            getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::DEPTH_STENCIL),
-            gfx::StoreOp::STORE,
-            probeCamera->getClearDepth(),
-            probeCamera->getClearStencil(),
-            probeCamera->getClearFlag());
-        auto* queueBuilder = passBuilder->addQueue(QueueHint::RENDER_OPAQUE, "reflect-map");
-        LightInfo lightInfo{};
-        lightInfo.probe = const_cast<scene::ReflectionProbe*>(probe);
-        queueBuilder->addSceneOfCamera(const_cast<scene::Camera *>(camera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
-        updateCameraUBO(*queueBuilder, probeCamera, *pipeline);
-    }
+    pipeline->updateRenderWindow(probePassRTName, renderWindow);
+    pipeline->updateDepthStencil(probePassDSName, width, height, gfx::Format::DEPTH_STENCIL);
+    std::unique_ptr<RenderPassBuilder> passBuilder(pipeline->addRenderPass(width, height, "default"));
+    passBuilder->setName("ReflectionProbePass" + std::to_string(faceIdx));
+    gfx::Viewport currViewport{};
+    currViewport.width = width;
+    currViewport.height = height;
+    passBuilder->setViewport(currViewport);
+    gfx::Color clearColor{};
+    clearColor.x = probeCamera->getClearColor().x;
+    clearColor.y = probeCamera->getClearColor().y;
+    clearColor.z = probeCamera->getClearColor().z;
+    clearColor.w = probeCamera->getClearColor().w;
+    passBuilder->addRenderTarget(
+        probePassRTName,
+        getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::RENDER_TARGET),
+        gfx::StoreOp::STORE,
+        clearColor);
+    passBuilder->addDepthStencil(
+        probePassDSName,
+        getLoadOpOfClearFlag(probeCamera->getClearFlag(), AttachmentType::DEPTH_STENCIL),
+        gfx::StoreOp::STORE,
+        probeCamera->getClearDepth(),
+        probeCamera->getClearStencil(),
+        probeCamera->getClearFlag());
+    std::unique_ptr<RenderQueueBuilder> queueBuilder(
+        passBuilder->addQueue(QueueHint::RENDER_OPAQUE, "reflect-map"));
+    LightInfo lightInfo{};
+    lightInfo.probe = const_cast<scene::ReflectionProbe *>(probe);
+    queueBuilder->addSceneOfCamera(const_cast<scene::Camera *>(camera), lightInfo, SceneFlags::REFLECTION_PROBE | SceneFlags::OPAQUE_OBJECT);
+    updateCameraUBO(*queueBuilder, probeCamera, *pipeline);
+}
 
 } // namespace
 
-void NativePipeline::addBuiltinReflectionProbePass(
-    uint32_t width, uint32_t height, const scene::Camera *camera) {
-    const auto* reflectProbeManager = scene::ReflectionProbeManager::getInstance();
+void NativePipeline::addBuiltinReflectionProbePass(const scene::Camera *camera) {
+    const auto *reflectProbeManager = scene::ReflectionProbeManager::getInstance();
     if (!reflectProbeManager) return;
     const auto &probes = reflectProbeManager->getAllProbes();
-    for (auto* probe : probes) {
+    for (auto *probe : probes) {
         if (probe->needRender()) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
                 buildReflectionProbePass(camera, this, probe, probe->getRealtimePlanarTexture()->getWindow(), 0);
@@ -872,7 +879,7 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
 namespace {
 
 void setupGpuDrivenResources(
-    NativePipeline& ppl, uint32_t cullingID, ResourceGraph& resg, const std::string &hzbName) {
+    NativePipeline &ppl, uint32_t cullingID, ResourceGraph &resg, const std::string &hzbName) {
     ccstd::pmr::string name(resg.get_allocator());
     { // init resource
         name = "_GpuInit";
@@ -949,7 +956,6 @@ void setupGpuDrivenResources(
         }
     }
     if (!hzbName.empty()) {
-
     }
 }
 
@@ -984,7 +990,8 @@ void NativePipeline::addBuiltinGpuCullingPass(
             copyPass.copyPairs.emplace_back(std::move(copyPair));
         }
 
-        auto copyID = addVertex2(CopyTag{},
+        auto copyID = addVertex2(
+            CopyTag{},
             std::forward_as_tuple("CopyInitialIndirectBuffer"),
             std::forward_as_tuple(),
             std::forward_as_tuple(),
@@ -1001,7 +1008,7 @@ void NativePipeline::addBuiltinGpuCullingPass(
                 std::piecewise_construct,
                 std::forward_as_tuple(drawIndirectBuffer),
                 std::forward_as_tuple());
-            auto& view = res.first->second.emplace_back();
+            auto &view = res.first->second.emplace_back();
             view.name = "CCDrawIndirectBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
@@ -1011,7 +1018,7 @@ void NativePipeline::addBuiltinGpuCullingPass(
                 std::piecewise_construct,
                 std::forward_as_tuple(drawInstanceBuffer),
                 std::forward_as_tuple());
-            auto& view = res.first->second.emplace_back();
+            auto &view = res.first->second.emplace_back();
             view.name = "CCDrawInstanceBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
@@ -1021,13 +1028,14 @@ void NativePipeline::addBuiltinGpuCullingPass(
                 std::piecewise_construct,
                 std::forward_as_tuple(visibilityBuffer),
                 std::forward_as_tuple());
-            auto& view = res.first->second.emplace_back();
+            auto &view = res.first->second.emplace_back();
             view.name = "CCVisibilityBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
         }
 
-        auto computePassID = addVertex2(ComputeTag{},
+        auto computePassID = addVertex2(
+            ComputeTag{},
             std::forward_as_tuple("Scene"),
             std::forward_as_tuple(),
             std::forward_as_tuple(),
