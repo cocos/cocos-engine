@@ -125,7 +125,7 @@ export abstract class MacOSPackTool extends NativePackTool {
                         const filterFolders = (name: string): boolean => {
                             // NOTE: `assets/remote` should not be linked into Resources/
                             // return name !== '.' && name !== '..' && name !== 'remote';
-                            return name === 'data'; // only accept `data` folder
+                            return name === 'data' || name === 'remote'; // only accept `data` or `remote` folder
                         };
                         fs.readdirSync(assetsDir, { encoding: 'utf8' }).filter(filterFolders).forEach(f => {
                             const full = ps.normalize(ps.join(assetsDir, f));
