@@ -85,6 +85,13 @@ const eventMap = {
  * 滚动视图事件类型。
  */
 export enum EventType {
+    /**
+     * @en
+     * It means an invalid event type or "default empty value" of EventType.
+     *
+     * @zh
+     * 代表无效事件, 或者EventType的默认空值。
+     */
     NONE = '',
 
     /**
