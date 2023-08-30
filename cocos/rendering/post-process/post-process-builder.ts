@@ -185,7 +185,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
                 this.applyPreviewCamera(camera);
             }
 
-            ppl.addBuiltinReflectionProbePass(0, 0, camera);
+            ppl.addBuiltinReflectionProbePass(camera);
 
             passContext.postProcess = camera.postProcess || globalPP;
 
