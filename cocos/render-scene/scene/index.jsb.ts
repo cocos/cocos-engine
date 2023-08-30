@@ -171,6 +171,7 @@ export const FogType = Enum({
      */
     LAYERED: 3,
 });
+export const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
 export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
 export type FogInfo = JsbFogInfo;

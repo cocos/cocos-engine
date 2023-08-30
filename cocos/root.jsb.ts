@@ -224,6 +224,17 @@ rootProto._onDirectorPipelineChanged = function () {
     }
 }
 
+const oldOnGlobalPipelineStateChanged = rootProto.onGlobalPipelineStateChanged;
+rootProto.onGlobalPipelineStateChanged = function() {
+    oldOnGlobalPipelineStateChanged.call(this);
+    const builder = legacyCC.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+    if (builder) {
+        if (typeof builder.onGlobalPipelineStateChanged === 'function') {
+            builder.onGlobalPipelineStateChanged();
+        }
+    }
+}
+
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
     oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());

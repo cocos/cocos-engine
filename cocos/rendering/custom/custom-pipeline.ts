@@ -127,6 +127,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
     constructor (pipelineSceneData: PipelineSceneData) {
         this._sceneInfo = new SceneInfo(pipelineSceneData);
     }
+
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {

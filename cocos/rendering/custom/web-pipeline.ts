@@ -1828,7 +1828,12 @@ export class WebPipeline implements BasicPipeline {
         this._macros[name] = value;
     }
     public onGlobalPipelineStateChanged (): void {
-        // do nothing
+        const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+        if (builder) {
+            if (typeof builder.onGlobalPipelineStateChanged === 'function') {
+                builder.onGlobalPipelineStateChanged();
+            }
+        }
     }
     beginSetup (): void {
         if (!this._renderGraph) this._renderGraph = new RenderGraph();

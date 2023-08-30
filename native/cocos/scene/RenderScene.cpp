@@ -320,7 +320,7 @@ void RenderScene::removePointLights() {
     _pointLights.clear();
 }
 
-void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+void RenderScene::addRangedDirLight(RangedDirectionalLight *rangedDirLight) {
     _rangedDirLights.emplace_back(rangedDirLight);
 }
 
