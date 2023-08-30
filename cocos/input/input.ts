@@ -62,7 +62,7 @@ class InputEventDispatcher implements IEventDispatcher {
     }
 }
 
-const pointerEventTypeMap: Record<string, string> = {
+const pointerEventTypeMap: Record<string, InputEventType> = {
     [InputEventType.MOUSE_DOWN]: InputEventType.TOUCH_START,
     [InputEventType.MOUSE_MOVE]: InputEventType.TOUCH_MOVE,
     [InputEventType.MOUSE_UP]: InputEventType.TOUCH_END,
