@@ -112,14 +112,17 @@ CCProgram prefilter-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
   #include <common/color/gamma>
+  #include <common/common-define>
 
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump vec4 texSize;
+    mediump vec4 texSize;// x: useHDRIlluminance,z: threshold, w: enableAlphaMask
   };
   #pragma rate outputResultMap pass
-  uniform sampler2D outputResultMap;
+  uniform sampler2D outputResultMap; // ldr input
+  #pragma rate hdrInputMap pass
+  uniform sampler2D hdrInputMap;     // hdr input
 
   layout(location = 0) out vec4 fragColor;
 
@@ -128,13 +131,23 @@ CCProgram prefilter-fs %{
   }
 
   void main() {
-    vec3 color = texture(outputResultMap, v_uv).xyz;
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    #if CC_USE_FLOAT_OUTPUT
+     if(texSize.x > 0.0) {
+      color = texture(hdrInputMap, v_uv);
+     } else {
+      color = texture(outputResultMap, v_uv);
+      // color.xyz = SRGBToLinear(color.xyz);
+     }
+    #else
+      color = texture(outputResultMap, v_uv);
+      // color.xyz = SRGBToLinear(color.xyz);
+    #endif
 
-    if (luminance(SRGBToLinear(color)) > texSize.z) {
-      fragColor = vec4(color, 1.0);
-    } else {
-      fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    float contribute = step(texSize.z, luminance(color.rgb));
+    contribute *= mix(1.0, step(253.0 / 255.0, color.a), texSize.w);
+
+    fragColor = vec4(color.xyz * contribute, 1.0);
   }
 }%
 
