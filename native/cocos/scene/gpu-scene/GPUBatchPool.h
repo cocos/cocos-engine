@@ -51,6 +51,7 @@ class GPUScene;
 
 struct InstanceData {
     uint32_t objectId{UINT_MAX};
+    uint32_t phaseId{UINT_MAX};
     uint32_t batchId{UINT_MAX};
 };
 

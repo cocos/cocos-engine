@@ -167,6 +167,8 @@ void GPUBatchPool::update(uint32_t stamp) {
 
     for (auto &lightmapBatch : _batches) {
         for (auto &passBatch : lightmapBatch.second) {
+            auto *pass = passBatch.first;
+            const auto phaseId = pass->getPhaseID();
             auto &items = passBatch.second->getItems();
 
             for (auto &item : items) {
@@ -187,7 +189,7 @@ void GPUBatchPool::update(uint32_t stamp) {
                     _indirectCmds.push_back({indexCount, 0, firstIndex, firstVertex, firstInstance});
 
                     for (const auto &objectIdx : iter.second) {
-                        _instances.push_back({objectIdx, batchId});
+                        _instances.push_back({objectIdx, phaseId, batchId});
                     }
 
                     batchId++;
@@ -208,17 +210,12 @@ void GPUBatchPool::addModel(const Model* model) {
         const auto passCount = passes.size();
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {
-            const auto &pass = passes[passIdx];
-            // Stanley TODO: only support base pass now.
-            if (pass->getPhaseID() != 1) {
-                continue;
-            }
-
             auto lightmapIter = _batches.find(lightmap);
             if (lightmapIter == _batches.cend()) {
                 lightmapIter = _batches.insert({lightmap, PassBatchMap()}).first;
             }
 
+            const auto &pass = passes[passIdx];
             auto passIter = lightmapIter->second.find(pass);
             if (passIter == lightmapIter->second.cend()) {
                 passIter = lightmapIter->second.insert({pass, ccnew GPUBatch(_gpuScene, pass)}).first;
@@ -240,17 +237,12 @@ void GPUBatchPool::removeModel(const Model* model) {
         const auto passCount = passes.size();
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {
-            const auto &pass = passes[passIdx];
-            // Stanley TODO: only support base pass now.
-            if (pass->getPhaseID() != 1) {
-                continue;
-            }
-
             auto lightmapIter = _batches.find(lightmap);
             if (lightmapIter == _batches.cend()) {
                 continue;
             }
 
+            const auto &pass = passes[passIdx];
             auto passIter = lightmapIter->second.find(pass);
             if (passIter == lightmapIter->second.cend()) {
                 continue;

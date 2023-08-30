@@ -1057,29 +1057,9 @@ bool setupGpuDrivenResources(
 
 } // namespace
 
-bool projectSpherePerspective(Vec3 c, float r, float znear, Mat4 proj) {
-    if (-c.z < r + znear) return false;
-
-    Vec3 cr = c * r;
-    float czr2 = c.z * c.z - r * r;
-
-    float vx = std::sqrtf(c.x * c.x + czr2);
-    float minx = (vx * c.x + cr.z) / -(vx * c.z - cr.x);
-    float maxx = (vx * c.x - cr.z) / -(vx * c.z + cr.x);
-
-    float vy = std::sqrtf(c.y * c.y + czr2);
-    float miny = (vy * c.y + cr.z) / -(vy * c.z - cr.y);
-    float maxy = (vy * c.y - cr.z) / -(vy * c.z + cr.y);
-
-    Vec4 aabb = Vec4(minx * proj.m[0], miny * proj.m[5], maxx * proj.m[0], maxy * proj.m[5]);
-    // ndc space -> uv space
-    aabb = aabb * 0.5f + Vec4(0.5f, 0.5f, 0.5f, 0.5f);
-
-    return true;
-}
-
 void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
-    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+    const scene::Camera *camera, const std::string &layoutPath, 
+    const std::string &hzbName, const scene::Light *light, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
         return;
@@ -1089,8 +1069,6 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     if (!gpuScene) {
         return;
     }
-
-    //bool result = projectSpherePerspective(Vec3(0, 0, -10), 3, 1, camera->getMatProj());
 
     auto &sceneCulling = nativeContext.sceneCulling;
     auto iter = sceneCulling.sceneIDs.find(scene);
@@ -1166,15 +1144,19 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         const auto materialIndex = hzbName.empty() ? 2 : (bMainPass ? 0 : 1);
         const auto instanceCount = gpuScene->getInstanceCount();
         const auto groupCount = getGroupCount(instanceCount, scene::CS_GPU_CULLING_LOCAL_SIZE);
-        std::unique_ptr<ComputeQueueBuilder> gpuCullQueue(gpuCullPass->addQueue());
+        const auto phaseID = locate(LayoutGraph::null_vertex(), layoutPath, programLibrary->layoutGraph);
+        std::unique_ptr<NativeComputeQueueBuilder> gpuCullQueue(dynamic_cast<NativeComputeQueueBuilder*>(gpuCullPass->addQueue()));
         gpuCullQueue->addDispatch(groupCount, 1, 1, pipelineSceneData->getGPUCullingMaterial(materialIndex), 0);
 
-        ccstd::vector<Vec4> planes;
+        ccstd::vector<float> planes;
         const auto &frustum = camera->getFrustum();
         for (auto *plane : frustum.planes) {
-            planes.emplace_back(Vec4{plane->n.x, plane->n.y, plane->n.z, plane->d});
+            planes.push_back(plane->n.x);
+            planes.push_back(plane->n.y);
+            planes.push_back(plane->n.z);
+            planes.push_back(plane->d);
         }
-        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(Vec4) * 6);
+        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(float) * planes.size());
         gpuCullPass->setMat4("cc_view", camera->getMatView());
         gpuCullPass->setMat4("cc_proj", camera->getMatProj());
         gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
@@ -1185,7 +1167,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
         gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
         gpuCullPass->setUint("cc_instanceCount", instanceCount);
-        gpuCullPass->setUint("cc_sceneFlags", 0); // Stanley TODO
+        gpuCullPass->setUint("cc_phaseId", phaseID);
     }
 }
 

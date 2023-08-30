@@ -1457,7 +1457,7 @@ public:
      * @param hzbName @en name of hierarchical z buffer @zh 层次深度缓存的名字
      * @param light @en light of the culling pass @zh 剔除通道的灯光
      */
-    virtual void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) = 0;
+    virtual void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, bool bMainPass) = 0;
     /**
      * @en Add hierarchical z buffer generation pass
      * @zh 添加层次化深度缓存生成通道
@@ -1489,13 +1489,16 @@ public:
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
     }
     void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera) {
-        addBuiltinGpuCullingPass(cullingID, camera, "", nullptr, true);
+        addBuiltinGpuCullingPass(cullingID, camera, "", "", nullptr, true);
     }
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName) {
-        addBuiltinGpuCullingPass(cullingID, camera, hzbName, nullptr, true);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, "", nullptr, true);
     }
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
-        addBuiltinGpuCullingPass(cullingID, camera, hzbName, light, true);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, hzbName, nullptr, true);
+    }
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, hzbName, light, true);
     }
 };
 

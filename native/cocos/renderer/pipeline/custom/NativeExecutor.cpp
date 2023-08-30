@@ -1395,9 +1395,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
         if (any(sceneData.flags & SceneFlags::GPU_DRIVEN)) {
-            queue.opaqueBatchingQueue.recordCommandBuffer(
+            const auto renderQueueID = parent(sceneID, ctx.g);
+            CC_EXPECTS(holds<QueueTag>(renderQueueID, ctx.g));
+            const auto& renderQueue = get(QueueTag{}, renderQueueID, ctx.g);
+            const auto phaseLayoutID = renderQueue.phaseID;
+            CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
+
+            queue.gpuDrivenQueue.recordCommandBuffer(
                 ctx.resourceGraph, ctx.device, camera,
-                ctx.currentPass, ctx.cmdBuff, queue.sceneFlags, sceneData.cullingID);
+                ctx.currentPass, ctx.cmdBuff, phaseLayoutID, queue.sceneFlags, sceneData.cullingID);
             return;
         }
         queue.opaqueQueue.recordCommandBuffer(

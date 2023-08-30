@@ -291,6 +291,7 @@ public:
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline ccstd::hash_t getHash() const { return _hash; }
     inline gfx::PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
+    bool isBlend() const;
 
     // Only for UI
     void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor);
