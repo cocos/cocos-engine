@@ -948,9 +948,9 @@ exports.methods = {
     },
     setLayout() {
         const rect = this.$this.getBoundingClientRect();
-        if (this.layout === undefined) {
-            this.layout = layout;
-        }
+
+        this.layout ??= layout;
+
         if (rect.width) {
             if (rect.width > cssMediaWidth) {
                 layout = this.layout = 'horizontal';
