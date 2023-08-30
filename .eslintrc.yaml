@@ -165,6 +165,7 @@ rules:
         'exports': 'never',
         'functions': 'never'
     }]
+    quote-props: ['error', 'consistent-as-needed']
     function-paren-newline: off
     space-infix-ops: warn
     key-spacing: [warn, {
