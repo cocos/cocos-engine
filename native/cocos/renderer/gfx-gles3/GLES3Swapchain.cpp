@@ -122,6 +122,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     }
     if (_xr) {
         GLES3Device::getInstance()->context()->makeCurrent(_gpuSwapchain, _gpuSwapchain);
+        _gpuSwapchain->isXR = true;
     }
 
     switch (_vsyncMode) {
