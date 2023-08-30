@@ -180,5 +180,4 @@ rules:
     }]
     no-multiple-empty-lines: [warn, {'max': 2, 'maxEOF': 1}]
     '@typescript-eslint/no-unsafe-argument': off
-    '@typescript-eslint/no-unsafe-enum-comparison': off
     '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
