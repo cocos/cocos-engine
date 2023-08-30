@@ -888,7 +888,6 @@ const Elements = {
             Elements.normals.update.call(panel);
             Elements.tangents.update.call(panel);
             Elements.morphNormals.update.call(panel);
-            Elements.meshOptimizerAlgorithm.update.call(panel);
         },
     },
 };
