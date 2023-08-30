@@ -159,11 +159,11 @@ rules:
     no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
 
     comma-dangle: ['error', {
-        "arrays": "only-multiline",
-        "objects": "only-multiline",
-        "imports": "never",
-        "exports": "never",
-        "functions": "never"
+        'arrays': 'only-multiline',
+        'objects': 'only-multiline',
+        'imports': 'never',
+        'exports': 'never',
+        'functions': 'never'
     }]
     function-paren-newline: off
     space-infix-ops: warn
@@ -173,7 +173,7 @@ rules:
             'afterColon': true
         },
         'multiLine' :{
-            'beforeColon': true,
+            'beforeColon': false,
             'afterColon': true,
             'align': 'colon'
         }
