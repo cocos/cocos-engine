@@ -47,19 +47,26 @@ void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string 
 
 template <>
 void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, v);
+    const auto& traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    const auto& samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+
     SubresourceView view{
         nullptr,
         gfx::Format::DEPTH_STENCIL,
-        0, 1, 0, 1, 0, 1};
-
-    auto desc = get(ResourceGraph::DescTag{}, resg, v);
-    auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
-    auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+        0, // indexOrFirstMipLevel
+        1, // numMipLevels
+        0, // firstArraySlice
+        1, // numArraySlices
+        0, // firstPlane
+        1, // numPlanes
+        desc.viewType,
+    };
 
     ccstd::string depthName{name};
     depthName += "/";
     depthName += DEPTH_PLANE_NAME;
-    auto depthID = addVertex(
+    const auto depthID = addVertex(
         SubresourceViewTag{},
         std::forward_as_tuple(depthName.c_str()),
         std::forward_as_tuple(desc),
@@ -74,7 +81,7 @@ void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descri
     ccstd::string stencilName{name};
     stencilName += "/";
     stencilName += STENCIL_PLANE_NAME;
-    auto stencilID = addVertex(
+    const auto stencilID = addVertex(
         SubresourceViewTag{},
         std::forward_as_tuple(stencilName.c_str()),
         std::forward_as_tuple(desc),
