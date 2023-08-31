@@ -300,9 +300,9 @@ jobs:
             mkdir -p build/proj
             touch build/proj/cfg.cmake
             echo "set(CC_USE_GLES3 ON)" >> build/proj/cfg.cmake
-            echo "set(CC_USE_VULKAN ON)" >> build/proj/cfg.cmake
+            echo "set(CC_USE_VULKAN OFF)" >> build/proj/cfg.cmake
             echo "set(CC_USE_GLES2 ON)" >> build/proj/cfg.cmake
-            echo "set(USE_WEBSOCKET_SERVER ON)" >> build/proj/cfg.cmake
+            echo "set(USE_WEBSOCKET_SERVER OFF)" >> build/proj/cfg.cmake
             echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build/proj/cfg.cmake
             echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build/proj/cfg.cmake
             echo "set(CC_EXECUTABLE_NAME \"\")" >> build/proj/cfg.cmake
