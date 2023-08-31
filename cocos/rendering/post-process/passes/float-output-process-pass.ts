@@ -37,12 +37,15 @@ export class FloatOutputProcessPass extends SettingPass {
     effectName = 'pipeline/float-output-process';
     outputNames = ['FloatOutputProcess'];
 
+    hdrInputName: string = '';
+
     enableInAllEditorCamera = true;
     enable = true;
     checkEnable (camera: Camera): boolean {
         const ppl = (cclegacy.director.root as Root).pipeline;
         return ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     }
+    getHDRInputName (): string { return this.hdrInputName; }
 
     onGlobalPipelineStateChanged (): void {
         passContext.material = this.material;
@@ -81,7 +84,7 @@ export class FloatOutputProcessPass extends SettingPass {
         }
 
         passIndx = 1;
-        const input = this.lastPass!.slotName(camera, 0);
+        this.hdrInputName = this.lastPass!.slotName(camera, 0);
         const output = this.slotName(camera, 0);
         const layoutName = 'tone-mapping';
         const passName = `tone-mapping${cameraID}`;
@@ -89,7 +92,7 @@ export class FloatOutputProcessPass extends SettingPass {
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
         passContext.updatePassViewPort()
             .addRenderPass(layoutName, passName)
-            .setPassInput(input, 'u_texSampler')
+            .setPassInput(this.hdrInputName, 'u_texSampler')
             .setPassInput(copyDS, 'DepthTex')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(passIndx)
