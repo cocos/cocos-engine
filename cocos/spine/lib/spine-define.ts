@@ -524,7 +524,6 @@ function overrideProperty_VertexAttachment (): void {
             proto: prototype,
             property: 'id',
             getter: prototype.getId,
-            setter: prototype.setId,
         },
         {
             proto: prototype,
@@ -727,15 +726,12 @@ function overrideProperty_RegionAttachment (): void {
             property: 'rendererObject',
             getter: prototype.getRendererObject,
         },
-        {
-            proto: prototype,
-            property: 'offset',
-            getter: prototype.getOffset,
-        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
+
+    overrideDefineArrayProp(prototype, prototype.getOffset, 'offset');
     overrideDefineArrayPropGetSet(prototype, prototype.getUVs, prototype.setUVs, spine.wasmUtil.wasm.VectorFloat, 'uvs');
 }
 
