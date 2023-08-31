@@ -66,6 +66,12 @@ export interface FlagBaseItem {
 
     wechatPlugin?: boolean;
 
+    /**
+     * Different with wechat plugin, taobao plugin can't read buffer from local wasm.
+     * So we need another config item for taobao minigame plugin.
+     */
+    taobaoMinigamePlugin?: boolean;
+
     default?: string[];
 }
 
@@ -85,6 +91,12 @@ export interface BaseItem {
     native?: string;
 
     wechatPlugin?: boolean;
+
+    /**
+     * Different with wechat plugin, taobao plugin can't read buffer from local wasm.
+     * So we need another config item for taobao minigame plugin.
+     */
+    taobaoMinigamePlugin?: boolean;
 
     default?: string[];
 
