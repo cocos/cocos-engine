@@ -961,7 +961,7 @@ class DeviceRenderPass {
         let width = 0;
         let height = 0;
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
-            if (rasterV.attachmentType == AttachmentType.SHADING_RATE) {
+            if (rasterV.attachmentType === AttachmentType.SHADING_RATE) {
                 continue;
             }
             const resId = resGraph.vertex(resName);
@@ -970,7 +970,7 @@ class DeviceRenderPass {
             height = resDesc.height;
             break;
         }
-        const needRebuild = (width != currentWidth) || (height != currentHeight);
+        const needRebuild = (width !== currentWidth) || (height !== currentHeight);
 
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
