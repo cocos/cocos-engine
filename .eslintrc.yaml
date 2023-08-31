@@ -171,14 +171,22 @@ rules:
     '@typescript-eslint/no-empty-function': off
     no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
 
-    comma-dangle: ['error', {
+    comma-dangle: [error, {
         'arrays': 'never',
         'objects': 'always-multiline',
         'imports': 'never',
         'exports': 'never',
         'functions': 'never'
     }]
-    quote-props: ['error', 'consistent-as-needed']
+    quote-props: [error, 'consistent-as-needed']
+    no-extra-parens: [error, 'all', {
+      conditionalAssign: false,
+      returnAssign: false,
+      nestedBinaryExpressions: false,
+      enforceForArrowConditionals: false,
+      enforceForFunctionPrototypeMethods: false,
+      ignoreJSX: 'all'
+    }]
     function-paren-newline: off
     space-unary-ops: error
     key-spacing: [warn, {
@@ -193,9 +201,8 @@ rules:
         }
     }]
     one-var: [error, never]
-    eqeqeq: ['error', 'smart']
+    eqeqeq: [error, smart]
     no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
-    '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
     arrow-body-style: [error, as-needed]
     arrow-parens: [ error, as-needed ]
     brace-style: [ error, 1tbs ]
@@ -203,8 +210,10 @@ rules:
     id-match: off
     no-cond-assign: off
     no-constant-condition: off
-    # padded-blocks: ['error', { 'classes': 'always' }]
-    "@typescript-eslint/space-infix-ops": ["error"]
+    nonblock-statement-body-position: [error, below]
+    # padded-blocks: [error, { 'classes': 'always' }]
+    '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
+    "@typescript-eslint/space-infix-ops": [error]
     '@typescript-eslint/type-annotation-spacing': [error, {
         before: false,
         after: true,
