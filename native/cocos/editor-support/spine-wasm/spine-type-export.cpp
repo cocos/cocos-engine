@@ -399,8 +399,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<const String &>()
         .function("getPath", optional_override([](MeshAttachment &obj) {
             return STRING_SP2STD(obj.getPath()); }))
-        .function("setPath", optional_override([](MeshAttachment &obj, const std::string path) {
-            const String pathSP = STRING_STD2SP(path);
+        .function("setPath", optional_override([](MeshAttachment &obj, const std::string &path) {
+            const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
         .function("getRegionUVs", optional_override([](MeshAttachment &obj) {
             return VECTOR_SP2STD(obj.getRegionUVs());}))
@@ -467,8 +467,8 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getColor(); }), allow_raw_pointers())
         .function("getPath", optional_override([](RegionAttachment &obj) {
             return STRING_SP2STD(obj.getPath()); }))
-        .function("setPath", optional_override([](RegionAttachment &obj, const std::string path) {
-            const String pathSP = STRING_STD2SP(path);
+        .function("setPath", optional_override([](RegionAttachment &obj, const std::string &path) {
+            const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
         .function("getRendererObject", &RegionAttachment::getRendererObject, allow_raw_pointers())
         .function("getOffset", optional_override([](RegionAttachment &obj) {
