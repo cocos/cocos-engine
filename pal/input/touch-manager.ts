@@ -116,7 +116,7 @@ class TouchManager {
      */
     public getAllTouches (clone?: boolean): Touch[] {
         const touches: Touch[] = [];
-        this._touchMap.forEach((touch) => {
+        this._touchMap.forEach(touch => {
             if (touch) {
                 touches.push(clone === false ? touch : this._cloneTouch(touch));
             }
@@ -146,7 +146,7 @@ class TouchManager {
         }
         // Handle when exceed the max number of touches
         const now = performance.now();
-        this._touchMap.forEach((touch) => {
+        this._touchMap.forEach(touch => {
             if (now - touch.lastModified > macro.TOUCH_TIMEOUT) {
                 log(`The touches is more than MAX_TOUCHES, release touch id ${touch.getID()}.`);
                 // TODO: need to handle touch cancel event when exceed the max number of touches ?
