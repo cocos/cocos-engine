@@ -161,7 +161,7 @@ rules:
 
 
     # constructor-super: error
-    # curly: [ error, all ]
+    # curly: [error, all]
     # no-debugger: error
     # no-duplicate-case: error
     # no-eval: error
@@ -181,61 +181,64 @@ rules:
     no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
 
     comma-dangle: [error, {
-        'arrays': 'always-multiline',
-        'objects': 'always-multiline',
-        'imports': 'never',
-        'exports': 'never',
-        'functions': 'never'
+        'arrays': always-multiline,
+        'objects': always-multiline,
+        'imports': never,
+        'exports': never,
+        'functions': never
     }]
-    quote-props: [error, 'consistent-as-needed']
-    no-extra-parens: [error, 'all', {
-      conditionalAssign: false,
-      returnAssign: false,
-      nestedBinaryExpressions: false,
-      enforceForArrowConditionals: false,
-      enforceForFunctionPrototypeMethods: false,
-      ignoreJSX: 'all'
+    quote-props: [error, consistent-as-needed]
+    no-extra-parens: [error, all, {
+      'conditionalAssign': false,
+      'returnAssign': false,
+      'nestedBinaryExpressions': false,
+      'enforceForArrowConditionals': false,
+      'enforceForFunctionPrototypeMethods': false,
+      'ignoreJSX': all
     }]
     function-paren-newline: off
     space-unary-ops: error
     key-spacing: [error, {
-        'singleLine':{
+        'singleLine': {
             'beforeColon': false,
             'afterColon': true
         },
-        'multiLine' :{
+        'multiLine': {
             'beforeColon': false,
             'afterColon': true,
-            'align': 'colon'
+            'align': colon
         }
     }]
     one-var: [error, never]
     eqeqeq: [error, smart]
     arrow-body-style: [error, as-needed]
-    arrow-parens: [ error, as-needed ]
-    brace-style: [ error, 1tbs ]
-    id-denylist: [ error, any, unknown, Number, number, String, string, Boolean, boolean, Undefined, undefined ]
+    arrow-parens: [error, always]
+    brace-style: [error, 1tbs]
+    id-denylist: [error, any, unknown, Number, number, String, string, Boolean, boolean, Undefined, undefined]
     id-match: off
     no-cond-assign: off
     no-constant-condition: off
     nonblock-statement-body-position: [error, below]
-    # padded-blocks: [error, { 'classes': 'always' }]
-    '@typescript-eslint/no-unused-expressions': [error,
-        {
-            "allowShortCircuit": true,
-            "allowTernary": true,
-            "allowTaggedTemplates": false
-        }
-    ]
-    '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
-    "@typescript-eslint/space-infix-ops": [error]
+    # padded-blocks: [error, {
+    #     'classes': always
+    # }]
+    '@typescript-eslint/no-unused-expressions': [error, {
+        'allowShortCircuit': true,
+        'allowTernary': true,
+        'allowTaggedTemplates': false
+    }]
+    '@typescript-eslint/no-duplicate-type-constituents': [error, {
+        'ignoreIntersections': false,
+        'ignoreUnions': true
+    }]
+    '@typescript-eslint/space-infix-ops': [error]
     '@typescript-eslint/type-annotation-spacing': [error, {
-        before: false,
-        after: true,
-        overrides : {
-            arrow: {
-                before: true,
-                after: true,
+        'before': false,
+        'after': true,
+        'overrides' : {
+            'arrow': {
+                'before': true,
+                'after': true,
             }
         }
      }]
