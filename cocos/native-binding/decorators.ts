@@ -46,7 +46,6 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   apply(() => { $.visible(() => {
   const scene = legacyCC.director.getScene();
   const skybox = scene.globals.skybox;
-
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -62,7 +61,6 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   apply(() => { $.visible(() => {
   const scene = legacyCC.director.getScene();
   const skybox = scene.globals.skybox;
-
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -1069,7 +1067,6 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   if (this.useIBL && this.applyDiffuseMap) {
     return true;
   }
-
   return false;
 })(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'visible', 'diffuseMap');
   apply(() => { $.displayOrder(100)(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'displayOrder', 'reflectionMap');
@@ -1080,7 +1077,6 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   if (this._resource?.reflectionMap) {
     return true;
   }
-
   return false;
 })(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'visible', 'reflectionMap');
   apply(() => { $.tooltip('i18n:skybox.material')(SkyboxInfo.prototype, 'skyboxMaterial',  skyboxMaterialDescriptor); }, 'tooltip', 'skyboxMaterial');
