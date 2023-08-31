@@ -24,9 +24,8 @@
 import { WASM_SUPPORT_MODE } from 'internal:constants';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 
-import { sys, logID } from '../../core';
+import { sys, logID, cclegacy } from '../../core';
 
-import { game } from '../../game';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const MeshoptDecoder = {} as any;
@@ -90,4 +89,9 @@ export function InitDecoder (): Promise<void> {
     }));
 }
 
-game.onPostInfrastructureInitDelegate.add(InitDecoder);
+const intervalId = setInterval(() => {
+    if (cclegacy.game) {
+        cclegacy.game.onPostInfrastructureInitDelegate.add(InitDecoder);
+        clearInterval(intervalId);
+    }
+}, 10);
