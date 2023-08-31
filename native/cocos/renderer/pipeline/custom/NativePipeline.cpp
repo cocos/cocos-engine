@@ -1039,8 +1039,9 @@ void setupGpuDrivenResources(
 
 } // namespace
 
-void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
-                                              const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+void NativePipeline::addBuiltinGpuCullingPass(
+    uint32_t cullingID,
+    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
         return;
