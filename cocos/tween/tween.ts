@@ -24,7 +24,6 @@
 
 import { warn } from '../core';
 import { legacyCC } from '../core/global-exports';
-import { Node } from '../scene-graph';
 import { Action, FiniteTimeAction } from './actions/action';
 import { callFunc, hide, removeSelf, show } from './actions/action-instant';
 import { ActionInterval, delayTime, repeat, repeatForever, reverseTime, sequence, spawn } from './actions/action-interval';
@@ -46,6 +45,8 @@ type ConstructorType<T> = OmitType<T, Function>;
  * Tween provide a simple and flexible way to action, It's transplanted from cocos creator。
  * @zh
  * Tween 提供了一个简单灵活的方法来缓动目标，从 creator 移植而来。
+ * @class Tween
+ * @param [target]
  * @example
  * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
@@ -63,8 +64,10 @@ export class Tween<T> {
     private _timeScale = 1;
 
     /**
-     * @en set/get time scale for tween
-     * @zh 设置/读取 tween 的 time scale (时间缩放参数)
+     * !#en set/get time scale for tween
+     * !#zh 设置/读取 tween 的 time scale (时间缩放参数)
+     * @property timeScale
+     * @type {Number}
      * @default 1
      */
     get timeScale (): number {
@@ -73,7 +76,7 @@ export class Tween<T> {
 
     set timeScale (value: number) {
         if (value < 0) {
-            warn('The `timeScale` cannot be less than 0.');
+            warn('`timeScale` cannot be less than 0.');
             value = 1;
         }
         this._timeScale = value;
@@ -89,6 +92,7 @@ export class Tween<T> {
     /**
      * @en Sets tween tag
      * @zh 设置缓动的标签
+     * @method tag
      * @param tag @en The tag set for this tween @zh 为当前缓动设置的标签
      */
     tag (tag: number): Tween<T> {
@@ -101,8 +105,8 @@ export class Tween<T> {
      * Insert an action or tween to this sequence.
      * @zh
      * 插入一个 tween 到队列中。
+     * @method then
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     then (other: Tween<T>): Tween<T> {
         if (other instanceof Action) {
@@ -118,10 +122,10 @@ export class Tween<T> {
      * Sets tween target.
      * @zh
      * 设置 tween 的 target。
+     * @method target
      * @param target @en The target of this tween @zh 当前缓动的目标对象
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
-    target (target: T): Tween<T> {
+    target (target: T): Tween<T | undefined> {
         this._target = target;
         return this;
     }
@@ -131,7 +135,6 @@ export class Tween<T> {
      * Start this tween.
      * @zh
      * 运行当前 tween。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     start (): Tween<T> {
         if (!this._target) {
@@ -143,7 +146,7 @@ export class Tween<T> {
         }
         this._finalAction = this._union();
         this._finalAction.setTag(this._tag);
-        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target as unknown as Node, false);
+        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target as any, false);
         return this;
     }
 
@@ -152,7 +155,6 @@ export class Tween<T> {
      * Stop this tween.
      * @zh
      * 停止当前 tween。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     stop (): Tween<T> {
         if (this._finalAction) {
@@ -162,11 +164,13 @@ export class Tween<T> {
     }
 
     /**
-     * @en
+     * !#en
      * Pause this tween
-     * @zh
+     * !#zh
      * 暂停当前 tween
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @method pause
+     * @return {Tween}
+     * @typescript pause(): Tween<T>
      */
     pause (): Tween<T> {
         if (this._finalAction) {
@@ -176,12 +180,13 @@ export class Tween<T> {
     }
 
     /**
-     * @en
+     * !#en
      * Resume this tween
-     * @zh
+     * !#zh
      * 从暂停状态恢复当前 tween
      * @method resume
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @return {Tween}
+     * @typescript resume(): Tween<T>
      */
     resume (): Tween<T> {
         if (this._finalAction) {
@@ -195,12 +200,12 @@ export class Tween<T> {
      * Clone a tween.
      * @zh
      * 克隆当前 tween。
+     * @method clone
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
-     * @return @en Return the cloned tween @zh 返回克隆的 tween 对象。
      */
     clone (target: T): Tween<T> {
         const action = this._union();
-        return tween(target).then(action.clone() as unknown as Tween<T>);
+        return tween(target).then(action.clone() as any);
     }
 
     /**
@@ -208,7 +213,6 @@ export class Tween<T> {
      * Integrate all previous actions to an action.
      * @zh
      * 将之前所有的 action 整合为一个 action。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     union (): Tween<T> {
         const action = this._union();
@@ -222,12 +226,12 @@ export class Tween<T> {
      * Add an action which calculates with absolute value.
      * @zh
      * 添加一个对属性进行绝对值计算的 action。
+     * @method to
      * @param duration @en Tween time, in seconds @zh 缓动时间，单位为秒
      * @param props @en List of properties of tween @zh 缓动的属性列表
      * @param opts @en Optional functions of tween @zh 可选的缓动功能
      * @param opts.progress @en Interpolation function @zh 缓动的速度插值函数
      * @param opts.easing @en Tween function or a lambda @zh 缓动的曲线函数或lambda表达式
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption): Tween<T> {
         opts = opts || Object.create(null);
@@ -242,12 +246,13 @@ export class Tween<T> {
      * Add an action which calculates with relative value.
      * @zh
      * 添加一个对属性进行相对值计算的 action。
+     * @method by
      * @param duration @en Tween time, in seconds @zh 缓动时间，单位为秒
      * @param props @en List of properties of tween @zh 缓动的属性列表
      * @param opts @en Optional functions of tween @zh 可选的缓动功能
      * @param [opts.progress]
      * @param [opts.easing]
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @return {Tween}
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption): Tween<T> {
         opts = opts || Object.create(null);
@@ -262,8 +267,9 @@ export class Tween<T> {
      * Directly set target properties.
      * @zh
      * 直接设置 target 的属性。
+     * @method set
      * @param props @en List of properties of tween @zh 缓动的属性列表
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @return {Tween}
      */
     set (props: ConstructorType<T>): Tween<T> {
         const action = new SetAction(props);
@@ -276,8 +282,9 @@ export class Tween<T> {
      * Add a delay action.
      * @zh
      * 添加一个延时 action。
+     * @method delay
      * @param duration @en Delay time of this tween @zh 当前缓动的延迟时间
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @return {Tween}
      */
     delay (duration: number): Tween<T> {
         const action = delayTime(duration);
@@ -290,8 +297,9 @@ export class Tween<T> {
      * Add a callback action.
      * @zh
      * 添加一个回调 action。
+     * @method call
      * @param callback @en Callback function at the end of this tween @zh 当前缓动结束时的回调函数
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
+     * @return {Tween}
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
     call (callback: Function): Tween<T> {
@@ -305,8 +313,8 @@ export class Tween<T> {
      * Add a sequence action.
      * @zh
      * 添加一个队列 action。
+     * @method sequence
      * @param args @en All tween that make up the sequence @zh 组成队列的所有缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     sequence (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedSequence(...args);
@@ -319,8 +327,8 @@ export class Tween<T> {
      * Add a parallel action.
      * @zh
      * 添加一个并行 action。
+     * @method parallel
      * @param args @en The tween parallel to this tween @zh 与当前缓动并行的缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     parallel (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
@@ -336,7 +344,6 @@ export class Tween<T> {
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @param repeatTimes @en The repeat times of this tween @zh 重复次数
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     repeat (repeatTimes: number, embedTween?: Tween<T>): Tween<T> {
         /** adapter */
@@ -363,8 +370,8 @@ export class Tween<T> {
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
+     * @method repeatForever
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     repeatForever (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
@@ -386,8 +393,8 @@ export class Tween<T> {
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
+     * @method reverseTime
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     reverseTime (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
@@ -408,7 +415,6 @@ export class Tween<T> {
      * Add a hide action, only for node target.
      * @zh
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     hide (): Tween<T> {
         const action = hide();
@@ -421,7 +427,6 @@ export class Tween<T> {
      * Add a show action, only for node target.
      * @zh
      * 添加一个显示 action，只适用于 target 是节点类型的。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     show (): Tween<T> {
         const action = show();
@@ -434,7 +439,6 @@ export class Tween<T> {
      * Add a removeSelf action, only for node target.
      * @zh
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     removeSelf (): Tween<T> {
         const action = removeSelf(false);
@@ -447,7 +451,6 @@ export class Tween<T> {
      * Add a destroySelf action, only for node target.
      * @zh
      * 添加一个移除并销毁自己 action，只适用于 target 是节点类型的。
-     * @return @en Return the current tween for chaining invocation. @zh 返回当前 tween，以便链式调用。
      */
     destroySelf (): Tween<T> {
         const action = removeSelf(true);
@@ -457,22 +460,22 @@ export class Tween<T> {
 
     /**
      * @en
-     * Stop all tween actions
+     * Stop all tweens
      * @zh
-     * 停止所有缓动动作
+     * 停止所有缓动
      */
     static stopAll (): void {
         TweenSystem.instance.ActionManager.removeAllActions();
     }
     /**
      * @en
-     * Stop all tween actions by tag
+     * Stop all tweens by tag
      * @zh
-     * 停止所有指定标签的缓动动作
+     * 停止所有指定标签的缓动
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTag (tag: number, target?: object): void {
-        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as unknown as Node);
+        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as any);
     }
     /**
      * @en
@@ -482,7 +485,7 @@ export class Tween<T> {
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTarget (target?: object): void {
-        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as unknown as Node);
+        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as any);
     }
 
     private _union (): Action {
@@ -526,7 +529,7 @@ export class Tween<T> {
             }
         }
 
-        return spawn(tmp_args);
+        return spawn.apply(spawn, tmp_args as any);
     }
 }
 legacyCC.Tween = Tween;
@@ -537,7 +540,7 @@ legacyCC.Tween = Tween;
  * @zh
  * tween 是一个工具函数，帮助实例化 Tween 实例。
  * @param target @en The target of the result tween @zh 缓动的目标
- * @returns @en A tween object @zh Tween 实例
+ * @returns Tween 实例
  * @example
  * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
