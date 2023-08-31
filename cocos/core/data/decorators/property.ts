@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-
 import { DEV, EDITOR, TEST } from 'internal:constants';
 import { StringSubstitution, errorID, warnID } from '../../platform/debug';
 import { getClassName, mixin } from '../../utils/js-typed';
