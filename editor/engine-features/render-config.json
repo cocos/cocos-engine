@@ -292,7 +292,6 @@
             "label": "i18n:ENGINE.features.custom_pipeline.label",
             "description": "i18n:ENGINE.features.custom_pipeline.description",
             "wechatPlugin": false,
-            "required": true,
             "taobaoMinigamePlugin": false
         }
     },
