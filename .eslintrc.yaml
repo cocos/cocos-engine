@@ -214,7 +214,7 @@ rules:
     arrow-body-style: [error, as-needed]
     arrow-parens: [error, always]
     brace-style: [error, 1tbs]
-    id-denylist: [error, any, unknown, Number, number, String, string, Boolean, boolean, Undefined, undefined]
+    id-denylist: [error, any, unknown, Number, number, String, Boolean, boolean, Undefined, undefined]
     id-match: off
     no-cond-assign: off
     no-constant-condition: off
