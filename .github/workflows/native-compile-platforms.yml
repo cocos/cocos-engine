@@ -276,7 +276,7 @@ jobs:
               ./sdkmgr list
             fi
 
-        - name: Compile for OpenHarmony
+        - name: Compile for Openharmony
           run: |
             which node
             which npm
@@ -289,7 +289,34 @@ jobs:
             ls -l
             popd
 
-            cd ./templates/openharmony
+            NATIVE_ROOT=$GITHUB_WORKSPACE/native
+            echo "Compiling Openharmony ... "
+            cd $GITHUB_WORKSPACE/templates/
+            echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> openharmony/Pre-Sample.cmake
+            echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> openharmony/Post-Sample.cmake
+
+            cd $GITHUB_WORKSPACE/templates/openharmony
+
+            mkdir -p build/proj
+            touch build/proj/cfg.cmake
+            echo "set(CC_USE_GLES3 ON)" >> build/proj/cfg.cmake
+            echo "set(CC_USE_VULKAN ON)" >> build/proj/cfg.cmake
+            echo "set(CC_USE_GLES2 ON)" >> build/proj/cfg.cmake
+            echo "set(USE_WEBSOCKET_SERVER ON)" >> build/proj/cfg.cmake
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build/proj/cfg.cmake
+            echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build/proj/cfg.cmake
+            echo "set(CC_EXECUTABLE_NAME \"\")" >> build/proj/cfg.cmake
+
+            mkdir -p build/assets
+
+            ASSET_DIR=$GITHUB_WORKSPACE/templates/openharmony/build
+
+            echo "=============== HACK ./entry/build-profile.json5 ==============="
+            sed -i "s@[^-]DRES_DIR[^=]@$ASSET_DIR@g" ./entry/build-profile.json5
+            sed -i "s@[^-]DCOMMON_DIR[^=]@$NATIVE_ROOT/templates/common@g" ./entry/build-profile.json5
+
+            # To speedup CI, compile arm64-v8a only
+            sed -i "s@\"armeabi-v7a\",@@g" ./entry/build-profile.json5
 
             echo "=============== HACK ./hvigor/hvigor-wrapper.js ==============="
             sed -i "s@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\"\]@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\", \"--lockfile=false\"\]@g" ./hvigor/hvigor-wrapper.js
@@ -309,7 +336,8 @@ jobs:
             echo "=============== EXECUTE hvigorw ==============="
             ./hvigorw clean -i
             ./hvigorw --stop-daemon -i
-            ./hvigorw assembleHap -p debuggable=true --no-daemon -i
+            # ./hvigorw assembleHap -p debuggable=true --no-daemon -i
+            ./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
             echo "=============== EXECUTE hvigorw DONE ==============="
 
 
