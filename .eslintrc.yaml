@@ -188,14 +188,6 @@ rules:
         'functions': never
     }]
     quote-props: [error, consistent-as-needed]
-    no-extra-parens: [error, all, {
-      'conditionalAssign': false,
-      'returnAssign': false,
-      'nestedBinaryExpressions': false,
-      'enforceForArrowConditionals': false,
-      'enforceForFunctionPrototypeMethods': false,
-      'ignoreJSX': all
-    }]
     function-paren-newline: off
     space-unary-ops: error
     key-spacing: [error, {
@@ -222,6 +214,14 @@ rules:
     # padded-blocks: [error, {
     #     'classes': always
     # }]
+    '@typescript-eslint/no-extra-parens': [error, all, {
+      'conditionalAssign': false,
+      'returnAssign': false,
+      'nestedBinaryExpressions': false,
+      'enforceForArrowConditionals': false,
+      'enforceForFunctionPrototypeMethods': false,
+      'ignoreJSX': all
+    }]
     '@typescript-eslint/no-unused-expressions': [error, {
         'allowShortCircuit': true,
         'allowTernary': true,
@@ -231,6 +231,7 @@ rules:
         'ignoreIntersections': false,
         'ignoreUnions': true
     }]
+    '@typescript-eslint/keyword-spacing': [error]
     '@typescript-eslint/space-infix-ops': [error]
     '@typescript-eslint/type-annotation-spacing': [error, {
         'before': false,
