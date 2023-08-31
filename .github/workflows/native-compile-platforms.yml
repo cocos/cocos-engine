@@ -251,8 +251,10 @@ jobs:
           run: |
             if [ ! -d "$HOME/openharmony" ]; then
               mkdir -p $HOME/openharmony
+              echo "Download commandline-tools-linux.zip ..."
               curl -o commandline-tools-linux.zip "https://contentcenter-vali-drcn.dbankcdn.cn/pvt_2/DeveloperAlliance_package_901_9/b1/v3/E6zhv5UFQ2-inIwNJhTN6Q/commandline-tools-linux-2.0.0.2.zip?HW-CC-KV=V1&HW-CC-Date=20230621T074401Z&HW-CC-Expire=315360000&HW-CC-Sign=621224257B02079B1E76C0A56FDF21483400B1E3556213F88DC79BC9BE7D595D"
-              unzip commandline-tools-linux.zip -d $HOME/openharmony
+              echo "Unzip commandline-tools-linux.zip ..."
+              unzip commandline-tools-linux.zip -d $HOME/openharmony > /dev/null
               cd $HOME/openharmony
               ls -l
               cd command-line-tools
@@ -261,15 +263,15 @@ jobs:
               cd bin
               ./sdkmgr list
               echo "=============== INSTALL HOS toolchains:9 ==============="
-              ./sdkmgr install toolchains:9 --accept-license
+              ./sdkmgr install toolchains:9 --accept-license > /dev/null
               echo "=============== INSTALL OH SDK ets:9 ==============="
-              ./sdkmgr install OpenHarmony/ets:9 --accept-license
+              ./sdkmgr install OpenHarmony/ets:9 --accept-license > /dev/null
               echo "=============== INSTALL OH SDK js:9 ==============="
-              ./sdkmgr install OpenHarmony/js:9 --accept-license
+              ./sdkmgr install OpenHarmony/js:9 --accept-license > /dev/null
               echo "=============== INSTALL OH SDK native:9 ==============="
-              ./sdkmgr install OpenHarmony/native:9 --accept-license
+              ./sdkmgr install OpenHarmony/native:9 --accept-license > /dev/null
               echo "=============== INSTALL OH SDK toolchains:9 ==============="
-              ./sdkmgr install OpenHarmony/toolchains:9 --accept-license
+              ./sdkmgr install OpenHarmony/toolchains:9 --accept-license > /dev/null
               echo "=============== INSTALL OH SDK DONE ==============="
               ./sdkmgr list
             fi
