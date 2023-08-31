@@ -200,8 +200,8 @@ jobs:
           ./gradlew :CocosGame:assembleDebug --quiet
           echo "Compile Android Debug Done!"
 
-  compile_android:
-      name: "Android"
+  compile_openharmony:
+      name: "Openharmony"
       if: 
         (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
       runs-on: ubuntu-latest
