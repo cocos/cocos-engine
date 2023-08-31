@@ -23,18 +23,18 @@
 */
 
 import { AccelerometerCallback } from 'pal/input';
-import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, OS } from '../../system-info/enum-type';
-import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
+import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { BrowserType, OS } from '../../system-info/enum-type';
 
 export class AccelerometerInputSource {
     private _intervalInMileSeconds = 200;
     private _accelTimer = 0;
-    private _eventTarget: EventTarget = new  EventTarget();
-    private _deviceEventName: 'devicemotion' |'deviceorientation';
+    private _eventTarget: EventTarget = new EventTarget();
+    private _deviceEventName: 'devicemotion' | 'deviceorientation';
     private _globalEventClass: typeof window.DeviceMotionEvent | typeof window.DeviceOrientationEvent;
     private _didAccelerateFunc: (event: DeviceMotionEvent | DeviceOrientationEvent) => void;
 
@@ -46,7 +46,7 @@ export class AccelerometerInputSource {
             this._globalEventClass = window.DeviceOrientationEvent;
         }
         this._deviceEventName = this._globalEventClass === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
-        this._didAccelerateFunc  = this._didAccelerate.bind(this);
+        this._didAccelerateFunc = this._didAccelerate.bind(this);
     }
 
     private _registerEvent (): void {
@@ -120,12 +120,12 @@ export class AccelerometerInputSource {
 
     public start (): void {
         // for iOS 13+, safari
-        if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
-            DeviceMotionEvent.requestPermission().then((response) => {
+        if (window.DeviceMotionEvent && typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+            (DeviceMotionEvent as any).requestPermission().then(response => {
                 if (response === 'granted') {
                     this._registerEvent();
                 }
-            }).catch((e) => {});
+            }).catch((e: any) => {});
         } else {
             this._registerEvent();
         }
