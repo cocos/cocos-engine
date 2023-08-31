@@ -325,7 +325,7 @@ export class SimpleTexture extends TextureBase {
             }
         }
         const textureCreateInfo = this._getGfxTextureCreateInfo({
-            usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST | TextureUsageBit.COLOR_ATTACHMENT,
             format: this._getGFXFormat(),
             levelCount: this._mipmapLevel,
             flags,

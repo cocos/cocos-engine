@@ -41,7 +41,7 @@ void InitializeLayerBlending(out vec3 blendedBaseLayerD, out vec3 blendedBaseLay
   blendedBaseLayerD = baseD;
   blendedBaseLayerS = baseS;
   blendedSubLayerD = blendedSubLayerS = vec3(0.0);
-  lastLayerF = vec3(1.0);  
+  lastLayerF = vec3(1.0);
 }
 
 // use subLayerF instead of subLayerGF for ior-dependent 0-1 range

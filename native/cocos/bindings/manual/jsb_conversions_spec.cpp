@@ -43,7 +43,7 @@
 #include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
 #if CC_USE_PHYSICS_PHYSX
-#include "bindings/auto/jsb_physics_auto.h"
+    #include "bindings/auto/jsb_physics_auto.h"
 #endif
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
@@ -51,7 +51,7 @@
 #include "scene/Skybox.h"
 
 #if CC_USE_SPINE
-#include "cocos/editor-support/spine-creator-support/Vector2.h"
+    #include "cocos/editor-support/spine-creator-support/Vector2.h"
 #endif
 
 ///////////////////////// utils /////////////////////////
@@ -1614,6 +1614,18 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTShape
             nativevalue_to_se(from[i]->contacts, obj, ctx);
             return obj;
         }());
+    }
+    to.setObject(array);
+    return true;
+}
+
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTTriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
+    se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::CCTTriggerEventPair::COUNT));
+    for (size_t i = 0; i < from.size(); i++) {
+        auto t = i * cc::physics::CCTTriggerEventPair::COUNT;
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->cct));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shape));
+        array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
     return true;

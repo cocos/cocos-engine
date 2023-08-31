@@ -173,7 +173,7 @@ export abstract class MacOSPackTool extends NativePackTool {
         const xcodeInstalled = await toolHelper.runCommand('xcode-select', ['-p'], (code, stdout, stderr) => {
             if (code === 0) {
                 console.log(`[xcode-select] ${stdout}`);
-                if (stdout.indexOf('Xcode.app') > 0) {
+                if (stdout.indexOf('Xcode') > 0) {
                     xcodeFound = true;
                 }
             } else {

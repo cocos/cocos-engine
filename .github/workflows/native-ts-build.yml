@@ -18,7 +18,7 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -29,5 +29,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci --ignore-scripts
     - run: npx gulp build-debug-infos
+    - name: Download external
+      run: |
+        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
     - run: node ./scripts/compile-native-ts.js 
     #- run: echo "::remove-matcher owner=circular-reference-check::"

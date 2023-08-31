@@ -17,6 +17,8 @@ CCEffect %{
         - blend: true
           blendSrc: one
           blendDst: src_alpha
+          blendSrcAlpha: zero
+          blendDstAlpha: one
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [0.05, 0.05, 0.05, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
@@ -275,7 +277,15 @@ CCProgram surface-fragment %{
       if (bright > threshold)
         result.environmentSpecular = result.environmentSpecular / bright * threshold;
     #endif
-  }  
+  }
+
+  #define CC_SURFACES_LIGHTING_MODIFY_FOG
+  vec3 CCSurfacesLightingModifyFog(float fogFactor, vec3 color, in SurfacesMaterialData surfaceData, in LightingResult lightingResult)
+  {
+    // according to blend mode is one + src_alpha, fogColor should apply inv_src_alpha while glass is fully fogged, otherwise glass will be much more brighter.
+    vec3 fogColor = cc_fogColor.rgb * (1.0 - surfaceData.baseColor.a);
+    return mix(fogColor.rgb, color.rgb, fogFactor);
+  } 
 }%
 
 CCProgram standard-vs %{
