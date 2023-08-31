@@ -180,7 +180,7 @@ rules:
     no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
 
     comma-dangle: [error, {
-        'arrays': 'never',
+        'arrays': 'always-multiline',
         'objects': 'always-multiline',
         'imports': 'never',
         'exports': 'never',
