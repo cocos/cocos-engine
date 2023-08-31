@@ -291,11 +291,11 @@ jobs:
 
             NATIVE_ROOT=$GITHUB_WORKSPACE/native
             echo "Compiling Openharmony ... "
-            cd $GITHUB_WORKSPACE/templates/
-            echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> openharmony/Pre-Sample.cmake
-            echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> openharmony/Post-Sample.cmake
 
             cd $GITHUB_WORKSPACE/templates/openharmony
+
+            echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
+            echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
 
             mkdir -p build/proj
             touch build/proj/cfg.cmake
@@ -313,7 +313,7 @@ jobs:
 
             echo "=============== HACK ./entry/build-profile.json5 ==============="
             sed -i "s@[^-]DRES_DIR[^=]@$ASSET_DIR@g" ./entry/build-profile.json5
-            sed -i "s@[^-]DCOMMON_DIR[^=]@$NATIVE_ROOT/templates/common@g" ./entry/build-profile.json5
+            sed -i "s@[^-]DCOMMON_DIR[^=]@$GITHUB_WORKSPACE/templates/common@g" ./entry/build-profile.json5
 
             # To speedup CI, compile arm64-v8a only
             sed -i "s@\"armeabi-v7a\",@@g" ./entry/build-profile.json5
