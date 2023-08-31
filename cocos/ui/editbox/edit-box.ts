@@ -759,7 +759,6 @@ export class EditBox extends Component {
 
         if (placeholderLabel) {
             placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
-            placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }

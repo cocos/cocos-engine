@@ -244,6 +244,14 @@ export type CollisionCallback = (event?: ICollisionEvent) => void;
 
 /**
  * @en
+ * The definition of the trigger event of the character controller.
+ * @zh
+ * 角色控制器触发事件的值类型定义。
+ */
+export type CharacterTriggerEventType = 'onControllerTriggerEnter' | 'onControllerTriggerStay' | 'onControllerTriggerExit';
+
+/**
+ * @en
  * Value type definitions fot the collision events of character controller.
  * @zh
  * 角色控制器碰撞事件的值类型定义。

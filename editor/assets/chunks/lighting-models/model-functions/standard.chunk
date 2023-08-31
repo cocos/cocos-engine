@@ -108,7 +108,7 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
     float RoL = dot(lightingData.L, normalize(R));
     float calcSpec = D_GGX(roughness, saturate(RoL));
-    
+
     lightingSpecular = irradiance * calcSpec;
   }
   void CCSurfacesLightingCalculateEnvironmentTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
@@ -116,7 +116,7 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
     vec3 envSpec = vec3(0.0);
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
     float roughness = lightingData.specularParam;
-    
+
   #if CC_USE_REFLECTION_PROBE
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
@@ -200,7 +200,7 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
       return vec3(saturate(specBRDF));
     }
   #endif
-  
+
   void CCSurfacesLightingCalculateDirect2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular, in vec3 originalSpecular)
   {
   #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
@@ -234,6 +234,37 @@ void CCSurfaceLightingCalculateEnvironmentFresnel(out vec3 integratedGF, vec3 in
     specularLighting = vec3(0.0);
   #endif
   }
+
+  void CCSurfacesLightingCalculateDirectSheen(out vec3 specularLighting, out vec3 directGF, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    float sheen = Sheen(lightingData.NoHSat, lightingData.NoL, lightingData.NoV, lightingData.specularParam);
+    specularLighting = vec3(sheen) * intensitySpecular * lightSourceColorAndIntensity.xyz * lightSourceColorAndIntensity.w;
+    directGF = vec3(1.0);
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }
+
+  void CCSurfacesLightingCalculateEnvironmentSheen(out vec3 specularLighting, out vec3 environmentGF, in LightingIntermediateData lightingData, float lightIntensity, float intensitySpecular)
+  {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    LightingIntermediateData lightingDataSheen = lightingData;
+    float roughness = lightingData.specularParam;
+
+    // sample max distribute normal-vertical-direction reflection with fixed roughness
+    vec3 L = normalize(mix(lightingDataSheen.B, lightingDataSheen.N, 0.3));
+    lightingDataSheen.specularParam = mix(0.5, 0.9, roughness);
+    lightingDataSheen.V = lightingDataSheen.N = L;
+    specularLighting = CalculateEnvironmentSpecular(lightingDataSheen, lightIntensity);
+    specularLighting *= intensitySpecular;
+
+    // range limitation
+    environmentGF = vec3(Sheen(lightingData.NoV, roughness));
+  #else
+    specularLighting = vec3(0.0);
+  #endif
+  }  
 #endif
 
 #if CC_SURFACES_LIGHTING_TT

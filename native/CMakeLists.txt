@@ -520,7 +520,7 @@ cocos_source_files(
 )
 
 ############ main
-if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX OR MACOSX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
     cocos/platform/SDLHelper.cpp

@@ -173,7 +173,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
 
         const animation = skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
-        if (animation) {
+        if (animation && animation.enabledInHierarchy) {
             animation.notifySkinnedMeshAdded(this);
         } else {
             this.setUseBakedAnimation(false);

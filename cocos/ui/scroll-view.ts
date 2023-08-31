@@ -29,7 +29,7 @@ import { EventHandler as ComponentEventHandler } from '../scene-graph/component-
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
 import { errorID, logID } from '../core/platform/debug';
-import { Size, Vec2, Vec3 } from '../core/math';
+import { Size, Vec2, Vec3, approx } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
@@ -1067,7 +1067,7 @@ export class ScrollView extends ViewGroup {
 
         if (!this._stopMouseWheel) {
             this._handlePressLogic();
-            this.schedule(this._checkMouseWheel, 1.0 / 60, NaN, 0);
+            this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
 
@@ -1282,8 +1282,12 @@ export class ScrollView extends ViewGroup {
                 return a;
             }, totalMovement);
 
-            out.set(totalMovement.x * (1 - this.brake) / totalTime,
-                totalMovement.y * (1 - this.brake) / totalTime, totalMovement.z);
+            out.set(
+                totalMovement.x * (1 - this.brake) / totalTime,
+                totalMovement.y * (1 - this.brake) / totalTime,
+
+                totalMovement.z,
+            );
         }
         return out;
     }
@@ -1407,12 +1411,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _dispatchEvent (event: string): void {
-        if (event === EventType.SCROLL_ENDED) {
+        if (event === EventType.SCROLL_ENDED as string) {
             this._scrollEventEmitMask = 0;
-        } else if (event === EventType.SCROLL_TO_TOP
-            || event === EventType.SCROLL_TO_BOTTOM
-            || event === EventType.SCROLL_TO_LEFT
-            || event === EventType.SCROLL_TO_RIGHT) {
+        } else if (event === EventType.SCROLL_TO_TOP as string
+            || event === EventType.SCROLL_TO_BOTTOM as string
+            || event === EventType.SCROLL_TO_LEFT as string
+            || event === EventType.SCROLL_TO_RIGHT as string) {
             const flag = (1 << eventMap[event]);
             if (this._scrollEventEmitMask & flag) {
                 return;
@@ -1431,8 +1435,9 @@ export class ScrollView extends ViewGroup {
         }
 
         this._outOfBoundaryAmountDirty = true;
-        if (this._isOutOfBoundary()) {
-            const outOfBoundary = this._getHowMuchOutOfBoundary();
+        const outOfBoundary = this._getHowMuchOutOfBoundary();
+        const _isOutOfBoundary = !outOfBoundary.equals(Vec3.ZERO, EPSILON);
+        if (_isOutOfBoundary) {
             _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
             this._setContentPosition(_tempVec3);
@@ -1457,7 +1462,7 @@ export class ScrollView extends ViewGroup {
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
         if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
-            if (uiTrans.height < viewTrans.height) {
+            if (uiTrans.height < viewTrans.height || approx(uiTrans.height, viewTrans.height)) {
                 this._verticalScrollBar.hide();
             } else {
                 this._verticalScrollBar.show();
@@ -1465,7 +1470,7 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
-            if (uiTrans.width < viewTrans.width) {
+            if (uiTrans.width < viewTrans.width || approx(uiTrans.width, viewTrans.width)) {
                 this._horizontalScrollBar.hide();
             } else {
                 this._horizontalScrollBar.show();
@@ -1760,8 +1765,13 @@ export class ScrollView extends ViewGroup {
 
         if (!currentOutOfBoundary.equals(Vec3.ZERO, EPSILON)) {
             this._processInertiaScroll();
+            if (this._scrolling) {
+                this._scrolling = false;
+                if (!this._autoScrolling) {
+                    this._dispatchEvent(EventType.SCROLL_ENDED);
+                }
+            }
             this.unschedule(this._checkMouseWheel);
-            this._dispatchEvent(EventType.SCROLL_ENDED);
             this._stopMouseWheel = false;
             return;
         }
@@ -1771,8 +1781,13 @@ export class ScrollView extends ViewGroup {
         // mouse wheel event is ended
         if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
             this._onScrollBarTouchEnded();
+            if (this._scrolling) {
+                this._scrolling = false;
+                if (!this._autoScrolling) {
+                    this._dispatchEvent(EventType.SCROLL_ENDED);
+                }
+            }
             this.unschedule(this._checkMouseWheel);
-            this._dispatchEvent(EventType.SCROLL_ENDED);
             this._stopMouseWheel = false;
         }
     }
@@ -1865,7 +1880,7 @@ export class ScrollView extends ViewGroup {
         } else if (event instanceof EventHandle) {
             handleInputDevice = event.handleInputDevice;
         }
-        let value;
+        let value: Vec2;
         if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }

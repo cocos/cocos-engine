@@ -40,6 +40,7 @@ export interface IBaseCharacterController extends ILifecycle, IGroupMask {
     setDetectCollisions (value: boolean): void;
     setOverlapRecovery (value: boolean): void;
     move(movement: IVec3Like, minDist: number, elapsedTime: number): void;
+    syncPhysicsToScene (): void;
 }
 
 export interface ICapsuleCharacterController extends IBaseCharacterController {

@@ -20,6 +20,8 @@ export interface OHOSParam {
     ndkPath: string;
     orientation: IOrientation;
     packageName: string;
+    appABIs: string[];
+    apiLevel: number;
 }
 
 export class OpenHarmonyPackTool extends NativePackTool {
@@ -143,7 +145,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
             hdcExe, ['uninstall', packageName], false, hdcCwd);
         console.debug(`${hdc} install -r ${hapFile}`);
         await cchelper.runCmd(
-            hdcExe,['install', '-r', hapFile], false, hdcCwd);
+            hdcExe, ['install', '-r', hapFile], false, hdcCwd);
         console.debug(`${hdc} shell aa start -a ${ability} -b ${packageName}`);
         await cchelper.runCmd(
             hdcExe, ['shell', 'aa', 'start', '-a', ability, '-b', packageName, '-m', moduleName], false, hdcCwd);

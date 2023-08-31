@@ -33,6 +33,9 @@
                 },
                 "wechatPlugin": {
                     "type": "boolean"
+                },
+                "taobaoMinigamePlugin": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
@@ -104,6 +107,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "physics-2d-builtin": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d-box2d-wasm": {
                     "$ref": "#/definitions/Item"
                 },
                 "physics-ammo": {
@@ -192,6 +198,9 @@
                 },
                 "wechatPlugin": {
                     "type": "boolean"
+                },
+                "taobaoMinigamePlugin": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
@@ -251,6 +260,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "physics-2d-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-box2d-wasm": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "physics-ammo": {

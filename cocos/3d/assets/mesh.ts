@@ -28,7 +28,7 @@ import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc } from '../../core';
+import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, errorID } from '../../core';
 import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
@@ -36,6 +36,8 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
+import { MeshoptDecoder } from '../misc/mesh-codec';
+import zlib  from '../../../external/compression/zlib.min';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -77,6 +79,13 @@ export declare namespace Mesh {
         attributes: Attribute[];
     }
 
+    export interface IMeshCluster {
+        clusterView: IBufferView;
+        triangleView: IBufferView;
+        vertexView: IBufferView;
+        coneView?: IBufferView;
+    }
+
     /**
      * @en Sub mesh contains a list of primitives with the same type (Point, Line or Triangle)
      * @zh 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
@@ -106,6 +115,11 @@ export declare namespace Mesh {
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
         jointMapIndex?: number;
+
+        /**
+         * @en The cluster data of the sub mesh
+         */
+        cluster?: IMeshCluster;
     }
 
     /**
@@ -197,6 +211,30 @@ export declare namespace Mesh {
          * @zh 动态网格特有数据
          */
         dynamic?: IDynamicStruct;
+
+        /**
+         * @en Whether the mesh data is quantized to reduce memory usage
+         * @zh 此网格数据是否经过量化以减少内存占用。
+         */
+        quantized?: boolean;
+
+        /**
+         * @en Whether the mesh data is encoded to reduce memory usage
+         * @zh
+         */
+        encoded?: boolean;
+
+        /**
+         * @en Whether the mesh data is compressed to reduce memory usage
+         * @zh 此网格数据是否经过压缩以减少内存占用。
+         */
+        compressed?: boolean;
+
+        /**
+         * @en Whether the mesh contains cluster data
+         * @zh 此网格是否包含 cluster 数据。
+         */
+        cluster?: boolean;
 
         /**
          * @en Whether to support GPU Scene
@@ -368,8 +406,18 @@ export class Mesh extends Asset {
         if (this._initialized) {
             return;
         }
-
         this._initialized = true;
+
+        let info = { struct: this.struct, data: this.data };
+        if (info.struct.compressed) { // decompress mesh data
+            info = inflateMesh(info);
+        }
+        if (this.struct.encoded) { // decode mesh data
+            info = decodeMesh(info);
+        }
+
+        this._struct = info.struct;
+        this._data = info.data;
 
         if (this._struct.dynamic) {
             const device: Device = deviceManager.gfxDevice;
@@ -442,7 +490,7 @@ export class Mesh extends Asset {
                 }
 
                 let indexBuffer: Buffer | null = null;
-                let ib: any = null;
+                let ib: Uint8Array | Uint16Array | Uint32Array | undefined;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
 
@@ -758,7 +806,8 @@ export class Mesh extends Asset {
                 for (let i = 0; i < struct.vertexBundles.length; i++) {
                     const vtxBdl = struct.vertexBundles[i];
                     for (let j = 0; j < vtxBdl.attributes.length; j++) {
-                        if (vtxBdl.attributes[j].name === AttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === AttributeName.ATTR_NORMAL) {
+                        if (vtxBdl.attributes[j].name === (AttributeName.ATTR_POSITION as string)
+                            || vtxBdl.attributes[j].name === (AttributeName.ATTR_NORMAL as string)) {
                             const { format } = vtxBdl.attributes[j];
 
                             const inputView = new DataView(
@@ -858,7 +907,8 @@ export class Mesh extends Asset {
                     for (let v = 0; v < dstBundle.view.count; ++v) {
                         dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                         vbView.set(dstAttrView, srcVBOffset);
-                        if ((attr.name === AttributeName.ATTR_POSITION || attr.name === AttributeName.ATTR_NORMAL) && worldMatrix) {
+                        if ((attr.name === (AttributeName.ATTR_POSITION as string)
+                            || attr.name === (AttributeName.ATTR_NORMAL as string)) && worldMatrix) {
                             const f32_temp = new Float32Array(vbView.buffer, srcVBOffset, 3);
                             vec3_temp.set(f32_temp[0], f32_temp[1], f32_temp[2]);
                             switch (attr.name) {
@@ -1264,7 +1314,7 @@ export class Mesh extends Asset {
         const primitive = this._struct.primitives[primitiveIndex];
         for (const vertexBundleIndex of primitive.vertexBundelIndices) {
             const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
-            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === (attributeName as string));
             if (iAttribute < 0) {
                 continue;
             }
@@ -1411,7 +1461,12 @@ function getReader (dataView: DataView, format: Format): ((offset: number) => nu
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number): number => dataView.getFloat32(offset, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
+        case 4: return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }
@@ -1461,12 +1516,97 @@ function getWriter (dataView: DataView, format: Format): ((offset: number, value
         break;
     }
     case FormatType.FLOAT: {
-        return (offset: number, value: number): void => dataView.setFloat32(offset, value, isLittleEndian);
+        switch (stride) {
+        case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+        case 4: return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        default:
+        }
+        break;
     }
     default:
     }
 
     return null;
+}
+
+export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    if (!mesh.struct.encoded) {
+        // the mesh is not encoded, so no need to decode
+        return mesh;
+    }
+
+    // decode the mesh
+    if (!MeshoptDecoder.supported) {
+        return mesh;
+    }
+
+    const res_checker = (res: number): void => {
+        if (res < 0) {
+            errorID(14204, res);
+        }
+    };
+
+    const struct = JSON.parse(JSON.stringify(mesh.struct)) as Mesh.IStruct;
+
+    const bufferBlob = new BufferBlob();
+    bufferBlob.setNextAlignment(0);
+
+    for (const bundle of struct.vertexBundles) {
+        const view = bundle.view;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const vertex = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeVertexBuffer(buffer, view.count, view.stride, vertex) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        bundle.view = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    for (const primitive of struct.primitives) {
+        if (primitive.indexView === undefined) {
+            continue;
+        }
+
+        const view = primitive.indexView;
+        const bound = view.count * view.stride;
+        const buffer = new Uint8Array(bound);
+        const index = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        const res = MeshoptDecoder.decodeIndexBuffer(buffer, view.count, view.stride, index) as number;
+        res_checker(res);
+
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        primitive.indexView = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    const data = new Uint8Array(bufferBlob.getCombined());
+
+    return {
+        struct,
+        data,
+    };
+}
+
+export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    const inflator = new zlib.Inflate(mesh.data);
+    const decompressed = inflator.decompress();
+    mesh.data = decompressed;
+    mesh.struct.compressed = false;
+    return mesh;
 }
 
 // function get

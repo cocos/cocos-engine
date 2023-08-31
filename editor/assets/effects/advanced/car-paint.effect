@@ -283,7 +283,7 @@ CCProgram surface-fragment %{
       vec4 flakeA = vec4(0.972,0.96,0.915,1);
       vec4 flakeB = vec4(1.0,0.78,0.344,1);
       vec4 flakeColor = lerp(flakeA, flakeB, data.r);
-      
+
       vec4 color = surfaceData.baseColor;
       color = lerp(color, flakeColor, flakeWeight);
       color = lerp(surfaceData.baseColor, color, surfaceData.metallic);

@@ -38,6 +38,7 @@
 #include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
+#include "NativeRenderGraphUtils.h"
 #include "RenderGraphGraphs.h"
 #include "base/Log.h"
 #include "boost/graph/depth_first_search.hpp"
@@ -56,7 +57,6 @@
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
-#include "NativeRenderGraphUtils.h"
 
 #ifndef BRANCH_CULLING
     #define BRANCH_CULLING 0
@@ -133,8 +133,8 @@ ResourceGraph::vertex_descriptor FrameGraphDispatcher::realResourceID(const ccst
 }
 
 [[nodiscard]] ccstd::pmr::string getSubresNameByPlane(const ccstd::pmr::string &resName,
-                                                                    uint32_t planeID, const ResourceGraph &resg,
-                                                                    boost::container::pmr::memory_resource *scratch) {
+                                                      uint32_t planeID, const ResourceGraph &resg,
+                                                      boost::container::pmr::memory_resource *scratch) {
     const auto &desc = get(ResourceGraph::DescTag{}, resg, vertex(resName, resg));
     // depth stencil
     if (desc.format == gfx::Format::DEPTH_STENCIL) {
@@ -185,10 +185,13 @@ ResourceGraph::vertex_descriptor locateSubres(ResourceGraph::vertex_descriptor r
     return findVertex(resName, resg);
 }
 
-ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string& originName,
+ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string &originName,
                                               const ResourceGraph &resg,
                                               uint32_t basePlane,
                                               boost::container::pmr::memory_resource *scratch) {
+    if (basePlane == 0xFFFFFFFF) {
+        return findVertex(originName, resg);
+    }
     const auto &resName = getSubresNameByPlane(originName, basePlane, resg, scratch);
     return findVertex(resName, resg);
 }
@@ -196,7 +199,7 @@ ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string& originNa
 ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string &originName,
                                               const ResourceGraph &resg,
                                               uint32_t basePlane,
-                                              const ResourceAccessGraph& rag,
+                                              const ResourceAccessGraph &rag,
                                               boost::container::pmr::memory_resource *scratch) {
     auto originID = findVertex(originName, resg);
     if (rag.movedSourceStatus.find(originName) != rag.movedSourceStatus.end()) {
@@ -206,7 +209,6 @@ ResourceGraph::vertex_descriptor locateSubres(const ccstd::pmr::string &originNa
     const auto &resName = getSubresNameByPlane(originName, basePlane, resg, scratch);
     return findVertex(resName, resg);
 }
-
 
 PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::buildDescriptorIndex(
     const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
@@ -232,7 +234,6 @@ PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> FrameGraphDispatcher::
     const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
     const PmrTransparentMap<ccstd::pmr::string, RasterView> &rasterViews,
     boost::container::pmr::memory_resource *scratch) const {
-
     auto resourceIndex = buildDescriptorIndex(computeViews, scratch);
     if (!rasterViews.empty()) {
         NameLocalID unused{128};
@@ -323,6 +324,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     CC_EXPECTS(fb->getColorTextures().at(0));
                     // render window attaches a depthStencil by default, which may differs from renderpassInfo here.
                     // data.framebuffer = fb;
+                    fbInfo.colorTextures.emplace_back(fb->getColorTextures().at(0));
                 },
                 [&](const RenderSwapchain &sc) {
                     fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
@@ -335,6 +337,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                 [&](const SubresourceView &view) {
                     fbInfo.colorTextures.emplace_back(view.textureView);
                 });
+            CC_EXPECTS(!fbInfo.colorTextures.empty());
         } else {
             // ds or ds resolve
             if (!info.isResolveView) {
@@ -492,7 +495,7 @@ bool isResourceView(const ResourceGraph::vertex_descriptor v, const ResourceGrap
 }
 
 gfx::ResourceRange getResourceRange(const ResourceGraph::vertex_descriptor v,
-                               const ResourceGraph &resg) {
+                                    const ResourceGraph &resg) {
     const auto &desc = get(ResourceGraph::DescTag{}, resg, v);
     gfx::ResourceRange range{
         desc.width,
@@ -614,7 +617,7 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
             rag.leafPasses.erase(lastVertID);
         }
 
-        if(viewStatus.access != AccessType::WRITE) {
+        if (viewStatus.access != AccessType::WRITE) {
             subResourceFeedback(resourceGraph, resourceID, desc.format);
         }
     }
@@ -909,7 +912,7 @@ void extractNames(const ccstd::pmr::string &resName,
     // cube
 
     // array
-    
+
     if (names.empty()) {
         names.emplace_back(resName, 0);
     }
@@ -961,7 +964,7 @@ auto checkRasterViews(const Graphs &graphs,
 
         ccstd::pmr::vector<std::pair<ccstd::pmr::string, uint32_t>> names(resourceAccessGraph.get_allocator());
         extractNames(resName, rasterView, names);
-        for (const auto& [subresFullName, plane] : names) {
+        for (const auto &[subresFullName, plane] : names) {
             resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
         }
     }
@@ -1002,9 +1005,9 @@ bool checkComputeViews(const Graphs &graphs, ResourceAccessGraph::vertex_descrip
             tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
             tryAddEdge(lastVertId, ragVertID, relationGraph);
             dependent = lastVertId != EXPECT_START_ID;
-            
+
             if (out_degree(resID, resourceGraph) && (computeView.plane != 0xFFFFFFFF)) {
-                const auto& subresFullName = getSubresNameByPlane(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
+                const auto &subresFullName = getSubresNameByPlane(resName, computeView.plane, resourceGraph, resourceAccessGraph.resource());
                 resourceAccessGraph.resourceIndex.emplace(subresFullName, vertex(subresFullName, resourceGraph));
             }
         }
@@ -1391,8 +1394,8 @@ void startRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass
 }
 
 bool rangeCheck(ResourceNode &status,
-                const ResourceDesc &/*desc*/,
-                const PmrString &/*targetName*/,
+                const ResourceDesc & /*desc*/,
+                const PmrString & /*targetName*/,
                 uint32_t firstSlice, uint32_t numSlices,
                 uint32_t firstMip, uint32_t mipLevels,
                 uint32_t planeIndex) {
@@ -1440,7 +1443,7 @@ uint32_t getPlaneCount(gfx::Format format) {
     }
 }
 
-bool moveValidation(const MovePass& pass, ResourceAccessGraph& rag, const ResourceGraph& resourceGraph) {
+bool moveValidation(const MovePass &pass, ResourceAccessGraph &rag, const ResourceGraph &resourceGraph) {
     bool check = true;
     ccstd::pmr::vector<ccstd::pmr::string> targets(rag.get_allocator());
     for (const auto &movePair : pass.movePairs) {
@@ -1530,7 +1533,7 @@ gfx::SamplerInfo makePointSamplerInfo() {
     return gfx::SamplerInfo{gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::POINT};
 }
 
-SubresourceView makeSubresourceView(const ResourceDesc& desc, const gfx::ResourceRange& range) {
+SubresourceView makeSubresourceView(const ResourceDesc &srcDesc, const ResourceDesc &targetDesc, const gfx::ResourceRange &range) {
     SubresourceView view{};
     view.firstArraySlice = range.firstSlice;
     view.numArraySlices = range.numSlices;
@@ -1538,7 +1541,8 @@ SubresourceView makeSubresourceView(const ResourceDesc& desc, const gfx::Resourc
     view.numMipLevels = range.levelCount;
     view.firstPlane = range.basePlane;
     view.numPlanes = range.planeCount;
-    view.format = desc.format;
+    view.format = targetDesc.format;
+    view.viewType = srcDesc.viewType;
     view.textureView = nullptr;
     return view;
 }
@@ -1568,8 +1572,8 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
 
             auto &rag = resourceAccessGraph;
             std::function<void(const ccstd::pmr::string &, ResourceGraph::vertex_descriptor)> feedBack = [&](
-                const ccstd::pmr::string &source,
-                ResourceGraph::vertex_descriptor v) {
+                                                                                                             const ccstd::pmr::string &source,
+                                                                                                             ResourceGraph::vertex_descriptor v) {
                 rag.resourceIndex[source] = v;
 
                 if (rag.movedTarget.find(source) != rag.movedTarget.end()) {
@@ -1581,7 +1585,7 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
             feedBack(pair.source, targetResID);
         }
     } else {
-        for(const auto& pair : pass.movePairs) {
+        for (const auto &pair : pass.movePairs) {
             CopyPass copyPass(resourceAccessGraph.get_allocator());
             copyPass.copyPairs.emplace_back(CopyPair(
                 pair.source,
@@ -1640,7 +1644,7 @@ struct DependencyVisitor : boost::dfs_visitor<> {
     const Graphs &graphs;
 };
 
-void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
+void subresourceAnalysis(ResourceAccessGraph &rag, ResourceGraph &resg) {
     using RecursiveFuncType = std::function<void(const PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> &, const ccstd::pmr::string &)>;
     RecursiveFuncType addSubres = [&](const PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> &subreses, const ccstd::pmr::string &resName) {
         if (subreses.size() == 1) {
@@ -1652,7 +1656,10 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
             }
         } else {
             for (const auto &[rangeStr, subres] : subreses) {
+                auto descResViewID = findVertex(subres, resg);
                 auto targetResID = rag.resourceIndex.at(resName);
+
+                const auto &srcDesc = get(ResourceGraph::DescTag{}, resg, descResViewID);
                 const auto &targetName = get(ResourceGraph::NameTag{}, resg, targetResID);
                 const auto &targetDesc = get(ResourceGraph::DescTag{}, resg, targetResID);
                 const auto &srcResourceRange = rag.movedSourceStatus.at(subres).range;
@@ -1660,7 +1667,7 @@ void subresourceAnalysis(ResourceAccessGraph& rag, ResourceGraph& resg) {
                 const auto &indexName = concatResName(targetName, subres, rag.resource());
                 auto subresID = findVertex(indexName, resg);
                 if (subresID == ResourceGraph::null_vertex()) {
-                    const auto &subView = makeSubresourceView(targetDesc, srcResourceRange);
+                    const auto &subView = makeSubresourceView(srcDesc, targetDesc, srcResourceRange);
                     // register to resourcegraph
                     subresID = addVertex(
                         SubresourceViewTag{},
@@ -1857,7 +1864,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             info.type = barrier.type;
             gfxBarrier = gfx::Device::getInstance()->getBufferBarrier(info);
         } else {
-            const auto& originRange = getOriginRange(barrier.resourceID, barrier.endStatus.range, resourceGraph);
+            const auto &originRange = getOriginRange(barrier.resourceID, barrier.endStatus.range, resourceGraph);
             gfx::TextureBarrierInfo info;
             info.prevAccesses = barrier.beginStatus.accessFlag;
             info.nextAccesses = barrier.endStatus.accessFlag;

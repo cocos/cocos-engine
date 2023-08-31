@@ -122,13 +122,12 @@ import {
     UpdateFrequency,
 } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
-import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
+import { WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
-    getDescBindingFromName,
     getDescriptorSetDataFromLayout,
     getDescriptorSetDataFromLayoutId,
     getRenderArea,
@@ -137,8 +136,6 @@ import {
     validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
-import { Texture2D } from '../../asset/assets/texture-2d';
 import { SceneCulling } from './scene-culling';
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -163,6 +160,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         // noop
     }
     persistentBuffer (value: Buffer): void {
+        // noop
     }
     persistentTexture (value: Texture): void {
         this.createDeviceTex(value);
@@ -174,8 +172,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.createDeviceTex(value);
     }
     formatView (value: FormatView): void {
+        // noop
     }
     subresourceView (value: SubresourceView): void {
+        // noop
     }
 }
 
@@ -1106,6 +1106,16 @@ class DevicePreSceneTask extends WebSceneTask {
     public start (): void {
         if (this.graphScene.blit) {
             this._currentQueue.createBlitDesc(this.graphScene.blit);
+            return;
+        }
+        if (!this.camera) {
+            return;
+        }
+        const sceneFlag = this._graphScene.scene!.flags;
+        if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
+            this._sceneCulling();
+            validPunctualLightsCulling(context.pipeline, this.camera);
+            context.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
         }
     }
 
@@ -1147,7 +1157,9 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     get graphScene (): GraphScene { return this._graphScene; }
-    public start (): void {}
+    public start (): void {
+        // noop
+    }
 
     protected _recordUI (): void {
         const batches = this.camera!.scene!.batches;
@@ -1283,6 +1295,14 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
 
+    private _recordAdditiveLights (): void {
+        context.additiveLight?.recordCommandBuffer(
+            context.device,
+            this._renderPass,
+            context.commandBuffer,
+        );
+    }
+
     public submit (): void {
         const devicePass = this._currentQueue.devicePass;
         const sceneCulling = context.culling;
@@ -1298,6 +1318,14 @@ class DeviceSceneTask extends WebSceneTask {
         const graphSceneData = this.graphScene.scene!;
         renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
+        if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
+            this._recordAdditiveLights();
+            this.visitor.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.pipeline.descriptorSet,
+            );
+        }
+
         renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
         renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
@@ -1729,13 +1757,27 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             this.currPass.resetResource(this.passID, pass);
         }
     }
-    rasterSubpass (value: RasterSubpass): void {}
-    computeSubpass (value: ComputeSubpass): void {}
-    compute (value: ComputePass): void {}
-    resolve (value: ResolvePass): void {}
-    copy (value: CopyPass): void {}
-    move (value: MovePass): void {}
-    raytrace (value: RaytracePass): void {}
+    rasterSubpass (value: RasterSubpass): void {
+        // noop
+    }
+    computeSubpass (value: ComputeSubpass): void {
+        // noop
+    }
+    compute (value: ComputePass): void {
+        // noop
+    }
+    resolve (value: ResolvePass): void {
+        // noop
+    }
+    copy (value: CopyPass): void {
+        // noop
+    }
+    move (value: MovePass): void {
+        // noop
+    }
+    raytrace (value: RaytracePass): void {
+        // noop
+    }
     queue (value: RenderQueue): void {
         if (!this.rg.getValid(this.queueID)) return;
         const deviceQueue = context.pools.addDeviceQueue();
@@ -1763,7 +1805,9 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         graphScene.init(null, value, -1);
         this.currQueue!.addSceneTask(graphScene);
     }
-    dispatch (value: Dispatch): void {}
+    dispatch (value: Dispatch): void {
+        // noop
+    }
 }
 
 class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
@@ -1786,21 +1830,39 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         this.currPass.record();
         this.currPass.postPass();
     }
-    rasterSubpass (value: RasterSubpass): void {}
-    computeSubpass (value: ComputeSubpass): void {}
-    resolve (value: ResolvePass): void {}
-    compute (value: ComputePass): void {}
-    copy (value: CopyPass): void {}
-    move (value: MovePass): void {}
-    raytrace (value: RaytracePass): void {}
+    rasterSubpass (value: RasterSubpass): void {
+        // noop
+    }
+    computeSubpass (value: ComputeSubpass): void {
+        // noop
+    }
+    resolve (value: ResolvePass): void {
+        // noop
+    }
+    compute (value: ComputePass): void {
+        // noop
+    }
+    copy (value: CopyPass): void {
+        // noop
+    }
+    move (value: MovePass): void {
+        // noop
+    }
+    raytrace (value: RaytracePass): void {
+        // noop
+    }
     queue (value: RenderQueue): void {
         // collect scene results
     }
     scene (value: SceneData): void {
         // scene command list finished
     }
-    blit (value: Blit): void {}
-    dispatch (value: Dispatch): void {}
+    blit (value: Blit): void {
+        // noop
+    }
+    dispatch (value: Dispatch): void {
+        // noop
+    }
 }
 
 export class RenderVisitor extends DefaultVisitor {
