@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
-import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
-import { IExposedAttributes } from '../utils/attribute-defines';
-import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
-import { warnID, errorID } from '../../platform/debug';
-import { getFullFormOfProperty } from '../utils/preprocess-class';
-import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
+import { DEV, EDITOR, TEST } from 'internal:constants';
+import { errorID, warnID } from '../../platform/debug';
 import { getClassName, mixin } from '../../utils/js-typed';
+import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
+import { CCBoolean, CCFloat, CCInteger, CCString } from '../utils/attribute';
+import { IExposedAttributes } from '../utils/attribute-defines';
+import { getFullFormOfProperty } from '../utils/preprocess-class';
+import { BabelPropertyDecoratorDescriptor, Initializer, LegacyPropertyDecorator, getOrCreateClassDecoratorStash, getSubDict } from './utils';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -131,7 +131,7 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
     try {
         // eslint-disable-next-line new-cap
         dummyObj = new classConstructor();
-    } catch (e) {
+    } catch (e: any) {
         if (DEV) {
             warnID(3652, getClassName(classConstructor), e);
         }
@@ -205,16 +205,16 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             }
         }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
-            propertyRecord.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
+        if ((descriptorOrInitializer).get) {
+            propertyRecord.get = (descriptorOrInitializer).get;
         }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set) {
-            propertyRecord.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
+        if ((descriptorOrInitializer).set) {
+            propertyRecord.set = (descriptorOrInitializer).set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
             // Specify "accessor options" for non-accessor property is forbidden.
-            errorID(3655, propertyKey as string, getClassName(ctor), propertyKey  as string, propertyKey  as string);
+            errorID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             return;
         }
 
