@@ -39,6 +39,9 @@ Batcher2d* instance = nullptr;
 }
 
 Batcher2d* Batcher2d::getInstance() {
+    if (instance == nullptr) {
+        instance = new Batcher2d();
+    }
     return instance;
 }
 
@@ -53,12 +56,10 @@ Batcher2d::Batcher2d(Root* root)
     _root = root;
     _device = _root->getDevice();
     _stencilManager = StencilManager::getInstance();
-    instance = this;
 }
 
 Batcher2d::~Batcher2d() { // NOLINT
     destroy();
-    instance = nullptr;
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -579,13 +580,9 @@ void Batcher2d::addScreen(Node* node) {
 }
 
 void Batcher2d::removeScreen(Node* node) {
-    auto iterator = _rootNodeArr.begin();
-    while (iterator != _rootNodeArr.end()) {
-        if(*iterator != node) {
-            ++iterator;
-        } else {
-            _rootNodeArr.erase(iterator);
-        }
+    auto iter = std::find(_rootNodeArr.begin(), _rootNodeArr.end(), node);
+    if (iter != _rootNodeArr.end()) {
+        _rootNodeArr.erase(iter);
     }
     std::sort(_rootNodeArr.begin(), _rootNodeArr.end(), Batcher2d::screenSort);
 }

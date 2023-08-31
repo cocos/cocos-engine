@@ -92,11 +92,6 @@ export class BufferAccessorManager {
         this._staticVBBuffer = null;
         this._currBID = -1;
     }
-
-    // Only for static batching
-    public setVBBufferForce (val: StaticVBAccessor | null): void {
-        this._staticVBBuffer = val;
-    }
 }
 
 BufferAccessorManager.instance = new BufferAccessorManager();

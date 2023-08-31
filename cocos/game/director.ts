@@ -741,9 +741,9 @@ export class Director extends EventTarget {
                 for (let i = 0; i < this._systems.length; ++i) {
                     this._systems[i].postUpdate(dt);
                 }
-
-                this.emit(Director.EVENT_UPDATE_UI);
             }
+
+            this.emit(Director.EVENT_UPDATE_UI);
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(dt);

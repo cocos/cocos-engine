@@ -100,7 +100,7 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
             ibStride,
         });
 
-        iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        iaInfo.attributes = *(Batcher2d::getInstance()->getDefaultAttribute());
         iaInfo.vertexBuffers.emplace_back(_vb);
         iaInfo.indexBuffer = _ib;
 

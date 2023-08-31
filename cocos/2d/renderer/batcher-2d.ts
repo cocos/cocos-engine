@@ -24,7 +24,6 @@
 
 import { DEBUG } from 'internal:constants';
 import { Camera, Model } from '../../render-scene/scene';
-import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
 import { UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
@@ -38,8 +37,7 @@ import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
-import { StaticVBAccessor } from './static-vb-accessor';
-import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
+import { getAttributeStride, vfmt } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
@@ -58,16 +56,16 @@ const m4_1 = new Mat4();
  * @zh UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
+    public static getInstance() {
+        if (this.instance === null) {
+            this.instance = new Batcher2D(cclegacy.director.root);
+        }
+        return this.instance;
+    }
+    private static instance: Batcher2D | null  = null;
+
     get batches (): CachedArray<DrawBatch2D> {
         return this._batches;
-    }
-
-    set currStaticRoot (value: UIStaticBatch | null) {
-        this._currStaticRoot = value;
-    }
-
-    set currIsStatic (value: boolean) {
-        this._currIsStatic = value;
     }
 
     public device: Device;
@@ -82,14 +80,12 @@ export class Batcher2D implements IBatcher {
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
-    private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderer | null = null;
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
-    private _currIsStatic = false;
     private _currHash = 0;
 
     //for middleware
@@ -246,14 +242,10 @@ export class Batcher2D implements IBatcher {
     public reset (): void {
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
-            if (batch.isStatic) {
-                continue;
-            }
-
             batch.clear();
             this._drawBatchPool.free(batch);
         }
-        // Reset buffer accessors
+
         BufferAccessorManager.instance.reset();
         const length = this._meshDataArray.length;
         for (let i = 0; i < length; i++) {
@@ -386,7 +378,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.visFlags = renderComp.node.layer;
         curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = transform || null;
@@ -510,35 +502,6 @@ export class Batcher2D implements IBatcher {
         }
     }
 
-    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor): void {
-        this.finishMergeBatches();
-        BufferAccessorManager.instance.setVBBufferForce(bufferAccessor);
-        this.currStaticRoot = staticComp;
-    }
-
-    public endStaticBatch (): void {
-        this.finishMergeBatches();
-        this.currStaticRoot = null;
-        // Clear linear buffer to switch to the correct internal accessor
-        BufferAccessorManager.instance.setVBBufferForce(null);
-        BufferAccessorManager.instance.switchBufferAccessor();
-    }
-
-    /**
-     * @en
-     * Submit separate render data.
-     * This data does not participate in the batch.
-     *
-     * @zh
-     * 提交独立渲染数据.
-     * @param comp @en The UIStaticBatch component.
-     *             @zh 静态组件
-     */
-    public commitStaticBatch (comp: UIStaticBatch): void {
-        this._batches.concat(comp.drawBatchList);
-        this.finishMergeBatches();
-    }
-
     /**
      * @en
      * End a section of render data and submit according to the batch condition.
@@ -600,7 +563,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
@@ -624,7 +587,7 @@ export class Batcher2D implements IBatcher {
         }
         dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.visFlags = renderComp.node.layer;
         const ia = this._middlewareBuffer!.requireFreeIA(this.device);
         ia.firstIndex = this._middlewareIndexStart;

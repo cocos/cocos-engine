@@ -42,7 +42,7 @@ export class UISystem extends System {
 
     public init (): void {
         if (!this._batcher) {
-            this._batcher = new Batcher2D(director.root!);
+            this._batcher = Batcher2D.getInstance();
         }
         director.on(Director.EVENT_AFTER_SCENE_LAUNCH, this.afterSceneLaunch, this);
         director.on(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);

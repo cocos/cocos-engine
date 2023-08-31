@@ -146,7 +146,7 @@ private:
     }
 
     static inline size_t screenSort (Node* nodeA, Node* nodeB) {
-        return nodeA->getSiblingIndex() - nodeB->getSiblingIndex();
+        return nodeA->getSiblingIndex() > nodeB->getSiblingIndex();
     }
 
     void insertMaskBatch(RenderEntity* entity);

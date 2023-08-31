@@ -71,7 +71,6 @@ export class DrawBatch2D {
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;
     public useLocalData: Node | null = null;
-    public isStatic = false; // use less,remove when remove Static batch
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
@@ -95,7 +94,6 @@ export class DrawBatch2D {
         this.textureHash = 0;
         this.samplerHash = 0;
         this.model = null;
-        this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         // this.renderScene = null;
