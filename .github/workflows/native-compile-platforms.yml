@@ -338,11 +338,16 @@ jobs:
           echo "=============== UPDATE ./hvigor/hvigor-config.json5 ==============="
           echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
+          echo "=============== Do not import game.ts for cocos_worker.ts ==============="
+          sed -i "s@import . launchEngine .@const window = globalThis;//@g" ./entry/src/main/ets/workers/cocos_worker.ts
+          sed -i 's@launchEngine().then@/*@g' ./entry/src/main/ets/workers/cocos_worker.ts
+          sed -i 's@window.oh.postMessage@*/window.oh.postMessage@g' ./entry/src/main/ets/workers/cocos_worker.ts
+
           echo "=============== EXECUTE hvigorw ==============="
           ./hvigorw clean -i
           ./hvigorw --stop-daemon -i
-          # ./hvigorw assembleHap -p debuggable=true --no-daemon -i
-          ./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
+          ./hvigorw assembleHap -p debuggable=true --no-daemon -d
+          #./hvigorw default@ProcessLibs -p debuggable=true --no-daemon -d
           echo "=============== EXECUTE hvigorw DONE ==============="
 
 
