@@ -205,11 +205,11 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             }
         }
-        if ((descriptorOrInitializer).get) {
-            propertyRecord.get = (descriptorOrInitializer).get;
+        if (descriptorOrInitializer.get) {
+            propertyRecord.get = descriptorOrInitializer.get;
         }
-        if ((descriptorOrInitializer).set) {
-            propertyRecord.set = (descriptorOrInitializer).set;
+        if (descriptorOrInitializer.set) {
+            propertyRecord.set = descriptorOrInitializer.set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
