@@ -305,9 +305,9 @@ jobs:
             echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
             echo "=============== EXECUTE hvigorw ==============="
-            ./hvigorw clean -i
-            ./hvigorw --stop-daemon -i
-            ./hvigorw assembleHap -p debuggable=true --no-daemon -i
+            #./hvigorw clean -i
+            #./hvigorw --stop-daemon -i
+            #./hvigorw assembleHap -p debuggable=true --no-daemon -i
             echo "=============== EXECUTE hvigorw DONE ==============="
 
 
