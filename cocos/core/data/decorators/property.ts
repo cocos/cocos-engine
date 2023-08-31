@@ -209,11 +209,17 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             }
         }
-        if (descriptorOrInitializer.get) {
-            propertyRecord.get = descriptorOrInitializer.get;
-        }
-        if (descriptorOrInitializer.set) {
-            propertyRecord.set = descriptorOrInitializer.set;
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const descriptor = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor);
+
+        if (propertyRecord && descriptor) {
+            if (descriptor.get) {
+                propertyRecord.get = descriptor.get;
+            }
+            if (descriptor.set) {
+                propertyRecord.set = descriptor.set;
+            }
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
