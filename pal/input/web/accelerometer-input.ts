@@ -121,7 +121,7 @@ export class AccelerometerInputSource {
     public start (): void {
         // for iOS 13+, safari
         if (window.DeviceMotionEvent && typeof (DeviceMotionEvent as any).requestPermission === 'function') {
-            (DeviceMotionEvent as any).requestPermission().then(response => {
+            (DeviceMotionEvent as any).requestPermission().then((response: string) => {
                 if (response === 'granted') {
                     this._registerEvent();
                 }
