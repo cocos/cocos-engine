@@ -73,7 +73,7 @@
     "jest-extended": "^1.1.0",
     "jest-matcher-deep-close-to": "^2.0.1",
     "jsdom": "^19.0.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "path": "^0.12.7",
     "pngjs": "^6.0.0",
     "progress": "^2.0.3",
