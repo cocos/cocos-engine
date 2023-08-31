@@ -173,11 +173,12 @@ rules:
     # prefer-template: error
 
 
-    # '@typescript-eslint/no-unsafe-argument': off
+    '@typescript-eslint/no-unsafe-argument': warn
 
     max-len: [warn, 250] # more lenient on max length per line
     no-console: warn # prefer the uniform logging methods
     no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
+    no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
 
     comma-dangle: [error, {
         'arrays': 'always-multiline',
@@ -197,7 +198,7 @@ rules:
     }]
     function-paren-newline: off
     space-unary-ops: error
-    key-spacing: [warn, {
+    key-spacing: [error, {
         'singleLine':{
             'beforeColon': false,
             'afterColon': true
@@ -210,7 +211,6 @@ rules:
     }]
     one-var: [error, never]
     eqeqeq: [error, smart]
-    no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
     arrow-body-style: [error, as-needed]
     arrow-parens: [ error, as-needed ]
     brace-style: [ error, 1tbs ]
@@ -229,7 +229,7 @@ rules:
     ]
     '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
     "@typescript-eslint/space-infix-ops": [error]
-    '@typescript-eslint/type-annotation-spacing': [warn, {
+    '@typescript-eslint/type-annotation-spacing': [error, {
         before: false,
         after: true,
         overrides : {
