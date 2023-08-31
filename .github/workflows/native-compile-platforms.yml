@@ -294,6 +294,9 @@ jobs:
             echo "@ohos:registry=https://repo.harmonyos.com/npm/" >> ~/.npmrc
             npm config get @ohos:registry
             npm config get registry
+
+            cd ./templates/openharmony
+
             echo "=============== UPDATE local.properties ==============="
             echo "nodejs.dir=/usr/bin" >> local.properties
             echo "hwsdk.dir=$HOME/openharmony/hwsdk" >> local.properties
