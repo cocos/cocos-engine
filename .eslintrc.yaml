@@ -124,7 +124,14 @@ rules:
 
     '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
     '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
-
+    '@typescript-eslint/no-empty-function': [error, {
+      allow: [
+        private-constructors,
+        protected-constructors,
+        decoratedFunctions,
+        overrideMethods,
+      ]
+    }]
     '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
     '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
     '@typescript-eslint/no-namespace': [warn, { # we need to declare static properties
@@ -168,7 +175,6 @@ rules:
 
     max-len: [warn, 250] # more lenient on max length per line
     no-console: warn # prefer the uniform logging methods
-    '@typescript-eslint/no-empty-function': off
     no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
 
     comma-dangle: [error, {
@@ -212,9 +218,16 @@ rules:
     no-constant-condition: off
     nonblock-statement-body-position: [error, below]
     # padded-blocks: [error, { 'classes': 'always' }]
+    '@typescript-eslint/no-unused-expressions': [error,
+        {
+            "allowShortCircuit": true,
+            "allowTernary": true,
+            "allowTaggedTemplates": false
+        }
+    ]
     '@typescript-eslint/no-duplicate-type-constituents': [error, { ignoreIntersections: false, ignoreUnions: true }]
     "@typescript-eslint/space-infix-ops": [error]
-    '@typescript-eslint/type-annotation-spacing': [error, {
+    '@typescript-eslint/type-annotation-spacing': [warn, {
         before: false,
         after: true,
         overrides : {
