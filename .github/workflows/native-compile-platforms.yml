@@ -287,6 +287,8 @@ jobs:
             ls -l
             popd
 
+            cd ./templates/openharmony
+
             echo "=============== HACK ./hvigor/hvigor-wrapper.js ==============="
             sed -i "s@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\"\]@HVIGOR_WRAPPER_PNPM_SCRIPT_PATH,\[\"install\", \"--lockfile=false\"\]@g" ./hvigor/hvigor-wrapper.js
 
@@ -294,8 +296,6 @@ jobs:
             echo "@ohos:registry=https://repo.harmonyos.com/npm/" >> ~/.npmrc
             npm config get @ohos:registry
             npm config get registry
-
-            cd ./templates/openharmony
 
             echo "=============== UPDATE local.properties ==============="
             echo "nodejs.dir=/usr/bin" >> local.properties
