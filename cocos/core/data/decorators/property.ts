@@ -67,18 +67,18 @@ export function property (...args: Parameters<LegacyPropertyDecorator>): void;
 export function property (
     target?: Parameters<LegacyPropertyDecorator>[0] | PropertyType,
     propertyKey?: Parameters<LegacyPropertyDecorator>[1],
-    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2]
+    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): LegacyPropertyDecorator | undefined {
     let options: IPropertyOptions | PropertyType | null = null;
     function normalized (
         target: Parameters<LegacyPropertyDecorator>[0],
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
-        descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2]
+        descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ): void {
         const classStash = getOrCreateClassDecoratorStash(target as AnyFunction);
         const propertyStash = getOrCreateEmptyPropertyStash(
             target,
-            propertyKey
+            propertyKey,
         );
         const classConstructor = target.constructor as (new () => unknown);
         mergePropertyOptions(
@@ -87,7 +87,7 @@ export function property (
             classConstructor,
             propertyKey,
             options,
-            descriptorOrInitializer
+            descriptorOrInitializer,
         );
     }
 
@@ -142,7 +142,7 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
 
 function getOrCreateEmptyPropertyStash (
     target: Parameters<LegacyPropertyDecorator>[0],
-    propertyKey: Parameters<LegacyPropertyDecorator>[1]
+    propertyKey: Parameters<LegacyPropertyDecorator>[1],
 ): PropertyStash {
     const classStash = getOrCreateClassDecoratorStash(target.constructor);
     const ccclassProto = getSubDict(classStash, 'proto');
@@ -154,19 +154,22 @@ function getOrCreateEmptyPropertyStash (
 export function getOrCreatePropertyStash (
     target: Parameters<LegacyPropertyDecorator>[0],
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
-    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2]
+    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): PropertyStash {
     const classStash = getOrCreateClassDecoratorStash(target.constructor);
     const ccclassProto = getSubDict(classStash, 'proto');
     const properties = getSubDict(ccclassProto, 'properties');
     const propertyStash = properties[propertyKey as string] ??= {} as PropertyStash;
     propertyStash.__internalFlags |= PropertyStashInternalFlag.STANDALONE;
-    if (descriptorOrInitializer && typeof descriptorOrInitializer !== 'function' && (descriptorOrInitializer.get || descriptorOrInitializer.set)) {
-        if (descriptorOrInitializer.get) {
-            propertyStash.get = descriptorOrInitializer.get;
+
+    const descriptor = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor);
+
+    if (descriptor && typeof descriptor !== 'function' && (descriptor.get || descriptor.set)) {
+        if (propertyStash && descriptor.get) {
+            propertyStash.get = descriptor.get;
         }
-        if (descriptorOrInitializer.set) {
-            propertyStash.set = descriptorOrInitializer.set;
+        if (propertyStash && descriptor.set) {
+            propertyStash.set = descriptor.set;
         }
     } else {
         setDefaultValue(
@@ -174,7 +177,7 @@ export function getOrCreatePropertyStash (
             propertyStash,
             target.constructor as new () => unknown,
             propertyKey,
-            descriptorOrInitializer
+            descriptorOrInitializer,
         );
     }
     return propertyStash;
@@ -187,7 +190,7 @@ function mergePropertyOptions (
     ctor: new () => unknown,
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     options,
-    descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined
+    descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined,
 ): void {
     let fullOptions;
     const isGetset = descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
@@ -224,7 +227,7 @@ function mergePropertyOptions (
             propertyRecord,
             ctor,
             propertyKey,
-            descriptorOrInitializer
+            descriptorOrInitializer,
         );
 
         if (EDITOR && !window.Build || TEST) {
@@ -241,7 +244,7 @@ function setDefaultValue<T> (
     propertyStash: PropertyStash,
     classConstructor: new () => T,
     propertyKey: PropertyKey,
-    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null
+    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null,
 ): void {
     if (descriptorOrInitializer !== undefined) {
         if (typeof descriptorOrInitializer === 'function') {
