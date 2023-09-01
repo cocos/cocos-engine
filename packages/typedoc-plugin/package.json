@@ -1,11 +1,11 @@
 {
+  "$schema": "../../schemas/module-config.schema.json",
   "name": "typedoc-plugin-cc",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "postinstall": "npm run build",
     "test": "jest"
   },
   "author": "",

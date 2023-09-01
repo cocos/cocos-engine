@@ -1,8 +1,9 @@
 {
+  "$schema": "../../schemas/module-config.schema.json",
   "name": "native-pack-tool",
   "version": "0.0.1",
   "description": "pack native project",
-  "main": "./dist/index",
+  "main": "./lib/index",
   "author": "CocosCreator",
   "license": "ISC",
   "scripts": {

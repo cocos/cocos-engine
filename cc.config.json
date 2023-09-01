@@ -1,5 +1,5 @@
 {
-    "$schema": "./cc.config.schema.json",
+    "$schema": "./schemas/cc.config.schema.json",
 
     "features": {
         "base": {
