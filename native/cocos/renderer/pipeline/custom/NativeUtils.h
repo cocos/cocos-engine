@@ -75,6 +75,10 @@ void setReadWriteTextureImpl(RenderData &data, const LayoutGraphData &lg, const 
 
 void setSamplerImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler);
 
+inline Vec4 toVec4(const Vec3 &vec, float w = 0.0F) noexcept {
+    return {vec.x, vec.y, vec.z, w};
+}
+
 } // namespace render
 
 } // namespace cc

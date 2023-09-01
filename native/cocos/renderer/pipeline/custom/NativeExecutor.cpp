@@ -60,6 +60,7 @@ namespace {
 
 constexpr uint32_t INVALID_ID = 0xFFFFFFFF;
 constexpr gfx::Color RASTER_COLOR{0.0, 1.0, 0.0, 1.0};
+constexpr gfx::Color RASTER_UPLOAD_COLOR{1.0, 1.0, 0.0, 1.0};
 constexpr gfx::Color RENDER_QUEUE_COLOR{0.0, 0.5, 0.5, 1.0};
 constexpr gfx::Color COMPUTE_COLOR{0.0, 0.0, 1.0, 1.0};
 
@@ -1124,9 +1125,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
-#if CC_DEBUG
-        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
-#endif
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
             const auto& passes = ctx.ppl->custom.renderPasses;
@@ -1484,10 +1482,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
-
-#if CC_DEBUG
-        ctx.cmdBuff->endMarker();
-#endif
     }
     void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1679,6 +1673,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         visitObject(
             vertID, ctx.g,
             [&](const RasterPass& pass) {
+#if CC_DEBUG
+        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
+#endif
                 mountResources(pass);
                 {
                     const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
@@ -1687,9 +1684,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 }
                 // update UniformBuffers and DescriptorSets in all children
                 {
+#if CC_DEBUG
+        ctx.cmdBuff->beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
+#endif
                     auto colors = ctx.g.colors(ctx.scratch);
                     RenderGraphUploadVisitor visitor{{}, ctx};
                     boost::depth_first_visit(gv, vertID, visitor, get(colors, ctx.g));
+#if CC_DEBUG
+        ctx.cmdBuff->endMarker();
+#endif
                 }
                 if (pass.showStatistics) {
                     const auto* profiler = ctx.ppl->getProfiler();
@@ -1795,6 +1798,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const RasterPass& pass) {
                 end(pass, vertID);
                 rearBarriers(vertID);
+#if CC_DEBUG
+        ctx.cmdBuff->endMarker();
+#endif
             },
             [&](const RasterSubpass& subpass) {
                 end(subpass, vertID);
