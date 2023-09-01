@@ -157,7 +157,7 @@ function sceneCulling (
 
     for (const model of scene.models) {
         assert(!!model);
-        if (!model.enabled || !model.node || !model.worldBounds || (castShadow && !model.castShadow)) {
+        if (!model.enabled || !model.node || (castShadow && !model.castShadow)) {
             continue;
         }
         if (scene && scene.isCulledByLod(camera, model)) {
@@ -166,9 +166,10 @@ function sceneCulling (
         if (!probe || (probe && probe.probeType === ProbeType.CUBE)) {
             if (isNodeVisible(model.node, visibility)
                 || isModelVisible(model, visibility)) {
+                const wBounds = model.worldBounds;
                 // frustum culling
-                if ((!probe && isFrustumVisible(model, camOrLightFrustum, castShadow))
-                    || (probe && isIntersectAABB(model.worldBounds, probe.boundingBox!))) {
+                if (wBounds && ((!probe && isFrustumVisible(model, camOrLightFrustum, castShadow))
+                    || (probe && isIntersectAABB(wBounds, probe.boundingBox!)))) {
                     continue;
                 }
 

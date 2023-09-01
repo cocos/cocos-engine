@@ -193,7 +193,7 @@ void bruteForceCulling(
     for (const auto& pModel : scene.getModels()) {
         CC_EXPECTS(pModel);
         const auto& model = *pModel;
-        if (!model.isEnabled() || !model.getNode() || !model.getWorldBounds() || (bCastShadow && !model.isCastShadow())) {
+        if (!model.isEnabled() || !model.getNode() || (bCastShadow && !model.isCastShadow())) {
             continue;
         }
         // lod culling
@@ -203,9 +203,10 @@ void bruteForceCulling(
         if (!probe || (probe && probe->getProbeType() == cc::scene::ReflectionProbe::ProbeType::CUBE)) {
             // filter model by view visibility
             if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
+                const auto* const wBounds = model.getWorldBounds();
                 // frustum culling
-                if ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) ||
-                    (probe && isIntersectAABB(*model.getWorldBounds(), *probe->getBoundingBox()))) {
+                if (wBounds && ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) ||
+                   (probe && isIntersectAABB(*wBounds, *probe->getBoundingBox())))) {
                     continue;
                 }
 
