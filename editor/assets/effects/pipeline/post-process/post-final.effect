@@ -1,0 +1,40 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      pass: post-final
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+
+CCProgram vs %{
+  #include <./chunks/vs>
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+
+  in vec2 v_uv;
+
+  uniform UBO {
+    vec4 inputViewPort;
+  };
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    fragColor = texture(inputTexture, v_uv);
+  }
+
+}%
+
