@@ -30,9 +30,6 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/core/PassUtils.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/CustomFwd.h"
 
 namespace cc {

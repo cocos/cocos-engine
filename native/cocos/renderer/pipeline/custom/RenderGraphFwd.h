@@ -32,7 +32,6 @@
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -80,6 +79,9 @@ struct ClearTag;
 struct ViewportTag;
 struct ClearView;
 struct RenderQueue;
+
+enum class CullingFlags : uint32_t;
+
 struct SceneData;
 struct Dispatch;
 struct Blit;

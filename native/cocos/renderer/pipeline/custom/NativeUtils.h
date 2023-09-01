@@ -24,7 +24,10 @@
 
 #pragma once
 #include "cocos/core/ArrayBuffer.h"
+#include "cocos/math/Vec2.h"
+#include "cocos/math/Vec3.h"
 #include "cocos/math/Vec4.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"

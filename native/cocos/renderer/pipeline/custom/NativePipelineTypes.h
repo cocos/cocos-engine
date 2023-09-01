@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
+#include "cocos/scene/ReflectionProbe.h"
 
 #ifdef _MSC_VER
     #pragma warning(push)
@@ -1177,17 +1178,19 @@ struct SceneResource {
     ccstd::pmr::unordered_map<NameLocalID, IntrusivePtr<gfx::Texture>> storageImages;
 };
 
+using CullingTarget = ccstd::variant<std::monostate, const scene::ReflectionProbe *, const scene::Light *>;
+
 struct CullingKey {
     const scene::Camera* camera{nullptr};
-    const scene::Light* light{nullptr};
     const scene::ReflectionProbe* probe{nullptr};
-    bool castShadow{false};
+    const scene::Light* light{nullptr};
     uint32_t lightLevel{0xFFFFFFFF};
+    bool castShadow{false};
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.probe, lhs.castShadow, lhs.lightLevel) ==
-           std::forward_as_tuple(rhs.camera, rhs.light, rhs.probe, rhs.castShadow, rhs.lightLevel);
+    return std::forward_as_tuple(lhs.camera, lhs.probe, lhs.light, lhs.lightLevel, lhs.castShadow) ==
+           std::forward_as_tuple(rhs.camera, rhs.probe, rhs.light, rhs.lightLevel, rhs.castShadow);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -1499,10 +1502,10 @@ namespace ccstd {
 inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::CullingKey& val) const noexcept {
     hash_t seed = 0;
     hash_combine(seed, val.camera);
-    hash_combine(seed, val.light);
     hash_combine(seed, val.probe);
-    hash_combine(seed, val.castShadow);
+    hash_combine(seed, val.light);
     hash_combine(seed, val.lightLevel);
+    hash_combine(seed, val.castShadow);
     return seed;
 }
 

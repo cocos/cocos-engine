@@ -1494,23 +1494,44 @@ export class RenderQueue {
     viewport: Viewport | null = null;
 }
 
+export enum CullingFlags {
+    NONE = 0,
+    CAMERA_FRUSTUM = 0x1,
+    LIGHT_FRUSTUM = 0x2,
+    LIGHT_BOUNDS = 0x4,
+}
+
 export class SceneData {
-    constructor (scene: RenderScene | null = null, camera: Camera | null = null, flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
+    constructor (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+        light: LightInfo = new LightInfo(),
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+    ) {
         this.scene = scene;
         this.camera = camera;
         this.light = light;
         this.flags = flags;
+        this.cullingFlags = cullingFlags;
     }
-    reset (scene: RenderScene | null = null, camera: Camera | null = null, flags: SceneFlags = SceneFlags.NONE): void {
+    reset (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+    ): void {
         this.scene = scene;
         this.camera = camera;
         this.light.reset();
         this.flags = flags;
+        this.cullingFlags = cullingFlags;
     }
     /*pointer*/ scene: RenderScene | null;
     /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
+    cullingFlags: CullingFlags;
 }
 
 export class Dispatch {
@@ -2776,9 +2797,10 @@ export class RenderGraphObjectPool {
         scene: RenderScene | null = null,
         camera: Camera | null = null,
         flags: SceneFlags = SceneFlags.NONE,
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
     ): SceneData {
         const v = this._sceneData.add();
-        v.reset(scene, camera, flags);
+        v.reset(scene, camera, flags, cullingFlags);
         return v;
     }
     createDispatch (

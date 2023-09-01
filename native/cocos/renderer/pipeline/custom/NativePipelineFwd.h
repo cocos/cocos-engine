@@ -29,10 +29,20 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
+
+namespace cc {
+
+namespace scene {
+
+class ReflectionProbe;
+
+} // namespace scene
+
+} // namespace cc
+
+#include "cocos/base/std/hash/hash.h"
 
 namespace cc {
 
@@ -65,6 +75,9 @@ struct QuadResource;
 enum class ResourceType;
 
 struct SceneResource;
+
+using CullingTarget = ccstd::variant<std::monostate, const scene::ReflectionProbe *, const scene::Light *>;
+
 struct CullingKey;
 struct CullingQueries;
 struct NativeRenderQueueDesc;

@@ -42,10 +42,10 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
     // make query key
     const auto key = CullingKey{
         sceneData.camera,
-        sceneData.light.light,
         sceneData.light.probe,
-        bCastShadow,
+        sceneData.light.light,
         sceneData.light.level,
+        bCastShadow,
     };
 
     // find query source
@@ -206,7 +206,7 @@ void bruteForceCulling(
                 const auto* const wBounds = model.getWorldBounds();
                 // frustum culling
                 if (wBounds && ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) ||
-                   (probe && isIntersectAABB(*wBounds, *probe->getBoundingBox())))) {
+                                (probe && isIntersectAABB(*wBounds, *probe->getBoundingBox())))) {
                     continue;
                 }
 

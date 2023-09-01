@@ -848,18 +848,51 @@ struct RenderQueue {
     gfx::Viewport viewport;
 };
 
+enum class CullingFlags : uint32_t {
+    NONE = 0,
+    CAMERA_FRUSTUM = 0x1,
+    LIGHT_FRUSTUM = 0x2,
+    LIGHT_BOUNDS = 0x4,
+};
+
+constexpr CullingFlags operator|(const CullingFlags lhs, const CullingFlags rhs) noexcept {
+    return static_cast<CullingFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr CullingFlags operator&(const CullingFlags lhs, const CullingFlags rhs) noexcept {
+    return static_cast<CullingFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr CullingFlags& operator|=(CullingFlags& lhs, const CullingFlags rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr CullingFlags& operator&=(CullingFlags& lhs, const CullingFlags rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(CullingFlags e) noexcept {
+    return e == static_cast<CullingFlags>(0);
+}
+
+constexpr bool any(CullingFlags e) noexcept {
+    return !!e;
+}
+
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn) noexcept
     : scene(sceneIn),
       camera(cameraIn),
       light(std::move(lightIn)),
-      flags(flagsIn) {}
+      flags(flagsIn),
+      cullingFlags(cullingFlagsIn) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
+    CullingFlags cullingFlags{CullingFlags::CAMERA_FRUSTUM};
 };
 
 struct Dispatch {

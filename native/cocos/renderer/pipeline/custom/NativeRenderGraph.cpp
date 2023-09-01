@@ -50,8 +50,8 @@ void NativeRenderNode::setCustomBehavior(const ccstd::string &name) { // NOLINT(
 RenderGraph::vertex_descriptor RenderGraph::getPassID(vertex_descriptor nodeID) const {
     CC_EXPECTS(nodeID != null_vertex());
     for (auto parentID = nodeID;
-        parentID != RenderGraph::null_vertex();
-        parentID = parent(nodeID, *this)) {
+         parentID != RenderGraph::null_vertex();
+         parentID = parent(nodeID, *this)) {
         nodeID = parentID;
     }
     CC_ENSURES(nodeID != null_vertex());
@@ -690,10 +690,27 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
+namespace {
+
+CullingFlags makeCullingFlags(const LightInfo &light) {
+    auto cullingFlags = CullingFlags::NONE;
+    if (light.culledByLight) {
+        cullingFlags |= CullingFlags::LIGHT_FRUSTUM;
+    } else {
+        cullingFlags |= CullingFlags::CAMERA_FRUSTUM;
+        if (light.light) {
+            cullingFlags |= CullingFlags::LIGHT_BOUNDS;
+        }
+    }
+    return cullingFlags;
+}
+
+} // namespace
+
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     const auto *pLight = light.light.get();
-    SceneData scene(camera->getScene(), camera, sceneFlags, light);
+    SceneData scene(camera->getScene(), camera, sceneFlags, light, makeCullingFlags(light));
     auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Camera"),
@@ -737,8 +754,11 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
 }
 
 void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
-    std::ignore = light;
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
+    auto cullingFlags = CullingFlags::CAMERA_FRUSTUM;
+    if (light) {
+        cullingFlags |= CullingFlags::LIGHT_BOUNDS;
+    }
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{}, cullingFlags);
 
     auto sceneID = addVertex2(
         SceneTag{},
@@ -752,7 +772,7 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
 
     if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
         const auto passID = renderGraph->getPassID(nodeID);
-        const auto cullingID = dynamic_cast<const NativePipeline*>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
+        const auto cullingID = dynamic_cast<const NativePipeline *>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
         CC_EXPECTS(cullingID != 0xFFFFFFFF);
         if (holds<RasterPassTag>(passID, *renderGraph)) {
             ccstd::pmr::string drawIndirectBuffer("CCDrawIndirectBuffer");
@@ -760,14 +780,14 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
             ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
             drawInstanceBuffer.append(std::to_string(cullingID));
 
-            auto& rasterPass = get(RasterPassTag{}, passID, *renderGraph);
+            auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
             if (rasterPass.computeViews.find(drawIndirectBuffer) != rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(drawIndirectBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
+                auto &view = res.first->second.emplace_back();
                 view.name = "CCDrawIndirectBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
@@ -778,7 +798,7 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
                     std::forward_as_tuple(drawInstanceBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
+                auto &view = res.first->second.emplace_back();
                 view.name = "CCDrawInstanceBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
@@ -792,7 +812,7 @@ void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
     scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level});
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level}, CullingFlags::LIGHT_FRUSTUM);
 
     auto sceneID = addVertex2(
         SceneTag{},
@@ -810,7 +830,7 @@ void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
     scene::SpotLight *light) {
     CC_EXPECTS(light);
     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0});
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0}, CullingFlags::LIGHT_FRUSTUM);
 
     auto sceneID = addVertex2(
         SceneTag{},

@@ -24,6 +24,8 @@
 
 #pragma once
 #include <cstdint>
+#include "cocos/math/Vec4.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
@@ -32,6 +34,7 @@ namespace cc {
 
 namespace scene {
 class Camera;
+class Light;
 class DirectionalLight;
 } // namespace scene
 
