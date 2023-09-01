@@ -1058,7 +1058,7 @@ bool setupGpuDrivenResources(
 } // namespace
 
 void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
-    const scene::Camera *camera, const std::string &layoutPath, 
+    const scene::Camera *camera, const std::string &layoutPath,
     const std::string &hzbName, const scene::Light *light, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
@@ -1156,7 +1156,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
             planes.push_back(plane->n.z);
             planes.push_back(plane->d);
         }
-        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(float) * planes.size());
+        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
         gpuCullPass->setMat4("cc_view", camera->getMatView());
         gpuCullPass->setMat4("cc_proj", camera->getMatProj());
         gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
@@ -1232,23 +1232,17 @@ void NativePipeline::addBuiltinHzbGenerationPass(
                     1, 1, 1, gfx::SampleCount::X1);
             }
 
-            bool moved = std::any_of(renderGraph.movePasses.begin(), renderGraph.movePasses.end(), [&currMipName](const MovePass &movePass) {
-                return std::any_of(movePass.movePairs.begin(), movePass.movePairs.end(), [&currMipName](const MovePair &pair) {
-                    return pair.source == currMipName;
-                });
-            });
-            if (!moved) {
-                MovePair pair(move.get_allocator());
-                pair.source = currMipName;
-                pair.target = targetHzbName;
-                pair.mipLevels = 1;
-                pair.numSlices = 1;
-                pair.targetMostDetailedMip = k;
-                move.movePairs.emplace_back(std::move(pair));
+            MovePair pair(move.get_allocator());
+            pair.source = currMipName;
+            pair.target = targetHzbName;
+            pair.mipLevels = 1;
+            pair.numSlices = 1;
+            pair.targetMostDetailedMip = k;
+            pair.possibleUsage = gfx::AccessFlagBit::COMPUTE_SHADER_READ_OTHER;
+            move.movePairs.emplace_back(std::move(pair));
 
-                desc.width = getHalfSize(desc.width);
-                desc.height =getHalfSize(desc.height);
-            }
+            desc.width = getHalfSize(desc.width);
+            desc.height =getHalfSize(desc.height);
         }
     }
 

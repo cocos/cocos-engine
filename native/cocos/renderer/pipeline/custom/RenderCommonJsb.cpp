@@ -235,6 +235,9 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
     nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
     obj->setProperty("targetPlaneSlice", tmp);
 
+    nativevalue_to_se(from.possibleUsage, tmp, ctx);
+    obj->setProperty("possibleUsage", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -503,6 +506,10 @@ bool sevalue_to_native<cc::render::MovePair>(const se::Value &from, cc::render::
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    obj->getProperty("possibleUsage", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->possibleUsage), ctx);
     }
     return ok;
 }

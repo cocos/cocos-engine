@@ -219,6 +219,7 @@ RasterPass::RasterPass(const allocator_type& alloc) noexcept
   computeViews(alloc),
   attachmentIndexMap(alloc),
   textures(alloc),
+  resources(alloc),
   subpassGraph(alloc),
   versionName(alloc) {}
 
@@ -227,6 +228,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   computeViews(std::move(rhs.computeViews), alloc),
   attachmentIndexMap(std::move(rhs.attachmentIndexMap), alloc),
   textures(std::move(rhs.textures), alloc),
+  resources(std::move(rhs.resources), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
   height(rhs.height),
@@ -243,6 +245,7 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   computeViews(rhs.computeViews, alloc),
   attachmentIndexMap(rhs.attachmentIndexMap, alloc),
   textures(rhs.textures, alloc),
+  resources(rhs.resources, alloc),
   subpassGraph(rhs.subpassGraph, alloc),
   width(rhs.width),
   height(rhs.height),
