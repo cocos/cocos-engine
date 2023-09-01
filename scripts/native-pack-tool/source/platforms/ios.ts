@@ -85,7 +85,7 @@ export class IOSPackTool extends MacOSPackTool {
     async generate() {
 
         if(!await this.checkIfXcodeInstalled()) {
-            throw new Error(`Please check if Xcode is installed.`);
+            console.error(`Please check if Xcode is installed.`);
         }
 
         if(this.shouldSkipGenerate()) {

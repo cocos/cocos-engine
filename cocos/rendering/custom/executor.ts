@@ -953,6 +953,25 @@ class DeviceRenderPass {
         if (this.renderLayout && this.renderLayout.descriptorSet) {
             this.renderLayout.descriptorSet.update();
         }
+
+        const resGraph = context.resourceGraph;
+        const currentWidth = this._framebuffer ? this._framebuffer.width : 0;
+        const currentHeight = this._framebuffer ? this._framebuffer.height : 0;
+
+        let width = 0;
+        let height = 0;
+        for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
+            if (rasterV.attachmentType === AttachmentType.SHADING_RATE) {
+                continue;
+            }
+            const resId = resGraph.vertex(resName);
+            const resDesc = resGraph.getDesc(resId);
+            width = resDesc.width;
+            height = resDesc.height;
+            break;
+        }
+        const needRebuild = (width !== currentWidth) || (height !== currentHeight);
+
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
             const currTex = deviceTex;
@@ -966,8 +985,7 @@ class DeviceRenderPass {
             const resDesc = resGraph.getDesc(resId);
             if (deviceTex.framebuffer && resFbo instanceof Framebuffer && deviceTex.framebuffer !== resFbo) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
-            } else if (!currTex || (deviceTex.texture
-                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height))) {
+            } else if (!currTex || (deviceTex.texture && needRebuild)) {
                 const gfxTex = deviceTex.texture!;
                 if (currTex) gfxTex.resize(resDesc.width, resDesc.height);
                 switch (rasterV.attachmentType) {

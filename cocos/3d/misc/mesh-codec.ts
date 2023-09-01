@@ -21,13 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import meshopt_asm_factory from 'external:emscripten/meshopt/meshopt_decoder.asm.js';
-import meshopt_wasm_factory from 'external:emscripten/meshopt/meshopt_decoder.wasm.js';
-import meshopt_wasm_url from 'external:emscripten/meshopt/meshopt_decoder.wasm.wasm';
-
 import { WASM_SUPPORT_MODE } from 'internal:constants';
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 
 import { sys, logID } from '../../core';
 
@@ -36,51 +31,63 @@ import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const MeshoptDecoder = {} as any;
 
-function initDecoderASM (): Promise<void> {
-    const Module = meshopt_asm_factory;
-    return Promise.all([Module.ready]).then(() => {
-        MeshoptDecoder.supported = true;
+function initDecoderASM (asm_factory: any): Promise<void> {
+    return Promise.all([asm_factory.ready]).then(() => {
+        MeshoptDecoder.supported = asm_factory.supported;
         MeshoptDecoder.ready = Promise.resolve();
-        MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
-        MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
-        MeshoptDecoder.decodeIndexSequence = Module.decodeIndexSequence;
-        MeshoptDecoder.decodeGltfBuffer = Module.decodeGltfBuffer;
-        MeshoptDecoder.useWorkers = Module.useWorkers;
-        MeshoptDecoder.decodeGltfBufferAsync = Module.decodeGltfBufferAsync;
+        MeshoptDecoder.decodeVertexBuffer = asm_factory.decodeVertexBuffer;
+        MeshoptDecoder.decodeIndexBuffer = asm_factory.decodeIndexBuffer;
+        MeshoptDecoder.decodeIndexSequence = asm_factory.decodeIndexSequence;
+        MeshoptDecoder.decodeGltfBuffer = asm_factory.decodeGltfBuffer;
+        MeshoptDecoder.useWorkers = asm_factory.useWorkers;
+        MeshoptDecoder.decodeGltfBufferAsync = asm_factory.decodeGltfBufferAsync;
         logID(14202);
     });
 }
 
-function initDecoderWASM (): Promise<void> {
-    const Module = meshopt_wasm_factory;
+function initDecoderWASM (wasm_factory: any, wasm_url: string): Promise<void> {
     function instantiate (importObject: WebAssembly.Imports): any {
-        return instantiateWasm(meshopt_wasm_url, importObject) as any;
+        return instantiateWasm(wasm_url, importObject) as any;
     }
-    return Promise.all([Module.ready(instantiate)]).then(() => {
-        MeshoptDecoder.supported = true;
+    return Promise.all([wasm_factory.ready(instantiate)]).then(() => {
+        MeshoptDecoder.supported = wasm_factory.supported;
         MeshoptDecoder.ready = Promise.resolve();
-        MeshoptDecoder.decodeVertexBuffer = Module.decodeVertexBuffer;
-        MeshoptDecoder.decodeIndexBuffer = Module.decodeIndexBuffer;
-        MeshoptDecoder.decodeIndexSequence = Module.decodeIndexSequence;
-        MeshoptDecoder.decodeGltfBuffer = Module.decodeGltfBuffer;
-        MeshoptDecoder.useWorkers = Module.useWorkers;
-        MeshoptDecoder.decodeGltfBufferAsync = Module.decodeGltfBufferAsync;
+        MeshoptDecoder.decodeVertexBuffer = wasm_factory.decodeVertexBuffer;
+        MeshoptDecoder.decodeIndexBuffer = wasm_factory.decodeIndexBuffer;
+        MeshoptDecoder.decodeIndexSequence = wasm_factory.decodeIndexSequence;
+        MeshoptDecoder.decodeGltfBuffer = wasm_factory.decodeGltfBuffer;
+        MeshoptDecoder.useWorkers = wasm_factory.useWorkers;
+        MeshoptDecoder.decodeGltfBufferAsync = wasm_factory.decodeGltfBufferAsync;
         logID(14203);
     });
 }
 
-export function InitDecoder (): Promise<void> {
+function shouldUseWasmModule (): boolean {
     if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            return initDecoderWASM();
-        } else {
-            return initDecoderASM();
-        }
+        return sys.hasFeature(sys.Feature.WASM);
     } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.SUPPORT as number)) {
-        return initDecoderWASM();
+        return true;
     } else {
-        return initDecoderASM();
+        return false;
     }
+}
+
+export function InitDecoder (): Promise<void> {
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/meshopt/meshopt_decoder.asm.js'),
+        import('external:emscripten/meshopt/meshopt_decoder.wasm.js'),
+        import('external:emscripten/meshopt/meshopt_decoder.wasm.wasm'),
+    ]).then(([
+        { default: meshopt_asm_factory },
+        { default: meshopt_wasm_factory },
+        { default: meshopt_wasm_url },
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initDecoderWASM(meshopt_wasm_factory, meshopt_wasm_url);
+        } else {
+            return initDecoderASM(meshopt_asm_factory);
+        }
+    }));
 }
 
 game.onPostInfrastructureInitDelegate.add(InitDecoder);
