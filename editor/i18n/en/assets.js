@@ -93,7 +93,7 @@ module.exports = {
             propertyTips: {
                 // macros
                 USE_DITHERED_ALPHA_TEST: 'Make transparency using opaque dithered alpha clip with TAA.',
-                USE_TWOSIDE: 'Two sided material for single-face objects, normal get inverse on back-face. Cull mode should set to None.',
+                USE_TWOSIDE: 'Two sided lighting for single-face objects, normal get inverse on back-face automatically. Cull mode should set to None.',
                 IS_ANISOTROPY: 'Anisotropic materials, such as hair, disc, metal with micro-wires.',
                 USE_VERTEX_COLOR: 'Use vertex color, will become darker if mesh does not contain vertex color data.',
                 FIX_ANISOTROPIC_ROTATION_MAP: 'Fix the anomalous seam at the black-white joint of the anisotropic rotation map, turn it on if you encounter this problem.',
