@@ -71,7 +71,13 @@ CCProgram tonemap-fs %{
       worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);
     #endif
 
+    // HDR fog
     // todo: apply fogColorBrightness to linear fogColor for supporting scatter lighting with HDR
+    #if CC_USE_FOG != CC_FOG_NONE
+      float fogFactor = 1.0;
+      CC_TRANSFER_FOG_BASE(worldPos, fogFactor);
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #endif
 
     // tone mapping
     if (!DebugViewNeedDisplayOriginalData()) {
@@ -82,11 +88,6 @@ CCProgram tonemap-fs %{
     }
 
     // LDR fog
-    #if CC_USE_FOG != CC_FOG_NONE
-      float fogFactor = 1.0;
-      CC_TRANSFER_FOG_BASE(worldPos, fogFactor);
-      CC_APPLY_FOG_BASE(color, fogFactor);
-    #endif
 
     return color;
   }
