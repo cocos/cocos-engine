@@ -347,9 +347,7 @@ jobs:
           echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
           echo "=============== Do not import game.ts for cocos_worker.ts ==============="
-          sed -i "s@import . launchEngine .@const window = globalThis;//@g" ./entry/src/main/ets/workers/cocos_worker.ts
-          sed -i 's@launchEngine().then@/*@g' ./entry/src/main/ets/workers/cocos_worker.ts
-          sed -i 's@window.oh.postMessage@*/window.oh.postMessage@g' ./entry/src/main/ets/workers/cocos_worker.ts
+          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ts
 
           echo "=============== EXECUTE hvigorw ==============="
           ./hvigorw clean -i
