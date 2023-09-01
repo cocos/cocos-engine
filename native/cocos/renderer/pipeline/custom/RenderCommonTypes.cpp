@@ -153,7 +153,8 @@ MovePair::MovePair(MovePair&& rhs, const allocator_type& alloc)
   numSlices(rhs.numSlices),
   targetMostDetailedMip(rhs.targetMostDetailedMip),
   targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
+  targetPlaneSlice(rhs.targetPlaneSlice),
+  possibleUsage(rhs.possibleUsage) {}
 
 MovePair::MovePair(MovePair const& rhs, const allocator_type& alloc)
 : source(rhs.source, alloc),
@@ -162,7 +163,8 @@ MovePair::MovePair(MovePair const& rhs, const allocator_type& alloc)
   numSlices(rhs.numSlices),
   targetMostDetailedMip(rhs.targetMostDetailedMip),
   targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
+  targetPlaneSlice(rhs.targetPlaneSlice),
+  possibleUsage(rhs.possibleUsage) {}
 
 } // namespace render
 
