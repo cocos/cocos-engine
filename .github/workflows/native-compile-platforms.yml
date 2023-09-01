@@ -312,6 +312,8 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-oh/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-oh/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-oh/proj/cfg.cmake
+          echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+          echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
 
           echo "=============== cat build-oh/proj/cfg.cmake ==============="
           cat build-oh/proj/cfg.cmake
