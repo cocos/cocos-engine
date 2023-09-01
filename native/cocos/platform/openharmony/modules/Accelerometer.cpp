@@ -25,6 +25,7 @@
 
 #include "platform/openharmony/modules/Accelerometer.h"
 #include "platform/openharmony/napi/NapiHelper.h"
+
 namespace cc {
 
 void Accelerometer::setAccelerometerEnabled(bool isEnabled) {
@@ -36,23 +37,25 @@ void Accelerometer::setAccelerometerInterval(float interval) {
 }
 
 const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
-
-    ccstd::vector<float>  v;
-    NapiHelper::napiCallFunction<std::vector<float> >("getDeviceMotionValue", &v);
     static MotionValue motionValue;
-    if (!v.empty()) {
-        
-        motionValue.accelerationIncludingGravityX = v[0];
-        motionValue.accelerationIncludingGravityY = v[1];
-        motionValue.accelerationIncludingGravityZ = v[2];
+    Napi::Value ret = NapiHelper::napiCallFunction("getDeviceMotionValue");
+    if (!ret.IsArray()) {
+        return motionValue;
+    }
 
-        motionValue.accelerationX = v[3];
-        motionValue.accelerationY = v[4];
-        motionValue.accelerationZ = v[5];
+    auto v = ret.As<Napi::Array>();
+    if (v.Length() == 9) {
+        motionValue.accelerationIncludingGravityX = static_cast<Napi::Value>(v[(uint32_t)0]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationIncludingGravityY = static_cast<Napi::Value>(v[1]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationIncludingGravityZ = static_cast<Napi::Value>(v[2]).As<Napi::Number>().FloatValue();
 
-        motionValue.rotationRateAlpha = v[6];
-        motionValue.rotationRateBeta = v[7];
-        motionValue.rotationRateGamma = v[8];
+        motionValue.accelerationX = static_cast<Napi::Value>(v[3]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationY = static_cast<Napi::Value>(v[4]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationZ = static_cast<Napi::Value>(v[5]).As<Napi::Number>().FloatValue();
+
+        motionValue.rotationRateAlpha = static_cast<Napi::Value>(v[6]).As<Napi::Number>().FloatValue();
+        motionValue.rotationRateBeta = static_cast<Napi::Value>(v[7]).As<Napi::Number>().FloatValue();
+        motionValue.rotationRateGamma = static_cast<Napi::Value>(v[8]).As<Napi::Number>().FloatValue();
     } else {
         memset(&motionValue, 0, sizeof(motionValue));
     }

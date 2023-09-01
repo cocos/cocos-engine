@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { PREVIEW } from 'internal:constants';
+import { NATIVE, PREVIEW } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const require: (path: string) =>  Promise<void>;
@@ -38,7 +38,7 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 }
 
 export function loadJsFile (path: string): Promise<void> {
-    if (window.oh) {
+    if (NATIVE && window.oh && window.scriptEngineType === 'napi') {
         // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
         window.oh.loadModule(path);
         return Promise.resolve();

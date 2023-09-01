@@ -67,7 +67,7 @@ void jsToSeValue(const target_value& value, Value* v) {
             }
             break;
         case napi_valuetype::napi_bigint:
-            //NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_bigint_int64(ScriptEngine::getEnv(), value, &iRet, &lossless));
+            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_bigint_int64(ScriptEngine::getEnv(), value, &iRet, &lossless));
             if (lossless) {
                 v->setInt64(iRet);
             } else {
@@ -161,8 +161,7 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
             ret = (status == napi_ok);
             break;
         case Value::Type::BigInt:
-            //NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
-            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), v.toDouble(), outJsVal));
+            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
             ret = (status == napi_ok);
             break;
         default:

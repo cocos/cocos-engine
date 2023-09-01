@@ -26,14 +26,27 @@
 import worker from '@ohos.worker';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
+<% if(!useV8) { %>
 import { launchEngine } from '../cocos/game'
-import {PortProxy} from '../common/PortProxy.ts'
+<% } %>
+import {PortProxy} from '../common/PortProxy'
+
+globalThis.oh = globalThis.oh || {};
+
+if (!(console as any).assert) {
+    (console as any).assert = function(cond, msg) {
+        if (!cond) {
+            throw new Error(msg);
+        }
+    };
+}
 
 const nativeContext = nativerender.getContext(ContextType.WORKER_INIT);
 nativeContext.workerInit()
 
 const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
 const nativeWebView = nativerender.getContext(ContextType.WEBVIEW_UTILS);
+const nativeVideo = nativerender.getContext(ContextType.VIDEO_UTILS);
 
 let uiPort = new PortProxy(worker.parentPort);
 nativeContext.postMessage = function(msgType: string, msgData:string) {
@@ -57,15 +70,18 @@ uiPort._messageHandle = function(e) {
         case "onXCLoad":
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
+
+            <% if(!useV8) { %>
             launchEngine().then(() => {
                 console.info('launch CC engine finished');
             }).catch(e => {
                 console.error('launch CC engine failed');
             });
+            <% } %>
            // @ts-ignore
-            window.oh.postMessage = nativeContext.postMessage;
+            globalThis.oh.postMessage = nativeContext.postMessage;
            // @ts-ignore
-            window.oh.postSyncMessage = nativeContext.postSyncMessage;
+            globalThis.oh.postSyncMessage = nativeContext.postSyncMessage;
             renderContext.nativeEngineStart();
             break;
         case "onTextInput":
@@ -85,10 +101,12 @@ uiPort._messageHandle = function(e) {
             break;
         case "onVideoEvent":
             // @ts-ignore
-            if(window.oh && typeof window.oh.onVideoEvent === "function") {
+            if(globalThis.oh && typeof globalThis.oh.onVideoEvent === "function") {
                 // @ts-ignore
-                window.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
-            }
+                globalThis.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
+            } else {
+	    	nativeVideo.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
+	    }
             break;
         default:
             console.error("cocos worker: message type unknown");
