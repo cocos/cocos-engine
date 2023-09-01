@@ -42,14 +42,15 @@ CCProgram copy-fs %{
 
 CCProgram tonemap-fs %{
   precision highp float;
+  #define CC_SURFACES_ENABLE_DEBUG_VIEW 1
   #include <builtin/uniforms/cc-global>
   #include <common/common-define>
-  #include <common/color/gamma>
-  #include <common/color/aces>
+  #include <common/data/packing>
   #include <common/debug/debug-view-define>
+  #include <common/color/gamma>
+  #include <common/color/tone-mapping>
   #include <common/math/coordinates>
   #include <builtin/functionalities/fog>
-  #include <common/data/packing>
 
   in vec2 v_uv;
 
@@ -60,16 +61,7 @@ CCProgram tonemap-fs %{
 
   layout(location = 0) out vec4 fragColor;
 
-  vec3 HDR2LDR_PostProcess(vec3 color) {
-    #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == TONE_MAPPING_ACES
-      return ACESToneMap(color.rgb);
-    #else
-      return color.rgb;
-    #endif
-  }
-
   vec4 CCFragOutput_PostProcess(vec4 color) {
-
     // fog related
     vec4 worldPos = vec4(0.0);
     #if CC_USE_FOG != CC_FOG_NONE
@@ -79,12 +71,12 @@ CCProgram tonemap-fs %{
       worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);
     #endif
 
-    // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
+    // todo: apply fogColorBrightness to linear fogColor for supporting scatter lighting with HDR
 
     // tone mapping
     if (!DebugViewNeedDisplayOriginalData()) {
       #if CC_USE_FLOAT_OUTPUT
-        color.rgb = HDR2LDR_PostProcess(color.rgb);
+        color.rgb = HDRToLDR(color.rgb);
         color.rgb = LinearToSRGB(color.rgb);
       #endif
     }
