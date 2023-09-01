@@ -456,11 +456,9 @@ export class Mask extends Component {
 
     protected _removeMaskNode (): void {
         if (this._sprite) {
-            this._sprite.destroy();
             this._sprite = null;
         }
         if (this._graphics) {
-            this._graphics.destroy();
             this._graphics = null;
         }
     }
