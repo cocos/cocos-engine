@@ -16,7 +16,6 @@ module.exports = {
     'cc.SphereLight': join(__dirname, './components/sphere-light.js'),
     'cc.SpotLight': join(__dirname, './components/spot-light.js'),
     'cc.PointLight': join(__dirname, './components/point-light.js'),
-    'cc.RangedDirectionalLight': join(__dirname, './components/ranged-directional-light.js'),
     'cc.Sprite': join(__dirname, './components/sprite.js'),
     'cc.Terrain': join(__dirname, './components/terrain.js'),
     'cc.VideoPlayer': join(__dirname, './components/video-player.js'),
