@@ -137,6 +137,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public update (): void {
+        if(!this._dirtyFlag) return;
         this._updateMatrix();
     }
 

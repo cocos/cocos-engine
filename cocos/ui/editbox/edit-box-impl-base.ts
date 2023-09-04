@@ -37,6 +37,11 @@ export class EditBoxImplBase {
      */
     public _delegate: EditBox | null = null;
 
+    /**
+     *  dirty flag to update the matrix
+     * */
+    public _dirtyFlag: boolean | null = false;
+
     public init (delegate: EditBox): void {}
 
     public onEnable (): void {}
