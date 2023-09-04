@@ -253,7 +253,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
     // fallthrough
     case DebugMode.ERROR: {
         // eslint-disable-next-line no-console
-        if (EDITOR || console.error.bind) {
+        if (EDITOR || typeof console.error.bind === 'function') {
             // use bind to avoid pollute call stacks
             // eslint-disable-next-line no-console
             ccError = console.error.bind(console);
