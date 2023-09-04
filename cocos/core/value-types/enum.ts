@@ -115,10 +115,10 @@ interface EnumExtras<EnumT> {
  * Determines if the object is an enum type.
  * @param enumType @en The object to judge. @zh 需要判断的对象。
  */
-Enum.isEnum = <EnumT extends {}>(enumType: EnumT): boolean => enumType && enumType.hasOwnProperty('__enums__');
+Enum.isEnum = <EnumT extends {}>(enumType: EnumT): boolean => enumType && Object.prototype.hasOwnProperty.call(enumType, '__enums__');
 
 function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
-    assertIsTrue(enumType.hasOwnProperty('__enums__'));
+    assertIsTrue(Object.prototype.hasOwnProperty.call(enumType, '__enums__'));
 }
 
 /**
@@ -142,13 +142,13 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  */
 function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
-    const enums: any[] = enumType.__enums__ || [];
+    const enums: Enum.Enumerator<EnumT>[] = enumType.__enums__ || [];
     enums.length = 0;
 
     for (const name in enumType) {
         const v = enumType[name];
         if (Number.isInteger(v)) {
-            enums.push({ name, value: v });
+            enums.push({ name: name as keyof EnumT, value: v });
         }
     }
     enums.sort((a, b): number => a.value - b.value);
