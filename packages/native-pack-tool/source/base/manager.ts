@@ -9,10 +9,6 @@ export class NativePackToolManager {
 
     private PackToolMap: Record<string, NativePackTool> = {};
 
-    public addChild: Function | null = null;
-
-    public removeChild: Function | null = null;
-
     private getPackTool(platform: string): NativePackTool {
         const handler = this.PackToolMap[platform];
         if (!handler) {
@@ -68,18 +64,6 @@ export class NativePackToolManager {
         }
         await tool.run();
         return true;
-    }
-
-    setAddChild(addChild: Function) {
-        if (!this.addChild) {
-            this.addChild = addChild;
-        }
-    }
-
-    setRemoveChild(removeChild: Function) {
-        if (!this.removeChild) {
-            this.removeChild = removeChild;
-        }
     }
 }
 

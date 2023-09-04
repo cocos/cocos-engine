@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import { execSync, spawn } from 'child_process';
 import * as os from 'os';
 import { CocosParams } from './base/default';
-import { nativePackToolMg } from './base/manager';
+import { processMg } from './base/process-manager';
 const iconv = require('iconv-lite');
 
 
@@ -430,21 +430,23 @@ export const toolHelper = {
 
     async runCommand(cmd: string, args: string[], cb?: (code: number, stdout: string, stderr: string) => void): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            const addChild = processMg.getAddChild();
+            const removeChild = processMg.getRemoveChild();
             const cp = spawn(cmd, args);
-            nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
+            addChild && addChild(cp);
             const stdErr: Buffer[] = [];
             const stdOut: Buffer[] = [];
             cp.stderr.on('data', (d) => stdErr.push(d));
             cp.stdout.on('data', (d) => stdOut.push(d));
             cp.on('close', (code, signal) => {
-                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                removeChild && removeChild(cp);
                 if (cb) {
                     cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
                 }
                 resolve(code === 0);
             });
             cp.on('exit', (code: number, sig: any) => {
-                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                removeChild && removeChild(cp);
                 console.log(`exit command with code ${code} and signal ${sig}`);
                 resolve(true);
             });
@@ -465,12 +467,14 @@ export const toolHelper = {
 
         return new Promise<void>((resolve, reject) => {
             console.log(`run ${cmakePath} ${args.join(' ')}`);
+            const addChild = processMg.getAddChild();
+            const removeChild = processMg.getRemoveChild();
             const cp = spawn(cmakePath, args, {
                 stdio: ['pipe', 'pipe', 'pipe'],
                 env: newEnv,
                 shell: true,
             });
-            nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
+            addChild && addChild(cp);
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if (/warning/i.test(msg)) {
@@ -488,7 +492,7 @@ export const toolHelper = {
                 }
             });
             cp.on('close', (code: number, sig: any) => {
-                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                removeChild && removeChild(cp);
                 if (code !== 0) {
                     reject(new Error(`run cmake failed "cmake ${args.join(' ')}", code: ${code}, signal: ${sig}`));
                     return;
@@ -496,7 +500,7 @@ export const toolHelper = {
                 resolve();
             });
             cp.on('exit', (code: number, sig: any) => {
-                nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                removeChild && removeChild(cp);
                 console.log(`exit cmake with code ${code} and signal ${sig}`);
                 resolve();
             });
@@ -517,12 +521,14 @@ export const toolHelper = {
                 console.error(`'xcodebuild' is not in the path`);
             } else {
                 console.log(`run xcodebuild with ${args.join(' ')}`);
+                const addChild = processMg.getAddChild();
+                const removeChild = processMg.getRemoveChild();
                 const cp = spawn(xcodebuildPath, args, {
                     stdio: ['pipe', 'pipe', 'pipe'],
                     env: newEnv,
                     shell: true,
                 });
-                nativePackToolMg.addChild && nativePackToolMg.addChild(cp);
+                addChild && addChild(cp);
                 cp.stdout.on('data', (data: any) => {
                     console.log(`[xcodebuild] ${iconv.decode(data, 'gbk').toString()}`);
                 });
@@ -530,7 +536,7 @@ export const toolHelper = {
                     console.error(`[xcodebuild] ${iconv.decode(data, 'gbk').toString()}`);
                 });
                 cp.on('close', (code: number, sig: any) => {
-                    nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                    removeChild && removeChild(cp);
                     if (code !== 0) {
                         reject(new Error(`run xcodebuild failed "xcodebuild ${args.join(' ')}", code: ${code}, signal: ${sig}`));
                         return;
@@ -538,7 +544,7 @@ export const toolHelper = {
                     resolve();
                 });
                 cp.on('exit', (code: number, sig: any) => {
-                    nativePackToolMg.removeChild && nativePackToolMg.removeChild(cp);
+                    removeChild && removeChild(cp);
                     console.log(`exit xcodebuild with code ${code} and signal ${sig}`);
                     resolve();
                 });
