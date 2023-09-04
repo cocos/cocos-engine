@@ -23,7 +23,7 @@
 */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 
 declare const require: any;
 

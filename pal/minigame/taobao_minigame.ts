@@ -23,10 +23,9 @@
 */
 
 import { IMiniGame, SystemInfo } from 'pal/minigame';
+import { cloneObject, createInnerAudioContextPolyfill, versionCompare, checkPalIntegrity, withImpl } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 import { Language } from '../system-info/enum-type';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 //taobao IDE language   ("Chinese")
 //taobao phone language (Andrond: "cn", iPad: 'zh_CN')

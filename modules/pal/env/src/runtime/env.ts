@@ -22,33 +22,36 @@
  THE SOFTWARE.
 */
 
-declare const guard: unique symbol;
+import { COCOSPLAY, HUAWEI, OPPO, VIVO } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 
-type Guard = typeof guard;
+declare const require: (path: string) =>  Promise<void>;
+declare const ral: any;
 
-/**
- * Checks if a PAL implementation module is compatible with its target interface module.
- *
- * @example
- * If you write the following in somewhere:
- *
- * ```ts
- * checkPalIntegrity<typeof import('pal-interface-module')>(
- *   withImpl<typeof import('pal-implementation-module')>());
- * ```
- *
- * you will receive a compilation error
- * if your implementation module is not fulfil the interface module.
- *
- * @note This function should be easily tree-shaken.
- */
-export function checkPalIntegrity<T> (impl: T & Guard) {
+export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
+    const container = document.createElement('div');
+    let frame;
+    if (COCOSPLAY) {
+        frame = {
+            clientWidth: window.innerWidth,
+            clientHeight: window.innerHeight,
+        } as any;
+    } else {
+        frame = container.parentNode === document.body ? document.documentElement : container.parentNode as any;
+    }
+    let canvas;
+    if (VIVO) {
+        canvas = window.mainCanvas;
+        window.mainCanvas = undefined;
+    } else {
+        canvas = ral.createCanvas();
+    }
+    return { frame, canvas, container };
 }
 
-/**
- * Utility function, see example of `checkPalIntegrity()`.
- *
- */
-export function withImpl<T> () {
-    return 0 as unknown as T & Guard;
+export function loadJsFile (path: string): Promise<void> {
+    // eslint-disable-next-line import/no-dynamic-require
+    return require(`${path}`);
 }
+
+checkPalIntegrity<typeof import('@pal/env')>(withImpl<typeof import('./env')>());

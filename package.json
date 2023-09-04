@@ -1,4 +1,5 @@
 {
+  "$schema": "./schemas/module-config.schema.json",
   "name": "cocos-creator",
   "version": "3.8.2",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in C++ and TypeScript, licensed under MIT.",
@@ -12,6 +13,8 @@
     "node": ">=18.0.0"
   },
   "workspaces": [
+    "modules/*",
+    "modules/pal/*",
     "packages/*"
   ],
   "scripts": {
@@ -20,14 +23,13 @@
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
-    "build-declaration": "npm run build-const && gulp build-declarations",
+    "build-declaration": "turbo build && gulp build-declarations",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
     "varify-engine-version": "node ./scripts/varify-engine-version.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "bundle-adapter": "node ./scripts/bundle-adapter.js",
-    "build-const": "node ./scripts/build-consts.js",
     "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
@@ -37,7 +39,16 @@
     "type": "git",
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
+  "dependencies": {
+    "@pal/env": "*",
+    "@pal/utils": "*",
+    "@cocos/box2d": "1.0.1",
+    "@cocos/cannon": "1.2.8",
+    "@cocos/ccbuild": "2.0.3-alpha.7",
+    "@cocos/dragonbones-js": "^1.0.1"
+  },
   "devDependencies": {
+    "@cocos/types": "*",
     "@types/node": "^20.5.9",
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
@@ -93,11 +104,5 @@
     "vinyl-source-stream": "^2.0.0",
     "which": "^2.0.2",
     "yargs": "^12.0.5"
-  },
-  "dependencies": {
-    "@cocos/box2d": "1.0.1",
-    "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "2.0.3-alpha.7",
-    "@cocos/dragonbones-js": "^1.0.1"
   }
 }

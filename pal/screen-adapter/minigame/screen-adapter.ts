@@ -26,12 +26,12 @@ import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const my: any;
 

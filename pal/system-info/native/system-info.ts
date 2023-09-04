@@ -23,8 +23,8 @@
 */
 
 import { OPEN_HARMONY } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { EventTarget } from '../../../cocos/core/event';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 type IFeatureMap = {

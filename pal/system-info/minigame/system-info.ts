@@ -25,8 +25,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { EventTarget } from '../../../cocos/core/event';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here

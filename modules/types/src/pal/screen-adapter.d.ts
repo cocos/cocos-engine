@@ -70,14 +70,14 @@ declare module 'pal/screen-adapter' {
         /**
          * Get and set the size of current window in physical pixels.
          */
-        public get windowSize (): import('cocos/core/math').Size;
-        public set windowSize (size: import('cocos/core/math').Size);
+        public get windowSize (): import('../../../../cocos/core/math').Size;
+        public set windowSize (size: import('../../../../cocos/core/math').Size);
 
         /**
          * Get the current resolution of game.
          * This is a readonly property, you can change the value by setting screenAdapter.resolutionScale.
          */
-        public get resolution (): import('cocos/core/math').Size;
+        public get resolution (): import('../../../../cocos/core/math').Size;
 
         /**
          * Get and set the resolution scale of screen, which will affect the quality of the rendering.
@@ -90,8 +90,8 @@ declare module 'pal/screen-adapter' {
          * Get or set the orientation of current game.
          * Available on mobile related platform for now.
          */
-        public get orientation (): import('pal/screen-adapter/enum-type').Orientation;
-        public set orientation (value: import('pal/screen-adapter/enum-type').Orientation);
+        public get orientation (): import('../../../../pal/screen-adapter/enum-type').Orientation;
+        public set orientation (value: import('../../../../pal/screen-adapter/enum-type').Orientation);
 
         /**
          * Get the SafeAreaEdge based on the screen coordinate system in physical pixels.
@@ -111,9 +111,9 @@ declare module 'pal/screen-adapter' {
          */
         public exitFullScreen (): Promise<void>;
 
-        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
-        once (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
-        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any) => void, target?: any);
+        on (event: import('../../../../pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        once (event: import('../../../../pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        off (event: import('../../../../pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any) => void, target?: any);
     }
 
     export const screenAdapter: ScreenAdapter;

@@ -1,9 +1,9 @@
 declare module 'pal/image' {
 
-    export type ImageSource = import('pal/image/types').ImageSource;
-    export type IMemoryImageSource = import('pal/image/types').IMemoryImageSource;
-    export type PixelFormat = import('cocos/asset/assets/asset-enum').PixelFormat;
-    export type RawDataType = import('pal/image/types').RawDataType;
+    export type ImageSource = import('../../../../pal/image/types').ImageSource;
+    export type IMemoryImageSource = import('../../../../pal/image/types').IMemoryImageSource;
+    export type PixelFormat = import('../../../../cocos/asset/assets/asset-enum').PixelFormat;
+    export type RawDataType = import('../../../../pal/image/types').RawDataType;
     export class ImageData {
         constructor (source?: ImageSource | ArrayBufferView);
         /**

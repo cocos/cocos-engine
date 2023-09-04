@@ -26,11 +26,11 @@
 /* eslint-disable no-new-func */
 
 import { DEV } from 'internal:constants';
+import { setTimeoutRAF } from '@pal/utils';
 import { getClassName, getset, isEmptyObject } from './js';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
-import { setTimeoutRAF } from '../../../pal/utils';
 import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
