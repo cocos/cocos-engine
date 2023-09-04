@@ -357,7 +357,7 @@ export class Camera extends Component {
     @visible(function (this: Camera): boolean {
         return this._projection === ProjectionType.ORTHO;
     })
-    @rangeMin(1)
+    @rangeMin(0)
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight (): number {
         return this._orthoHeight;
