@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/module-config.schema.json",
   "name": "@cocos/build-engine",
   "version": "4.4.1",
   "description": "",
@@ -7,9 +8,9 @@
     "url": "https://github.com/cocos-creator/engine.git",
     "directory": "scripts/build-engine"
   },
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "files": [
-    "dist/",
+    "lib/",
     "static/"
   ],
   "dependencies": {
@@ -33,7 +34,7 @@
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.2",
-    "tfig": "3.2.6-alpha.3",
+    "tfig": "3.3.1",
     "typescript": "^4.3.5",
     "yargs": "^15.1.0"
   },
@@ -56,7 +57,7 @@
     "typescript": "^3.7.2"
   },
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "clear": "node ./scripts/clear.mjs",
     "prepublishOnly": "npm run clear & npm run build",
     "gen-config-json-schema": "npx ts-json-schema-generator -t Config -p ./src/config-interface.ts -o ./cc.config.schema.json",

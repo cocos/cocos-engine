@@ -39,7 +39,7 @@ gulp.task('build-debug-infos', async () => {
 });
 
 gulp.task('build-source', async () => {
-    const cli = require.resolve('@cocos/build-engine/dist/cli');
+    const cli = require.resolve('@cocos/build-engine/lib/cli');
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
@@ -56,7 +56,7 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
     const outDir = ps.join('bin', 'dev', 'cc');
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
-    const cli = require.resolve('@cocos/build-engine/dist/cli');
+    const cli = require.resolve('@cocos/build-engine/lib/cli');
     const exitCode = await new Promise((resolve, reject) => {
         cp.spawn('node', [
             cli,
@@ -86,7 +86,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
     const outDir = ps.join('bin', 'dev', 'cc-min');
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
-    const cli = require.resolve('@cocos/build-engine/dist/cli');
+    const cli = require.resolve('@cocos/build-engine/lib/cli');
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
@@ -106,7 +106,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
 
 gulp.task('build-declarations', async () => {
     const outDir = ps.join('bin', '.declarations');
-    const { build } = require('@cocos/build-engine/dist/build-declarations');
+    const { build } = require('@cocos/build-engine/lib/build-declarations');
     await fs.emptyDir(outDir);
     return await build({
         engine: __dirname,

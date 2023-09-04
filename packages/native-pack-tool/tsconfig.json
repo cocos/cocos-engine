@@ -7,9 +7,9 @@
       "sourceMap": true,
       "declaration": true,
       "rootDir": "./source",
-      "outDir": "./dist"
+      "outDir": "./lib"
     },
     "exclude": [
-        "dist",
+        "lib",
     ]
 }

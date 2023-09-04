@@ -11,9 +11,12 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
+    "postinstall": "turbo build && gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -28,9 +31,7 @@
     "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
-    "test": "gulp test",
-    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production",
-    "install:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -41,9 +42,9 @@
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.4.1",
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^24.9.1",
+    "@types/istanbul-lib-report": "^3.0.0",
+    "@types/jest": "^28.1.8",
     "@types/yargs": "^12.0.14",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -83,8 +84,8 @@
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
     "ts-jest": "^28.0.8",
+    "turbo": "^1.10.12",
     "typedoc": "^0.22.13",
-    "typedoc-plugin-cc": "file:scripts/typedoc-plugin",
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
     "vinyl-buffer": "^1.0.1",

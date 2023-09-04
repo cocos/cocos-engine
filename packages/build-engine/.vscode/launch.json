@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             // "stopOnEntry": true,
-            "program": "${workspaceFolder}\\dist\\cli.js",
+            "program": "${workspaceFolder}\\lib\\cli.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
@@ -64,7 +64,7 @@
                 "<node_internals>/**"
             ],
             // "stopOnEntry": true,
-            "program": "${workspaceFolder}\\dist\\cli.js",
+            "program": "${workspaceFolder}\\lib\\cli.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],

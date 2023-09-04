@@ -63,7 +63,7 @@ nativePackToolMg.register('windows', new WindowsPackTool());
         "command": "npm run pack",
         "name": "npm run pack",
         "request": "launch",
-        "cwd": "${workspaceRoot}/scripts/native-pack-tool", // 实际的构建项目目录（cocos.compile.config.json 所在目录）
+        "cwd": "${workspaceRoot}/packages/native-pack-tool", // 实际的构建项目目录（cocos.compile.config.json 所在目录）
         "args": [
             "E:\\test-cases-3d\\build\\android2",
             "create"

@@ -7,10 +7,10 @@
     "sourceMap": true,
     "declaration": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "lib"
   },
   "exclude": [
-      "dist",
+      "lib",
       "out",
       "tests/**/*"
   ]

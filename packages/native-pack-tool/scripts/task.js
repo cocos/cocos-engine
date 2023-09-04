@@ -51,7 +51,7 @@ function getCurrentProject () {
 
 // main
 const cocosParams = getParams();
-const { nativePackToolMg } = require('../dist/index');
+const { nativePackToolMg } = require('../lib/index');
 nativePackToolMg.init(cocosParams);
 
 const tasks = getTasksFromArgs();
