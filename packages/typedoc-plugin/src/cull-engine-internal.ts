@@ -1,15 +1,15 @@
 import { Reflection, ReflectionKind, SerializeEvent } from "typedoc";
+import { migrateComment, migrateGetSetSignature, migrateGroups, migrateKindString, migrateUrl } from "./migration-0.23-to-0.22";
 
 const TAG_ENGINE_INTERNAL = 'engineInternal'.toLowerCase();
 
 export function cullEngineInternal (serializeOutput: SerializeEvent['output']): void {
-    traverseObject(serializeOutput);
+    traverseObject(serializeOutput!);
 }
 
-function hasTagEngineInternal (obj: Reflection): boolean {
+function hasTagEngineInternal (obj: Record<string, any>): boolean {    
     if (obj.comment?.tags) {
         for (const tagItem of obj.comment.tags) {
-            // @ts-expect-error Property 'tag' does not exist on type 'CommentTag'.
             if (tagItem.tag === TAG_ENGINE_INTERNAL) {
                 return true;
             }
@@ -20,12 +20,15 @@ function hasTagEngineInternal (obj: Reflection): boolean {
 }
 
 function traverseObject (obj: Record<string, any>, recentGroups?: any[]): void {
+    migrateUrl(obj);
+    migrateKindString(obj);
+    
     for (const key in obj) {
         if (key === 'groups') {
             continue;
         }
         const item = obj[key];
-        if (typeof item === 'number' || typeof item === 'string' || typeof item === 'undefined') {
+        if (typeof item === 'number' || typeof item === 'string' || typeof item === 'boolean' || typeof item === 'undefined') {
             continue;
         }
         if (Array.isArray(item)) {
@@ -37,9 +40,11 @@ function traverseObject (obj: Record<string, any>, recentGroups?: any[]): void {
 }
 
 function traverseArray (arr: Array<any>, recentGroups?: any[]): void {
+    recentGroups && migrateGroups(recentGroups);
+
     for (let i = arr.length - 1; i >= 0; --i) {
         const item = arr[i];
-        if (typeof item === 'number' || typeof item === 'string') {
+        if (typeof item === 'number' || typeof item === 'string' || typeof item === 'boolean') {
             continue;
         }
         if (Array.isArray(item)) {
@@ -83,6 +88,8 @@ function handleObject (obj: Record<string, any>): boolean {
     if (!isReflection(obj)) {
         return false;
     }
+    obj.comment && migrateComment(obj.comment);
+
     switch(obj.kind) {
     case ReflectionKind.Namespace:
     case ReflectionKind.Enum:
@@ -128,19 +135,21 @@ function handleFunctionOrMethod (funcOrMethod: Record<string, any>): boolean {
  * @returns whether we need to remove the object from array
  */
 function handleAccessor (accessor: Record<string, any>): boolean {
-    let needRemove = true;
-    if (Array.isArray(accessor.getSignature)) {
-        traverseArray(accessor.getSignature);
-        if (accessor.getSignature.length !== 0) {
-            needRemove = false;
+    let needRemove = false;
+    if (accessor.getSignature) {
+        accessor.getSignature.comment && migrateComment(accessor.getSignature.comment);
+        if (hasTagEngineInternal(accessor.getSignature)) {
+            needRemove = true;
         }
     }
-    if (Array.isArray(accessor.setSignature)) {
-        traverseArray(accessor.setSignature);
-        if (accessor.setSignature.length !== 0) {
-            needRemove = false;
+    if (accessor.setSignature) {
+        accessor.setSignature.comment && migrateComment(accessor.setSignature.comment);
+        if (hasTagEngineInternal(accessor.setSignature)) {
+            needRemove = true;            
         }
     }
+
+    migrateGetSetSignature(accessor);
     return needRemove;
 }
 
