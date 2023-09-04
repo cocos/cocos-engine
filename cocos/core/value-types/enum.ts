@@ -140,7 +140,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @return {Object[]}
  */
-function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
+function updateList<EnumT extends object> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
     const enums: Enum.Enumerator<EnumT>[] = enumType.__enums__ || [];
     enums.length = 0;
@@ -151,7 +151,7 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
             enums.push({ name: name as keyof EnumT, value: v });
         }
     }
-    enums.sort((a, b): number => a.value - b.value);
+    enums.sort((a, b): number => (a.value as number) - (b.value as number));
     enumType.__enums__ = enums;
     return enums;
 }
