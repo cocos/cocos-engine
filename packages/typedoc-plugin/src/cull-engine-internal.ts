@@ -7,7 +7,7 @@ export function cullEngineInternal (serializeOutput: SerializeEvent['output']): 
     traverseObject(serializeOutput!);
 }
 
-function hasTagEngineInternal (obj: Record<string, any>): boolean {    
+function hasTagEngineInternal (obj: Record<string, any>): boolean {
     if (obj.comment?.tags) {
         for (const tagItem of obj.comment.tags) {
             if (tagItem.tag === TAG_ENGINE_INTERNAL) {
@@ -145,7 +145,7 @@ function handleAccessor (accessor: Record<string, any>): boolean {
     if (accessor.setSignature) {
         accessor.setSignature.comment && migrateComment(accessor.setSignature.comment);
         if (hasTagEngineInternal(accessor.setSignature)) {
-            needRemove = true;            
+            needRemove = true;
         }
     }
 
